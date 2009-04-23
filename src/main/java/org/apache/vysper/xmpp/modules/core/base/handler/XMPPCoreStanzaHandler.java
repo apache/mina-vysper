@@ -1,0 +1,145 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ *
+ */
+package org.apache.vysper.xmpp.modules.core.base.handler;
+
+import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
+import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.protocol.StanzaHandler;
+import org.apache.vysper.xmpp.protocol.StreamErrorCondition;
+import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
+import org.apache.vysper.xmpp.stanza.IQStanzaType;
+import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
+import org.apache.vysper.xmpp.xmlfragment.Attribute;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * foundation for the three core protocol stanzas: iq, message, presence
+ *
+ * @author The Apache MINA Project (dev@mina.apache.org)
+ * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
+ */
+public abstract class XMPPCoreStanzaHandler implements StanzaHandler {
+
+    final static Logger logger = LoggerFactory.getLogger(XMPPCoreStanzaHandler.class);
+
+    public boolean verify(Stanza stanza) {
+        boolean typeVerified = verifyType(stanza);
+        boolean namespaceVerified = verifyNamespace(stanza);
+        return typeVerified && namespaceVerified;
+    }
+
+    public boolean isSessionRequired() {
+        return true;
+    }
+
+    protected abstract boolean verifyType(Stanza stanza);
+
+    protected boolean verifyNamespace(Stanza stanza) {
+        return true;
+    }
+
+
+    public ResponseStanzaContainer execute(Stanza anyStanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder) {
+        XMPPCoreStanza stanza = XMPPCoreStanza.getWrapper(anyStanza);
+        if (stanza == null) throw new IllegalArgumentException("can only handle core XMPP stanzas (iq, message, presence)");
+
+        // type="error" is common to all stanza, check here some prerequisites
+        Attribute typeAttribute = stanza.getAttribute("type");
+        XMPPCoreStanza xmppCoreStanza = XMPPCoreStanza.getWrapper(stanza);
+        if (xmppCoreStanza != null && typeAttribute != null)
+        {
+            String errorDescription = null;
+            String type = typeAttribute.getValue();
+            if (IQStanzaType.ERROR.value().equals(type)) {
+                // assure, result contains zero or one element
+                // rfc3920/9.2.3/7.
+                if (!stanza.getVerifier().subElementPresent("error")) {
+                    errorDescription = "stanza of type error must include an 'error' child";
+                }
+            } else {
+                // assure, non-error result does not contain error
+                // rfc3920/9.2.3/7. + rfc3920/9.3.1/3.
+                if (stanza.getVerifier().subElementPresent("error")) {
+                    errorDescription = "stanza which is not of type error must not include an 'error' child";
+                }
+            }
+
+            // at this point, we are not allowed to respond with another error
+            // we cannot really close the stream
+            // we simply ignore it.
+            /*ResponseStanzaContainerImpl errorResponseContainer = new ResponseStanzaContainerImpl(
+                    ServerErrorResponses.getInstance().getErrorResponse(xmppCoreStanza,
+                            StanzaErrorType.MODIFY, StanzaErrorCondition.BAD_REQUEST,
+                            errorDescription,
+                            sessionContext.getXMLLang(), null)
+            );
+            return errorResponseContainer;*/
+        }
+
+        Entity to = stanza.getTo();
+        if (sessionContext != null && sessionContext.isServerToServer() && to == null) {
+            // "to" MUST be present for jabber:server
+            return new ResponseStanzaContainerImpl(ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.IMPROPER_ADDRESSING, stanza.getXMLLang(), "missing to attribute", null));
+        }
+
+        if (to != null) {
+            // TODO ensure, that RFC3920 9.1.1 "If the value of the 'to' attribute is invalid or cannot be contacted..." is enforced
+        }
+
+        Stanza responseStanza = executeCore(stanza, serverRuntimeContext, isOutboundStanza, sessionContext);
+
+        if (responseStanza != null) return new ResponseStanzaContainerImpl(responseStanza);
+
+        return null;
+    }
+
+    protected abstract Stanza executeCore(XMPPCoreStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza, SessionContext sessionContext);
+
+    /**
+     * a client might send a stanza without a 'from' attribute, if the sending (bare or full) entity can be determined
+     * from the context. such a missing from is determined here, if possible.
+     * for a formal discussion, see RFC3921bis/Resource Binding/Binding multiple resources/From Addresses
+     * @param stanza
+     * @param sessionContext
+     */
+    public static Entity determineFrom(XMPPCoreStanza stanza, SessionContext sessionContext) {
+        Entity from = stanza.getFrom();
+        if (from != null) return from;
+
+        // try to build something together from initiating entity and a bound resource
+        Entity initiatingEntity = sessionContext.getInitiatingEntity();
+        if (initiatingEntity == null) throw new RuntimeException("no 'from' attribute, and initiating entity not set: cannot determine sender of roster IQ");
+
+        String resourceId = sessionContext.getServerRuntimeContext().getResourceRegistry().getUniqueResourceForSession(sessionContext);
+        if (resourceId == null) {
+            logger.warn("no 'from' attribute, and cannot uniquely determine sending resource for initiating entity {} in session {}", initiatingEntity.getFullQualifiedName(), sessionContext.getSessionId());
+            return null;
+        }
+        from = new EntityImpl(initiatingEntity, resourceId);
+        return from;
+    }
+}

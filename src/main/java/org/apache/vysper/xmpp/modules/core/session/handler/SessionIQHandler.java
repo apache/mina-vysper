@@ -1,0 +1,62 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ *
+ */
+package org.apache.vysper.xmpp.modules.core.session.handler;
+
+import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.stanza.IQStanza;
+import org.apache.vysper.xmpp.stanza.IQStanzaType;
+import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+
+/**
+ * handles session requests
+ *
+ * @author The Apache MINA Project (dev@mina.apache.org)
+ * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
+ */
+public class SessionIQHandler extends IQHandler {
+
+    @Override
+    protected boolean verifyNamespace(Stanza stanza) {
+        return verifyInnerNamespace(stanza, NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SESSION);
+    }
+
+    @Override
+    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+
+        switch (stanza.getIQType()) {
+
+            case SET:
+                return StanzaBuilder.createIQStanza(null, null, IQStanzaType.RESULT, stanza.getID())
+                                    .addAttribute("from", sessionContext.getServerJID().getFullQualifiedName()).getFinalStanza();
+
+            case GET:
+            case ERROR:
+            default:
+                new RuntimeException("iq stanza type not supported: " + stanza.getIQType());
+        }
+
+        return null;
+    }
+
+}

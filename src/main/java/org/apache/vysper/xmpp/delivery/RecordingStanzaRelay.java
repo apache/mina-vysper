@@ -1,0 +1,85 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ *
+ */
+package org.apache.vysper.xmpp.delivery;
+
+import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.stanza.Stanza;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+
+/**
+ * a relay which does not relay anything but simply records the sequence of entity/stanza pairs received
+ * and makes it accessible for debugging or testing purposes
+ * for a little bit more advanced testing relay see StanzaReceiverRelay
+ *
+ * @author The Apache MINA Project (dev@mina.apache.org)
+ * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
+ */
+public class RecordingStanzaRelay implements StanzaRelay {
+
+    private final ArrayList<Triple> entityStanzaPairs = new ArrayList<Triple>();
+    private boolean acceptingMode = true;
+
+    public void relay(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy) throws DeliveryException {
+        if (!acceptingMode) return;
+        entityStanzaPairs.add(new Triple(receiver, stanza, deliveryFailureStrategy));
+    }
+
+    public Iterator<Triple> iterator() {
+        return entityStanzaPairs.iterator();
+    }
+
+    public void reset() {
+        entityStanzaPairs.clear();
+    }
+
+    /**
+     * to easily set mode to accept all receivers (default) or to decline all
+     * this is useful for setting the behavior when testing
+     */
+    public void setAcceptingMode(boolean accepting) {
+        this.acceptingMode = accepting;
+    }
+
+    public class Triple {
+        private Entity entity;
+        private Stanza stanza;
+        private DeliveryFailureStrategy deliveryFailureStrategy;
+
+        Triple(Entity entity, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy) {
+            this.entity = entity;
+            this.stanza = stanza;
+            this.deliveryFailureStrategy = deliveryFailureStrategy;
+        }
+
+        public Entity getEntity() {
+            return entity;
+        }
+
+        public Stanza getStanza() {
+            return stanza;
+        }
+
+        public DeliveryFailureStrategy getDeliveryFailureStrategy() {
+            return deliveryFailureStrategy;
+        }
+    }
+}

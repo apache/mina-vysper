@@ -1,0 +1,45 @@
+
+Status Apache Vysper 
+####################
+
+* Overall status *
+
+currently, XMPP base protocol is evolving
+XML parsing is working and stable for regular xml stanzas
+XMPP overall protocol flow and stanza handling is stable
+session handshake is in progress, session init, TLS are working, SASL is work-in-progress
+
+
+run "ant run-unit-tests"
+
+* standards supported *
+RFC3920: incomplete
+RFC3921: incomplete
+
+
+** TODOs **
+
+* Legal *
+
+nothing currently
+
+* Streaming Features *
+RFC3920/6. SASL Support: 
+    error support 
+    tests 
+    all mechanisms other than ANONYMOUS
+RFC3920/7. Resource binding: 
+    server resource registry
+    binding logic
+    error handling
+
+* XMPP Features *
+IQ stanzas
+Message stanzas
+Presence stanzas
+
+* General Features *
+Management (including using MINA JMX features)
+User
+Kernel
+

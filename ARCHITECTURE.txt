@@ -1,0 +1,54 @@
+The system architecture is separated into parts:
+
+* Abstract protocol handling *
+
+package: o.a.v.xmpp.protocol
+
+Protocol workflow, state machine changes during handshake, consistency checks
+Delegation to concrete handling 
+ 
+* Concrete protocol handling *
+
+package: o.a.v.xmpp.applicationdomains
+
+Stanza handlers and Response builders
+Concrete processing of stanzas
+ 
+* XML parsing into fragments XMPP
+
+package: o.a.v.xmpp.xmldecoder 
+
+Determines stanza boundaries in a sequence of characters and translates into (potential) XMPP stanzas
+ 
+* Server runtime incl. session handling
+
+server instance with all its properties and switches.
+
+* Stanza infrastructure and tools
+
+packages: o.a.v.xmpp.stanza, o.a.v.xmpp.xmlfragment
+
+handles stanza objects freed from any representation (XML)
+
+* TCP binding
+
+package: o.a.v.mina
+
+binding to TCP protocol endpoint, handling endpoint events, delivering data from/to XML parsing 
+
+* SASL authorization mechanism logic
+
+package: o.a.v.xmpp.authorization
+
+* SEDA: staged event driven architecture
+
+available stages:
+
+reading from TCP/IP socket - XMLStreamTokenizer
+handling inbound stanzas from client - QueuedStanzaProcessor
+handling outbound stanzas to clients - DeliveringStanzaRelay
+
+missing stages:
+
+handling outbound stanzas to servers - RecordingStanzaRelay (provisorial implementation)
+handling inbound stanzas issued by self or remote servers (to go to clients or not) - missing!

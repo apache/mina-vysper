@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<!--
+ ! Copyright (c) 2008 The Apache Software Foundation.                  !
+ ! All rights reserved.                                                !
+ !                                                                     !
+ ! Licensed under the Apache License, Version 2.0 (the "License"); you !
+ ! may not use this file except in compliance with the License. You    !
+ ! may obtain a copy of the License at:                                !
+ !                                                                     !
+ !     http://www.apache.org/licenses/LICENSE-2.0                      !
+ !                                                                     !
+ ! Unless required by applicable law or agreed to in writing, software !
+ ! distributed under the License is distributed on an "AS IS" BASIS,   !
+ ! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or     !
+ ! implied.  See the License for the specific language governing       !
+ ! permissions and limitations under the License.                      !
+ -->
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false">
+
+   <appender name="CONS" class="org.apache.log4j.ConsoleAppender">
+      <param name="Target" value="System.out"/>
+      <param name="Threshold" value="TRACE"/>
+
+      <layout class="org.apache.log4j.PatternLayout">
+          <param name="ConversionPattern" value="%d{HH:mm:ss,SSS} | %-5p | %c | %m%n"/>
+      </layout>
+   </appender>
+
+   <appender name="FILE" class="org.apache.log4j.RollingFileAppender">
+     <param name="File" value="log/vysper_server.log"/>
+     <param name="Append" value="true"/>
+     <param name="MaxFileSize" value="500KB"/>
+     <param name="MaxBackupIndex" value="1"/>
+     <param name="Threshold" value="INFO"/>
+
+     <layout class="org.apache.log4j.PatternLayout">
+       <param name="ConversionPattern" value="%d{HH:mm:ss,SSS} | %-5p | %c | %m%n"/>
+     </layout>
+   </appender>
+
+   <appender name="STANZA" class="org.apache.log4j.RollingFileAppender">
+     <param name="File" value="log/stanza.log"/>
+     <param name="Append" value="true"/>
+     <param name="MaxFileSize" value="500KB"/>
+     <param name="MaxBackupIndex" value="1"/>
+     <param name="Threshold" value="INFO"/>
+
+     <layout class="org.apache.log4j.PatternLayout">
+       <param name="ConversionPattern" value="%-5p %d{HH:mm:ss,SSS} | %c{1} | %m%n"/>
+     </layout>
+   </appender>
+
+   <!-- limit logging for spring -->
+   <category name="org.springframework">
+     <priority value="INFO"/>
+   </category>
+
+   <!-- limit logging for mina -->
+   <category name="org.apache.mina">
+     <priority value="WARN"/>
+   </category>
+   <category name="org.apache.vysper.mina">
+     <priority value="WARN"/>
+   </category>
+
+   <!-- limit logging for jackrabbit -->
+   <category name="org.apache.jackrabbit">
+     <priority value="INFO"/>
+   </category>
+
+   <category name="org.apache.vysper">
+     <priority value="DEBUG"/>
+   </category>
+
+   <category name="stanza">
+     <priority value="INFO"/>
+     <appender-ref ref="STANZA" />  
+   </category>
+
+   <root >
+     <appender-ref ref="CONS"/>
+     <appender-ref ref="FILE"/>
+   </root>
+
+</log4j:configuration>

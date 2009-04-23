@@ -1,0 +1,37 @@
+** Contributing **
+
+You can contribute by creating a new JIRA issue entry (or working on an existing).
+JIRA can be found at https://issues.apache.org/jira
+You need an account there. 
+
+Go to category LABS, component VYSPER. 
+Useful URL: https://issues.apache.org/jira/browse/LABS/component/12311991
+
+Any contribution should come in form of a patch attached to a JIRA entry.  
+
+Currently, all coding is done unit test driven. Well, at least it should ;-)
+
+** Tools ** 
+
+Apache Ant is used as the build tool.
+
+** Compiling ** 
+
+ant compile.vysper
+
+** Running Unit Tests **
+
+ant run-unit-tests
+
+** Running the Server **
+
+ant run-server
+
+Server is started using class org.apache.vysper.spring.ServerMain
+
+** Running a test client **
+
+A Smack-based client can be run against the server by executing main class org.apache.vysper.smack.BasicClient
+The client also opens a UI logging all stanzas
+ 
+

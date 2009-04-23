@@ -1,0 +1,110 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ *
+ */
+package org.apache.vysper.storage.jcr.user;
+
+import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityFormatException;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.authorization.AccountCreation;
+import org.apache.vysper.xmpp.authorization.AccountCreationException;
+import org.apache.vysper.xmpp.authorization.AccountVerification;
+import org.apache.vysper.xmpp.authorization.UserAuthorization;
+import org.apache.vysper.storage.jcr.JcrStorage;
+import org.apache.vysper.storage.jcr.JcrStorageException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.jcr.Node;
+import javax.jcr.Property;
+
+/**
+ *
+ * @author The Apache MINA Project (dev@mina.apache.org)
+ * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
+ */
+public class JcrUserManagement implements UserAuthorization, AccountVerification, AccountCreation {
+
+    final Logger logger = LoggerFactory.getLogger(JcrUserManagement.class);
+
+    protected JcrStorage jcrStorage;
+    private static final String CREDENTIALS_NAMESPACE = "vysper_internal_credentials";
+
+    public JcrUserManagement(JcrStorage jcrStorage) {
+        this.jcrStorage = jcrStorage;
+    }
+
+    public boolean verifyCredentials(Entity jid, String passwordCleartext, Object credentials) {
+        if (passwordCleartext == null) return false;
+        try {
+            final Node credentialsNode = jcrStorage.getEntityNode(jid, CREDENTIALS_NAMESPACE, false);
+            if (credentialsNode == null) return false;
+            final Property property = credentialsNode.getProperty("password");
+            if (property == null) return false;
+            final String password = property.getValue().getString();
+            return passwordCleartext.equals(password);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean verifyCredentials(String username, String passwordCleartext, Object credentials) {
+        try {
+            return verifyCredentials(EntityImpl.parse(username), passwordCleartext, credentials);
+        } catch (EntityFormatException e) {
+            return false;
+        }
+    }
+
+    public boolean verifyAccountExists(Entity jid) {
+        try {
+            return jcrStorage.getEntityNode(jid, CREDENTIALS_NAMESPACE, false) != null;
+        } catch (JcrStorageException e) {
+            return false;
+        }
+    }
+
+    public void addUser(String username, String password) throws AccountCreationException {
+        final EntityImpl entity;
+        try {
+            entity = EntityImpl.parse(username);
+        } catch (EntityFormatException e) {
+            throw new AccountCreationException("username is expected to be in proper entity format, not " + username, e); // wrap as unchecked
+        }
+        // if already existent, don't create, throw error
+        try {
+            if (jcrStorage.getEntityNode(entity, CREDENTIALS_NAMESPACE, false) != null) {
+                throw new AccountCreationException("account already exists: " + entity.getFullQualifiedName());
+            }
+        } catch (JcrStorageException e) {
+            throw new AccountCreationException("account exists check failed for " + entity.getFullQualifiedName(), e);
+        }
+        // now, finally, create
+        try {
+            final Node credentialsNode = jcrStorage.getEntityNode(entity, CREDENTIALS_NAMESPACE, true);
+            credentialsNode.setProperty("password", password);
+            credentialsNode.save();
+            logger.info("JCR node created: " + credentialsNode);
+        } catch (Exception e) {
+            // TODO remove account?
+            throw new AccountCreationException("failed to create the account set credentials", e);
+        }
+
+    }
+}
