@@ -97,18 +97,19 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
     }
 
     /**
-     * @param stanza records the stanza. if NULL, the prev recorded stanza will be reset.
-     * @throws IllegalStateException if NOT NULL, and there is already a stanza recorded
+     * Resets all recorded stanzas and their count.
+     */
+    public void reset() {
+    	recordedResponses.clear();
+        recordedResponsesTotal = 0;
+    }
+    
+    /**
+     * @param stanza records the stanza.
      */
     public void write(Stanza stanza) {
-        if (stanza == null) {
-            recordedResponses.clear();
-            recordedResponsesTotal = 0;
-            return;
-        } else {
-            recordedResponses.add(stanza);
-            recordedResponsesTotal++;
-        }
+        recordedResponses.add(stanza);
+        recordedResponsesTotal++;
     }
 
     public void setSessionState(SessionState sessionState) {

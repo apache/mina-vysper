@@ -257,7 +257,7 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
         protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.getFinalStanza(), sessionStateHolder);
         Stanza recordedResponse = sessionContext.getNextRecordedResponse();
         assertUnknownSenderError(recordedResponse); // not allowed, bare id without resource and two resources bound
-        sessionContext.write(null); // reset
+        sessionContext.reset();
         
         // unbind second resource, leaving only one
         boolean noResourceRemains = sessionContext.getServerRuntimeContext().getResourceRegistry().unbindResource(secondBoundResource);
@@ -269,7 +269,7 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
         stanzaBuilder.startInnerElement("query").addNamespaceAttribute("testNSURI").endInnerElement();
         protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.getFinalStanza(), sessionStateHolder);
         stanzaHandler.assertHandlerCalled();
-        sessionContext.write(null); // reset
+        sessionContext.reset();
 
         // second resource is now invalid and cannot be used anymore in a full qualified entity
         stanzaBuilder = StanzaBuilder.createIQStanza(null, null, IQStanzaType.GET, "test");
