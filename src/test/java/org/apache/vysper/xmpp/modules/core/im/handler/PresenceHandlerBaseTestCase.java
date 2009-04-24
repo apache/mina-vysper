@@ -168,6 +168,15 @@ abstract public class PresenceHandlerBaseTestCase extends TestCase {
         StanzaReceiverRelay receiverRelay = (StanzaReceiverRelay) sessionContext.getServerRuntimeContext().getStanzaRelay();
         receiverRelay.resetAll();
     }
+
+    /**
+     * searches for the next message captured by the test session which was sent directly to the given user's resource 
+     * @param testUser
+     * @return NULL, if no stanza available matching the user's resource id
+     */
+    protected Stanza getNextDirectResponseFor(TestUser testUser) {
+        return sessionContext.getNextRecordedResponseForResource(testUser.getBoundResourceId());
+    }
 }
 
 class TestUser {

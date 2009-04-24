@@ -69,23 +69,23 @@ public class PresenceSubRequestOutHandlerTestCase extends PresenceHandlerBaseTes
         assertStanzasReceivedDirectly(3);
 
         // roster push for 1 interested initiator of _same_ session
-        Stanza initiatorNotification = sessionContext.getNextRecordedResponseForResource(initiatingUser.getBoundResourceId());
+        Stanza initiatorNotification = getNextDirectResponseFor(initiatingUser);
         assertTrue(checkRosterPush(initiatorNotification, initiatingUser.getEntityFQ(), unrelatedUser.getEntity(), NONE, ASK_SUBSCRIBE));
 
         // no stanzas for not interested
-        assertNull(sessionContext.getNextRecordedResponseForResource(anotherAvailableUser.getBoundResourceId()));
+        assertNull(getNextDirectResponseFor(anotherAvailableUser));
 
         // roster 2 interested resources of _same_ session...
         
         // roster push for interested
-        Stanza interestedResourceNotification = sessionContext.getNextRecordedResponseForResource(anotherInterestedUser.getBoundResourceId());
+        Stanza interestedResourceNotification = getNextDirectResponseFor(anotherInterestedUser);
         assertTrue(checkRosterPush(interestedResourceNotification, new EntityImpl(initiatingUser.getEntity(), anotherInterestedUser.getBoundResourceId()), unrelatedUser.getEntity(), NONE, ASK_SUBSCRIBE));
-        assertNull(sessionContext.getNextRecordedResponseForResource(anotherInterestedUser.getBoundResourceId())); // no more stanzas
+        assertNull(getNextDirectResponseFor(anotherInterestedUser)); // no more stanzas;
 
         // roster push for interested but not avail
-        Stanza interestedNotYetAvailResourceNotification = sessionContext.getNextRecordedResponseForResource(anotherInterestedNotAvailUser.getBoundResourceId());
+        Stanza interestedNotYetAvailResourceNotification = getNextDirectResponseFor(anotherInterestedNotAvailUser);
         assertTrue(checkRosterPush(interestedNotYetAvailResourceNotification, new EntityImpl(initiatingUser.getEntity(), anotherInterestedNotAvailUser.getBoundResourceId()), unrelatedUser.getEntity(), NONE, ASK_SUBSCRIBE));
-        assertNull(sessionContext.getNextRecordedResponseForResource(anotherInterestedNotAvailUser.getBoundResourceId())); // no more stanzas;
+        assertNull(getNextDirectResponseFor(anotherInterestedNotAvailUser)); // no more stanzas;
 
         // sub request sent to contact
         assertTrue(checkPresence(unrelatedUser.getNextStanza(), PresenceStanzaType.SUBSCRIBE, initiatingUser.getEntity(), null));
@@ -111,13 +111,13 @@ public class PresenceSubRequestOutHandlerTestCase extends PresenceHandlerBaseTes
         assertStanzasReceivedDirectly(3);
 
         // roster push for 1 interested initiator...
-        Stanza initiatorNotification = sessionContext.getNextRecordedResponseForResource(initiatingUser.getBoundResourceId());
+        Stanza initiatorNotification = getNextDirectResponseFor(initiatingUser);
         assertTrue(checkRosterPush(initiatorNotification, initiatingUser.getEntityFQ(), subscribed_FROM.getEntity(), FROM, ASK_SUBSCRIBE));
 
         // .. and 2 interested resources of _same_ session
-        Stanza anotherInterestedUserNotification = sessionContext.getNextRecordedResponseForResource(anotherInterestedUser.getBoundResourceId());
+        Stanza anotherInterestedUserNotification = getNextDirectResponseFor(anotherInterestedUser);
         assertTrue(checkRosterPush(anotherInterestedUserNotification, anotherInterestedUser.getEntityFQ(), subscribed_FROM.getEntity(), FROM, ASK_SUBSCRIBE));
-        Stanza anotherInterestedNotAvailUserNotification = sessionContext.getNextRecordedResponseForResource(anotherInterestedNotAvailUser.getBoundResourceId());
+        Stanza anotherInterestedNotAvailUserNotification = getNextDirectResponseFor(anotherInterestedNotAvailUser);
         assertTrue(checkRosterPush(anotherInterestedNotAvailUserNotification, anotherInterestedNotAvailUser.getEntityFQ(), subscribed_FROM.getEntity(), FROM, ASK_SUBSCRIBE));
 
         assertNull(sessionContext.getNextRecordedResponse()); // no more stanzas
