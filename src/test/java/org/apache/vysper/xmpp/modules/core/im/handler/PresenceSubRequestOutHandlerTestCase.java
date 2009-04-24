@@ -44,10 +44,13 @@ public class PresenceSubRequestOutHandlerTestCase extends PresenceHandlerBaseTes
         XMPPCoreStanza requestApproval = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(unrelatedUser.getEntityFQ(), initiatingUser.getEntity(), null, PresenceStanzaType.SUBSCRIBED, null, null).getFinalStanza());
         handler.executeCore(requestApproval, sessionContext.getServerRuntimeContext(), false, sessionContext);
 
-        // subscribed stanza not delivered to client
+        // 3 roster pushes but...
+        for (int i = 1; i <= 3; i++) {
+            Stanza stanza = sessionContext.getNextRecordedResponse();
+            assertEquals("iq", stanza.getName());
+        }
+        // ... BUT no subscription approval (presence) or anything additional to the roster pushes
         assertNull(sessionContext.getNextRecordedResponse());
-        // 3 roster pushes
-        assertStanzasDeliveredAndRelayed(3);
 
         resetRecordedStanzas();
     }
@@ -55,31 +58,34 @@ public class PresenceSubRequestOutHandlerTestCase extends PresenceHandlerBaseTes
     private void requestSubscribeToUnrelated_Outbound() {
         setResourceState(initiatingUser.getBoundResourceId(), ResourceState.AVAILABLE_INTERESTED);
 
+        // SUBSCRIBE FROM
         XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), unrelatedUser.getEntity(), null, PresenceStanzaType.SUBSCRIBE, null, null).getFinalStanza());
 
         handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext);
         assertEquals(ResourceState.AVAILABLE_INTERESTED, getResourceState());
 
         // 1 to TO + 3 roster pushes
-        assertStanzasDeliveredAndRelayed(1+3);
+        assertStanzasDeliveredAndRelayed(1);
+        assertStanzasReceivedDirectly(3);
 
-        // roster push for interested initiator
-        Stanza initiatorNotification = initiatingUser.getNextStanza();
+        // roster push for 1 interested initiator of _same_ session
+        Stanza initiatorNotification = sessionContext.getNextRecordedResponseForResource(initiatingUser.getBoundResourceId());
         assertTrue(checkRosterPush(initiatorNotification, initiatingUser.getEntityFQ(), unrelatedUser.getEntity(), NONE, ASK_SUBSCRIBE));
-        assertNull(initiatingUser.getNextStanza()); // no more stanzas
 
         // no stanzas for not interested
-        assertNull(anotherAvailableUser.getNextStanza());
+        assertNull(sessionContext.getNextRecordedResponseForResource(anotherAvailableUser.getBoundResourceId()));
 
+        // roster 2 interested resources of _same_ session...
+        
         // roster push for interested
-        Stanza interestedResourceNotification = anotherInterestedUser.getNextStanza();
+        Stanza interestedResourceNotification = sessionContext.getNextRecordedResponseForResource(anotherInterestedUser.getBoundResourceId());
         assertTrue(checkRosterPush(interestedResourceNotification, new EntityImpl(initiatingUser.getEntity(), anotherInterestedUser.getBoundResourceId()), unrelatedUser.getEntity(), NONE, ASK_SUBSCRIBE));
-        assertNull(anotherInterestedUser.getNextStanza()); // no more stanzas
+        assertNull(sessionContext.getNextRecordedResponseForResource(anotherInterestedUser.getBoundResourceId())); // no more stanzas
 
-        // roster push for interested
-        Stanza interestedNotYetAvailResourceNotification = anotherInterestedNotAvailUser.getNextStanza();
+        // roster push for interested but not avail
+        Stanza interestedNotYetAvailResourceNotification = sessionContext.getNextRecordedResponseForResource(anotherInterestedNotAvailUser.getBoundResourceId());
         assertTrue(checkRosterPush(interestedNotYetAvailResourceNotification, new EntityImpl(initiatingUser.getEntity(), anotherInterestedNotAvailUser.getBoundResourceId()), unrelatedUser.getEntity(), NONE, ASK_SUBSCRIBE));
-        assertNull(anotherInterestedNotAvailUser.getNextStanza()); // no more stanzas
+        assertNull(sessionContext.getNextRecordedResponseForResource(anotherInterestedNotAvailUser.getBoundResourceId())); // no more stanzas;
 
         // sub request sent to contact
         assertTrue(checkPresence(unrelatedUser.getNextStanza(), PresenceStanzaType.SUBSCRIBE, initiatingUser.getEntity(), null));
@@ -94,18 +100,27 @@ public class PresenceSubRequestOutHandlerTestCase extends PresenceHandlerBaseTes
 
         setResourceState(initiatingUser.getBoundResourceId(), ResourceState.AVAILABLE_INTERESTED);
 
+        // SUBSCRIBE FROM
         XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), subscribed_FROM.getEntity(), null, PresenceStanzaType.SUBSCRIBE, null, null).getFinalStanza());
 
         handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext);
         assertEquals(ResourceState.AVAILABLE_INTERESTED, getResourceState());
 
         // 1 to TO + 3 roster pushes
-        assertStanzasDeliveredAndRelayed(1+3);
+        assertStanzasDeliveredAndRelayed(1);
+        assertStanzasReceivedDirectly(3);
 
-        // roster push for interested initiator
-        Stanza initiatorNotification = initiatingUser.getNextStanza();
+        // roster push for 1 interested initiator...
+        Stanza initiatorNotification = sessionContext.getNextRecordedResponseForResource(initiatingUser.getBoundResourceId());
         assertTrue(checkRosterPush(initiatorNotification, initiatingUser.getEntityFQ(), subscribed_FROM.getEntity(), FROM, ASK_SUBSCRIBE));
-        assertNull(initiatingUser.getNextStanza()); // no more stanzas
+
+        // .. and 2 interested resources of _same_ session
+        Stanza anotherInterestedUserNotification = sessionContext.getNextRecordedResponseForResource(anotherInterestedUser.getBoundResourceId());
+        assertTrue(checkRosterPush(anotherInterestedUserNotification, anotherInterestedUser.getEntityFQ(), subscribed_FROM.getEntity(), FROM, ASK_SUBSCRIBE));
+        Stanza anotherInterestedNotAvailUserNotification = sessionContext.getNextRecordedResponseForResource(anotherInterestedNotAvailUser.getBoundResourceId());
+        assertTrue(checkRosterPush(anotherInterestedNotAvailUserNotification, anotherInterestedNotAvailUser.getEntityFQ(), subscribed_FROM.getEntity(), FROM, ASK_SUBSCRIBE));
+
+        assertNull(sessionContext.getNextRecordedResponse()); // no more stanzas
 
         // sub request sent to contact
         assertTrue(checkPresence(subscribed_FROM.getNextStanza(), PresenceStanzaType.SUBSCRIBE, initiatingUser.getEntity(), null)); 

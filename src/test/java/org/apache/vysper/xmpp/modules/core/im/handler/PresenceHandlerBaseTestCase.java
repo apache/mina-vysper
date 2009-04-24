@@ -123,6 +123,10 @@ abstract public class PresenceHandlerBaseTestCase extends TestCase {
         assertStanzasRelayed(expectedRelayedAndDelivered, expectedRelayedAndDelivered);
     }
 
+    protected void assertStanzasReceivedDirectly(int expectedReceivedDirectly) {
+        assertEquals(expectedReceivedDirectly, sessionContext.getRecordedResponsesTotal());
+    }
+
     protected void assertStanzasRelayed(int expectedRelayed, int expectedDelivered) {
         assertEquals(expectedRelayed, ((StanzaReceiverRelay) sessionContext.getServerRuntimeContext().getStanzaRelay()).getCountRelayed());
         assertEquals(expectedDelivered, ((StanzaReceiverRelay) sessionContext.getServerRuntimeContext().getStanzaRelay()).getCountDelivered());
@@ -151,8 +155,8 @@ abstract public class PresenceHandlerBaseTestCase extends TestCase {
         } catch (Exception e) {
             fail(e.toString());
         }
-        assertEquals(rosterPush.getTo(), entity);
-        assertEquals(contact, rosterItem.getJid());
+        assertEquals(rosterPush.getTo().getFullQualifiedName(), entity.getFullQualifiedName());
+        assertEquals(contact.getFullQualifiedName(), rosterItem.getJid().getFullQualifiedName());
         assertEquals(subscriptionType, rosterItem.getSubscriptionType());
         assertEquals(subscriptionType, rosterItem.getSubscriptionType());
         assertEquals(askSubscriptionType, rosterItem.getAskSubscriptionType());

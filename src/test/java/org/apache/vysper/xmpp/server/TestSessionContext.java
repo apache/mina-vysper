@@ -28,6 +28,7 @@ import org.apache.vysper.xmpp.writer.StanzaWriter;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Iterator;
 
 /**
  * makes response available for testing
@@ -38,6 +39,7 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
     private boolean closed = false;
     private boolean switchToTLSCalled;
     private boolean isReopeningXMLStream;
+    private int recordedResponsesTotal = 0;
 
     public static TestSessionContext createSessionContext(Entity entity) {
         SessionStateHolder sessionStateHolder = new SessionStateHolder();
@@ -73,6 +75,19 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
         return recordedResponses.poll();
     }
 
+    public Stanza getNextRecordedResponseForResource(String resource) {
+        for (Iterator<Stanza> it = recordedResponses.iterator(); it.hasNext();) {
+            Stanza recordedResponse = it.next();
+            if (recordedResponse.getTo() != null && recordedResponse.getTo().isResourceSet()) {
+                if (recordedResponse.getTo().getResource().equals(resource)) {
+                    it.remove();
+                    return recordedResponse;
+                }
+            }
+        }
+        return null;
+    }
+
     public void close() {
         closed = true;
     }
@@ -86,8 +101,14 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
      * @throws IllegalStateException if NOT NULL, and there is already a stanza recorded
      */
     public void write(Stanza stanza) {
-        if (recordedResponses.size() > 0 && stanza != null) throw new IllegalStateException("stanza already recorded");
-        recordedResponses.add(stanza);
+        if (stanza == null) {
+            recordedResponses.clear();
+            recordedResponsesTotal = 0;
+            return;
+        } else {
+            recordedResponses.add(stanza);
+            recordedResponsesTotal++;
+        }
     }
 
     public void setSessionState(SessionState sessionState) {
@@ -118,5 +139,9 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
         if (resourceId != null) entity = new EntityImpl(entity.getNode(), entity.getDomain(), resourceId);
         ((StanzaReceiverRelay) getServerRuntimeContext().getStanzaRelay()).add(entity, relay);
         return relay;
+    }
+
+    public int getRecordedResponsesTotal() {
+        return recordedResponsesTotal;
     }
 }
