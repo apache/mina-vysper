@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0054_vcardtemp;
 
+import org.apache.vysper.storage.StorageProvider;
 import org.apache.vysper.xmpp.addressing.Entity;
 
 /**
@@ -26,7 +27,7 @@ import org.apache.vysper.xmpp.addressing.Entity;
  * @author The Apache MINA Project (dev@mina.apache.org)
  * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
-public interface VcardTempPersistenceManager {
+public interface VcardTempPersistenceManager extends StorageProvider {
 
     /**
      * @return if the persistene manager is ready to operate

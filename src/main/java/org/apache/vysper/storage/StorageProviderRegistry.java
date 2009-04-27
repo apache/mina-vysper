@@ -17,13 +17,15 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.authorization;
+package org.apache.vysper.storage;
 
 /**
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
-public interface AccountCreation {
-    void addUser(String username, String password) throws AccountCreationException;
+public interface StorageProviderRegistry {
+    StorageProvider retrieve(Class<? extends StorageProvider> clazz);
+
+    void add(StorageProvider storageProvider);
 }

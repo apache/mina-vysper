@@ -19,10 +19,13 @@
  */
 package org.apache.vysper.xmpp.modules.roster;
 
+import org.apache.vysper.storage.StorageProvider;
 import org.apache.vysper.xmpp.modules.DefaultModule;
-import org.apache.vysper.xmpp.modules.ServerRuntimeContextService;
-import org.apache.vysper.xmpp.modules.roster.persistence.MemoryRosterManager;
+import org.apache.vysper.xmpp.modules.roster.persistence.RosterManager;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -34,6 +37,8 @@ import java.util.List;
  */
 public class RosterModule extends DefaultModule {
 
+    final Logger logger = LoggerFactory.getLogger(RosterModule.class);
+    
     @Override
     public String getName() {
         return "roster";
@@ -50,8 +55,10 @@ public class RosterModule extends DefaultModule {
     }
 
     @Override
-    protected void addServerServices(List<ServerRuntimeContextService> serviceList) {
-        //serviceList.add(new JcrRosterManager(JcrStorage.getInstance()));
-        serviceList.add(new MemoryRosterManager());
+    public void initialize(ServerRuntimeContext serverRuntimeContext) {
+        StorageProvider storageProvider = serverRuntimeContext.getStorageProvider(RosterManager.class);
+        if (storageProvider == null) {
+            logger.error("no roster storage provider found");
+        }
     }
 }

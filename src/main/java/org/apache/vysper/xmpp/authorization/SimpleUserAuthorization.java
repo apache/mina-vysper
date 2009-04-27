@@ -30,7 +30,7 @@ import java.util.HashMap;
  * @author The Apache MINA Project (dev@mina.apache.org)
  * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
-public class SimpleUserAuthorization implements UserAuthorization, AccountVerification, AccountCreation {
+public class SimpleUserAuthorization implements UserAuthorization, AccountManagement {
 
     private final Map<String, String> userPasswordMap = new HashMap<String, String>();
 

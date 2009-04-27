@@ -19,10 +19,11 @@
  */
 package org.apache.vysper.xmpp.modules.roster.persistence;
 
-import org.apache.vysper.xmpp.modules.roster.Roster;
-import org.apache.vysper.xmpp.modules.roster.RosterItem;
-import org.apache.vysper.xmpp.modules.roster.RosterException;
+import org.apache.vysper.storage.StorageProvider;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.modules.roster.Roster;
+import org.apache.vysper.xmpp.modules.roster.RosterException;
+import org.apache.vysper.xmpp.modules.roster.RosterItem;
 
 /**
  * for getting and changing rosters. implementations must transparently handle persistence
@@ -30,7 +31,7 @@ import org.apache.vysper.xmpp.addressing.Entity;
  * @author The Apache MINA Project (dev@mina.apache.org)
  * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
-public interface RosterManager {
+public interface RosterManager extends StorageProvider {
 
     public final static String SERVER_SERVICE_ROSTERMANAGER = "rosterManager";
 

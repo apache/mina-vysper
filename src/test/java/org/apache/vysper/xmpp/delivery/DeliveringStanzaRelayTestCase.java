@@ -16,28 +16,33 @@
  ***********************************************************************/
 package org.apache.vysper.xmpp.delivery;
 
-import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
-import org.apache.vysper.xmpp.server.TestSessionContext;
-import org.apache.vysper.xmpp.server.SessionState;
-import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.addressing.EntityFormatException;
-import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
-import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
-import org.apache.vysper.xmpp.authorization.AccountVerification;
 import junit.framework.TestCase;
+import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityFormatException;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.authorization.AccountCreationException;
+import org.apache.vysper.xmpp.authorization.AccountManagement;
+import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
+import org.apache.vysper.xmpp.server.SessionState;
+import org.apache.vysper.xmpp.server.TestSessionContext;
+import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
+import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
 
 /**
  */
 public class DeliveringStanzaRelayTestCase extends TestCase {
     
     protected ResourceRegistry resourceRegistry = new ResourceRegistry();
-    protected AccountVerification accountVerification;
+    protected AccountManagement accountVerification;
     protected DeliveringInboundStanzaRelay stanzaRelay;
 
-    static class AccountVerificationMock implements AccountVerification {
+    static class AccountVerificationMock implements AccountManagement {
+        public void addUser(String username, String password) throws AccountCreationException {
+            ; // empty
+        }
+
         public boolean verifyAccountExists(Entity jid) {
             return true;
         }

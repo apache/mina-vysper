@@ -19,21 +19,21 @@
  */
 package org.apache.vysper.xmpp.server;
 
+import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.authorization.AccountManagement;
 import org.apache.vysper.xmpp.authorization.Plain;
 import org.apache.vysper.xmpp.authorization.SASLMechanism;
-import org.apache.vysper.xmpp.authorization.UserAuthorization;
-import org.apache.vysper.xmpp.authorization.AccountVerification;
+import org.apache.vysper.xmpp.cryptography.BogusTrustManagerFactory;
+import org.apache.vysper.xmpp.cryptography.FileBasedTLSContextFactory;
 import org.apache.vysper.xmpp.delivery.DeliveringInboundStanzaRelay;
 import org.apache.vysper.xmpp.delivery.RecordingStanzaRelay;
 import org.apache.vysper.xmpp.delivery.StanzaRelayBroker;
+import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.roster.RosterModule;
 import org.apache.vysper.xmpp.modules.servicediscovery.ServiceDiscoveryModule;
-import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
-import org.apache.vysper.xmpp.cryptography.BogusTrustManagerFactory;
-import org.apache.vysper.xmpp.cryptography.FileBasedTLSContextFactory;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -59,8 +59,7 @@ public class XMPPServer {
     private final List<SASLMechanism> saslMechanisms = new ArrayList<SASLMechanism>();
     private String serverDomain;
     private DefaultServerRuntimeContext serverRuntimeContext;
-    private UserAuthorization userAuthorization;
-    private AccountVerification accountVerification;
+    private StorageProviderRegistry storageProviderRegistry;
     private File tlsCertificateFile;
     private String tlsCertificatePassword;
     private final List<Endpoint> endpoints = new ArrayList<Endpoint>();
@@ -76,12 +75,8 @@ public class XMPPServer {
         saslMechanisms.addAll(validMechanisms);
     }
 
-    public void setUserAuthorization(UserAuthorization userAuthorization) {
-        this.userAuthorization = userAuthorization;
-    }
-
-    public void setAccountVerification(AccountVerification accountVerification) {
-        this.accountVerification = accountVerification;
+    public void setStorageProviderRegistry(StorageProviderRegistry storageProviderRegistry) {
+        this.storageProviderRegistry = storageProviderRegistry;
     }
 
     public void setTLSCertificateInfo(File certificate, String password) {
@@ -105,7 +100,8 @@ public class XMPPServer {
 
         ResourceRegistry resourceRegistry = new ResourceRegistry();
 
-        DeliveringInboundStanzaRelay internalStanzaRelay = new DeliveringInboundStanzaRelay(resourceRegistry, accountVerification);
+        AccountManagement accountManagement = (AccountManagement) storageProviderRegistry.retrieve(AccountManagement.class);
+        DeliveringInboundStanzaRelay internalStanzaRelay = new DeliveringInboundStanzaRelay(resourceRegistry, accountManagement);
         RecordingStanzaRelay externalStanzaRelay = new RecordingStanzaRelay();
 
         StanzaRelayBroker stanzaRelayBroker = new StanzaRelayBroker();
@@ -118,7 +114,7 @@ public class XMPPServer {
         EntityImpl serverEntity = new EntityImpl(null, serverDomain, null);
 
         serverRuntimeContext = new DefaultServerRuntimeContext(serverEntity, stanzaRelayBroker, serverFeatures, dictionaries, resourceRegistry);
-        serverRuntimeContext.setUserAuthorization(userAuthorization);
+        serverRuntimeContext.setStorageProviderRegistry(storageProviderRegistry);
         serverRuntimeContext.setTlsContextFactory(tlsContextFactory);
 
         serverRuntimeContext.addModule(new ServiceDiscoveryModule());

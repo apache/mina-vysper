@@ -33,10 +33,17 @@
     <!--
         Vysper Server singletons
     -->
+
+    <bean id="inmemoryStorageRegistry" class="org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry" />
+
+    <bean id="jcrStorageRegistry" class="org.apache.vysper.storage.jcr.JcrStorageProviderRegistry" />
+
+    <!-- choose one of the storage registries -->
+    <alias name="jcrStorageRegistry" alias="storageRegistry" />
     
     <bean id="internalOutboundRelay" class="org.apache.vysper.xmpp.delivery.DeliveringInboundStanzaRelay" >
         <constructor-arg ref="resourceRegistry"/>
-        <constructor-arg ref="userAuthentication"/>
+        <constructor-arg ref="storageRegistry"/>
     </bean>
 
     <bean id="stanzaRelay" class="org.apache.vysper.xmpp.delivery.StanzaRelayBroker" >
@@ -47,7 +54,7 @@
     
     <bean name="resourceRegistry" class="org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry" />
     
-    <bean id="userAuthentication" class="org.apache.vysper.xmpp.authorization.SimpleUserAuthorization">
+    <bean id="addUsers" class="org.apache.vysper.spring.AddUserHelper">
         <constructor-arg index="0">
             <map>
                 <entry key="user1@vysper.org" value="password1" />
@@ -55,6 +62,7 @@
                 <entry key="user3@vysper.org" value="password1" />
             </map>
         </constructor-arg>
+        <property name="storageProviderRegistry" ref="storageRegistry" />
     </bean>
     
     <bean id="serverFeatures" class="org.apache.vysper.xmpp.server.ServerFeatures">
@@ -89,7 +97,7 @@
         </constructor-arg>
         <constructor-arg ref="resourceRegistry"/>
         <property name="tlsContextFactory" ref="tlsContextFactory" />
-        <property name="userAuthorization" ref="userAuthentication" />
+        <property name="storageProviderRegistry" ref="storageRegistry" />
         <property name="modules">
             <list>
                 <bean class="org.apache.vysper.xmpp.modules.servicediscovery.ServiceDiscoveryModule" />

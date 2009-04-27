@@ -20,14 +20,15 @@
 package org.apache.vysper.xmpp.delivery;
 
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.authorization.AccountManagement;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.worker.InboundStanzaProtocolWorker;
-import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.authorization.AccountVerification;
+import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
+import org.apache.vysper.storage.StorageProviderRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,9 +56,13 @@ public class DeliveringInboundStanzaRelay implements StanzaRelay {
 
     protected ResourceRegistry resourceRegistry;
     protected ExecutorService executor;
-    protected AccountVerification accountVerification;
+    protected AccountManagement accountVerification;
 
-    public DeliveringInboundStanzaRelay(ResourceRegistry resourceRegistry, AccountVerification accountVerification) {
+    public DeliveringInboundStanzaRelay(ResourceRegistry resourceRegistry, StorageProviderRegistry storageProviderRegistry) {
+        this(resourceRegistry, (AccountManagement)storageProviderRegistry.retrieve(AccountManagement.class));
+    }
+    
+    public DeliveringInboundStanzaRelay(ResourceRegistry resourceRegistry, AccountManagement accountVerification) {
         this.resourceRegistry = resourceRegistry;
         this.accountVerification = accountVerification;
         int coreThreadCount = 10;

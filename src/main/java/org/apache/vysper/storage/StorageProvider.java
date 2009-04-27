@@ -17,19 +17,13 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules;
-
-import java.util.List;
+package org.apache.vysper.storage;
 
 /**
- * registry for modules
+ * interface to mark an interface as storage service interface
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
-public interface ModuleRegistry {
-
-    void addModule(Module module);
-
-    void setModules(List<Module> modules);
+public interface StorageProvider {
 }

@@ -17,19 +17,23 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules;
+package org.apache.vysper.storage.inmemory;
 
-import java.util.List;
+import org.apache.vysper.storage.OpenStorageProviderRegistry;
+import org.apache.vysper.xmpp.authorization.SimpleUserAuthorization;
+import org.apache.vysper.xmpp.modules.roster.persistence.MemoryRosterManager;
 
 /**
- * registry for modules
- *
+ * all the memory based stores. information put here is lost on JVM exit.
+ * 
  * @author The Apache MINA Project (dev@mina.apache.org)
  * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
-public interface ModuleRegistry {
+public class MemoryStorageProviderRegistry extends OpenStorageProviderRegistry {
 
-    void addModule(Module module);
+    public MemoryStorageProviderRegistry() {
+        add(new SimpleUserAuthorization());
+        add(new MemoryRosterManager());
+    }
 
-    void setModules(List<Module> modules);
 }

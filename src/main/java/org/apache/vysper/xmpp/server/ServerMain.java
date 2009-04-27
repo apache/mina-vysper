@@ -20,14 +20,15 @@
 package org.apache.vysper.xmpp.server;
 
 import org.apache.vysper.mina.TCPEndpoint;
-import org.apache.vysper.storage.jcr.JcrStorage;
-import org.apache.vysper.storage.jcr.user.JcrUserManagement;
+import org.apache.vysper.storage.StorageProviderRegistry;
+import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
+import org.apache.vysper.xmpp.addressing.EntityFormatException;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.AccountCreationException;
+import org.apache.vysper.xmpp.authorization.AccountManagement;
 import org.apache.vysper.xmpp.modules.extension.xep0054_vcardtemp.VcardTempModule;
 import org.apache.vysper.xmpp.modules.extension.xep0092_software_version.SoftwareVersionModule;
 import org.apache.vysper.xmpp.modules.extension.xep0202_entity_time.EntityTimeModule;
-import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.addressing.EntityFormatException;
 
 import java.io.File;
 
@@ -46,20 +47,20 @@ public class ServerMain {
      */
     public static void main(String[] args) throws AccountCreationException, EntityFormatException {
 
-        final JcrStorage jcrStorage = JcrStorage.getInstance();
-        final JcrUserManagement userManagement = new JcrUserManagement(jcrStorage);
+        // choose the storage you want to use
+        //StorageProviderRegistry providerRegistry = new JcrStorageProviderRegistry();
+        StorageProviderRegistry providerRegistry = new MemoryStorageProviderRegistry();
+        
+        final AccountManagement accountManagement = (AccountManagement) providerRegistry.retrieve(AccountManagement.class);
 
-        //SimpleUserAuthorization userManagement = new SimpleUserAuthorization();
-
-        if(!userManagement.verifyAccountExists(EntityImpl.parse("user1@vysper.org"))) userManagement.addUser("user1@vysper.org", "password1");
-        if(!userManagement.verifyAccountExists(EntityImpl.parse("user2@vysper.org"))) userManagement.addUser("user2@vysper.org", "password1");
-        if(!userManagement.verifyAccountExists(EntityImpl.parse("user3@vysper.org"))) userManagement.addUser("user3@vysper.org", "password1");
+        if(!accountManagement.verifyAccountExists(EntityImpl.parse("user1@vysper.org"))) accountManagement.addUser("user1@vysper.org", "password1");
+        if(!accountManagement.verifyAccountExists(EntityImpl.parse("user2@vysper.org"))) accountManagement.addUser("user2@vysper.org", "password1");
+        if(!accountManagement.verifyAccountExists(EntityImpl.parse("user3@vysper.org"))) accountManagement.addUser("user3@vysper.org", "password1");
 
         XMPPServer server = new XMPPServer("vysper.org");
         server.addEndpoint(new TCPEndpoint());
         //server.addEndpoint(new StanzaSessionFactory());
-        server.setUserAuthorization(userManagement);
-        server.setAccountVerification(userManagement);
+        server.setStorageProviderRegistry(providerRegistry);
 
         server.setTLSCertificateInfo(new File("src/main/config/bogus_mina_tls.cert"), "boguspw");
 

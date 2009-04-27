@@ -20,28 +20,35 @@
 
 package org.apache.vysper.xmpp.server;
 
+import org.apache.vysper.storage.OpenStorageProviderRegistry;
+import org.apache.vysper.storage.StorageProvider;
+import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.delivery.StanzaRelay;
-import org.apache.vysper.xmpp.protocol.*;
-import org.apache.vysper.xmpp.cryptography.TLSContextFactory;
-import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.uuid.JVMBuiltinUUIDGenerator;
-import org.apache.vysper.xmpp.uuid.UUIDGenerator;
 import org.apache.vysper.xmpp.authorization.UserAuthorization;
-import org.apache.vysper.xmpp.authorization.SimpleUserAuthorization;
-import org.apache.vysper.xmpp.modules.ModuleRegistry;
+import org.apache.vysper.xmpp.cryptography.TLSContextFactory;
+import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.Module;
+import org.apache.vysper.xmpp.modules.ModuleRegistry;
 import org.apache.vysper.xmpp.modules.ServerRuntimeContextService;
-import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
+import org.apache.vysper.xmpp.protocol.HandlerDictionary;
+import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
+import org.apache.vysper.xmpp.protocol.QueuedStanzaProcessor;
+import org.apache.vysper.xmpp.protocol.StanzaHandler;
+import org.apache.vysper.xmpp.protocol.StanzaHandlerLookup;
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
+import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.state.presence.LatestPresenceCache;
 import org.apache.vysper.xmpp.state.presence.SimplePresenceCache;
+import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
+import org.apache.vysper.xmpp.uuid.JVMBuiltinUUIDGenerator;
+import org.apache.vysper.xmpp.uuid.UUIDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLContext;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 /**
  *
@@ -92,11 +99,6 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     private StanzaRelay stanzaRelay;
 
     /**
-     * user authorization backend
-     */
-    private UserAuthorization userAuthorization = new SimpleUserAuthorization();
-
-    /**
      * administrate and query resources and sessions
      */
     private ResourceRegistry resourceRegistry;
@@ -107,6 +109,11 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     private LatestPresenceCache presenceCache = new SimplePresenceCache();
 
     /**
+     * holds the storage services
+     */
+    private StorageProviderRegistry storageProviderRegistry = new OpenStorageProviderRegistry();
+    
+    /**
      * collection of all other services, which are mostly add-ons to the minimal setup
      */
     final private Map<String, ServerRuntimeContextService> serverRuntimeContextServiceMap = new HashMap<String, ServerRuntimeContextService>();
@@ -115,6 +122,11 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         this.serverEntity = serverEntity;
         this.stanzaRelay = stanzaRelay;
         this.resourceRegistry = new ResourceRegistry();
+    }
+
+    public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay, StorageProviderRegistry storageProviderRegistry) {
+        this(serverEntity, stanzaRelay);
+        this.storageProviderRegistry = storageProviderRegistry; 
     }
 
     public DefaultServerRuntimeContext(Entity serverEntity,
@@ -179,8 +191,11 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         return sslContext;
     }
 
+    /**
+     * @deprecated use getStorageProvider(UserAuthorization.class) instead 
+     */
     public UserAuthorization getUserAuthorization() {
-        return userAuthorization;
+        return (UserAuthorization) storageProviderRegistry.retrieve(UserAuthorization.class);
     }
 
     public ResourceRegistry getResourceRegistry() {
@@ -189,10 +204,6 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
 
     public LatestPresenceCache getPresenceCache() {
         return presenceCache;
-    }
-
-    public void setUserAuthorization(UserAuthorization userAuthorization) {
-        this.userAuthorization = userAuthorization;
     }
 
     public void registerServerRuntimeContextService(ServerRuntimeContextService service) {
@@ -207,9 +218,18 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         return serverRuntimeContextServiceMap.get(name);
     }
 
+    public void setStorageProviderRegistry(StorageProviderRegistry storageProviderRegistry) {
+        logger.info("replacing the storage provider registry with " + storageProviderRegistry.getClass().getCanonicalName());
+        this.storageProviderRegistry = storageProviderRegistry;
+    }
+
+    public StorageProvider getStorageProvider(Class<? extends StorageProvider> clazz) {
+        return storageProviderRegistry.retrieve(clazz);
+    }
+
     public void setModules(List<Module> modules) {
         for (Module module : modules) {
-            addModule(module);
+            addModuleInternal(module);
         }
         for (Module module : modules) {
             module.initialize(this);
@@ -217,6 +237,11 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     }
 
     public void addModule(Module module) {
+        addModuleInternal(module);
+        module.initialize(this);
+    }
+    
+    public void addModuleInternal(Module module) {
 
         logger.info("adding module... {} ({})", module.getName(), module.getVersion());
 
@@ -224,6 +249,12 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         if (serviceList != null) {
             for (ServerRuntimeContextService serverRuntimeContextService : serviceList) {
                 registerServerRuntimeContextService(serverRuntimeContextService);
+                
+                // if a storage service, also register there 
+                if (serverRuntimeContextService instanceof StorageProvider) {
+                    StorageProvider storageProvider = (StorageProvider) serverRuntimeContextService;
+                    storageProviderRegistry.add(storageProvider);
+                }
             }
         }
 
@@ -237,6 +268,5 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
                 }
             }
         }
-
     }
 }

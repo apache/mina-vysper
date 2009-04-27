@@ -20,15 +20,16 @@
 
 package org.apache.vysper.xmpp.server;
 
+import org.apache.vysper.storage.StorageProvider;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.authorization.UserAuthorization;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.ServerRuntimeContextService;
-import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
-import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
-import org.apache.vysper.xmpp.state.presence.LatestPresenceCache;
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.state.presence.LatestPresenceCache;
+import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 
 import javax.net.ssl.SSLContext;
 
@@ -64,4 +65,6 @@ public interface ServerRuntimeContext {
     void registerServerRuntimeContextService(ServerRuntimeContextService service);
 
     ServerRuntimeContextService getServerRuntimeContextService(String name);
+    
+    StorageProvider getStorageProvider(Class<? extends StorageProvider> clazz);
 }

@@ -17,18 +17,24 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.authorization;
+package org.apache.vysper.storage.jcr;
 
-import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.storage.OpenStorageProviderRegistry;
+import org.apache.vysper.storage.jcr.roster.JcrRosterManager;
+import org.apache.vysper.storage.jcr.user.JcrUserManagement;
+import org.apache.vysper.storage.jcr.vcardtemp.JcrVcardTempPersistenceManager;
 
 /**
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
-public interface AccountVerification {
-    /**
-     * checks if there is this jid is registered with the server
-     */
-    boolean verifyAccountExists(Entity jid);
+public class JcrStorageProviderRegistry extends OpenStorageProviderRegistry {
+
+    public JcrStorageProviderRegistry() {
+        add(new JcrUserManagement(JcrStorage.getInstance()));
+        add(new JcrRosterManager(JcrStorage.getInstance()));
+        add(new JcrVcardTempPersistenceManager(JcrStorage.getInstance()));
+    }
+
 }

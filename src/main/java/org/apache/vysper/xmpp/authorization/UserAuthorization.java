@@ -21,6 +21,7 @@
 package org.apache.vysper.xmpp.authorization;
 
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.storage.StorageProvider;
 
 /**
  * interface describing a service for authorizing users
@@ -28,7 +29,7 @@ import org.apache.vysper.xmpp.addressing.Entity;
  * @author The Apache MINA Project (dev@mina.apache.org)
  * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
-public interface UserAuthorization {
+public interface UserAuthorization extends StorageProvider {
 
     /**
      * {@link #verifyCredentials(String, String, Object)}

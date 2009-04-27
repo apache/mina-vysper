@@ -19,9 +19,11 @@ package org.apache.vysper.xmpp.modules.core.sasl.handler;
 
 import junit.framework.TestCase;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.vysper.storage.OpenStorageProviderRegistry;
 import org.apache.vysper.xmpp.authorization.Plain;
 import org.apache.vysper.xmpp.authorization.SASLMechanism;
 import org.apache.vysper.xmpp.authorization.SimpleUserAuthorization;
+import org.apache.vysper.xmpp.modules.core.sasl.AuthorizationRetriesCounter;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
@@ -32,7 +34,6 @@ import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
-import org.apache.vysper.xmpp.modules.core.sasl.AuthorizationRetriesCounter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,8 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
 
     private SessionStateHolder sessionStateHolder = new SessionStateHolder();
 
+    
+    
     @Override
     protected void setUp() throws Exception {
         super.setUp();
@@ -56,7 +59,9 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
         sessionContext.getServerRuntimeContext().getServerFeatures().setAuthenticationMethods(methods);
         SimpleUserAuthorization users = new SimpleUserAuthorization();
         users.addUser("user007@test", "pass007");
-        ((DefaultServerRuntimeContext) sessionContext.getServerRuntimeContext()).setUserAuthorization(users);
+        OpenStorageProviderRegistry providerRegistry = new OpenStorageProviderRegistry();
+        providerRegistry.add(users);
+        ((DefaultServerRuntimeContext) sessionContext.getServerRuntimeContext()).setStorageProviderRegistry(providerRegistry);
     }
 
     public void testAuthPlainNoInitialResponse() throws AuthorizationFailedException {

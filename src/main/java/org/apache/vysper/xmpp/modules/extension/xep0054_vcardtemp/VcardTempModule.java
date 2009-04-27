@@ -28,8 +28,8 @@ import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-import org.apache.vysper.storage.jcr.JcrStorage;
-import org.apache.vysper.storage.jcr.vcardtemp.JcrVcardTempPersistenceManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,14 +41,20 @@ import java.util.List;
  */
 public class VcardTempModule extends DefaultDiscoAwareModule implements ServerInfoRequestListener {
 
+    final Logger logger = LoggerFactory.getLogger(VcardTempModule.class);
+    
     protected VcardTempIQHandler iqHandler = new VcardTempIQHandler();
 
     @Override
     public void initialize(ServerRuntimeContext serverRuntimeContext) {
         super.initialize(serverRuntimeContext);
 
-        JcrVcardTempPersistenceManager persistenceManager = new JcrVcardTempPersistenceManager(JcrStorage.getInstance());
-        if (persistenceManager.isAvailable()) {
+        VcardTempPersistenceManager persistenceManager = (VcardTempPersistenceManager) serverRuntimeContext.getStorageProvider(VcardTempPersistenceManager.class);
+        if (persistenceManager == null) {
+            logger.error("no VcardTempPersistenceManager found");
+        } else if (!persistenceManager.isAvailable()) {
+            logger.warn("VcardTempPersistenceManager not available");
+        } else {
             iqHandler.setPersistenceManager(persistenceManager);
         }
     }

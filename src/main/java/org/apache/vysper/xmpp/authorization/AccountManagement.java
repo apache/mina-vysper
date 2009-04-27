@@ -17,19 +17,21 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules;
+package org.apache.vysper.xmpp.authorization;
 
-import java.util.List;
+import org.apache.vysper.storage.StorageProvider;
+import org.apache.vysper.xmpp.addressing.Entity;
 
 /**
- * registry for modules
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
-public interface ModuleRegistry {
+public interface AccountManagement extends StorageProvider {
+    void addUser(String username, String password) throws AccountCreationException;
 
-    void addModule(Module module);
-
-    void setModules(List<Module> modules);
+    /**
+     * checks if there is this jid is registered with the server
+     */
+    boolean verifyAccountExists(Entity jid);
 }

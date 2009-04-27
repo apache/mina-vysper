@@ -19,15 +19,14 @@
  */
 package org.apache.vysper.storage.jcr.user;
 
+import org.apache.vysper.storage.jcr.JcrStorage;
+import org.apache.vysper.storage.jcr.JcrStorageException;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.authorization.AccountCreation;
 import org.apache.vysper.xmpp.authorization.AccountCreationException;
-import org.apache.vysper.xmpp.authorization.AccountVerification;
+import org.apache.vysper.xmpp.authorization.AccountManagement;
 import org.apache.vysper.xmpp.authorization.UserAuthorization;
-import org.apache.vysper.storage.jcr.JcrStorage;
-import org.apache.vysper.storage.jcr.JcrStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +38,7 @@ import javax.jcr.Property;
  * @author The Apache MINA Project (dev@mina.apache.org)
  * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
-public class JcrUserManagement implements UserAuthorization, AccountVerification, AccountCreation {
+public class JcrUserManagement implements UserAuthorization, AccountManagement {
 
     final Logger logger = LoggerFactory.getLogger(JcrUserManagement.class);
 

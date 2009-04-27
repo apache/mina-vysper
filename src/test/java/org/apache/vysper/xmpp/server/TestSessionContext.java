@@ -25,6 +25,7 @@ import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.writer.StanzaWriter;
+import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -62,7 +63,11 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
     }
 
     public TestSessionContext(SessionStateHolder sessionStateHolder) {
-        this(new DefaultServerRuntimeContext(new EntityImpl(null, "test", null), new RecordingStanzaRelay()), sessionStateHolder);
+        this(new DefaultServerRuntimeContext(
+                new EntityImpl(null, "test", null), 
+                new RecordingStanzaRelay(), 
+                new MemoryStorageProviderRegistry()), 
+             sessionStateHolder);
     }
 
     public TestSessionContext(ServerRuntimeContext serverRuntimeContext, SessionStateHolder sessionStateHolder) {
