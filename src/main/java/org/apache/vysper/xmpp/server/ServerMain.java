@@ -27,6 +27,7 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.AccountCreationException;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
 import org.apache.vysper.xmpp.modules.extension.xep0054_vcardtemp.VcardTempModule;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PublishSubscribeModule;
 import org.apache.vysper.xmpp.modules.extension.xep0092_software_version.SoftwareVersionModule;
 import org.apache.vysper.xmpp.modules.extension.xep0202_entity_time.EntityTimeModule;
 
@@ -74,5 +75,6 @@ public class ServerMain {
         server.addModule(new SoftwareVersionModule());
         server.addModule(new EntityTimeModule());
         server.addModule(new VcardTempModule());
+        server.addModule(new PublishSubscribeModule());
     }
 }
