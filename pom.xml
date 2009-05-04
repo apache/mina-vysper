@@ -202,6 +202,15 @@
   </dependencies>
   <build>
     <plugins>
+       <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>apt-maven-plugin</artifactId>
+          <version>1.0-alpha-2</version>
+          <configuration>
+            <factory>org.apache.vysper.compliance.reporting.DocumentSpecCompliantAnnotationFactory</factory>
+          </configuration>
+        </plugin>
+    
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.4.3</version>
