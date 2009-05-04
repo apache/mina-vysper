@@ -29,7 +29,14 @@ import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 import java.util.concurrent.Executor;
 
 /**
+ * info/query (IQ) stanzas might better be process asynchronously, for example if a remote system is creating the
+ * response. this handler provides a framework for doing so.
  *
+ * Two components must be provided by implementations of this class: an Executor and a Task factory method.
+ * Implementations of createGetTask() create the backend specific task (a Runnable). The returned future provides
+ * access to the result.
+ * The executor provides (access to) the async execution enviroment for the task. 
+ *  
  * @author The Apache MINA Project (dev@mina.apache.org)
  * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
@@ -40,7 +47,7 @@ abstract public class AbstractAsyncIQGetHandler extends IQHandler {
      */
     protected Executor serviceExecutor;
 
-    abstract protected RunnableFuture<XMPPCoreStanza> createTask(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext);
+    abstract protected RunnableFuture<XMPPCoreStanza> createGetTask(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext);
 
     @Override
     protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
@@ -48,9 +55,11 @@ abstract public class AbstractAsyncIQGetHandler extends IQHandler {
             case GET:
                 executeGetIQLogicAsync(stanza, serverRuntimeContext, sessionContext);
                 return null; // IQ response is sent later
+            
+            // all non-GET requests are handled synchronously, regardless of  
             case ERROR:
             case RESULT:
-            case SET:
+            case SET: // TODO make 'set'-IQs async'able, too.
             default:
                 return executeNonGetIQLogic(stanza, serverRuntimeContext, sessionContext);
         }
@@ -59,7 +68,7 @@ abstract public class AbstractAsyncIQGetHandler extends IQHandler {
     protected void executeGetIQLogicAsync(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         // create the object which handles building and sending out the response as
         // soon as the serices makes the result available
-        RunnableFuture<XMPPCoreStanza> task = createTask(stanza, serverRuntimeContext, sessionContext);
+        RunnableFuture<XMPPCoreStanza> task = createGetTask(stanza, serverRuntimeContext, sessionContext);
         // must return immediately by running invokation in another process
         serviceExecutor.execute(task);
     }

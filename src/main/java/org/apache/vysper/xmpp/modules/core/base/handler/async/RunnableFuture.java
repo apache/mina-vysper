@@ -22,7 +22,7 @@ package org.apache.vysper.xmpp.modules.core.base.handler.async;
 import java.util.concurrent.Future;
 
 /**
- * chance to java.concurrent.RunnableFuture, when this code base changes from Java 1.5 to at least
+ * TODO: change to java.concurrent.RunnableFuture, when this code base changes from Java 1.5 to at least
  * Java 1.6
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
