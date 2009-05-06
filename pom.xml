@@ -1,429 +1,456 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
- Licensed to the Apache Software Foundation (ASF) under one
- or more contributor license agreements.  See the NOTICE file
- distributed with this work for additional information
- regarding copyright ownership.  The ASF licenses this file
- to you under the Apache License, Version 2.0 (the
- "License"); you may not use this file except in compliance
- with the License.  You may obtain a copy of the License at
- 
-   http://www.apache.org/licenses/LICENSE-2.0
- 
- Unless required by applicable law or agreed to in writing,
- software distributed under the License is distributed on an
- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- KIND, either express or implied.  See the License for the
- specific language governing permissions and limitations
- under the License. -->  
+	<!--
+		Licensed to the Apache Software Foundation (ASF) under one or more
+		contributor license agreements. See the NOTICE file distributed with
+		this work for additional information regarding copyright ownership.
+		The ASF licenses this file to you under the Apache License, Version
+		2.0 (the "License"); you may not use this file except in compliance
+		with the License. You may obtain a copy of the License at
+
+		http://www.apache.org/licenses/LICENSE-2.0 Unless required by
+		applicable law or agreed to in writing, software distributed under the
+		License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+		CONDITIONS OF ANY KIND, either express or implied. See the License for
+		the specific language governing permissions and limitations under the
+		License.
+	-->
 
 <project>
-  <parent>
-    <artifactId>apache</artifactId>
-    <groupId>org.apache</groupId>
-    <version>4</version>
-  </parent>
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.apache.vysper</groupId>
-  <artifactId>vysper</artifactId>
-  <name>Apache Vysper</name>
-  <version>1.0.0-SNAPSHOT</version>
-  <url>http://mina.apache.org/vysper</url>
-  <issueManagement>
-    <system>Jira</system>
-    <url>http://issues.apache.org/jira/browse/VYSPER</url>
-  </issueManagement>
-  <inceptionYear>2007</inceptionYear>
-  <licenses>
-    <license>
-      <name>Apache 2.0 License</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-  <mailingLists>
-    <mailingList>
-      <name>Vysper Users mailing list</name>
-      <subscribe>vysper-users-subscribe@mina.apache.org</subscribe>
-      <unsubscribe>vysper-users-unsubscribe@mina.apache.org</unsubscribe>
-      <post>vysper-users@mina.apache.org</post>
-      <archive>http://mail-archives.apache.org/mod_mbox/mina-vysper-users/</archive>
-    </mailingList>
-    <mailingList>
-      <name>MINA Development mailing list</name>
-      <subscribe>dev-subscribe@mina.apache.org</subscribe>
-      <unsubscribe>dev-unsubscribe@mina.apache.org</unsubscribe>
-      <post>dev@mina.apache.org</post>
-      <archive>http://mail-archives.apache.org/mod_mbox/mina-dev/</archive>
-      <otherArchives>
-        <otherArchive>http://www.nabble.com/Apache-MINA-f16868.html</otherArchive>
-      </otherArchives>
-    </mailingList>
-    <mailingList>
-      <name>MINA Commit mailing list</name>
-      <subscribe>commits-subscribe@mina.apache.org</subscribe>
-      <unsubscribe>commits-unsubscribe@mina.apache.org</unsubscribe>
-      <archive>http://mail-archives.apache.org/mod_mbox/mina-commits/</archive>
-    </mailingList>
-  </mailingLists>
-  <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/mina/vysper/trunk</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/mina/vysper/trunk</developerConnection>
-    <url>http://svn.apache.org/viewvc/mina/vysper/trunk</url>
-  </scm>
-  <dependencies>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring</artifactId>
-      <version>2.5.6</version>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+	<parent>
+		<artifactId>apache</artifactId>
+		<groupId>org.apache</groupId>
+		<version>4</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.apache.vysper</groupId>
+	<artifactId>vysper</artifactId>
+	<name>Apache Vysper</name>
+	<version>1.0.0-SNAPSHOT</version>
+	<url>http://mina.apache.org/vysper</url>
+	<issueManagement>
+		<system>Jira</system>
+		<url>http://issues.apache.org/jira/browse/VYSPER
+		</url>
+	</issueManagement>
+	<inceptionYear>2007</inceptionYear>
+	<licenses>
+		<license>
+			<name>Apache 2.0 License</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0
+			</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<mailingLists>
+		<mailingList>
+			<name>Vysper Users mailing list</name>
+			<subscribe>vysper-users-subscribe@mina.apache.org
+			</subscribe>
+			<unsubscribe>vysper-users-unsubscribe@mina.apache.org
+			</unsubscribe>
+			<post>vysper-users@mina.apache.org</post>
+			<archive>http://mail-archives.apache.org/mod_mbox/mina-vysper-users/
+			</archive>
+		</mailingList>
+		<mailingList>
+			<name>MINA Development mailing list</name>
+			<subscribe>dev-subscribe@mina.apache.org
+			</subscribe>
+			<unsubscribe>dev-unsubscribe@mina.apache.org
+			</unsubscribe>
+			<post>dev@mina.apache.org</post>
+			<archive>http://mail-archives.apache.org/mod_mbox/mina-dev/
+			</archive>
+			<otherArchives>
+				<otherArchive>http://www.nabble.com/Apache-MINA-f16868.html
+				</otherArchive>
+			</otherArchives>
+		</mailingList>
+		<mailingList>
+			<name>MINA Commit mailing list</name>
+			<subscribe>commits-subscribe@mina.apache.org
+			</subscribe>
+			<unsubscribe>commits-unsubscribe@mina.apache.org
+			</unsubscribe>
+			<archive>http://mail-archives.apache.org/mod_mbox/mina-commits/
+			</archive>
+		</mailingList>
+	</mailingLists>
+	<scm>
+		<connection>scm:svn:http://svn.apache.org/repos/asf/mina/vysper/trunk
+		</connection>
+		<developerConnection>
+			scm:svn:https://svn.apache.org/repos/asf/mina/vysper/trunk
+		</developerConnection>
+		<url>http://svn.apache.org/viewvc/mina/vysper/trunk
+		</url>
+	</scm>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring</artifactId>
+			<version>2.5.6</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 
-    <dependency>
-      <groupId>org.apache.mina</groupId>
-      <artifactId>mina-core</artifactId>
-      <version>1.1.0</version>
-    </dependency>
+		<dependency>
+			<groupId>org.apache.mina</groupId>
+			<artifactId>mina-core</artifactId>
+			<version>1.1.0</version>
+		</dependency>
 
-    <dependency>
-      <groupId>org.apache.mina</groupId>
-      <artifactId>mina-integration-jmx</artifactId>
-      <version>1.1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.mina</groupId>
-      <artifactId>mina-filter-ssl</artifactId>
-      <version>1.1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.mina</groupId>
-      <artifactId>mina-integration-spring</artifactId>
-      <version>1.1.0</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.springframework</groupId>
-          <artifactId>spring-beans</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.springframework</groupId>
-          <artifactId>spring-core</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+		<dependency>
+			<groupId>org.apache.mina</groupId>
+			<artifactId>mina-integration-jmx</artifactId>
+			<version>1.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.mina</groupId>
+			<artifactId>mina-filter-ssl</artifactId>
+			<version>1.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.mina</groupId>
+			<artifactId>mina-integration-spring
+			</artifactId>
+			<version>1.1.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring-beans</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring-core</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 
-    <dependency>
-      <groupId>org.cyberneko.pull</groupId>
-      <artifactId>nekopull</artifactId>
-      <version>0.2.4</version>
-    </dependency>
+		<dependency>
+			<groupId>org.cyberneko.pull</groupId>
+			<artifactId>nekopull</artifactId>
+			<version>0.2.4</version>
+		</dependency>
 
-    <dependency>
-      <groupId>javax.jcr</groupId>
-      <artifactId>jcr</artifactId>
-      <version>1.0</version>
-    </dependency>
+		<dependency>
+			<groupId>javax.jcr</groupId>
+			<artifactId>jcr</artifactId>
+			<version>1.0</version>
+		</dependency>
 
-    <dependency>
-      <groupId>org.apache.jackrabbit</groupId>
-      <artifactId>jackrabbit-core</artifactId>
-      <version>1.5.3</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.jackrabbit</groupId>
-          <artifactId>jackrabbit-text-extractors</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.lucene</groupId>
-          <artifactId>lucene-core</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.derby</groupId>
-          <artifactId>derby</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+		<dependency>
+			<groupId>org.apache.jackrabbit</groupId>
+			<artifactId>jackrabbit-core</artifactId>
+			<version>1.5.3</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.jackrabbit</groupId>
+					<artifactId>jackrabbit-text-extractors
+					</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.lucene</groupId>
+					<artifactId>lucene-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.derby</groupId>
+					<artifactId>derby</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 
-    <dependency>
-      <groupId>xml-apis</groupId>
-      <artifactId>xml-apis</artifactId>
-      <version>1.3.04</version>
-    </dependency>
-    <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xercesImpl</artifactId>
-      <version>2.9.1</version>
-    </dependency>
+		<dependency>
+			<groupId>xml-apis</groupId>
+			<artifactId>xml-apis</artifactId>
+			<version>1.3.04</version>
+		</dependency>
+		<dependency>
+			<groupId>xerces</groupId>
+			<artifactId>xercesImpl</artifactId>
+			<version>2.9.1</version>
+		</dependency>
 
-    <dependency>
-      <groupId>bouncycastle</groupId>
-      <artifactId>bcprov-jdk15</artifactId>
-      <version>135</version>
-    </dependency>
+		<dependency>
+			<groupId>bouncycastle</groupId>
+			<artifactId>bcprov-jdk15</artifactId>
+			<version>135</version>
+		</dependency>
 
-    <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-      <version>1.3</version>
-    </dependency>
-
-
-    <!-- Logging -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.5.3</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
-      <version>1.5.3</version>
-    </dependency>
-
-    <!-- Test dependencies -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.2</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>jivesoftware</groupId>
-      <artifactId>smack</artifactId>
-      <version>3.0.4</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>jivesoftware</groupId>
-      <artifactId>smackx</artifactId>
-      <version>3.0.4</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>1.5.3</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.14</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-  <build>
-    <plugins>
-       <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>apt-maven-plugin</artifactId>
-          <version>1.0-alpha-2</version>
-          <configuration>
-            <factory>org.apache.vysper.compliance.reporting.DocumentSpecCompliantAnnotationFactory</factory>
-          </configuration>
-        </plugin>
-    
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.4.3</version>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-eclipse-plugin</artifactId>
-        <version>2.5.1</version>
-        <configuration>
-          <downloadSources>true</downloadSources>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>2.0-beta-7</version>
-        <configuration>
-          <tagBase>https://svn.apache.org/repos/asf/mina/sandbox/vysper/tags/</tagBase>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-remote-resources-plugin</artifactId>
-        <version>1.0</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>process</goal>
-            </goals>
-            <configuration>
-              <resourceBundles>
-                <resourceBundle>org.apache:apache-jar-resource-bundle:1.1</resourceBundle>
-              </resourceBundles>
-              <properties>
-                <addLicense>true</addLicense>
-              </properties>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.0.2</version>
-        <configuration>
-          <source>${maven.compile.source}</source>
-          <target>${maven.compile.target}</target>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>rat-maven-plugin</artifactId>
-        <version>1.0-alpha-3</version>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>2.0.4</version>
-        <executions>
-          <execution>
-            <id>create-source-jar</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-idea-plugin</artifactId>
-        <version>2.1</version>
-        <configuration>
-          <jdkLevel>${maven.compile.source}</jdkLevel>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>2.2</version>
-        <configuration>
-          <archive>
-            <addMavenDescriptor>false</addMavenDescriptor>
-          </archive>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-  <repositories>
-    <repository>
-      <id>vysper-temp-repo</id>
-      <url>http://people.apache.org/~ngn/vysper-repo</url>
-    </repository>
-  </repositories>
-  <profiles>
-    <profile>
-      <id>default-tools.jar</id>
-      <activation>
-        <property>
-          <name>java.vendor</name>
-          <value>Sun Microsystems Inc.</value>
-        </property>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>com.sun</groupId>
-          <artifactId>tools</artifactId>
-          <version>1.4.2</version>
-          <scope>system</scope>
-          <systemPath>${java.home}/../lib/tools.jar</systemPath>
-        </dependency>
-      </dependencies>
-    </profile>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.3</version>
+		</dependency>
 
 
+		<!-- Logging -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.5.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>1.5.3</version>
+		</dependency>
+
+		<!-- Test dependencies -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.2</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>jivesoftware</groupId>
+			<artifactId>smack</artifactId>
+			<version>3.0.4</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>jivesoftware</groupId>
+			<artifactId>smackx</artifactId>
+			<version>3.0.4</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.5.3</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.14</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>apt-maven-plugin</artifactId>
+				<version>1.0-alpha-2</version>
+				<configuration>
+					<factory>
+						org.apache.vysper.compliance.reporting.DocumentSpecCompliantAnnotationFactory
+					</factory>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.4.3</version>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<version>2.5.1</version>
+				<configuration>
+					<downloadSources>true</downloadSources>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.0-beta-7</version>
+				<configuration>
+					<tagBase>
+						https://svn.apache.org/repos/asf/mina/sandbox/vysper/tags/
+					</tagBase>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-remote-resources-plugin
+				</artifactId>
+				<version>1.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>process</goal>
+						</goals>
+						<configuration>
+							<resourceBundles>
+								<resourceBundle>org.apache:apache-jar-resource-bundle:1.1
+								</resourceBundle>
+							</resourceBundles>
+							<properties>
+								<addLicense>true</addLicense>
+							</properties>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.0.2</version>
+				<configuration>
+					<source>${maven.compile.source}</source>
+					<target>${maven.compile.target}</target>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>rat-maven-plugin</artifactId>
+				<version>1.0-alpha-3</version>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.0.4</version>
+				<executions>
+					<execution>
+						<id>create-source-jar</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-idea-plugin</artifactId>
+				<version>2.1</version>
+				<configuration>
+					<jdkLevel>${maven.compile.source}</jdkLevel>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.2</version>
+				<configuration>
+					<archive>
+						<addMavenDescriptor>false</addMavenDescriptor>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>vysper-temp-repo</id>
+			<url>http://people.apache.org/~ngn/vysper-repo
+			</url>
+		</repository>
+	</repositories>
+
+	<profiles>
+		<profile>
+			<id>default-tools.jar</id>
+			<activation>
+			  <file>
+			    <exists>${java.home}/../lib/tools.jar</exists>
+			  </file>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>com.sun</groupId>
+					<artifactId>tools</artifactId>
+					<version>1.4.2</version>
+					<scope>system</scope>
+					<systemPath>${java.home}/../lib/tools.jar
+					</systemPath>
+				</dependency>
+			</dependencies>
+		</profile>
 
 
-    <profile>
-      <id>release</id>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.0-alpha-4</version>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.5</version>
-            <executions>
-              <execution>
-                <id>create-javadoc-jar</id>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-                <configuration>
-                  <source>${maven.compile.source}</source>
-                </configuration>
-              </execution>
-              <execution>
-                <id>create-site-javadoc</id>
-                <phase>process-resources</phase>
-                <goals>
-                  <goal>aggregate</goal>
-                </goals>
-                <configuration>
-                  <source>${maven.compile.source}</source>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>rat-maven-plugin</artifactId>
-            <version>1.0-alpha-3</version>
-            <executions>
-              <execution>
-                <id>verify-licenses</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>check</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-      <distributionManagement>
-        <repository>
-          <id>apache.snapshots</id>
-          <name>Apache Development Snapshot Repository</name>
-          <url>scp://people.apache.org/www/people.apache.org/repo/m2-incubating-repository/</url>
-        </repository>
-      </distributionManagement>
-    </profile>
-  </profiles>
-  <distributionManagement>
-    <repository>
-      <id>dummy</id>
-      <name>Dummy to avoid accidental deploys</name>
-      <url/>
-    </repository>
-  </distributionManagement>
-  <properties>
-    <maven.compile.source>1.5</maven.compile.source>
-    <maven.compile.target>1.5</maven.compile.target>
-  </properties>
+
+
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.0-alpha-4</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>2.5</version>
+						<executions>
+							<execution>
+								<id>create-javadoc-jar</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+								<configuration>
+									<source>${maven.compile.source}</source>
+								</configuration>
+							</execution>
+							<execution>
+								<id>create-site-javadoc</id>
+								<phase>process-resources</phase>
+								<goals>
+									<goal>aggregate</goal>
+								</goals>
+								<configuration>
+									<source>${maven.compile.source}</source>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>rat-maven-plugin</artifactId>
+						<version>1.0-alpha-3</version>
+						<executions>
+							<execution>
+								<id>verify-licenses</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>check</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+			<distributionManagement>
+				<repository>
+					<id>apache.snapshots</id>
+					<name>Apache Development Snapshot Repository</name>
+					<url>
+						scp://people.apache.org/www/people.apache.org/repo/m2-incubating-repository/
+					</url>
+				</repository>
+			</distributionManagement>
+		</profile>
+	</profiles>
+	<distributionManagement>
+		<repository>
+			<id>dummy</id>
+			<name>Dummy to avoid accidental deploys</name>
+			<url />
+		</repository>
+	</distributionManagement>
+	<properties>
+		<maven.compile.source>1.5</maven.compile.source>
+		<maven.compile.target>1.5</maven.compile.target>
+	</properties>
 </project>
