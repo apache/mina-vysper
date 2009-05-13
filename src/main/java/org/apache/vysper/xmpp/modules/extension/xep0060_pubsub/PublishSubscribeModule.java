@@ -19,7 +19,16 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.general.PubSubCreateNodeHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.general.PubSubPublishHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.general.PubSubSubscribeHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.general.PubSubUnsubscribeHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.owner.PubSubOwnerConfigureNodeHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.owner.PubSubOwnerDeleteNodeHandler;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
@@ -28,25 +37,15 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscove
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Initializes the XEP0060 module.
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Rev$, $Date$
  */
 public class PublishSubscribeModule extends DefaultDiscoAwareModule implements
 		ServerInfoRequestListener {
 
-	@Override
-	public void initialize(ServerRuntimeContext serverRuntimeContext) {
-		super.initialize(serverRuntimeContext);
-	}
-	
 	@Override
 	public String getName() {
 		return "XEP-0060 Publish-Subscribe";
@@ -67,8 +66,13 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements
 	
     @Override
     protected void addHandlerDictionaries(List<HandlerDictionary> dictionary) {
-        dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB));
-        dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB_OWNER));
+        dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB, new PubSubSubscribeHandler()));
+        dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB, new PubSubUnsubscribeHandler()));
+        dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB, new PubSubPublishHandler()));
+        dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB, new PubSubCreateNodeHandler()));
+        
+        dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB_OWNER, new PubSubOwnerConfigureNodeHandler()));
+        dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB_OWNER, new PubSubOwnerDeleteNodeHandler()));
     }
 
 }
