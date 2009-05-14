@@ -39,7 +39,7 @@ public class XMLParticleTestCase extends TestCase {
     
     public void testWrongOpeningElementName() {
         assertFailureOpeningElementName("<>");
-        assertFailureOpeningElementName("<&()�$%/>");
+        assertFailureOpeningElementName("<&()§$%/>");
         assertFailureOpeningElementName("< space-prefixed />");
         assertFailureOpeningElementName("<-prefixed>");
     } 
