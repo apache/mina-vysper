@@ -18,8 +18,6 @@ package org.apache.vysper.xmpp.xmldecoder;
 
 import junit.framework.TestCase;
 
-import java.util.regex.Matcher;
-
 /**
  */
 public class XMLParticleTestCase extends TestCase {
@@ -41,7 +39,7 @@ public class XMLParticleTestCase extends TestCase {
     
     public void testWrongOpeningElementName() {
         assertFailureOpeningElementName("<>");
-        assertFailureOpeningElementName("<&()¤$%/>");
+        assertFailureOpeningElementName("<&()ï¿½$%/>");
         assertFailureOpeningElementName("< space-prefixed />");
         assertFailureOpeningElementName("<-prefixed>");
     } 

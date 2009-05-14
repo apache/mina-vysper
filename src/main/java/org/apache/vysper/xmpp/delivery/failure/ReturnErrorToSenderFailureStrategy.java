@@ -23,7 +23,6 @@ import org.apache.vysper.xmpp.delivery.*;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
 import org.apache.vysper.xmpp.stanza.*;
 import static org.apache.vysper.xmpp.stanza.PresenceStanzaType.*;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.compliance.SpecCompliance;
 import org.apache.vysper.compliance.SpecCompliant;
