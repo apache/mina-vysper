@@ -33,7 +33,6 @@ import java.util.Iterator;
  * renders only reduced digest stanza information for logging output
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 public class DenseStanzaLogRenderer {
 

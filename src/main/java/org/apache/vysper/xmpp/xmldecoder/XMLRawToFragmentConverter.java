@@ -34,7 +34,6 @@ import java.util.Stack;
  * by core XMPP engine.
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 public class XMLRawToFragmentConverter {
     private static final String CHAR_ATTR_EQUALS = "=";

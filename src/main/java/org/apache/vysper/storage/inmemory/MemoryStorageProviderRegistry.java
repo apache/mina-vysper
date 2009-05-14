@@ -27,7 +27,6 @@ import org.apache.vysper.xmpp.modules.roster.persistence.MemoryRosterManager;
  * all the memory based stores. information put here is lost on JVM exit.
  * 
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 public class MemoryStorageProviderRegistry extends OpenStorageProviderRegistry {
 

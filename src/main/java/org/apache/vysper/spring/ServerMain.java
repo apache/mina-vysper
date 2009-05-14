@@ -25,7 +25,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  * starts the server as a standalone application using a Spring configuration
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date$
  */
 public class ServerMain {
 

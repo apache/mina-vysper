@@ -29,7 +29,6 @@ import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
-import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.Date;
 import java.util.Locale;
@@ -39,7 +38,6 @@ import java.text.SimpleDateFormat;
  * implements deprecated XEP0090 Entity Time
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 @SpecCompliant(spec="xep-0090", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
 public class EntityTimeXEP0090IQHandler extends DefaultIQHandler {

@@ -37,7 +37,6 @@ import javax.net.ssl.SSLContext;
  * provides each session with server-global data
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 public interface ServerRuntimeContext {
     StanzaHandler getHandler(Stanza stanza);

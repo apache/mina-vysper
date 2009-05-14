@@ -23,7 +23,6 @@ package org.apache.vysper.xmpp.protocol;
  * common namespace URIs as defined by RFC3920 and RFC3921
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 public class NamespaceURIs {
     public static final String HTTP_ETHERX_JABBER_ORG_STREAMS = "http://etherx.jabber.org/streams";

@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
  * connects MINA frontend to the vysper backend
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 public class MinaBackedSessionContext extends AbstractSessionContext implements StanzaWriter, IoFutureListener {
 

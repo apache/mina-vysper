@@ -35,7 +35,6 @@ import java.util.List;
  * it is surrounded by a family of classes used to build, parse, verify and process stanzas
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 public class Stanza extends XMLElement {
 

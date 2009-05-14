@@ -24,7 +24,6 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 /**
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date$
  */
 public class StanzaSession {
 

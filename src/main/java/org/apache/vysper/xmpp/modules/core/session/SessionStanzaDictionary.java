@@ -27,7 +27,6 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
  * handler for session establishment (RFC3921). this logic is planned to be removed in revisions of RFC3921.
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 public class SessionStanzaDictionary extends NamespaceHandlerDictionary {
 

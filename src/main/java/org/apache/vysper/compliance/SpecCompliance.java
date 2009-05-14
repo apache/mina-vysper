@@ -34,7 +34,6 @@ import java.lang.annotation.*;
  * </code>
  * 
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Rev: 671827 $, $Date: 2008-06-26 14:19:48 +0530 (Thu, 26 Jun 2008) $ 
  */
 @Documented
 @Retention(RetentionPolicy.SOURCE)

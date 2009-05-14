@@ -27,7 +27,6 @@ import org.apache.vysper.xmpp.writer.DenseStanzaLogRenderer;
  * this is especially useful when opening the stream, where the opening tag is never/not immediately closed.
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 public class StanzaWriteInfo {
     private Stanza stanza = null;

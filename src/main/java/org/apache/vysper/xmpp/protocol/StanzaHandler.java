@@ -30,7 +30,6 @@ import org.apache.vysper.xmpp.stanza.Stanza;
  * StanzaHandler implementations must be stateless!
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Rev$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 public interface StanzaHandler {
 

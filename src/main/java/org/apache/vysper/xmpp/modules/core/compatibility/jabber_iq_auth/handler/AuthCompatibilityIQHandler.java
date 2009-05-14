@@ -34,7 +34,6 @@ import org.apache.vysper.compliance.SpecCompliant;
  * handles jabber:iq:auth request - by returning "service unavailable"
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 @SpecCompliant(spec="xep-0078", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public class AuthCompatibilityIQHandler extends IQHandler {

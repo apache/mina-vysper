@@ -43,7 +43,6 @@ import java.io.File;
  * it generates a file spec_compliance.html in src/main/java
  * 
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Rev: 671827 $, $Date: 2008-06-26 14:19:48 +0530 (Thu, 26 Jun 2008) $
  */
 public class DocumentSpecCompliantAnnotationFactory implements AnnotationProcessorFactory {
     // Process any set of annotations

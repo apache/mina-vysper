@@ -26,7 +26,6 @@ import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.uuid.JVMBuiltinUUIDGenerator;
 import org.apache.vysper.xmpp.uuid.UUIDGenerator;
-import org.apache.vysper.compliance.SpecCompliance;
 import org.apache.vysper.compliance.SpecCompliant;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.*;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.*;
@@ -35,7 +34,6 @@ import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.*;
  * handles SASL ANONYMOUS mechanism, where no credentials are required
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 @SpecCompliant(spec="rfc4505", status= FINISHED, coverage = COMPLETE)
 public class Anonymous implements SASLMechanism {

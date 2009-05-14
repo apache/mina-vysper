@@ -20,7 +20,6 @@
 package org.apache.vysper.xmpp.modules.extension.xep0202_entity_time;
 
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
-import org.apache.vysper.xmpp.modules.extension.xep0092_software_version.SoftwareVersionIQHandler;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
@@ -28,7 +27,6 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequ
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.StanzaHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +34,6 @@ import java.util.List;
 /**
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 public class EntityTimeModule extends DefaultDiscoAwareModule implements ServerInfoRequestListener {
 

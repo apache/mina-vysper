@@ -47,7 +47,6 @@ import java.util.List;
  * handles IQ info queries
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 @SpecCompliant(spec="xep-0030", status= SpecCompliant.ComplianceStatus.IN_PROGRESS,
                coverage = SpecCompliant.ComplianceCoverage.PARTIAL, comment = "handles disco info queries")

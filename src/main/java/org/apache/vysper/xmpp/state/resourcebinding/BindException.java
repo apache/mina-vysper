@@ -26,7 +26,6 @@ import org.apache.vysper.xmpp.protocol.ProtocolException;
  * thrown when a resource binding fails
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 public class BindException extends ProtocolException {
     public BindException() {

@@ -30,7 +30,6 @@ import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 /**
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Rev$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 public class ServiceUnavailableStanzaErrorHandler implements StanzaHandler {
 

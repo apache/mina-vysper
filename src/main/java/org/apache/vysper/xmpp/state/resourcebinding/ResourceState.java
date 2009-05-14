@@ -26,7 +26,6 @@ package org.apache.vysper.xmpp.state.resourcebinding;
  * see http://www.xmpp.org/internet-drafts/draft-saintandre-rfc3921bis-04.html#roster-login
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  *
  */
 public enum ResourceState {

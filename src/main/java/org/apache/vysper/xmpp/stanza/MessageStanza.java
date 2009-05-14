@@ -32,7 +32,6 @@ import java.util.Map;
  * message stanza (push)
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 @SpecCompliant(spec = "RFC3921bis-08", section = "5", status = FINISHED, coverage = COMPLETE)
 public class MessageStanza extends XMPPCoreStanza {

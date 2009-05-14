@@ -29,7 +29,6 @@ import org.apache.vysper.xmpp.writer.StanzaWriter;
  * handles business logic and sends out result
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 abstract public class ResponseFuture<T extends XMPPCoreStanza> implements RunnableFuture<T> {
 

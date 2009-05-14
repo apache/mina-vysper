@@ -27,7 +27,6 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
  * handler for roster retrieval (RFC3921#7.3)
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 public class RosterDictionary extends NamespaceHandlerDictionary {
 

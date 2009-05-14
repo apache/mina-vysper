@@ -29,7 +29,6 @@ import java.util.Map;
  * presence stanza (publish/subscribe [aka "pub/sub"] or broadcast)
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 public class PresenceStanza extends XMPPCoreStanza {
     public static final String NAME = "presence";

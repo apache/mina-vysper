@@ -31,7 +31,6 @@ import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.*;
  * handles SASL EXTERNAL mechanism
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 @SpecCompliance( compliant = {
     @SpecCompliant(spec="rfc4422", section = "A.", status = NOT_STARTED, coverage = PARTIAL, comment = "only Appendix A. is relevant here"),

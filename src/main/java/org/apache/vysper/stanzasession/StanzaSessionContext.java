@@ -34,7 +34,6 @@ import java.util.Queue;
  * object. this is an unconvential use, it does not rely on a network connection.
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date$
  */
 public class StanzaSessionContext extends AbstractSessionContext implements StanzaWriter {
 

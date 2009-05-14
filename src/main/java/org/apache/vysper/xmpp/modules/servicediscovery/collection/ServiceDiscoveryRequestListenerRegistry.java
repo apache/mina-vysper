@@ -30,7 +30,6 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestLis
  * for a simple example how to deal with such a request
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 public interface ServiceDiscoveryRequestListenerRegistry {
 

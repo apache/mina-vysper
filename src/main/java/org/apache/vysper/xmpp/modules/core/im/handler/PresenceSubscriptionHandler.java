@@ -59,7 +59,6 @@ import java.util.List;
  * TODO: review all the printStackTraces and throws and turn them into logs or stanza errors
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 public class PresenceSubscriptionHandler extends AbstractPresenceSpecializedHandler {
 

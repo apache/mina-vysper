@@ -63,7 +63,6 @@ import java.util.List;
  * handles roster get, set, push & result requests
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 @SpecCompliant(spec="rfc3921bis-08", section = "2", status = IN_PROGRESS, coverage = COMPLETE)
 public class RosterIQHandler extends DefaultIQHandler {

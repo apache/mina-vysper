@@ -27,7 +27,6 @@ import java.nio.charset.CharsetEncoder;
  * utility class for charsets
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Rev:  $, $Date:  $
  */
 public class CharsetUtil {
     public static final CharsetDecoder UTF8_DECODER = Charset.forName("UTF-8").newDecoder();

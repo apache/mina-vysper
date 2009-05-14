@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
  * this is the recommended superclass for own handler implementations
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 public abstract class DefaultIQHandler extends IQHandler {
 

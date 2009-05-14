@@ -27,7 +27,6 @@ import org.apache.vysper.xmpp.server.Endpoint;
 /**
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date$
  */
 public class StanzaSessionFactory implements Endpoint {
 

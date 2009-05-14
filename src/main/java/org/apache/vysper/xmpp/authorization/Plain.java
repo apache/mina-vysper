@@ -40,7 +40,6 @@ import java.util.List;
  * handles SASL PLAIN mechanism. this mechanism is standardized in RFC4616
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 @SpecCompliance( compliant = {
     @SpecCompliant(spec="rfc4616", status= IN_PROGRESS, coverage = PARTIAL),

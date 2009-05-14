@@ -27,7 +27,6 @@ import java.nio.charset.CharsetDecoder;
  * partitions the incoming byte stream in particles of XML. either those enclosed by '<' and '>', or the text inbetween.
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
- * @version $Revision$ , $Date: 2009-04-21 13:13:19 +0530 (Tue, 21 Apr 2009) $
  */
 public class ParticleDecoder {
     /**
