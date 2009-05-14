@@ -35,7 +35,7 @@ import org.apache.vysper.xmpp.state.resourcebinding.ResourceState;
 /**
  * The abstract base class for all pubsub related tests.
  * 
- * @author The Apache MINA Project (dev@mina.apache.org)
+ * @author The Apache MINA Project (http://mina.apache.org)
  */
 public abstract class AbstractPublishSubscribeTestCase extends TestCase {
 	private TestSessionContext sessionContext  = null;

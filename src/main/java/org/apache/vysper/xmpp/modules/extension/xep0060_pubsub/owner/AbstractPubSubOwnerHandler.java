@@ -22,6 +22,11 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.owner;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeIQHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 
+/**
+ * 
+ * @author The Apache MINA Project (http://mina.apache.org)
+ *
+ */
 public abstract class AbstractPubSubOwnerHandler extends
 		AbstractPublishSubscribeIQHandler {
 

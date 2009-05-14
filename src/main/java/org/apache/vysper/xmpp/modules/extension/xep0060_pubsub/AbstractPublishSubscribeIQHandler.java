@@ -27,7 +27,7 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 /**
  * Handles PubSub stanzas.
  *
- * @author The Apache MINA Project (dev@mina.apache.org)
+ * @author The Apache MINA Project (http://mina.apache.org)
  */
 @SpecCompliant(spec="xep-0060", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public abstract class AbstractPublishSubscribeIQHandler extends DefaultIQHandler {

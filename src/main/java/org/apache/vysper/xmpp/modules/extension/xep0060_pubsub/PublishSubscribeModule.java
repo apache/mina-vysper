@@ -41,7 +41,7 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 /**
  * Initializes the XEP0060 module.
  *
- * @author The Apache MINA Project (dev@mina.apache.org)
+ * @author The Apache MINA Project (http://mina.apache.org)
  */
 public class PublishSubscribeModule extends DefaultDiscoAwareModule implements
 		ServerInfoRequestListener {

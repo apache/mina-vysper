@@ -21,7 +21,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.owner;
 
 
 /**
- * @author The Apache MINA Project (dev@mina.apache.org)
+ * @author The Apache MINA Project (http://mina.apache.org)
  *
  */
 public class PubSubOwnerConfigureNodeHandler extends AbstractPubSubOwnerHandler {
