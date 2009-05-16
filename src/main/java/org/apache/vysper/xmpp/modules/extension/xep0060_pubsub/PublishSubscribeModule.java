@@ -19,9 +19,6 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.general.PubSubCreateNodeHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.general.PubSubPublishHandler;
@@ -30,6 +27,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.general.PubSubUns
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.owner.PubSubOwnerConfigureNodeHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.owner.PubSubOwnerDeleteNodeHandler;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.Identity;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequestListener;
@@ -38,13 +36,15 @@ import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Initializes the XEP0060 module.
  *
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-public class PublishSubscribeModule extends DefaultDiscoAwareModule implements
-		ServerInfoRequestListener {
+public class PublishSubscribeModule extends DefaultDiscoAwareModule implements ServerInfoRequestListener {
 
 	@Override
 	public String getName() {
@@ -56,11 +56,16 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements
 		return "1.13rc3";
 	}
 
+    @Override
+    protected void addServerInfoRequestListeners(List<ServerInfoRequestListener> serverInfoRequestListeners) {
+        serverInfoRequestListeners.add(this);
+    }
+    
 	public List<InfoElement> getServerInfosFor(InfoRequest request)
 			throws ServiceDiscoveryRequestException {
         List<InfoElement> infoElements = new ArrayList<InfoElement>();
+        infoElements.add(new Identity("pubsub", "service"));
         infoElements.add(new Feature(NamespaceURIs.XEP0060_PUBSUB));
-        infoElements.add(new Feature(NamespaceURIs.XEP0060_PUBSUB_OWNER));
         return infoElements;
 	}
 	
