@@ -28,11 +28,11 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 /**
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-public class PubSubCreateNode extends AbstractPublishSubscribeTestCase {
+public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
 
 	@Override
 	protected StanzaBuilder buildInnerElement(StanzaBuilder sb) {
-		sb.startInnerElement("create");
+		sb.startInnerElement("publish");
 		sb.addAttribute("node", pubsub.getResource());
 		sb.endInnerElement();
 		return sb;
@@ -40,7 +40,7 @@ public class PubSubCreateNode extends AbstractPublishSubscribeTestCase {
 
 	@Override
 	protected IQHandler getHandler() {
-		return new PubSubCreateNodeHandler();
+		return new PubSubPublishHandler();
 	}
 
 	@Override

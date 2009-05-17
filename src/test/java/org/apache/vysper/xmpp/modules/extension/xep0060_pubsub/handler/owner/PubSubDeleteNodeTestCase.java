@@ -17,11 +17,10 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
+package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner;
 
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeTestCase;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubUnsubscribeHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -29,25 +28,24 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 /**
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-public class PubSubUnsubscribe extends AbstractPublishSubscribeTestCase {
+public class PubSubDeleteNodeTestCase extends AbstractPublishSubscribeTestCase {
 
 	@Override
 	protected StanzaBuilder buildInnerElement(StanzaBuilder sb) {
-		sb.startInnerElement("unsubscribe");
+		sb.startInnerElement("delete");
 		sb.addAttribute("node", pubsub.getResource());
-		sb.addAttribute("jid", client.getFullQualifiedName());
 		sb.endInnerElement();
 		return sb;
 	}
 
 	@Override
 	protected IQHandler getHandler() {
-		return new PubSubUnsubscribeHandler();
+		return new PubSubOwnerDeleteNodeHandler();
 	}
 
 	@Override
 	protected String getNamespace() {
-		return NamespaceURIs.XEP0060_PUBSUB;
+		return NamespaceURIs.XEP0060_PUBSUB_OWNER;
 	}
 
 	@Override

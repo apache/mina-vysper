@@ -19,12 +19,12 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubCreateNode;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubPublish;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubSubscribe;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubUnsubscribe;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner.PubSubConfigureNode;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner.PubSubDeleteNode;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubCreateNodeTestCase;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubPublishTestCase;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubSubscribeTestCase;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubUnsubscribeTestCase;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner.PubSubConfigureNodeTestCase;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner.PubSubDeleteNodeTestCase;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -40,12 +40,12 @@ public class PubSubTests {
 		TestSuite suite = new TestSuite(
 				"Test for Publish/Subscribe XEP-0060");
 		//$JUnit-BEGIN$
-		suite.addTestSuite(PubSubDeleteNode.class);
-		suite.addTestSuite(PubSubConfigureNode.class);
-		suite.addTestSuite(PubSubCreateNode.class);
-		suite.addTestSuite(PubSubPublish.class);
-		suite.addTestSuite(PubSubSubscribe.class);
-		suite.addTestSuite(PubSubUnsubscribe.class);
+		suite.addTestSuite(PubSubDeleteNodeTestCase.class);
+		suite.addTestSuite(PubSubConfigureNodeTestCase.class);
+		suite.addTestSuite(PubSubCreateNodeTestCase.class);
+		suite.addTestSuite(PubSubPublishTestCase.class);
+		suite.addTestSuite(PubSubSubscribeTestCase.class);
+		suite.addTestSuite(PubSubUnsubscribeTestCase.class);
 		//$JUnit-END$
 		return suite;
 	}
