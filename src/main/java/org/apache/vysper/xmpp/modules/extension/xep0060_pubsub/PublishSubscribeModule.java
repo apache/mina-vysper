@@ -20,12 +20,12 @@
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.general.PubSubCreateNodeHandler;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.general.PubSubPublishHandler;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.general.PubSubSubscribeHandler;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.general.PubSubUnsubscribeHandler;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.owner.PubSubOwnerConfigureNodeHandler;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.owner.PubSubOwnerDeleteNodeHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubCreateNodeHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubPublishHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubSubscribeHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubUnsubscribeHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner.PubSubOwnerConfigureNodeHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner.PubSubOwnerDeleteNodeHandler;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Identity;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;

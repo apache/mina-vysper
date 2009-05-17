@@ -17,18 +17,18 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.general;
+package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
 
 /**
  * @author The Apache MINA Project (http://mina.apache.org)
  *
  */
-public class PubSubCreateNodeHandler extends AbstractPubSubGeneralHandler {
+public class PubSubPublishHandler extends AbstractPubSubGeneralHandler {
 
 	@Override
 	protected String getWorkerElement() {
-		return "create";
+		return "publish";
 	}
 
 }

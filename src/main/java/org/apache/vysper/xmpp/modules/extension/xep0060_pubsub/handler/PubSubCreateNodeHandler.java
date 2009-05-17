@@ -17,22 +17,18 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.general;
+package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeIQHandler;
-import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 
 /**
- * 
  * @author The Apache MINA Project (http://mina.apache.org)
  *
  */
-public abstract class AbstractPubSubGeneralHandler extends
-		AbstractPublishSubscribeIQHandler {
+public class PubSubCreateNodeHandler extends AbstractPubSubGeneralHandler {
 
 	@Override
-	protected String getNamespace() {
-		return NamespaceURIs.XEP0060_PUBSUB;
+	protected String getWorkerElement() {
+		return "create";
 	}
 
 }

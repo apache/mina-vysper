@@ -19,12 +19,12 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.general.PubSubCreateNode;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.general.PubSubPublish;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.general.PubSubSubscribe;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.general.PubSubUnsubscribe;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.owner.PubSubConfigureNode;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.owner.PubSubDeleteNode;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubCreateNode;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubPublish;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubSubscribe;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubUnsubscribe;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner.PubSubConfigureNode;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner.PubSubDeleteNode;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;

@@ -17,11 +17,11 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.general;
+package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeTestCase;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.general.PubSubSubscribeHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubUnsubscribeHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -29,11 +29,11 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 /**
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-public class PubSubSubscribe extends AbstractPublishSubscribeTestCase {
+public class PubSubUnsubscribe extends AbstractPublishSubscribeTestCase {
 
 	@Override
 	protected StanzaBuilder buildInnerElement(StanzaBuilder sb) {
-		sb.startInnerElement("subscribe");
+		sb.startInnerElement("unsubscribe");
 		sb.addAttribute("node", pubsub.getResource());
 		sb.addAttribute("jid", client.getFullQualifiedName());
 		sb.endInnerElement();
@@ -42,7 +42,7 @@ public class PubSubSubscribe extends AbstractPublishSubscribeTestCase {
 
 	@Override
 	protected IQHandler getHandler() {
-		return new PubSubSubscribeHandler();
+		return new PubSubUnsubscribeHandler();
 	}
 
 	@Override

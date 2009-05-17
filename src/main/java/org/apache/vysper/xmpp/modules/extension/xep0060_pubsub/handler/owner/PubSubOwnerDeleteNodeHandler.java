@@ -17,22 +17,18 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.owner;
+package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner;
 
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeIQHandler;
-import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 
 /**
- * 
  * @author The Apache MINA Project (http://mina.apache.org)
  *
  */
-public abstract class AbstractPubSubOwnerHandler extends
-		AbstractPublishSubscribeIQHandler {
+public class PubSubOwnerDeleteNodeHandler extends AbstractPubSubOwnerHandler {
 
 	@Override
-	protected String getNamespace() {
-		return NamespaceURIs.XEP0060_PUBSUB_OWNER;
+	protected String getWorkerElement() {
+		return "delete";
 	}
 
 }

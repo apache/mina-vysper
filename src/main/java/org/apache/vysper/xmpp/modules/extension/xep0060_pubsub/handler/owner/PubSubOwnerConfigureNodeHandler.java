@@ -17,18 +17,18 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.general;
+package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner;
 
 
 /**
  * @author The Apache MINA Project (http://mina.apache.org)
  *
  */
-public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
+public class PubSubOwnerConfigureNodeHandler extends AbstractPubSubOwnerHandler {
 
 	@Override
 	protected String getWorkerElement() {
-		return "unsubscribe";
+		return "configure";
 	}
 
 }

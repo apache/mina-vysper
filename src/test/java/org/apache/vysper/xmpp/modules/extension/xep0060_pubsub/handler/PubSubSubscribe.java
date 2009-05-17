@@ -17,11 +17,11 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.owner;
+package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeTestCase;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.owner.PubSubOwnerConfigureNodeHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubSubscribeHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -29,29 +29,30 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 /**
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-public class PubSubConfigureNode extends AbstractPublishSubscribeTestCase {
+public class PubSubSubscribe extends AbstractPublishSubscribeTestCase {
 
 	@Override
 	protected StanzaBuilder buildInnerElement(StanzaBuilder sb) {
-		sb.startInnerElement("configure");
+		sb.startInnerElement("subscribe");
 		sb.addAttribute("node", pubsub.getResource());
+		sb.addAttribute("jid", client.getFullQualifiedName());
 		sb.endInnerElement();
 		return sb;
 	}
 
 	@Override
 	protected IQHandler getHandler() {
-		return new PubSubOwnerConfigureNodeHandler();
+		return new PubSubSubscribeHandler();
 	}
 
 	@Override
 	protected String getNamespace() {
-		return NamespaceURIs.XEP0060_PUBSUB_OWNER;
+		return NamespaceURIs.XEP0060_PUBSUB;
 	}
 
 	@Override
 	protected IQStanzaType getStanzaType() {
-		return IQStanzaType.GET;
+		return IQStanzaType.SET;
 	}
 
 }
