@@ -35,6 +35,7 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscove
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.StanzaHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,13 +72,17 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
 	
     @Override
     protected void addHandlerDictionaries(List<HandlerDictionary> dictionary) {
-        dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB, new PubSubSubscribeHandler()));
-        dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB, new PubSubUnsubscribeHandler()));
-        dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB, new PubSubPublishHandler()));
-        dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB, new PubSubCreateNodeHandler()));
+        ArrayList<StanzaHandler> pubsubHandlers = new ArrayList<StanzaHandler>();
+        pubsubHandlers.add(new PubSubSubscribeHandler());
+        pubsubHandlers.add(new PubSubUnsubscribeHandler());
+        pubsubHandlers.add(new PubSubPublishHandler());
+        pubsubHandlers.add(new PubSubCreateNodeHandler());
+        dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB, pubsubHandlers));
         
-        dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB_OWNER, new PubSubOwnerConfigureNodeHandler()));
-        dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB_OWNER, new PubSubOwnerDeleteNodeHandler()));
+        ArrayList<StanzaHandler> pubsubOwnerHandlers = new ArrayList<StanzaHandler>();
+        pubsubOwnerHandlers.add(new PubSubOwnerConfigureNodeHandler());
+        pubsubOwnerHandlers.add(new PubSubOwnerDeleteNodeHandler());
+        dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB_OWNER, pubsubOwnerHandlers));
     }
 
 }
