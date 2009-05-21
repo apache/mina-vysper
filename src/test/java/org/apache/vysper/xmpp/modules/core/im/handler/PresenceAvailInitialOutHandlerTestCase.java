@@ -103,7 +103,7 @@ public class PresenceAvailInitialOutHandlerTestCase extends PresenceHandlerBaseT
         assertNull(stanza); // no return, esp no error stanza - all the handling is done through relays
         stanza = initiatingUser.getNextStanza();
         assertNull(stanza.getAttribute("type"));
-        assertNull(stanza.getInnerElements());
+        assertEquals(0, stanza.getInnerElements().size());
         assertNull(initiatingUser.getNextStanza()); // no second stanza
 
         // now we run berserk :-) - when there is no resource remaining, from-resolution fails again, and we get the same error again 

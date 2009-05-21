@@ -21,6 +21,7 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
 
 /**
  */
@@ -37,7 +38,7 @@ public class XMLElementTestCase extends TestCase {
         assertEquals("jabber:test", xmlElement.getNamespace());
         assertEquals("cn", xmlElement.getXMLLang());
         
-        assertNull(xmlElement.getInnerElements());
+        assertSame(Collections.emptyList(), xmlElement.getInnerElements());
         List<Attribute> list = xmlElement.getAttributes();
         assertNotNull(list);
         assertEquals(3, list.size());

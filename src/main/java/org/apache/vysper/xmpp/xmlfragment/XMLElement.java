@@ -98,7 +98,7 @@ public class XMLElement implements XMLFragment {
     }
 
     public List<XMLFragment> getInnerFragments() {
-        return innerFragments;
+        return Collections.unmodifiableList(innerFragments);
     }
 
     public XMLElement getFirstInnerElement() {
@@ -110,8 +110,8 @@ public class XMLElement implements XMLFragment {
     }
 
     public List<XMLElement> getInnerElements() {
+        if (innerFragments == null || innerFragments.size() < 1) return Collections.emptyList();
         List<XMLElement> innerElements = new ArrayList<XMLElement>();
-        if (innerFragments == null || innerFragments.size() < 1) return null;
         for (XMLFragment xmlFragment : innerFragments) {
             if (xmlFragment instanceof XMLElement) innerElements.add((XMLElement) xmlFragment);
         }
@@ -119,8 +119,8 @@ public class XMLElement implements XMLFragment {
     }
 
     public List<XMLText> getInnerTexts() {
+        if (innerFragments == null || innerFragments.size() < 1) return Collections.emptyList();
         List<XMLText> innerTexts = new ArrayList<XMLText>();
-        if (innerFragments == null || innerFragments.size() < 1) return null;
         for (XMLFragment xmlFragment : innerFragments) {
             if (xmlFragment instanceof XMLText) innerTexts.add((XMLText) xmlFragment);
         }
@@ -150,6 +150,7 @@ public class XMLElement implements XMLFragment {
         if (name == null) return null;
         List<XMLElement> innerElements = getInnerElements();
         if (innerElements == null) return null;
+        if (innerElements.size() == 0) return innerElements;
         Iterator<XMLElement> elementIterator = innerElements.iterator(); // this List will be modified now!
         while (elementIterator.hasNext()) {
             XMLElement xmlElement =  elementIterator.next();
