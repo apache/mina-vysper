@@ -5,9 +5,11 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.TestSessionContext;
+import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceState;
 import org.apache.vysper.xmpp.modules.roster.persistence.MemoryRosterManager;
+import org.apache.vysper.storage.OpenStorageProviderRegistry;
 
 /**
  */
@@ -29,7 +31,9 @@ public class RosterIQHandlerTestCase extends TestCase {
         boundResourceId = sessionContext.bindResource();
         sessionContext.getServerRuntimeContext().getResourceRegistry().setResourceState(boundResourceId, ResourceState.CONNECTED);
         rosterManager = new MemoryRosterManager();
-        sessionContext.getServerRuntimeContext().registerServerRuntimeContextService(rosterManager);
+        OpenStorageProviderRegistry storageProviderRegistry = new OpenStorageProviderRegistry();
+        storageProviderRegistry.add(rosterManager);
+        ((DefaultServerRuntimeContext) sessionContext.getServerRuntimeContext()).setStorageProviderRegistry(storageProviderRegistry);
         handler = new RosterIQHandler();
     }
 

@@ -17,22 +17,28 @@
 package org.apache.vysper.xmpp.modules.core.im.handler;
 
 import junit.framework.TestCase;
-import org.apache.vysper.xmpp.server.TestSessionContext;
-import org.apache.vysper.xmpp.modules.roster.persistence.MemoryRosterManager;
-import org.apache.vysper.xmpp.modules.roster.*;
-import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.storage.OpenStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
-import org.apache.vysper.xmpp.state.resourcebinding.ResourceState;
-import org.apache.vysper.xmpp.state.resourcebinding.BindException;
-import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.stanza.PresenceStanzaType;
-import org.apache.vysper.xmpp.stanza.IQStanza;
-import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
-import org.apache.vysper.xmpp.xmlfragment.XMLElementVerifier;
-import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverQueue;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
+import org.apache.vysper.xmpp.modules.roster.AskSubscriptionType;
+import org.apache.vysper.xmpp.modules.roster.RosterException;
+import org.apache.vysper.xmpp.modules.roster.RosterItem;
+import org.apache.vysper.xmpp.modules.roster.RosterUtils;
+import org.apache.vysper.xmpp.modules.roster.SubscriptionType;
+import org.apache.vysper.xmpp.modules.roster.persistence.MemoryRosterManager;
+import org.apache.vysper.xmpp.server.TestSessionContext;
+import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
+import org.apache.vysper.xmpp.stanza.IQStanza;
+import org.apache.vysper.xmpp.stanza.PresenceStanzaType;
+import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
+import org.apache.vysper.xmpp.state.resourcebinding.BindException;
+import org.apache.vysper.xmpp.state.resourcebinding.ResourceState;
+import org.apache.vysper.xmpp.xmlfragment.XMLElementVerifier;
+import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
 
 /**
  * base class for subclassing presence handler tests from
@@ -57,7 +63,9 @@ abstract public class PresenceHandlerBaseTestCase extends TestCase {
         super.setUp();
         sessionContext = TestSessionContext.createWithStanzaReceiverRelayAuthenticated();
         rosterManager = new MemoryRosterManager();
-        sessionContext.getServerRuntimeContext().registerServerRuntimeContextService(rosterManager);
+        OpenStorageProviderRegistry storageProviderRegistry = new OpenStorageProviderRegistry();
+        storageProviderRegistry.add(rosterManager);
+        ((DefaultServerRuntimeContext) sessionContext.getServerRuntimeContext()).setStorageProviderRegistry(storageProviderRegistry);
 
         Entity client = EntityImpl.parse("tester@vysper.org");
         sessionContext.setInitiatingEntity(client);
