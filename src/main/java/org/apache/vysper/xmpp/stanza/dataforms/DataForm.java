@@ -19,12 +19,17 @@
  */
 package org.apache.vysper.xmpp.stanza.dataforms;
 
+import org.apache.vysper.compliance.SpecCompliant;
+import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage;
+import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 /**
  */
+@SpecCompliant(spec = "XEP-0004", status = ComplianceStatus.IN_PROGRESS, coverage = ComplianceCoverage.PARTIAL)
 public class DataForm {
     
     public static enum Type { 
@@ -94,6 +99,7 @@ public class DataForm {
         // as the spec requires (XEP-004#3.4, last sentence).
         List<Field> fieldPrototype = items.get(0);
         for (Field field : fieldPrototype) {
+            // copy the relevant reported information
             reportedFields.add(new Field(field.getLabel(), field.getType(), field.getVar()));
         }
 

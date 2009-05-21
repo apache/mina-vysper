@@ -71,7 +71,9 @@ public class DataFormEncoder {
                 XMLElement itemElement = new XMLElement("item", null, (Attribute[])null, itemFields);
                 childElements.add(itemElement);
             }
-        } else {
+        } 
+
+        if (dataForm.getType() != DataForm.Type.cancel) {
             // all fields
             Iterator<Field> fieldIterator = dataForm.getFieldIterator();
             while (fieldIterator.hasNext()) {
