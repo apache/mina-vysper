@@ -28,10 +28,10 @@ import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.datetime.DateTimeProfile;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 
 /**
  *
@@ -40,11 +40,7 @@ import java.util.TimeZone;
 @SpecCompliant(spec="xep-0202", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
 public class EntityTimeIQHandler extends DefaultIQHandler {
 
-    protected SimpleDateFormat utcDateFormatter;
-
     public EntityTimeIQHandler() {
-        utcDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        utcDateFormatter.setTimeZone(TimeZone.getTimeZone("UTC")); // convert to UTC
     }
 
     @Override
@@ -65,7 +61,7 @@ public class EntityTimeIQHandler extends DefaultIQHandler {
         String timeZone = new SimpleDateFormat("Z").format(now);
         timeZone = timeZone.substring(0, 3) + ":" + timeZone.substring(3, 5); // adjust to required formatting "-00:08"
 
-        String utcTime = utcDateFormatter.format(now);
+        String utcTime = DateTimeProfile.getInstance().getDateTimeInUTC(now);
 
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID()).
             startInnerElement("time").

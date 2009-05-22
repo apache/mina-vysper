@@ -103,6 +103,8 @@
                 <bean class="org.apache.vysper.xmpp.modules.servicediscovery.ServiceDiscoveryModule" />
                 <bean class="org.apache.vysper.xmpp.modules.roster.RosterModule" />
                 <bean class="org.apache.vysper.xmpp.modules.extension.xep0092_software_version.SoftwareVersionModule" />
+                <bean class="org.apache.vysper.xmpp.modules.extension.xep0202_entity_time.EntityTimeModule" />
+                <bean class="org.apache.vysper.xmpp.modules.extension.xep0054_vcardtemp.VcardTempModule" />
                 <bean class="org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PublishSubscribeModule" />
             </list>
         </property>
