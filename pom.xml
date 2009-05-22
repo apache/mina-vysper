@@ -342,14 +342,6 @@
 		</plugins>
 	</build>
 
-	<repositories>
-		<repository>
-			<id>vysper-temp-repo</id>
-			<url>http://people.apache.org/~ngn/vysper-repo
-			</url>
-		</repository>
-	</repositories>
-
 	<profiles>
 		<profile>
 			<id>default-tools.jar</id>
