@@ -86,12 +86,14 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
                     getErrorLanguage(serverRuntimeContext, sessionContext), null);
         }
 
+        // if "vysper.org" is the server entity, 'to' can either be "vysper.org", "node@vysper.org", "service.vysper.org".
         Entity to = stanza.getTo();
         boolean isServerInfoRequest = false;
-        if (to == null || to.equals(serverRuntimeContext.getServerEnitity())) {
+        Entity serviceEntity = serverRuntimeContext.getServerEnitity();
+        if (to == null || to.equals(serviceEntity)) {
             isServerInfoRequest = true; // this can only be meant to query the server
-        } else if (!to.isNodeSet()) {
-            isServerInfoRequest = serverRuntimeContext.getServerEnitity().equals(to);
+        } else if (!to.isNodeSet() && !to.getDomain().endsWith(serviceEntity.getDomain())) {
+            isServerInfoRequest = serviceEntity.equals(to);
             if (!isServerInfoRequest) {
                 return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.ITEM_NOT_FOUND, stanza,
                         StanzaErrorType.CANCEL,
