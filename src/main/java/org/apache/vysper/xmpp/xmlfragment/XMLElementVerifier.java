@@ -190,14 +190,13 @@ public class XMLElementVerifier {
 		List<XMLFragment> innerFragments = element.getInnerFragments();
 
 		// really is only subelement
-		if (innerFragments == null || innerFragments.size() != 1)
-			return false;
+		if (innerFragments == null || innerFragments.size() != 1) return false;
 		XMLFragment onlySubelement = innerFragments.get(0);
-		if (!(onlySubelement instanceof XMLElement))
-			return false;
+		if (!(onlySubelement instanceof XMLElement)) return false;
 
 		XMLElement xmlElement = ((XMLElement) onlySubelement);
-		return name.equals(xmlElement.getName())
-				&& namespaceURI.equals(xmlElement.getNamespace());
+        boolean nameEquals = name == null ? xmlElement.getName() == null : name.equals(xmlElement.getName());
+        if (namespaceURI == null) namespaceURI = NamespaceAttribute.DEFAULT_NAMESPACE;
+        return nameEquals && namespaceURI.equals(xmlElement.getNamespace());
 	}
 }
