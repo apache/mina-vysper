@@ -17,27 +17,17 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner;
-
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
-
+package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model;
 
 /**
  * @author The Apache MINA Project (http://mina.apache.org)
  *
  */
-public class PubSubOwnerDeleteNodeHandler extends AbstractPubSubOwnerHandler {
+public class DuplicateNodeException extends Exception {
 
-	/**
-	 * @param root
-	 */
-	public PubSubOwnerDeleteNodeHandler(CollectionNode root) {
-		super(root);
+	private static final long serialVersionUID = 4689474856848508356L;
+
+	public DuplicateNodeException(String description) {
+		super(description);
 	}
-
-	@Override
-	protected String getWorkerElement() {
-		return "delete";
-	}
-
 }

@@ -17,27 +17,41 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner;
+package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model;
 
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
+import org.apache.vysper.xmpp.addressing.Entity;
 
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
+ * 
  * @author The Apache MINA Project (http://mina.apache.org)
  *
  */
-public class PubSubOwnerDeleteNodeHandler extends AbstractPubSubOwnerHandler {
-
+public class LeafNode {
+	
+	protected String name;
+	protected Map<String,Entity> setSubscriber;
+	
 	/**
-	 * @param root
+	 * Creates a new LeafNode with the specified name.
+	 * @param name the name of the node 
 	 */
-	public PubSubOwnerDeleteNodeHandler(CollectionNode root) {
-		super(root);
+	public LeafNode(String name) {
+		this.name = name;
+		this.setSubscriber = new TreeMap<String, Entity>();
 	}
-
-	@Override
-	protected String getWorkerElement() {
-		return "delete";
+	
+	public void subscribe(String id, Entity subscriber) {
+		setSubscriber.put(id,subscriber);
 	}
-
+	
+	public boolean isSubscribed(Entity subscriber) {
+		return setSubscriber.containsValue(subscriber);
+	}
+	
+	public boolean isSubscribed(String subscriptionId) {
+		return setSubscriber.containsKey(subscriptionId);
+	}
 }

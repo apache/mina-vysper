@@ -40,7 +40,7 @@ public class PubSubCreateNodeTestCase extends AbstractPublishSubscribeTestCase {
 
 	@Override
 	protected IQHandler getHandler() {
-		return new PubSubCreateNodeHandler();
+		return new PubSubCreateNodeHandler(root);
 	}
 
 	@Override

@@ -19,8 +19,11 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
+import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeIQHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.stanza.IQStanza;
 
 /**
  * 
@@ -30,9 +33,33 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 public abstract class AbstractPubSubGeneralHandler extends
 		AbstractPublishSubscribeIQHandler {
 
+	/**
+	 * @param root
+	 */
+	public AbstractPubSubGeneralHandler(CollectionNode root) {
+		super(root);
+	}
+
 	@Override
 	protected String getNamespace() {
 		return NamespaceURIs.XEP0060_PUBSUB;
 	}
 
+	/**
+	 * Extracts the node name from a given IQ stanza. The node attribute
+	 * takes precedence over the JID resource. The standard requires only
+	 * one of these addressing methods.
+	 * 
+	 * @param stanza the received IQStanza
+	 * @return the node name
+	 */
+	protected String extractNodeName(IQStanza stanza) {
+		String node = stanza.getFirstInnerElement().getAttributeValue("node");
+		if(node == null) {
+			Entity to = stanza.getTo();
+			node = to.getResource();
+		}
+		return node;
+	}
+	
 }

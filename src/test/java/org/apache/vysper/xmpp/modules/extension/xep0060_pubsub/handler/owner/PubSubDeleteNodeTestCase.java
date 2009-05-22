@@ -40,7 +40,7 @@ public class PubSubDeleteNodeTestCase extends AbstractPublishSubscribeTestCase {
 
 	@Override
 	protected IQHandler getHandler() {
-		return new PubSubOwnerDeleteNodeHandler();
+		return new PubSubOwnerDeleteNodeHandler(root);
 	}
 
 	@Override

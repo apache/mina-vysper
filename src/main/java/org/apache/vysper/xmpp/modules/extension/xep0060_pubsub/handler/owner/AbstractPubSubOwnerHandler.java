@@ -20,6 +20,7 @@
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner;
 
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeIQHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 
 /**
@@ -29,6 +30,13 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
  */
 public abstract class AbstractPubSubOwnerHandler extends
 		AbstractPublishSubscribeIQHandler {
+
+	/**
+	 * @param root
+	 */
+	public AbstractPubSubOwnerHandler(CollectionNode root) {
+		super(root);
+	}
 
 	@Override
 	protected String getNamespace() {

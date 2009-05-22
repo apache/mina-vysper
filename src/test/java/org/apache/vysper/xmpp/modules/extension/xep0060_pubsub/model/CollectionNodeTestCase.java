@@ -17,27 +17,47 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner;
+package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model;
 
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
-
+import junit.framework.TestCase;
 
 /**
  * @author The Apache MINA Project (http://mina.apache.org)
  *
  */
-public class PubSubOwnerDeleteNodeHandler extends AbstractPubSubOwnerHandler {
-
-	/**
-	 * @param root
-	 */
-	public PubSubOwnerDeleteNodeHandler(CollectionNode root) {
-		super(root);
-	}
-
+public class CollectionNodeTestCase extends TestCase  {
+	
+	protected CollectionNode collection;
+	
 	@Override
-	protected String getWorkerElement() {
-		return "delete";
+	protected void setUp() throws Exception {
+		super.setUp();
+		collection = new CollectionNode();
+	}
+	
+	public void testCreateNode() throws Exception {
+		LeafNode test1 = collection.createNode("test1");
+		assertNotNull(test1);
 	}
 
+	public void testCreateNodeTwice() {
+		try {
+			collection.createNode("test1");
+			collection.createNode("test1");
+			fail();
+		} catch(DuplicateNodeException e) {
+			// ok
+		}
+	}
+	
+	public void testInsertFind() throws Exception {
+		LeafNode insertedNode = collection.createNode("test1");
+		LeafNode foundNode = collection.find("test1");
+		assertEquals(insertedNode, foundNode);
+	}
+	
+	public void testFindNone() {
+		assertNull(collection.find("doesnotexist"));
+	}
+	
 }

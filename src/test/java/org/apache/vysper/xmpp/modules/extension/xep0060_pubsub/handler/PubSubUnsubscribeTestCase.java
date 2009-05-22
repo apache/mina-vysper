@@ -41,7 +41,7 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
 
 	@Override
 	protected IQHandler getHandler() {
-		return new PubSubUnsubscribeHandler();
+		return new PubSubUnsubscribeHandler(root);
 	}
 
 	@Override

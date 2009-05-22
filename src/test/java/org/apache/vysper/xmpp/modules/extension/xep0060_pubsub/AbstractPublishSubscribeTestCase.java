@@ -24,6 +24,8 @@ import junit.framework.TestCase;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
+import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
@@ -43,6 +45,7 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
     protected Entity client = null;
     protected Entity pubsub = null;
     protected IQHandler handler = null;
+    protected CollectionNode root = null;
     
 	@Override
 	protected void setUp() throws Exception {
@@ -55,6 +58,7 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
         String boundResourceId = sessionContext.bindResource();
         client = new EntityImpl(clientBare, boundResourceId);
 		pubsub = EntityImpl.parse("pubsub.vysper.org/news");
+		root = new CollectionNode();
 
         setResourceConnected(sessionContext, boundResourceId);
         
@@ -105,6 +109,10 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
         stanzaBuilder.endInnerElement();
         
         return stanzaBuilder.getFinalStanza();
+	}
+	
+	protected ResponseStanzaContainer sendStanza(Stanza toSend, boolean isOutboundStanza) {
+		return handler.execute(toSend, sessionContext.getServerRuntimeContext(), isOutboundStanza, sessionContext, null);
 	}
 	
 	public void testSimpleStanza() {

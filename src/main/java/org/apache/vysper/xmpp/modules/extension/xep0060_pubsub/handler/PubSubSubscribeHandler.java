@@ -19,6 +19,20 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
+import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityFormatException;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.stanza.IQStanza;
+import org.apache.vysper.xmpp.stanza.IQStanzaType;
+import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.xmlfragment.XMLElement;
+
 
 /**
  * @author The Apache MINA Project (http://mina.apache.org)
@@ -26,9 +40,68 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
  */
 public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
 
+	/**
+	 * @param root
+	 */
+	public PubSubSubscribeHandler(CollectionNode root) {
+		super(root);
+	}
+
 	@Override
 	protected String getWorkerElement() {
 		return "subscribe";
+	}
+
+	@Override
+	protected Stanza handleSet(IQStanza stanza,
+			ServerRuntimeContext serverRuntimeContext,
+			SessionContext sessionContext) {
+		Entity sender = stanza.getFrom();
+		Entity receiver = stanza.getTo();
+		Entity subJID = null;
+		
+		StanzaBuilder sb = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.RESULT, "id");
+		sb.startInnerElement("pubsub", NamespaceURIs.XEP0060_PUBSUB);
+		
+		XMLElement sub = stanza.getFirstInnerElement().getFirstInnerElement(); // pubsub/subscribe
+		String strSubJID = sub.getAttributeValue("jid"); // MUST
+		
+		try {
+			subJID = EntityImpl.parse(strSubJID);
+		} catch (EntityFormatException e) {
+			// TODO return error stanza... (general error)
+			return null;
+		}
+		
+		if(!sender.getBareJID().equals(subJID.getBareJID())) {
+			// TODO error condition 1 (6.1.3)
+			return null;
+		}
+		
+		String nodeName = extractNodeName(stanza);
+		LeafNode node = root.find(nodeName);
+		
+		if(node == null) {
+			// TODO no such node (error condition 11 (6.1.3))
+			return null;
+		}
+		
+		String id = idGenerator.create();
+		node.subscribe(id, subJID);
+		
+		buildSuccessStanza(sb, nodeName, strSubJID, id);
+		
+		sb.endInnerElement(); // pubsub
+		return new IQStanza(sb.getFinalStanza());
+	}
+	
+	private void buildSuccessStanza(StanzaBuilder sb, String node, String jid, String subid) {
+		sb.startInnerElement("subscription");
+		sb.addAttribute("node", node);
+		sb.addAttribute("jid", jid);
+		sb.addAttribute("subid", subid);
+		sb.addAttribute("subscription", "subscribed");
+		sb.endInnerElement();
 	}
 
 }

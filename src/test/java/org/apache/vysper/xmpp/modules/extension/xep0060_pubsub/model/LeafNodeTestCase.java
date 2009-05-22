@@ -17,27 +17,32 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner;
+package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model;
 
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
+import junit.framework.TestCase;
 
+import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 
 /**
  * @author The Apache MINA Project (http://mina.apache.org)
  *
  */
-public class PubSubOwnerDeleteNodeHandler extends AbstractPubSubOwnerHandler {
+public class LeafNodeTestCase extends TestCase {
 
-	/**
-	 * @param root
-	 */
-	public PubSubOwnerDeleteNodeHandler(CollectionNode root) {
-		super(root);
-	}
-
+	protected LeafNode node;
+	
 	@Override
-	protected String getWorkerElement() {
-		return "delete";
+	protected void setUp() throws Exception {
+		super.setUp();
+		
+		node = new LeafNode("node");
 	}
-
+	
+	public void testSubscribe() throws Exception {
+		Entity me = EntityImpl.parse("me@vysper.org");
+		node.subscribe("id1", me);
+		assertTrue(node.isSubscribed(me));
+		assertTrue(node.isSubscribed("id1"));
+	}
 }

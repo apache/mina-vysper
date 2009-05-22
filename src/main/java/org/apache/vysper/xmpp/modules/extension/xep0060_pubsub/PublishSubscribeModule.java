@@ -26,6 +26,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubSub
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubUnsubscribeHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner.PubSubOwnerConfigureNodeHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner.PubSubOwnerDeleteNodeHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Identity;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
@@ -47,6 +48,15 @@ import java.util.List;
  */
 public class PublishSubscribeModule extends DefaultDiscoAwareModule implements ServerInfoRequestListener {
 
+	CollectionNode root = null;
+	
+	/**
+	 * Default constructor takes care of the root-CollectionNode 
+	 */
+	public PublishSubscribeModule() {
+		this.root = new CollectionNode();
+	}
+	
 	@Override
 	public String getName() {
 		return "XEP-0060 Publish-Subscribe";
@@ -73,15 +83,15 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
     @Override
     protected void addHandlerDictionaries(List<HandlerDictionary> dictionary) {
         ArrayList<StanzaHandler> pubsubHandlers = new ArrayList<StanzaHandler>();
-        pubsubHandlers.add(new PubSubSubscribeHandler());
-        pubsubHandlers.add(new PubSubUnsubscribeHandler());
-        pubsubHandlers.add(new PubSubPublishHandler());
-        pubsubHandlers.add(new PubSubCreateNodeHandler());
+        pubsubHandlers.add(new PubSubSubscribeHandler(root));
+        pubsubHandlers.add(new PubSubUnsubscribeHandler(root));
+        pubsubHandlers.add(new PubSubPublishHandler(root));
+        pubsubHandlers.add(new PubSubCreateNodeHandler(root));
         dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB, pubsubHandlers));
         
         ArrayList<StanzaHandler> pubsubOwnerHandlers = new ArrayList<StanzaHandler>();
-        pubsubOwnerHandlers.add(new PubSubOwnerConfigureNodeHandler());
-        pubsubOwnerHandlers.add(new PubSubOwnerDeleteNodeHandler());
+        pubsubOwnerHandlers.add(new PubSubOwnerConfigureNodeHandler(root));
+        pubsubOwnerHandlers.add(new PubSubOwnerDeleteNodeHandler(root));
         dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB_OWNER, pubsubOwnerHandlers));
     }
 

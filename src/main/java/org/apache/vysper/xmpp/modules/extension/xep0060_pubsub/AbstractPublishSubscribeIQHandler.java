@@ -21,7 +21,10 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
 import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.uuid.JVMBuiltinUUIDGenerator;
+import org.apache.vysper.xmpp.uuid.UUIDGenerator;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
@@ -31,6 +34,14 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
  */
 @SpecCompliant(spec="xep-0060", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public abstract class AbstractPublishSubscribeIQHandler extends DefaultIQHandler {
+	
+	protected CollectionNode root;
+	protected UUIDGenerator idGenerator;
+	
+	public AbstractPublishSubscribeIQHandler(CollectionNode root) {
+		this.root = root;
+		this.idGenerator = new JVMBuiltinUUIDGenerator();
+	}
 	
 	@Override
 	protected boolean verifyNamespace(Stanza stanza) {

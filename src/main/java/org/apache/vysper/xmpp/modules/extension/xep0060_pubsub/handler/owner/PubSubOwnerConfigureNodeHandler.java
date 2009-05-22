@@ -19,12 +19,21 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner;
 
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
+
 
 /**
  * @author The Apache MINA Project (http://mina.apache.org)
  *
  */
 public class PubSubOwnerConfigureNodeHandler extends AbstractPubSubOwnerHandler {
+
+	/**
+	 * @param root
+	 */
+	public PubSubOwnerConfigureNodeHandler(CollectionNode root) {
+		super(root);
+	}
 
 	@Override
 	protected String getWorkerElement() {

@@ -17,27 +17,35 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner;
+package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model;
 
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
-
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author The Apache MINA Project (http://mina.apache.org)
  *
  */
-public class PubSubOwnerDeleteNodeHandler extends AbstractPubSubOwnerHandler {
-
-	/**
-	 * @param root
-	 */
-	public PubSubOwnerDeleteNodeHandler(CollectionNode root) {
-		super(root);
+public class CollectionNode {
+	
+	protected Map<String, LeafNode> storage;
+	
+	public CollectionNode() {
+		storage = new TreeMap<String, LeafNode>();
 	}
-
-	@Override
-	protected String getWorkerElement() {
-		return "delete";
+	
+	public LeafNode find(String name) {
+		return storage.get(name);
 	}
-
+	
+	public LeafNode createNode(String name) throws DuplicateNodeException {
+		if(storage.containsKey(name)) {
+			throw new DuplicateNodeException(name + " already present");
+		}
+		
+		LeafNode node = new LeafNode(name);
+		storage.put(name, node);
+		
+		return node;
+	}
 }

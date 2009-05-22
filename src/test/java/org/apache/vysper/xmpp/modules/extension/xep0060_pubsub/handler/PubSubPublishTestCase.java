@@ -40,7 +40,7 @@ public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
 
 	@Override
 	protected IQHandler getHandler() {
-		return new PubSubPublishHandler();
+		return new PubSubPublishHandler(root);
 	}
 
 	@Override

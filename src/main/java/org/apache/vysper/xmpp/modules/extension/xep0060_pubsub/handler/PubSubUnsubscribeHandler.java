@@ -19,12 +19,21 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
+
 
 /**
  * @author The Apache MINA Project (http://mina.apache.org)
  *
  */
 public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
+
+	/**
+	 * @param root
+	 */
+	public PubSubUnsubscribeHandler(CollectionNode root) {
+		super(root);
+	}
 
 	@Override
 	protected String getWorkerElement() {
