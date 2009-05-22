@@ -38,6 +38,7 @@ import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
 import org.apache.vysper.xmpp.stanza.StanzaErrorType;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 import org.apache.vysper.compliance.SpecCompliant;
+import org.apache.vysper.compliance.SpecCompliance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,8 +49,12 @@ import java.util.List;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
+@SpecCompliance(compliant = {
 @SpecCompliant(spec="xep-0030", status= SpecCompliant.ComplianceStatus.IN_PROGRESS,
-               coverage = SpecCompliant.ComplianceCoverage.PARTIAL, comment = "handles disco info queries")
+               coverage = SpecCompliant.ComplianceCoverage.PARTIAL, comment = "handles disco info queries"),
+@SpecCompliant(spec="xep-0128", status= SpecCompliant.ComplianceStatus.FINISHED,
+               coverage = SpecCompliant.ComplianceCoverage.COMPLETE, comment = "allows InfoDataForm elements")
+})
 public class DiscoInfoIQHandler extends DefaultIQHandler {
 
     final Logger logger = LoggerFactory.getLogger(DiscoInfoIQHandler.class);
