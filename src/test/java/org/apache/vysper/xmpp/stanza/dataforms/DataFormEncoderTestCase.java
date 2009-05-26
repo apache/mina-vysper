@@ -43,7 +43,7 @@ public class DataFormEncoderTestCase extends TestCase {
         field.addOption(new Option("2.", "due"));
         form.addField(field);
         
-        XMLElement formElement = DataFormEncoder.getXML(form);
+        XMLElement formElement = new DataFormEncoder().getXML(form);
         XMLElementVerifier formElementVerifier = formElement.getVerifier();
         formElementVerifier.nameEquals("x");
         formElementVerifier.attributeEquals("type", "form");
@@ -66,7 +66,7 @@ public class DataFormEncoderTestCase extends TestCase {
         form.setType(Type.cancel);
         form.addField(new Field("label", HIDDEN, "var"));
 
-        XMLElement formElement = DataFormEncoder.getXML(form);
+        XMLElement formElement = new DataFormEncoder().getXML(form);
         assertTrue(formElement.getInnerElements().isEmpty());
 
 

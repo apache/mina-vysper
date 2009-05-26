@@ -28,6 +28,9 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
+ * object model for data forms, according to XEP-0004, as used by many XMPP extensions (and the core).
+ * 
+ * to encode this model, use {@link org.apache.vysper.xmpp.stanza.dataforms.DataFormEncoder} 
  */
 @SpecCompliant(spec = "XEP-0004", status = ComplianceStatus.IN_PROGRESS, coverage = ComplianceCoverage.PARTIAL)
 public class DataForm {

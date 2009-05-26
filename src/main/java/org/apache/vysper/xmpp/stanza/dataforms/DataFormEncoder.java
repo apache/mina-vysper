@@ -30,11 +30,12 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * makes XMPP out of a Data Form
+ * makes XMPP out of a Data Form as provided by the model contained in a {@link org.apache.vysper.xmpp.stanza.dataforms.DataForm}
+ * instance.
  */
 public class DataFormEncoder {
 
-    public static XMLElement getXML(DataForm dataForm) {
+    public XMLElement getXML(DataForm dataForm) {
 
         List<XMLFragment> childElements = new ArrayList<XMLFragment>();
 
@@ -88,7 +89,7 @@ public class DataFormEncoder {
         return new XMLElement("x", NamespaceURIs.JABBER_X_DATA, attributes, childElements);
     }
     
-    protected static XMLElement encodeField(Field field) {
+    protected XMLElement encodeField(Field field) {
         
         ArrayList<XMLFragment> fieldElements = new ArrayList<XMLFragment>();
         
@@ -135,11 +136,11 @@ public class DataFormEncoder {
         
     }
 
-    protected static XMLElement createEmptyElement(String elementName) {
+    protected XMLElement createEmptyElement(String elementName) {
         return new XMLElement(elementName, null, (Attribute[])null, (XMLFragment[])null);
     }
     
-    protected static XMLElement createTextOnlyElement(String elementName, String text) {
+    protected XMLElement createTextOnlyElement(String elementName, String text) {
         return new XMLElement(elementName, null, (Attribute[])null, new XMLFragment[]{new XMLText(text)});
     }
 }
