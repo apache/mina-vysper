@@ -78,10 +78,10 @@
     <pathelement location="${basedir}/lib/nekopull.jar"/>
     <pathelement location="${basedir}/lib/xercesImpl.jar"/>
     <pathelement location="${basedir}/lib/bcprov-jdk15-135.jar"/>
-    <pathelement location="${basedir}/lib/mina-core-1.1.0.jar"/>
-    <pathelement location="${basedir}/lib/mina-integration-jmx-1.1.0.jar"/>
-    <pathelement location="${basedir}/lib/mina-filter-ssl-1.1.0.jar"/>
-    <pathelement location="${basedir}/lib/mina-integration-spring-1.1.0.jar"/>
+    <pathelement location="${basedir}/lib/mina-core-1.1.7.jar"/>
+    <pathelement location="${basedir}/lib/mina-integration-jmx-1.1.7.jar"/>
+    <pathelement location="${basedir}/lib/mina-filter-ssl-1.1.7.jar"/>
+    <pathelement location="${basedir}/lib/mina-integration-spring-1.1.7.jar"/>
     <pathelement location="${basedir}/lib/smack.jar"/>
     <pathelement location="${basedir}/lib/smackx.jar"/>
     <pathelement location="${basedir}/lib/log4j-1.2.14.jar"/>
