@@ -17,42 +17,16 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model;
+package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.NullPersistenceManager;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubPersistenceManager;
 
 /**
  * @author The Apache MINA Project (http://mina.apache.org)
  *
  */
-public class CollectionNode {
-	
-	protected PubSubPersistenceManager storage;
-	
-	public CollectionNode() {
-		storage = new NullPersistenceManager();
-	}
-	
-	public LeafNode find(Entity jid) {
-		return storage.findNode(jid);
-	}
-	
-	public LeafNode createNode(Entity jid) throws DuplicateNodeException {
-		if(storage.containsNode(jid)) {
-			throw new DuplicateNodeException(jid.getFullQualifiedName() + " already present");
-		}
-		
-		LeafNode node = new LeafNode(jid);
-		node.setPersistenceManager(storage);
-		
-		storage.storeNode(jid, node);
-		
-		return node;
-	}
+public interface SubscriberVisitor {
 
-	public void setPersistenceManager(PubSubPersistenceManager persistenceManager) {
-		storage = persistenceManager;
-	}
+	void visit(Entity nodeJID, Entity sub);
+
 }

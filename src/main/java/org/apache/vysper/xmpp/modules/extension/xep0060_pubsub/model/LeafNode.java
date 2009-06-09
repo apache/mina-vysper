@@ -19,17 +19,11 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model;
 
-import java.util.Map;
-import java.util.TreeMap;
-
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.delivery.DeliveryException;
-import org.apache.vysper.xmpp.delivery.DeliveryFailureStrategy;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
-import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
-import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.NullPersistenceManager;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubPersistenceManager;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberNotificationVisitor;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
@@ -40,35 +34,38 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 public class LeafNode {
 	
 	protected Entity jid;
-	protected Map<String,Entity> subscribers;
-	protected Map<String,XMLElement> messageStorage;
+	protected PubSubPersistenceManager storage = new NullPersistenceManager();
 	
 	/**
-	 * Creates a new LeafNode with the specified name.
-	 * @param name the name of the node 
+	 * Creates a new LeafNode with the specified JID.
+	 * @param persistenceManager the persistence manager for loading additional information
+	 * @param jid the JID of the node 
 	 */
 	public LeafNode(Entity jid) {
 		this.jid = jid;
-		this.subscribers = new TreeMap<String, Entity>();
-		this.messageStorage = new TreeMap<String, XMLElement>();
+	}
+	
+	public void setPersistenceManager(PubSubPersistenceManager persistenceManager) {
+		this.storage = persistenceManager;
 	}
 	
 	public void subscribe(String id, Entity subscriber) {
-		subscribers.put(id,subscriber);
+		storage.addSubscriber(jid, id, subscriber);
 	}
 	
 	public boolean isSubscribed(Entity subscriber) {
-		return subscribers.containsValue(subscriber);
+		return storage.containsSubscriber(jid, subscriber);
 	}
 	
-	public boolean isSubscribed(String subscriptionId) {
-		return subscribers.containsKey(subscriptionId);
+	public boolean isSubscribed(String subscriptionID) {
+		return storage.containsSubscriber(jid, subscriptionID);
 	}
 	
-	public boolean unsubscribe(String subscriptionId, Entity subscriber) {
-		Entity sub = subscribers.get(subscriptionId);
+	public boolean unsubscribe(String subscriptionID, Entity subscriber) {
+		Entity sub = storage.getSubscriber(jid, subscriptionID);
+
 		if(sub != null && sub.equals(subscriber)) {
-			return subscribers.remove(subscriptionId) != null;
+			return storage.removeSubscription(jid, subscriptionID);
 		}
 		return false;
 	}
@@ -77,49 +74,23 @@ public class LeafNode {
 		if(countSubscriptions(subscriber) > 1) {
 			throw new MultipleSubscriptionException("Ambigous unsubscription request");
 		}
-		return subscribers.values().remove(subscriber);
+		return storage.removeSubscriber(jid, subscriber);
 	}
 	
 	public int countSubscriptions(Entity subscriber) {
-		int count = 0;
-		for(Entity sub : subscribers.values()) {
-			if(subscriber.equals(sub)) {
-				++count;
-			}
-		}
-		return count;
+		return storage.countSubscriptions(jid, subscriber);
 	}
 
 	public int countSubscriptions() {
-		return subscribers.size();
+		return storage.countSubscriptions(jid);
 	}
 
-	public void publish(Entity sender, StanzaRelay relay, String strID, XMLElement item) {
-		messageStorage.put(strID, item);
+	public void publish(Entity sender, StanzaRelay relay, String messageID, XMLElement item) {
+		storage.addMessage(jid, messageID, item);
 		sendMessageToSubscriber(relay, item);
 	}
 	
 	protected void sendMessageToSubscriber(StanzaRelay stanzaRelay, XMLElement item) {
-		DeliveryFailureStrategy dfs = new IgnoreFailureStrategy();
-		for(Entity sub : subscribers.values()) {
-			Stanza event = createMessageEventStanza(jid, sub, "en", item); // TODO extract the hardcoded "en"
-			// TODO filter sender of the item?
-			
-			try {
-				stanzaRelay.relay(sub, event, dfs);
-			} catch (DeliveryException e1) {
-				// TODO we don't care - do we?
-			}
-		}
-	}
-
-	private Stanza createMessageEventStanza(Entity from, Entity to, String lang, XMLElement item) {
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("message");
-        stanzaBuilder.addAttribute("from", from.getBareJID().getFullQualifiedName());
-        stanzaBuilder.addAttribute("to", to.getFullQualifiedName());
-        stanzaBuilder.addAttribute("xml:lang", lang);
-        stanzaBuilder.startInnerElement("event", NamespaceURIs.XEP0060_PUBSUB_EVENT);
-        stanzaBuilder.addPreparedElement(item);
-        return stanzaBuilder.getFinalStanza();
+		storage.accept(jid, new SubscriberNotificationVisitor(stanzaRelay, item));
 	}
 }

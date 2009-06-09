@@ -19,6 +19,9 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubCreateNodeHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubPublishHandler;
@@ -37,9 +40,9 @@ import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Initializes the XEP0060 module.
@@ -49,12 +52,26 @@ import java.util.List;
 public class PublishSubscribeModule extends DefaultDiscoAwareModule implements ServerInfoRequestListener {
 
 	CollectionNode root = null;
+	final Logger logger = LoggerFactory.getLogger(PublishSubscribeModule.class);
 	
 	/**
 	 * Default constructor takes care of the root-CollectionNode 
 	 */
 	public PublishSubscribeModule() {
 		this.root = new CollectionNode();
+	}
+	
+	@Override
+	public void initialize(ServerRuntimeContext serverRuntimeContext) {
+		super.initialize(serverRuntimeContext);
+		
+        PubSubPersistenceManager persistenceManager = (PubSubPersistenceManager) serverRuntimeContext.getStorageProvider(PubSubPersistenceManager.class);
+        if (persistenceManager == null) {
+            logger.error("No persistency manager found");
+            // TODO throw some exception - without PM we can't do anything useful
+        } else {
+        	root.setPersistenceManager(persistenceManager);
+        }
 	}
 	
 	@Override
