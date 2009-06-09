@@ -21,7 +21,6 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeTestCase;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -59,12 +58,13 @@ public class PubSubSubscribeTestCase extends AbstractPublishSubscribeTestCase {
 	}
 
 	public void testSubscribe() throws Exception {
-		LeafNode node = root.createNode(pubsub.getResource()); // use the name of the standard example
 		ResponseStanzaContainer result = sendStanza(getStanza(), true);
 		assertTrue(result.hasResponse());
 		IQStanza response = new IQStanza(result.getResponseStanza());
 		assertEquals(IQStanzaType.RESULT.value(),response.getType());
 		assertTrue(node.isSubscribed(client));
+		
+		assertEquals(id, response.getAttributeValue("id")); // IDs must match
 		
 		// get the subscription Element
 		XMLElement sub = response.getFirstInnerElement().getFirstInnerElement();

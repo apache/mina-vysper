@@ -21,6 +21,9 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model;
 
 import junit.framework.TestCase;
 
+import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
+
 /**
  * @author The Apache MINA Project (http://mina.apache.org)
  *
@@ -36,14 +39,16 @@ public class CollectionNodeTestCase extends TestCase  {
 	}
 	
 	public void testCreateNode() throws Exception {
-		LeafNode test1 = collection.createNode("test1");
+		Entity jid = new EntityImpl(null, "pubsub.vysper.org", "test1");
+		LeafNode test1 = collection.createNode(jid);
 		assertNotNull(test1);
 	}
 
 	public void testCreateNodeTwice() {
+		Entity jid = new EntityImpl(null, "pubsub.vysper.org", "test1");
 		try {
-			collection.createNode("test1");
-			collection.createNode("test1");
+			collection.createNode(jid);
+			collection.createNode(jid);
 			fail();
 		} catch(DuplicateNodeException e) {
 			// ok
@@ -51,13 +56,15 @@ public class CollectionNodeTestCase extends TestCase  {
 	}
 	
 	public void testInsertFind() throws Exception {
-		LeafNode insertedNode = collection.createNode("test1");
-		LeafNode foundNode = collection.find("test1");
+		Entity jid = new EntityImpl(null, "pubsub.vysper.org", "test1");
+		LeafNode insertedNode = collection.createNode(jid);
+		LeafNode foundNode = collection.find(jid);
 		assertEquals(insertedNode, foundNode);
 	}
 	
 	public void testFindNone() {
-		assertNull(collection.find("doesnotexist"));
+		Entity jid = new EntityImpl(null, "pubsub.vysper.org", "test1");
+		assertNull(collection.find(jid));
 	}
 	
 }

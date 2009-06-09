@@ -25,6 +25,7 @@ import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.TestSessionContext;
@@ -40,12 +41,14 @@ import org.apache.vysper.xmpp.state.resourcebinding.ResourceState;
  * @author The Apache MINA Project (http://mina.apache.org)
  */
 public abstract class AbstractPublishSubscribeTestCase extends TestCase {
-	private TestSessionContext sessionContext  = null;
+	protected TestSessionContext sessionContext  = null;
     protected Entity clientBare = null;
     protected Entity client = null;
     protected Entity pubsub = null;
     protected IQHandler handler = null;
     protected CollectionNode root = null;
+    protected LeafNode node = null;
+    protected String id = "id1";
     
 	@Override
 	protected void setUp() throws Exception {
@@ -54,12 +57,14 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
 		sessionContext = TestSessionContext.createWithStanzaReceiverRelayAuthenticated();
 		clientBare = new EntityImpl("tester", "vysper.org", null);
         sessionContext.setInitiatingEntity(clientBare);
-
+        
         String boundResourceId = sessionContext.bindResource();
         client = new EntityImpl(clientBare, boundResourceId);
 		pubsub = EntityImpl.parse("pubsub.vysper.org/news");
 		root = new CollectionNode();
 
+		node = root.createNode(pubsub);
+        
         setResourceConnected(sessionContext, boundResourceId);
         
         handler = getHandler();
@@ -100,7 +105,7 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
 	protected abstract IQStanzaType getStanzaType();
 	
 	protected Stanza getStanza() {
-		StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(client, pubsub, getStanzaType(), "id1");
+		StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(client, pubsub, getStanzaType(), id);
         stanzaBuilder.startInnerElement("pubsub");
         stanzaBuilder.addNamespaceAttribute(getNamespace());
         

@@ -19,7 +19,20 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
+import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityFormatException;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.MultipleSubscriptionException;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.stanza.IQStanza;
+import org.apache.vysper.xmpp.stanza.IQStanzaType;
+import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 
 /**
@@ -38,6 +51,64 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
 	@Override
 	protected String getWorkerElement() {
 		return "unsubscribe";
+	}
+	
+	@Override
+	protected Stanza handleSet(IQStanza stanza,
+			ServerRuntimeContext serverRuntimeContext,
+			SessionContext sessionContext) {
+		Entity sender = stanza.getFrom();
+		Entity receiver = stanza.getTo();
+		Entity subJID = null;
+		
+		String iqStanzaID = stanza.getAttributeValue("id");
+		
+		StanzaBuilder sb = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.RESULT, iqStanzaID);
+		sb.startInnerElement("pubsub", NamespaceURIs.XEP0060_PUBSUB);
+		
+		XMLElement unsub = stanza.getFirstInnerElement().getFirstInnerElement(); // pubsub/unsubscribe
+		String strSubJID = unsub.getAttributeValue("jid"); // MUST
+		String strSubID = unsub.getAttributeValue("subid"); // SHOULD (req. for more than one subscription)
+		
+		try {
+			subJID = EntityImpl.parse(strSubJID);
+		} catch (EntityFormatException e) {
+			// TODO return error stanza... (general error)
+			return null;
+		}
+		
+		if(!sender.getBareJID().equals(subJID.getBareJID())) {
+			// TODO insufficient privileges (error condition 3 (6.2.3))
+			return null;
+		}
+				
+		Entity nodeJID = extractNodeJID(stanza);
+		LeafNode node = root.find(nodeJID);
+		
+		if(node == null) {
+			// TODO no such node (error condition 4 (6.2.3))
+			return null;
+		}
+		
+		if(strSubID == null) {
+			try {
+				if(node.unsubscribe(subJID) == false) {
+					// TODO has no subscription
+					return null;
+				}
+			} catch(MultipleSubscriptionException e) {
+				// TODO more than one subscription without ID (error condition 1 (6.2.3))
+				return null;
+			}
+		} else {
+			if(node.unsubscribe(strSubID, subJID) == false) {
+				// TODO has no subscription with this ID
+				return null;
+			}
+		}
+		
+		sb.endInnerElement(); // pubsub
+		return new IQStanza(sb.getFinalStanza());
 	}
 
 }

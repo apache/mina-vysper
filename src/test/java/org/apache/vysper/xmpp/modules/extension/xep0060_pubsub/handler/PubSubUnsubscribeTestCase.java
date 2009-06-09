@@ -21,7 +21,10 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeTestCase;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
@@ -52,6 +55,23 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
 	@Override
 	protected IQStanzaType getStanzaType() {
 		return IQStanzaType.SET;
+	}
+	
+	public void testUnsubscribe() throws Exception {
+		// subscribe the client to the default node
+		node.subscribe("somethingarbitrary", client);
+		
+		// make sure it is subscribed
+		assertTrue(node.isSubscribed(client));
+		
+		// unsubscribe via XMPP
+		ResponseStanzaContainer result = sendStanza(getStanza(), true);
+		
+		// check subscription and response stanza
+		assertTrue(result.hasResponse());
+		IQStanza response = new IQStanza(result.getResponseStanza());
+		assertEquals(IQStanzaType.RESULT.value(),response.getType());
+		assertFalse(node.isSubscribed(client));
 	}
 
 }

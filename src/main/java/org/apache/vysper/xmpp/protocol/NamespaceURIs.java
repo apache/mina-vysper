@@ -49,6 +49,7 @@ public class NamespaceURIs {
     public static final String XEP0030_SERVICE_DISCOVERY_ITEMS = "http://jabber.org/protocol/disco#items";
     public static final String XEP0030_SERVICE_DISCOVERY_INFO  = "http://jabber.org/protocol/disco#info";
     public static final String XEP0060_PUBSUB = "http://jabber.org/protocol/pubsub";
+    public static final String XEP0060_PUBSUB_EVENT = "http://jabber.org/protocol/pubsub#event";
     public static final String XEP0060_PUBSUB_OWNER = "http://jabber.org/protocol/pubsub#owner";
 
 }

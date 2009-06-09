@@ -20,6 +20,7 @@
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeIQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
@@ -51,15 +52,16 @@ public abstract class AbstractPubSubGeneralHandler extends
 	 * one of these addressing methods.
 	 * 
 	 * @param stanza the received IQStanza
-	 * @return the node name
+	 * @return the node
 	 */
-	protected String extractNodeName(IQStanza stanza) {
+	protected Entity extractNodeJID(IQStanza stanza) {
 		String node = stanza.getFirstInnerElement().getAttributeValue("node");
 		if(node == null) {
+			return stanza.getTo();
+		} else {
 			Entity to = stanza.getTo();
-			node = to.getResource();
+			return new EntityImpl(to.getNode(), to.getDomain(), node);
 		}
-		return node;
 	}
 	
 }

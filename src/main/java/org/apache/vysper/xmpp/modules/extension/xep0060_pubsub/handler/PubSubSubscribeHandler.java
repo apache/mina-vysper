@@ -59,8 +59,10 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
 		Entity sender = stanza.getFrom();
 		Entity receiver = stanza.getTo();
 		Entity subJID = null;
+
+		String iqStanzaID = stanza.getAttributeValue("id");
 		
-		StanzaBuilder sb = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.RESULT, "id");
+		StanzaBuilder sb = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.RESULT, iqStanzaID);
 		sb.startInnerElement("pubsub", NamespaceURIs.XEP0060_PUBSUB);
 		
 		XMLElement sub = stanza.getFirstInnerElement().getFirstInnerElement(); // pubsub/subscribe
@@ -78,8 +80,8 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
 			return null;
 		}
 		
-		String nodeName = extractNodeName(stanza);
-		LeafNode node = root.find(nodeName);
+		Entity nodeJID = extractNodeJID(stanza);
+		LeafNode node = root.find(nodeJID);
 		
 		if(node == null) {
 			// TODO no such node (error condition 11 (6.1.3))
@@ -89,15 +91,15 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
 		String id = idGenerator.create();
 		node.subscribe(id, subJID);
 		
-		buildSuccessStanza(sb, nodeName, strSubJID, id);
+		buildSuccessStanza(sb, nodeJID, strSubJID, id);
 		
 		sb.endInnerElement(); // pubsub
 		return new IQStanza(sb.getFinalStanza());
 	}
 	
-	private void buildSuccessStanza(StanzaBuilder sb, String node, String jid, String subid) {
+	private void buildSuccessStanza(StanzaBuilder sb, Entity node, String jid, String subid) {
 		sb.startInnerElement("subscription");
-		sb.addAttribute("node", node);
+		sb.addAttribute("node", node.getResource());
 		sb.addAttribute("jid", jid);
 		sb.addAttribute("subid", subid);
 		sb.addAttribute("subscription", "subscribed");
