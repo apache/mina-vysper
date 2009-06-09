@@ -19,6 +19,9 @@
  */
 package org.apache.vysper.mina;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+
 import org.apache.mina.common.DefaultIoFilterChainBuilder;
 import org.apache.mina.filter.LoggingFilter;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
@@ -28,9 +31,6 @@ import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 import org.apache.vysper.mina.codec.XMPPProtocolCodecFactory;
 import org.apache.vysper.xmpp.server.Endpoint;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-
-import java.io.IOException;
-import java.net.InetSocketAddress;
 
 /**
  *
@@ -43,6 +43,12 @@ public class TCPEndpoint implements Endpoint {
     private int port = 5222;
 
     private SocketAcceptor acceptor;
+
+    private DefaultIoFilterChainBuilder filterChainBuilder;
+
+    public DefaultIoFilterChainBuilder getFilterChainBuilder() {
+      return filterChainBuilder;
+    }
 
     public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
         this.serverRuntimeContext = serverRuntimeContext;
@@ -58,7 +64,7 @@ public class TCPEndpoint implements Endpoint {
 
         XMPPProtocolCodecFactory xmppCodec = new XMPPProtocolCodecFactory();
 
-        DefaultIoFilterChainBuilder filterChainBuilder = new DefaultIoFilterChainBuilder();
+        filterChainBuilder = new DefaultIoFilterChainBuilder();
         filterChainBuilder.addLast("executorFilter", new ExecutorFilter());
         filterChainBuilder.addLast("xmppCodec", new ProtocolCodecFilter(xmppCodec));
         filterChainBuilder.addLast("loggingFilter", new LoggingFilter());

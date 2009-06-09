@@ -90,7 +90,7 @@ public class StringPrep {
 	 * Override this method and return a custom map of character mappings to
 	 * alter the Stringprep behavior.
 	 * 
-	 * @return a {@link Map<String, String>} containing all character mappings
+	 * @return a {@link Map}<String, String> containing all character mappings
 	 */
 	protected Map<String, String> buildMapping() {
 		Map<String, String> mapping = new HashMap<String, String>();
@@ -107,7 +107,7 @@ public class StringPrep {
 	 * Override this method and return a custom set of prohibited characters to
 	 * alter the Stringprep behavior.
 	 * 
-	 * @return a {@link Set<String>} containing all characters that are
+	 * @return a {@link Set}<String> containing all characters that are
 	 *         prohibited
 	 */
 	protected Set<String> buildProhibitedSet() {

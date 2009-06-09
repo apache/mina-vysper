@@ -79,7 +79,7 @@ public class XmppIoHandlerAdapter implements IoHandler {
 //            throw new IllegalStateException("server must close session!");
         }
 
-        throw new IllegalArgumentException("xmpp handler only accepts Stanza-typed messages");
+        throw new IllegalArgumentException("xmpp handler only accepts Stanza-typed messages, but received type " + message.getClass());
     }
 
     private SessionContext extractSession(IoSession ioSession) {
