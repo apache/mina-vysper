@@ -24,7 +24,7 @@
    -->
 
   <!-- Compiler options -->
-
+  <property environment="env"/>
   <property name="compiler.debug" value="on"/>
   <property name="compiler.generate.no.warnings" value="off"/>
   <property name="compiler.args" value=""/>
@@ -106,7 +106,7 @@
   <path id="apt-classpath">
       <path refid="classpath" />
       <pathelement location="${vysper.output.dir}" />
-      <pathelement location="${java.home}/" />
+      <pathelement location="${env.JAVA_HOME}/lib/tools.jar" />
   </path>
 
   <path id="test.sourcepath">
@@ -126,7 +126,7 @@
 
   <target name="generate-javadoc" description="generate javadocs">
     <mkdir dir="${basedir}/build/ant/apidocs" />
-    <javadoc sourcepathref="sourcepath" destdir="${vysper.docs.dir}">
+    <javadoc sourcepathref="sourcepath" destdir="${vysper.docs.dir}" classpathref="apt-classpath">
     </javadoc>
   </target>
 
