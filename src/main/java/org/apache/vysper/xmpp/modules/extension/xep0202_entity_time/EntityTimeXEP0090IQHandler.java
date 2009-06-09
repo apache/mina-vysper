@@ -42,6 +42,8 @@ import java.text.SimpleDateFormat;
 @SpecCompliant(spec="xep-0090", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
 public class EntityTimeXEP0090IQHandler extends DefaultIQHandler {
 
+    private static final TimeZone TIME_ZONE_UTC = TimeZone.getTimeZone("UTC");
+    
     protected SimpleDateFormat utcDateFormatter;
     protected SimpleDateFormat localDateFormatter;
 
@@ -49,7 +51,7 @@ public class EntityTimeXEP0090IQHandler extends DefaultIQHandler {
         localDateFormatter = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy", Locale.ENGLISH);
 
         utcDateFormatter = new SimpleDateFormat("yyyyMMdd'T'HH:mm:ss");
-        utcDateFormatter.setTimeZone(TimeZone.getTimeZone("UTC")); // convert to UTC
+        utcDateFormatter.setTimeZone(TIME_ZONE_UTC); // convert to UTC
     }
 
     @Override

@@ -14,17 +14,20 @@ import java.text.SimpleDateFormat;
 @SpecCompliant(spec = "XEP-0082", status = IN_PROGRESS, coverage = COMPLETE)
 public class DateTimeProfile {
 
+    protected static final TimeZone TIME_ZONE_UTC;
+    
     protected static final SimpleDateFormat utcDateFormatter;
     protected static final SimpleDateFormat utcDateTimeFormatter;
     protected static final SimpleDateFormat utcTimeFormatter;
-    
+
     static {
+        TIME_ZONE_UTC = TimeZone.getTimeZone("UTC");
         utcDateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        utcDateTimeFormatter.setTimeZone(TimeZone.getTimeZone("UTC")); // convert to UTC
+        utcDateTimeFormatter.setTimeZone(TIME_ZONE_UTC); // convert to UTC
         utcDateFormatter = new SimpleDateFormat("yyyy-MM-dd");
-        utcDateFormatter.setTimeZone(TimeZone.getTimeZone("UTC")); // convert to UTC
+        utcDateFormatter.setTimeZone(TIME_ZONE_UTC); // convert to UTC
         utcTimeFormatter = new SimpleDateFormat("HH:mm:ss'Z'");
-        utcTimeFormatter.setTimeZone(TimeZone.getTimeZone("UTC")); // convert to UTC
+        utcTimeFormatter.setTimeZone(TIME_ZONE_UTC); // convert to UTC
     }
     
     private final static DateTimeProfile SINGLETON = new DateTimeProfile();
