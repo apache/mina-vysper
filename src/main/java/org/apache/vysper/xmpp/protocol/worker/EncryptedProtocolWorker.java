@@ -20,6 +20,7 @@
 package org.apache.vysper.xmpp.protocol.worker;
 
 import org.apache.vysper.xmpp.modules.core.base.handler.StreamStartHandler;
+import org.apache.vysper.xmpp.modules.core.base.handler.XMLPrologHandler;
 import org.apache.vysper.xmpp.modules.core.sasl.handler.AbstractSASLHandler;
 import org.apache.vysper.xmpp.protocol.ResponseWriter;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
@@ -43,6 +44,7 @@ public class EncryptedProtocolWorker extends AbstractStateAwareProtocolWorker {
     protected boolean checkState(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza, StanzaHandler stanzaHandler) {
         if (stanzaHandler instanceof StreamStartHandler) return true;
         if (stanzaHandler instanceof AbstractSASLHandler) return true;
+        if (stanzaHandler instanceof XMLPrologHandler) return true; // PSI client sends that. 
         ResponseWriter.writeUnsupportedStanzaError(sessionContext);
         return false;
     }

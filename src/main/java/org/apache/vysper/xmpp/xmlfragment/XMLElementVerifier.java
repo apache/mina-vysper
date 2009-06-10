@@ -118,15 +118,15 @@ public class XMLElementVerifier {
 	}
 
 	public boolean subElementsPresentExact(int numberOfSubelements) {
-		return element.getInnerFragments().size() == numberOfSubelements;
+		return element.getInnerElements().size() == numberOfSubelements;
 	}
 
 	public boolean subElementsPresentAtLeast(int numberOfSubelements) {
-		return element.getInnerFragments().size() >= numberOfSubelements;
+		return element.getInnerElements().size() >= numberOfSubelements;
 	}
 
 	public boolean subElementsPresentAtMost(int numberOfSubelements) {
-		return element.getInnerFragments().size() <= numberOfSubelements;
+		return element.getInnerElements().size() <= numberOfSubelements;
 	}
 
 	public boolean namespacePresent(String namespaceURI) {

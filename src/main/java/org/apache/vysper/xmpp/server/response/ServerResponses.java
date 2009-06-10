@@ -75,7 +75,7 @@ public class ServerResponses {
 
     public Stanza getFeaturesForEncryption(SessionContext sessionContext) {
 
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("features");
+        StanzaBuilder stanzaBuilder = startFreatureStanza(); 
         stanzaBuilder.startInnerElement("starttls")
             .addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS);
             if (sessionContext.getServerRuntimeContext().getServerFeatures().isStartTLSRequired()) {
@@ -88,8 +88,7 @@ public class ServerResponses {
 
     public Stanza getFeaturesForAuthentication(List<SASLMechanism> authenticationMethods) {
 
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("features");
-
+        StanzaBuilder stanzaBuilder = startFreatureStanza(); 
         stanzaBuilder.startInnerElement("mechanisms")
             .addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
             for (SASLMechanism authenticationMethod : authenticationMethods) {
@@ -101,7 +100,7 @@ public class ServerResponses {
     }
 
     private Stanza getFeaturesForSession() {
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("features");
+        StanzaBuilder stanzaBuilder = startFreatureStanza(); 
 
         stanzaBuilder.startInnerElement("bind")
             .addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND)
@@ -115,6 +114,16 @@ public class ServerResponses {
         stanzaBuilder.endInnerElement();
 
         return stanzaBuilder.getFinalStanza();
+    }
+
+    protected StanzaBuilder startFreatureStanza() {
+        StanzaBuilder stanzaBuilder = new StanzaBuilder("features");
+        
+        // ensure compatibility with PSI client (tested with v0.12). 
+        // Don't see why this should be needed for a compliant server
+        stanzaBuilder.addNamespaceAttribute(NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS);
+        
+        return stanzaBuilder;
     }
 
     public Stanza getTLSProceed() {
