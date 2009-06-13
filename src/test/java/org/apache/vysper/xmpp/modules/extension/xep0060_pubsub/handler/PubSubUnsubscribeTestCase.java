@@ -39,6 +39,7 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
 
 	class DefaultUnsubscribeStanzaGenerator extends AbstractStanzaGenerator {
 		private String subscriberJID = null;
+		private String subID = null;
 		
 		private String getSubscriberJID(Entity client) {
 			if(subscriberJID == null) {
@@ -55,11 +56,20 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
 			this.subscriberJID = jid;
 		}
 		
+		public void setSubID(String subid) {
+			this.subID = subid;
+		}
+		
 		@Override
 		protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb) {
 			sb.startInnerElement("unsubscribe");
 			sb.addAttribute("node", pubsub.getResource());
 			sb.addAttribute("jid", getSubscriberJID(client));
+			
+			if(subID != null && subID.length() > 0) {
+				sb.addAttribute("subid", subID);
+			}
+			
 			sb.endInnerElement();
 			return sb;
 		}
@@ -205,5 +215,35 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
 		assertEquals(1, errorContent.size());
 		assertEquals("item-does-not-exist", errorContent.get(0).getName());
 		assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, errorContent.get(0).getNamespace());
-	}	
+	}
+	
+	public void testUnsubscribeBadSubID() {
+		DefaultUnsubscribeStanzaGenerator sg = new DefaultUnsubscribeStanzaGenerator();
+		sg.setSubID("doesnotexist");
+
+		// subscribe two times
+		node.subscribe("subid1", client);
+		node.subscribe("subid2", client);
+		
+		ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsub, "id123"), true);
+		assertTrue(result.hasResponse());
+		IQStanza response = new IQStanza(result.getResponseStanza());
+		assertEquals(IQStanzaType.ERROR.value(),response.getType());
+		assertTrue(node.isSubscribed(client));
+		assertEquals(2, node.countSubscriptions(client)); // still 2 subscriptions
+		
+		assertEquals("id123", response.getAttributeValue("id")); // IDs must match
+		
+		XMLElement error = response.getFirstInnerElement();
+		assertEquals("error", error.getName());
+		assertEquals("modify", error.getAttributeValue("type"));
+
+		List<XMLElement> errorContent = error.getInnerElements(); 
+		assertEquals(2, errorContent.size());
+		assertEquals("not-acceptable", errorContent.get(0).getName());
+		assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, errorContent.get(0).getNamespace());
+		
+		assertEquals("invalid-subid", errorContent.get(1).getName());
+		assertEquals(NamespaceURIs.XEP0060_PUBSUB_ERRORS, errorContent.get(1).getNamespace());
+	}
 }
