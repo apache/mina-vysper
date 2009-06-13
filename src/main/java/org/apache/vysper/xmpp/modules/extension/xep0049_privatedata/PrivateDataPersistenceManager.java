@@ -17,25 +17,24 @@
  *  under the License.
  *
  */
-package org.apache.vysper.storage.jcr;
+package org.apache.vysper.xmpp.modules.extension.xep0049_privatedata;
 
-import org.apache.vysper.storage.OpenStorageProviderRegistry;
-import org.apache.vysper.storage.jcr.privatedata.JcrPrivateDataPersistenceManager;
-import org.apache.vysper.storage.jcr.roster.JcrRosterManager;
-import org.apache.vysper.storage.jcr.user.JcrUserManagement;
-import org.apache.vysper.storage.jcr.vcardtemp.JcrVcardTempPersistenceManager;
+import org.apache.vysper.storage.StorageProvider;
+import org.apache.vysper.xmpp.addressing.Entity;
 
 /**
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class JcrStorageProviderRegistry extends OpenStorageProviderRegistry {
+public interface PrivateDataPersistenceManager extends StorageProvider {
 
-    public JcrStorageProviderRegistry() {
-        add(new JcrUserManagement(JcrStorage.getInstance()));
-        add(new JcrRosterManager(JcrStorage.getInstance()));
-        add(new JcrVcardTempPersistenceManager(JcrStorage.getInstance()));
-        add(new JcrPrivateDataPersistenceManager(JcrStorage.getInstance()));
-    }
+    /**
+     * @return if the persistene manager is ready to operate
+     */
+    boolean isAvailable();
+
+    String getPrivateData(Entity entity, String key);
+
+    boolean setPrivateData(Entity entity, String key, String xml);
 
 }
