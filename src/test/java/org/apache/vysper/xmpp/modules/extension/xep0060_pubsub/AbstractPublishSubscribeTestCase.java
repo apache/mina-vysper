@@ -24,14 +24,13 @@ import junit.framework.TestCase;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.AbstractStanzaGenerator;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.TestSessionContext;
-import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceState;
 
 
@@ -48,7 +47,6 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
     protected IQHandler handler = null;
     protected CollectionNode root = null;
     protected LeafNode node = null;
-    protected String id = "id1";
     
 	@Override
 	protected void setUp() throws Exception {
@@ -81,47 +79,23 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
 	 * @return the instantiated handler to be tested
 	 */
 	protected abstract IQHandler getHandler();
-	
+
 	/**
-	 * Override and provide the Namespace the pubsub element lies within.
+	 * Return the StanzaGenerator that build the "typical" request for the given type of request.
 	 * 
-	 * @return the namespace for the IQ stanza as String
-	 */
-	protected abstract String getNamespace();
-	
-	/**
-	 * Override and provide a optional inner element (within the IQ/pubsub elements).
+	 * This will be used to test whether the handler correctly accepts these stanzas.
 	 * 
-	 * @param sb the StanzaBuilder currently used
-	 * @return the (modified) StanzaBuilder
+	 * @return the default Stanza generator for the request type.
 	 */
-	protected abstract StanzaBuilder buildInnerElement(StanzaBuilder sb);
-	
-	/**
-	 * Override and define the IQ stanza's type (get or set)
-	 * 
-	 * @return Type of Stanza @see {@link IQStanzaType}
-	 */
-	protected abstract IQStanzaType getStanzaType();
-	
-	protected Stanza getStanza() {
-		StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(client, pubsub, getStanzaType(), id);
-        stanzaBuilder.startInnerElement("pubsub");
-        stanzaBuilder.addNamespaceAttribute(getNamespace());
-        
-        buildInnerElement(stanzaBuilder);
-        
-        stanzaBuilder.endInnerElement();
-        
-        return stanzaBuilder.getFinalStanza();
-	}
+	protected abstract AbstractStanzaGenerator getDefaultStanzaGenerator();
 	
 	protected ResponseStanzaContainer sendStanza(Stanza toSend, boolean isOutboundStanza) {
 		return handler.execute(toSend, sessionContext.getServerRuntimeContext(), isOutboundStanza, sessionContext, null);
 	}
 	
 	public void testSimpleStanza() {
-		Stanza stanza = getStanza();
+		AbstractStanzaGenerator sg = getDefaultStanzaGenerator();
+		Stanza stanza = sg.getStanza(client, pubsub, "id1");
         
         assertTrue(handler.verify(stanza));
 	}

@@ -19,9 +19,9 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
+import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeTestCase;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -33,31 +33,40 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
  */
 public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase {
 
+	class DefaultUnsubscribeStanzaGenerator extends AbstractStanzaGenerator {
+		@Override
+		protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb) {
+			sb.startInnerElement("unsubscribe");
+			sb.addAttribute("node", pubsub.getResource());
+			sb.addAttribute("jid", client.getFullQualifiedName());
+			sb.endInnerElement();
+			return sb;
+		}
+	
+		@Override
+		protected String getNamespace() {
+			return NamespaceURIs.XEP0060_PUBSUB;
+		}
+	
+		@Override
+		protected IQStanzaType getStanzaType() {
+			return IQStanzaType.SET;
+		}
+	}
+	
 	@Override
-	protected StanzaBuilder buildInnerElement(StanzaBuilder sb) {
-		sb.startInnerElement("unsubscribe");
-		sb.addAttribute("node", pubsub.getResource());
-		sb.addAttribute("jid", client.getFullQualifiedName());
-		sb.endInnerElement();
-		return sb;
+	protected AbstractStanzaGenerator getDefaultStanzaGenerator() {
+		return new DefaultUnsubscribeStanzaGenerator();
 	}
 
 	@Override
 	protected IQHandler getHandler() {
 		return new PubSubUnsubscribeHandler(root);
 	}
-
-	@Override
-	protected String getNamespace() {
-		return NamespaceURIs.XEP0060_PUBSUB;
-	}
-
-	@Override
-	protected IQStanzaType getStanzaType() {
-		return IQStanzaType.SET;
-	}
 	
 	public void testUnsubscribe() throws Exception {
+		AbstractStanzaGenerator sg = getDefaultStanzaGenerator();
+
 		// subscribe the client to the default node
 		node.subscribe("somethingarbitrary", client);
 		
@@ -65,7 +74,7 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
 		assertTrue(node.isSubscribed(client));
 		
 		// unsubscribe via XMPP
-		ResponseStanzaContainer result = sendStanza(getStanza(), true);
+		ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsub, "id123"), true);
 		
 		// check subscription and response stanza
 		assertTrue(result.hasResponse());

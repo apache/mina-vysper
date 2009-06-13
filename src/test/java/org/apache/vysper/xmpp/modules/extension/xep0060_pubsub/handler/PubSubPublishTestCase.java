@@ -36,16 +36,10 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
  * @author The Apache MINA Project (http://mina.apache.org)
  */
 public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
-
+	
 	@Override
-	protected StanzaBuilder buildInnerElement(StanzaBuilder sb) {
-		sb.startInnerElement("publish");
-		sb.addAttribute("node", pubsub.getResource());
-		sb.startInnerElement("item");
-		sb.addText("this is a test");
-		sb.endInnerElement();
-		sb.endInnerElement();
-		return sb;
+	protected AbstractStanzaGenerator getDefaultStanzaGenerator() {
+		return new DefaultPublishStanzaGenerator();
 	}
 
 	@Override
@@ -53,24 +47,16 @@ public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
 		return new PubSubPublishHandler(root);
 	}
 
-	@Override
-	protected String getNamespace() {
-		return NamespaceURIs.XEP0060_PUBSUB;
-	}
-
-	@Override
-	protected IQStanzaType getStanzaType() {
-		return IQStanzaType.SET;
-	}
-
 	public void testPublishResponse() {
+		AbstractStanzaGenerator sg = getDefaultStanzaGenerator();
+		
 		node.subscribe("id", client);
-		ResponseStanzaContainer result = sendStanza(getStanza(), true);
+		ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsub, "id123"), true);
 		assertTrue(result.hasResponse());
 		IQStanza response = new IQStanza(result.getResponseStanza());
 		assertEquals(IQStanzaType.RESULT.value(),response.getType());
 		
-		assertEquals(id, response.getAttributeValue("id")); // IDs must match
+		assertEquals("id123", response.getAttributeValue("id")); // IDs must match
 		
 		// get the subscription Element
 		XMLElement pub = response.getFirstInnerElement().getFirstInnerElement();
@@ -83,6 +69,8 @@ public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
 	}
 	
 	public void testPublishWithSubscriber() throws BindException {
+		AbstractStanzaGenerator sg = getDefaultStanzaGenerator();
+
 		// create two subscriber for the node
 		Entity francisco = createUser("francisco@denmark.lit");
 		Entity bernardo = createUser("bernardo@denmark.lit/somewhere");
@@ -97,7 +85,7 @@ public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
 		assertEquals(3, node.countSubscriptions());
 		
 		// publish a message
-		ResponseStanzaContainer result = sendStanza(getStanza(), true);
+		ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsub, "id1"), true);
 		
 		// verify response
 		assertTrue(result.hasResponse());
@@ -111,5 +99,28 @@ public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
 		String boundResourceId = sessionContext.bindResource();
         Entity usr = new EntityImpl(clientBare, boundResourceId);
         return usr;
+	}
+
+	class DefaultPublishStanzaGenerator extends AbstractStanzaGenerator {
+		@Override
+		protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb) {
+			sb.startInnerElement("publish");
+			sb.addAttribute("node", pubsub.getResource());
+			sb.startInnerElement("item");
+			sb.addText("this is a test");
+			sb.endInnerElement();
+			sb.endInnerElement();
+			return sb;
+		}
+	
+		@Override
+		protected String getNamespace() {
+			return NamespaceURIs.XEP0060_PUBSUB;
+		}
+	
+		@Override
+		protected IQStanzaType getStanzaType() {
+			return IQStanzaType.SET;
+		}
 	}
 }
