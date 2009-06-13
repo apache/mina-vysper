@@ -25,6 +25,7 @@ import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeTestCase;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubSubscribeTestCase.DefaultSubscribeStanzaGenerator;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -245,5 +246,27 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
 		
 		assertEquals("invalid-subid", errorContent.get(1).getName());
 		assertEquals(NamespaceURIs.XEP0060_PUBSUB_ERRORS, errorContent.get(1).getNamespace());
+	}
+		
+	public void testUnsubscribeJIDMalformed() {
+		DefaultUnsubscribeStanzaGenerator sg = new DefaultUnsubscribeStanzaGenerator();
+		sg.overrideSubscriberJID("@@");
+		
+		ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsub, "id123"), true);
+		assertTrue(result.hasResponse());
+		IQStanza response = new IQStanza(result.getResponseStanza());
+		assertEquals(IQStanzaType.ERROR.value(),response.getType());
+		assertFalse(node.isSubscribed(client));
+		
+		assertEquals("id123", response.getAttributeValue("id")); // IDs must match
+		
+		XMLElement error = response.getFirstInnerElement();
+		assertEquals("error", error.getName());
+		assertEquals("modify", error.getAttributeValue("type"));
+		
+		List<XMLElement> errorContent = error.getInnerElements(); 
+		assertEquals(1, errorContent.size());
+		assertEquals("jid-malformed", errorContent.get(0).getName());
+		assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, errorContent.get(0).getNamespace());
 	}
 }

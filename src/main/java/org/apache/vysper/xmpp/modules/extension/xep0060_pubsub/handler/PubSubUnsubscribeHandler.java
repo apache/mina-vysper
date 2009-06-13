@@ -73,8 +73,8 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
 		try {
 			subJID = EntityImpl.parse(strSubJID);
 		} catch (EntityFormatException e) {
-			// TODO return error stanza... (general error)
-			return null;
+			// return error stanza... (general error)
+			return generateJIDMalformedErrorStanza(sender, receiver, iqStanzaID);
 		}
 		
 		if(!sender.getBareJID().equals(subJID.getBareJID())) {
@@ -109,6 +109,16 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
 		
 		sb.endInnerElement(); // pubsub
 		return new IQStanza(sb.getFinalStanza());
+	}
+	
+	private Stanza generateJIDMalformedErrorStanza(Entity sender, Entity receiver, String iqStanzaID) {
+		StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
+		error.startInnerElement("error");
+		error.addAttribute("type", "modify");
+		error.startInnerElement("jid-malformed", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
+		error.endInnerElement(); // jid-malformed
+		error.endInnerElement(); // error
+		return error.getFinalStanza();
 	}
 
 	private Stanza generateInsufficientPrivilegesErrorStanza(Entity sender, Entity receiver, String iqStanzaID) {
