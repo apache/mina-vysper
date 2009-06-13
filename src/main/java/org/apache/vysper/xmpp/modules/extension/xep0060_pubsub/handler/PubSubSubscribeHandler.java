@@ -92,8 +92,14 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
 		LeafNode node = root.find(nodeJID);
 		
 		if(node == null) {
-			// TODO no such node (error condition 11 (6.1.3))
-			return null;
+			// no such node (error condition 11 (6.1.3))
+			StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
+			error.startInnerElement("error");
+			error.addAttribute("type", "cancel");
+			error.startInnerElement("item-does-not-exist", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
+			error.endInnerElement(); // bad-request
+			error.endInnerElement(); // error
+			return error.getFinalStanza();
 		}
 		
 		String id = idGenerator.create();

@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 import java.util.List;
 
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeTestCase;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
@@ -89,8 +90,29 @@ public class PubSubSubscribeTestCase extends AbstractPublishSubscribeTestCase {
 		
 		assertEquals("invalid-jid", errorContent.get(1).getName());
 		assertEquals(NamespaceURIs.XEP0060_PUBSUB_ERRORS, errorContent.get(1).getNamespace());
-		
 	}
+	
+	public void testSubscribeNoSuchNode() throws Exception {
+		DefaultSubscribeStanzaGenerator sg = new DefaultSubscribeStanzaGenerator();
+		Entity pubsubWrongNode = EntityImpl.parse("pubsub.vysper.org/doesnotexist");
+		
+		ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsubWrongNode, "id123"), true);
+		assertTrue(result.hasResponse());
+		IQStanza response = new IQStanza(result.getResponseStanza());
+		assertEquals(IQStanzaType.ERROR.value(),response.getType());
+		assertFalse(node.isSubscribed(client));
+		
+		assertEquals("id123", response.getAttributeValue("id")); // IDs must match
+		
+		XMLElement error = response.getFirstInnerElement();
+		assertEquals("error", error.getName());
+		assertEquals("cancel", error.getAttributeValue("type"));
+		
+		List<XMLElement> errorContent = error.getInnerElements(); 
+		assertEquals(1, errorContent.size());
+		assertEquals("item-does-not-exist", errorContent.get(0).getName());
+		assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, errorContent.get(0).getNamespace());
+	}	
 
 	class DefaultSubscribeStanzaGenerator extends AbstractStanzaGenerator {
 		private String subscriberJID = null;
