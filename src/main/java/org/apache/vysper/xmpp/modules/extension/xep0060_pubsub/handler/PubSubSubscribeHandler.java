@@ -71,26 +71,12 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
 		try {
 			subJID = EntityImpl.parse(strSubJID);
 		} catch (EntityFormatException e) {
-			StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
-			error.startInnerElement("error");
-			error.addAttribute("type", "modify");
-			error.startInnerElement("jid-malformed", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
-			error.endInnerElement(); // jid-malformed
-			error.endInnerElement(); // error
-			return error.getFinalStanza();
+			return generateJIDMalformedErrorStanza(sender, receiver, iqStanzaID);
 		}
 		
 		if(!sender.getBareJID().equals(subJID.getBareJID())) {
 			// error condition 1 (6.1.3)
-			StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
-			error.startInnerElement("error");
-			error.addAttribute("type", "modify");
-			error.startInnerElement("bad-request", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
-			error.endInnerElement(); // bad-request
-			error.startInnerElement("invalid-jid", NamespaceURIs.XEP0060_PUBSUB_ERRORS);
-			error.endInnerElement(); // invalid-jid
-			error.endInnerElement(); // error
-			return error.getFinalStanza();
+			return generateJIDDontMatchErrorStanza(sender, receiver, iqStanzaID);
 		}
 		
 		Entity nodeJID = extractNodeJID(stanza);
@@ -98,13 +84,7 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
 		
 		if(node == null) {
 			// no such node (error condition 11 (6.1.3))
-			StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
-			error.startInnerElement("error");
-			error.addAttribute("type", "cancel");
-			error.startInnerElement("item-does-not-exist", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
-			error.endInnerElement(); // bad-request
-			error.endInnerElement(); // error
-			return error.getFinalStanza();
+			return generateNoNodeErrorStanza(sender, receiver, iqStanzaID);
 		}
 		
 		String id = idGenerator.create();
@@ -114,6 +94,41 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
 		
 		sb.endInnerElement(); // pubsub
 		return new IQStanza(sb.getFinalStanza());
+	}
+
+	private Stanza generateJIDMalformedErrorStanza(Entity sender,
+			Entity receiver, String iqStanzaID) {
+		StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
+		error.startInnerElement("error");
+		error.addAttribute("type", "modify");
+		error.startInnerElement("jid-malformed", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
+		error.endInnerElement(); // jid-malformed
+		error.endInnerElement(); // error
+		return error.getFinalStanza();
+	}
+
+	private Stanza generateNoNodeErrorStanza(Entity sender, Entity receiver,
+			String iqStanzaID) {
+		StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
+		error.startInnerElement("error");
+		error.addAttribute("type", "cancel");
+		error.startInnerElement("item-does-not-exist", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
+		error.endInnerElement(); // bad-request
+		error.endInnerElement(); // error
+		return error.getFinalStanza();
+	}
+
+	private Stanza generateJIDDontMatchErrorStanza(Entity sender,
+			Entity receiver, String iqStanzaID) {
+		StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
+		error.startInnerElement("error");
+		error.addAttribute("type", "modify");
+		error.startInnerElement("bad-request", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
+		error.endInnerElement(); // bad-request
+		error.startInnerElement("invalid-jid", NamespaceURIs.XEP0060_PUBSUB_ERRORS);
+		error.endInnerElement(); // invalid-jid
+		error.endInnerElement(); // error
+		return error.getFinalStanza();
 	}
 	
 	private void buildSuccessStanza(StanzaBuilder sb, Entity node, String jid, String subid) {
