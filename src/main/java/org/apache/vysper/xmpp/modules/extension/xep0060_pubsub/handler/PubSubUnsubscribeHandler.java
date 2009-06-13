@@ -86,8 +86,8 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
 		LeafNode node = root.find(nodeJID);
 		
 		if(node == null) {
-			// TODO no such node (error condition 4 (6.2.3))
-			return null;
+			// no such node (error condition 4 (6.2.3))
+			return generateNoNodeErrorStanza(sender, receiver, iqStanzaID);
 		}
 		
 		if(strSubID == null) {
@@ -144,5 +144,14 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
 		error.endInnerElement(); // error
 		return error.getFinalStanza();
 	}
-
+	
+	private Stanza generateNoNodeErrorStanza(Entity sender, Entity receiver, String iqStanzaID) {
+		StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
+		error.startInnerElement("error");
+		error.addAttribute("type", "cancel");
+		error.startInnerElement("item-does-not-exist", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
+		error.endInnerElement(); // item-does-not-exist
+		error.endInnerElement(); // error
+		return error.getFinalStanza();
+	}
 }

@@ -113,7 +113,7 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
 		error.startInnerElement("error");
 		error.addAttribute("type", "cancel");
 		error.startInnerElement("item-does-not-exist", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
-		error.endInnerElement(); // bad-request
+		error.endInnerElement(); // item-does-not-exist
 		error.endInnerElement(); // error
 		return error.getFinalStanza();
 	}

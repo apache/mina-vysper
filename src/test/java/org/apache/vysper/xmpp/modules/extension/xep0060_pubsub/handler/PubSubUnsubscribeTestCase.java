@@ -183,5 +183,27 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
 		assertEquals(1, errorContent.size());
 		assertEquals("forbidden", errorContent.get(0).getName());
 		assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, errorContent.get(0).getNamespace());
+	}
+	
+	public void testUnsubscribeNoSuchNode() throws Exception {
+		DefaultUnsubscribeStanzaGenerator sg = new DefaultUnsubscribeStanzaGenerator();
+		Entity pubsubWrongNode = EntityImpl.parse("pubsub.vysper.org/doesnotexist");
+		
+		ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsubWrongNode, "id123"), true);
+		assertTrue(result.hasResponse());
+		IQStanza response = new IQStanza(result.getResponseStanza());
+		assertEquals(IQStanzaType.ERROR.value(),response.getType());
+		assertFalse(node.isSubscribed(client));
+		
+		assertEquals("id123", response.getAttributeValue("id")); // IDs must match
+		
+		XMLElement error = response.getFirstInnerElement();
+		assertEquals("error", error.getName());
+		assertEquals("cancel", error.getAttributeValue("type"));
+		
+		List<XMLElement> errorContent = error.getInnerElements(); 
+		assertEquals(1, errorContent.size());
+		assertEquals("item-does-not-exist", errorContent.get(0).getName());
+		assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, errorContent.get(0).getNamespace());
 	}	
 }
