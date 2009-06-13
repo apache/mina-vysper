@@ -76,8 +76,16 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
 		}
 		
 		if(!sender.getBareJID().equals(subJID.getBareJID())) {
-			// TODO error condition 1 (6.1.3)
-			return null;
+			// error condition 1 (6.1.3)
+			StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
+			error.startInnerElement("error");
+			error.addAttribute("type", "modify");
+			error.startInnerElement("bad-request", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
+			error.endInnerElement(); // bad-request
+			error.startInnerElement("invalid-jid", NamespaceURIs.XEP0060_PUBSUB_ERRORS);
+			error.endInnerElement(); // invalid-jid
+			error.endInnerElement(); // error
+			return error.getFinalStanza();
 		}
 		
 		Entity nodeJID = extractNodeJID(stanza);

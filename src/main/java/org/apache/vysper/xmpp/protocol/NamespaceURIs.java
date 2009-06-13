@@ -51,5 +51,6 @@ public class NamespaceURIs {
     public static final String XEP0060_PUBSUB = "http://jabber.org/protocol/pubsub";
     public static final String XEP0060_PUBSUB_EVENT = "http://jabber.org/protocol/pubsub#event";
     public static final String XEP0060_PUBSUB_OWNER = "http://jabber.org/protocol/pubsub#owner";
+	public static final String XEP0060_PUBSUB_ERRORS = "http://jabber.org/protocol/pubsub#errors";
 
 }
