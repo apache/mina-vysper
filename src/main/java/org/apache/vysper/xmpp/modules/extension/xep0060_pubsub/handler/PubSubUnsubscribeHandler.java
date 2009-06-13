@@ -97,8 +97,7 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
 					return null;
 				}
 			} catch(MultipleSubscriptionException e) {
-				// TODO more than one subscription without ID (error condition 1 (6.2.3))
-				return null;
+				return createSubIDRequiredErrorStanza(sender, receiver,	iqStanzaID);
 			}
 		} else {
 			if(node.unsubscribe(strSubID, subJID) == false) {
@@ -109,6 +108,18 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
 		
 		sb.endInnerElement(); // pubsub
 		return new IQStanza(sb.getFinalStanza());
+	}
+
+	private Stanza createSubIDRequiredErrorStanza(Entity sender, Entity receiver, String iqStanzaID) {
+		StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
+		error.startInnerElement("error");
+		error.addAttribute("type", "modify");
+		error.startInnerElement("bad-request", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
+		error.endInnerElement(); // bad-request
+		error.startInnerElement("subid-required", NamespaceURIs.XEP0060_PUBSUB_ERRORS);
+		error.endInnerElement(); // subid-required
+		error.endInnerElement(); // error
+		return error.getFinalStanza();
 	}
 
 }
