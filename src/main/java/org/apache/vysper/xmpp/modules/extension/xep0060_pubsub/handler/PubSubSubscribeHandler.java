@@ -71,8 +71,13 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
 		try {
 			subJID = EntityImpl.parse(strSubJID);
 		} catch (EntityFormatException e) {
-			// TODO return error stanza... (general error)
-			return null;
+			StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
+			error.startInnerElement("error");
+			error.addAttribute("type", "modify");
+			error.startInnerElement("jid-malformed", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
+			error.endInnerElement(); // jid-malformed
+			error.endInnerElement(); // error
+			return error.getFinalStanza();
 		}
 		
 		if(!sender.getBareJID().equals(subJID.getBareJID())) {

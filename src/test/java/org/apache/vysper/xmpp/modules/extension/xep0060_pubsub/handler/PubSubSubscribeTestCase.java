@@ -82,7 +82,7 @@ public class PubSubSubscribeTestCase extends AbstractPublishSubscribeTestCase {
 		XMLElement error = response.getFirstInnerElement();
 		assertEquals("error", error.getName());
 		assertEquals("modify", error.getAttributeValue("type"));
-		
+
 		List<XMLElement> errorContent = error.getInnerElements(); 
 		assertEquals(2, errorContent.size());
 		assertEquals("bad-request", errorContent.get(0).getName());
@@ -90,6 +90,28 @@ public class PubSubSubscribeTestCase extends AbstractPublishSubscribeTestCase {
 		
 		assertEquals("invalid-jid", errorContent.get(1).getName());
 		assertEquals(NamespaceURIs.XEP0060_PUBSUB_ERRORS, errorContent.get(1).getNamespace());
+	}
+	
+	public void testSubscribeJIDMalformed() {
+		DefaultSubscribeStanzaGenerator sg = new DefaultSubscribeStanzaGenerator();
+		sg.overrideSubscriberJID("@@");
+		
+		ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsub, "id123"), true);
+		assertTrue(result.hasResponse());
+		IQStanza response = new IQStanza(result.getResponseStanza());
+		assertEquals(IQStanzaType.ERROR.value(),response.getType());
+		assertFalse(node.isSubscribed(client));
+		
+		assertEquals("id123", response.getAttributeValue("id")); // IDs must match
+		
+		XMLElement error = response.getFirstInnerElement();
+		assertEquals("error", error.getName());
+		assertEquals("modify", error.getAttributeValue("type"));
+		
+		List<XMLElement> errorContent = error.getInnerElements(); 
+		assertEquals(1, errorContent.size());
+		assertEquals("jid-malformed", errorContent.get(0).getName());
+		assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, errorContent.get(0).getNamespace());
 	}
 	
 	public void testSubscribeNoSuchNode() throws Exception {
