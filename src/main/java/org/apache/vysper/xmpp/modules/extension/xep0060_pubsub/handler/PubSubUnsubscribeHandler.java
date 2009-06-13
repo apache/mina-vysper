@@ -93,15 +93,16 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
 		if(strSubID == null) {
 			try {
 				if(node.unsubscribe(subJID) == false) {
-					// TODO has no subscription
-					return null;
+					// has no subscription (6.3.2.2)
+					return generateNoSuchSubscriberErrorStanza(sender, receiver, iqStanzaID);
 				}
 			} catch(MultipleSubscriptionException e) {
-				return createSubIDRequiredErrorStanza(sender, receiver,	iqStanzaID);
+				// error case 6.3.2.1
+				return generateSubIDRequiredErrorStanza(sender, receiver,	iqStanzaID);
 			}
 		} else {
 			if(node.unsubscribe(strSubID, subJID) == false) {
-				// TODO has no subscription with this ID
+				// TODO subID not valid (6.3.2.5)
 				return null;
 			}
 		}
@@ -110,7 +111,19 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
 		return new IQStanza(sb.getFinalStanza());
 	}
 
-	private Stanza createSubIDRequiredErrorStanza(Entity sender, Entity receiver, String iqStanzaID) {
+	private Stanza generateNoSuchSubscriberErrorStanza(Entity sender, Entity receiver, String iqStanzaID) {
+		StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
+		error.startInnerElement("error");
+		error.addAttribute("type", "cancel");
+		error.startInnerElement("unexpected-request", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
+		error.endInnerElement(); // unexpected-request
+		error.startInnerElement("not-subscribed", NamespaceURIs.XEP0060_PUBSUB_ERRORS);
+		error.endInnerElement(); // not-subscribed
+		error.endInnerElement(); // error
+		return error.getFinalStanza();
+	}
+
+	private Stanza generateSubIDRequiredErrorStanza(Entity sender, Entity receiver, String iqStanzaID) {
 		StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
 		error.startInnerElement("error");
 		error.addAttribute("type", "modify");
