@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 import java.util.List;
 
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeTestCase;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
@@ -37,11 +38,28 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase {
 
 	class DefaultUnsubscribeStanzaGenerator extends AbstractStanzaGenerator {
+		private String subscriberJID = null;
+		
+		private String getSubscriberJID(Entity client) {
+			if(subscriberJID == null) {
+				return client.getFullQualifiedName();
+			}
+			return subscriberJID;
+		}
+		
+		/**
+		 * Use this method to force a different subscriber JID.
+		 * @param jid
+		 */
+		public void overrideSubscriberJID(String jid) {
+			this.subscriberJID = jid;
+		}
+		
 		@Override
 		protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb) {
 			sb.startInnerElement("unsubscribe");
 			sb.addAttribute("node", pubsub.getResource());
-			sb.addAttribute("jid", client.getFullQualifiedName());
+			sb.addAttribute("jid", getSubscriberJID(client));
 			sb.endInnerElement();
 			return sb;
 		}
@@ -139,5 +157,31 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
 		
 		assertEquals("not-subscribed", errorContent.get(1).getName());
 		assertEquals(NamespaceURIs.XEP0060_PUBSUB_ERRORS, errorContent.get(1).getNamespace());
+	}
+	
+	public void testUnsubscribeForbidden() throws Exception {
+		DefaultUnsubscribeStanzaGenerator sg = new DefaultUnsubscribeStanzaGenerator();
+		String yoda = "this@somesubscriber.is/yoda";
+		sg.overrideSubscriberJID(yoda);
+		
+		node.subscribe("subid1", EntityImpl.parse(yoda));
+		
+		ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsub, "id123"), true);
+		assertTrue(result.hasResponse());
+		IQStanza response = new IQStanza(result.getResponseStanza());
+		assertEquals(IQStanzaType.ERROR.value(),response.getType());
+		assertFalse(node.isSubscribed(client));
+		assertEquals(0, node.countSubscriptions(client));
+		
+		assertEquals("id123", response.getAttributeValue("id")); // IDs must match
+		
+		XMLElement error = response.getFirstInnerElement();
+		assertEquals("error", error.getName());
+		assertEquals("auth", error.getAttributeValue("type"));
+
+		List<XMLElement> errorContent = error.getInnerElements(); 
+		assertEquals(1, errorContent.size());
+		assertEquals("forbidden", errorContent.get(0).getName());
+		assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, errorContent.get(0).getNamespace());
 	}	
 }

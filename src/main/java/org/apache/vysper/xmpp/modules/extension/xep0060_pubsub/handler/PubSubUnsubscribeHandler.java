@@ -78,8 +78,8 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
 		}
 		
 		if(!sender.getBareJID().equals(subJID.getBareJID())) {
-			// TODO insufficient privileges (error condition 3 (6.2.3))
-			return null;
+			// insufficient privileges (error condition 3 (6.2.3))
+			return generateInsufficientPrivilegesErrorStanza(sender, receiver, iqStanzaID);
 		}
 				
 		Entity nodeJID = extractNodeJID(stanza);
@@ -93,22 +93,32 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
 		if(strSubID == null) {
 			try {
 				if(node.unsubscribe(subJID) == false) {
-					// has no subscription (6.3.2.2)
+					// has no subscription (6.2.3.2)
 					return generateNoSuchSubscriberErrorStanza(sender, receiver, iqStanzaID);
 				}
 			} catch(MultipleSubscriptionException e) {
-				// error case 6.3.2.1
+				// error case 6.2.3.1
 				return generateSubIDRequiredErrorStanza(sender, receiver,	iqStanzaID);
 			}
 		} else {
 			if(node.unsubscribe(strSubID, subJID) == false) {
-				// TODO subID not valid (6.3.2.5)
+				// TODO subID not valid (6.2.3.5)
 				return null;
 			}
 		}
 		
 		sb.endInnerElement(); // pubsub
 		return new IQStanza(sb.getFinalStanza());
+	}
+
+	private Stanza generateInsufficientPrivilegesErrorStanza(Entity sender, Entity receiver, String iqStanzaID) {
+		StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
+		error.startInnerElement("error");
+		error.addAttribute("type", "auth");
+		error.startInnerElement("forbidden", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
+		error.endInnerElement(); // forbidden
+		error.endInnerElement(); // error
+		return error.getFinalStanza();
 	}
 
 	private Stanza generateNoSuchSubscriberErrorStanza(Entity sender, Entity receiver, String iqStanzaID) {
