@@ -106,27 +106,6 @@
       <version>2.0.0-M6</version>
     </dependency>
 
-<!--    <dependency>
-      <groupId>org.apache.mina</groupId>
-      <artifactId>mina-filter-ssl</artifactId>
-      <version>2.0.0-M6</version>
-    </dependency>-->
-
-<!--    <dependency>
-      <groupId>org.apache.mina</groupId>
-      <artifactId>mina-integration-spring</artifactId>
-      <version>2.0.0-M6/version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.springframework</groupId>
-          <artifactId>spring-beans</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.springframework</groupId>
-          <artifactId>spring-core</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>-->
 
     <dependency>
       <groupId>org.cyberneko.pull</groupId>
@@ -144,20 +123,6 @@
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-core</artifactId>
       <version>1.5.3</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.jackrabbit</groupId>
-          <artifactId>jackrabbit-text-extractors</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.lucene</groupId>
-          <artifactId>lucene-core</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.derby</groupId>
-          <artifactId>derby</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
