@@ -171,7 +171,7 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
 
     private PresenceStanza handleOutboundAvailable(PresenceStanza presenceStanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, RosterManager rosterManager, Entity user, ResourceRegistry registry) {
         boolean hasTo = presenceStanza.getCoreVerifier().attributePresent("to");
-        if (hasTo) throw new RuntimeException("unhandled presence available case");
+        if (hasTo) return handleOutboundDirectedPresence(presenceStanza, serverRuntimeContext, sessionContext, rosterManager, user, registry);
 
         if (!user.isResourceSet()) throw new RuntimeException("resource id not available");
         ResourceState resourceState = registry.getResourceState(user.getResource());
@@ -242,6 +242,11 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
         return null;
     }
 
+    private PresenceStanza handleOutboundDirectedPresence(PresenceStanza presenceStanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, RosterManager rosterManager, Entity user, ResourceRegistry registry) {
+        logger.warn("directed presence is not yet implemented");
+        return null;
+    }
+    
     private PresenceStanza handleInboundUnavailable(PresenceStanza presenceStanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, ResourceRegistry registry) {
         String unavailableContact = "UNKNOWN";
         if (presenceStanza != null && presenceStanza.getFrom() != null) {
