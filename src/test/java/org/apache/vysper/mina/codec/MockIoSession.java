@@ -19,107 +19,20 @@
  */
 package org.apache.vysper.mina.codec;
 
-import org.apache.mina.common.support.BaseIoSession;
-import org.apache.mina.common.IoSessionConfig;
-import org.apache.mina.common.IoFilterChain;
-import org.apache.mina.common.IoHandler;
-import org.apache.mina.common.IoService;
-import org.apache.mina.common.IoServiceConfig;
-import org.apache.mina.common.TransportType;
-
 import java.net.SocketAddress;
-import java.util.Set;
 
-public class MockIoSession extends BaseIoSession
-{
+import org.apache.mina.core.service.DefaultTransportMetadata;
+import org.apache.mina.core.session.DummySession;
+import org.apache.mina.core.session.IoSessionConfig;
 
-    @Override
-    protected void updateTrafficMask()
+public class MockIoSession extends DummySession
     {
+
+  public MockIoSession() {
+    setTransportMetadata(
+    new DefaultTransportMetadata(
+        "mina", "dummy", false, true,
+        SocketAddress.class, IoSessionConfig.class, Object.class));
     }
 
-    public IoSessionConfig getConfig()
-    {
-        return null;
-    }
-
-    public IoFilterChain getFilterChain()
-    {
-        return null;
-    }
-
-    public IoHandler getHandler()
-    {
-        return null;
-    }
-
-    public SocketAddress getLocalAddress()
-    {
-        return null;
-    }
-
-    public SocketAddress getRemoteAddress()
-    {
-        return null;
-    }
-
-    public int getScheduledWriteBytes()
-    {
-        return 0;
-    }
-
-    public int getScheduledWriteRequests()
-    {
-        return 0;
-    }
-
-    public IoService getService()
-    {
-        return null;
-    }
-
-    public SocketAddress getServiceAddress()
-    {
-        return null;
-    }
-
-    public IoServiceConfig getServiceConfig()
-    {
-        return null;
-    }
-
-    public TransportType getTransportType()
-    {
-        return null;
-    }
-
-    @Override
-    public Object getAttribute(String s) {
-        return super.getAttribute(s);
-    }
-
-    @Override
-    public Object setAttribute(String s, Object o) {
-        return super.setAttribute(s, o);
-    }
-
-    @Override
-    public Object setAttribute(String s) {
-        return super.setAttribute(s);
-    }
-
-    @Override
-    public Object removeAttribute(String s) {
-        return super.removeAttribute(s);
-    }
-
-    @Override
-    public boolean containsAttribute(String s) {
-        return super.containsAttribute(s);
-    }
-
-    @Override
-    public Set<String> getAttributeKeys() {
-        return super.getAttributeKeys();
-    }
 }

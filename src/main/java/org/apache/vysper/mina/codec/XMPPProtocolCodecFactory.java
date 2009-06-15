@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.mina.codec;
 
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
@@ -30,11 +31,11 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
  */
 public class XMPPProtocolCodecFactory implements ProtocolCodecFactory {
 
-    public ProtocolEncoder getEncoder() throws Exception {
+    public ProtocolEncoder getEncoder(IoSession s) throws Exception {
         return new StanzaWriterProtocolEncoder();
     }
 
-    public ProtocolDecoder getDecoder() throws Exception {
+    public ProtocolDecoder getDecoder(IoSession s) throws Exception {
         return new XMLStreamTokenizer();
     }
 }

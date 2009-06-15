@@ -19,8 +19,11 @@
  */
 package org.apache.vysper.mina.codec;
 
-import org.apache.mina.common.ByteBuffer;
-import org.apache.mina.common.IoSession;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.vysper.charset.CharsetUtil;
@@ -33,9 +36,6 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * splits xml stream into handy tokens for further processing
@@ -50,7 +50,7 @@ public class XMLStreamTokenizer extends CumulativeProtocolDecoder {
     final Logger clientStanzaLogger = LoggerFactory.getLogger("stanza.client");
 
     @Override
-    public boolean doDecode(IoSession ioSession, ByteBuffer byteBuffer, ProtocolDecoderOutput protocolDecoderOutput) throws Exception {
+    public boolean doDecode(IoSession ioSession, IoBuffer byteBuffer, ProtocolDecoderOutput protocolDecoderOutput) throws Exception {
 
         XMLParticle xmlParticle = ParticleDecoder.decodeParticle(byteBuffer, CharsetUtil.UTF8_DECODER);
 

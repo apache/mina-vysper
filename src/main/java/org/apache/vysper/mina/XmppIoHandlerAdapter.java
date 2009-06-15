@@ -19,10 +19,10 @@
  */
 package org.apache.vysper.mina;
 
-import org.apache.mina.common.IdleStatus;
-import org.apache.mina.common.IoHandler;
-import org.apache.mina.common.IoSession;
-import org.apache.mina.filter.SSLFilter;
+import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.session.IdleStatus;
+import org.apache.mina.core.session.IoSession;
+import org.apache.mina.filter.ssl.SslFilter;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
@@ -68,12 +68,12 @@ public class XmppIoHandlerAdapter implements IoHandler {
     }
 
     private void messageReceivedNoStanza(IoSession ioSession, Object message) {
-        if (message == SSLFilter.SESSION_SECURED) {
+        if (message == SslFilter.SESSION_SECURED) {
             SessionContext session = extractSession(ioSession);
             SessionStateHolder stateHolder = (SessionStateHolder) ioSession.getAttribute(ATTRIBUTE_VYSPER_SESSIONSTATEHOLDER);
             serverRuntimeContext.getStanzaProcessor().processTLSEstablished(session, stateHolder);
             return;
-        } else if (message == SSLFilter.SESSION_UNSECURED) {
+        } else if (message == SslFilter.SESSION_UNSECURED) {
             // TODO
             return;
 //            throw new IllegalStateException("server must close session!");

@@ -19,9 +19,9 @@
  */
 package org.apache.vysper.xmpp.xmldecoder;
 
-import org.apache.mina.common.ByteBuffer;
-
 import java.nio.charset.CharsetDecoder;
+
+import org.apache.mina.core.buffer.IoBuffer;
 
 /**
  * partitions the incoming byte stream in particles of XML. either those enclosed by '<' and '>', or the text inbetween.
@@ -36,7 +36,7 @@ public class ParticleDecoder {
      * @return the new particle or NULL, if the buffer was exhausted before the particle was completed
      * @throws Exception
      */
-    public static XMLParticle decodeParticle(ByteBuffer byteBuffer, CharsetDecoder charsetDecoder) throws Exception {
+    public static XMLParticle decodeParticle(IoBuffer byteBuffer, CharsetDecoder charsetDecoder) throws Exception {
         int startPosition = byteBuffer.position();
 
         //String DEBUG_VORDERBAND = byteBuffer.duplicate().getString(charsetDecoder);
@@ -58,7 +58,7 @@ public class ParticleDecoder {
                 int endPosition = byteBuffer.position();
                 if (plainText) endPosition--;
                 int limit = byteBuffer.limit();
-                ByteBuffer stanzaBuffer = null;
+                IoBuffer stanzaBuffer = null;
                 try {
                     // prepare correct slicing
                     byteBuffer.position(startPosition);

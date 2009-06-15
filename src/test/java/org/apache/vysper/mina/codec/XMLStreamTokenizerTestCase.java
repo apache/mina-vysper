@@ -19,19 +19,22 @@
  */
 package org.apache.vysper.mina.codec;
 
+import java.nio.charset.CharsetEncoder;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import junit.framework.TestCase;
-import org.apache.mina.common.ByteBuffer;
+
+import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.core.filterchain.IoFilter.NextFilter;
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.vysper.charset.CharsetUtil;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.writer.StanzaWriter;
 import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 import org.apache.vysper.xmpp.xmlfragment.XMLText;
-
-import java.nio.charset.CharsetEncoder;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  */
@@ -41,8 +44,8 @@ public class XMLStreamTokenizerTestCase extends TestCase {
     public void testDecoderSimple() throws Exception {
         XMLStreamTokenizer decoder = new XMLStreamTokenizer();
         MockIoSession session = new MockIoSession();
-        ByteBuffer firstByteBuffer = createByteBuffer();
-        ByteBuffer secondByteBuffer = createByteBuffer();
+        IoBuffer firstByteBuffer = createByteBuffer();
+        IoBuffer secondByteBuffer = createByteBuffer();
         
         String stanza = StanzaWriter.XML_PROLOG + "\n\r" + 
                 "<stream:stream to='example.com' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>" +
@@ -59,11 +62,11 @@ public class XMLStreamTokenizerTestCase extends TestCase {
         decoder.decode(session, secondByteBuffer, protocolDecoderOutput);
         assertEquals(5, protocolDecoderOutput.size());
 
-        ByteBuffer emptyBuffer = createByteBuffer().putString("eee", CHARSET_ENCODER_UTF8).flip();
+        IoBuffer emptyBuffer = createByteBuffer().putString("eee", CHARSET_ENCODER_UTF8).flip();
         decoder.decode(session, emptyBuffer, protocolDecoderOutput);
         assertEquals("plain must be terminated by <", 5, protocolDecoderOutput.size());
         
-        ByteBuffer termBuffer = createByteBuffer().putString("<r>", CHARSET_ENCODER_UTF8).flip();
+        IoBuffer termBuffer = createByteBuffer().putString("<r>", CHARSET_ENCODER_UTF8).flip();
         decoder.decode(session, termBuffer, protocolDecoderOutput);
         // eee is now terminated, but r is not balanced yet
         assertEquals("plain termination", 6, protocolDecoderOutput.size());
@@ -73,15 +76,15 @@ public class XMLStreamTokenizerTestCase extends TestCase {
     public void testDecoderPartial() throws Exception {
         XMLStreamTokenizer decoder = new XMLStreamTokenizer();
         MockIoSession session = new MockIoSession();
-        ByteBuffer firstByteBuffer = createByteBuffer();
-        ByteBuffer secondByteBuffer = createByteBuffer();
+        IoBuffer firstByteBuffer = createByteBuffer();
+        IoBuffer secondByteBuffer = createByteBuffer();
         
         String stanzaPart1 = "<stream:stream to='example.com' xmlns='jabber:client' xmlns:stream='ht";
         String stanzaPart2 = "tp://etherx.jabber.org/streams' version='1.0'>";
 
         MockProtocolDecoderOutput protocolDecoderOutput = new MockProtocolDecoderOutput();
 
-        ByteBuffer prolog = createByteBuffer();
+        IoBuffer prolog = createByteBuffer();
         prolog.putString(StanzaWriter.XML_PROLOG + "\n\r", CHARSET_ENCODER_UTF8).flip();
         decoder.decode(session, prolog, protocolDecoderOutput);
         assertEquals(1, protocolDecoderOutput.size());
@@ -101,7 +104,7 @@ public class XMLStreamTokenizerTestCase extends TestCase {
     public void testCRLFInElement() throws Exception {
         XMLStreamTokenizer decoder = new XMLStreamTokenizer();
         MockIoSession session = new MockIoSession();
-        ByteBuffer byteBuffer = createByteBuffer();
+        IoBuffer byteBuffer = createByteBuffer();
         
         String stanza = 
         "<stream:stream\n" +
@@ -128,17 +131,14 @@ public class XMLStreamTokenizerTestCase extends TestCase {
         assertEquals("stream", stanzaNS);
     }
 
-    private ByteBuffer createByteBuffer() {
-        return ByteBuffer.allocate(0, false).setAutoExpand(true).clear();
+    private IoBuffer createByteBuffer() {
+        return IoBuffer.allocate(0, false).setAutoExpand(true).clear();
     }
 
     protected class MockProtocolDecoderOutput implements ProtocolDecoderOutput
     {
         private List<XMLFragment> result = new ArrayList<XMLFragment>();
 
-        public void flush()
-        {
-        }
 
         public void write( Object message )
         {
@@ -155,6 +155,9 @@ public class XMLStreamTokenizerTestCase extends TestCase {
         
         public int size() {
             return result.size();
+        }
+
+        public void flush(NextFilter nextFilter, IoSession session) {
         }
     }    
 }
