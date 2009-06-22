@@ -25,7 +25,6 @@ import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeTestCase;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubSubscribeTestCase.DefaultSubscribeStanzaGenerator;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.stanza.IQStanza;
