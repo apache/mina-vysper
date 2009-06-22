@@ -40,63 +40,63 @@ import org.apache.vysper.xmpp.state.resourcebinding.ResourceState;
  * @author The Apache MINA Project (http://mina.apache.org)
  */
 public abstract class AbstractPublishSubscribeTestCase extends TestCase {
-	protected TestSessionContext sessionContext  = null;
+    protected TestSessionContext sessionContext  = null;
     protected Entity clientBare = null;
     protected Entity client = null;
     protected Entity pubsub = null;
     protected IQHandler handler = null;
     protected CollectionNode root = null;
     protected LeafNode node = null;
-    
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		
-		sessionContext = TestSessionContext.createWithStanzaReceiverRelayAuthenticated();
-		clientBare = new EntityImpl("tester", "vysper.org", null);
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+
+        sessionContext = TestSessionContext.createWithStanzaReceiverRelayAuthenticated();
+        clientBare = new EntityImpl("tester", "vysper.org", null);
         sessionContext.setInitiatingEntity(clientBare);
-        
+
         String boundResourceId = sessionContext.bindResource();
         client = new EntityImpl(clientBare, boundResourceId);
-		pubsub = EntityImpl.parse("pubsub.vysper.org/news");
-		root = new CollectionNode();
+        pubsub = EntityImpl.parse("pubsub.vysper.org/news");
+        root = new CollectionNode();
 
-		node = root.createNode(pubsub);
-        
+        node = root.createNode(pubsub);
+
         setResourceConnected(sessionContext, boundResourceId);
-        
+
         handler = getHandler();
-	}
-	
-	private void setResourceConnected(SessionContext sessionContext, String boundResourceId) {
-		sessionContext.getServerRuntimeContext().getResourceRegistry().setResourceState(boundResourceId, ResourceState.CONNECTED);
-	}
+    }
 
-	/**
-	 * Override and provide the Handler to be tested. A new
-	 * handler will be created for each test.
-	 * 
-	 * @return the instantiated handler to be tested
-	 */
-	protected abstract IQHandler getHandler();
+    private void setResourceConnected(SessionContext sessionContext, String boundResourceId) {
+        sessionContext.getServerRuntimeContext().getResourceRegistry().setResourceState(boundResourceId, ResourceState.CONNECTED);
+    }
 
-	/**
-	 * Return the StanzaGenerator that build the "typical" request for the given type of request.
-	 * 
-	 * This will be used to test whether the handler correctly accepts these stanzas.
-	 * 
-	 * @return the default Stanza generator for the request type.
-	 */
-	protected abstract AbstractStanzaGenerator getDefaultStanzaGenerator();
-	
-	protected ResponseStanzaContainer sendStanza(Stanza toSend, boolean isOutboundStanza) {
-		return handler.execute(toSend, sessionContext.getServerRuntimeContext(), isOutboundStanza, sessionContext, null);
-	}
-	
-	public void testSimpleStanza() {
-		AbstractStanzaGenerator sg = getDefaultStanzaGenerator();
-		Stanza stanza = sg.getStanza(client, pubsub, "id1");
-        
+    /**
+     * Override and provide the Handler to be tested. A new
+     * handler will be created for each test.
+     * 
+     * @return the instantiated handler to be tested
+     */
+    protected abstract IQHandler getHandler();
+
+    /**
+     * Return the StanzaGenerator that build the "typical" request for the given type of request.
+     * 
+     * This will be used to test whether the handler correctly accepts these stanzas.
+     * 
+     * @return the default Stanza generator for the request type.
+     */
+    protected abstract AbstractStanzaGenerator getDefaultStanzaGenerator();
+
+    protected ResponseStanzaContainer sendStanza(Stanza toSend, boolean isOutboundStanza) {
+        return handler.execute(toSend, sessionContext.getServerRuntimeContext(), isOutboundStanza, sessionContext, null);
+    }
+
+    public void testSimpleStanza() {
+        AbstractStanzaGenerator sg = getDefaultStanzaGenerator();
+        Stanza stanza = sg.getStanza(client, pubsub, "id1");
+
         assertTrue(handler.verify(stanza));
-	}
+    }
 }

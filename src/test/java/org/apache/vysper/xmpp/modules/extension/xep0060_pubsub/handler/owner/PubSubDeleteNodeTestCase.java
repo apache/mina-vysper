@@ -32,34 +32,34 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
  */
 public class PubSubDeleteNodeTestCase extends AbstractPublishSubscribeTestCase {
 
-	class DefaultDeleteNodeStanzaGenerator extends AbstractStanzaGenerator {
-		@Override
-		protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb) {
-			sb.startInnerElement("delete");
-			sb.addAttribute("node", pubsub.getResource());
-			sb.endInnerElement();
-			return sb;
-		}
-	
-		@Override
-		protected String getNamespace() {
-			return NamespaceURIs.XEP0060_PUBSUB_OWNER;
-		}
-	
-		@Override
-		protected IQStanzaType getStanzaType() {
-			return IQStanzaType.SET;
-		}
-	}
-	
-	@Override
-	protected AbstractStanzaGenerator getDefaultStanzaGenerator() {
-		return new DefaultDeleteNodeStanzaGenerator();
-	}
-	
-	@Override
-	protected IQHandler getHandler() {
-		return new PubSubOwnerDeleteNodeHandler(root);
-	}
+    class DefaultDeleteNodeStanzaGenerator extends AbstractStanzaGenerator {
+        @Override
+        protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb) {
+            sb.startInnerElement("delete");
+            sb.addAttribute("node", pubsub.getResource());
+            sb.endInnerElement();
+            return sb;
+        }
+
+        @Override
+        protected String getNamespace() {
+            return NamespaceURIs.XEP0060_PUBSUB_OWNER;
+        }
+
+        @Override
+        protected IQStanzaType getStanzaType() {
+            return IQStanzaType.SET;
+        }
+    }
+
+    @Override
+    protected AbstractStanzaGenerator getDefaultStanzaGenerator() {
+        return new DefaultDeleteNodeStanzaGenerator();
+    }
+
+    @Override
+    protected IQHandler getHandler() {
+        return new PubSubOwnerDeleteNodeHandler(root);
+    }
 
 }

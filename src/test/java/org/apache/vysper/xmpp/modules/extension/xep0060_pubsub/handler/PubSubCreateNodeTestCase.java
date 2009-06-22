@@ -31,34 +31,34 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
  */
 public class PubSubCreateNodeTestCase extends AbstractPublishSubscribeTestCase {
 
-	class DefaultCreateNodeStanzaGenerator extends AbstractStanzaGenerator {
-		@Override
-		protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb) {
-			sb.startInnerElement("create");
-			sb.addAttribute("node", pubsub.getResource());
-			sb.endInnerElement();
-			return sb;
-		}
-	
-		@Override
-		protected String getNamespace() {
-			return NamespaceURIs.XEP0060_PUBSUB;
-		}
-	
-		@Override
-		protected IQStanzaType getStanzaType() {
-			return IQStanzaType.SET;
-		}
-	}
-	
-	@Override
-	protected AbstractStanzaGenerator getDefaultStanzaGenerator() {
-		return new DefaultCreateNodeStanzaGenerator();
-	}
-	
-	@Override
-	protected IQHandler getHandler() {
-		return new PubSubCreateNodeHandler(root);
-	}
+    class DefaultCreateNodeStanzaGenerator extends AbstractStanzaGenerator {
+        @Override
+        protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb) {
+            sb.startInnerElement("create");
+            sb.addAttribute("node", pubsub.getResource());
+            sb.endInnerElement();
+            return sb;
+        }
+
+        @Override
+        protected String getNamespace() {
+            return NamespaceURIs.XEP0060_PUBSUB;
+        }
+
+        @Override
+        protected IQStanzaType getStanzaType() {
+            return IQStanzaType.SET;
+        }
+    }
+
+    @Override
+    protected AbstractStanzaGenerator getDefaultStanzaGenerator() {
+        return new DefaultCreateNodeStanzaGenerator();
+    }
+
+    @Override
+    protected IQHandler getHandler() {
+        return new PubSubCreateNodeHandler(root);
+    }
 
 }

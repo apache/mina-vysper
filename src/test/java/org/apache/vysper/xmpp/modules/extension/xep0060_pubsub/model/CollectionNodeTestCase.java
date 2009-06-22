@@ -29,42 +29,42 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
  *
  */
 public class CollectionNodeTestCase extends TestCase  {
-	
-	protected CollectionNode collection;
-	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		collection = new CollectionNode();
-	}
-	
-	public void testCreateNode() throws Exception {
-		Entity jid = new EntityImpl(null, "pubsub.vysper.org", "test1");
-		LeafNode test1 = collection.createNode(jid);
-		assertNotNull(test1);
-	}
 
-	public void testCreateNodeTwice() {
-		Entity jid = new EntityImpl(null, "pubsub.vysper.org", "test1");
-		try {
-			collection.createNode(jid);
-			collection.createNode(jid);
-			fail();
-		} catch(DuplicateNodeException e) {
-			// ok
-		}
-	}
-	
-	public void testInsertFind() throws Exception {
-		Entity jid = new EntityImpl(null, "pubsub.vysper.org", "test1");
-		LeafNode insertedNode = collection.createNode(jid);
-		LeafNode foundNode = collection.find(jid);
-		assertEquals(insertedNode, foundNode);
-	}
-	
-	public void testFindNone() {
-		Entity jid = new EntityImpl(null, "pubsub.vysper.org", "test1");
-		assertNull(collection.find(jid));
-	}
-	
+    protected CollectionNode collection;
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        collection = new CollectionNode();
+    }
+
+    public void testCreateNode() throws Exception {
+        Entity jid = new EntityImpl(null, "pubsub.vysper.org", "test1");
+        LeafNode test1 = collection.createNode(jid);
+        assertNotNull(test1);
+    }
+
+    public void testCreateNodeTwice() {
+        Entity jid = new EntityImpl(null, "pubsub.vysper.org", "test1");
+        try {
+            collection.createNode(jid);
+            collection.createNode(jid);
+            fail();
+        } catch(DuplicateNodeException e) {
+            // ok
+        }
+    }
+
+    public void testInsertFind() throws Exception {
+        Entity jid = new EntityImpl(null, "pubsub.vysper.org", "test1");
+        LeafNode insertedNode = collection.createNode(jid);
+        LeafNode foundNode = collection.find(jid);
+        assertEquals(insertedNode, foundNode);
+    }
+
+    public void testFindNone() {
+        Entity jid = new EntityImpl(null, "pubsub.vysper.org", "test1");
+        assertNull(collection.find(jid));
+    }
+
 }

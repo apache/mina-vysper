@@ -30,45 +30,45 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
  */
 public abstract class AbstractStanzaGenerator {
 
-	/**
-	 * Override and provide the Namespace the pubsub element lies within.
-	 * 
-	 * @return the namespace for the IQ stanza as String
-	 */
-	protected abstract String getNamespace();
-	
-	/**
-	 * Override and provide a optional inner element (within the IQ/pubsub elements).
-	 * 
-	 * @param sb the StanzaBuilder currently used
-	 * @return the (modified) StanzaBuilder
-	 */
-	protected abstract StanzaBuilder buildInnerElement(Entity client, Entity pubsubService, StanzaBuilder sb);
-	
-	/**
-	 * Override and define the IQ stanza's type (get or set)
-	 * 
-	 * @return Type of Stanza @see {@link IQStanzaType}
-	 */
-	protected abstract IQStanzaType getStanzaType();
-	
-	/**
-	 * Creates a Stanza wrapper for the publish/subscribe extension.
-	 * 
-	 * @param client JID of the client
-	 * @param pubsub JID of the pubsub Service
-	 * @param id ID for the Stanza
-	 * @return the generated stanza
-	 */
-	public Stanza getStanza(Entity client, Entity pubsub, String id) {
-		StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(client, pubsub, getStanzaType(), id);
+    /**
+     * Override and provide the Namespace the pubsub element lies within.
+     * 
+     * @return the namespace for the IQ stanza as String
+     */
+    protected abstract String getNamespace();
+
+    /**
+     * Override and provide a optional inner element (within the IQ/pubsub elements).
+     * 
+     * @param sb the StanzaBuilder currently used
+     * @return the (modified) StanzaBuilder
+     */
+    protected abstract StanzaBuilder buildInnerElement(Entity client, Entity pubsubService, StanzaBuilder sb);
+
+    /**
+     * Override and define the IQ stanza's type (get or set)
+     * 
+     * @return Type of Stanza @see {@link IQStanzaType}
+     */
+    protected abstract IQStanzaType getStanzaType();
+
+    /**
+     * Creates a Stanza wrapper for the publish/subscribe extension.
+     * 
+     * @param client JID of the client
+     * @param pubsub JID of the pubsub Service
+     * @param id ID for the Stanza
+     * @return the generated stanza
+     */
+    public Stanza getStanza(Entity client, Entity pubsub, String id) {
+        StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(client, pubsub, getStanzaType(), id);
         stanzaBuilder.startInnerElement("pubsub");
         stanzaBuilder.addNamespaceAttribute(getNamespace());
-        
+
         buildInnerElement(client, pubsub, stanzaBuilder);
-        
+
         stanzaBuilder.endInnerElement();
-        
+
         return stanzaBuilder.getFinalStanza();
-	}
+    }
 }

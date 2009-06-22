@@ -38,21 +38,21 @@ import junit.framework.TestSuite;
  */
 public class PubSubTests {
 
-	public static Test suite() {
-		TestSuite suite = new TestSuite(
-				"Test for Publish/Subscribe XEP-0060");
-		//$JUnit-BEGIN$
-		suite.addTestSuite(PubSubDeleteNodeTestCase.class);
-		suite.addTestSuite(PubSubConfigureNodeTestCase.class);
-		suite.addTestSuite(PubSubCreateNodeTestCase.class);
-		suite.addTestSuite(PubSubPublishTestCase.class);
-		suite.addTestSuite(PubSubSubscribeTestCase.class);
-		suite.addTestSuite(PubSubUnsubscribeTestCase.class);
-		
-		suite.addTestSuite(CollectionNodeTestCase.class);
-		suite.addTestSuite(LeafNodeTestCase.class);
-		//$JUnit-END$
-		return suite;
-	}
+    public static Test suite() {
+        TestSuite suite = new TestSuite(
+        "Test for Publish/Subscribe XEP-0060");
+        //$JUnit-BEGIN$
+        suite.addTestSuite(PubSubDeleteNodeTestCase.class);
+        suite.addTestSuite(PubSubConfigureNodeTestCase.class);
+        suite.addTestSuite(PubSubCreateNodeTestCase.class);
+        suite.addTestSuite(PubSubPublishTestCase.class);
+        suite.addTestSuite(PubSubSubscribeTestCase.class);
+        suite.addTestSuite(PubSubUnsubscribeTestCase.class);
+
+        suite.addTestSuite(CollectionNodeTestCase.class);
+        suite.addTestSuite(LeafNodeTestCase.class);
+        //$JUnit-END$
+        return suite;
+    }
 
 }

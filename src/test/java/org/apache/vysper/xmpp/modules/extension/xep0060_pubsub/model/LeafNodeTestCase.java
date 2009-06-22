@@ -30,85 +30,85 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
  */
 public class LeafNodeTestCase extends TestCase {
 
-	protected LeafNode node;
-	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		Entity nodeJID = new EntityImpl(null, "pubsub.vysper.org", "node");
-		node = new LeafNode(nodeJID);
-	}
-	
-	public void testSubscribe() throws Exception {
-		Entity me = EntityImpl.parse("me@vysper.org");
-		assertFalse(node.isSubscribed(me));
-		node.subscribe("id1", me);
-		assertTrue(node.isSubscribed(me));
-		assertTrue(node.isSubscribed("id1"));
-	}
-	
-	public void testCount() throws Exception {
-		Entity me = EntityImpl.parse("me@vysper.org");
+    protected LeafNode node;
 
-		assertEquals(0, node.countSubscriptions(me));
-		
-		node.subscribe("id1", me);
-		assertEquals(1, node.countSubscriptions(me));
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        Entity nodeJID = new EntityImpl(null, "pubsub.vysper.org", "node");
+        node = new LeafNode(nodeJID);
+    }
 
-		node.subscribe("id2", me);
-		assertEquals(2, node.countSubscriptions(me));
-	}
-	
-	public void testUnsubscribe() throws Exception {
-		Entity me = EntityImpl.parse("me@vysper.org");
-		node.subscribe("id1", me);
-		assertTrue(node.isSubscribed(me));
-		boolean result = node.unsubscribe(me);
-		assertTrue(result);
-	}
+    public void testSubscribe() throws Exception {
+        Entity me = EntityImpl.parse("me@vysper.org");
+        assertFalse(node.isSubscribed(me));
+        node.subscribe("id1", me);
+        assertTrue(node.isSubscribed(me));
+        assertTrue(node.isSubscribed("id1"));
+    }
 
-	public void testUnsubscribeMultiSubscription() throws Exception {
-		Entity me = EntityImpl.parse("me@vysper.org");
-		node.subscribe("id1", me);
-		node.subscribe("id2", me);
-		assertEquals(2, node.countSubscriptions(me));
-		
-		assertTrue(node.isSubscribed(me));
-		boolean result = false;
-		try {
-			result = node.unsubscribe(me);
-			fail();
-		} catch(MultipleSubscriptionException e) {
-			// good
-		}
-		assertEquals(2, node.countSubscriptions(me));
-		
-		result = node.unsubscribe("id1", me);
-		assertTrue(result);
-		assertEquals(1, node.countSubscriptions(me));
+    public void testCount() throws Exception {
+        Entity me = EntityImpl.parse("me@vysper.org");
 
-		result = node.unsubscribe(me);
-		assertTrue(result);
-		assertEquals(0, node.countSubscriptions(me));
-	}
-	
-	public void testUnsubscribeNonMatchingEntity() throws Exception {
-		Entity me = EntityImpl.parse("me@vysper.org");
-		node.subscribe("id1", me);
-		
-		boolean result = node.unsubscribe("someotherid", me);
-		assertFalse(result);
-		assertTrue(node.isSubscribed(me));
-		assertTrue(node.isSubscribed("id1"));
-	}
-	
-	public void testSubscriptionCount() throws Exception {
-		Entity me = EntityImpl.parse("me@vysper.org");
-		node.subscribe("id1", me);
-		node.subscribe("id2", me);
-		Entity you = EntityImpl.parse("you@vysper.org");
-		node.subscribe("id3", you);
-		
-		assertEquals(3, node.countSubscriptions());
-	}
+        assertEquals(0, node.countSubscriptions(me));
+
+        node.subscribe("id1", me);
+        assertEquals(1, node.countSubscriptions(me));
+
+        node.subscribe("id2", me);
+        assertEquals(2, node.countSubscriptions(me));
+    }
+
+    public void testUnsubscribe() throws Exception {
+        Entity me = EntityImpl.parse("me@vysper.org");
+        node.subscribe("id1", me);
+        assertTrue(node.isSubscribed(me));
+        boolean result = node.unsubscribe(me);
+        assertTrue(result);
+    }
+
+    public void testUnsubscribeMultiSubscription() throws Exception {
+        Entity me = EntityImpl.parse("me@vysper.org");
+        node.subscribe("id1", me);
+        node.subscribe("id2", me);
+        assertEquals(2, node.countSubscriptions(me));
+
+        assertTrue(node.isSubscribed(me));
+        boolean result = false;
+        try {
+            result = node.unsubscribe(me);
+            fail();
+        } catch(MultipleSubscriptionException e) {
+            // good
+        }
+        assertEquals(2, node.countSubscriptions(me));
+
+        result = node.unsubscribe("id1", me);
+        assertTrue(result);
+        assertEquals(1, node.countSubscriptions(me));
+
+        result = node.unsubscribe(me);
+        assertTrue(result);
+        assertEquals(0, node.countSubscriptions(me));
+    }
+
+    public void testUnsubscribeNonMatchingEntity() throws Exception {
+        Entity me = EntityImpl.parse("me@vysper.org");
+        node.subscribe("id1", me);
+
+        boolean result = node.unsubscribe("someotherid", me);
+        assertFalse(result);
+        assertTrue(node.isSubscribed(me));
+        assertTrue(node.isSubscribed("id1"));
+    }
+
+    public void testSubscriptionCount() throws Exception {
+        Entity me = EntityImpl.parse("me@vysper.org");
+        node.subscribe("id1", me);
+        node.subscribe("id2", me);
+        Entity you = EntityImpl.parse("you@vysper.org");
+        node.subscribe("id3", you);
+
+        assertEquals(3, node.countSubscriptions());
+    }
 }
