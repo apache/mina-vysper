@@ -19,28 +19,33 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner;
 
+import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeIQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 
 /**
+ * The AbstractPubSubOwnerHandler class is the superclass for all owner-related
+ * pubsub handlers. This means all stanzas in the pubsub#owner namespace.
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
- *
  */
-public abstract class AbstractPubSubOwnerHandler extends
-		AbstractPublishSubscribeIQHandler {
+@SpecCompliant(spec="xep-0060", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
+public abstract class AbstractPubSubOwnerHandler extends AbstractPublishSubscribeIQHandler {
 
-	/**
-	 * @param root
-	 */
-	public AbstractPubSubOwnerHandler(CollectionNode root) {
-		super(root);
-	}
+    /**
+     * @param root
+     */
+    public AbstractPubSubOwnerHandler(CollectionNode root) {
+        super(root);
+    }
 
-	@Override
-	protected String getNamespace() {
-		return NamespaceURIs.XEP0060_PUBSUB_OWNER;
-	}
+    /**
+     * @return the pubsub#owner namespace.
+     */
+    @Override
+    protected String getNamespace() {
+        return NamespaceURIs.XEP0060_PUBSUB_OWNER;
+    }
 
 }

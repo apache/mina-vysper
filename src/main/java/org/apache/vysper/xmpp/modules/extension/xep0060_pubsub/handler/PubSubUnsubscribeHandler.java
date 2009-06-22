@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
+import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -36,79 +37,89 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 
 /**
+ * This class handles the "unsubscribe" use cases for the "pubsub" namespace.
+ * 
  * @author The Apache MINA Project (http://mina.apache.org)
- *
  */
+@SpecCompliant(spec="xep-0060", section="6.2", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
 
-	/**
-	 * @param root
-	 */
-	public PubSubUnsubscribeHandler(CollectionNode root) {
-		super(root);
-	}
+    /**
+     * @param root
+     */
+    public PubSubUnsubscribeHandler(CollectionNode root) {
+        super(root);
+    }
 
-	@Override
-	protected String getWorkerElement() {
-		return "unsubscribe";
-	}
-	
-	@Override
-	protected Stanza handleSet(IQStanza stanza,
-			ServerRuntimeContext serverRuntimeContext,
-			SessionContext sessionContext) {
-		Entity sender = stanza.getFrom();
-		Entity receiver = stanza.getTo();
-		Entity subJID = null;
-		
-		String iqStanzaID = stanza.getAttributeValue("id");
-		
-		StanzaBuilder sb = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.RESULT, iqStanzaID);
-		sb.startInnerElement("pubsub", NamespaceURIs.XEP0060_PUBSUB);
-		
-		XMLElement unsub = stanza.getFirstInnerElement().getFirstInnerElement(); // pubsub/unsubscribe
-		String strSubJID = unsub.getAttributeValue("jid"); // MUST
-		String strSubID = unsub.getAttributeValue("subid"); // SHOULD (req. for more than one subscription)
-		
-		try {
-			subJID = EntityImpl.parse(strSubJID);
-		} catch (EntityFormatException e) {
-			// return error stanza... (general error)
-			return errorStanzaGenerator.generateJIDMalformedErrorStanza(sender, receiver, iqStanzaID);
-		}
-		
-		if(!sender.getBareJID().equals(subJID.getBareJID())) {
-			// insufficient privileges (error condition 3 (6.2.3))
-			return errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, receiver, iqStanzaID);
-		}
-				
-		Entity nodeJID = extractNodeJID(stanza);
-		LeafNode node = root.find(nodeJID);
-		
-		if(node == null) {
-			// no such node (error condition 4 (6.2.3))
-			return errorStanzaGenerator.generateNoNodeErrorStanza(sender, receiver, iqStanzaID);
-		}
-		
-		if(strSubID == null) {
-			try {
-				if(node.unsubscribe(subJID) == false) {
-					// has no subscription (6.2.3.2)
-					return errorStanzaGenerator.generateNoSuchSubscriberErrorStanza(sender, receiver, iqStanzaID);
-				}
-			} catch(MultipleSubscriptionException e) {
-				// error case 6.2.3.1
-				return errorStanzaGenerator.generateSubIDRequiredErrorStanza(sender, receiver, iqStanzaID);
-			}
-		} else {
-			if(node.unsubscribe(strSubID, subJID) == false) {
-				// subID not valid (6.2.3.5)
-				return errorStanzaGenerator.generateSubIDNotValidErrorStanza(sender, receiver, iqStanzaID);
-			}
-		}
-		
-		sb.endInnerElement(); // pubsub
-		return new IQStanza(sb.getFinalStanza());
-	}
-	
+    /**
+     * @return "unsubscribe" as worker element.
+     */
+    @Override
+    protected String getWorkerElement() {
+        return "unsubscribe";
+    }
+
+    /**
+     * This method takes care of handling the "unsubscribe" use-case including all (relevant) error conditions.
+     * 
+     * @return the appropriate response stanza (either success or some error condition).
+     */
+    @Override
+    protected Stanza handleSet(IQStanza stanza,
+            ServerRuntimeContext serverRuntimeContext,
+            SessionContext sessionContext) {
+        Entity sender = stanza.getFrom();
+        Entity receiver = stanza.getTo();
+        Entity subJID = null;
+
+        String iqStanzaID = stanza.getAttributeValue("id");
+
+        StanzaBuilder sb = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.RESULT, iqStanzaID);
+        sb.startInnerElement("pubsub", NamespaceURIs.XEP0060_PUBSUB);
+
+        XMLElement unsub = stanza.getFirstInnerElement().getFirstInnerElement(); // pubsub/unsubscribe
+        String strSubJID = unsub.getAttributeValue("jid"); // MUST
+        String strSubID = unsub.getAttributeValue("subid"); // SHOULD (req. for more than one subscription)
+
+        try {
+            subJID = EntityImpl.parse(strSubJID);
+        } catch (EntityFormatException e) {
+            // return error stanza... (general error)
+            return errorStanzaGenerator.generateJIDMalformedErrorStanza(sender, receiver, iqStanzaID);
+        }
+
+        if(!sender.getBareJID().equals(subJID.getBareJID())) {
+            // insufficient privileges (error condition 3 (6.2.3))
+            return errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, receiver, iqStanzaID);
+        }
+
+        Entity nodeJID = extractNodeJID(stanza);
+        LeafNode node = root.find(nodeJID);
+
+        if(node == null) {
+            // no such node (error condition 4 (6.2.3))
+            return errorStanzaGenerator.generateNoNodeErrorStanza(sender, receiver, iqStanzaID);
+        }
+
+        if(strSubID == null) {
+            try {
+                if(node.unsubscribe(subJID) == false) {
+                    // has no subscription (6.2.3.2)
+                    return errorStanzaGenerator.generateNoSuchSubscriberErrorStanza(sender, receiver, iqStanzaID);
+                }
+            } catch(MultipleSubscriptionException e) {
+                // error case 6.2.3.1
+                return errorStanzaGenerator.generateSubIDRequiredErrorStanza(sender, receiver, iqStanzaID);
+            }
+        } else {
+            if(node.unsubscribe(strSubID, subJID) == false) {
+                // subID not valid (6.2.3.5)
+                return errorStanzaGenerator.generateSubIDNotValidErrorStanza(sender, receiver, iqStanzaID);
+            }
+        }
+
+        sb.endInnerElement(); // pubsub
+        return new IQStanza(sb.getFinalStanza());
+    }
+
 }

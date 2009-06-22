@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
+import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeIQHandler;
@@ -27,43 +28,48 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 
 /**
+ * This class is the superclass for all stanzas within the pubsub namespace.
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
- *
  */
+@SpecCompliant(spec="xep-0060", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public abstract class AbstractPubSubGeneralHandler extends AbstractPublishSubscribeIQHandler {
 
-	ErrorStanzaGenerator errorStanzaGenerator = null;
-	
-	/**
-	 * @param root
-	 */
-	public AbstractPubSubGeneralHandler(CollectionNode root) {
-		super(root);
-		errorStanzaGenerator = new ErrorStanzaGenerator();
-	}
+    // one ErrorStanzaGenerator available for all subclasses
+    protected ErrorStanzaGenerator errorStanzaGenerator = null;
 
-	@Override
-	protected String getNamespace() {
-		return NamespaceURIs.XEP0060_PUBSUB;
-	}
+    /**
+     * @param root
+     */
+    public AbstractPubSubGeneralHandler(CollectionNode root) {
+        super(root);
+        errorStanzaGenerator = new ErrorStanzaGenerator();
+    }
 
-	/**
-	 * Extracts the node name from a given IQ stanza. The node attribute
-	 * takes precedence over the JID resource. The standard requires only
-	 * one of these addressing methods.
-	 * 
-	 * @param stanza the received IQStanza
-	 * @return the node
-	 */
-	protected Entity extractNodeJID(IQStanza stanza) {
-		String node = stanza.getFirstInnerElement().getAttributeValue("node");
-		if(node == null) {
-			return stanza.getTo();
-		} else {
-			Entity to = stanza.getTo();
-			return new EntityImpl(to.getNode(), to.getDomain(), node);
-		}
-	}
-	
+    /**
+     * @return the fixed pubsub namespace
+     */
+    @Override
+    protected String getNamespace() {
+        return NamespaceURIs.XEP0060_PUBSUB;
+    }
+
+    /**
+     * Extracts the node name from a given IQ stanza. The node attribute
+     * takes precedence over the JID resource. The standard requires only
+     * one of these addressing methods.
+     * 
+     * @param stanza the received IQStanza
+     * @return the node
+     */
+    protected Entity extractNodeJID(IQStanza stanza) {
+        String node = stanza.getFirstInnerElement().getAttributeValue("node");
+        if(node == null) {
+            return stanza.getTo();
+        } else {
+            Entity to = stanza.getTo();
+            return new EntityImpl(to.getNode(), to.getDomain(), node);
+        }
+    }
+
 }

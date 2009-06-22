@@ -19,25 +19,32 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
+import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
 
 
 /**
+ * This handler is responsible for dealing with the "create" requests (in the pubsub namespace).
+ * Even though this sounds like a "owner" action, it actually lies within the general "pubsub" namespace.
+ * 
  * @author The Apache MINA Project (http://mina.apache.org)
- *
  */
+@SpecCompliant(spec="xep-0060", section="8.1", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public class PubSubCreateNodeHandler extends AbstractPubSubGeneralHandler {
 
-	/**
-	 * @param root
-	 */
-	public PubSubCreateNodeHandler(CollectionNode root) {
-		super(root);
-	}
+    /**
+     * @param root
+     */
+    public PubSubCreateNodeHandler(CollectionNode root) {
+        super(root);
+    }
 
-	@Override
-	protected String getWorkerElement() {
-		return "create";
-	}
+    /**
+     * @return "create" as worker element.
+     */
+    @Override
+    protected String getWorkerElement() {
+        return "create";
+    }
 
 }

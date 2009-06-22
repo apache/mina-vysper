@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubCreateNodeHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubPublishHandler;
@@ -49,67 +50,94 @@ import org.slf4j.LoggerFactory;
  *
  * @author The Apache MINA Project (http://mina.apache.org)
  */
+@SpecCompliant(spec="xep-0060", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public class PublishSubscribeModule extends DefaultDiscoAwareModule implements ServerInfoRequestListener {
 
-	CollectionNode root = null;
-	final Logger logger = LoggerFactory.getLogger(PublishSubscribeModule.class);
-	
-	/**
-	 * Default constructor takes care of the root-CollectionNode 
-	 */
-	public PublishSubscribeModule() {
-		this.root = new CollectionNode();
-	}
-	
-	@Override
-	public void initialize(ServerRuntimeContext serverRuntimeContext) {
-		super.initialize(serverRuntimeContext);
-		
+    CollectionNode root = null;
+    final Logger logger = LoggerFactory.getLogger(PublishSubscribeModule.class);
+
+    /**
+     * Default constructor takes care of the root-CollectionNode
+     */
+    public PublishSubscribeModule() {
+        this.root = new CollectionNode();
+    }
+
+    @Override
+    public void initialize(ServerRuntimeContext serverRuntimeContext) {
+        super.initialize(serverRuntimeContext);
+
         PubSubPersistenceManager persistenceManager = (PubSubPersistenceManager) serverRuntimeContext.getStorageProvider(PubSubPersistenceManager.class);
         if (persistenceManager == null) {
             logger.error("No persistency manager found");
             // TODO throw some exception - without PM we can't do anything useful
         } else {
-        	root.setPersistenceManager(persistenceManager);
+            root.setPersistenceManager(persistenceManager);
         }
-	}
-	
-	@Override
-	public String getName() {
-		return "XEP-0060 Publish-Subscribe";
-	}
+    }
 
-	@Override
-	public String getVersion() {
-		return "1.13rc3";
-	}
+    @Override
+    public String getName() {
+        return "XEP-0060 Publish-Subscribe";
+    }
+
+    @Override
+    public String getVersion() {
+        return "1.13rc3";
+    }
 
     @Override
     protected void addServerInfoRequestListeners(List<ServerInfoRequestListener> serverInfoRequestListeners) {
         serverInfoRequestListeners.add(this);
     }
-    
-	public List<InfoElement> getServerInfosFor(InfoRequest request)
-			throws ServiceDiscoveryRequestException {
+
+    /**
+     * Implements the getServerInfosFor method from the {@link ServerInfoRequestListener} interface.
+     * Makes this modules available via disco as "pubsub service" in the pubsub namespace.
+     * 
+     * @see ServerInfoRequestListener#getServerInfosFor(InfoRequest)
+     */
+    public List<InfoElement> getServerInfosFor(InfoRequest request)
+    throws ServiceDiscoveryRequestException {
         List<InfoElement> infoElements = new ArrayList<InfoElement>();
         infoElements.add(new Identity("pubsub", "service"));
         infoElements.add(new Feature(NamespaceURIs.XEP0060_PUBSUB));
         return infoElements;
-	}
-	
+    }
+
+    /**
+     * Registers the handlers for the various stanza types known to this pubsub implementation.
+     * 
+     * @see DefaultModule#addHandlerDictionaries(List<HandlerDictionary> dictionary)
+     */
     @Override
     protected void addHandlerDictionaries(List<HandlerDictionary> dictionary) {
+        addPubsubHandlers(dictionary);
+        addPubsubOwnerHandlers(dictionary);
+    }
+
+    /**
+     * Inserts the handlers for the pubsub#owner namespace into the HandlerDictionary.
+     * @param dictionary the list to which the handlers should be appended.
+     */
+    private void addPubsubOwnerHandlers(List<HandlerDictionary> dictionary) {
+        ArrayList<StanzaHandler> pubsubOwnerHandlers = new ArrayList<StanzaHandler>();
+        pubsubOwnerHandlers.add(new PubSubOwnerConfigureNodeHandler(root));
+        pubsubOwnerHandlers.add(new PubSubOwnerDeleteNodeHandler(root));
+        dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB_OWNER, pubsubOwnerHandlers));
+    }
+
+    /**
+     * Inserts the handlers for the pubsub namespace into the HandlerDictionary.
+     * @param dictionary the list to which the handlers should be appended.
+     */
+    private void addPubsubHandlers(List<HandlerDictionary> dictionary) {
         ArrayList<StanzaHandler> pubsubHandlers = new ArrayList<StanzaHandler>();
         pubsubHandlers.add(new PubSubSubscribeHandler(root));
         pubsubHandlers.add(new PubSubUnsubscribeHandler(root));
         pubsubHandlers.add(new PubSubPublishHandler(root));
         pubsubHandlers.add(new PubSubCreateNodeHandler(root));
         dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB, pubsubHandlers));
-        
-        ArrayList<StanzaHandler> pubsubOwnerHandlers = new ArrayList<StanzaHandler>();
-        pubsubOwnerHandlers.add(new PubSubOwnerConfigureNodeHandler(root));
-        pubsubOwnerHandlers.add(new PubSubOwnerDeleteNodeHandler(root));
-        dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB_OWNER, pubsubOwnerHandlers));
     }
 
 }

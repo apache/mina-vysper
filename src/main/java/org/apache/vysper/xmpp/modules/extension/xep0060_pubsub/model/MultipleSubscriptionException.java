@@ -20,14 +20,21 @@
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model;
 
 /**
+ * This exception should be used to deal with the unsubscription of a JID
+ * if more than one subscription with this JID is present.
+ * 
  * @author The Apache MINA Project (http://mina.apache.org)
- *
  */
 public class MultipleSubscriptionException extends Exception {
 
-	private static final long serialVersionUID = 4386083322266436191L;
+    private static final long serialVersionUID = 4386083322266436191L;
 
-	public MultipleSubscriptionException(String description) {
-		super(description);
-	}
+    /**
+     * Initializes the exception with a free-form string.
+     * 
+     * @param description further details about the exception.
+     */
+    public MultipleSubscriptionException(String description) {
+        super(description);
+    }
 }

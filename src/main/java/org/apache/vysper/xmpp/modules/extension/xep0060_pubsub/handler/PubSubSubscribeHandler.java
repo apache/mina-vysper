@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
+import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -35,74 +36,91 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 
 /**
+ * This class handles the "subscribe" use cases for the "pubsub" namespace.
+ * 
  * @author The Apache MINA Project (http://mina.apache.org)
- *
  */
+@SpecCompliant(spec="xep-0060", section="6.1", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
 
-	/**
-	 * @param root
-	 */
-	public PubSubSubscribeHandler(CollectionNode root) {
-		super(root);
-	}
+    /**
+     * @param root
+     */
+    public PubSubSubscribeHandler(CollectionNode root) {
+        super(root);
+    }
 
-	@Override
-	protected String getWorkerElement() {
-		return "subscribe";
-	}
+    /**
+     * @return "subscribe" as worker element.
+     */
+    @Override
+    protected String getWorkerElement() {
+        return "subscribe";
+    }
 
-	@Override
-	protected Stanza handleSet(IQStanza stanza,
-			ServerRuntimeContext serverRuntimeContext,
-			SessionContext sessionContext) {
-		Entity sender = stanza.getFrom();
-		Entity receiver = stanza.getTo();
-		Entity subJID = null;
+    /**
+     * This method takes care of handling the "subscribe" use-case including all (relevant) error conditions.
+     * 
+     * @return the appropriate response stanza (either success or some error condition).
+     */
+    @Override
+    protected Stanza handleSet(IQStanza stanza,
+            ServerRuntimeContext serverRuntimeContext,
+            SessionContext sessionContext) {
+        Entity sender = stanza.getFrom();
+        Entity receiver = stanza.getTo();
+        Entity subJID = null;
 
-		String iqStanzaID = stanza.getAttributeValue("id");
-		
-		StanzaBuilder sb = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.RESULT, iqStanzaID);
-		sb.startInnerElement("pubsub", NamespaceURIs.XEP0060_PUBSUB);
-		
-		XMLElement sub = stanza.getFirstInnerElement().getFirstInnerElement(); // pubsub/subscribe
-		String strSubJID = sub.getAttributeValue("jid"); // MUST
-		
-		try {
-			subJID = EntityImpl.parse(strSubJID);
-		} catch (EntityFormatException e) {
-			return errorStanzaGenerator.generateJIDMalformedErrorStanza(sender, receiver, iqStanzaID);
-		}
-		
-		if(!sender.getBareJID().equals(subJID.getBareJID())) {
-			// error condition 1 (6.1.3)
-			return errorStanzaGenerator.generateJIDDontMatchErrorStanza(sender, receiver, iqStanzaID);
-		}
-		
-		Entity nodeJID = extractNodeJID(stanza);
-		LeafNode node = root.find(nodeJID);
-		
-		if(node == null) {
-			// no such node (error condition 11 (6.1.3))
-			return errorStanzaGenerator.generateNoNodeErrorStanza(sender, receiver, iqStanzaID);
-		}
-		
-		String id = idGenerator.create();
-		node.subscribe(id, subJID);
-		
-		buildSuccessStanza(sb, nodeJID, strSubJID, id);
-		
-		sb.endInnerElement(); // pubsub
-		return new IQStanza(sb.getFinalStanza());
-	}
+        String iqStanzaID = stanza.getAttributeValue("id");
 
-	
-	private void buildSuccessStanza(StanzaBuilder sb, Entity node, String jid, String subid) {
-		sb.startInnerElement("subscription");
-		sb.addAttribute("node", node.getResource());
-		sb.addAttribute("jid", jid);
-		sb.addAttribute("subid", subid);
-		sb.addAttribute("subscription", "subscribed");
-		sb.endInnerElement();
-	}
+        StanzaBuilder sb = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.RESULT, iqStanzaID);
+        sb.startInnerElement("pubsub", NamespaceURIs.XEP0060_PUBSUB);
+
+        XMLElement sub = stanza.getFirstInnerElement().getFirstInnerElement(); // pubsub/subscribe
+        String strSubJID = sub.getAttributeValue("jid"); // MUST
+
+        try {
+            subJID = EntityImpl.parse(strSubJID);
+        } catch (EntityFormatException e) {
+            return errorStanzaGenerator.generateJIDMalformedErrorStanza(sender, receiver, iqStanzaID);
+        }
+
+        if(!sender.getBareJID().equals(subJID.getBareJID())) {
+            // error condition 1 (6.1.3)
+            return errorStanzaGenerator.generateJIDDontMatchErrorStanza(sender, receiver, iqStanzaID);
+        }
+
+        Entity nodeJID = extractNodeJID(stanza);
+        LeafNode node = root.find(nodeJID);
+
+        if(node == null) {
+            // no such node (error condition 11 (6.1.3))
+            return errorStanzaGenerator.generateNoNodeErrorStanza(sender, receiver, iqStanzaID);
+        }
+
+        String id = idGenerator.create();
+        node.subscribe(id, subJID);
+
+        buildSuccessStanza(sb, nodeJID, strSubJID, id);
+
+        sb.endInnerElement(); // pubsub
+        return new IQStanza(sb.getFinalStanza());
+    }
+
+    /**
+     * This method adds the default "success" elements to the given StanzaBuilder.
+     * 
+     * @param sb the StanzaBuilder to add the success elements.
+     * @param node the node the user wanted to subscribe to.
+     * @param jid the jid of the subscriber.
+     * @param subid the subscription id for the given JID.
+     */
+    private void buildSuccessStanza(StanzaBuilder sb, Entity node, String jid, String subid) {
+        sb.startInnerElement("subscription");
+        sb.addAttribute("node", node.getResource());
+        sb.addAttribute("jid", jid);
+        sb.addAttribute("subid", subid);
+        sb.addAttribute("subscription", "subscribed");
+        sb.endInnerElement();
+    }
 }

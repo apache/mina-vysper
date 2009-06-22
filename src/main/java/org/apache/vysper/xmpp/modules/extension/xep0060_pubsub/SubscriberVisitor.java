@@ -19,14 +19,24 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
+import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 
 /**
+ * The SubscriberVisitor is used to visit all subscriptions of a node.
+ * 
  * @author The Apache MINA Project (http://mina.apache.org)
- *
  */
+@SpecCompliant(spec="xep-0060", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public interface SubscriberVisitor {
 
-	void visit(Entity nodeJID, Entity sub);
+    /**
+     * visit is part of the "visitor pattern" and should be used to iterate
+     * over all subscriptions of a node.
+     * 
+     * @param nodeJID the node JID of the subscription
+     * @param sub the subscriber JID
+     */
+    void visit(Entity nodeJID, Entity sub);
 
 }

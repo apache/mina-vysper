@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
+import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
@@ -35,80 +36,97 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 
 /**
+ * This class handles the "publish" use cases for the "pubsub" namespace.
+ * 
  * @author The Apache MINA Project (http://mina.apache.org)
- *
  */
+@SpecCompliant(spec="xep-0060", section="7.1", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public class PubSubPublishHandler extends AbstractPubSubGeneralHandler {
 
-	/**
-	 * @param root
-	 */
-	public PubSubPublishHandler(CollectionNode root) {
-		super(root);
-	}
+    /**
+     * @param root
+     */
+    public PubSubPublishHandler(CollectionNode root) {
+        super(root);
+    }
 
-	@Override
-	protected String getWorkerElement() {
-		return "publish";
-	}
+    /**
+     * @return "publish" as worker element.
+     */
+    @Override
+    protected String getWorkerElement() {
+        return "publish";
+    }
 
-	@Override
-	protected Stanza handleSet(IQStanza stanza,
-			ServerRuntimeContext serverRuntimeContext,
-			SessionContext sessionContext) {
-		Entity sender = stanza.getFrom();
-		Entity receiver = stanza.getTo();
+    /**
+     * This method takes care of handling the "publish" use-case including all (relevant) error conditions.
+     * 
+     * @return the appropriate response stanza (either success or some error condition).
+     */
+    @Override
+    protected Stanza handleSet(IQStanza stanza,
+            ServerRuntimeContext serverRuntimeContext,
+            SessionContext sessionContext) {
+        Entity sender = stanza.getFrom();
+        Entity receiver = stanza.getTo();
 
-		String iqStanzaID = stanza.getAttributeValue("id");
-		
-		StanzaBuilder sb = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.RESULT, iqStanzaID);
-		sb.startInnerElement("pubsub", NamespaceURIs.XEP0060_PUBSUB);
-		
-		XMLElement publish = stanza.getFirstInnerElement().getFirstInnerElement(); // pubsub/publish
-		String strNode = publish.getAttributeValue("node"); // MUST
+        String iqStanzaID = stanza.getAttributeValue("id");
 
-		XMLElement item = publish.getFirstInnerElement();
-		String strID = item.getAttributeValue("id"); // MAY
-		
-		Entity jid = new EntityImpl(receiver.getNode(), receiver.getDomain(), strNode);
-		LeafNode node = root.find(jid);
-		
-		if(node == null) {
-			//TODO node does not exist - error condition 3 (7.1.3)
-			return null;
-		}
-		
-		if(!node.isSubscribed(sender)) {
-			// TODO not enough privileges to publish - error condition 1 (7.1.3)
-			return null;
-		}
-		
-		if(strID == null) {
-			strID = idGenerator.create();
-			// wrap a new item element with the id attribute
-			StanzaBuilder itemBuilder = new StanzaBuilder("item");
-			itemBuilder.addAttribute("id", strID);
-			itemBuilder.addPreparedElement(item.getFirstInnerElement());
-			item = itemBuilder.getFinalStanza();
-		}
-		
-		StanzaRelay relay = serverRuntimeContext.getStanzaRelay();
-		node.publish(sender, relay, strID, item);
-		
-		buildSuccessStanza(sb, strNode, strID);
-		
-		sb.endInnerElement(); // pubsub
-		return new IQStanza(sb.getFinalStanza());
-	}
-	
-	private void buildSuccessStanza(StanzaBuilder sb, String node, String id) {
-		sb.startInnerElement("publish");
-		sb.addAttribute("node", node);
-		
-		sb.startInnerElement("item");
-		sb.addAttribute("id", id);
-		sb.endInnerElement();
-		
-		sb.endInnerElement();
-	}
+        StanzaBuilder sb = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.RESULT, iqStanzaID);
+        sb.startInnerElement("pubsub", NamespaceURIs.XEP0060_PUBSUB);
+
+        XMLElement publish = stanza.getFirstInnerElement().getFirstInnerElement(); // pubsub/publish
+        String strNode = publish.getAttributeValue("node"); // MUST
+
+        XMLElement item = publish.getFirstInnerElement();
+        String strID = item.getAttributeValue("id"); // MAY
+
+        Entity jid = new EntityImpl(receiver.getNode(), receiver.getDomain(), strNode);
+        LeafNode node = root.find(jid);
+
+        if(node == null) {
+            //TODO node does not exist - error condition 3 (7.1.3)
+            return null;
+        }
+
+        if(!node.isSubscribed(sender)) {
+            // TODO not enough privileges to publish - error condition 1 (7.1.3)
+            return null;
+        }
+
+        if(strID == null) {
+            strID = idGenerator.create();
+            // wrap a new item element with the id attribute
+            StanzaBuilder itemBuilder = new StanzaBuilder("item");
+            itemBuilder.addAttribute("id", strID);
+            itemBuilder.addPreparedElement(item.getFirstInnerElement());
+            item = itemBuilder.getFinalStanza();
+        }
+
+        StanzaRelay relay = serverRuntimeContext.getStanzaRelay();
+        node.publish(sender, relay, strID, item);
+
+        buildSuccessStanza(sb, strNode, strID);
+
+        sb.endInnerElement(); // pubsub
+        return new IQStanza(sb.getFinalStanza());
+    }
+
+    /**
+     * This method adds the default "success" elements to the given StanzaBuilder.
+     * 
+     * @param sb the StanzaBuilder to add the success elements.
+     * @param node the node to which the message was published.
+     * @param id the id of the published message.
+     */
+    private void buildSuccessStanza(StanzaBuilder sb, String node, String id) {
+        sb.startInnerElement("publish");
+        sb.addAttribute("node", node);
+
+        sb.startInnerElement("item");
+        sb.addAttribute("id", id);
+        sb.endInnerElement();
+
+        sb.endInnerElement();
+    }
 }

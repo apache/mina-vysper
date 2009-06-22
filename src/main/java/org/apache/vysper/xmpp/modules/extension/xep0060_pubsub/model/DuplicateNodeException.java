@@ -19,15 +19,25 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model;
 
+import org.apache.vysper.compliance.SpecCompliant;
+
 /**
+ * This exception is used to deal with the case that a new node should
+ * be created with a JID already taken by some other node.
+ * 
  * @author The Apache MINA Project (http://mina.apache.org)
- *
  */
+@SpecCompliant(spec="xep-0060", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public class DuplicateNodeException extends Exception {
 
-	private static final long serialVersionUID = 4689474856848508356L;
+    private static final long serialVersionUID = 4689474856848508356L;
 
-	public DuplicateNodeException(String description) {
-		super(description);
-	}
+    /**
+     * Initializes the exception with a free-form string.
+     * 
+     * @param description further details about the exception.
+     */
+    public DuplicateNodeException(String description) {
+        super(description);
+    }
 }

@@ -19,25 +19,31 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner;
 
+import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
 
 
 /**
+ * This class is responsible for handling all "delete" stanzas within the pubsub#owner namespace.
+ * 
  * @author The Apache MINA Project (http://mina.apache.org)
- *
  */
+@SpecCompliant(spec="xep-0060", section="8.4", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public class PubSubOwnerDeleteNodeHandler extends AbstractPubSubOwnerHandler {
 
-	/**
-	 * @param root
-	 */
-	public PubSubOwnerDeleteNodeHandler(CollectionNode root) {
-		super(root);
-	}
+    /**
+     * @param root
+     */
+    public PubSubOwnerDeleteNodeHandler(CollectionNode root) {
+        super(root);
+    }
 
-	@Override
-	protected String getWorkerElement() {
-		return "delete";
-	}
+    /**
+     * @return "delete" as worker element.
+     */
+    @Override
+    protected String getWorkerElement() {
+        return "delete";
+    }
 
 }
