@@ -74,12 +74,12 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
 			subJID = EntityImpl.parse(strSubJID);
 		} catch (EntityFormatException e) {
 			// return error stanza... (general error)
-			return generateJIDMalformedErrorStanza(sender, receiver, iqStanzaID);
+			return errorStanzaGenerator.generateJIDMalformedErrorStanza(sender, receiver, iqStanzaID);
 		}
 		
 		if(!sender.getBareJID().equals(subJID.getBareJID())) {
 			// insufficient privileges (error condition 3 (6.2.3))
-			return generateInsufficientPrivilegesErrorStanza(sender, receiver, iqStanzaID);
+			return errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, receiver, iqStanzaID);
 		}
 				
 		Entity nodeJID = extractNodeJID(stanza);
@@ -87,23 +87,23 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
 		
 		if(node == null) {
 			// no such node (error condition 4 (6.2.3))
-			return generateNoNodeErrorStanza(sender, receiver, iqStanzaID);
+			return errorStanzaGenerator.generateNoNodeErrorStanza(sender, receiver, iqStanzaID);
 		}
 		
 		if(strSubID == null) {
 			try {
 				if(node.unsubscribe(subJID) == false) {
 					// has no subscription (6.2.3.2)
-					return generateNoSuchSubscriberErrorStanza(sender, receiver, iqStanzaID);
+					return errorStanzaGenerator.generateNoSuchSubscriberErrorStanza(sender, receiver, iqStanzaID);
 				}
 			} catch(MultipleSubscriptionException e) {
 				// error case 6.2.3.1
-				return generateSubIDRequiredErrorStanza(sender, receiver, iqStanzaID);
+				return errorStanzaGenerator.generateSubIDRequiredErrorStanza(sender, receiver, iqStanzaID);
 			}
 		} else {
 			if(node.unsubscribe(strSubID, subJID) == false) {
 				// subID not valid (6.2.3.5)
-				return generateSubIDNotValidErrorStanza(sender, receiver, iqStanzaID);
+				return errorStanzaGenerator.generateSubIDNotValidErrorStanza(sender, receiver, iqStanzaID);
 			}
 		}
 		
@@ -111,69 +111,4 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
 		return new IQStanza(sb.getFinalStanza());
 	}
 	
-	private Stanza generateJIDMalformedErrorStanza(Entity sender, Entity receiver, String iqStanzaID) {
-		StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
-		error.startInnerElement("error");
-		error.addAttribute("type", "modify");
-		error.startInnerElement("jid-malformed", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
-		error.endInnerElement(); // jid-malformed
-		error.endInnerElement(); // error
-		return error.getFinalStanza();
-	}
-
-	private Stanza generateInsufficientPrivilegesErrorStanza(Entity sender, Entity receiver, String iqStanzaID) {
-		StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
-		error.startInnerElement("error");
-		error.addAttribute("type", "auth");
-		error.startInnerElement("forbidden", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
-		error.endInnerElement(); // forbidden
-		error.endInnerElement(); // error
-		return error.getFinalStanza();
-	}
-
-	private Stanza generateNoSuchSubscriberErrorStanza(Entity sender, Entity receiver, String iqStanzaID) {
-		StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
-		error.startInnerElement("error");
-		error.addAttribute("type", "cancel");
-		error.startInnerElement("unexpected-request", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
-		error.endInnerElement(); // unexpected-request
-		error.startInnerElement("not-subscribed", NamespaceURIs.XEP0060_PUBSUB_ERRORS);
-		error.endInnerElement(); // not-subscribed
-		error.endInnerElement(); // error
-		return error.getFinalStanza();
-	}
-
-	private Stanza generateSubIDRequiredErrorStanza(Entity sender, Entity receiver, String iqStanzaID) {
-		StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
-		error.startInnerElement("error");
-		error.addAttribute("type", "modify");
-		error.startInnerElement("bad-request", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
-		error.endInnerElement(); // bad-request
-		error.startInnerElement("subid-required", NamespaceURIs.XEP0060_PUBSUB_ERRORS);
-		error.endInnerElement(); // subid-required
-		error.endInnerElement(); // error
-		return error.getFinalStanza();
-	}
-	
-	private Stanza generateNoNodeErrorStanza(Entity sender, Entity receiver, String iqStanzaID) {
-		StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
-		error.startInnerElement("error");
-		error.addAttribute("type", "cancel");
-		error.startInnerElement("item-does-not-exist", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
-		error.endInnerElement(); // item-does-not-exist
-		error.endInnerElement(); // error
-		return error.getFinalStanza();
-	}
-
-	private Stanza generateSubIDNotValidErrorStanza(Entity sender, Entity receiver, String iqStanzaID) {
-		StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
-		error.startInnerElement("error");
-		error.addAttribute("type", "modify");
-		error.startInnerElement("not-acceptable", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
-		error.endInnerElement(); // not-acceptable
-		error.startInnerElement("invalid-subid", NamespaceURIs.XEP0060_PUBSUB_ERRORS);
-		error.endInnerElement(); // invlaid-subid
-		error.endInnerElement(); // error
-		return error.getFinalStanza();
-	}
 }

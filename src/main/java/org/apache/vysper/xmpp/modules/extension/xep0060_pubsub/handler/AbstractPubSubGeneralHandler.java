@@ -31,14 +31,16 @@ import org.apache.vysper.xmpp.stanza.IQStanza;
  * @author The Apache MINA Project (http://mina.apache.org)
  *
  */
-public abstract class AbstractPubSubGeneralHandler extends
-		AbstractPublishSubscribeIQHandler {
+public abstract class AbstractPubSubGeneralHandler extends AbstractPublishSubscribeIQHandler {
 
+	ErrorStanzaGenerator errorStanzaGenerator = null;
+	
 	/**
 	 * @param root
 	 */
 	public AbstractPubSubGeneralHandler(CollectionNode root) {
 		super(root);
+		errorStanzaGenerator = new ErrorStanzaGenerator();
 	}
 
 	@Override
