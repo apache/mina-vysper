@@ -55,10 +55,11 @@ public interface StanzaHandler {
      * @param stanza
      * @param serverRuntimeContext
      *@param isOutboundStanza
-     *   true, if the stanza was emitted by the client which is handled by the session belonging to the give sessionContext parameter
-     *   false, if the session is receiving the stanza targeted to the session's client
+     *   true, if the stanza was emitted by the client which is handled by the session belonging to the given sessionContext parameter.
+     *   false, if the session is receiving the stanza targeted to the session's client.
      * @param sessionContext
-     * @param sessionStateHolder @return optionally returns a response which is passed to the session's client
+     * @param sessionStateHolder 
+     * @return optionally returns a response which is passed to the session's client
      */
     public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder) throws ProtocolException;
 }
