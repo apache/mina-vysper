@@ -46,6 +46,7 @@ public class NamespaceURIs {
     public static final String JABBER_X_DATA = "jabber:x:data";
     public static final String PRIVATE_DATA = "jabber:iq:private";
     public static final String URN_XMPP_TIME = "urn:xmpp:time";
+    public static final String URN_XMPP_PING = "urn:xmpp:ping";
     public static final String VCARD_TEMP  = "vcard-temp";
     public static final String XEP0030_SERVICE_DISCOVERY_ITEMS = "http://jabber.org/protocol/disco#items";
     public static final String XEP0030_SERVICE_DISCOVERY_INFO  = "http://jabber.org/protocol/disco#info";
