@@ -65,6 +65,7 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
      * @return the appropriate response stanza (either success or some error condition).
      */
     @Override
+    @SpecCompliant(spec="xep-0060", section="6.2.3", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
     protected Stanza handleSet(IQStanza stanza,
             ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
@@ -85,12 +86,12 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
             subJID = EntityImpl.parse(strSubJID);
         } catch (EntityFormatException e) {
             // return error stanza... (general error)
-            return errorStanzaGenerator.generateJIDMalformedErrorStanza(sender, receiver, iqStanzaID);
+            return errorStanzaGenerator.generateJIDMalformedErrorStanza(sender, receiver, stanza);
         }
 
         if(!sender.getBareJID().equals(subJID.getBareJID())) {
             // insufficient privileges (error condition 3 (6.2.3))
-            return errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, receiver, iqStanzaID);
+            return errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, receiver, stanza);
         }
 
         Entity nodeJID = extractNodeJID(stanza);
@@ -98,23 +99,23 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
 
         if(node == null) {
             // no such node (error condition 4 (6.2.3))
-            return errorStanzaGenerator.generateNoNodeErrorStanza(sender, receiver, iqStanzaID);
+            return errorStanzaGenerator.generateNoNodeErrorStanza(sender, receiver, stanza);
         }
 
         if(strSubID == null) {
             try {
                 if(node.unsubscribe(subJID) == false) {
                     // has no subscription (6.2.3.2)
-                    return errorStanzaGenerator.generateNoSuchSubscriberErrorStanza(sender, receiver, iqStanzaID);
+                    return errorStanzaGenerator.generateNoSuchSubscriberErrorStanza(sender, receiver, stanza);
                 }
             } catch(MultipleSubscriptionException e) {
                 // error case 6.2.3.1
-                return errorStanzaGenerator.generateSubIDRequiredErrorStanza(sender, receiver, iqStanzaID);
+                return errorStanzaGenerator.generateSubIDRequiredErrorStanza(sender, receiver, stanza);
             }
         } else {
             if(node.unsubscribe(strSubID, subJID) == false) {
                 // subID not valid (6.2.3.5)
-                return errorStanzaGenerator.generateSubIDNotValidErrorStanza(sender, receiver, iqStanzaID);
+                return errorStanzaGenerator.generateSubIDNotValidErrorStanza(sender, receiver, stanza);
             }
         }
 

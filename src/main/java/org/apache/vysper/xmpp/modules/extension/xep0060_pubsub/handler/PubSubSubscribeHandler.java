@@ -64,6 +64,7 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
      * @return the appropriate response stanza (either success or some error condition).
      */
     @Override
+    @SpecCompliant(spec="xep-0060", section="6.1.3", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
     protected Stanza handleSet(IQStanza stanza,
             ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
@@ -82,12 +83,12 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
         try {
             subJID = EntityImpl.parse(strSubJID);
         } catch (EntityFormatException e) {
-            return errorStanzaGenerator.generateJIDMalformedErrorStanza(sender, receiver, iqStanzaID);
+            return errorStanzaGenerator.generateJIDMalformedErrorStanza(sender, receiver, stanza);
         }
 
         if(!sender.getBareJID().equals(subJID.getBareJID())) {
             // error condition 1 (6.1.3)
-            return errorStanzaGenerator.generateJIDDontMatchErrorStanza(sender, receiver, iqStanzaID);
+            return errorStanzaGenerator.generateJIDDontMatchErrorStanza(sender, receiver, stanza);
         }
 
         Entity nodeJID = extractNodeJID(stanza);
@@ -95,7 +96,7 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
 
         if(node == null) {
             // no such node (error condition 11 (6.1.3))
-            return errorStanzaGenerator.generateNoNodeErrorStanza(sender, receiver, iqStanzaID);
+            return errorStanzaGenerator.generateNoNodeErrorStanza(sender, receiver, stanza);
         }
 
         String id = idGenerator.create();

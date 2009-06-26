@@ -37,6 +37,7 @@ public enum StanzaErrorCondition {
     GONE ("gone"),
     INTERNAL_SERVER_ERROR ("internal-server-error"),
     ITEM_NOT_FOUND ("item-not-found"),
+    ITEM_DOES_NOT_EXIST ("item-does-not-exist"),
     JID_MALFORMED ("jid-malformed"),
     NOT_ACCEPTABLE ("not-acceptable"),
     NOT_ALLOWED ("not-allowed"),

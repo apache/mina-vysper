@@ -21,9 +21,14 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.stanza.IQStanzaType;
+import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
+import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
+import org.apache.vysper.xmpp.stanza.StanzaErrorType;
+import org.apache.vysper.xmpp.xmlfragment.Attribute;
+import org.apache.vysper.xmpp.xmlfragment.XMLElement;
+import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 
 /**
  * The ErrorStanzaGenerator is used to unify the creation of error stanzas across the pubsub
@@ -33,22 +38,25 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
  */
 public class ErrorStanzaGenerator {
     
+    // constants for pubsub related error elements
+    protected static final String NOT_SUBSCRIBED = "not-subscribed";
+    protected static final String SUBID_REQUIRED = "subid-required";
+    protected static final String INVALID_SUBID = "invalid-subid";
+    protected static final String INVALID_JID = "invalid-jid";
+    
+    // The ServerErrorResponses object for generating type-safe error stanzas
+    protected ServerErrorResponses errorResponses = ServerErrorResponses.getInstance();
+    
     /**
      * Creates a "JID malformed" error stanza (not specific to the pubsub module).
      * 
      * @param sender who sent the erroneous request.
      * @param receiver who was the recipient of the erroneous request.
-     * @param iqStanzaID the staza ID of the errorneous request.
+     * @param stanza the stanza of the erroneous request.
      * @return the generated stanza.
      */
-    public Stanza generateJIDMalformedErrorStanza(Entity sender, Entity receiver, String iqStanzaID) {
-        StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
-        error.startInnerElement("error");
-        error.addAttribute("type", "modify");
-        error.startInnerElement("jid-malformed", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
-        error.endInnerElement(); // jid-malformed
-        error.endInnerElement(); // error
-        return error.getFinalStanza();
+    public Stanza generateJIDMalformedErrorStanza(Entity sender, Entity receiver, IQStanza stanza) {
+        return errorResponses.getStanzaError(StanzaErrorCondition.JID_MALFORMED, stanza, StanzaErrorType.MODIFY, null, null, null);
     }
 
     /**
@@ -56,17 +64,11 @@ public class ErrorStanzaGenerator {
      * 
      * @param sender who sent the erroneous request.
      * @param receiver who was the recipient of the erroneous request.
-     * @param iqStanzaID the staza ID of the errorneous request.
+     * @param stanza the stanza of the erroneous request.
      * @return the generated stanza.
      */
-    public Stanza generateInsufficientPrivilegesErrorStanza(Entity sender, Entity receiver, String iqStanzaID) {
-        StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
-        error.startInnerElement("error");
-        error.addAttribute("type", "auth");
-        error.startInnerElement("forbidden", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
-        error.endInnerElement(); // forbidden
-        error.endInnerElement(); // error
-        return error.getFinalStanza();
+    public Stanza generateInsufficientPrivilegesErrorStanza(Entity sender, Entity receiver, IQStanza stanza) {
+        return errorResponses.getStanzaError(StanzaErrorCondition.FORBIDDEN, stanza, StanzaErrorType.AUTH, null, null, null);
     }
 
     /**
@@ -75,19 +77,12 @@ public class ErrorStanzaGenerator {
      * 
      * @param sender who sent the erroneous request.
      * @param receiver who was the recipient of the erroneous request.
-     * @param iqStanzaID the staza ID of the errorneous request.
+     * @param stanza the stanza of the erroneous request.
      * @return the generated stanza.
      */
-    public Stanza generateNoSuchSubscriberErrorStanza(Entity sender, Entity receiver, String iqStanzaID) {
-        StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
-        error.startInnerElement("error");
-        error.addAttribute("type", "cancel");
-        error.startInnerElement("unexpected-request", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
-        error.endInnerElement(); // unexpected-request
-        error.startInnerElement("not-subscribed", NamespaceURIs.XEP0060_PUBSUB_ERRORS);
-        error.endInnerElement(); // not-subscribed
-        error.endInnerElement(); // error
-        return error.getFinalStanza();
+    public Stanza generateNoSuchSubscriberErrorStanza(Entity sender, Entity receiver, IQStanza stanza) {
+        XMLElement notSubscribed = new XMLElement(NOT_SUBSCRIBED, NamespaceURIs.XEP0060_PUBSUB_ERRORS, (Attribute[])null, (XMLFragment[])null);
+        return errorResponses.getStanzaError(StanzaErrorCondition.UNEXPECTED_REQUEST, stanza, StanzaErrorType.CANCEL, null, null, notSubscribed);
     }
 
     /**
@@ -96,19 +91,12 @@ public class ErrorStanzaGenerator {
      * 
      * @param sender who sent the erroneous request.
      * @param receiver who was the recipient of the erroneous request.
-     * @param iqStanzaID the staza ID of the errorneous request.
+     * @param stanza the stanza of the erroneous request.
      * @return the generated stanza.
      */
-    public Stanza generateSubIDRequiredErrorStanza(Entity sender, Entity receiver, String iqStanzaID) {
-        StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
-        error.startInnerElement("error");
-        error.addAttribute("type", "modify");
-        error.startInnerElement("bad-request", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
-        error.endInnerElement(); // bad-request
-        error.startInnerElement("subid-required", NamespaceURIs.XEP0060_PUBSUB_ERRORS);
-        error.endInnerElement(); // subid-required
-        error.endInnerElement(); // error
-        return error.getFinalStanza();
+    public Stanza generateSubIDRequiredErrorStanza(Entity sender, Entity receiver, IQStanza stanza) {
+        XMLElement subidRequired = new XMLElement(SUBID_REQUIRED, NamespaceURIs.XEP0060_PUBSUB_ERRORS, (Attribute[])null, (XMLFragment[])null);
+        return errorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza, StanzaErrorType.MODIFY, null, null, subidRequired);
     }
 
     /**
@@ -116,17 +104,11 @@ public class ErrorStanzaGenerator {
      * 
      * @param sender who sent the erroneous request.
      * @param receiver who was the recipient of the erroneous request.
-     * @param iqStanzaID the staza ID of the errorneous request.
+     * @param stanza the stanza of the erroneous request.
      * @return the generated stanza.
      */
-    public Stanza generateNoNodeErrorStanza(Entity sender, Entity receiver, String iqStanzaID) {
-        StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
-        error.startInnerElement("error");
-        error.addAttribute("type", "cancel");
-        error.startInnerElement("item-does-not-exist", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
-        error.endInnerElement(); // item-does-not-exist
-        error.endInnerElement(); // error
-        return error.getFinalStanza();
+    public Stanza generateNoNodeErrorStanza(Entity sender, Entity receiver, IQStanza stanza) {
+        return errorResponses.getStanzaError(StanzaErrorCondition.ITEM_DOES_NOT_EXIST, stanza, StanzaErrorType.CANCEL, null, null, null);
     }
 
     /**
@@ -135,19 +117,12 @@ public class ErrorStanzaGenerator {
      * 
      * @param sender who sent the erroneous request.
      * @param receiver who was the recipient of the erroneous request.
-     * @param iqStanzaID the staza ID of the errorneous request.
+     * @param stanza the stanza of the erroneous request.
      * @return the generated stanza.
      */
-    public Stanza generateSubIDNotValidErrorStanza(Entity sender, Entity receiver, String iqStanzaID) {
-        StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
-        error.startInnerElement("error");
-        error.addAttribute("type", "modify");
-        error.startInnerElement("not-acceptable", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
-        error.endInnerElement(); // not-acceptable
-        error.startInnerElement("invalid-subid", NamespaceURIs.XEP0060_PUBSUB_ERRORS);
-        error.endInnerElement(); // invlaid-subid
-        error.endInnerElement(); // error
-        return error.getFinalStanza();
+    public Stanza generateSubIDNotValidErrorStanza(Entity sender, Entity receiver, IQStanza stanza) {
+        XMLElement invalidSubID = new XMLElement(INVALID_SUBID, NamespaceURIs.XEP0060_PUBSUB_ERRORS, (Attribute[])null, (XMLFragment[])null);
+        return errorResponses.getStanzaError(StanzaErrorCondition.NOT_ACCEPTABLE, stanza, StanzaErrorType.MODIFY, null, null, invalidSubID);
     }
 
     /**
@@ -156,18 +131,11 @@ public class ErrorStanzaGenerator {
      * 
      * @param sender who sent the erroneous request.
      * @param receiver who was the recipient of the erroneous request.
-     * @param iqStanzaID the staza ID of the errorneous request.
+     * @param stanza the stanza of the erroneous request.
      * @return the generated stanza.
      */
-    public Stanza generateJIDDontMatchErrorStanza(Entity sender, Entity receiver, String iqStanzaID) {
-        StanzaBuilder error = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.ERROR, iqStanzaID);
-        error.startInnerElement("error");
-        error.addAttribute("type", "modify");
-        error.startInnerElement("bad-request", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
-        error.endInnerElement(); // bad-request
-        error.startInnerElement("invalid-jid", NamespaceURIs.XEP0060_PUBSUB_ERRORS);
-        error.endInnerElement(); // invalid-jid
-        error.endInnerElement(); // error
-        return error.getFinalStanza();
+    public Stanza generateJIDDontMatchErrorStanza(Entity sender, Entity receiver, IQStanza stanza) {
+        XMLElement invalidJID = new XMLElement(INVALID_JID, NamespaceURIs.XEP0060_PUBSUB_ERRORS, (Attribute[])null, (XMLFragment[])null);
+        return errorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza, StanzaErrorType.MODIFY, null, null, invalidJID);
     }
 }

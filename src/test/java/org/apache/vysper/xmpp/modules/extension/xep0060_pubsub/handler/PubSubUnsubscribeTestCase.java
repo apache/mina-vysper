@@ -130,7 +130,7 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
 
         assertEquals("id123", response.getAttributeValue("id")); // IDs must match
 
-        XMLElement error = response.getFirstInnerElement();
+        XMLElement error = response.getInnerElementsNamed("error").get(0); //jump directly to the error part
         assertEquals("error", error.getName());
         assertEquals("modify", error.getAttributeValue("type"));
 
@@ -156,7 +156,7 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
 
         assertEquals("id123", response.getAttributeValue("id")); // IDs must match
 
-        XMLElement error = response.getFirstInnerElement();
+        XMLElement error = response.getInnerElementsNamed("error").get(0); //jump directly to the error part
         assertEquals("error", error.getName());
         assertEquals("cancel", error.getAttributeValue("type"));
 
@@ -185,7 +185,7 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
 
         assertEquals("id123", response.getAttributeValue("id")); // IDs must match
 
-        XMLElement error = response.getFirstInnerElement();
+        XMLElement error = response.getInnerElementsNamed("error").get(0); //jump directly to the error part
         assertEquals("error", error.getName());
         assertEquals("auth", error.getAttributeValue("type"));
 
@@ -207,7 +207,7 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
 
         assertEquals("id123", response.getAttributeValue("id")); // IDs must match
 
-        XMLElement error = response.getFirstInnerElement();
+        XMLElement error = response.getInnerElementsNamed("error").get(0); //jump directly to the error part
         assertEquals("error", error.getName());
         assertEquals("cancel", error.getAttributeValue("type"));
 
@@ -234,7 +234,7 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
 
         assertEquals("id123", response.getAttributeValue("id")); // IDs must match
 
-        XMLElement error = response.getFirstInnerElement();
+        XMLElement error = response.getInnerElementsNamed("error").get(0); //jump directly to the error part
         assertEquals("error", error.getName());
         assertEquals("modify", error.getAttributeValue("type"));
 
@@ -259,7 +259,7 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
 
         assertEquals("id123", response.getAttributeValue("id")); // IDs must match
 
-        XMLElement error = response.getFirstInnerElement();
+        XMLElement error = response.getInnerElementsNamed("error").get(0); //jump directly to the error part
         assertEquals("error", error.getName());
         assertEquals("modify", error.getAttributeValue("type"));
 
