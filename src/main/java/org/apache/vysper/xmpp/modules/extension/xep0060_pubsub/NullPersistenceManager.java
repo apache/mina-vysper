@@ -100,7 +100,7 @@ public class NullPersistenceManager implements PubSubPersistenceManager {
 		messages.put(messageID, item);
 	}
 
-	public void accept(Entity nodeJID, SubscriberVisitor subscriberVisitor) {
+	public void acceptForEachSubscriber(Entity nodeJID, SubscriberVisitor subscriberVisitor) {
 		for(Entity sub : subscribers.values()) {
 			subscriberVisitor.visit(nodeJID, sub);
 		}

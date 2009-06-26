@@ -134,6 +134,6 @@ public interface PubSubPersistenceManager extends StorageProvider {
      * @param nodeJID the node we want to iterate.
      * @param subscriberVisitor the SubscriberVisitor to call
      */
-    public void accept(Entity nodeJID, SubscriberVisitor subscriberVisitor);
+    public void acceptForEachSubscriber(Entity nodeJID, SubscriberVisitor subscriberVisitor);
 
 }

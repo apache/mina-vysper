@@ -151,6 +151,6 @@ public class LeafNode {
      * @param item the payload of the message.
      */
     protected void sendMessageToSubscriber(StanzaRelay stanzaRelay, XMLElement item) {
-        storage.accept(jid, new SubscriberNotificationVisitor(stanzaRelay, item));
+        storage.acceptForEachSubscriber(jid, new SubscriberNotificationVisitor(stanzaRelay, item));
     }
 }
