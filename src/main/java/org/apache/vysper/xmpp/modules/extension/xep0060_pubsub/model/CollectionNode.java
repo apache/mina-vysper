@@ -21,8 +21,8 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model;
 
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.CollectionNodeStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.NullPersistenceManager;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubPersistenceManager;
 
 /**
  * A collection node is a special pubsub node containing only other nodes. Either more CollectionNodes or
@@ -34,7 +34,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubPersistence
 public class CollectionNode {
 
     // the persistence manager for storing and retrieving node-info
-    protected PubSubPersistenceManager storage;
+    protected CollectionNodeStorageProvider storage;
 
     /**
      * Initializes the CollectionNode
@@ -66,7 +66,6 @@ public class CollectionNode {
         }
 
         LeafNode node = new LeafNode(jid);
-        node.setPersistenceManager(storage);
 
         storage.storeNode(jid, node);
 
@@ -78,7 +77,7 @@ public class CollectionNode {
      * 
      * @param persistenceManager the new persitency manager.
      */
-    public void setPersistenceManager(PubSubPersistenceManager persistenceManager) {
+    public void setPersistenceManager(CollectionNodeStorageProvider persistenceManager) {
         storage = persistenceManager;
     }
 }

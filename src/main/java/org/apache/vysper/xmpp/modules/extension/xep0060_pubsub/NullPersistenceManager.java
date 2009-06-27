@@ -31,7 +31,7 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
  * @author The Apache MINA Project (http://mina.apache.org)
  *
  */
-public class NullPersistenceManager implements PubSubPersistenceManager {
+public class NullPersistenceManager implements LeafNodeStorageProvider, CollectionNodeStorageProvider {
 
 	protected Map<Entity, LeafNode> nodes;
 

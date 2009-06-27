@@ -67,7 +67,7 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
     public void initialize(ServerRuntimeContext serverRuntimeContext) {
         super.initialize(serverRuntimeContext);
 
-        PubSubPersistenceManager persistenceManager = (PubSubPersistenceManager) serverRuntimeContext.getStorageProvider(PubSubPersistenceManager.class);
+        CollectionNodeStorageProvider persistenceManager = (CollectionNodeStorageProvider) serverRuntimeContext.getStorageProvider(CollectionNodeStorageProvider.class);
         if (persistenceManager == null) {
             logger.error("No persistency manager found");
             // TODO throw some exception - without PM we can't do anything useful
