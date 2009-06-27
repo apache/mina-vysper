@@ -74,7 +74,7 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
         ServiceCollector serviceCollector = null;
 
         // TODO if the target entity does not exist, return error/cancel/item-not-found
-        // TODO more strictly, server can also return error/cancel/service-unaivable
+        // TODO more strictly, server can also return error/cancel/service-unavailable
 
         // retrieve the service collector
         try {

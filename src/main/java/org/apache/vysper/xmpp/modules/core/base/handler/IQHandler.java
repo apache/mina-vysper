@@ -126,7 +126,7 @@ public class IQHandler extends XMPPCoreStanzaHandler {
     }
 
     /**
-     * must be overriden by specialized IQ handlers
+     * must be overridden by specialized IQ handlers
      */
     protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         // this is default behavior and must be replaced by overrider

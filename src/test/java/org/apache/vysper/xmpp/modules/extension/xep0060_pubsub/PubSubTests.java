@@ -51,6 +51,8 @@ public class PubSubTests {
 
         suite.addTestSuite(CollectionNodeTestCase.class);
         suite.addTestSuite(LeafNodeTestCase.class);
+        
+        suite.addTestSuite(PubSubDiscoInfoTestCase.class);
         //$JUnit-END$
         return suite;
     }

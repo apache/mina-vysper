@@ -106,8 +106,7 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
      * 
      * @see ServerInfoRequestListener#getServerInfosFor(InfoRequest)
      */
-    public List<InfoElement> getServerInfosFor(InfoRequest request)
-    throws ServiceDiscoveryRequestException {
+    public List<InfoElement> getServerInfosFor(InfoRequest request) throws ServiceDiscoveryRequestException {
         List<InfoElement> infoElements = new ArrayList<InfoElement>();
         infoElements.add(new Identity("pubsub", "service"));
         infoElements.add(new Feature(NamespaceURIs.XEP0060_PUBSUB));
