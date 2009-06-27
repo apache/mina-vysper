@@ -29,6 +29,8 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This visitor sends each visited entity the XMLElement specified via the constructor.
@@ -37,6 +39,7 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
  */
 @SpecCompliant(spec="xep-0060", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public class SubscriberNotificationVisitor implements SubscriberVisitor {
+    final Logger logger = LoggerFactory.getLogger(SubscriberNotificationVisitor.class);
 
     // Ignore all failures during the delivery (fire and forget)
     private DeliveryFailureStrategy dfs = new IgnoreFailureStrategy();
@@ -46,7 +49,7 @@ public class SubscriberNotificationVisitor implements SubscriberVisitor {
     private XMLElement item;
 
     /**
-     * Initialize the visitor with the StanzaRelay and Payload.
+     * Initialize the visitor with the StanzaRelay and payload.
      * @param stanzaRelay relay for sending the messages.
      * @param item payload for the messages.
      */
@@ -67,6 +70,7 @@ public class SubscriberNotificationVisitor implements SubscriberVisitor {
         try {
             stanzaRelay.relay(subscriber, event, dfs);
         } catch (DeliveryException e1) {
+            if(logger.isTraceEnabled()) logger.trace("Couldn't deliver message to " + subscriber.getFullQualifiedName(), e1);
             // TODO we don't care - do we?
         }
     }
