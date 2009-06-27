@@ -21,8 +21,10 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model;
 
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.CollectionNodeStorageProvider;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.NullPersistenceManager;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.CollectionNodeStorageProvider;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.CollectionnodeInMemoryStorageProvider;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeInMemoryStorageProvider;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeStorageProvider;
 
 /**
  * A collection node is a special pubsub node containing only other nodes. Either more CollectionNodes or
@@ -33,14 +35,17 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.NullPersistenceMa
 @SpecCompliant(spec="xep-0060", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public class CollectionNode {
 
-    // the persistence manager for storing and retrieving node-info
-    protected CollectionNodeStorageProvider storage;
+    // the storage provider for storing and retrieving node-info
+    protected CollectionNodeStorageProvider collectionNodeStorage;
+    // the storage provider for leaf nodes
+    protected LeafNodeStorageProvider leafNodeStorage;
 
     /**
      * Initializes the CollectionNode
      */
     public CollectionNode() {
-        storage = new NullPersistenceManager();
+        collectionNodeStorage = new CollectionnodeInMemoryStorageProvider();
+        leafNodeStorage = new LeafNodeInMemoryStorageProvider();
     }
 
     /**
@@ -50,7 +55,7 @@ public class CollectionNode {
      * @return the LeafNode for the JID
      */
     public LeafNode find(Entity jid) {
-        return storage.findNode(jid);
+        return collectionNodeStorage.findNode(jid);
     }
 
     /**
@@ -61,23 +66,33 @@ public class CollectionNode {
      * @throws DuplicateNodeException if the JID is already taken.
      */
     public LeafNode createNode(Entity jid) throws DuplicateNodeException {
-        if(storage.containsNode(jid)) {
+        if(collectionNodeStorage.containsNode(jid)) {
             throw new DuplicateNodeException(jid.getFullQualifiedName() + " already present");
         }
 
         LeafNode node = new LeafNode(jid);
+        node.setPersistenceManager(leafNodeStorage);
 
-        storage.storeNode(jid, node);
+        collectionNodeStorage.storeNode(jid, node);
 
         return node;
     }
 
     /**
-     * Change the persistency manager.
+     * Change the storage provider to be used for the collection nodes.
      * 
-     * @param persistenceManager the new persitency manager.
+     * @param storageProvider the new storage provider.
      */
-    public void setPersistenceManager(CollectionNodeStorageProvider persistenceManager) {
-        storage = persistenceManager;
+    public void setCollectionNodeStorageProvider(CollectionNodeStorageProvider storageProvider) {
+        this.collectionNodeStorage = storageProvider;
+    }
+
+    /**
+     * Change the storage provider to be used for the leaf nodes.
+     * 
+     * @param storageProvider the new storage provider.
+     */
+    public void setLeafNodeStorageProvider(LeafNodeStorageProvider storageProvider) {
+        this.leafNodeStorage = storageProvider;
     }
 }

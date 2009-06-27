@@ -21,14 +21,17 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
 import junit.framework.TestCase;
 
+import org.apache.vysper.storage.OpenStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.AbstractStanzaGenerator;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.CollectionnodeInMemoryStorageProvider;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeInMemoryStorageProvider;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
-import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
 import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceState;
@@ -51,24 +54,32 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-
+        
         sessionContext = TestSessionContext.createWithStanzaReceiverRelayAuthenticated();
+        configureStorageProvider();
+
         clientBare = new EntityImpl("tester", "vysper.org", null);
         sessionContext.setInitiatingEntity(clientBare);
 
         String boundResourceId = sessionContext.bindResource();
         client = new EntityImpl(clientBare, boundResourceId);
         pubsub = EntityImpl.parse("pubsub.vysper.org/news");
+        setResourceConnected(boundResourceId);
+
         root = new CollectionNode();
-
         node = root.createNode(pubsub);
-
-        setResourceConnected(sessionContext, boundResourceId);
 
         handler = getHandler();
     }
 
-    private void setResourceConnected(SessionContext sessionContext, String boundResourceId) {
+    protected void configureStorageProvider() {
+        OpenStorageProviderRegistry storageProviderRegistry = new OpenStorageProviderRegistry();
+        storageProviderRegistry.add(new CollectionnodeInMemoryStorageProvider());
+        storageProviderRegistry.add(new LeafNodeInMemoryStorageProvider());
+        ((DefaultServerRuntimeContext) sessionContext.getServerRuntimeContext()).setStorageProviderRegistry(storageProviderRegistry);
+    }
+
+    private void setResourceConnected(String boundResourceId) {
         sessionContext.getServerRuntimeContext().getResourceRegistry().setResourceState(boundResourceId, ResourceState.CONNECTED);
     }
 

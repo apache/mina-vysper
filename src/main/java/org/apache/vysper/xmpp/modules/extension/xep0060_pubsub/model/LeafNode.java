@@ -22,9 +22,9 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.NullPersistenceManager;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.LeafNodeStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberNotificationVisitor;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeInMemoryStorageProvider;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeStorageProvider;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
@@ -38,8 +38,8 @@ public class LeafNode {
 
     // the jid of the node
     protected Entity jid;
-    // the persistency manager for storing and retrieving node information.
-    protected LeafNodeStorageProvider storage = new NullPersistenceManager();
+    // the storage provider for storing and retrieving node information.
+    protected LeafNodeStorageProvider storage = new LeafNodeInMemoryStorageProvider();
 
     /**
      * Creates a new LeafNode with the specified JID.

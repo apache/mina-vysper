@@ -17,11 +17,12 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
+package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider;
 
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.storage.StorageProvider;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberVisitor;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**

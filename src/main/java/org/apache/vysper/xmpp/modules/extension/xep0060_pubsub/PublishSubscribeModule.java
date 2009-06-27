@@ -31,6 +31,8 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubUns
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner.PubSubOwnerConfigureNodeHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner.PubSubOwnerDeleteNodeHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.CollectionNodeStorageProvider;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeStorageProvider;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Identity;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
@@ -67,12 +69,19 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
     public void initialize(ServerRuntimeContext serverRuntimeContext) {
         super.initialize(serverRuntimeContext);
 
-        CollectionNodeStorageProvider persistenceManager = (CollectionNodeStorageProvider) serverRuntimeContext.getStorageProvider(CollectionNodeStorageProvider.class);
-        if (persistenceManager == null) {
-            logger.error("No persistency manager found");
-            // TODO throw some exception - without PM we can't do anything useful
+        CollectionNodeStorageProvider collectionNodeStorageProvider = (CollectionNodeStorageProvider) serverRuntimeContext.getStorageProvider(CollectionNodeStorageProvider.class);
+        LeafNodeStorageProvider leafNodeStorageProvider = (LeafNodeStorageProvider) serverRuntimeContext.getStorageProvider(LeafNodeStorageProvider.class);
+        
+        if (collectionNodeStorageProvider == null) {
+            logger.error("No collection node storage provider found, using the default (in memory)");
         } else {
-            root.setPersistenceManager(persistenceManager);
+            root.setCollectionNodeStorageProvider(collectionNodeStorageProvider);
+        }
+
+        if (leafNodeStorageProvider == null) {
+            logger.error("No leaf node storage provider found, using the default (in memory)");
+        } else {
+            root.setLeafNodeStorageProvider(leafNodeStorageProvider);
         }
     }
 
