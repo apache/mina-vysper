@@ -40,13 +40,16 @@ public class PubSubDiscoInfoTestCase extends AbstractPublishSubscribeTestCase {
 
         assertEquals("id123", response.getAttributeValue("id")); // IDs must match
 
-        // get the subscription Element
+        // get the query Element
         XMLElement query = response.getFirstInnerElement();
         List<XMLElement> inner = query.getInnerElements();
 
         assertEquals("query", query.getName());
+        
+        // at least we have an identity and a feature element
         assertTrue(inner.size() >= 2);
         
+        // ordering etc. is unknown; step through all subelements and pick the ones we need
         XMLElement identity = null;
         XMLElement feature = null;
         for(XMLElement el : inner) {
@@ -59,6 +62,8 @@ public class PubSubDiscoInfoTestCase extends AbstractPublishSubscribeTestCase {
                 feature = el;
             }
         }
+        
+        // make sure they were there (booleans would have sufficed)
         assertNotNull(identity);
         assertNotNull(feature);
     }
