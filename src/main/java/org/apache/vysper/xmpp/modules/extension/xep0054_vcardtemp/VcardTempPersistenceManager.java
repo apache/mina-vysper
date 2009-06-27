@@ -29,7 +29,7 @@ import org.apache.vysper.xmpp.addressing.Entity;
 public interface VcardTempPersistenceManager extends StorageProvider {
 
     /**
-     * @return if the persistene manager is ready to operate
+     * @return if the persistence manager is ready to operate
      */
     boolean isAvailable();
 
