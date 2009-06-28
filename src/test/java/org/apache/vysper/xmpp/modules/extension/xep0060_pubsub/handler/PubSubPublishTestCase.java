@@ -97,7 +97,22 @@ public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
         // verify response
         assertTrue(result.hasResponse());
         
-        // TODO
+        IQStanza response = new IQStanza(result.getResponseStanza());
+
+        assertEquals(IQStanzaType.RESULT.value(),response.getType());
+
+        assertEquals("id1", response.getAttributeValue("id")); // IDs must match
+        
+        // get the query Element
+        XMLElement pubsub = response.getFirstInnerElement();
+        XMLElement publish = pubsub.getFirstInnerElement();
+        XMLElement item = publish.getFirstInnerElement();
+
+        assertEquals("pubsub", pubsub.getName());
+        assertEquals(NamespaceURIs.XEP0060_PUBSUB, pubsub.getNamespace());
+        assertEquals("publish", publish.getName());
+        assertEquals("item", item.getName());
+        assertNotNull(item.getAttributeValue("id")); // value unknown
 
         // verify that each subscriber received the message
         assertEquals(3, relay.getCountRelayed()); // three subscribers
