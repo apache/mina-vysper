@@ -28,9 +28,11 @@ import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberNotificationVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeInMemoryStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeStorageProvider;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Identity;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
@@ -198,6 +200,7 @@ public class LeafNode {
     public List<InfoElement> getNodeInfosFor(InfoRequest request) {
         List<InfoElement> infoElements = new ArrayList<InfoElement>();
         infoElements.add(new Identity("pubsub", "leaf"));
+        infoElements.add(new Feature(NamespaceURIs.XEP0060_PUBSUB));
         return infoElements;
     }
 }

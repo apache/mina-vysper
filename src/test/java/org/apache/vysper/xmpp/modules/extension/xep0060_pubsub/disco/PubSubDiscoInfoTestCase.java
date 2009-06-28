@@ -59,7 +59,9 @@ public class PubSubDiscoInfoTestCase extends AbstractPublishSubscribeTestCase {
                     && el.getAttributeValue("category").equals("pubsub")
                     && el.getAttributeValue("type").equals("service")) {
                 identity = el;
-            } else if(el.getName().equals("feature") /*&& el.getNamespace().equals(NamespaceURIs.XEP0060_PUBSUB)*/) { // TODO enable when the parser is fixed
+            } else if(el.getName().equals("feature")
+                    /*&& el.getNamespace().equals(NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO)*/
+                    && el.getAttributeValue("var").equals(NamespaceURIs.XEP0060_PUBSUB)) { // TODO enable when the parser is fixed
                 feature = el;
             }
         }
@@ -94,17 +96,23 @@ public class PubSubDiscoInfoTestCase extends AbstractPublishSubscribeTestCase {
         
         // ordering etc. is unknown; step through all subelements and pick the ones we need
         XMLElement identity = null;
+        XMLElement feature = null;
         for(XMLElement el : inner) {
             if(el.getName().equals("identity")
                     //&& el.getNamespace().equals(NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO) // TODO enable when the parser is fixed
                     && el.getAttributeValue("category").equals("pubsub")
                     && el.getAttributeValue("type").equals("leaf")) {
                 identity = el;
+            } else if(el.getName().equals("feature")
+                    /*&& el.getNamespace().equals(NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO)*/
+                    && el.getAttributeValue("var").equals(NamespaceURIs.XEP0060_PUBSUB)) { // TODO enable when the parser is fixed
+                feature = el;
             }
         }
         
         // make sure they were there (booleans would have sufficed)
         assertNotNull(identity);
+        assertNotNull(feature);
     }
     
     class DefaultDiscoInfoStanzaGenerator extends AbstractStanzaGenerator {
