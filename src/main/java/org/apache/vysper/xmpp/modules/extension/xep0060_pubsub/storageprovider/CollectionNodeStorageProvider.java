@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.storage.StorageProvider;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.NodeVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 
 /**
@@ -54,4 +55,17 @@ public interface CollectionNodeStorageProvider extends StorageProvider {
      * @param node the LeafNode to be stored.
      */
     public void storeNode(Entity jid, LeafNode node);
+
+    /**
+     * Call the NodeVisitor for each node of the given collection node.
+     * @param nodeJID the node we want to iterate.
+     * 
+     * @param nv
+     */
+    public void acceptNodes(Entity nodeJID, NodeVisitor nv);
+
+    /**
+     * Call to do some preliminary tasks after the module has been configured.
+     */
+    public void initialize();
 }

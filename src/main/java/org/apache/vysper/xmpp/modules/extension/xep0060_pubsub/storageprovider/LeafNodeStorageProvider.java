@@ -112,4 +112,9 @@ public interface LeafNodeStorageProvider extends StorageProvider {
      */
     public void acceptForEachSubscriber(Entity nodeJID, SubscriberVisitor subscriberVisitor);
 
+    /**
+     * Call to do some preliminary tasks after the module has been configured.
+     */
+    public void initialize();
+
 }

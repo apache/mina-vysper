@@ -124,4 +124,11 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
             subscriberVisitor.visit(nodeJID, sub);
         }
     }
+
+    /**
+     * The in-memory storage provider does not need initialization beyond creating the objects.
+     */
+    public void initialize() {
+        // empty
+    }
 }

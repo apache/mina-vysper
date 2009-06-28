@@ -25,6 +25,7 @@ import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeTestCase;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -36,7 +37,14 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
  * @author The Apache MINA Project (http://mina.apache.org)
  */
 public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase {
+    protected LeafNode node = null;
 
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        node = root.createNode(EntityImpl.parse("pubsub.vysper.org/news"));
+    }
+    
     class DefaultUnsubscribeStanzaGenerator extends AbstractStanzaGenerator {
         private String subscriberJID = null;
         private String subID = null;

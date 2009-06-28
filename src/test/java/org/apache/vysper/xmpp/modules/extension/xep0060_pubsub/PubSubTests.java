@@ -19,6 +19,11 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.disco.PubSubDiscoInfoTestCase;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.disco.PubSubDiscoItemsTestCase;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubCreateNodeTestCase;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubPublishTestCase;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubSubscribeTestCase;
@@ -27,9 +32,6 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner.Pub
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner.PubSubDeleteNodeTestCase;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNodeTestCase;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNodeTestCase;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  * 
@@ -53,6 +55,7 @@ public class PubSubTests {
         suite.addTestSuite(LeafNodeTestCase.class);
         
         suite.addTestSuite(PubSubDiscoInfoTestCase.class);
+        suite.addTestSuite(PubSubDiscoItemsTestCase.class);
         //$JUnit-END$
         return suite;
     }

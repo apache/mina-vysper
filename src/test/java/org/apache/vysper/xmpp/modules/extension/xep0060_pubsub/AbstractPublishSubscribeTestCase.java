@@ -28,7 +28,6 @@ import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.AbstractStanzaGenerator;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.CollectionnodeInMemoryStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeInMemoryStorageProvider;
 import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceCollector;
@@ -54,16 +53,26 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
     protected Entity pubsub = null;
     protected IQHandler handler = null;
     protected CollectionNode root = null;
-    protected LeafNode node = null;
+    protected Entity serverEntity = null;
     
     // for debugging
-    protected SystemOutStanzaWriter stanzaWriter = new SystemOutStanzaWriter();
+    private SystemOutStanzaWriter stanzaWriter = new SystemOutStanzaWriter();
+    
+    protected void printStanza(Stanza stanza) {
+        this.stanzaWriter.write(stanza);
+        this.stanzaWriter.close();
+        System.out.println();
+    }
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
 
-        sessionContext = createTestSessionContext();
+        serverEntity = new EntityImpl(null, "pubsub.vysper.org", null);
+        sessionContext = createTestSessionContext(serverEntity);
+
+        root = new CollectionNode();
+        configurePubsubModule(sessionContext, root);
 
         clientBare = new EntityImpl("tester", "vysper.org", null);
         sessionContext.setInitiatingEntity(clientBare);
@@ -73,23 +82,19 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
         pubsub = EntityImpl.parse("pubsub.vysper.org/news");
         setResourceConnected(boundResourceId);
 
-        root = new CollectionNode();
-        node = root.createNode(pubsub);
-
         handler = getHandler();
     }
     
-    protected TestSessionContext createTestSessionContext() {
+    protected TestSessionContext createTestSessionContext(Entity serverEntity) {
         SessionStateHolder sessionStateHolder = new SessionStateHolder();
         sessionStateHolder.setState(SessionState.AUTHENTICATED);
         StanzaReceiverRelay relay = new org.apache.vysper.xmpp.delivery.StanzaReceiverRelay();
-        DefaultServerRuntimeContext serverContext = new DefaultServerRuntimeContext(new EntityImpl(null, "pubsub.vysper.org", null), relay);
+        DefaultServerRuntimeContext serverContext = new DefaultServerRuntimeContext(serverEntity, relay);
         relay.setServerRuntimeContext(serverContext);
         TestSessionContext tsc = new TestSessionContext(serverContext, sessionStateHolder);
 
         configureStorageProvider(tsc);
         configureServiceRegistry(tsc);
-        configurePubsubModule(tsc);
         return tsc;
     }
 
@@ -98,8 +103,8 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
         ((DefaultServerRuntimeContext) tsc.getServerRuntimeContext()).registerServerRuntimeContextService(serviceCollector);
     }
 
-    protected void configurePubsubModule(TestSessionContext tsc) {
-        ((DefaultServerRuntimeContext) tsc.getServerRuntimeContext()).addModule(new PublishSubscribeModule());
+    protected void configurePubsubModule(TestSessionContext tsc, CollectionNode root) {
+        ((DefaultServerRuntimeContext) tsc.getServerRuntimeContext()).addModule(new PublishSubscribeModule(root));
     }
     
     protected void configureStorageProvider(TestSessionContext tsc) {

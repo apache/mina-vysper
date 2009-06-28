@@ -38,6 +38,8 @@ public class LeafNode {
 
     // the jid of the node
     protected Entity jid;
+    // the name of the node (free text)
+    protected String name;
     // the storage provider for storing and retrieving node information.
     protected LeafNodeStorageProvider storage = new LeafNodeInMemoryStorageProvider();
 
@@ -45,8 +47,9 @@ public class LeafNode {
      * Creates a new LeafNode with the specified JID.
      * @param jid the JID of the node
      */
-    public LeafNode(Entity jid) {
+    public LeafNode(Entity jid, String name) {
         this.jid = jid;
+        this.name = name;
     }
 
     /**
@@ -152,5 +155,12 @@ public class LeafNode {
      */
     protected void sendMessageToSubscriber(StanzaRelay stanzaRelay, XMLElement item) {
         storage.acceptForEachSubscriber(jid, new SubscriberNotificationVisitor(stanzaRelay, item));
+    }
+
+    /**
+     * @return the name of the node.
+     */
+    public String getNodeName() {
+        return name;
     }
 }

@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 /**
- * handles IQ info queries
+ * handles IQ items queries
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
@@ -79,7 +79,7 @@ public class DiscoItemIQHandler extends DefaultIQHandler {
         if (serviceCollector == null) {
             return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR, stanza,
                     StanzaErrorType.CANCEL,
-                    "cannot retrieve IQ-get-info result from internal components",
+                    "cannot retrieve IQ-get-items result from internal components",
                     getErrorLanguage(serverRuntimeContext, sessionContext), null);
         }
 
@@ -92,7 +92,7 @@ public class DiscoItemIQHandler extends DefaultIQHandler {
             if (!isServerInfoRequest) {
                 return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.ITEM_NOT_FOUND, stanza,
                         StanzaErrorType.CANCEL,
-                        "server does not handle info query requests for " + to.getFullQualifiedName(),
+                        "server does not handle items query requests for " + to.getFullQualifiedName(),
                         getErrorLanguage(serverRuntimeContext, sessionContext), null);
             }
         }

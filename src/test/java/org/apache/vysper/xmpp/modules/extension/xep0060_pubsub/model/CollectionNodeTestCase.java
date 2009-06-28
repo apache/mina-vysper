@@ -36,6 +36,7 @@ public class CollectionNodeTestCase extends TestCase  {
     protected void setUp() throws Exception {
         super.setUp();
         collection = new CollectionNode();
+        collection.initialize(new EntityImpl(null, "pubsub.vysper.org", null));
     }
 
     public void testCreateNode() throws Exception {

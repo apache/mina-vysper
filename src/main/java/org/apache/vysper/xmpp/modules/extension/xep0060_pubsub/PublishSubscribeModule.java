@@ -37,6 +37,8 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Identity;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
@@ -48,23 +50,36 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Initializes the XEP0060 module.
+ * Initializes the XEP0060 module. This class is also responsible for disco requests at the service level.
  *
  * @author The Apache MINA Project (http://mina.apache.org)
  */
 @SpecCompliant(spec="xep-0060", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
-public class PublishSubscribeModule extends DefaultDiscoAwareModule implements ServerInfoRequestListener {
+public class PublishSubscribeModule extends DefaultDiscoAwareModule implements ServerInfoRequestListener, ItemRequestListener {
 
-    CollectionNode root = null;
-    final Logger logger = LoggerFactory.getLogger(PublishSubscribeModule.class);
+    // The service itself acts like a collection node, this is the "root"
+    private CollectionNode root = null;
+    // for debugging
+    private final Logger logger = LoggerFactory.getLogger(PublishSubscribeModule.class);
 
     /**
-     * Default constructor takes care of the root-CollectionNode
+     * Create a new PublishSubscribeModule together with a new root-collection node.
      */
     public PublishSubscribeModule() {
+        // create the root node with the server jid as the root-node jid
         this.root = new CollectionNode();
     }
 
+    /**
+     * Create a new PublishSubscribeModule together with a supplied root-collection node.
+     */
+    public PublishSubscribeModule(CollectionNode root) {
+        this.root = root;
+    }
+
+    /**
+     * Initializes the pubsub module, configuring the storage providers.
+     */
     @Override
     public void initialize(ServerRuntimeContext serverRuntimeContext) {
         super.initialize(serverRuntimeContext);
@@ -83,18 +98,29 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
         } else {
             root.setLeafNodeStorageProvider(leafNodeStorageProvider);
         }
+        
+        this.root.initialize(serverRuntimeContext.getServerEnitity());
     }
 
+    /**
+     * Returns the service name
+     */
     @Override
     public String getName() {
         return "XEP-0060 Publish-Subscribe";
     }
 
+    /**
+     * Returns the implemented spec. version.
+     */
     @Override
     public String getVersion() {
         return "1.13rc3";
     }
 
+    /**
+     * Make this object available for disco#info requests.
+     */
     @Override
     protected void addServerInfoRequestListeners(List<ServerInfoRequestListener> serverInfoRequestListeners) {
         serverInfoRequestListeners.add(this);
@@ -102,7 +128,7 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
 
     /**
      * Implements the getServerInfosFor method from the {@link ServerInfoRequestListener} interface.
-     * Makes this modules available via disco as "pubsub service" in the pubsub namespace.
+     * Makes this modules available via disco#info as "pubsub service" in the pubsub namespace.
      * 
      * @see ServerInfoRequestListener#getServerInfosFor(InfoRequest)
      */
@@ -111,6 +137,26 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
         infoElements.add(new Identity("pubsub", "service"));
         infoElements.add(new Feature(NamespaceURIs.XEP0060_PUBSUB));
         return infoElements;
+    }
+
+    /**
+     * Make this object available for disco#items requests.
+     */
+    @Override
+    protected void addItemRequestListeners(List<ItemRequestListener> itemRequestListeners) {
+        itemRequestListeners.add(this);
+    }
+
+    /**
+     * Implements the getItemsFor method from the {@link ItemRequestListener} interface.
+     * Makes this modules available via disco#items and returns the associated nodes.
+     * 
+     * @see ItemRequestListener#getItemsFor(InfoRequest)
+     */
+    public List<Item> getItemsFor(InfoRequest request) throws ServiceDiscoveryRequestException {
+        NodeVisitor nv = new NodeDiscoItemsVisitor();
+        root.acceptNodes(nv);
+        return nv.getNodeItemList();
     }
 
     /**
@@ -147,5 +193,4 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
         pubsubHandlers.add(new PubSubCreateNodeHandler(root));
         dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB, pubsubHandlers));
     }
-
 }

@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.NodeVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 
 /**
@@ -63,5 +64,21 @@ public class CollectionnodeInMemoryStorageProvider implements CollectionNodeStor
      */
     public void storeNode(Entity jid, LeafNode node) {
         nodes.put(jid, node);
+    }
+
+    /**
+     * Walk through all known nodes, calling visit on each.
+     */
+    public void acceptNodes(Entity nodeJID, NodeVisitor nv) {
+        for(Entity node : nodes.keySet()) {
+            nv.visit(node, nodes.get(node));
+        }
+    }
+
+    /**
+     * The in-memory storage provider does not need initialization beyond creating the objects.
+     */
+    public void initialize() {
+        // empty
     }
 }
