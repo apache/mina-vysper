@@ -30,8 +30,8 @@ public class PubSubDiscoInfoTestCase extends AbstractPublishSubscribeTestCase {
 
     
     public void testIdentityAndFeature() {
-        AbstractStanzaGenerator sg = getDefaultStanzaGenerator();
-        Stanza stanza = sg.getStanza(client, pubsub.getBareJID(), "id123");
+        DefaultDiscoInfoStanzaGenerator sg = (DefaultDiscoInfoStanzaGenerator)getDefaultStanzaGenerator();
+        Stanza stanza = sg.getStanza(client, pubsubService.getBareJID(), "id123");
 
         ResponseStanzaContainer result = sendStanza(stanza, true);
         assertTrue(result.hasResponse());
@@ -69,9 +69,47 @@ public class PubSubDiscoInfoTestCase extends AbstractPublishSubscribeTestCase {
         assertNotNull(feature);
     }
     
+    public void testInfoRequestForANode() throws Exception {
+        root.createNode(serverEntity, "news", "News");
+
+        DefaultDiscoInfoStanzaGenerator sg = (DefaultDiscoInfoStanzaGenerator)getDefaultStanzaGenerator();
+        Stanza stanza = sg.getStanza(client, pubsubService.getBareJID(), "id123","news");
+
+        ResponseStanzaContainer result = sendStanza(stanza, true);
+        assertTrue(result.hasResponse());
+        IQStanza response = new IQStanza(result.getResponseStanza());
+
+        assertEquals(IQStanzaType.RESULT.value(),response.getType());
+
+        assertEquals("id123", response.getAttributeValue("id")); // IDs must match
+        
+        // get the query Element
+        XMLElement query = response.getFirstInnerElement();
+        List<XMLElement> inner = query.getInnerElements();
+
+        assertEquals("query", query.getName());
+        
+        // at least we have an identity element
+        assertTrue(inner.size() >= 1);
+        
+        // ordering etc. is unknown; step through all subelements and pick the ones we need
+        XMLElement identity = null;
+        for(XMLElement el : inner) {
+            if(el.getName().equals("identity")
+                    //&& el.getNamespace().equals(NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO) // TODO enable when the parser is fixed
+                    && el.getAttributeValue("category").equals("pubsub")
+                    && el.getAttributeValue("type").equals("leaf")) {
+                identity = el;
+            }
+        }
+        
+        // make sure they were there (booleans would have sufficed)
+        assertNotNull(identity);
+    }
+    
     class DefaultDiscoInfoStanzaGenerator extends AbstractStanzaGenerator {
         @Override
-        protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb) {
+        protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb, String node) {
             return sb;
         }
 
@@ -85,13 +123,20 @@ public class PubSubDiscoInfoTestCase extends AbstractPublishSubscribeTestCase {
             return IQStanzaType.GET;
         }
         
-        @Override
         public Stanza getStanza(Entity client, Entity pubsub, String id) {
             StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(client, pubsub, getStanzaType(), id);
             stanzaBuilder.startInnerElement("query");
             stanzaBuilder.addNamespaceAttribute(getNamespace());
 
-            buildInnerElement(client, pubsub, stanzaBuilder);
+            return stanzaBuilder.getFinalStanza();
+        }
+        
+        @Override
+        public Stanza getStanza(Entity client, Entity pubsub, String id, String node) {
+            StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(client, pubsub, getStanzaType(), id);
+            stanzaBuilder.startInnerElement("query");
+            stanzaBuilder.addNamespaceAttribute(getNamespace());
+            stanzaBuilder.addAttribute("node", node);
 
             stanzaBuilder.endInnerElement();
 

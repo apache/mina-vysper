@@ -19,12 +19,18 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberNotificationVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeInMemoryStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeStorageProvider;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.Identity;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
@@ -36,20 +42,25 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 @SpecCompliant(spec="xep-0060", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public class LeafNode {
 
-    // the jid of the node
-    protected Entity jid;
+    // the jid of the server the node is on
+    protected Entity serverJID;
     // the name of the node (free text)
+    protected String title;
+    // the unique name (per server) of the node
     protected String name;
     // the storage provider for storing and retrieving node information.
     protected LeafNodeStorageProvider storage = new LeafNodeInMemoryStorageProvider();
 
     /**
      * Creates a new LeafNode with the specified JID.
-     * @param jid the JID of the node
+     * @param serverJID the JID of the node
+     * @param name the unique name of the node (per server)
+     * @param title the free-text title of the node (what is it about?)
      */
-    public LeafNode(Entity jid, String name) {
-        this.jid = jid;
+    public LeafNode(Entity serverJID, String name, String title) {
+        this.serverJID = serverJID;
         this.name = name;
+        this.title = title;
     }
 
     /**
@@ -66,7 +77,7 @@ public class LeafNode {
      * @param subscriber the subscriber
      */
     public void subscribe(String id, Entity subscriber) {
-        storage.addSubscriber(jid, id, subscriber);
+        storage.addSubscriber(serverJID, id, subscriber);
     }
 
     /**
@@ -75,7 +86,7 @@ public class LeafNode {
      * @return true if the JID is already subscribed
      */
     public boolean isSubscribed(Entity subscriber) {
-        return storage.containsSubscriber(jid, subscriber);
+        return storage.containsSubscriber(serverJID, subscriber);
     }
 
     /**
@@ -85,7 +96,7 @@ public class LeafNode {
      */
     
     public boolean isSubscribed(String subscriptionID) {
-        return storage.containsSubscriber(jid, subscriptionID);
+        return storage.containsSubscriber(serverJID, subscriptionID);
     }
 
     /**
@@ -95,10 +106,10 @@ public class LeafNode {
      * @return true if the subscription has been removed, false otherwise.
      */
     public boolean unsubscribe(String subscriptionID, Entity subscriber) {
-        Entity sub = storage.getSubscriber(jid, subscriptionID);
+        Entity sub = storage.getSubscriber(serverJID, subscriptionID);
 
         if(sub != null && sub.equals(subscriber)) {
-            return storage.removeSubscription(jid, subscriptionID);
+            return storage.removeSubscription(serverJID, subscriptionID);
         }
         return false;
     }
@@ -115,7 +126,7 @@ public class LeafNode {
         if(countSubscriptions(subscriber) > 1) {
             throw new MultipleSubscriptionException("Ambigous unsubscription request");
         }
-        return storage.removeSubscriber(jid, subscriber);
+        return storage.removeSubscriber(serverJID, subscriber);
     }
 
     /**
@@ -124,7 +135,7 @@ public class LeafNode {
      * @return number of subscriptions.
      */
     public int countSubscriptions(Entity subscriber) {
-        return storage.countSubscriptions(jid, subscriber);
+        return storage.countSubscriptions(serverJID, subscriber);
     }
 
     /**
@@ -132,7 +143,7 @@ public class LeafNode {
      * @return number of subscriptions.
      */
     public int countSubscriptions() {
-        return storage.countSubscriptions(jid);
+        return storage.countSubscriptions(serverJID);
     }
 
     /**
@@ -143,7 +154,7 @@ public class LeafNode {
      * @param item the payload of the message.
      */
     public void publish(Entity sender, StanzaRelay relay, String messageID, XMLElement item) {
-        storage.addMessage(jid, messageID, item);
+        storage.addMessage(serverJID, messageID, item);
         sendMessageToSubscriber(relay, item);
     }
 
@@ -154,13 +165,39 @@ public class LeafNode {
      * @param item the payload of the message.
      */
     protected void sendMessageToSubscriber(StanzaRelay stanzaRelay, XMLElement item) {
-        storage.acceptForEachSubscriber(jid, new SubscriberNotificationVisitor(stanzaRelay, item));
+        storage.acceptForEachSubscriber(serverJID, new SubscriberNotificationVisitor(stanzaRelay, item));
     }
 
     /**
      * @return the name of the node.
      */
-    public String getNodeName() {
+    public String getName() {
         return name;
+    }
+    
+    /**
+     * @return the free-text title of the node
+     */
+    public String getTitle() {
+        return title;
+    }
+    
+    /**
+     * @return the JID of the server the nodes lies on.
+     */
+    public Entity getServerJID() {
+        return serverJID;
+    }
+
+    /**
+     * Builds a list of InfoElements for disco#info requests.
+     * 
+     * @param request the sent request
+     * @return the list of InfoElements
+     */
+    public List<InfoElement> getNodeInfosFor(InfoRequest request) {
+        List<InfoElement> infoElements = new ArrayList<InfoElement>();
+        infoElements.add(new Identity("pubsub", "leaf"));
+        return infoElements;
     }
 }

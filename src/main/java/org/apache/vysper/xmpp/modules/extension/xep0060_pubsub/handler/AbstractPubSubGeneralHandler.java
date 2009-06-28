@@ -20,8 +20,6 @@
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
 import org.apache.vysper.compliance.SpecCompliant;
-import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeIQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
@@ -62,14 +60,12 @@ public abstract class AbstractPubSubGeneralHandler extends AbstractPublishSubscr
      * @param stanza the received IQStanza
      * @return the node
      */
-    protected Entity extractNodeJID(IQStanza stanza) {
-        String node = stanza.getFirstInnerElement().getAttributeValue("node");
+    protected String extractNodeName(IQStanza stanza) {
+        String node = stanza.getFirstInnerElement().getFirstInnerElement().getAttributeValue("node");
         if(node == null) {
-            return stanza.getTo();
-        } else {
-            Entity to = stanza.getTo();
-            return new EntityImpl(to.getNode(), to.getDomain(), node);
+            //throw Exception();
         }
+        return node;
     }
 
 }

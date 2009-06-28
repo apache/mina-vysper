@@ -30,6 +30,7 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
+import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
@@ -38,11 +39,12 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
  */
 public class PubSubSubscribeTestCase extends AbstractPublishSubscribeTestCase {
     protected LeafNode node = null;
+    protected String testNode = "news";
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        node = root.createNode(EntityImpl.parse("pubsub.vysper.org/news"));
+        node = root.createNode(serverEntity, "news", "Node used for testing purposes");
     }
     
     @Override
@@ -57,7 +59,8 @@ public class PubSubSubscribeTestCase extends AbstractPublishSubscribeTestCase {
 
     public void testSubscribe() throws Exception {
         AbstractStanzaGenerator sg = getDefaultStanzaGenerator();
-        ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsub, "id123"), true);
+        Stanza stanza = sg.getStanza(client, pubsubService, "id123", testNode);
+        ResponseStanzaContainer result = sendStanza(stanza, true);
         assertTrue(result.hasResponse());
         IQStanza response = new IQStanza(result.getResponseStanza());
         assertEquals(IQStanzaType.RESULT.value(),response.getType());
@@ -69,7 +72,7 @@ public class PubSubSubscribeTestCase extends AbstractPublishSubscribeTestCase {
         XMLElement sub = response.getFirstInnerElement().getFirstInnerElement();
 
         assertEquals("subscription", sub.getName());
-        assertEquals(pubsub.getResource(), sub.getAttributeValue("node"));
+        assertEquals(testNode, sub.getAttributeValue("node"));
         assertEquals(client.getFullQualifiedName(), sub.getAttributeValue("jid"));
         assertNotNull(sub.getAttributeValue("subid")); // it should be present - value unknown
         assertEquals("subscribed", sub.getAttributeValue("subscription"));
@@ -79,7 +82,7 @@ public class PubSubSubscribeTestCase extends AbstractPublishSubscribeTestCase {
         DefaultSubscribeStanzaGenerator sg = new DefaultSubscribeStanzaGenerator();
         sg.overrideSubscriberJID("someone@quite.dif/ferent");
 
-        ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsub, "id123"), true);
+        ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsubService, "id123", testNode), true);
         assertTrue(result.hasResponse());
         IQStanza response = new IQStanza(result.getResponseStanza());
         assertEquals(IQStanzaType.ERROR.value(),response.getType());
@@ -104,7 +107,7 @@ public class PubSubSubscribeTestCase extends AbstractPublishSubscribeTestCase {
         DefaultSubscribeStanzaGenerator sg = new DefaultSubscribeStanzaGenerator();
         sg.overrideSubscriberJID("@@");
 
-        ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsub, "id123"), true);
+        ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsubService, "id123", testNode), true);
         assertTrue(result.hasResponse());
         IQStanza response = new IQStanza(result.getResponseStanza());
         assertEquals(IQStanzaType.ERROR.value(),response.getType());
@@ -124,9 +127,9 @@ public class PubSubSubscribeTestCase extends AbstractPublishSubscribeTestCase {
 
     public void testSubscribeNoSuchNode() throws Exception {
         DefaultSubscribeStanzaGenerator sg = new DefaultSubscribeStanzaGenerator();
-        Entity pubsubWrongNode = EntityImpl.parse("pubsub.vysper.org/doesnotexist");
+        Entity pubsubWrongNode = EntityImpl.parse("pubsub.vysper.org");
 
-        ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsubWrongNode, "id123"), true);
+        ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsubWrongNode, "id123", "doesnotexist"), true);
         assertTrue(result.hasResponse());
         IQStanza response = new IQStanza(result.getResponseStanza());
         assertEquals(IQStanzaType.ERROR.value(),response.getType());
@@ -163,9 +166,9 @@ public class PubSubSubscribeTestCase extends AbstractPublishSubscribeTestCase {
         }
 
         @Override
-        protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb) {
+        protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb, String node) {
             sb.startInnerElement("subscribe");
-            sb.addAttribute("node", pubsub.getResource());
+            sb.addAttribute("node", node);
             sb.addAttribute("jid", getSubscriberJID(client));
             sb.endInnerElement();
             return sb;

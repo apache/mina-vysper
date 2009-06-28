@@ -36,8 +36,6 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.L
 @SpecCompliant(spec="xep-0060", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public class CollectionNode {
 
-    // the JID of the collection node
-    protected Entity nodeJID;
     // the storage provider for storing and retrieving node-info
     protected CollectionNodeStorageProvider collectionNodeStorage;
     // the storage provider for leaf nodes
@@ -59,45 +57,47 @@ public class CollectionNode {
     }
 
     /**
-     * Search for a given node via its JID. We currently only support a flat hierarchy, so no
+     * Search for a given node via its name. We currently only support a flat hierarchy, so no
      * other node types are available ATM.
      * 
      * @return the LeafNode for the JID
      */
-    public LeafNode find(Entity jid) {
-        return collectionNodeStorage.findNode(jid);
+    public LeafNode find(String name) {
+        return collectionNodeStorage.findNode(name);
     }
 
     /**
      * Creates a new node under the given JID.
      * 
-     * @param jid the JID of the new node.
-     * @param name the free-text name of the node.
+     * @param serverJID the JID of the server this node is associated with.
+     * @param nodeName the unique node-name of the node (its key)
+     * @param givenName the free-text name of the node
      * @return the newly created LeafNode.
      * @throws DuplicateNodeException if the JID is already taken.
      */
-    public LeafNode createNode(Entity jid, String name) throws DuplicateNodeException {
-        if(collectionNodeStorage.containsNode(jid)) {
-            throw new DuplicateNodeException(jid.getFullQualifiedName() + " already present");
-        }
-
-        LeafNode node = new LeafNode(jid, name);
+    public LeafNode createNode(Entity serverJID, String nodeName, String givenName) throws DuplicateNodeException {
+        LeafNode node = new LeafNode(serverJID, nodeName, givenName);
         node.setPersistenceManager(leafNodeStorage);
 
-        collectionNodeStorage.storeNode(jid, node);
+        if(collectionNodeStorage.containsNode(nodeName)) {
+            throw new DuplicateNodeException(serverJID.getFullQualifiedName() + nodeName + " " + givenName + " already present");
+        }
+
+        collectionNodeStorage.storeNode(node);
 
         return node;
     }
     
     /**
-     * Convenience method to create a node without a name (optional).
+     * Convenience method to create a node without a free-text name (optional).
      * 
      * @param jid the JID of the new node.
+     * @param nodeName the unique name of the node
      * @return the newly create LeafNode
      * @throws DuplicateNodeException
      */
-    public LeafNode createNode(Entity jid) throws DuplicateNodeException {
-        return this.createNode(jid, null);
+    public LeafNode createNode(Entity jid, String nodeName) throws DuplicateNodeException {
+        return this.createNode(jid, nodeName, null);
     }
 
     /**
@@ -119,14 +119,13 @@ public class CollectionNode {
     }
 
     public void acceptNodes(NodeVisitor nv) {
-        collectionNodeStorage.acceptNodes(nodeJID, nv);
+        collectionNodeStorage.acceptNodes(nv);
     }
 
     /**
      * Called after setting the storage providers to do its own initialization tasks.
      */
-    public void initialize(Entity nodeJID) {
-        this.nodeJID = nodeJID;
+    public void initialize() {
         this.collectionNodeStorage.initialize();
         this.leafNodeStorage.initialize();
     }

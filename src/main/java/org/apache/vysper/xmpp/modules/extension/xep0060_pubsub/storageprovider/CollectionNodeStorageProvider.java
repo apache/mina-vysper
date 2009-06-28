@@ -21,7 +21,6 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider;
 
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.storage.StorageProvider;
-import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.NodeVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 
@@ -37,32 +36,30 @@ public interface CollectionNodeStorageProvider extends StorageProvider {
 
     /**
      * Retrieve a node via its JID
-     * @param jid the JID of the node we're searching for
+     * @param nodeName the name of the node we're searching for
      * @return the LeafNode if found, null otherwise.
      */
-    public LeafNode findNode(Entity jid);
+    public LeafNode findNode(String nodeName);
 
     /**
      * Checks whether the collection node contains a node with a certain JID.
-     * @param jid the JID we're checking for.
+     * @param nodeName the node we're searching for
      * @return true if the JID corresponds to a known node.
      */
-    public boolean containsNode(Entity jid);
+    public boolean containsNode(String nodeName);
 
     /**
      * Stores a node under the specified JID.
-     * @param jid the JID for the node.
      * @param node the LeafNode to be stored.
      */
-    public void storeNode(Entity jid, LeafNode node);
+    public void storeNode(LeafNode node);
 
     /**
      * Call the NodeVisitor for each node of the given collection node.
-     * @param nodeJID the node we want to iterate.
      * 
      * @param nv
      */
-    public void acceptNodes(Entity nodeJID, NodeVisitor nv);
+    public void acceptNodes(NodeVisitor nv);
 
     /**
      * Call to do some preliminary tasks after the module has been configured.

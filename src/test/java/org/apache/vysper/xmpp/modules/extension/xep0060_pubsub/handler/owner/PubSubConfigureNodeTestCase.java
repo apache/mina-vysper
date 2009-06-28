@@ -31,12 +31,12 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
  * @author The Apache MINA Project (http://mina.apache.org)
  */
 public class PubSubConfigureNodeTestCase extends AbstractPublishSubscribeTestCase {
-
+    
     class DefaultConfigureNodeStanzaGenerator extends AbstractStanzaGenerator {
         @Override
-        protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb) {
+        protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb, String node) {
             sb.startInnerElement("configure");
-            sb.addAttribute("node", pubsub.getResource());
+            sb.addAttribute("node", node);
             sb.endInnerElement();
             return sb;
         }

@@ -36,20 +36,20 @@ public class CollectionNodeTestCase extends TestCase  {
     protected void setUp() throws Exception {
         super.setUp();
         collection = new CollectionNode();
-        collection.initialize(new EntityImpl(null, "pubsub.vysper.org", null));
+        collection.initialize();
     }
 
     public void testCreateNode() throws Exception {
-        Entity jid = new EntityImpl(null, "pubsub.vysper.org", "test1");
-        LeafNode test1 = collection.createNode(jid);
+        Entity jid = new EntityImpl(null, "pubsub.vysper.org", null);
+        LeafNode test1 = collection.createNode(jid, "test1");
         assertNotNull(test1);
     }
 
     public void testCreateNodeTwice() {
-        Entity jid = new EntityImpl(null, "pubsub.vysper.org", "test1");
+        Entity jid = new EntityImpl(null, "pubsub.vysper.org", null);
         try {
-            collection.createNode(jid);
-            collection.createNode(jid);
+            collection.createNode(jid, "test1");
+            collection.createNode(jid, "test1");
             fail();
         } catch(DuplicateNodeException e) {
             // ok
@@ -57,15 +57,14 @@ public class CollectionNodeTestCase extends TestCase  {
     }
 
     public void testInsertFind() throws Exception {
-        Entity jid = new EntityImpl(null, "pubsub.vysper.org", "test1");
-        LeafNode insertedNode = collection.createNode(jid);
-        LeafNode foundNode = collection.find(jid);
+        Entity jid = new EntityImpl(null, "pubsub.vysper.org", null);
+        LeafNode insertedNode = collection.createNode(jid, "test1");
+        LeafNode foundNode = collection.find("test1");
         assertEquals(insertedNode, foundNode);
     }
 
     public void testFindNone() {
-        Entity jid = new EntityImpl(null, "pubsub.vysper.org", "test1");
-        assertNull(collection.find(jid));
+        assertNull(collection.find("test1"));
     }
 
 }

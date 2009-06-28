@@ -22,7 +22,6 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
 
@@ -39,8 +38,8 @@ public class NodeDiscoItemsVisitor implements NodeVisitor {
      * 
      * @see org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.NodeVisitor#visit(org.apache.vysper.xmpp.addressing.Entity, org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode)
      */
-    public void visit(Entity nodeJID, LeafNode ln) {
-        this.itemList.add(new Item(nodeJID.getBareJID(), ln.getNodeName(), nodeJID.getResource()));
+    public void visit(LeafNode ln) {
+        this.itemList.add(new Item(ln.getServerJID(), ln.getTitle(), ln.getName()));
     }
 
     /**

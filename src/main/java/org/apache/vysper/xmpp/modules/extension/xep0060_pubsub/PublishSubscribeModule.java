@@ -31,6 +31,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubUns
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner.PubSubOwnerConfigureNodeHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner.PubSubOwnerDeleteNodeHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.CollectionNodeStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeStorageProvider;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
@@ -99,7 +100,7 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
             root.setLeafNodeStorageProvider(leafNodeStorageProvider);
         }
         
-        this.root.initialize(serverRuntimeContext.getServerEnitity());
+        this.root.initialize();
     }
 
     /**
@@ -134,8 +135,13 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
      */
     public List<InfoElement> getServerInfosFor(InfoRequest request) throws ServiceDiscoveryRequestException {
         List<InfoElement> infoElements = new ArrayList<InfoElement>();
-        infoElements.add(new Identity("pubsub", "service"));
-        infoElements.add(new Feature(NamespaceURIs.XEP0060_PUBSUB));
+        if(request.getNode() == null || request.getNode().length() == 0) {
+            infoElements.add(new Identity("pubsub", "service"));
+            infoElements.add(new Feature(NamespaceURIs.XEP0060_PUBSUB));
+        } else {
+            LeafNode node = root.find(request.getNode());
+            infoElements.addAll(node.getNodeInfosFor(request));
+        }
         return infoElements;
     }
 

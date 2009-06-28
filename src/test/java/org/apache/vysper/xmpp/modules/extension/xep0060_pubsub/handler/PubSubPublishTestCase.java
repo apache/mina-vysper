@@ -42,7 +42,7 @@ public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        node = root.createNode(EntityImpl.parse("pubsub.vysper.org/news"));
+        node = root.createNode(serverEntity, "news", "Node used for testing purposes");
     }
     
     @Override
@@ -59,7 +59,7 @@ public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
         AbstractStanzaGenerator sg = getDefaultStanzaGenerator();
 
         node.subscribe("id", client);
-        ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsub, "id123"), true);
+        ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsubService, "id123", "news"), true);
         assertTrue(result.hasResponse());
         IQStanza response = new IQStanza(result.getResponseStanza());
         assertEquals(IQStanzaType.RESULT.value(),response.getType());
@@ -71,7 +71,7 @@ public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
         XMLElement item = pub.getFirstInnerElement();
 
         assertEquals("publish", pub.getName());
-        assertEquals(pubsub.getResource(), pub.getAttributeValue("node"));
+        assertEquals("news", pub.getAttributeValue("node"));
         assertNotNull(item); // should be present
         assertNotNull(item.getAttributeValue("id"));
     }
@@ -93,7 +93,7 @@ public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
         assertEquals(3, node.countSubscriptions());
 
         // publish a message
-        ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsub, "id1"), true);
+        ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsubService, "id1", "news"), true);
 
         // verify response
         assertTrue(result.hasResponse());
@@ -111,9 +111,9 @@ public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
 
     class DefaultPublishStanzaGenerator extends AbstractStanzaGenerator {
         @Override
-        protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb) {
+        protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb, String node) {
             sb.startInnerElement("publish");
-            sb.addAttribute("node", pubsub.getResource());
+            sb.addAttribute("node", node);
             sb.startInnerElement("item");
             sb.addText("this is a test");
             sb.endInnerElement();

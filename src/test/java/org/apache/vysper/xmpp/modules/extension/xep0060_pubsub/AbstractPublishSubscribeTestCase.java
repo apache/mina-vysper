@@ -50,7 +50,7 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
     protected TestSessionContext sessionContext  = null;
     protected Entity clientBare = null;
     protected Entity client = null;
-    protected Entity pubsub = null;
+    protected Entity pubsubService = null;
     protected IQHandler handler = null;
     protected CollectionNode root = null;
     protected Entity serverEntity = null;
@@ -79,7 +79,7 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
 
         String boundResourceId = sessionContext.bindResource();
         client = new EntityImpl(clientBare, boundResourceId);
-        pubsub = EntityImpl.parse("pubsub.vysper.org/news");
+        pubsubService = EntityImpl.parse("pubsub.vysper.org");
         setResourceConnected(boundResourceId);
 
         handler = getHandler();
@@ -141,7 +141,7 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
 
     public void testSimpleStanza() {
         AbstractStanzaGenerator sg = getDefaultStanzaGenerator();
-        Stanza stanza = sg.getStanza(client, pubsub, "id1");
+        Stanza stanza = sg.getStanza(client, pubsubService, "id1", "sometestnode");
 
         assertTrue(handler.verify(stanza));
     }

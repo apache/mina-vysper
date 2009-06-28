@@ -33,9 +33,9 @@ public class PubSubCreateNodeTestCase extends AbstractPublishSubscribeTestCase {
 
     class DefaultCreateNodeStanzaGenerator extends AbstractStanzaGenerator {
         @Override
-        protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb) {
+        protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb, String node) {
             sb.startInnerElement("create");
-            sb.addAttribute("node", pubsub.getResource());
+            sb.addAttribute("node", node);
             sb.endInnerElement();
             return sb;
         }

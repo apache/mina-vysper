@@ -22,7 +22,6 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 import java.util.List;
 
 import org.apache.vysper.compliance.SpecCompliant;
-import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
 
@@ -38,10 +37,9 @@ public interface NodeVisitor {
      * visit is part of the "visitor pattern" and should be used to iterate
      * over all nodes of a collection node.
      * 
-     * @param nodeJID the node JID
      * @param ln the node (for more detailed data)
      */
-    void visit(Entity nodeJID, LeafNode ln);
+    void visit(LeafNode ln);
 
     List<Item> getNodeItemList();
 

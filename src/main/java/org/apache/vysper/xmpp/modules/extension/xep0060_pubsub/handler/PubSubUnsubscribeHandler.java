@@ -94,8 +94,8 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
             return errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, receiver, stanza);
         }
 
-        Entity nodeJID = extractNodeJID(stanza);
-        LeafNode node = root.find(nodeJID);
+        String nodeName = extractNodeName(stanza);
+        LeafNode node = root.find(nodeName);
 
         if(node == null) {
             // no such node (error condition 4 (6.2.3))

@@ -91,8 +91,8 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
             return errorStanzaGenerator.generateJIDDontMatchErrorStanza(sender, receiver, stanza);
         }
 
-        Entity nodeJID = extractNodeJID(stanza);
-        LeafNode node = root.find(nodeJID);
+        String nodeName = extractNodeName(stanza);
+        LeafNode node = root.find(nodeName);
 
         if(node == null) {
             // no such node (error condition 11 (6.1.3))
@@ -102,7 +102,7 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
         String id = idGenerator.create();
         node.subscribe(id, subJID);
 
-        buildSuccessStanza(sb, nodeJID, strSubJID, id);
+        buildSuccessStanza(sb, nodeName, strSubJID, id);
 
         sb.endInnerElement(); // pubsub
         return new IQStanza(sb.getFinalStanza());
@@ -112,13 +112,13 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
      * This method adds the default "success" elements to the given StanzaBuilder.
      * 
      * @param sb the StanzaBuilder to add the success elements.
-     * @param node the node the user wanted to subscribe to.
+     * @param nodeName the node the user wanted to subscribe to.
      * @param jid the jid of the subscriber.
      * @param subid the subscription id for the given JID.
      */
-    private void buildSuccessStanza(StanzaBuilder sb, Entity node, String jid, String subid) {
+    private void buildSuccessStanza(StanzaBuilder sb, String nodeName, String jid, String subid) {
         sb.startInnerElement("subscription");
-        sb.addAttribute("node", node.getResource());
+        sb.addAttribute("node", nodeName);
         sb.addAttribute("jid", jid);
         sb.addAttribute("subid", subid);
         sb.addAttribute("subscription", "subscribed");

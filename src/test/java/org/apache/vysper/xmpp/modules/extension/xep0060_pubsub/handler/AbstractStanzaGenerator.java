@@ -40,10 +40,13 @@ public abstract class AbstractStanzaGenerator {
     /**
      * Override and provide a optional inner element (within the IQ/pubsub elements).
      * 
+     * @param client the requesting client
+     * @param pubsubService the JID of the pubsub service
      * @param sb the StanzaBuilder currently used
+     * @param node the name of the pubsub node
      * @return the (modified) StanzaBuilder
      */
-    protected abstract StanzaBuilder buildInnerElement(Entity client, Entity pubsubService, StanzaBuilder sb);
+    protected abstract StanzaBuilder buildInnerElement(Entity client, Entity pubsubService, StanzaBuilder sb, String node);
 
     /**
      * Override and define the IQ stanza's type (get or set)
@@ -58,14 +61,15 @@ public abstract class AbstractStanzaGenerator {
      * @param client JID of the client
      * @param pubsub JID of the pubsub Service
      * @param id ID for the Stanza
+     * @param node the name of the node
      * @return the generated stanza
      */
-    public Stanza getStanza(Entity client, Entity pubsub, String id) {
+    public Stanza getStanza(Entity client, Entity pubsub, String id, String node) {
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(client, pubsub, getStanzaType(), id);
         stanzaBuilder.startInnerElement("pubsub");
         stanzaBuilder.addNamespaceAttribute(getNamespace());
 
-        buildInnerElement(client, pubsub, stanzaBuilder);
+        buildInnerElement(client, pubsub, stanzaBuilder, node);
 
         stanzaBuilder.endInnerElement();
 

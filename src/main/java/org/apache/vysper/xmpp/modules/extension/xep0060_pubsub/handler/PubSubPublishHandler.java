@@ -21,7 +21,6 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
@@ -76,13 +75,12 @@ public class PubSubPublishHandler extends AbstractPubSubGeneralHandler {
         sb.startInnerElement("pubsub", NamespaceURIs.XEP0060_PUBSUB);
 
         XMLElement publish = stanza.getFirstInnerElement().getFirstInnerElement(); // pubsub/publish
-        String strNode = publish.getAttributeValue("node"); // MUST
+        String nodeName = publish.getAttributeValue("node"); // MUST
 
         XMLElement item = publish.getFirstInnerElement();
         String strID = item.getAttributeValue("id"); // MAY
 
-        Entity jid = new EntityImpl(receiver.getNode(), receiver.getDomain(), strNode);
-        LeafNode node = root.find(jid);
+        LeafNode node = root.find(nodeName);
 
         if(node == null) {
             //TODO node does not exist - error condition 3 (7.1.3)
@@ -106,7 +104,7 @@ public class PubSubPublishHandler extends AbstractPubSubGeneralHandler {
         StanzaRelay relay = serverRuntimeContext.getStanzaRelay();
         node.publish(sender, relay, strID, item);
 
-        buildSuccessStanza(sb, strNode, strID);
+        buildSuccessStanza(sb, nodeName, strID);
 
         sb.endInnerElement(); // pubsub
         return new IQStanza(sb.getFinalStanza());

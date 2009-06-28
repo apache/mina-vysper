@@ -22,7 +22,6 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.NodeVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 
@@ -35,43 +34,43 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 public class CollectionnodeInMemoryStorageProvider implements CollectionNodeStorageProvider {
 
     // Map to store the nodes, access via JID
-    protected Map<Entity, LeafNode> nodes;
+    protected Map<String, LeafNode> nodes;
 
     /**
      * Initialize the storage provider.
      */
     public CollectionnodeInMemoryStorageProvider() {
-        nodes = new HashMap<Entity, LeafNode>();
+        nodes = new HashMap<String, LeafNode>();
     }
 
     /**
-     * Search for a LeafNode via its JID.
+     * Search for a LeafNode via its name.
      */
-    public LeafNode findNode(Entity jid) {
-        return nodes.get(jid);
+    public LeafNode findNode(String nodeName) {
+        return nodes.get(nodeName);
     }
 
     /**
-     * Check whether an LeafNode with the given JID is known.
+     * Check whether an LeafNode with the given node is already known.
      */
-    public boolean containsNode(Entity jid) {
-        return nodes.containsKey(jid);
+    public boolean containsNode(String nodeName) {
+        return nodes.containsKey(nodeName);
     }
 
     /**
      * Add the given LeafNode with the given JID to the storage.
      * An existing ode with the same JID will be replaced.
      */
-    public void storeNode(Entity jid, LeafNode node) {
-        nodes.put(jid, node);
+    public void storeNode(LeafNode node) {
+        nodes.put(node.getName(), node);
     }
 
     /**
      * Walk through all known nodes, calling visit on each.
      */
-    public void acceptNodes(Entity nodeJID, NodeVisitor nv) {
-        for(Entity node : nodes.keySet()) {
-            nv.visit(node, nodes.get(node));
+    public void acceptNodes(NodeVisitor nv) {
+        for(String node : nodes.keySet()) {
+            nv.visit(nodes.get(node));
         }
     }
 

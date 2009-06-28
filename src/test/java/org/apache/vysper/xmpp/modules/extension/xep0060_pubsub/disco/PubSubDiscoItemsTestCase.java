@@ -3,7 +3,6 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.disco;
 import java.util.List;
 
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeTestCase;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.AbstractStanzaGenerator;
@@ -31,8 +30,8 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
 
     
     public void testNoItems() {
-        AbstractStanzaGenerator sg = getDefaultStanzaGenerator();
-        Stanza stanza = sg.getStanza(client, pubsub.getBareJID(), "id123");
+        DefaultDiscoInfoStanzaGenerator sg = (DefaultDiscoInfoStanzaGenerator)getDefaultStanzaGenerator();
+        Stanza stanza = sg.getStanza(client, pubsubService.getBareJID(), "id123");
 
         ResponseStanzaContainer result = sendStanza(stanza, true);
         assertTrue(result.hasResponse());
@@ -53,11 +52,11 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
     }
     
     public void testSomeItems() throws Exception {
-        root.createNode(EntityImpl.parse("pubsub.vysper.org/news"), "News");
-        root.createNode(EntityImpl.parse("pubsub.vysper.org/blogs"), "Blogs");
+        root.createNode(serverEntity, "news", "News");
+        root.createNode(serverEntity, "blogs", "Blogs");
         
-        AbstractStanzaGenerator sg = getDefaultStanzaGenerator();
-        Stanza stanza = sg.getStanza(client, pubsub.getBareJID(), "id123");
+        DefaultDiscoInfoStanzaGenerator sg = (DefaultDiscoInfoStanzaGenerator)getDefaultStanzaGenerator();
+        Stanza stanza = sg.getStanza(client, pubsubService.getBareJID(), "id123");
 
         ResponseStanzaContainer result = sendStanza(stanza, true);
         assertTrue(result.hasResponse());
@@ -100,7 +99,7 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
     
     class DefaultDiscoInfoStanzaGenerator extends AbstractStanzaGenerator {
         @Override
-        protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb) {
+        protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb, String node) {
             return sb;
         }
 
@@ -113,14 +112,23 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
         protected IQStanzaType getStanzaType() {
             return IQStanzaType.GET;
         }
-        
-        @Override
+
         public Stanza getStanza(Entity client, Entity pubsub, String id) {
             StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(client, pubsub, getStanzaType(), id);
             stanzaBuilder.startInnerElement("query");
             stanzaBuilder.addNamespaceAttribute(getNamespace());
 
-            buildInnerElement(client, pubsub, stanzaBuilder);
+            stanzaBuilder.endInnerElement();
+
+            return stanzaBuilder.getFinalStanza();
+        }
+        
+        @Override
+        public Stanza getStanza(Entity client, Entity pubsub, String id, String node) {
+            StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(client, pubsub, getStanzaType(), id);
+            stanzaBuilder.startInnerElement("query");
+            stanzaBuilder.addNamespaceAttribute(getNamespace());
+            stanzaBuilder.addAttribute("node", node);
 
             stanzaBuilder.endInnerElement();
 
