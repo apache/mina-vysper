@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberNotificationVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeInMemoryStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeStorageProvider;
@@ -79,7 +80,7 @@ public class LeafNode {
      * @param subscriber the subscriber
      */
     public void subscribe(String id, Entity subscriber) {
-        storage.addSubscriber(serverJID, id, subscriber);
+        storage.addSubscriber(name, id, subscriber);
     }
 
     /**
@@ -88,7 +89,7 @@ public class LeafNode {
      * @return true if the JID is already subscribed
      */
     public boolean isSubscribed(Entity subscriber) {
-        return storage.containsSubscriber(serverJID, subscriber);
+        return storage.containsSubscriber(name, subscriber);
     }
 
     /**
@@ -98,7 +99,7 @@ public class LeafNode {
      */
     
     public boolean isSubscribed(String subscriptionID) {
-        return storage.containsSubscriber(serverJID, subscriptionID);
+        return storage.containsSubscriber(name, subscriptionID);
     }
 
     /**
@@ -108,10 +109,10 @@ public class LeafNode {
      * @return true if the subscription has been removed, false otherwise.
      */
     public boolean unsubscribe(String subscriptionID, Entity subscriber) {
-        Entity sub = storage.getSubscriber(serverJID, subscriptionID);
+        Entity sub = storage.getSubscriber(name, subscriptionID);
 
         if(sub != null && sub.equals(subscriber)) {
-            return storage.removeSubscription(serverJID, subscriptionID);
+            return storage.removeSubscription(name, subscriptionID);
         }
         return false;
     }
@@ -128,7 +129,7 @@ public class LeafNode {
         if(countSubscriptions(subscriber) > 1) {
             throw new MultipleSubscriptionException("Ambigous unsubscription request");
         }
-        return storage.removeSubscriber(serverJID, subscriber);
+        return storage.removeSubscriber(name, subscriber);
     }
 
     /**
@@ -137,7 +138,7 @@ public class LeafNode {
      * @return number of subscriptions.
      */
     public int countSubscriptions(Entity subscriber) {
-        return storage.countSubscriptions(serverJID, subscriber);
+        return storage.countSubscriptions(name, subscriber);
     }
 
     /**
@@ -145,7 +146,7 @@ public class LeafNode {
      * @return number of subscriptions.
      */
     public int countSubscriptions() {
-        return storage.countSubscriptions(serverJID);
+        return storage.countSubscriptions(name);
     }
 
     /**
@@ -156,7 +157,7 @@ public class LeafNode {
      * @param item the payload of the message.
      */
     public void publish(Entity sender, StanzaRelay relay, String messageID, XMLElement item) {
-        storage.addMessage(serverJID, messageID, item);
+        storage.addMessage(name, messageID, item);
         sendMessageToSubscriber(relay, item);
     }
 
@@ -167,7 +168,7 @@ public class LeafNode {
      * @param item the payload of the message.
      */
     protected void sendMessageToSubscriber(StanzaRelay stanzaRelay, XMLElement item) {
-        storage.acceptForEachSubscriber(serverJID, new SubscriberNotificationVisitor(stanzaRelay, item));
+        storage.acceptForEachSubscriber(name, new SubscriberNotificationVisitor(serverJID, stanzaRelay, item));
     }
 
     /**
@@ -202,5 +203,14 @@ public class LeafNode {
         infoElements.add(new Identity("pubsub", "leaf"));
         infoElements.add(new Feature(NamespaceURIs.XEP0060_PUBSUB));
         return infoElements;
+    }
+
+    /**
+     * Visits each item ever published to this node.
+     * 
+     * @param iv the visitor
+     */
+    public void acceptItems(ItemVisitor iv) {
+        storage.acceptForEachItem(name, iv);
     }
 }

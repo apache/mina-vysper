@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberVisitor;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
@@ -50,49 +51,49 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
     /**
      * Add a subscriber with given subID.
      */
-    public void addSubscriber(Entity nodeJID, String subscriptionID, Entity subscriber) {
+    public void addSubscriber(String nodeName, String subscriptionID, Entity subscriber) {
         subscribers.put(subscriptionID, subscriber);
     }
 
     /**
      * Check if a subscriber is already known.
      */
-    public boolean containsSubscriber(Entity nodeJID, Entity subscriber) {
+    public boolean containsSubscriber(String nodeName, Entity subscriber) {
         return subscribers.containsValue(subscriber);
     }
 
     /**
      * Check if a subscriptionId is already known.
      */
-    public boolean containsSubscriber(Entity nodeJID, String subscriptionId) {
+    public boolean containsSubscriber(String nodeName, String subscriptionId) {
         return subscribers.containsKey(subscriptionId);
     }
 
     /**
      * Retrieve a subscriber via its subsriptionId.
      */
-    public Entity getSubscriber(Entity nodeJID, String subscriptionId) {
+    public Entity getSubscriber(String nodeName, String subscriptionId) {
         return subscribers.get(subscriptionId);
     }
 
     /**
      * Remove a subscriber via its subscriptionId.
      */
-    public boolean removeSubscription(Entity nodeJID, String subscriptionId) {
+    public boolean removeSubscription(String nodeName, String subscriptionId) {
         return subscribers.remove(subscriptionId) != null;
     }
 
     /**
      * Remove a subscriber via its JID. This removes all subscriptions of the JID.
      */
-    public boolean removeSubscriber(Entity nodeJID, Entity subscriber) {
+    public boolean removeSubscriber(String nodeName, Entity subscriber) {
         return subscribers.values().remove(subscriber);
     }
 
     /**
      * Count how often a given subscriber is subscribed.
      */
-    public int countSubscriptions(Entity nodeJID, Entity subscriber) {
+    public int countSubscriptions(String nodeName, Entity subscriber) {
         int count = 0;
         for(Entity sub : subscribers.values()) {
             if(subscriber.equals(sub)) {
@@ -105,23 +106,23 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
     /**
      * Count how many subscriptions this node has.
      */
-    public int countSubscriptions(Entity nodeJID) {
+    public int countSubscriptions(String nodeName) {
         return subscribers.size();
     }
 
     /**
      * Add a message to the storage.
      */
-    public void addMessage(Entity nodeJID, String messageID, XMLElement item) {
+    public void addMessage(String nodeName, String messageID, XMLElement item) {
         messages.put(messageID, item);
     }
 
     /**
      * Accept method (see visitor pattern) to visit all subscribers of this node.
      */
-    public void acceptForEachSubscriber(Entity nodeJID, SubscriberVisitor subscriberVisitor) {
+    public void acceptForEachSubscriber(String nodeName, SubscriberVisitor subscriberVisitor) {
         for(Entity sub : subscribers.values()) {
-            subscriberVisitor.visit(nodeJID, sub);
+            subscriberVisitor.visit(nodeName, sub);
         }
     }
 
@@ -130,5 +131,11 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
      */
     public void initialize() {
         // empty
+    }
+
+    public void acceptForEachItem(String nodeName, ItemVisitor iv) {
+        for(String itemID : messages.keySet()) {
+            iv.visit(itemID, messages.get(itemID));
+        }
     }
 }

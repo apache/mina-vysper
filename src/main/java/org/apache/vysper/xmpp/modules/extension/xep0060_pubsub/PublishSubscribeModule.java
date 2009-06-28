@@ -160,9 +160,20 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
      * @see ItemRequestListener#getItemsFor(InfoRequest)
      */
     public List<Item> getItemsFor(InfoRequest request) throws ServiceDiscoveryRequestException {
-        NodeVisitor nv = new NodeDiscoItemsVisitor();
-        root.acceptNodes(nv);
-        return nv.getNodeItemList();
+        List<Item> items = null;
+        
+        if(request.getNode() == null || request.getNode().length() == 0) {
+            NodeVisitor nv = new ServiceDiscoItemsVisitor();
+            root.acceptNodes(nv);
+            items = nv.getNodeItemList();
+        } else {
+            LeafNode node = root.find(request.getNode());
+            ItemVisitor iv = new NodeDiscoItemsVisitor(request.getTo());
+            node.acceptItems(iv);
+            items = iv.getItemList();
+        }
+        
+        return items;
     }
 
     /**

@@ -47,13 +47,16 @@ public class SubscriberNotificationVisitor implements SubscriberVisitor {
     private StanzaRelay stanzaRelay;
     // The payload.
     private XMLElement item;
+    // The server JID
+    private Entity serverJID;
 
     /**
      * Initialize the visitor with the StanzaRelay and payload.
      * @param stanzaRelay relay for sending the messages.
      * @param item payload for the messages.
      */
-    public SubscriberNotificationVisitor(StanzaRelay stanzaRelay, XMLElement item) {
+    public SubscriberNotificationVisitor(Entity serverJID, StanzaRelay stanzaRelay, XMLElement item) {
+        this.serverJID = serverJID;
         this.stanzaRelay = stanzaRelay;
         this.item = item;
     }
@@ -64,8 +67,8 @@ public class SubscriberNotificationVisitor implements SubscriberVisitor {
      * @param nodeJID the node from which the message comes from
      * @param subscriber the receiver of the notification
      */
-    public void visit(Entity nodeJID, Entity subscriber) {
-        Stanza event = createMessageEventStanza(nodeJID, subscriber, "en", item); // TODO extract the hardcoded "en"
+    public void visit(String nodeName, Entity subscriber) {
+        Stanza event = createMessageEventStanza(nodeName, subscriber, "en", item); // TODO extract the hardcoded "en"
 
         try {
             stanzaRelay.relay(subscriber, event, dfs);
@@ -84,13 +87,17 @@ public class SubscriberNotificationVisitor implements SubscriberVisitor {
      * @param item the payload as XMLElement
      * @return the prepared Stanza object.
      */
-    private Stanza createMessageEventStanza(Entity from, Entity to, String lang, XMLElement item) {
+    private Stanza createMessageEventStanza(String nodeName, Entity to, String lang, XMLElement item) {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("message");
-        stanzaBuilder.addAttribute("from", from.getBareJID().getFullQualifiedName());
+        stanzaBuilder.addAttribute("from", serverJID.getFullQualifiedName());
         stanzaBuilder.addAttribute("to", to.getFullQualifiedName());
         stanzaBuilder.addAttribute("xml:lang", lang);
         stanzaBuilder.startInnerElement("event", NamespaceURIs.XEP0060_PUBSUB_EVENT);
+        stanzaBuilder.startInnerElement("items");
+        stanzaBuilder.addAttribute("node", nodeName);
         stanzaBuilder.addPreparedElement(item);
+        stanzaBuilder.endInnerElement(); // items
+        stanzaBuilder.endInnerElement(); // event
         return stanzaBuilder.getFinalStanza();
     }
 

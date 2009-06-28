@@ -34,9 +34,9 @@ public interface SubscriberVisitor {
      * visit is part of the "visitor pattern" and should be used to iterate
      * over all subscriptions of a node.
      * 
-     * @param nodeJID the node JID of the subscription
+     * @param nodeName the name of the node
      * @param sub the subscriber JID
      */
-    void visit(Entity nodeJID, Entity sub);
+    void visit(String nodeName, Entity sub);
 
 }

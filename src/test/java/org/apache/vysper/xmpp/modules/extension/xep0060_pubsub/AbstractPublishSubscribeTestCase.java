@@ -54,6 +54,7 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
     protected IQHandler handler = null;
     protected CollectionNode root = null;
     protected Entity serverEntity = null;
+    protected StanzaReceiverRelay relay = null;
     
     // for debugging
     private SystemOutStanzaWriter stanzaWriter = new SystemOutStanzaWriter();
@@ -88,7 +89,7 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
     protected TestSessionContext createTestSessionContext(Entity serverEntity) {
         SessionStateHolder sessionStateHolder = new SessionStateHolder();
         sessionStateHolder.setState(SessionState.AUTHENTICATED);
-        StanzaReceiverRelay relay = new org.apache.vysper.xmpp.delivery.StanzaReceiverRelay();
+        relay = new org.apache.vysper.xmpp.delivery.StanzaReceiverRelay();
         DefaultServerRuntimeContext serverContext = new DefaultServerRuntimeContext(serverEntity, relay);
         relay.setServerRuntimeContext(serverContext);
         TestSessionContext tsc = new TestSessionContext(serverContext, sessionStateHolder);

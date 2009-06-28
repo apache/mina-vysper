@@ -41,6 +41,9 @@ public interface NodeVisitor {
      */
     void visit(LeafNode ln);
 
+    /**
+     * @return the ordered list of items.
+     */
     List<Item> getNodeItemList();
 
 }

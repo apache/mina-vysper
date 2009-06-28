@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.storage.StorageProvider;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberVisitor;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
@@ -36,85 +37,92 @@ public interface LeafNodeStorageProvider extends StorageProvider {
 
     /**
      * Add a subscriber to the LeafNode.
-     * @param nodeJID the node JID to which the subscriber should be added.
+     * @param nodeName the node JID to which the subscriber should be added.
      * @param subscriptionID the ID for the subscription (multiple subscription ber subscriber).
      * @param subscriber the JID of the subscriber.
      */
-    public void addSubscriber(Entity nodeJID, String subscriptionID, Entity subscriber);
+    public void addSubscriber(String nodeName, String subscriptionID, Entity subscriber);
 
     /**
-     * Checks if the node specified by nodeJID has a subscriber with the given JID.
-     * @param nodeJID the node to check.
+     * Checks if the node specified by nodeName has a subscriber with the given JID.
+     * @param nodeName the node to check.
      * @param subscriber the JID of the subscriber.
      * @return true if this JID is subscribed to the node.
      */
-    public boolean containsSubscriber(Entity nodeJID, Entity subscriber);
+    public boolean containsSubscriber(String nodeName, Entity subscriber);
 
     /**
-     * Checks if the node specified by nodeJID has a subscriber with the given subscription ID.
-     * @param nodeJID the node to check.
+     * Checks if the node specified by nodeName has a subscriber with the given subscription ID.
+     * @param nodeName the node to check.
      * @param subscriptionId the subscription ID to check.
      * @return true if there is a subscription with the given subscription ID.
      */
-    public boolean containsSubscriber(Entity nodeJID, String subscriptionId);
+    public boolean containsSubscriber(String nodeName, String subscriptionId);
 
     /**
      * Fetches the subscriber for a given subscription ID.
-     * @param nodeJID the JID of the node.
+     * @param nodeName the JID of the node.
      * @param subscriptionId the subscription ID we search for.
      * @return the JID of the subscriber with this subscription ID
      */
-    public Entity getSubscriber(Entity nodeJID, String subscriptionId);
+    public Entity getSubscriber(String nodeName, String subscriptionId);
 
     /**
      * Removes a subscription based on the subscription ID.
-     * @param nodeJID the node from which we remove the subscription.
+     * @param nodeName the node from which we remove the subscription.
      * @param subscriptionId the ID of the subscription to remove.
      * @return true if the subscription has been removed, false otherwise.
      */
-    public boolean removeSubscription(Entity nodeJID, String subscriptionId);
+    public boolean removeSubscription(String nodeName, String subscriptionId);
 
     /**
      * Removes a subscription based on the JID of the subscriber.
-     * @param nodeJID the node from which we remove the subscription.
+     * @param nodeName the node from which we remove the subscription.
      * @param subscriber the JID to remove.
      * @return true if the subscription has been removed, false otherwise.
      */
-    public boolean removeSubscriber(Entity nodeJID, Entity subscriber);
+    public boolean removeSubscriber(String nodeName, Entity subscriber);
 
     /**
      * Count how many subscription a given JID has to a node
-     * @param nodeJID the node to check
+     * @param nodeName the node to check
      * @param subscriber the subscriber JID to check
      * @return the number of subscriptions.
      */
-    public int countSubscriptions(Entity nodeJID, Entity subscriber);
+    public int countSubscriptions(String nodeName, Entity subscriber);
 
     /**
      * Count how many subscriptions a given node has.
-     * @param nodeJID the JID of the node to check.
+     * @param nodeName the JID of the node to check.
      * @return the number of subscriptions (should return the number of subscription IDs, not subscribed JIDs).
      */
-    public int countSubscriptions(Entity nodeJID);
+    public int countSubscriptions(String nodeName);
 
     /**
      * Store a published message to a node.
-     * @param nodeJID the node to which we want to store the message.
+     * @param nodeName the node to which we want to store the message.
      * @param messageID the message ID for later retrieval.
      * @param item the payload of the message.
      */
-    public void addMessage(Entity nodeJID, String messageID, XMLElement item);
+    public void addMessage(String nodeName, String messageID, XMLElement item);
 
     /**
      * Call the SubscriberVisitor for each subscription of the given node.
-     * @param nodeJID the node we want to iterate.
+     * @param nodeName the node we want to iterate.
      * @param subscriberVisitor the SubscriberVisitor to call
      */
-    public void acceptForEachSubscriber(Entity nodeJID, SubscriberVisitor subscriberVisitor);
+    public void acceptForEachSubscriber(String nodeName, SubscriberVisitor subscriberVisitor);
 
     /**
      * Call to do some preliminary tasks after the module has been configured.
      */
     public void initialize();
+
+    /**
+     * Visits each item ever published to the node.
+     * 
+     * @param iv the Visidor.
+     */
+    public void acceptForEachItem(String nodeName, ItemVisitor iv);
 
 }

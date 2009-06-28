@@ -21,7 +21,6 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeTestCase;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
@@ -97,9 +96,10 @@ public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
 
         // verify response
         assertTrue(result.hasResponse());
+        
+        // TODO
 
         // verify that each subscriber received the message
-        StanzaReceiverRelay relay = (StanzaReceiverRelay)sessionContext.getServerRuntimeContext().getStanzaRelay();
         assertEquals(3, relay.getCountRelayed()); // three subscribers
     }
 

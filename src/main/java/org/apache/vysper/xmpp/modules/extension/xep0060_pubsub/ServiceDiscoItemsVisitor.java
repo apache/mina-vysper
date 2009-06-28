@@ -22,41 +22,31 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
- * This visitor is used to collect all items of a node for disco#items requests.
- * 
  * @author The Apache MINA Project (http://mina.apache.org)
  *
  */
-public class NodeDiscoItemsVisitor implements ItemVisitor {
+public class ServiceDiscoItemsVisitor implements NodeVisitor {
 
-    // list to hold the items (ordered)
-    List<Item> itemList = new ArrayList<Item>();
-    // The JID of the pubsub service
-    Entity serviceJID;
-    
-    public NodeDiscoItemsVisitor(Entity serviceJID) {
-        this.serviceJID = serviceJID;
-    }
+    private List<Item> itemList = new ArrayList<Item>();
     
     /**
-     * Gets called with each itemID and payload of a node. Builds the answer
-     * for disco#items requests to a node.
+     * Prepare the node-list for the disco#items response.
      * 
-     * @see org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor#visit(java.lang.String, org.apache.vysper.xmpp.xmlfragment.XMLElement)
+     * @see org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.NodeVisitor#visit(org.apache.vysper.xmpp.addressing.Entity, org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode)
      */
-    public void visit(String itemID, XMLElement payload) {
-        itemList.add(new Item(serviceJID, itemID, null));
+    public void visit(LeafNode ln) {
+        this.itemList.add(new Item(ln.getServerJID(), ln.getTitle(), ln.getName()));
     }
-    
+
     /**
-     * @return the ordered list of items.
+     * Return a list of items to be embedded in the disco#items response.
+     * To be called after visit!
      */
-    public List<Item> getItemList() {
+    public List<Item> getNodeItemList() {
         return itemList;
     }
 

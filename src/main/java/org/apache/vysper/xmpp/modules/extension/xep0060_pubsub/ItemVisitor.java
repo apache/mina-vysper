@@ -19,45 +19,32 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
- * This visitor is used to collect all items of a node for disco#items requests.
+ * The SubscriberVisitor is used to visit all subscriptions of a node.
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
- *
  */
-public class NodeDiscoItemsVisitor implements ItemVisitor {
+@SpecCompliant(spec="xep-0060", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
+public interface ItemVisitor {
 
-    // list to hold the items (ordered)
-    List<Item> itemList = new ArrayList<Item>();
-    // The JID of the pubsub service
-    Entity serviceJID;
-    
-    public NodeDiscoItemsVisitor(Entity serviceJID) {
-        this.serviceJID = serviceJID;
-    }
-    
     /**
-     * Gets called with each itemID and payload of a node. Builds the answer
-     * for disco#items requests to a node.
+     * visit is part of the "visitor pattern" and should be used to iterate
+     * over all subscriptions of a node.
      * 
-     * @see org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor#visit(java.lang.String, org.apache.vysper.xmpp.xmlfragment.XMLElement)
+     * @param itemID the id of the message
+     * @param payload the payload of the message
      */
-    public void visit(String itemID, XMLElement payload) {
-        itemList.add(new Item(serviceJID, itemID, null));
-    }
+    void visit(String itemID, XMLElement payload);
     
     /**
      * @return the ordered list of items.
      */
-    public List<Item> getItemList() {
-        return itemList;
-    }
+    public List<Item> getItemList();
 
 }
