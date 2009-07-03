@@ -153,11 +153,11 @@ public class LeafNode {
      * Publish an item to this node.
      * @param sender the sender of the message (publisher).
      * @param relay the relay for sending the messages.
-     * @param messageID the ID of the published message.
+     * @param itemID the ID of the published message.
      * @param item the payload of the message.
      */
-    public void publish(Entity sender, StanzaRelay relay, String messageID, XMLElement item) {
-        storage.addMessage(name, messageID, item);
+    public void publish(Entity sender, StanzaRelay relay, String itemID, XMLElement item) {
+        storage.addMessage(name, itemID, item);
         sendMessageToSubscriber(relay, item);
     }
 

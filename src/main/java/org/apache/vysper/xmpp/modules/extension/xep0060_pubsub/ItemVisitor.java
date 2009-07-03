@@ -22,8 +22,8 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 import java.util.List;
 
 import org.apache.vysper.compliance.SpecCompliant;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.PayloadItem;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
  * The SubscriberVisitor is used to visit all subscriptions of a node.
@@ -40,10 +40,11 @@ public interface ItemVisitor {
      * @param itemID the id of the message
      * @param payload the payload of the message
      */
-    void visit(String itemID, XMLElement payload);
+    void visit(String itemID, PayloadItem payload);
     
     /**
-     * @return the ordered list of items.
+     * @return the ordered list of items. The items should be reversed chronologically
+     * ordered.
      */
     public List<Item> getItemList();
 

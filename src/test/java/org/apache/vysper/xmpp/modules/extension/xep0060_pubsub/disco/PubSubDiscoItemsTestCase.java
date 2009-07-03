@@ -132,7 +132,9 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
         XMLElement item2 = new XMLElement("item2","namespace2",(Attribute[])null, (XMLFragment[])null);
         XMLElement item3 = new XMLElement("item3","namespace3",(Attribute[])null, (XMLFragment[])null);
         node.publish(client, relay, "itemid1", item1);
+        Thread.sleep(10);
         node.publish(client, relay, "itemid2", item2);
+        Thread.sleep(10);
         node.publish(client, relay, "itemid3", item3);
         
         
@@ -157,18 +159,18 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
         // since we have no messages, there should be no items.
         assertEquals(3, inner.size());
         
+        // the items should be returned in the reversed ordering of sending, make sure they are.
         boolean bItem1 = false;
         boolean bItem2 = false;
         boolean bItem3 = false;
-        
         for(XMLElement el : inner) {
             if(el.getName().equals("item") 
                     && el.getAttributeValue("jid").equals(serverEntity.getFullQualifiedName())) {
-                if(el.getAttributeValue("name").equals("itemid1")) {
+                if(!bItem1 && el.getAttributeValue("name").equals("itemid1")) {
                     bItem1 = true;
-                } else if(el.getAttributeValue("name").equals("itemid2")) {
+                } else if(bItem1 && !bItem2 && el.getAttributeValue("name").equals("itemid2")) {
                     bItem2 = true;
-                } else if(el.getAttributeValue("name").equals("itemid3")) {
+                } else if(bItem1 && bItem2 && !bItem3 && el.getAttributeValue("name").equals("itemid3")) {
                     bItem3 = true;
                 }
             }

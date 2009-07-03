@@ -20,11 +20,12 @@
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.PayloadItem;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
  * This visitor is used to collect all items of a node for disco#items requests.
@@ -35,7 +36,7 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 public class NodeDiscoItemsVisitor implements ItemVisitor {
 
     // list to hold the items (ordered)
-    List<Item> itemList = new ArrayList<Item>();
+    List<PayloadItem> itemList = new ArrayList<PayloadItem>();
     // The JID of the pubsub service
     Entity serviceJID;
     
@@ -49,15 +50,20 @@ public class NodeDiscoItemsVisitor implements ItemVisitor {
      * 
      * @see org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor#visit(java.lang.String, org.apache.vysper.xmpp.xmlfragment.XMLElement)
      */
-    public void visit(String itemID, XMLElement payload) {
-        itemList.add(new Item(serviceJID, itemID, null));
+    public void visit(String itemID, PayloadItem payload) {
+        itemList.add(payload);
     }
     
     /**
      * @return the ordered list of items.
      */
     public List<Item> getItemList() {
-        return itemList;
+        List<Item> discoItems = new ArrayList<Item>();
+        Collections.sort(itemList);
+        for(PayloadItem pi : itemList) {
+            discoItems.add(new Item(serviceJID, pi.getItemID(), null));
+        }
+        return discoItems;
     }
 
 }

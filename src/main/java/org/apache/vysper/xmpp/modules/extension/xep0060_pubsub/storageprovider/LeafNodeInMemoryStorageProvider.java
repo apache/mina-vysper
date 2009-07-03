@@ -25,6 +25,7 @@ import java.util.TreeMap;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberVisitor;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.PayloadItem;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
@@ -38,14 +39,14 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
     // stores subscribers, access via subid
     protected Map<String, Entity> subscribers;
     // stores messages, access via itemid
-    protected Map<String, XMLElement> messages;
+    protected Map<String, PayloadItem> messages;
 
     /**
      * Initialize the storage maps.
      */
     public LeafNodeInMemoryStorageProvider() {
         this.subscribers = new TreeMap<String, Entity>();
-        this.messages = new TreeMap<String, XMLElement>();
+        this.messages = new TreeMap<String, PayloadItem>();
     }
 
     /**
@@ -113,8 +114,8 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
     /**
      * Add a message to the storage.
      */
-    public void addMessage(String nodeName, String messageID, XMLElement item) {
-        messages.put(messageID, item);
+    public void addMessage(String nodeName, String itemID, XMLElement payload) {
+        messages.put(itemID, new PayloadItem(payload, itemID));
     }
 
     /**
