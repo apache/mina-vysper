@@ -83,13 +83,13 @@ public class PubSubPublishHandler extends AbstractPubSubGeneralHandler {
         LeafNode node = root.find(nodeName);
 
         if(node == null) {
-            //TODO node does not exist - error condition 3 (7.1.3)
-            return null;
+            // node does not exist - error condition 3 (7.1.3)
+            return errorStanzaGenerator.generateNoNodeErrorStanza(sender, receiver, stanza);
         }
 
         if(!node.isSubscribed(sender)) {
-            // TODO not enough privileges to publish - error condition 1 (7.1.3)
-            return null;
+            // not enough privileges to publish - error condition 1 (7.1.3)
+            return errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, receiver, stanza);
         }
 
         if(strID == null) {

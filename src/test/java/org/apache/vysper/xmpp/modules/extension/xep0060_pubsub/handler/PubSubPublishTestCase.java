@@ -19,6 +19,8 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
+import java.util.List;
+
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
@@ -116,6 +118,52 @@ public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
 
         // verify that each subscriber received the message
         assertEquals(3, relay.getCountRelayed()); // three subscribers
+    }
+
+    public void testPublishNoSuchNode() throws Exception {
+        DefaultPublishStanzaGenerator sg = new DefaultPublishStanzaGenerator();
+        Entity pubsubWrongNode = EntityImpl.parse("pubsub.vysper.org");
+
+        ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsubWrongNode, "id123", "doesnotexist"), true);
+        assertTrue(result.hasResponse());
+        IQStanza response = new IQStanza(result.getResponseStanza());
+        assertEquals(IQStanzaType.ERROR.value(),response.getType());
+        assertFalse(node.isSubscribed(client));
+
+        assertEquals("id123", response.getAttributeValue("id")); // IDs must match
+
+        XMLElement error = response.getInnerElementsNamed("error").get(0); //jump directly to the error part
+        assertEquals("error", error.getName());
+        assertEquals("cancel", error.getAttributeValue("type"));
+
+        List<XMLElement> errorContent = error.getInnerElements();
+        assertEquals(1, errorContent.size());
+        assertEquals("item-does-not-exist", errorContent.get(0).getName());
+        assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, errorContent.get(0).getNamespace());
+    }
+    
+
+    public void testPublishForbidden() throws Exception {
+        DefaultPublishStanzaGenerator sg = new DefaultPublishStanzaGenerator();
+        Entity yodaNotSubscribed = new EntityImpl("yoda","vysper.org","dagobah"); // yoda@vysper.org/dagobah
+
+        ResponseStanzaContainer result = sendStanza(sg.getStanza(yodaNotSubscribed, pubsubService, "id123", "news"), true);
+        assertTrue(result.hasResponse());
+        IQStanza response = new IQStanza(result.getResponseStanza());
+        assertEquals(IQStanzaType.ERROR.value(),response.getType());
+        assertFalse(node.isSubscribed(client));
+        assertEquals(0, node.countSubscriptions(client));
+
+        assertEquals("id123", response.getAttributeValue("id")); // IDs must match
+
+        XMLElement error = response.getInnerElementsNamed("error").get(0); //jump directly to the error part
+        assertEquals("error", error.getName());
+        assertEquals("auth", error.getAttributeValue("type"));
+
+        List<XMLElement> errorContent = error.getInnerElements();
+        assertEquals(1, errorContent.size());
+        assertEquals("forbidden", errorContent.get(0).getName());
+        assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, errorContent.get(0).getNamespace());
     }
 
     protected Entity createUser(String jid) throws BindException {
