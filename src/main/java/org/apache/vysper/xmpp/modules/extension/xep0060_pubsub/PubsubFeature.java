@@ -42,6 +42,6 @@ public class PubsubFeature {
     
     @Override
     public String toString() {
-        return NamespaceURIs.XEP0060_PUBSUB + "/" + this.name;
+        return NamespaceURIs.XEP0060_PUBSUB + "#" + this.name;
     }
 }
