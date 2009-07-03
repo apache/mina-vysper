@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubsubFeatures;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberNotificationVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeInMemoryStorageProvider;
@@ -202,6 +203,12 @@ public class LeafNode {
         List<InfoElement> infoElements = new ArrayList<InfoElement>();
         infoElements.add(new Identity("pubsub", "leaf"));
         infoElements.add(new Feature(NamespaceURIs.XEP0060_PUBSUB));
+        infoElements.add(new Feature(PubsubFeatures.access_open.toString()));
+        infoElements.add(new Feature(PubsubFeatures.item_ids.toString()));
+        infoElements.add(new Feature(PubsubFeatures.persistent_items.toString()));
+        infoElements.add(new Feature(PubsubFeatures.multi_subscribe.toString()));
+        infoElements.add(new Feature(PubsubFeatures.publish.toString()));
+        infoElements.add(new Feature(PubsubFeatures.subscribe.toString()));
         return infoElements;
     }
 

@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeTestCase;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubsubFeatures;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.AbstractStanzaGenerator;
 import org.apache.vysper.xmpp.modules.servicediscovery.handler.DiscoInfoIQHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
@@ -109,9 +110,19 @@ public class PubSubDiscoInfoTestCase extends AbstractPublishSubscribeTestCase {
         // make sure they were there
         assertNotNull(identity);
         
-        XMLElement[] elementList = collectFeatures(inner, new String[] {NamespaceURIs.XEP0060_PUBSUB});
-        for(XMLElement el : elementList) {
-            assertNotNull(el);
+        String[] featuresList = new String[] {
+                NamespaceURIs.XEP0060_PUBSUB
+                , PubsubFeatures.access_open.toString()
+                , PubsubFeatures.item_ids.toString()
+                , PubsubFeatures.persistent_items.toString()
+                , PubsubFeatures.multi_subscribe.toString()
+                , PubsubFeatures.publish.toString()
+                , PubsubFeatures.subscribe.toString()
+                };
+        XMLElement[] elementList = collectFeatures(inner, featuresList);
+        
+        for(int idx = 0; idx < elementList.length; ++idx) {
+            assertNotNull(featuresList[idx], elementList[idx]); // add a more descriptive error message if the test fails
         }
     }
 
