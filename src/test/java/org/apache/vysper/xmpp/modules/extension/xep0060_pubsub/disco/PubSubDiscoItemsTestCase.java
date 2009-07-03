@@ -133,7 +133,8 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
         XMLElement item3 = new XMLElement("item3","namespace3",(Attribute[])null, (XMLFragment[])null);
         node.publish(client, relay, "itemid1", item1);
         Thread.sleep(10);
-        node.publish(client, relay, "itemid2", item2);
+        node.publish(client, relay, "itemid2", item1); // publish this one with the same id as the next one (overwritten by the next)
+        node.publish(client, relay, "itemid2", item2); // overwrite the prev. item (use the same itemid)
         Thread.sleep(10);
         node.publish(client, relay, "itemid3", item3);
         
