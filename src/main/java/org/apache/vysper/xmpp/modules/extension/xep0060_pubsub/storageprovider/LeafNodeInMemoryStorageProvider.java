@@ -114,8 +114,8 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
     /**
      * Add a message to the storage.
      */
-    public void addMessage(String nodeName, String itemID, XMLElement payload) {
-        messages.put(itemID, new PayloadItem(payload, itemID));
+    public void addMessage(Entity publisher, String nodeName, String itemID, XMLElement payload) {
+        messages.put(itemID, new PayloadItem(publisher, payload, itemID));
     }
 
     /**

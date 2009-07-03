@@ -21,6 +21,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model;
 
 import java.util.Date;
 
+import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
@@ -31,6 +32,8 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
  */
 public class PayloadItem implements Comparable<PayloadItem> {
     
+    // publisher of the item
+    protected Entity publisher;
     // the id of the item
     protected String itemID;
     // tha payload
@@ -40,10 +43,12 @@ public class PayloadItem implements Comparable<PayloadItem> {
     
     /**
      * Create new PayloadItem with the XML encoded payload and its itemID.
+     * @param publisher
      * @param payload
      * @param itemID
      */
-    public PayloadItem(XMLElement payload, String itemID) {
+    public PayloadItem(Entity publisher, XMLElement payload, String itemID) {
+        this.publisher = publisher;
         this.payload = payload;
         this.itemID = itemID;
         this.publishedDate = new Date(); // initialized with the current date/time

@@ -100,11 +100,12 @@ public interface LeafNodeStorageProvider extends StorageProvider {
 
     /**
      * Store a published message to a node.
+     * @param publisher who sent the message
      * @param nodeName the node to which we want to store the message.
      * @param messageID the message ID for later retrieval.
      * @param item the payload of the message.
      */
-    public void addMessage(String nodeName, String messageID, XMLElement item);
+    public void addMessage(Entity publisher, String nodeName, String messageID, XMLElement item);
 
     /**
      * Call the SubscriberVisitor for each subscription of the given node.
