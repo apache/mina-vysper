@@ -67,7 +67,6 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
      * Create a new PublishSubscribeModule together with a new root-collection node.
      */
     public PublishSubscribeModule() {
-        // create the root node with the server jid as the root-node jid
         this.root = new CollectionNode();
     }
 
