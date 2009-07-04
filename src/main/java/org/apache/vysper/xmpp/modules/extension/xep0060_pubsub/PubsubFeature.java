@@ -31,10 +31,10 @@ public class PubsubFeature {
     
     protected String name;
     protected String description;
-    protected Level level;
+    protected PubsubFeatureLevel level;
     protected String xep0060chapter;
     
-    public PubsubFeature(String name, String description, Level level, String xep0060chapter) {
+    public PubsubFeature(String name, String description, PubsubFeatureLevel level, String xep0060chapter) {
         this.name = name;
         this.description = description;
         this.level = level;

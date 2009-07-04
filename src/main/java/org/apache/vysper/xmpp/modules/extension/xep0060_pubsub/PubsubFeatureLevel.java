@@ -24,7 +24,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-public enum Level {
+public enum PubsubFeatureLevel {
     REQUIRED,
     RECOMMENDED,
     OPTIONAL
