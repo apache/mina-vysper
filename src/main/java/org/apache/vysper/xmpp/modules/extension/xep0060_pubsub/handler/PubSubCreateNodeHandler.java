@@ -29,8 +29,6 @@ import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -41,7 +39,6 @@ import org.slf4j.LoggerFactory;
  */
 @SpecCompliant(spec="xep-0060", section="8.1", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public class PubSubCreateNodeHandler extends AbstractPubSubGeneralHandler {
-    private final Logger logger = LoggerFactory.getLogger(PubSubCreateNodeHandler.class);
 
     /**
      * @param root
@@ -79,7 +76,6 @@ public class PubSubCreateNodeHandler extends AbstractPubSubGeneralHandler {
 
         try {
             root.createNode(receiver, nodeName);
-            logger.debug("Creatingt node {}", nodeName);
         } catch (DuplicateNodeException e) {
             return errorStanzaGenerator.generateDuplicateNodeErrorStanza(sender, receiver, stanza);
         }

@@ -168,7 +168,7 @@ public class ProtocolWorker implements StanzaProcessor {
                                                    stanza, stanzaHandler);
         } catch (Exception e) {
             logger.error("error executing handler {} with stanza {}", stanzaHandler.getClass().getName(), DenseStanzaLogRenderer.render(stanza));
-            e.printStackTrace();
+            logger.debug("error executing handler exception: ", e);
         }
     }
 
