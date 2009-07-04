@@ -88,13 +88,13 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
         LeafNodeStorageProvider leafNodeStorageProvider = (LeafNodeStorageProvider) serverRuntimeContext.getStorageProvider(LeafNodeStorageProvider.class);
         
         if (collectionNodeStorageProvider == null) {
-            logger.error("No collection node storage provider found, using the default (in memory)");
+            logger.warn("No collection node storage provider found, using the default (in memory)");
         } else {
             root.setCollectionNodeStorageProvider(collectionNodeStorageProvider);
         }
 
         if (leafNodeStorageProvider == null) {
-            logger.error("No leaf node storage provider found, using the default (in memory)");
+            logger.warn("No leaf node storage provider found, using the default (in memory)");
         } else {
             root.setLeafNodeStorageProvider(leafNodeStorageProvider);
         }
