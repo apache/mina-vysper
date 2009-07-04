@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
+import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 
 /**
@@ -30,18 +31,28 @@ public class PubsubFeature {
     
     protected String name;
     protected String description;
-    protected String level;
+    protected Level level;
     protected String xep0060chapter;
     
-    public PubsubFeature(String name, String description, String level, String xep0060chapter) {
+    public PubsubFeature(String name, String description, Level level, String xep0060chapter) {
         this.name = name;
         this.description = description;
         this.level = level;
         this.xep0060chapter = xep0060chapter;
     }
     
+    /**
+     * Returns a string representation of the features (complete with the pubsub namespace).
+     */
     @Override
     public String toString() {
         return NamespaceURIs.XEP0060_PUBSUB + "#" + this.name;
+    }
+    
+    /**
+     * @return creates a service discovery feature object out of this pubsub feature.
+     */
+    public Feature getFeature() {
+        return new Feature(this.toString());
     }
 }

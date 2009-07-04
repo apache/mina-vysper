@@ -203,12 +203,12 @@ public class LeafNode {
         List<InfoElement> infoElements = new ArrayList<InfoElement>();
         infoElements.add(new Identity("pubsub", "leaf"));
         infoElements.add(new Feature(NamespaceURIs.XEP0060_PUBSUB));
-        infoElements.add(new Feature(PubsubFeatures.access_open.toString()));
-        infoElements.add(new Feature(PubsubFeatures.item_ids.toString()));
-        infoElements.add(new Feature(PubsubFeatures.persistent_items.toString()));
-        infoElements.add(new Feature(PubsubFeatures.multi_subscribe.toString()));
-        infoElements.add(new Feature(PubsubFeatures.publish.toString()));
-        infoElements.add(new Feature(PubsubFeatures.subscribe.toString()));
+        infoElements.add(PubsubFeatures.ACCESS_OPEN.getFeature());
+        infoElements.add(PubsubFeatures.ITEM_IDS.getFeature());
+        infoElements.add(PubsubFeatures.PERSISTENT_ITEMS.getFeature());
+        infoElements.add(PubsubFeatures.MULTI_SUBSCRIBE.getFeature());
+        infoElements.add(PubsubFeatures.PUBLISH.getFeature());
+        infoElements.add(PubsubFeatures.SUBSCRIBE.getFeature());
         return infoElements;
     }
 

@@ -112,12 +112,12 @@ public class PubSubDiscoInfoTestCase extends AbstractPublishSubscribeTestCase {
         
         String[] featuresList = new String[] {
                 NamespaceURIs.XEP0060_PUBSUB
-                , PubsubFeatures.access_open.toString()
-                , PubsubFeatures.item_ids.toString()
-                , PubsubFeatures.persistent_items.toString()
-                , PubsubFeatures.multi_subscribe.toString()
-                , PubsubFeatures.publish.toString()
-                , PubsubFeatures.subscribe.toString()
+                , PubsubFeatures.ACCESS_OPEN.toString()
+                , PubsubFeatures.ITEM_IDS.toString()
+                , PubsubFeatures.PERSISTENT_ITEMS.toString()
+                , PubsubFeatures.MULTI_SUBSCRIBE.toString()
+                , PubsubFeatures.PUBLISH.toString()
+                , PubsubFeatures.SUBSCRIBE.toString()
                 };
         XMLElement[] elementList = collectFeatures(inner, featuresList);
         
