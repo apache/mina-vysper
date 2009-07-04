@@ -108,7 +108,7 @@ public class ErrorStanzaGenerator {
      * @return the generated stanza.
      */
     public Stanza generateNoNodeErrorStanza(Entity sender, Entity receiver, IQStanza stanza) {
-        return errorResponses.getStanzaError(StanzaErrorCondition.ITEM_DOES_NOT_EXIST, stanza, StanzaErrorType.CANCEL, null, null, null);
+        return errorResponses.getStanzaError(StanzaErrorCondition.ITEM_NOT_FOUND, stanza, StanzaErrorType.CANCEL, null, null, null);
     }
 
     /**

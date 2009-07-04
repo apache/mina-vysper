@@ -221,7 +221,7 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
 
         List<XMLElement> errorContent = error.getInnerElements();
         assertEquals(1, errorContent.size());
-        assertEquals("item-does-not-exist", errorContent.get(0).getName());
+        assertEquals("item-not-found", errorContent.get(0).getName());
         assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, errorContent.get(0).getNamespace());
     }
 
