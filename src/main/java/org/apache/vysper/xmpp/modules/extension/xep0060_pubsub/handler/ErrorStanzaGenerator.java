@@ -138,4 +138,16 @@ public class ErrorStanzaGenerator {
         XMLElement invalidJID = new XMLElement(INVALID_JID, NamespaceURIs.XEP0060_PUBSUB_ERRORS, (Attribute[])null, (XMLFragment[])null);
         return errorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza, StanzaErrorType.MODIFY, null, null, invalidJID);
     }
+
+    /**
+     * Create a conflict error stanza. For example if a node with an existing nodeID is to be created.
+     * 
+     * @param sender
+     * @param receiver
+     * @param stanza
+     * @return
+     */
+    public Stanza generateDuplicateNodeErrorStanza(Entity sender, Entity receiver, IQStanza stanza) {       
+        return errorResponses.getStanzaError(StanzaErrorCondition.CONFLICT, stanza, StanzaErrorType.CANCEL, null, null, null);
+    }
 }

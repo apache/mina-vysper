@@ -20,7 +20,15 @@
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
 import org.apache.vysper.compliance.SpecCompliant;
+import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.DuplicateNodeException;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.stanza.IQStanza;
+import org.apache.vysper.xmpp.stanza.IQStanzaType;
+import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
 
 /**
@@ -47,4 +55,31 @@ public class PubSubCreateNodeHandler extends AbstractPubSubGeneralHandler {
         return "create";
     }
 
+    /**
+     * This method takes care of handling the "create" use-case including all (relevant) error conditions.
+     * 
+     * @return the appropriate response stanza (either success or some error condition).
+     */
+    @Override
+    @SpecCompliant(spec="xep-0060", section="8.1", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
+    protected Stanza handleSet(IQStanza stanza,
+            ServerRuntimeContext serverRuntimeContext,
+            SessionContext sessionContext) {
+        Entity sender = stanza.getFrom();
+        Entity receiver = stanza.getTo();
+
+        String iqStanzaID = stanza.getAttributeValue("id");
+
+        StanzaBuilder sb = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.RESULT, iqStanzaID);
+
+        String nodeName = extractNodeName(stanza);
+
+        try {
+            root.createNode(receiver, nodeName);
+        } catch (DuplicateNodeException e) {
+            return errorStanzaGenerator.generateDuplicateNodeErrorStanza(sender, receiver, stanza);
+        }
+
+        return new IQStanza(sb.getFinalStanza());
+    }
 }

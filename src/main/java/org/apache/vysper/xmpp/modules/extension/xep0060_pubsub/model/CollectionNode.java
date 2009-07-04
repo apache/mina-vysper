@@ -91,13 +91,13 @@ public class CollectionNode {
     /**
      * Convenience method to create a node without a free-text name (optional).
      * 
-     * @param jid the JID of the new node.
+     * @param serverJID the JID of the server new node lies on.
      * @param nodeName the unique name of the node
      * @return the newly create LeafNode
      * @throws DuplicateNodeException
      */
-    public LeafNode createNode(Entity jid, String nodeName) throws DuplicateNodeException {
-        return this.createNode(jid, nodeName, null);
+    public LeafNode createNode(Entity serverJID, String nodeName) throws DuplicateNodeException {
+        return this.createNode(serverJID, nodeName, null);
     }
 
     /**
