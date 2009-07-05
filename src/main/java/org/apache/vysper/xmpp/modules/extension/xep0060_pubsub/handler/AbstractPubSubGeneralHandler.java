@@ -19,7 +19,6 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
-import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeIQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
@@ -29,7 +28,6 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-@SpecCompliant(spec="xep-0060", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public abstract class AbstractPubSubGeneralHandler extends AbstractPublishSubscribeIQHandler {
 
     /**

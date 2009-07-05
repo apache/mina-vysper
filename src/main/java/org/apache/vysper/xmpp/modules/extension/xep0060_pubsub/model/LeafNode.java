@@ -43,7 +43,6 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-@SpecCompliant(spec="xep-0060", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public class LeafNode {
 
     // the jid of the server the node is on

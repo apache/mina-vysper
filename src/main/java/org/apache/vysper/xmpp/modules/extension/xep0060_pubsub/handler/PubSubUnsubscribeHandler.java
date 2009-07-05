@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
+import org.apache.vysper.compliance.SpecCompliance;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
@@ -41,7 +42,7 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-@SpecCompliant(spec="xep-0060", section="6.2", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
+@SpecCompliant(spec="xep-0060", section="6.2", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
 public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
 
     /**
@@ -65,7 +66,14 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
      * @return the appropriate response stanza (either success or some error condition).
      */
     @Override
-    @SpecCompliant(spec="xep-0060", section="6.2.3", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
+    @SpecCompliance(compliant = {
+            @SpecCompliant(spec="xep-0060", section="6.2.1", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+            , @SpecCompliant(spec="xep-0060", section="6.2.3.1", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+            , @SpecCompliant(spec="xep-0060", section="6.2.3.2", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+            , @SpecCompliant(spec="xep-0060", section="6.2.3.3", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+            , @SpecCompliant(spec="xep-0060", section="6.2.3.4", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+            , @SpecCompliant(spec="xep-0060", section="6.2.3.5", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+        })
     protected Stanza handleSet(IQStanza stanza,
             ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {

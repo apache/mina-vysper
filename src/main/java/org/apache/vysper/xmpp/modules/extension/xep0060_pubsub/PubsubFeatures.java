@@ -19,11 +19,14 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
+import org.apache.vysper.compliance.SpecCompliant;
+
 /**
  * Static collection of known pubsub features.
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
+@SpecCompliant(spec="xep-0060", section="10", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
 public class PubsubFeatures {
     public static final PubsubFeature ACCESS_AUTHORIZE = new PubsubFeature("access-authorize", "The default access model is \"authorize\".", PubsubFeatureLevel.OPTIONAL, "Nodes Access Models");
     public static final PubsubFeature ACCESS_OPEN = new PubsubFeature("access-open", "The default access model is \"open\".", PubsubFeatureLevel.OPTIONAL, "Nodes Access Models");

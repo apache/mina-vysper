@@ -19,11 +19,14 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
+import org.apache.vysper.compliance.SpecCompliant;
+
 /**
  * Specifies which level of compliance a certain pubsub feature is in.
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
+@SpecCompliant(spec="xep-0060", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
 public enum PubsubFeatureLevel {
     REQUIRED,
     RECOMMENDED,

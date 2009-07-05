@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-@SpecCompliant(spec="xep-0060", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
+@SpecCompliant(spec="xep-0060", comment="spec. version: 1.13rc", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
 public class PublishSubscribeModule extends DefaultDiscoAwareModule implements ServerInfoRequestListener, ItemRequestListener {
 
     // The service itself acts like a collection node, this is the "root"

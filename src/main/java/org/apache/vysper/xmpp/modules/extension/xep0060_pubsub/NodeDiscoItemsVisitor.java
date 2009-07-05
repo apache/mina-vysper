@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.PayloadItem;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
@@ -33,6 +34,7 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
  * @author The Apache MINA Project (http://mina.apache.org)
  *
  */
+@SpecCompliant(spec="xep-0060", section="5.5", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
 public class NodeDiscoItemsVisitor implements ItemVisitor {
 
     // list to hold the items (ordered)

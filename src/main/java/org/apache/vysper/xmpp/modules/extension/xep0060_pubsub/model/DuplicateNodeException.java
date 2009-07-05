@@ -27,7 +27,6 @@ import org.apache.vysper.compliance.SpecCompliant;
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-@SpecCompliant(spec="xep-0060", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public class DuplicateNodeException extends Exception {
 
     private static final long serialVersionUID = 4689474856848508356L;

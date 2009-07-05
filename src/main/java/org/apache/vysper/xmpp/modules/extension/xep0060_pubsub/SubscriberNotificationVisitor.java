@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-@SpecCompliant(spec="xep-0060", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
+@SpecCompliant(spec="xep-0060", section="7.1.2.1", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
 public class SubscriberNotificationVisitor implements SubscriberVisitor {
     final Logger logger = LoggerFactory.getLogger(SubscriberNotificationVisitor.class);
 

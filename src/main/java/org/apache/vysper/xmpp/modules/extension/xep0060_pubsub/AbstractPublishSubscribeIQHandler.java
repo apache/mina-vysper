@@ -19,7 +19,6 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
-import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.ErrorStanzaGenerator;
@@ -37,7 +36,6 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
  *
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-@SpecCompliant(spec="xep-0060", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public abstract class AbstractPublishSubscribeIQHandler extends DefaultIQHandler {
 
     // one ErrorStanzaGenerator available for all subclasses

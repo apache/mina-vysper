@@ -33,7 +33,6 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.L
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-@SpecCompliant(spec="xep-0060", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public class CollectionNode {
 
     // the storage provider for storing and retrieving node-info

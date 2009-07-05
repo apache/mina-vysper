@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner;
 
+import org.apache.vysper.compliance.SpecCompliance;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
@@ -40,7 +41,7 @@ import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-@SpecCompliant(spec="xep-0060", section="8.4", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
+@SpecCompliant(spec="xep-0060", section="8.4", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
 public class PubSubOwnerDeleteNodeHandler extends AbstractPubSubOwnerHandler {
 
     /**
@@ -64,7 +65,11 @@ public class PubSubOwnerDeleteNodeHandler extends AbstractPubSubOwnerHandler {
      * @return the appropriate response stanza (either success or some error condition).
      */
     @Override
-    @SpecCompliant(spec="xep-0060", section="8.4", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
+    @SpecCompliance(compliant = {
+            @SpecCompliant(spec="xep-0060", section="8.4.2", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+            , @SpecCompliant(spec="xep-0060", section="8.4.3.1", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+            , @SpecCompliant(spec="xep-0060", section="8.4.3.2", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+        })
     protected Stanza handleSet(IQStanza stanza,
             ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
