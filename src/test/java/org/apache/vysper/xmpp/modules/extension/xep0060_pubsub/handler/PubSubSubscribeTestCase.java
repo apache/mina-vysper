@@ -79,7 +79,9 @@ public class PubSubSubscribeTestCase extends AbstractPublishSubscribeTestCase {
     }
     
     public void testSubscribeNoFrom() throws Exception {
-        AbstractStanzaGenerator sg = getDefaultStanzaGenerator();
+        DefaultSubscribeStanzaGenerator sg = (DefaultSubscribeStanzaGenerator)getDefaultStanzaGenerator();
+        sg.overrideSubscriberJID(client.getFullQualifiedName());
+        
         Stanza stanza = sg.getStanza(null, pubsubService, "id123", testNode);
         ResponseStanzaContainer result = sendStanza(stanza, true);
         assertTrue(result.hasResponse());
