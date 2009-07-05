@@ -22,12 +22,11 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubsubFeatures;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberNotificationVisitor;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubsubFeatures;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberPayloadNotificationVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeInMemoryStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeStorageProvider;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
@@ -168,7 +167,7 @@ public class LeafNode {
      * @param item the payload of the message.
      */
     protected void sendMessageToSubscriber(StanzaRelay stanzaRelay, XMLElement item) {
-        storage.acceptForEachSubscriber(name, new SubscriberNotificationVisitor(serverJID, stanzaRelay, item));
+        storage.acceptForEachSubscriber(name, new SubscriberPayloadNotificationVisitor(serverJID, stanzaRelay, item));
     }
 
     /**

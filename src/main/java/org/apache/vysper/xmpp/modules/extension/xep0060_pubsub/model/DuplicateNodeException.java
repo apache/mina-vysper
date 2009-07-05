@@ -19,7 +19,6 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model;
 
-import org.apache.vysper.compliance.SpecCompliant;
 
 /**
  * This exception is used to deal with the case that a new node should

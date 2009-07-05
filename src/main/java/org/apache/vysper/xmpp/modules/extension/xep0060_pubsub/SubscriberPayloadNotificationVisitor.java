@@ -38,8 +38,8 @@ import org.slf4j.LoggerFactory;
  * @author The Apache MINA Project (http://mina.apache.org)
  */
 @SpecCompliant(spec="xep-0060", section="7.1.2.1", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
-public class SubscriberNotificationVisitor implements SubscriberVisitor {
-    final Logger logger = LoggerFactory.getLogger(SubscriberNotificationVisitor.class);
+public class SubscriberPayloadNotificationVisitor implements SubscriberVisitor {
+    final Logger logger = LoggerFactory.getLogger(SubscriberPayloadNotificationVisitor.class);
 
     // Ignore all failures during the delivery (fire and forget)
     private DeliveryFailureStrategy dfs = new IgnoreFailureStrategy();
@@ -55,7 +55,7 @@ public class SubscriberNotificationVisitor implements SubscriberVisitor {
      * @param stanzaRelay relay for sending the messages.
      * @param item payload for the messages.
      */
-    public SubscriberNotificationVisitor(Entity serverJID, StanzaRelay stanzaRelay, XMLElement item) {
+    public SubscriberPayloadNotificationVisitor(Entity serverJID, StanzaRelay stanzaRelay, XMLElement item) {
         this.serverJID = serverJID;
         this.stanzaRelay = stanzaRelay;
         this.item = item;
