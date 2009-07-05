@@ -228,4 +228,8 @@ public class LeafNode {
     public void initialize() {
         storage.initialize(this);
     }
+
+    public void delete() {
+        this.storage.delete(this.name);
+    }
 }

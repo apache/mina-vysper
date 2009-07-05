@@ -133,4 +133,9 @@ public interface LeafNodeStorageProvider extends StorageProvider {
      */
     public void initialize(LeafNode leafNode);
 
+    /**
+     * Remove the specified node from the storage.
+     */
+    public void delete(String name);
+
 }

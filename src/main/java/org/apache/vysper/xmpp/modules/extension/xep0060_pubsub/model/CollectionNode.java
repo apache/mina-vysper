@@ -130,4 +130,12 @@ public class CollectionNode {
         this.collectionNodeStorage.initialize();
         this.leafNodeStorage.initialize();
     }
+
+    /**
+     * Deletes a node.
+     * @param nodeName the node to delete
+     */
+    public void deleteNode(String nodeName) {
+        this.collectionNodeStorage.deleteNode(nodeName);
+    }
 }

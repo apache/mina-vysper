@@ -80,4 +80,13 @@ public class CollectionnodeInMemoryStorageProvider implements CollectionNodeStor
     public void initialize() {
         // empty
     }
+
+    /**
+     * Delete the node specified by nodeName.
+     */
+    public void deleteNode(String nodeName) {
+        LeafNode n = findNode(nodeName);
+        n.delete();
+        this.nodes.remove(nodeName);
+    }
 }

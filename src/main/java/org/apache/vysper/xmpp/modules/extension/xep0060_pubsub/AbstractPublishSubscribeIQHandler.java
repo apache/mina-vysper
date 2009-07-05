@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.ErrorStanzaGenerator;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -39,6 +40,8 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 @SpecCompliant(spec="xep-0060", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public abstract class AbstractPublishSubscribeIQHandler extends DefaultIQHandler {
 
+    // one ErrorStanzaGenerator available for all subclasses
+    protected ErrorStanzaGenerator errorStanzaGenerator = null;
     // the pubsub service itself is a collection node
     protected CollectionNode root;
     // we need to generate some IDs
@@ -52,6 +55,7 @@ public abstract class AbstractPublishSubscribeIQHandler extends DefaultIQHandler
     public AbstractPublishSubscribeIQHandler(CollectionNode root) {
         this.root = root;
         this.idGenerator = new JVMBuiltinUUIDGenerator();
+        errorStanzaGenerator = new ErrorStanzaGenerator();
     }
 
     /**
@@ -115,5 +119,21 @@ public abstract class AbstractPublishSubscribeIQHandler extends DefaultIQHandler
             sender = sessionContext.getInitiatingEntity();
         }
         return sender;
+    }
+
+    /**
+     * Extracts the node name from a given IQ stanza. The node attribute
+     * takes precedence over the JID resource. The standard requires only
+     * one of these addressing methods.
+     * 
+     * @param stanza the received IQStanza
+     * @return the node
+     */
+    protected String extractNodeName(IQStanza stanza) {
+        String node = stanza.getFirstInnerElement().getFirstInnerElement().getAttributeValue("node");
+        if(node == null) {
+            //throw Exception();
+        }
+        return node;
     }
 }

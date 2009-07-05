@@ -20,7 +20,19 @@
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner;
 
 import org.apache.vysper.compliance.SpecCompliant;
+import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.stanza.IQStanza;
+import org.apache.vysper.xmpp.stanza.IQStanzaType;
+import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.xmlfragment.Attribute;
+import org.apache.vysper.xmpp.xmlfragment.XMLElement;
+import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 
 
 /**
@@ -44,6 +56,62 @@ public class PubSubOwnerDeleteNodeHandler extends AbstractPubSubOwnerHandler {
     @Override
     protected String getWorkerElement() {
         return "delete";
+    }
+    
+    /**
+     * This method takes care of handling the "delete" use-case including all (relevant) error conditions.
+     * 
+     * @return the appropriate response stanza (either success or some error condition).
+     */
+    @Override
+    @SpecCompliant(spec="xep-0060", section="8.4", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
+    protected Stanza handleSet(IQStanza stanza,
+            ServerRuntimeContext serverRuntimeContext,
+            SessionContext sessionContext) {
+        Entity sender = getFromAddress(stanza, sessionContext);
+        Entity receiver = sessionContext.getServerJID();
+        String iqStanzaID = stanza.getAttributeValue("id");
+        StanzaBuilder sb = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.RESULT, iqStanzaID);
+        String nodeName = extractNodeName(stanza);
+        LeafNode node = root.find(nodeName);
+        
+        if(node == null) {
+            return errorStanzaGenerator.generateNoNodeErrorStanza(sender, receiver, stanza);
+        }
+        
+        if(!node.isSubscribed(sender)) {
+            return errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, receiver, stanza);
+        }
+        
+        sendDeleteNotifications(serverRuntimeContext, sender, nodeName, node);
+        root.deleteNode(nodeName);
+
+        return new IQStanza(sb.getFinalStanza());
+    }
+
+    /**
+     * Creates and sends a notification for all subscribers that the node is going to be deleted.
+     * 
+     * @param serverRuntimeContext
+     * @param sender
+     * @param nodeName
+     * @param node
+     */
+    private void sendDeleteNotifications(ServerRuntimeContext serverRuntimeContext, Entity sender, String nodeName,
+            LeafNode node) {
+        StanzaRelay relay = serverRuntimeContext.getStanzaRelay();
+        String strID = idGenerator.create();
+        XMLElement delete = createDeleteElement(nodeName);
+        node.publish(sender, relay, strID, delete);
+    }
+
+    /**
+     * Creates a XMLElement like this <delete node="nodeName"/>
+     * @param nodeName the value for the node attribute
+     * @return the XMLElement for inclusion in the delete notification.
+     */
+    private XMLElement createDeleteElement(String nodeName) {
+        return new XMLElement("delete", null, new Attribute[] {new Attribute("node", nodeName)}, (XMLFragment[])null);
     }
 
 }

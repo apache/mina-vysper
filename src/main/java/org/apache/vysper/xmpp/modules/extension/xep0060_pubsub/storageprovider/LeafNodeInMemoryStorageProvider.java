@@ -145,6 +145,9 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
         // empty
     }
 
+    /**
+     * Go through each message and call visit of the visitor.
+     */
     public void acceptForEachItem(String nodeName, ItemVisitor iv) {
         Map<String, PayloadItem> messages = nodeMessages.get(nodeName);
         for(String itemID : messages.keySet()) {
@@ -152,8 +155,19 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
         }
     }
 
+    /**
+     * Initialize the node with the storage.
+     */
     public void initialize(LeafNode leafNode) {
         nodeMessages.put(leafNode.getName(), new TreeMap<String, PayloadItem>());
         nodeSubscribers.put(leafNode.getName(), new TreeMap<String, Entity>());
+    }
+
+    /**
+     * Remove the specified node from the storage.
+     */
+    public void delete(String name) {
+        nodeMessages.remove(name);
+        nodeSubscribers.remove(name);
     }
 }
