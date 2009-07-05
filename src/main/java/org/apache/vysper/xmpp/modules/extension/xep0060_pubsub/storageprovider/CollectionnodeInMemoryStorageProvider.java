@@ -59,7 +59,7 @@ public class CollectionnodeInMemoryStorageProvider implements CollectionNodeStor
 
     /**
      * Add the given LeafNode with the given JID to the storage.
-     * An existing ode with the same JID will be replaced.
+     * An existing node with the same JID will be replaced.
      */
     public void storeNode(LeafNode node) {
         nodes.put(node.getName(), node);

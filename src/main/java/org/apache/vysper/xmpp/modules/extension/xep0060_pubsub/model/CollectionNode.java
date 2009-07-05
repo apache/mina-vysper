@@ -78,6 +78,7 @@ public class CollectionNode {
     public LeafNode createNode(Entity serverJID, String nodeName, String givenName) throws DuplicateNodeException {
         LeafNode node = new LeafNode(serverJID, nodeName, givenName);
         node.setPersistenceManager(leafNodeStorage);
+        node.initialize();
 
         if(collectionNodeStorage.containsNode(nodeName)) {
             throw new DuplicateNodeException(serverJID.getFullQualifiedName() + nodeName + " " + givenName + " already present");

@@ -37,6 +37,7 @@ public class LeafNodeTestCase extends TestCase {
         super.setUp();
         Entity nodeJID = new EntityImpl(null, "pubsub.vysper.org", null);
         node = new LeafNode(nodeJID, "node", "Some test node");
+        node.initialize();
     }
 
     public void testSubscribe() throws Exception {

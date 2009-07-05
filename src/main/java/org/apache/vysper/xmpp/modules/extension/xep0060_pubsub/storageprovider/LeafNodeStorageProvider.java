@@ -24,6 +24,7 @@ import org.apache.vysper.storage.StorageProvider;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberVisitor;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
@@ -122,8 +123,14 @@ public interface LeafNodeStorageProvider extends StorageProvider {
     /**
      * Visits each item ever published to the node.
      * 
-     * @param iv the Visidor.
+     * @param iv the Visitor.
      */
     public void acceptForEachItem(String nodeName, ItemVisitor iv);
+
+    /**
+     * When a new LeafNode is created, initialize will be called with it as a parameter.
+     * @param leafNode
+     */
+    public void initialize(LeafNode leafNode);
 
 }

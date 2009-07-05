@@ -25,6 +25,7 @@ import java.util.TreeMap;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberVisitor;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.PayloadItem;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
@@ -36,23 +37,24 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
  */
 public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider {
 
-    // stores subscribers, access via subid
-    protected Map<String, Entity> subscribers;
-    // stores messages, access via itemid
-    protected Map<String, PayloadItem> messages;
+    // stores subscribers to a node, access via subid
+    protected Map<String,Map<String, Entity>> nodeSubscribers;
+    // stores messages to a node, access via itemid
+    protected Map<String,Map<String, PayloadItem>> nodeMessages;
 
     /**
      * Initialize the storage maps.
      */
     public LeafNodeInMemoryStorageProvider() {
-        this.subscribers = new TreeMap<String, Entity>();
-        this.messages = new TreeMap<String, PayloadItem>();
+        this.nodeSubscribers = new TreeMap<String, Map<String, Entity>>();
+        this.nodeMessages = new TreeMap<String, Map<String, PayloadItem>>();
     }
 
     /**
      * Add a subscriber with given subID.
      */
     public void addSubscriber(String nodeName, String subscriptionID, Entity subscriber) {
+        Map<String, Entity> subscribers = nodeSubscribers.get(nodeName);
         subscribers.put(subscriptionID, subscriber);
     }
 
@@ -60,6 +62,7 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
      * Check if a subscriber is already known.
      */
     public boolean containsSubscriber(String nodeName, Entity subscriber) {
+        Map<String, Entity> subscribers = nodeSubscribers.get(nodeName);
         return subscribers.containsValue(subscriber);
     }
 
@@ -67,6 +70,7 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
      * Check if a subscriptionId is already known.
      */
     public boolean containsSubscriber(String nodeName, String subscriptionId) {
+        Map<String, Entity> subscribers = nodeSubscribers.get(nodeName);
         return subscribers.containsKey(subscriptionId);
     }
 
@@ -74,6 +78,7 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
      * Retrieve a subscriber via its subsriptionId.
      */
     public Entity getSubscriber(String nodeName, String subscriptionId) {
+        Map<String, Entity> subscribers = nodeSubscribers.get(nodeName);
         return subscribers.get(subscriptionId);
     }
 
@@ -81,6 +86,7 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
      * Remove a subscriber via its subscriptionId.
      */
     public boolean removeSubscription(String nodeName, String subscriptionId) {
+        Map<String, Entity> subscribers = nodeSubscribers.get(nodeName);
         return subscribers.remove(subscriptionId) != null;
     }
 
@@ -88,6 +94,7 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
      * Remove a subscriber via its JID. This removes all subscriptions of the JID.
      */
     public boolean removeSubscriber(String nodeName, Entity subscriber) {
+        Map<String, Entity> subscribers = nodeSubscribers.get(nodeName);
         return subscribers.values().remove(subscriber);
     }
 
@@ -95,6 +102,7 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
      * Count how often a given subscriber is subscribed.
      */
     public int countSubscriptions(String nodeName, Entity subscriber) {
+        Map<String, Entity> subscribers = nodeSubscribers.get(nodeName);
         int count = 0;
         for(Entity sub : subscribers.values()) {
             if(subscriber.equals(sub)) {
@@ -108,6 +116,7 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
      * Count how many subscriptions this node has.
      */
     public int countSubscriptions(String nodeName) {
+        Map<String, Entity> subscribers = nodeSubscribers.get(nodeName);
         return subscribers.size();
     }
 
@@ -115,6 +124,7 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
      * Add a message to the storage.
      */
     public void addMessage(Entity publisher, String nodeName, String itemID, XMLElement payload) {
+        Map<String, PayloadItem> messages = nodeMessages.get(nodeName);
         messages.put(itemID, new PayloadItem(publisher, payload, itemID));
     }
 
@@ -122,6 +132,7 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
      * Accept method (see visitor pattern) to visit all subscribers of this node.
      */
     public void acceptForEachSubscriber(String nodeName, SubscriberVisitor subscriberVisitor) {
+        Map<String, Entity> subscribers = nodeSubscribers.get(nodeName);
         for(Entity sub : subscribers.values()) {
             subscriberVisitor.visit(nodeName, sub);
         }
@@ -135,8 +146,14 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
     }
 
     public void acceptForEachItem(String nodeName, ItemVisitor iv) {
+        Map<String, PayloadItem> messages = nodeMessages.get(nodeName);
         for(String itemID : messages.keySet()) {
             iv.visit(itemID, messages.get(itemID));
         }
+    }
+
+    public void initialize(LeafNode leafNode) {
+        nodeMessages.put(leafNode.getName(), new TreeMap<String, PayloadItem>());
+        nodeSubscribers.put(leafNode.getName(), new TreeMap<String, Entity>());
     }
 }

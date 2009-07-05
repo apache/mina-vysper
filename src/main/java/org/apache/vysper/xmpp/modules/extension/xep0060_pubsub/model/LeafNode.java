@@ -220,4 +220,12 @@ public class LeafNode {
     public void acceptItems(ItemVisitor iv) {
         storage.acceptForEachItem(name, iv);
     }
+
+    /**
+     * Called after all information, including the persistencemanager for the
+     * node is set.
+     */
+    public void initialize() {
+        storage.initialize(this);
+    }
 }
