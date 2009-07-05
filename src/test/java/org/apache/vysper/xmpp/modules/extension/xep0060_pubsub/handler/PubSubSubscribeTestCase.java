@@ -77,6 +77,27 @@ public class PubSubSubscribeTestCase extends AbstractPublishSubscribeTestCase {
         assertNotNull(sub.getAttributeValue("subid")); // it should be present - value unknown
         assertEquals("subscribed", sub.getAttributeValue("subscription"));
     }
+    
+    public void testSubscribeNoFrom() throws Exception {
+        AbstractStanzaGenerator sg = getDefaultStanzaGenerator();
+        Stanza stanza = sg.getStanza(null, pubsubService, "id123", testNode);
+        ResponseStanzaContainer result = sendStanza(stanza, true);
+        assertTrue(result.hasResponse());
+        IQStanza response = new IQStanza(result.getResponseStanza());
+        assertEquals(IQStanzaType.RESULT.value(),response.getType());
+        assertTrue(node.isSubscribed(client));
+
+        assertEquals("id123", response.getAttributeValue("id")); // IDs must match
+
+        // get the subscription Element
+        XMLElement sub = response.getFirstInnerElement().getFirstInnerElement();
+
+        assertEquals("subscription", sub.getName());
+        assertEquals(testNode, sub.getAttributeValue("node"));
+        assertEquals(client.getFullQualifiedName(), sub.getAttributeValue("jid"));
+        assertNotNull(sub.getAttributeValue("subid")); // it should be present - value unknown
+        assertEquals("subscribed", sub.getAttributeValue("subscription"));
+    }
 
     public void testSubscribeNonMatchingJIDs() {
         DefaultSubscribeStanzaGenerator sg = new DefaultSubscribeStanzaGenerator();
