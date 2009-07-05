@@ -76,6 +76,7 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
 
         StanzaBuilder sb = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.RESULT, iqStanzaID);
         sb.startInnerElement("pubsub", NamespaceURIs.XEP0060_PUBSUB);
+        sb.addNamespaceAttribute(NamespaceURIs.XEP0060_PUBSUB);
 
         XMLElement sub = stanza.getFirstInnerElement().getFirstInnerElement(); // pubsub/subscribe
         String strSubJID = sub.getAttributeValue("jid"); // MUST
