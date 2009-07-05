@@ -66,7 +66,7 @@ public class PubSubCreateNodeHandler extends AbstractPubSubGeneralHandler {
             ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
         Entity sender = getFromAddress(stanza, sessionContext);
-        Entity receiver = stanza.getTo();
+        Entity receiver = sessionContext.getServerJID();
 
         String iqStanzaID = stanza.getAttributeValue("id");
 
