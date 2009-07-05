@@ -66,7 +66,7 @@ public class PubSubPublishHandler extends AbstractPubSubGeneralHandler {
     protected Stanza handleSet(IQStanza stanza,
             ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
-        Entity sender = stanza.getFrom();
+        Entity sender = getFromAddress(stanza, sessionContext);
         Entity receiver = stanza.getTo();
 
         String iqStanzaID = stanza.getAttributeValue("id");

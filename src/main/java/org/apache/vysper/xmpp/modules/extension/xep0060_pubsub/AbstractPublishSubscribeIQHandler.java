@@ -20,8 +20,11 @@
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
 import org.apache.vysper.compliance.SpecCompliant;
+import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
+import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.uuid.JVMBuiltinUUIDGenerator;
 import org.apache.vysper.xmpp.uuid.UUIDGenerator;
@@ -97,4 +100,20 @@ public abstract class AbstractPublishSubscribeIQHandler extends DefaultIQHandler
      * @return the name of the inner element this class is expecting.
      */
     protected abstract String getWorkerElement();
+
+    /**
+     * Extracts the from address either from the "from" attribute of the stanza, if this isn't given
+     * retracts to using the address of the initiating entity.
+     * 
+     * @param stanza
+     * @param sessionContext
+     * @return The JID of the sender.
+     */
+    protected Entity getFromAddress(IQStanza stanza, SessionContext sessionContext) {
+        Entity sender = stanza.getFrom();
+        if(sender == null) {
+            sender = sessionContext.getInitiatingEntity();
+        }
+        return sender;
+    }
 }
