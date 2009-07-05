@@ -53,6 +53,7 @@ public class StanzaWriterProtocolEncoder implements ProtocolEncoder {
         Renderer renderer = new Renderer(element);
 
         serverStanzaLogger.info(DenseStanzaLogRenderer.render(element));
+        serverStanzaLogger.debug(renderer.getComplete());
 
         ByteBuffer byteBuffer = ByteBuffer.allocate(16).setAutoExpand(true);
         if (stanzaWriteInfo.isWriteProlog()) byteBuffer.putString(StanzaWriter.XML_PROLOG, getSessionEncoder());
