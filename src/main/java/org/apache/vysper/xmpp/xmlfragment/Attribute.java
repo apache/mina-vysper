@@ -43,6 +43,7 @@ public class Attribute {
         return value;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || !(o instanceof Attribute)) return false;
@@ -55,6 +56,7 @@ public class Attribute {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = (name != null ? name.hashCode() : 0);
