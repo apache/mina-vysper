@@ -120,10 +120,10 @@ public class PubSubSubscribeTestCase extends AbstractPublishSubscribeTestCase {
         List<XMLElement> errorContent = error.getInnerElements();
         assertEquals(2, errorContent.size());
         assertEquals("bad-request", errorContent.get(0).getName());
-        assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, errorContent.get(0).getNamespace());
+        assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, errorContent.get(0).getVerifier().getUniqueXMLNSValue());
 
         assertEquals("invalid-jid", errorContent.get(1).getName());
-        assertEquals(NamespaceURIs.XEP0060_PUBSUB_ERRORS, errorContent.get(1).getNamespace());
+        assertEquals(NamespaceURIs.XEP0060_PUBSUB_ERRORS, errorContent.get(1).getVerifier().getUniqueXMLNSValue());
     }
 
     public void testSubscribeJIDMalformed() {
@@ -145,7 +145,7 @@ public class PubSubSubscribeTestCase extends AbstractPublishSubscribeTestCase {
         List<XMLElement> errorContent = error.getInnerElements();
         assertEquals(1, errorContent.size());
         assertEquals("jid-malformed", errorContent.get(0).getName());
-        assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, errorContent.get(0).getNamespace());
+        assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, errorContent.get(0).getVerifier().getUniqueXMLNSValue());
     }
 
     public void testSubscribeNoSuchNode() throws Exception {
@@ -167,7 +167,7 @@ public class PubSubSubscribeTestCase extends AbstractPublishSubscribeTestCase {
         List<XMLElement> errorContent = error.getInnerElements();
         assertEquals(1, errorContent.size());
         assertEquals("item-not-found", errorContent.get(0).getName());
-        assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, errorContent.get(0).getNamespace());
+        assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, errorContent.get(0).getVerifier().getUniqueXMLNSValue());
     }
 
     class DefaultSubscribeStanzaGenerator extends AbstractStanzaGenerator {

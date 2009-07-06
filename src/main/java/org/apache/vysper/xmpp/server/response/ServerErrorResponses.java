@@ -119,8 +119,9 @@ public class ServerErrorResponses
                          .addAttribute("type", type.value());
 
         // insert defined error condition relating to the stanza error type
-        responseBuilder.startInnerElement(errorCondition.value(), NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS)
-                         .endInnerElement();
+        responseBuilder.startInnerElement(errorCondition.value());
+        responseBuilder.addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
+        responseBuilder.endInnerElement();
 
         // optional error text
         if (errorText != null && errorLang != null) {

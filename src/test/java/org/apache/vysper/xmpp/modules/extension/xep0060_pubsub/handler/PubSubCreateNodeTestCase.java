@@ -103,6 +103,6 @@ public class PubSubCreateNodeTestCase extends AbstractPublishSubscribeTestCase {
         assertEquals("cancel", error.getAttributeValue("type"));
         
         assertEquals("conflict", conflict.getName());
-        assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, conflict.getNamespace());
+        assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, conflict.getVerifier().getUniqueXMLNSValue());
     }
 }
