@@ -77,7 +77,7 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
     protected Stanza handleSet(IQStanza stanza,
             ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
-        Entity sender = getFromAddress(stanza, sessionContext);
+        Entity sender = extractSenderJID(stanza, sessionContext);
         Entity receiver = stanza.getTo();
         Entity subJID = null;
 

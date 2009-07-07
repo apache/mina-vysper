@@ -26,6 +26,7 @@ import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
+import org.apache.vysper.xmpp.modules.core.base.handler.XMPPCoreStanzaHandler;
 import org.apache.vysper.xmpp.writer.DenseStanzaLogRenderer;
 
 import java.util.List;
@@ -59,6 +60,13 @@ public class Stanza extends XMLElement {
         return parseEntityAttribute("to");
     }
 
+    /**
+     * Returns the from attribute <b>if</b> it is sent with the stanza (rare).
+     * Use {@link XMPPCoreStanzaHandler#extractSenderJID()} to make sure you get
+     * a JID (either with or without resource).
+     * 
+     * @return the sender JID, or null if not set.
+     */
     public Entity getFrom() {
         return parseEntityAttribute("from");
     }

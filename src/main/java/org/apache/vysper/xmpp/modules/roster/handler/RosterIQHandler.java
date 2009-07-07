@@ -94,7 +94,7 @@ public class RosterIQHandler extends DefaultIQHandler {
             return handleCannotRetrieveRoster(stanza, sessionContext);
         }
 
-        Entity from = determineFrom(stanza, sessionContext);
+        Entity from = extractUniqueSenderJID(stanza, sessionContext);
         if (from == null || !from.isResourceSet()) {
             return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.UNKNOWN_SENDER, stanza, StanzaErrorType.MODIFY, "sender info insufficient: " + ((from == null) ? "no from" : from.getFullQualifiedName()), null, null);
         }
@@ -132,7 +132,7 @@ public class RosterIQHandler extends DefaultIQHandler {
             return handleCannotRetrieveRoster(stanza, sessionContext);
         }
 
-        Entity user = determineFrom(stanza, sessionContext);
+        Entity user = extractUniqueSenderJID(stanza, sessionContext);
         if (user == null || !user.isResourceSet()) {
             return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.UNKNOWN_SENDER, stanza, StanzaErrorType.MODIFY, "sender info insufficient: " + ((user == null) ? "no from" : user.getFullQualifiedName()), null, null);
         }

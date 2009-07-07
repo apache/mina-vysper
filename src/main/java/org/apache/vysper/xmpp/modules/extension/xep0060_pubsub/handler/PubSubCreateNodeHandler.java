@@ -70,7 +70,7 @@ public class PubSubCreateNodeHandler extends AbstractPubSubGeneralHandler {
     protected Stanza handleSet(IQStanza stanza,
             ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
-        Entity sender = getFromAddress(stanza, sessionContext);
+        Entity sender = extractSenderJID(stanza, sessionContext);
         Entity receiver = sessionContext.getServerJID();
 
         String iqStanzaID = stanza.getAttributeValue("id");

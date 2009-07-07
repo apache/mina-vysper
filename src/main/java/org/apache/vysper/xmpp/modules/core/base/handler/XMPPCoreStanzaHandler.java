@@ -26,8 +26,8 @@ import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StreamErrorCondition;
-import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -119,26 +119,56 @@ public abstract class XMPPCoreStanzaHandler implements StanzaHandler {
     protected abstract Stanza executeCore(XMPPCoreStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza, SessionContext sessionContext);
 
     /**
-     * a client might send a stanza without a 'from' attribute, if the sending (bare or full) entity can be determined
+     * Extracts the from address either from the "from" attribute of the stanza, if this isn't given
+     * retracts to using the address of the initiating entity plus the resource of the sessionContext (if available).
+     * 
+     * A client might send a stanza without a 'from' attribute, if the sending (bare or full) entity can be determined
      * from the context. such a missing from is determined here, if possible.
      * for a formal discussion, see RFC3921bis/Resource Binding/Binding multiple resources/From Addresses
+     * 
      * @param stanza
      * @param sessionContext
+     * @return The JID of the sender, either from the stanza or the context. A bare JID is returned if no, or more than one resource is bound.
      */
-    public static Entity determineFrom(XMPPCoreStanza stanza, SessionContext sessionContext) {
+    public static Entity extractSenderJID(XMPPCoreStanza stanza, SessionContext sessionContext) {
         Entity from = stanza.getFrom();
-        if (from != null) return from;
+        if (from == null) {
+            from = new EntityImpl(sessionContext.getInitiatingEntity(),
+                    sessionContext.getServerRuntimeContext().getResourceRegistry().getUniqueResourceForSession(sessionContext));
+        }
+        return from;
+    }
+    
+    /**
+     * Extracts the from address either from the "from" attribute of the stanza, if this isn't given
+     * retracts to using the address of the initiating entity plus the resource of the sessionContext.
+     * 
+     * A client might send a stanza without a 'from' attribute, if the sending (bare or full) entity can be determined
+     * from the context. such a missing from is determined here, if possible.
+     * for a formal discussion, see RFC3921bis/Resource Binding/Binding multiple resources/From Addresses
+     * 
+     * @param stanza
+     * @param sessionContext
+     * @return The JID of the sender, either from the stanza or the context. If there is no, or multiple resources bound, it returns null.
+     */
+    public static Entity extractUniqueSenderJID(XMPPCoreStanza stanza, SessionContext sessionContext) {
+        Entity from = stanza.getFrom();
+        if (from != null) {
+            return from;
+        }
 
-        // try to build something together from initiating entity and a bound resource
+        // Use the information stored within the context
         Entity initiatingEntity = sessionContext.getInitiatingEntity();
-        if (initiatingEntity == null) throw new RuntimeException("no 'from' attribute, and initiating entity not set: cannot determine sender of roster IQ");
+        if (initiatingEntity == null) {
+            throw new RuntimeException("no 'from' attribute, and initiating entity not set");
+        }
 
         String resourceId = sessionContext.getServerRuntimeContext().getResourceRegistry().getUniqueResourceForSession(sessionContext);
         if (resourceId == null) {
             logger.warn("no 'from' attribute, and cannot uniquely determine sending resource for initiating entity {} in session {}", initiatingEntity.getFullQualifiedName(), sessionContext.getSessionId());
             return null;
         }
-        from = new EntityImpl(initiatingEntity, resourceId);
-        return from;
+        
+        return new EntityImpl(initiatingEntity, resourceId);
     }
 }
