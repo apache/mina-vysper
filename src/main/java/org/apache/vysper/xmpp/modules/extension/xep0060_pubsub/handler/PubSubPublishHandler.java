@@ -21,7 +21,6 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
 import org.apache.vysper.compliance.SpecCompliance;
 import org.apache.vysper.compliance.SpecCompliant;
-import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
@@ -78,8 +77,7 @@ public class PubSubPublishHandler extends AbstractPubSubGeneralHandler {
     protected Stanza handleSet(IQStanza stanza,
             ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
-        Entity sender = extractSenderJID(stanza, sessionContext);
-        Entity receiver = stanza.getTo();
+        extractParties(stanza, sessionContext);
 
         String iqStanzaID = stanza.getAttributeValue("id");
 

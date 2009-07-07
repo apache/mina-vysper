@@ -19,9 +19,11 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
+import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.ErrorStanzaGenerator;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
+import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.uuid.JVMBuiltinUUIDGenerator;
@@ -42,6 +44,11 @@ public abstract class AbstractPublishSubscribeIQHandler extends DefaultIQHandler
     protected CollectionNode root;
     // we need to generate some IDs
     protected UUIDGenerator idGenerator;
+    
+    // sender of the stanza
+    protected Entity sender;
+    // receiver JID of the stanza
+    protected Entity receiver;
 
     /**
      * Initialize the handler with the given root CollectionNode.
@@ -115,5 +122,13 @@ public abstract class AbstractPublishSubscribeIQHandler extends DefaultIQHandler
             //throw Exception();
         }
         return node;
+    }
+    
+    /**
+     * Extract sender and receiver from the stanza.
+     */
+    protected void extractParties(IQStanza stanza, SessionContext sessionContext) {
+        sender = extractSenderJID(stanza, sessionContext);
+        receiver = stanza.getTo();
     }
 }
