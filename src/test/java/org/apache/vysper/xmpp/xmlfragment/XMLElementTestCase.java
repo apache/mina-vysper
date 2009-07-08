@@ -38,7 +38,7 @@ public class XMLElementTestCase extends TestCase {
         getFinalStanza();
         
         assertEquals("message", xmlElement.getName());
-        assertEquals("jabber:test", xmlElement.getNamespace());
+        assertEquals("jabber:test", xmlElement.getNamespacePrefix());
         assertEquals("cn", xmlElement.getXMLLang());
         
         assertSame(Collections.emptyList(), xmlElement.getInnerElements());

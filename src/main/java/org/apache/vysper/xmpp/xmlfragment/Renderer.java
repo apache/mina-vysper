@@ -57,7 +57,7 @@ public class Renderer {
 
     private void renderXMLElement(XMLElement element, StringBuilder openElementBuffer, StringBuilder elementContentBuffer, StringBuilder closeElementBuffer) {
         String name = element.getName();
-        String namespace = element.getNamespace();
+        String namespace = element.getNamespacePrefix();
 
         openElementBuffer.append("<");
         renderElementName(openElementBuffer, element, namespace, name);

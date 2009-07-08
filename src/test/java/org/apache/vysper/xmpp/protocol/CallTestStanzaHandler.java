@@ -51,7 +51,7 @@ public class CallTestStanzaHandler implements StanzaHandler {
         if (namespaceURI == null) return true;
         
         boolean elementNamespaceMatches = false;
-        if (namespaceURI != null && namespaceURI.equals(stanza.getNamespace())) elementNamespaceMatches = true;
+        if (namespaceURI != null && namespaceURI.equals(stanza.getNamespacePrefix())) elementNamespaceMatches = true;
         
         boolean outerNamespaceMatches = false;
         boolean innerNamespaceMatches = false;

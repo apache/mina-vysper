@@ -75,7 +75,7 @@ public class StanzaBuilder {
     public static StanzaBuilder createDirectReply(XMPPCoreStanza original, boolean fromIsServerOnly, String type) {
         if (original == null) throw new IllegalArgumentException();
 
-        StanzaBuilder stanzaBuilder = new StanzaBuilder(original.getName(), original.getNamespace());
+        StanzaBuilder stanzaBuilder = new StanzaBuilder(original.getName(), original.getNamespacePrefix());
         // reverse to and from
         Entity newTo = original.getFrom();
         if (newTo != null) {
@@ -103,7 +103,7 @@ public class StanzaBuilder {
      * @return
      */
     public static StanzaBuilder createClone(XMLElement original, boolean deep, List<Attribute> replacingAttributes) {
-        StanzaBuilder stanzaBuilder = new StanzaBuilder(original.getName(), original.getNamespace());
+        StanzaBuilder stanzaBuilder = new StanzaBuilder(original.getName(), original.getNamespacePrefix());
 
         List<Attribute> replacingAttributesCopy = new ArrayList<Attribute>(replacingAttributes);
 

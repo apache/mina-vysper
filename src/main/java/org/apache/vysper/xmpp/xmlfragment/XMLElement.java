@@ -42,26 +42,26 @@ public class XMLElement implements XMLFragment {
      * if the namespace is 'http://ns.org', then element name b is prefixed with a.
      * NOTE: the namespace value must NOT be "b"!
      */
-    private String namespace;
+    private String namespacePrefix;
 
     private List<Attribute> attributes;
     private List<XMLFragment> innerFragments;
     protected XMLElementVerifier xmlElementVerifier;
 
-    public XMLElement(String name, String namespace, Attribute[] attributes, XMLFragment[] innerFragments) {
-        this(name, namespace, FragmentFactory.asList(attributes), FragmentFactory.asList(innerFragments));
+    public XMLElement(String name, String namespacePrefix, Attribute[] attributes, XMLFragment[] innerFragments) {
+        this(name, namespacePrefix, FragmentFactory.asList(attributes), FragmentFactory.asList(innerFragments));
     }
 
-     public XMLElement(String name, String namespace, List<Attribute> attributes, XMLFragment[] innerFragments) {
-        this(name, namespace, attributes, FragmentFactory.asList(innerFragments));
+     public XMLElement(String name, String namespacePrefix, List<Attribute> attributes, XMLFragment[] innerFragments) {
+        this(name, namespacePrefix, attributes, FragmentFactory.asList(innerFragments));
     }
 
-     public XMLElement(String name, String namespace, Attribute[] attributes, List<XMLFragment> innerFragments) {
-        this(name, namespace, FragmentFactory.asList(attributes), innerFragments);
+     public XMLElement(String name, String namespacePrefix, Attribute[] attributes, List<XMLFragment> innerFragments) {
+        this(name, namespacePrefix, FragmentFactory.asList(attributes), innerFragments);
     }
 
-    public XMLElement(String name, String namespace, List<Attribute> attributes, List<XMLFragment> innerFragments) {
-        this.namespace = namespace == null ? NamespaceAttribute.DEFAULT_NAMESPACE : namespace;
+    public XMLElement(String name, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments) {
+        this.namespacePrefix = namespacePrefix == null ? NamespaceAttribute.DEFAULT_NAMESPACE : namespacePrefix;
         this.name = name;
         this.attributes = (attributes == null) ? Collections.EMPTY_LIST : Collections.unmodifiableList(attributes);
         this.innerFragments = (innerFragments == null) ? Collections.EMPTY_LIST : Collections.unmodifiableList(innerFragments);
@@ -72,8 +72,8 @@ public class XMLElement implements XMLFragment {
         return name;
     }
 
-    public String getNamespace() {
-        return namespace;
+    public String getNamespacePrefix() {
+        return namespacePrefix;
     }
 
     public List<Attribute> getAttributes() {
@@ -203,7 +203,7 @@ public class XMLElement implements XMLFragment {
             return false;
         }
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (namespace != null ? !namespace.equals(that.namespace) : that.namespace != null) return false;
+        if (namespacePrefix != null ? !namespacePrefix.equals(that.namespacePrefix) : that.namespacePrefix != null) return false;
 
         return true;
     }
@@ -212,7 +212,7 @@ public class XMLElement implements XMLFragment {
     public int hashCode() {
         int result;
         result = (name != null ? name.hashCode() : 0);
-        result = 29 * result + (namespace != null ? namespace.hashCode() : 0);
+        result = 29 * result + (namespacePrefix != null ? namespacePrefix.hashCode() : 0);
         result = 29 * result + (attributes != null ? attributes.hashCode() : 0);
         result = 29 * result + (innerFragments != null ? innerFragments.hashCode() : 0);
         return result;

@@ -118,7 +118,7 @@ public class StanzaHandlerLookup {
 
         // another try to get a dictionary
         if (namespaceHandlerDictionary == null) {
-            namespace = xmlElement.getNamespace();
+            namespace = xmlElement.getNamespacePrefix();
             namespaceHandlerDictionary = dictionaries.get(namespace);
         }
         if (namespaceHandlerDictionary != null) return namespaceHandlerDictionary.get(stanza);

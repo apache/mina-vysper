@@ -102,7 +102,7 @@ public class XMLRawToFragmentConverter {
             } else if (particle.isOpeningOnlyElement()) {
                 XMLElement incompleteElement = getElementForOpening(particle, createStanza);
                 List<XMLFragment> innerFragments = convert(particles, particle.getElementName());
-                XMLElement completedElement = createElementOrStanza(incompleteElement.getName(), incompleteElement.getAttributes(), incompleteElement.getNamespace(), innerFragments, createStanza);
+                XMLElement completedElement = createElementOrStanza(incompleteElement.getName(), incompleteElement.getAttributes(), incompleteElement.getNamespacePrefix(), innerFragments, createStanza);
                 fragments.add(completedElement);
             } else if (particle.isClosingOnlyElement()) {
                 String closingElementName = getElementNameForClosingOnly(particle);

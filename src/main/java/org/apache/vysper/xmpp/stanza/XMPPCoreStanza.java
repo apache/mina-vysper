@@ -44,7 +44,7 @@ abstract public class XMPPCoreStanza extends Stanza {
     }
 
     public XMPPCoreStanza(Stanza stanza) {
-        super(stanza.getName(), stanza.getNamespace(), stanza.getAttributes(), stanza.getInnerFragments());
+        super(stanza.getName(), stanza.getNamespacePrefix(), stanza.getAttributes(), stanza.getInnerFragments());
     }
 
     @Override
@@ -73,7 +73,7 @@ abstract public class XMPPCoreStanza extends Stanza {
     }
 
     public boolean isServerCall() {
-        return getNamespace().equals(NamespaceURIs.JABBER_SERVER);
+        return getNamespacePrefix().equals(NamespaceURIs.JABBER_SERVER);
     }
 
 

@@ -124,7 +124,7 @@ public class XMLStreamTokenizerTestCase extends TestCase {
         Stanza stanzaParsed = (Stanza) protocolDecoderOutput.get(0);
         String stanzaName = stanzaParsed.getName();
         assertEquals("stream", stanzaName);
-        String stanzaNS = stanzaParsed.getNamespace();
+        String stanzaNS = stanzaParsed.getNamespacePrefix();
         assertEquals("stream", stanzaNS);
     }
 

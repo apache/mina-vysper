@@ -54,7 +54,7 @@ public class TestIQHandler extends IQHandler {
     protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         incomingStanza = stanza;
 
-        StanzaBuilder responseBuilder = new StanzaBuilder("iq", stanza.getNamespace());
+        StanzaBuilder responseBuilder = new StanzaBuilder("iq", stanza.getNamespacePrefix());
         if (stanza.getID() != null) responseBuilder.addAttribute("id", stanza.getID());
 
         responseBuilder.addAttribute("type", IQStanzaType.RESULT.value());

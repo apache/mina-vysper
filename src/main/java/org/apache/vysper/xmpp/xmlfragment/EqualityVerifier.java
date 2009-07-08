@@ -40,7 +40,7 @@ public class EqualityVerifier {
         if (second == null) return false;
 
         if (!first.getName().equals(second.getName())) return false;
-        if (!first.getNamespace().equals(second.getNamespace())) return false;
+        if (!first.getNamespacePrefix().equals(second.getNamespacePrefix())) return false;
 
         return equalsAttributes(first.getAttributes(), second.getAttributes());
     }
@@ -55,7 +55,7 @@ public class EqualityVerifier {
         if (second == null) return false;
 
         if (!first.getName().equals(second.getName())) return false;
-        if (!first.getNamespace().equals(second.getNamespace())) return false;
+        if (!first.getNamespacePrefix().equals(second.getNamespacePrefix())) return false;
 
         boolean attrEquals = equalsAttributes(first.getAttributes(), second.getAttributes());
         if (!attrEquals) return false;
