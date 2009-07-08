@@ -72,6 +72,12 @@ public class XMLElement implements XMLFragment {
         return name;
     }
 
+    /**
+     * Return the XML namespace prefix. 
+     * @return The namespace prefix. If the element does not have a prefix 
+     *  , thus being part of the default namespace, this method will return
+     *  an empty string. 
+     */
     public String getNamespacePrefix() {
         return namespacePrefix;
     }
