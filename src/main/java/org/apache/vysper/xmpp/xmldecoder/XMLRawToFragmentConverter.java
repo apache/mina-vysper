@@ -146,20 +146,20 @@ public class XMLRawToFragmentConverter {
         return createElementOrStanza(elementName, attributes, null, (List<XMLFragment>) null, createStanza);
     }
 
-    private XMLElement createElementOrStanza(String elementName, List<Attribute> attributes, String namespace, List<XMLFragment> innerFragments, boolean createStanza) throws DecodingException {
+    private XMLElement createElementOrStanza(String elementName, List<Attribute> attributes, String namespacePrefix, List<XMLFragment> innerFragments, boolean createStanza) throws DecodingException {
         int i = elementName.indexOf(":");
         if (i >= 1) {
-            namespace = elementName.substring(i+1);
-            elementName = elementName.substring(0, i);
-            if ("".equals(namespace) || "".equals(elementName)) throw new DecodingException("illegal element name " + namespace + ":" + elementName);
+            namespacePrefix = elementName.substring(0, i);
+            elementName = elementName.substring(i + 1);
+            if ("".equals(namespacePrefix) || "".equals(elementName)) throw new DecodingException("illegal element name " + namespacePrefix + ":" + elementName);
         } else if (i == 0) {
             // element something like "<:foo> this is legal XML. in this case, acccording to XML spec section 2.3,
             // the colon belongs to the element name and is not a separator for the namespace.
             // but we do not support that.
             throw new DecodingException("unsupported legal XML: colon at start of element name and no namespace specified");
         }
-        if (createStanza) return new Stanza(elementName, namespace, attributes, innerFragments);
-        else return new XMLElement(elementName, namespace, attributes, innerFragments);
+        if (createStanza) return new Stanza(elementName, namespacePrefix, attributes, innerFragments);
+        else return new XMLElement(elementName, namespacePrefix, attributes, innerFragments);
     }
 
     private List<Attribute> parseAttributes(String content) throws DecodingException {

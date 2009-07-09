@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.xmldecoder;
 import junit.framework.TestCase;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 import org.apache.vysper.xmpp.xmlfragment.Attribute;
+import org.apache.vysper.xmpp.xmlfragment.XMLElementVerifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,5 +119,64 @@ public class XMLRawToFragmentConverterConvertTestCase extends TestCase {
         assertEquals(":name", particle.getElementName());
     }
 
+    private XMLElement elementFromString(String... xmls) throws DecodingException {
+        List<XMLParticle> particles = new ArrayList<XMLParticle>();
+        for(String xml : xmls) {
+            particles.add(new XMLParticle(xml));
+        }
+        return (XMLElement) xmlRawToFragmentConverter.convert(particles);
+    }
+
+    public void testSimpleNamespacePrefix() throws DecodingException {
+        XMLElement element = elementFromString("<p:elm xmlns:p=\"urn:foo\"/>");        
+        assertEquals("p", element.getNamespacePrefix());
+    }
+
+    public void testDefaultNamespacePrefix() throws DecodingException {
+        XMLElement element = elementFromString("<elm xmlns=\"urn:foo\"/>");        
+        assertEquals("", element.getNamespacePrefix());
+    }
+
     
+    public void testSimpleNamespaceURI() throws DecodingException {
+        XMLElement element = elementFromString("<elm xmlns=\"urn:foo\"/>");        
+        assertEquals("urn:foo", element.getNamespaceURI());
+    }
+
+    public void testSimpleNamespaceURIEmptyElement() throws DecodingException {
+        XMLElement element = elementFromString("<elm xmlns=\"urn:foo\">", "</elm>");        
+        assertEquals("urn:foo", element.getNamespaceURI());
+    }
+    
+    public void testPrefixedNamespaceURI() throws DecodingException {
+        XMLElement element = elementFromString("<p:elm xmlns:p=\"urn:foo\"/>");        
+        assertEquals("urn:foo", element.getNamespaceURI());
+    }
+
+    public void testDoubleNamespaceURI() throws DecodingException {
+        XMLElement element = elementFromString("<p:elm xmlns=\"urn:bar\" xmlns:p=\"urn:foo\"/>");
+        assertEquals("urn:foo", element.getNamespaceURI());
+    }
+
+//    public void testInheritedNamespaceURI() throws DecodingException {
+//        XMLElement element = elementFromString("<elm xmlns=\"urn:foo\">", "<child />", "</elm>");
+//        XMLElement child = element.getFirstInnerElement();
+//        
+//        assertEquals("urn:foo", child.getNamespaceURI());
+//    }
+
+    public void testOverriddenNamespaceURI() throws DecodingException {
+        XMLElement element = elementFromString("<elm xmlns=\"urn:foo\">", "<child xmlns=\"urn:bar\" />", "</elm>");
+        XMLElement child = element.getFirstInnerElement();
+        
+        assertEquals("urn:bar", child.getNamespaceURI());
+    }
+    
+    public void testOverriddenToDefaultNamespaceURI() throws DecodingException {
+        XMLElement element = elementFromString("<elm xmlns=\"urn:foo\">", "<child xmlns=\"\" />", "</elm>");
+        XMLElement child = element.getFirstInnerElement();
+        
+        assertEquals("", child.getNamespaceURI());
+    }
+
 }

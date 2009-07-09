@@ -55,10 +55,10 @@ public class CallTestStanzaHandler implements StanzaHandler {
         
         boolean outerNamespaceMatches = false;
         boolean innerNamespaceMatches = false;
-        if (namespaceURI != null && namespaceURI.equals(stanza.getVerifier().getUniqueXMLNSValue())) outerNamespaceMatches = true;
+        if (namespaceURI != null && namespaceURI.equals(stanza.getNamespaceURI())) outerNamespaceMatches = true;
         XMLElement firstInnerElement = stanza.getFirstInnerElement();
         if (firstInnerElement != null) {
-            if (namespaceURI != null && namespaceURI.equals(firstInnerElement.getVerifier().getUniqueXMLNSValue())) innerNamespaceMatches = true;
+            if (namespaceURI != null && namespaceURI.equals(firstInnerElement.getNamespaceURI())) innerNamespaceMatches = true;
         }
         return elementNamespaceMatches || outerNamespaceMatches || innerNamespaceMatches;
     }

@@ -111,7 +111,7 @@ public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
         XMLElement item = publish.getFirstInnerElement();
 
         assertEquals("pubsub", pubsub.getName());
-        assertEquals(NamespaceURIs.XEP0060_PUBSUB, pubsub.getVerifier().getUniqueXMLNSValue());
+        assertEquals(NamespaceURIs.XEP0060_PUBSUB, pubsub.getNamespaceURI());
         assertEquals("publish", publish.getName());
         assertEquals("item", item.getName());
         assertNotNull(item.getAttributeValue("id")); // value unknown
@@ -139,7 +139,7 @@ public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
         List<XMLElement> errorContent = error.getInnerElements();
         assertEquals(1, errorContent.size());
         assertEquals("item-not-found", errorContent.get(0).getName());
-        assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, errorContent.get(0).getVerifier().getUniqueXMLNSValue());
+        assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, errorContent.get(0).getNamespaceURI());
     }
     
 
@@ -163,7 +163,7 @@ public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
         List<XMLElement> errorContent = error.getInnerElements();
         assertEquals(1, errorContent.size());
         assertEquals("forbidden", errorContent.get(0).getName());
-        assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, errorContent.get(0).getVerifier().getUniqueXMLNSValue());
+        assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, errorContent.get(0).getNamespaceURI());
     }
 
     protected Entity createUser(String jid) throws BindException {

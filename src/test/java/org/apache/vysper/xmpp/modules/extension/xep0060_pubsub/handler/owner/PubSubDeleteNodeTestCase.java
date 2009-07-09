@@ -120,7 +120,7 @@ public class PubSubDeleteNodeTestCase extends AbstractPublishSubscribeTestCase {
         List<XMLElement> errorContent = error.getInnerElements();
         assertEquals(1, errorContent.size());
         assertEquals("forbidden", errorContent.get(0).getName());
-        assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, errorContent.get(0).getVerifier().getUniqueXMLNSValue());
+        assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, errorContent.get(0).getNamespaceURI());
         
         LeafNode n = root.find(testNode);
         assertNotNull(n); // still there
@@ -146,6 +146,6 @@ public class PubSubDeleteNodeTestCase extends AbstractPublishSubscribeTestCase {
         List<XMLElement> errorContent = error.getInnerElements();
         assertEquals(1, errorContent.size());
         assertEquals("item-not-found", errorContent.get(0).getName());
-        assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, errorContent.get(0).getVerifier().getUniqueXMLNSValue());
+        assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, errorContent.get(0).getNamespaceURI());
     }
 }

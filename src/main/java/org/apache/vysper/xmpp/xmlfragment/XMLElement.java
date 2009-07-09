@@ -81,6 +81,27 @@ public class XMLElement implements XMLFragment {
     public String getNamespacePrefix() {
         return namespacePrefix;
     }
+    
+    /**
+     * Return the namespace URI.
+     * @return The namespace URI for the element. 
+     */
+    public String getNamespaceURI() {
+        String xmlnsName;
+        
+        if(getNamespacePrefix().length() > 0) {
+            xmlnsName = "xmlns:" + getNamespacePrefix();
+        } else {
+            xmlnsName = "xmlns";
+        }
+        
+        String uri = getAttributeValue(xmlnsName);
+        
+        if(uri == null) {
+            uri = "";
+        }
+        return uri;
+    }
 
     public List<Attribute> getAttributes() {
         return attributes;

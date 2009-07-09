@@ -112,8 +112,7 @@ public class StanzaHandlerLookup {
      */
     private StanzaHandler getHandlerForElement(Stanza stanza, XMLElement xmlElement) {
 
-        // TODO review this method if it checks the right things
-        String namespace = xmlElement.getVerifier().getUniqueXMLNSValue();
+        String namespace = xmlElement.getNamespaceURI();
         NamespaceHandlerDictionary namespaceHandlerDictionary = dictionaries.get(namespace);
 
         // another try to get a dictionary
