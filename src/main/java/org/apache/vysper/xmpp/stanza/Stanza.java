@@ -39,20 +39,20 @@ import java.util.List;
  */
 public class Stanza extends XMLElement {
 
-    public Stanza(String name, String namespace, List<Attribute> attributes, List<XMLFragment> innerFragments) {
-        super(name, namespace, attributes, innerFragments);
+    public Stanza(String name, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments) {
+        super(name, namespacePrefix, attributes, innerFragments);
     }
 
-    public Stanza(String name, String namespace, Attribute[] attributes, XMLFragment[] innerFragments) {
-        super(name, namespace, attributes, innerFragments);
+    public Stanza(String name, String namespacePrefix, Attribute[] attributes, XMLFragment[] innerFragments) {
+        super(name, namespacePrefix, attributes, innerFragments);
     }
 
-    public Stanza(String name, String namespace, List<Attribute> attributes, XMLFragment[] innerFragments) {
-        super(name, namespace, attributes, innerFragments);
+    public Stanza(String name, String namespacePrefix, List<Attribute> attributes, XMLFragment[] innerFragments) {
+        super(name, namespacePrefix, attributes, innerFragments);
     }
 
-    public Stanza(String name, String namespace, Attribute[] attributes, List<XMLFragment> innerFragments) {
-        super(name, namespace, attributes, innerFragments);
+    public Stanza(String name, String namespacePrefix, Attribute[] attributes, List<XMLFragment> innerFragments) {
+        super(name, namespacePrefix, attributes, innerFragments);
     }
 
 
