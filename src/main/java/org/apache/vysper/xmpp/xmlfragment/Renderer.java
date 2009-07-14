@@ -57,10 +57,10 @@ public class Renderer {
 
     private void renderXMLElement(XMLElement element, StringBuilder openElementBuffer, StringBuilder elementContentBuffer, StringBuilder closeElementBuffer) {
         String name = element.getName();
-        String namespace = element.getNamespacePrefix();
+        String namespacePrefix = element.getNamespacePrefix();
 
         openElementBuffer.append("<");
-        renderElementName(openElementBuffer, element, namespace, name);
+        renderElementName(openElementBuffer, element, namespacePrefix, name);
         for (Attribute attribute : element.getAttributes()) {
             openElementBuffer.append(" ");
             renderAttribute(openElementBuffer, attribute);
@@ -77,15 +77,15 @@ public class Renderer {
         }
 
         closeElementBuffer.append("</");
-        renderElementName(closeElementBuffer, element, namespace, name);
+        renderElementName(closeElementBuffer, element, namespacePrefix, name);
         closeElementBuffer.append(">");
 
     }
 
-    private void renderElementName(StringBuilder buffer, XMLElement element, String namespace, String name) {
+    private void renderElementName(StringBuilder buffer, XMLElement element, String namespacePrefix, String name) {
         // if the element has a namespace prefix, retrieves the prefix from the defining attribute
-        if (namespace != null) {
-            String namespaceIdentifier = element.getVerifier().getNamespaceIdentifier(namespace);
+        if (namespacePrefix != null) {
+            String namespaceIdentifier = element.getVerifier().getNamespaceIdentifier(namespacePrefix);
             if (namespaceIdentifier != null) {
                 buffer.append(namespaceIdentifier).append(COLON);
             }
