@@ -20,6 +20,12 @@
 
 package org.apache.vysper.xmpp.parser;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.xmlfragment.Attribute;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
@@ -36,12 +42,6 @@ import org.cyberneko.pull.event.DocumentEvent;
 import org.cyberneko.pull.event.ElementEvent;
 import org.cyberneko.pull.event.PrefixMappingEvent;
 import org.cyberneko.pull.parsers.Xerces2;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * uses Nekopull/Xerves2 to parse XMPP XML streams. implementations differ only in the way they aquire
@@ -135,7 +135,7 @@ public abstract class AbstractNekopullStreamParser implements StreamParser {
             if (!fillDeep(startElementEvent.element.rawname, xmlFragments)) throw new ParsingException("XML end element not found as expected");
         }
 
-        return new Stanza(name, namespaceURI, stanzaAttributes, xmlFragments);
+        return new Stanza(name, null, stanzaAttributes, xmlFragments);
     }
 
     private boolean fillDeep(String name, List<XMLFragment> xmlFragments) throws ParsingException {
