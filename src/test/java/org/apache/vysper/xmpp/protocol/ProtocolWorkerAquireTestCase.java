@@ -20,6 +20,8 @@
 
 package org.apache.vysper.xmpp.protocol;
 
+import junit.framework.TestCase;
+
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
 import org.apache.vysper.xmpp.parser.StreamParser;
@@ -28,7 +30,6 @@ import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
 import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import junit.framework.TestCase;
 
 /**
  * test basic behavior of ProtocolWorker.aquireStanza()
@@ -52,11 +53,11 @@ public class ProtocolWorkerAquireTestCase extends TestCase {
 
     public void testAquireSimpleStanza() {
 
-        StreamParser streamParser = new StringStreamParser("<t:ProtocolHandlerTestStanzaHandler xmlns:t='testNSURI' ></t:ProtocolHandlerTestStanzaHandler>");
+        StreamParser streamParser = new StringStreamParser("<ProtocolHandlerTestStanzaHandler xmlns='testNSURI' ></ProtocolHandlerTestStanzaHandler>");
         Stanza stanza = protocolWorker.aquireStanza(sessionContext, streamParser);
         assertNotNull(stanza);
 
-        Stanza expectedStanza = new StanzaBuilder("ProtocolHandlerTestStanzaHandler", "testNSURI").addAttribute("xmlns:t", "testNSURI").getFinalStanza();
+        Stanza expectedStanza = new StanzaBuilder("ProtocolHandlerTestStanzaHandler", "testNSURI").getFinalStanza();
         assertEquals("stanza full match", expectedStanza, stanza);
 
     }

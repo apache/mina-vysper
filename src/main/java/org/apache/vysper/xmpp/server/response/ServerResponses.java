@@ -62,9 +62,8 @@ public class ServerResponses {
     }
 
     public StanzaBuilder getStreamOpener(boolean forClient, Entity from, String xmlLang, XMPPVersion version, String sessionId, Stanza innerStanza) {
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("stream", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS)
+        StanzaBuilder stanzaBuilder = new StanzaBuilder("stream", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS, "stream")
             .addNamespaceAttribute(forClient ?  NamespaceURIs.JABBER_CLIENT : NamespaceURIs.JABBER_SERVER)
-            .addNamespaceAttribute("stream", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS)
             .addAttribute("from", from.getFullQualifiedName());
         if (xmlLang != null) stanzaBuilder.addAttribute("xml:lang", xmlLang);
         if (version != null) stanzaBuilder.addAttribute("version", version.toString());

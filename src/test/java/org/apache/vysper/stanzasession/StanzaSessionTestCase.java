@@ -68,11 +68,10 @@ public class StanzaSessionTestCase extends TestCase {
     public void testHandshake() {
         StanzaSession session = sessionFactory.createNewSession();
         session.send(
-                new StanzaBuilder("stream", "stream")
+                new StanzaBuilder("stream", "http://etherx.jabber.org/streams", "stream")
                     .addAttribute("from", "me@vysper.org")
                     .addAttribute("to", "vysper.org")
                     .addNamespaceAttribute("jabber:client")
-                    .addNamespaceAttribute("xmlns:stream", "http://etherx.jabber.org/streams")
                 .getFinalStanza()
         );
         Stanza stanza = waitForStanza(session);
@@ -89,11 +88,10 @@ public class StanzaSessionTestCase extends TestCase {
         System.out.println(DenseStanzaLogRenderer.render(stanza));
         session.setIsSecure();
         session.send(
-                new StanzaBuilder("stream", "stream")
+                new StanzaBuilder("stream", "http://etherx.jabber.org/streams", "stream")
                     .addAttribute("from", "me@vysper.org")
                     .addAttribute("to", "vysper.org")
                     .addNamespaceAttribute("jabber:client")
-                    .addNamespaceAttribute("xmlns:stream", "http://etherx.jabber.org/streams")
                 .getFinalStanza()
         );
         stanza = waitForStanza(session);

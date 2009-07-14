@@ -64,7 +64,7 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
 
         sessionContext.setSessionState(SessionState.AUTHENTICATED);
 
-        Stanza stanza = new StanzaBuilder("ProtocolWorkerProcessTestCase", "testNSURI").addAttribute("xmlns:t", "testNSURI").getFinalStanza();
+        Stanza stanza = new StanzaBuilder("ProtocolWorkerProcessTestCase", "testNSURI").getFinalStanza();
         protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza, sessionStateHolder);
 
         Stanza recordedResponse = sessionContext.getNextRecordedResponse();
@@ -80,7 +80,7 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
         CallTestStanzaHandler stanzaHandler = new CallTestStanzaHandler("ProtocolWorkerProcessTestCase");
         namespaceHandlerDictionary.register(stanzaHandler);
 
-        Stanza stanza = new StanzaBuilder("ProtocolWorkerProcessTestCase", "testNSURI").addAttribute("xmlns:t", "testNSURI").getFinalStanza();
+        Stanza stanza = new StanzaBuilder("ProtocolWorkerProcessTestCase", "testNSURI").getFinalStanza();
 
         protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza, sessionStateHolder);
 
@@ -96,7 +96,7 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
         CallTestStanzaHandlerResponse stanzaHandler = new CallTestStanzaHandlerResponse("ProtocolWorkerProcessTestCase");
         namespaceHandlerDictionary.register(stanzaHandler);
 
-        Stanza stanza = new StanzaBuilder("ProtocolWorkerProcessTestCase", "testNSURI").addAttribute("xmlns:t", "testNSURI").getFinalStanza();
+        Stanza stanza = new StanzaBuilder("ProtocolWorkerProcessTestCase", "testNSURI").getFinalStanza();
         Stanza responseStanza = new StanzaBuilder("response").getFinalStanza();
 
         stanzaHandler.setResponseStanza(responseStanza);
@@ -121,7 +121,7 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
         namespaceHandlerDictionary.register(stanzaHandler);
         stanzaHandler.setProtocolException(new ProtocolException("forced error"));
 
-        Stanza stanza = new StanzaBuilder("ProtocolWorkerProcessTestCase", "testNSURI").addAttribute("xmlns:t", "testNSURI").getFinalStanza();
+        Stanza stanza = new StanzaBuilder("ProtocolWorkerProcessTestCase", "testNSURI").getFinalStanza();
 
         protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza, sessionStateHolder);
 
@@ -137,7 +137,7 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
         CallTestStanzaHandler stanzaHandler = new CallTestStanzaHandler("ProtocolWorkerProcessTestCase");
         namespaceHandlerDictionary.register(stanzaHandler);
 
-        Stanza stanza = new StanzaBuilder("ProtocolWorkerProcessTestCase", "testNSURI").addAttribute("xmlns:t", "testNSURI").getFinalStanza();
+        Stanza stanza = new StanzaBuilder("ProtocolWorkerProcessTestCase", "testNSURI").getFinalStanza();
 
         protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza, sessionStateHolder);
 

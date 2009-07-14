@@ -31,20 +31,22 @@ import java.util.Collections;
 public class XMLElementTestCase extends TestCase {
 
     public void testBasicGetters() {
-        XMLElement xmlElement = new StanzaBuilder("message", "jabber:test").
+        XMLElement xmlElement = new StanzaBuilder("message", "urn:test").
                 addAttribute("lang", "de").
                 addAttribute("xml:lang", "cn").
                 addAttribute("xmllang", "en").
         getFinalStanza();
         
         assertEquals("message", xmlElement.getName());
-        assertEquals("jabber:test", xmlElement.getNamespacePrefix());
+        assertEquals("urn:test", xmlElement.getNamespaceURI());
         assertEquals("cn", xmlElement.getXMLLang());
         
         assertSame(Collections.emptyList(), xmlElement.getInnerElements());
         List<Attribute> list = xmlElement.getAttributes();
         assertNotNull(list);
-        assertEquals(3, list.size());
+        
+        // 3 added attributes + namespace attribute
+        assertEquals(4, list.size());
     }
 
     public void testInnerTextGetters() {

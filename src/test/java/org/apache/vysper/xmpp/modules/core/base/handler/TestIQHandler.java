@@ -20,6 +20,7 @@
 
 package org.apache.vysper.xmpp.modules.core.base.handler;
 
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -54,7 +55,7 @@ public class TestIQHandler extends IQHandler {
     protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         incomingStanza = stanza;
 
-        StanzaBuilder responseBuilder = new StanzaBuilder("iq", stanza.getNamespacePrefix());
+        StanzaBuilder responseBuilder = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT, stanza.getNamespacePrefix());
         if (stanza.getID() != null) responseBuilder.addAttribute("id", stanza.getID());
 
         responseBuilder.addAttribute("type", IQStanzaType.RESULT.value());

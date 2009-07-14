@@ -230,6 +230,8 @@ public class XMLElement implements XMLFragment {
             return false;
         }
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        
+        // TODO the namespace prefix should not matter for equality, only the URI
         if (namespacePrefix != null ? !namespacePrefix.equals(that.namespacePrefix) : that.namespacePrefix != null) return false;
 
         return true;

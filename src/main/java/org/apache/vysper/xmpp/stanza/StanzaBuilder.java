@@ -21,6 +21,7 @@
 package org.apache.vysper.xmpp.stanza;
 
 import org.apache.vysper.xmpp.xmlfragment.Attribute;
+import org.apache.vysper.xmpp.xmlfragment.Renderer;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 import org.apache.vysper.xmpp.xmlfragment.XMLText;
@@ -75,7 +76,7 @@ public class StanzaBuilder {
     public static StanzaBuilder createDirectReply(XMPPCoreStanza original, boolean fromIsServerOnly, String type) {
         if (original == null) throw new IllegalArgumentException();
 
-        StanzaBuilder stanzaBuilder = new StanzaBuilder(original.getName(), original.getNamespacePrefix());
+        StanzaBuilder stanzaBuilder = new StanzaBuilder(original.getName(), original.getNamespaceURI(), original.getNamespacePrefix());
         // reverse to and from
         Entity newTo = original.getFrom();
         if (newTo != null) {
@@ -153,6 +154,7 @@ public class StanzaBuilder {
     private Stack<ElementStruct> stack = new Stack<ElementStruct>();
     private ElementStruct currentElement = null;
     private Stanza resultingStanza = null;
+    private boolean isReset = false;
 
 
     public StanzaBuilder(String stanzaName) {
@@ -160,23 +162,36 @@ public class StanzaBuilder {
     }
 
     public StanzaBuilder(String stanzaName, String namespaceURI) {
-        startNewElement(stanzaName, namespaceURI, true);
+        this(stanzaName, namespaceURI, null);
+    }
+
+    public StanzaBuilder(String stanzaName, String namespaceURI, String namespacePrefix) {
+        startNewElement(stanzaName, namespaceURI, namespacePrefix, true);
         resultingStanza = (Stanza)currentElement.element;
         stack.push(currentElement);
     }
-
-    private void startNewElement(String name, String namespaceURI, boolean isStanza) {
+    
+    private void startNewElement(String name, String namespaceURI, String namespacePrefix, boolean isStanza) {
         // TODO assert that name does not contain namespace (":")
         // TODO handle the namespace, given by URI, currently always NULL in Stanza/XMLElement constructors
         ElementStruct element = new ElementStruct();
         element.attributes = new ArrayList<Attribute>();
         element.innerFragments = new ArrayList<XMLFragment>();
         if (isStanza) {
-            element.element = new Stanza(name, namespaceURI, element.attributes, element.innerFragments);
+            element.element = new Stanza(name, namespacePrefix, element.attributes, element.innerFragments);
         } else {
-            element.element = new XMLElement(name, namespaceURI, element.attributes, element.innerFragments);
+            element.element = new XMLElement(name, namespacePrefix, element.attributes, element.innerFragments);
         }
         currentElement = element;
+        
+        // must be done after set as currentElement
+        if(namespaceURI != null && namespaceURI.length() > 0) {
+            if(namespacePrefix == null || namespacePrefix.length() == 0) {
+                addNamespaceAttribute(namespaceURI);
+            } else {
+                addNamespaceAttribute(namespacePrefix, namespaceURI);
+            }
+        }
     }
 
     public StanzaBuilder addAttribute(String name, String value) {
@@ -213,7 +228,7 @@ public class StanzaBuilder {
     public StanzaBuilder startInnerElement(String name, String namespaceURI) {
         checkReset();
 
-        startNewElement(name, namespaceURI, false);
+        startNewElement(name, namespaceURI, null, false);
 
         stack.peek().innerFragments.add(currentElement.element); // add new one to its parent
 
@@ -244,7 +259,8 @@ public class StanzaBuilder {
     public Stanza getFinalStanza() {
         checkReset();
         Stanza returnStanza = resultingStanza;
-        resultingStanza = null; // reset
+        resultingStanza = null;
+        isReset = true; // reset
         stack.clear();
         return returnStanza;
     }
@@ -253,6 +269,6 @@ public class StanzaBuilder {
      * assure that the immutable Stanza object is not changed after it was retrieved
      */
     private void checkReset() {
-        if (resultingStanza == null) throw new IllegalStateException("stanza builder was reset after retrieving stanza");
+        if (isReset) throw new IllegalStateException("stanza builder was reset after retrieving stanza");
     }
 }

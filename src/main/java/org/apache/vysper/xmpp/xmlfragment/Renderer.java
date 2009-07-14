@@ -84,11 +84,8 @@ public class Renderer {
 
     private void renderElementName(StringBuilder buffer, XMLElement element, String namespacePrefix, String name) {
         // if the element has a namespace prefix, retrieves the prefix from the defining attribute
-        if (namespacePrefix != null) {
-            String namespaceIdentifier = element.getVerifier().getNamespaceIdentifier(namespacePrefix);
-            if (namespaceIdentifier != null) {
-                buffer.append(namespaceIdentifier).append(COLON);
-            }
+        if (namespacePrefix != null && namespacePrefix.length() > 0) {
+            buffer.append(namespacePrefix).append(COLON);
         }
 
         buffer.append(name);
