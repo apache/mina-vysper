@@ -112,7 +112,9 @@ public class ServerErrorResponses
 
     private void fillErrorStanza(XMPPCoreStanza stanza, StanzaErrorType type, StanzaErrorCondition errorCondition, String errorText, String errorLang, XMLElement errorConditionElement, StanzaBuilder responseBuilder) {
         // inline incoming stanza as of RFC 3920 9.3.1
-        responseBuilder.addPreparedElement(stanza);
+        for(XMLElement innerElement : stanza.getInnerElements()) {
+            responseBuilder.addPreparedElement(innerElement);
+        }
 
         // error element
         responseBuilder.startInnerElement("error")
