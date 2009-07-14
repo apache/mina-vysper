@@ -197,6 +197,6 @@ public class XMLElementVerifier {
 		XMLElement xmlElement = ((XMLElement) onlySubelement);
         boolean nameEquals = name == null ? xmlElement.getName() == null : name.equals(xmlElement.getName());
         if (namespaceURI == null) namespaceURI = NamespaceAttribute.DEFAULT_NAMESPACE;
-        return nameEquals && namespaceURI.equals(xmlElement.getNamespacePrefix());
+        return nameEquals && namespaceURI.equals(xmlElement.getNamespaceURI());
 	}
 }
