@@ -41,11 +41,12 @@ public class XmppPingIQHandlerTestCase extends TestCase {
     }
 
     public void testClientToServerPing() {
-        // C: <iq from='capulet.lit' to='juliet@capulet.lit/balcony' id='s2c1' type='get'>
+        // C: <iq from='juliet@capulet.lit/balcony' to='capulet.lit' id='c2s1' type='get'>
         //      <ping xmlns='urn:xmpp:ping'/>
         //    </iq>
         //
-        // S: <iq from='juliet@capulet.lit/balcony' to='capulet.lit' id='s2c1' type='result'/>
+        // S: <iq from='capulet.lit' to='juliet@capulet.lit/balcony' id='c2s1' type='result'/>
+
         
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(boundClient, server, IQStanzaType.GET, IQ_ID);
         stanzaBuilder.startInnerElement("ping").addNamespaceAttribute(NamespaceURIs.URN_XMPP_PING).endInnerElement();
