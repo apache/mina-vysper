@@ -251,6 +251,7 @@
           <version>2.5.1</version>
           <configuration>
             <downloadSources>true</downloadSources>
+            <downloadJavadocs>true</downloadJavadocs>
           </configuration>
         </plugin>
 
