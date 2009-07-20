@@ -343,6 +343,7 @@
 
   <modules>
     <module>server</module>
+    <module>speccompliance</module>
   </modules>
 
   <properties>
