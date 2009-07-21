@@ -79,8 +79,18 @@
     <url>http://svn.apache.org/viewvc/mina/vysper/trunk</url>
   </scm>
 
-  <dependencyManagement>
+  <repositories>
+    <repository>
+      <!-- 
+          To be removed when http://jira.codehaus.org/browse/MAVENUPLOAD-2519 
+          and http://jira.codehaus.org/browse/MAVENUPLOAD-2521 are closed 
+        -->
+      <id>smack-temp-repo</id>
+      <url>http://people.apache.org/~ngn/vysper-repo/</url>
+    </repository>
+  </repositories>
 
+  <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>org.springframework</groupId>
@@ -207,14 +217,14 @@
       <dependency>
         <groupId>jivesoftware</groupId>
         <artifactId>smack</artifactId>
-        <version>3.0.4</version>
+        <version>3.1.0</version>
         <scope>test</scope>
       </dependency>
 
       <dependency>
         <groupId>jivesoftware</groupId>
         <artifactId>smackx</artifactId>
-        <version>3.0.4</version>
+        <version>3.1.0</version>
         <scope>test</scope>
       </dependency>
 
