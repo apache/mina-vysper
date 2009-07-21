@@ -197,6 +197,12 @@
         <version>1.5.3</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.apache.vysper</groupId>
+        <artifactId>vysper-core</artifactId>
+        <version>${pom.version}</version>
+      </dependency>
+
       <!-- Spec compliance -->
       <dependency>
         <groupId>org.apache.vysper</groupId>

@@ -19,19 +19,18 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0">
     <parent>
-        <artifactId>vysper-parent</artifactId>
+        <artifactId>vysper-server</artifactId>
         <groupId>org.apache.vysper</groupId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.vysper</groupId>
-  <artifactId>vysper-server</artifactId>
-  <name>Apache Vysper Server</name>
+  <artifactId>vysper-extensions</artifactId>
+  <name>Apache Vysper Extensions</name>
   <version>1.0.0-SNAPSHOT</version>
    <packaging>pom</packaging>
 
   <modules>
-    <module>core</module>
-    <module>extensions</module>
+    <module>xep0060-pubsub</module>
   </modules>
 </project>
