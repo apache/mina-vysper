@@ -33,6 +33,7 @@
     <dependency>
       <groupId>org.apache.vysper</groupId>
       <artifactId>spec-compliance</artifactId>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.apache.vysper</groupId>
@@ -66,40 +67,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>apt-maven-plugin</artifactId>
-        <version>1.0-alpha-2</version>
-        <configuration>
-          <factory>
-            org.apache.vysper.compliance.reporting.DocumentSpecCompliantAnnotationFactory
-          </factory>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-
-  <profiles>
-    <profile>
-      <id>default-tools.jar</id>
-      <activation>
-        <file>
-          <exists>${java.home}/../lib/tools.jar</exists>
-        </file>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>com.sun</groupId>
-          <artifactId>tools</artifactId>
-          <version>1.4.2</version>
-          <scope>system</scope>
-          <systemPath>${java.home}/../lib/tools.jar
-          </systemPath>
-        </dependency>
-      </dependencies>
-    </profile>
-  </profiles>
 </project>

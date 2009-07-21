@@ -39,7 +39,6 @@
     <dependency>
       <groupId>org.apache.mina</groupId>
       <artifactId>mina-core</artifactId>
-      <optional>true</optional>
     </dependency>
 
     <dependency>
@@ -51,7 +50,6 @@
     <dependency>
       <groupId>org.apache.mina</groupId>
       <artifactId>mina-filter-ssl</artifactId>
-      <optional>true</optional>
     </dependency>
 
     <dependency>
@@ -69,37 +67,31 @@
     <dependency>
       <groupId>javax.jcr</groupId>
       <artifactId>jcr</artifactId>
-      <optional>true</optional>
     </dependency>
 
     <dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-core</artifactId>
-      <optional>true</optional>
     </dependency>
 
     <dependency>
       <groupId>xml-apis</groupId>
       <artifactId>xml-apis</artifactId>
-      <optional>true</optional>
     </dependency>
 
     <dependency>
       <groupId>xerces</groupId>
       <artifactId>xercesImpl</artifactId>
-      <optional>true</optional>
     </dependency>
 
     <dependency>
       <groupId>bouncycastle</groupId>
       <artifactId>bcprov-jdk15</artifactId>
-      <optional>true</optional>
     </dependency>
 
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
-      <optional>true</optional>
     </dependency>
 
     <!-- Logging -->
@@ -156,17 +148,6 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>apt-maven-plugin</artifactId>
-        <version>1.0-alpha-2</version>
-        <configuration>
-          <factory>
-            org.apache.vysper.compliance.reporting.DocumentSpecCompliantAnnotationFactory
-          </factory>
-        </configuration>
-      </plugin>
-      
-      <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <executions>
           <execution>
@@ -178,26 +159,4 @@
       </plugin>
     </plugins>
   </build>
-
-  <profiles>
-    <profile>
-      <id>default-tools.jar</id>
-      <activation>
-        <file>
-          <exists>${java.home}/../lib/tools.jar</exists>
-        </file>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>com.sun</groupId>
-          <artifactId>tools</artifactId>
-          <version>1.4.2</version>
-          <scope>system</scope>
-          <systemPath>${java.home}/../lib/tools.jar
-          </systemPath>
-        </dependency>
-      </dependencies>
-    </profile>
-
-  </profiles>
 </project>

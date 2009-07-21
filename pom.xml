@@ -242,7 +242,7 @@
   <build>
     <pluginManagement>
       <plugins>
-        <!-- set versions of common plugins for reproducibility, ordered alphabetically -->
+        <!-- set versions of common plugins for reproducibility -->
 
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
@@ -300,6 +300,17 @@
     </pluginManagement>
 
     <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>apt-maven-plugin</artifactId>
+        <version>1.0-alpha-2</version>
+        <configuration>
+          <factory>
+            org.apache.vysper.compliance.reporting.DocumentSpecCompliantAnnotationFactory
+          </factory>
+        </configuration>
+      </plugin>
+      
       <plugin>
         <artifactId>maven-remote-resources-plugin</artifactId>
         <executions>
