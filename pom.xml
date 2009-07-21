@@ -144,20 +144,6 @@
         <groupId>org.apache.jackrabbit</groupId>
         <artifactId>jackrabbit-core</artifactId>
         <version>1.5.3</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.apache.jackrabbit</groupId>
-            <artifactId>jackrabbit-text-extractors</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.derby</groupId>
-            <artifactId>derby</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
 
       <dependency>
