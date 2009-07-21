@@ -33,61 +33,73 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring</artifactId>
+      <optional>true</optional>
     </dependency>
 
     <dependency>
       <groupId>org.apache.mina</groupId>
       <artifactId>mina-core</artifactId>
+      <optional>true</optional>
     </dependency>
 
     <dependency>
       <groupId>org.apache.mina</groupId>
       <artifactId>mina-integration-jmx</artifactId>
+      <optional>true</optional>
     </dependency>
 
     <dependency>
       <groupId>org.apache.mina</groupId>
       <artifactId>mina-filter-ssl</artifactId>
+      <optional>true</optional>
     </dependency>
 
     <dependency>
       <groupId>org.apache.mina</groupId>
       <artifactId>mina-integration-spring</artifactId>
+      <optional>true</optional>
     </dependency>
 
     <dependency>
       <groupId>org.cyberneko.pull</groupId>
       <artifactId>nekopull</artifactId>
+      <optional>true</optional>
     </dependency>
 
     <dependency>
       <groupId>javax.jcr</groupId>
       <artifactId>jcr</artifactId>
+      <optional>true</optional>
     </dependency>
 
     <dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-core</artifactId>
+      <optional>true</optional>
     </dependency>
 
     <dependency>
       <groupId>xml-apis</groupId>
       <artifactId>xml-apis</artifactId>
+      <optional>true</optional>
     </dependency>
 
     <dependency>
       <groupId>xerces</groupId>
       <artifactId>xercesImpl</artifactId>
+      <optional>true</optional>
     </dependency>
 
     <dependency>
       <groupId>bouncycastle</groupId>
       <artifactId>bcprov-jdk15</artifactId>
+      <optional>true</optional>
     </dependency>
 
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
+      <optional>true</optional>
     </dependency>
 
     <!-- Logging -->
@@ -99,12 +111,14 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>jcl-over-slf4j</artifactId>
+      <optional>true</optional>
     </dependency>
     
     <!-- Spec compliance -->
     <dependency>
       <groupId>org.apache.vysper</groupId>
       <artifactId>spec-compliance</artifactId>
+      <optional>true</optional>
     </dependency>
 
     <!-- Test dependencies -->
@@ -145,6 +159,17 @@
             org.apache.vysper.compliance.reporting.DocumentSpecCompliantAnnotationFactory
           </factory>
         </configuration>
+      </plugin>
+      
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
