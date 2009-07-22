@@ -32,5 +32,6 @@
 
   <modules>
     <module>xep0060-pubsub</module>
+    <module>xep0045-muc</module>
   </modules>
 </project>
