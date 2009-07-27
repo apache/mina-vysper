@@ -73,7 +73,8 @@ public class PubSubOwnerDeleteNodeHandler extends AbstractPubSubOwnerHandler {
     protected Stanza handleSet(IQStanza stanza,
             ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
-        extractParties(stanza, sessionContext);
+        Entity receiver = stanza.getTo();
+        Entity sender = extractSenderJID(stanza, sessionContext);
         
         String iqStanzaID = stanza.getAttributeValue("id");
         StanzaBuilder sb = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.RESULT, iqStanzaID);
