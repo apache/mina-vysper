@@ -229,6 +229,7 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
             // send probes to all contacts of the current jid where
             // 'subscription' is either 'to' or 'both'
             // TODO: ...and jid is not blocking inbound presence notification
+            // TODO: optimize: don't send server-local probes when contact's presence is known locally
             List<RosterItem> rosterContacts_TO = new ArrayList<RosterItem>();
             rosterContacts_TO.addAll(item_TO);
             rosterContacts_TO.addAll(item_BOTH);
@@ -257,7 +258,19 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
         return presenceStanza;
     }
 
-    @SpecCompliant(spec = "RFC3921bis-04", section = "4.3.2")
+    /**
+     * TODO I don't think this works particulary good.
+     * @param stanza
+     * @param serverRuntimeContext
+     * @param sessionContext
+     * @param registry
+     * @param rosterManager
+     * @return
+     */
+    @SpecCompliance(compliant = { 
+        @SpecCompliant(spec = "RFC3921bis-04", section = "4.3.2"),
+        @SpecCompliant(spec = "RFC3921bis-08", section = "4.3.2")
+    })
 	private XMPPCoreStanza handleInboundPresenceProbe(PresenceStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, ResourceRegistry registry, RosterManager rosterManager) {
 		Entity contact = stanza.getFrom();
 		Entity user = stanza.getTo();
@@ -274,21 +287,35 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
             return null;
 		}
 
-        if (user.getResource() == null) {
+        if (contact.getResource() == null) {
             // presence probes must happen on resource level!
             relayStanza(contact, buildPresenceStanza(user, contact, UNSUBSCRIBED, null), sessionContext);
             return null;
         }
 
-        PresenceStanza presenceStanza = retrieveLatestPresence(sessionContext, user);
-        if (presenceStanza == null) {
+        PresenceStanza latestPresenceStanza = null;
+        if (!user.isResourceSet()) {
+            List<String> availableResources = serverRuntimeContext.getResourceRegistry().getAvailableResources(user);
+            for (String availableResource : availableResources) {
+                PresenceStanza presenceStanza = serverRuntimeContext.getPresenceCache().get(new EntityImpl(user, availableResource));
+                // TODO which one to take? which resource has the current presence?
+                if (presenceStanza != null) {
+                    latestPresenceStanza = presenceStanza;
+                    break;
+                }
+            }
+        } else {
+            latestPresenceStanza = retrieveLatestPresence(sessionContext, user);
+        }
+        
+        if (latestPresenceStanza == null) {
             // we have no current presence info
             relayStanza(contact, buildPresenceStanza(user, contact, UNAVAILABLE, null), sessionContext);
             return null;
         }
 
         // return current presence as probing result
-        relayStanza(contact, buildPresenceStanza(user, contact, null, presenceStanza.getInnerElements()), sessionContext);
+        relayStanza(contact, buildPresenceStanza(user, contact, null, latestPresenceStanza.getInnerElements()), sessionContext);
 
 		return null;
 	}
