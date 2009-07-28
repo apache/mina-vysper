@@ -158,8 +158,11 @@ public class XMLRawToFragmentConverter {
             // but we do not support that.
             throw new DecodingException("unsupported legal XML: colon at start of element name and no namespace specified");
         }
-        if (createStanza) return new Stanza(elementName, namespacePrefix, attributes, innerFragments);
-        else return new XMLElement(elementName, namespacePrefix, attributes, innerFragments);
+        if (createStanza) {
+            Stanza stanza = new Stanza(elementName, namespacePrefix, attributes, innerFragments);
+            // place for filtering stanzas very early
+            return stanza;
+        } else return new XMLElement(elementName, namespacePrefix, attributes, innerFragments);
     }
 
     private List<Attribute> parseAttributes(String content) throws DecodingException {

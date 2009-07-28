@@ -137,18 +137,19 @@ public class PresenceSubscriptionHandler extends AbstractPresenceSpecializedHand
                     // RFC3921bis-04#3.3.3
                     // contact unsubscribes
                     handleInboundUnsubscription(presenceStanza, serverRuntimeContext, sessionContext, registry, rosterManager);
+                    return null;
 
                 case UNSUBSCRIBED:
                     // RFC3921bis-04#3.2.3
                     // contact denies subsription
                     handleInboundSubscriptionCancellation(presenceStanza, serverRuntimeContext, sessionContext, registry, rosterManager);
+                    return null;
 
                 default:
                     throw new RuntimeException("unhandled case " + type.value());
 
             }
         }
-
         return null;
     }
 
