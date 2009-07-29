@@ -34,6 +34,8 @@ public class SimplePresenceCache implements LatestPresenceCache {
 
     public void put(Entity entity, PresenceStanza presenceStanza) {
         checkEntry(entity);
+        // force adding at the end, this guarantees that the entry is the latest in getForBareJID()
+        presenceMap.remove(entity);  
         presenceMap.put(entity, new Entry(presenceStanza));
     }
 
@@ -45,7 +47,19 @@ public class SimplePresenceCache implements LatestPresenceCache {
     public PresenceStanza get(Entity entity) throws PresenceCachingException {
         checkEntry(entity);
         Entry entry = presenceMap.get(entity);
+        if (entry == null) return null;
         return entry.getPresenceStanza();
+    }
+
+    public PresenceStanza getForBareJID(Entity entity) throws PresenceCachingException {
+        // TODO this is naive and not optimized. the whole key set is traversed every time
+        PresenceStanza latest = null;
+        for (Entity key : presenceMap.keySet()) {
+            if (key.getBareJID().equals(entity)) {
+                latest = presenceMap.get(key).getPresenceStanza(); // this is the latest until we find a newer one
+            }
+        }
+        return latest;
     }
 
     public void remove(Entity entity) {

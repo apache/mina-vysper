@@ -140,6 +140,16 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         addDictionaries(dictionaries);
     }
 
+    /**
+     * change the presence cache implementation. this is a setter intended to be used at
+     * initialisation time. (thus, this method is not part of ServerRuntimeContext.
+     * 
+     * @param presenceCache
+     */
+    public void setPresenceCache(LatestPresenceCache presenceCache) {
+        this.presenceCache = presenceCache;
+    }
+
     public StanzaHandler getHandler(Stanza stanza) {
         return stanzaHandlerLookup.getHandler(stanza);
     }

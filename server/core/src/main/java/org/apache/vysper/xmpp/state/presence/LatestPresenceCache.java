@@ -24,12 +24,36 @@ import org.apache.vysper.xmpp.stanza.PresenceStanza;
 
 /**
  * Keeps the latest presence for a resource
- */
+ */                                 
 public interface LatestPresenceCache {
 
+    /**
+     * puts the latest presence stanza for the resource into the cache
+     * @param entity the entity with the resource id set
+     * @param presenceStanza latest presence stanza
+     * @throws PresenceCachingException
+     */
     void put(Entity entity, PresenceStanza presenceStanza) throws PresenceCachingException;
 
+    /**
+     * retrieves the latest presence stanza for the resource from the cache
+     * @param entity the entity with the resource id set
+     * @return
+     * @throws PresenceCachingException
+     */
     PresenceStanza get(Entity entity) throws PresenceCachingException;
 
+    /**
+     * retrieves the latest presence stanza for the resource from the cache
+     * @param entity the entity with the resource id set
+     * @return
+     * @throws PresenceCachingException
+     */
+    PresenceStanza getForBareJID(Entity entity) throws PresenceCachingException;
+
+    /**
+     * removes the stanza for this particular resource (on UNAVAILABLE or session termination) 
+     * @param entity the entity with the resource id set
+     */
     void remove(Entity entity);
 }

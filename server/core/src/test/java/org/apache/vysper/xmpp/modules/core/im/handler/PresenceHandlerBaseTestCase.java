@@ -22,9 +22,7 @@ package org.apache.vysper.xmpp.modules.core.im.handler;
 import junit.framework.TestCase;
 import org.apache.vysper.storage.OpenStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.delivery.StanzaReceiverQueue;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
 import org.apache.vysper.xmpp.modules.roster.AskSubscriptionType;
 import org.apache.vysper.xmpp.modules.roster.RosterException;
@@ -32,13 +30,13 @@ import org.apache.vysper.xmpp.modules.roster.RosterItem;
 import org.apache.vysper.xmpp.modules.roster.RosterUtils;
 import org.apache.vysper.xmpp.modules.roster.SubscriptionType;
 import org.apache.vysper.xmpp.modules.roster.persistence.MemoryRosterManager;
+import org.apache.vysper.xmpp.modules.core.TestUser;
 import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.PresenceStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
-import org.apache.vysper.xmpp.state.resourcebinding.BindException;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceState;
 import org.apache.vysper.xmpp.xmlfragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
@@ -190,57 +188,3 @@ abstract public class PresenceHandlerBaseTestCase extends TestCase {
     }
 }
 
-class TestUser {
-    protected String boundResourceId;
-    protected Entity entity;
-    protected StanzaReceiverQueue queue;
-    protected Entity fqEntity;
-
-    static TestUser createForSession(TestSessionContext sessionContext, Entity entity) throws BindException {
-        String boundResourceId = sessionContext.bindResource();
-        StanzaReceiverQueue queue = sessionContext.addReceiver(entity, boundResourceId);
-        return new TestUser(boundResourceId, entity, queue);
-    }
-
-    static TestUser createQueueReceiver(TestSessionContext parentSession, String entity) throws BindException, EntityFormatException {
-        return createQueueReceiver(parentSession, EntityImpl.parse(entity));
-    }
-
-    static TestUser createQueueReceiver(TestSessionContext parentSession, Entity entity) throws BindException {
-        StanzaReceiverQueue queue = parentSession.addReceiver(entity, null);
-        return new TestUser(null, entity, queue);
-    }
-
-    static TestUser createContact(TestSessionContext parentSession, MemoryRosterManager rosterManager, String entity, SubscriptionType subscriptionType) throws BindException, EntityFormatException, RosterException {
-        TestUser testUser = createQueueReceiver(parentSession, EntityImpl.parse(entity));
-        rosterManager.addContact(parentSession.getInitiatingEntity(), new RosterItem(testUser.getEntity(), subscriptionType));
-        return testUser;
-    }
-
-    TestUser(String boundResourceId, Entity entity, StanzaReceiverQueue queue) {
-        this.boundResourceId = boundResourceId;
-        this.entity = entity;
-        this.queue = queue;
-        this.fqEntity = new EntityImpl(entity, boundResourceId);
-    }
-
-    public String getBoundResourceId() {
-        return boundResourceId;
-    }
-
-    public Entity getEntity() {
-        return entity;
-    }
-
-    public StanzaReceiverQueue getQueue() {
-        return queue;
-    }
-
-    public Stanza getNextStanza() {
-        return queue.getNext();
-    }
-
-    public Entity getEntityFQ() {
-        return fqEntity;
-    }
-}
