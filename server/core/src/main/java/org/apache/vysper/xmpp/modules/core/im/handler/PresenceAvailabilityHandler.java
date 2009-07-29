@@ -328,22 +328,7 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
             return null;
         }
 
-        PresenceStanza latestPresenceStanza = null;
-        if (!user.isResourceSet()) {
-            List<String> availableResources = serverRuntimeContext.getResourceRegistry().getAvailableResources(user);
-            for (String availableResource : availableResources) {
-                PresenceStanza presenceStanza = serverRuntimeContext.getPresenceCache().get(
-                        new EntityImpl(user, availableResource));
-                // TODO which one to take? which resource has the most current presence?
-                if (presenceStanza != null) {
-                    latestPresenceStanza = presenceStanza;
-                    break;
-                }
-            }
-        } else {
-            latestPresenceStanza = retrieveLatestPresence(sessionContext, user);
-        }
-        
+        PresenceStanza latestPresenceStanza = retrieveLatestPresence(sessionContext, user);
         if (latestPresenceStanza == null) {
             // we have no current presence info
             relayStanza(contact, buildPresenceStanza(user, contact, UNAVAILABLE, null), sessionContext);
@@ -361,7 +346,7 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
     }
 
     private PresenceStanza retrieveLatestPresence(SessionContext sessionContext, Entity user) {
-        return sessionContext.getServerRuntimeContext().getPresenceCache().get(user);
+        return sessionContext.getServerRuntimeContext().getPresenceCache().getForBareJID(user.getBareJID());
     }
 
     @SpecCompliant(spec = "RFC3921bis-08", section = "4.2.3")
