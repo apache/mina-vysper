@@ -113,6 +113,12 @@
       <optional>true</optional>
     </dependency>
 
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+      <optional>true</optional>
+    </dependency>
+
     <!-- Test dependencies -->
     <dependency>
       <groupId>junit</groupId>
@@ -143,14 +149,6 @@
       <artifactId>log4j</artifactId>
       <scope>test</scope>
     </dependency>
-
-      <dependency>
-        <groupId>net.sf.ehcache</groupId>
-        <artifactId>ehcache</artifactId>
-        <version>1.6.1</version>
-        <type>jar</type>
-        <!--classifier>jaronly</classifier-->
-   </dependency>
   </dependencies>
 
   <build>
