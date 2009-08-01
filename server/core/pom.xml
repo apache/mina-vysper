@@ -143,6 +143,14 @@
       <artifactId>log4j</artifactId>
       <scope>test</scope>
     </dependency>
+
+      <dependency>
+        <groupId>net.sf.ehcache</groupId>
+        <artifactId>ehcache</artifactId>
+        <version>1.6.1</version>
+        <type>jar</type>
+        <!--classifier>jaronly</classifier-->
+   </dependency>
   </dependencies>
 
   <build>
