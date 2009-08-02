@@ -21,13 +21,16 @@
 package org.apache.vysper.xmpp.modules.core.base.handler;
 
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.stanza.MessageStanza;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
+import org.apache.vysper.xmpp.xmlfragment.Attribute;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.delivery.failure.ReturnErrorToSenderFailureStrategy;
 
@@ -84,9 +87,6 @@ public class MessageHandler extends XMPPCoreStanzaHandler {
 
         // TODO inspect all BODY elements and make sure they conform to the spec
 
-        Entity to = stanza.getTo();
-
-
         if (isOutboundStanza) {
             // check if message reception is turned of either globally or locally
             if (!serverRuntimeContext.getServerFeatures().isRelayingMessages() ||
@@ -94,9 +94,25 @@ public class MessageHandler extends XMPPCoreStanzaHandler {
                 return null;
             }
 
+            Entity from = stanza.getFrom();
+            if (from == null || !from.isResourceSet()) {
+                // rewrite stanza with new from
+                from = new EntityImpl(sessionContext.getInitiatingEntity(), serverRuntimeContext.getResourceRegistry().getUniqueResourceForSession(sessionContext));
+                StanzaBuilder stanzaBuilder = new StanzaBuilder(stanza.getName());
+                for (Attribute attribute : stanza.getAttributes()) {
+                    if ("from".equals(attribute.getName())) continue;
+                    stanzaBuilder.addAttribute(attribute);
+                }
+                stanzaBuilder.addAttribute(new Attribute("from", from.getFullQualifiedName()));
+                for (XMLElement preparedElement : stanza.getInnerElements()) {
+                    stanzaBuilder.addPreparedElement(preparedElement);
+                }
+                stanza = XMPPCoreStanza.getWrapper(stanzaBuilder.getFinalStanza());
+            }
+
             StanzaRelay stanzaRelay = serverRuntimeContext.getStanzaRelay();
             try {
-                stanzaRelay.relay(to, stanza, new ReturnErrorToSenderFailureStrategy(stanzaRelay));
+                stanzaRelay.relay(stanza.getTo(), stanza, new ReturnErrorToSenderFailureStrategy(stanzaRelay));
             } catch (Exception e) {
                 // TODO return error stanza
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.

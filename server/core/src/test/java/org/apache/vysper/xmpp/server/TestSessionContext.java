@@ -45,6 +45,11 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
     private boolean isReopeningXMLStream;
     private int recordedResponsesTotal = 0;
 
+    /**
+     * creates a new session context (but doesn't set the runtime context)
+     * @param entity
+     * @return
+     */
     public static TestSessionContext createSessionContext(Entity entity) {
         SessionStateHolder sessionStateHolder = new SessionStateHolder();
         TestSessionContext sessionContext = new TestSessionContext(sessionStateHolder);
@@ -52,15 +57,36 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
         return sessionContext;
     }
 
+    /**
+     * creates a new authenticated session and a new runtime context
+     * @return
+     */
     public static TestSessionContext createWithStanzaReceiverRelayAuthenticated() {
         SessionStateHolder sessionStateHolder = new SessionStateHolder();
         sessionStateHolder.setState(SessionState.AUTHENTICATED);
         return createWithStanzaReceiverRelay(sessionStateHolder);
     }
-    
+
+    /**
+     * creates a session and also creates a fresh runtime context for it
+     * @param sessionStateHolder
+     * @return
+     */
     public static TestSessionContext createWithStanzaReceiverRelay(SessionStateHolder sessionStateHolder) {
         StanzaReceiverRelay relay = new org.apache.vysper.xmpp.delivery.StanzaReceiverRelay();
         DefaultServerRuntimeContext serverContext = new DefaultServerRuntimeContext(new EntityImpl(null, "test", null), relay);
+        relay.setServerRuntimeContext(serverContext);
+        return new TestSessionContext(serverContext, sessionStateHolder);
+    }
+
+    /**
+     * creates another session for an already created runtime context
+     * @param sessionStateHolder
+     * @param serverContext
+     * @return
+     */
+    public static TestSessionContext createWithStanzaReceiverRelay(SessionStateHolder sessionStateHolder, ServerRuntimeContext serverContext) {
+        StanzaReceiverRelay relay = (StanzaReceiverRelay)serverContext.getStanzaRelay();
         relay.setServerRuntimeContext(serverContext);
         return new TestSessionContext(serverContext, sessionStateHolder);
     }

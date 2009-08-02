@@ -38,8 +38,12 @@ public class TestUser {
     protected Entity fqEntity;
 
     public static TestUser createForSession(TestSessionContext sessionContext, Entity entity) throws BindException {
+        return createForSession(sessionContext, entity, true);
+    }
+
+    public static TestUser createForSession(TestSessionContext sessionContext, Entity entity, boolean receiveForFullJID) throws BindException {
         String boundResourceId = sessionContext.bindResource();
-        StanzaReceiverQueue queue = sessionContext.addReceiver(entity, boundResourceId);
+        StanzaReceiverQueue queue = sessionContext.addReceiver(entity, receiveForFullJID ? boundResourceId : null);
         return new TestUser(boundResourceId, entity, queue);
     }
 
