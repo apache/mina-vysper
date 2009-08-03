@@ -20,11 +20,34 @@
 package org.apache.vysper.storage;
 
 /**
- *
+ * This registry bundles storage providers. It is primarily intended for
+ * grouping for one kind of underlying storage, for example in-memory, SQL
+ * or JCR, but custom mixed collections are possible. 
+ * 
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public interface StorageProviderRegistry {
+
+    /**
+     * access the ready-to-go storage provider instance implementing the
+     * given interface
+     * @param clazz a class implementing StorageProvider 
+     * @return the fully initialized storage provider
+     */
     StorageProvider retrieve(Class<? extends StorageProvider> clazz);
 
+    /**
+     * adds a storage provider implementation to the registry
+     * @param storageProvider
+     */
     void add(StorageProvider storageProvider);
+
+    /**
+     * adds a storage provider implementaton to the registry
+     * the registry is responsible for instantiating the given class 
+     * @param storageProviderFullQualifiedClassname fully qualified
+     * class name of the implementation. the implementation must have a public
+     * no-argument constructor
+     */
+    void add(String  storageProviderFullQualifiedClassname);
 }

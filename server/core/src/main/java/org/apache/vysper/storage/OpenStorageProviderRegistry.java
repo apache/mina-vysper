@@ -28,7 +28,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- *
+ * multi-purpose storage provider registry. it is recommended to re-use this
+ * class as a base class for own extensions.
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class OpenStorageProviderRegistry implements StorageProviderRegistry {
@@ -62,6 +63,26 @@ public class OpenStorageProviderRegistry implements StorageProviderRegistry {
 
         for (Class storageProviderInterface : storageProviderInterfaces) {
             addInternal(storageProviderInterface, storageProvider);
+        }
+    }
+
+    public void add(String storageProviderFQClassname) {
+        Class<StorageProvider> storageProviderClass;
+        try {
+            storageProviderClass = (Class<StorageProvider>)Class.forName(storageProviderFQClassname);
+        } catch (ClassCastException e) {
+            System.err.println("not a Vysper storage provider class: " + storageProviderFQClassname);
+            return;
+        } catch (ClassNotFoundException e) {
+            System.err.println("could not load storage provider class " + storageProviderFQClassname);
+            return;
+        }
+        try {
+            StorageProvider storageProvider = storageProviderClass.newInstance();
+            add(storageProvider);
+        } catch (Exception e) {
+            System.err.println("failed to instantiate storage provider class " + storageProviderFQClassname);
+            return;
         }
     }
 
