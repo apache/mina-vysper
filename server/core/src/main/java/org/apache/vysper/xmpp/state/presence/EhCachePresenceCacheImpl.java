@@ -55,20 +55,30 @@ public class EhCachePresenceCacheImpl extends AbstractBaseCache {
     // Cache instance to store presence information against JID
     private Cache jidPresenceCache = null;
 
+    // Default ehcache configuration file
+    private static final String DEFAULT_EHCACHE_CONFIG_FILE = "/ehcache.xml";
+
     /**
      * Defaulr Contructor
+     *
+     * @param configFile    ehcache configuration file
      */
-    public EhCachePresenceCacheImpl() {
-        createCache();
+    public EhCachePresenceCacheImpl(String configFile) {
+        createCache(configFile);
     }
 
     /**
      * Create the ehcache based on ehcache.xml file
      * Create two cache instances to store PresenceStanza against Entity and
      * JID
+     *
+     * @param configFile    ehcache configuration file
      */
-    protected void createCache() {
-        URL configFileURL = getClass().getResource("/ehcache.xml");
+    protected void createCache(String configFile) {
+        if(configFile == null) {
+            configFile = DEFAULT_EHCACHE_CONFIG_FILE;            
+        }
+        URL configFileURL = getClass().getResource(configFile);
         if(configFileURL == null) {
             throw new RuntimeException("ehcache configuration file ehcache.xml not found on classpath");
         }
@@ -82,7 +92,7 @@ public class EhCachePresenceCacheImpl extends AbstractBaseCache {
      * @inheritDoc
      */
     @Override
-    public void put0(Entity entity, PresenceStanza presenceStanza)
+    protected void put0(Entity entity, PresenceStanza presenceStanza)
                                     throws PresenceCachingException {
         // Create EhCache elements to be stored
         Element cacheElement = new Element(entity, presenceStanza);
@@ -96,7 +106,7 @@ public class EhCachePresenceCacheImpl extends AbstractBaseCache {
      * @inheritDoc
      */
     @Override
-    public PresenceStanza get0(Entity entity) throws PresenceCachingException {
+    protected PresenceStanza get0(Entity entity) throws PresenceCachingException {
         // Get the Element from cache
         Element cacheElement = presenceCache.get(entity);
 

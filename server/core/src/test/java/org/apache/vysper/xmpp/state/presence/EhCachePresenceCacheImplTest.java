@@ -32,7 +32,7 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
  */
 public class EhCachePresenceCacheImplTest extends LatestPresenceCacheTestCase {
 
-    LatestPresenceCache presenceCache  = new EhCachePresenceCacheImpl();
+    LatestPresenceCache presenceCache  = new EhCachePresenceCacheImpl(null);
 
     @Override
     protected void setUp() throws Exception {
@@ -98,12 +98,11 @@ public class EhCachePresenceCacheImplTest extends LatestPresenceCacheTestCase {
 
     /**
      * Returns an Entity to be used as a key
-     * @return
+     * @return  Entity instance
      */
     protected Entity getEntity() {
         try {
-            Entity entity = EntityImpl.parse("tester@apache.org/test");
-            return entity;
+            return EntityImpl.parse("tester@apache.org/test");
         } catch (Exception e) {
             return null;
         }
