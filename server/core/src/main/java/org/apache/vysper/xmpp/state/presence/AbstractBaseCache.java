@@ -72,7 +72,7 @@ public abstract class AbstractBaseCache implements LatestPresenceCache {
      * @param presenceStanza    PresenceStanza to be stored
      * @throws PresenceCachingException
      */
-    public abstract void put0(Entity entity, PresenceStanza presenceStanza)
+    protected abstract void put0(Entity entity, PresenceStanza presenceStanza)
                                     throws PresenceCachingException;
 
     public PresenceStanza get(Entity entity) throws PresenceCachingException {
@@ -87,6 +87,6 @@ public abstract class AbstractBaseCache implements LatestPresenceCache {
      * @return              PresenceStanza related with the key
      * @throws PresenceCachingException
      */
-    public abstract PresenceStanza get0(Entity entity)
+    protected abstract PresenceStanza get0(Entity entity)
                                             throws PresenceCachingException;
 }

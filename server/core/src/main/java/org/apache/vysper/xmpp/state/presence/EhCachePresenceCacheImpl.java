@@ -68,9 +68,9 @@ public class EhCachePresenceCacheImpl extends AbstractBaseCache {
      * JID
      */
     protected void createCache() {
-        URL configFileURL = getClass().getResource("ehcache.xml");
+        URL configFileURL = getClass().getResource("/ehcache.xml");
         if(configFileURL == null) {
-
+            throw new RuntimeException("ehcache configuration file ehcache.xml not found on classpath");
         }
         CacheManager.create();
 
@@ -81,6 +81,7 @@ public class EhCachePresenceCacheImpl extends AbstractBaseCache {
     /**
      * @inheritDoc
      */
+    @Override
     public void put0(Entity entity, PresenceStanza presenceStanza)
                                     throws PresenceCachingException {
         // Create EhCache elements to be stored
@@ -94,6 +95,7 @@ public class EhCachePresenceCacheImpl extends AbstractBaseCache {
     /**
      * @inheritDoc
      */
+    @Override
     public PresenceStanza get0(Entity entity) throws PresenceCachingException {
         // Get the Element from cache
         Element cacheElement = presenceCache.get(entity);

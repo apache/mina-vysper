@@ -28,23 +28,20 @@ import java.util.Map;
 /**
  * unbounded in-memory-only cache, but entries are timestamped and oldest entry is the first in list
  */
-public class SimplePresenceCache implements LatestPresenceCache {
+public class SimplePresenceCache extends AbstractBaseCache {
 
     private final Map<Entity, Entry> presenceMap = new LinkedHashMap<Entity, Entry>();
 
-    public void put(Entity entity, PresenceStanza presenceStanza) {
+    @Override
+    protected void put0(Entity entity, PresenceStanza presenceStanza) {
         checkEntry(entity);
         // force adding at the end, this guarantees that the entry is the latest in getForBareJID()
         presenceMap.remove(entity);  
         presenceMap.put(entity, new Entry(presenceStanza));
     }
 
-    private void checkEntry(Entity entity) {
-        if (entity == null) throw new PresenceCachingException("entity might not be null");
-        if (entity.getResource() == null) throw new PresenceCachingException("presense stanzas are cached per resource, failure for " + entity.getFullQualifiedName());
-    }
-
-    public PresenceStanza get(Entity entity) throws PresenceCachingException {
+    @Override
+    protected PresenceStanza get0(Entity entity) throws PresenceCachingException {
         checkEntry(entity);
         Entry entry = presenceMap.get(entity);
         if (entry == null) return null;
