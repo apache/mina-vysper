@@ -19,19 +19,18 @@
  */
 package org.apache.vysper.mina.codec;
 
+import java.nio.charset.CharsetEncoder;
+
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.apache.vysper.charset.CharsetUtil;
 import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.writer.DenseStanzaLogRenderer;
 import org.apache.vysper.xmpp.writer.StanzaWriter;
 import org.apache.vysper.xmpp.xmlfragment.Renderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.nio.charset.CharsetEncoder;
 
 /**
  * connects MINA low level protocol and session stanza writer
@@ -41,7 +40,6 @@ import java.nio.charset.CharsetEncoder;
 public class StanzaWriterProtocolEncoder implements ProtocolEncoder {
 
     private final Logger logger = LoggerFactory.getLogger(StanzaWriterProtocolEncoder.class);
-    private final Logger serverStanzaLogger = LoggerFactory.getLogger("stanza.server");
 
     public void encode(IoSession ioSession, Object o, ProtocolEncoderOutput protocolEncoderOutput) throws Exception {
         if (!(o instanceof StanzaWriteInfo)) {
@@ -51,9 +49,6 @@ public class StanzaWriterProtocolEncoder implements ProtocolEncoder {
 
         Stanza element = stanzaWriteInfo.getStanza();
         Renderer renderer = new Renderer(element);
-
-        serverStanzaLogger.info(DenseStanzaLogRenderer.render(element));
-        serverStanzaLogger.debug(renderer.getComplete());
 
         ByteBuffer byteBuffer = ByteBuffer.allocate(16).setAutoExpand(true);
         if (stanzaWriteInfo.isWriteProlog()) byteBuffer.putString(StanzaWriter.XML_PROLOG, getSessionEncoder());

@@ -19,23 +19,20 @@
  */
 package org.apache.vysper.mina.codec;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.vysper.charset.CharsetUtil;
-import org.apache.vysper.xmpp.writer.DenseStanzaLogRenderer;
 import org.apache.vysper.xmpp.xmldecoder.DecodingException;
 import org.apache.vysper.xmpp.xmldecoder.ParticleDecoder;
 import org.apache.vysper.xmpp.xmldecoder.XMLParticle;
 import org.apache.vysper.xmpp.xmldecoder.XMLRawToFragmentConverter;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * splits xml stream into handy tokens for further processing
@@ -46,8 +43,6 @@ public class XMLStreamTokenizer extends CumulativeProtocolDecoder {
 
     public static final String SESSION_ATTRIBUTE_NAME = "tokenizerParticleList";
     private static final XMLRawToFragmentConverter CONVERTER = new XMLRawToFragmentConverter();
-
-    final Logger clientStanzaLogger = LoggerFactory.getLogger("stanza.client");
 
     @Override
     public boolean doDecode(IoSession ioSession, ByteBuffer byteBuffer, ProtocolDecoderOutput protocolDecoderOutput) throws Exception {
@@ -78,7 +73,6 @@ public class XMLStreamTokenizer extends CumulativeProtocolDecoder {
                         // propagate element
 
                         XMLElement element = (XMLElement) xmlFragment;
-                        clientStanzaLogger.info(DenseStanzaLogRenderer.render(element));
                         protocolDecoderOutput.write(element);
                     } else {
                         // TODO handle text elements properly might be only whitespaces/newlines

@@ -68,6 +68,7 @@ public class TCPEndpoint implements Endpoint {
         filterChainBuilder.addLast("executorFilter", new ExecutorFilter());
         filterChainBuilder.addLast("xmppCodec", new ProtocolCodecFilter(xmppCodec));
         filterChainBuilder.addLast("loggingFilter", new LoggingFilter());
+        filterChainBuilder.addLast("stanzaLoggingFilter", new StanzaLoggingFilter());
 
         SocketAcceptorConfig socketAcceptorConfig = new SocketAcceptorConfig();
         socketAcceptorConfig.setFilterChainBuilder(filterChainBuilder);
