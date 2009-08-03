@@ -97,7 +97,7 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
         Entity serviceEntity = serverRuntimeContext.getServerEnitity();
         if (to == null || to.equals(serviceEntity)) {
             isServerInfoRequest = true; // this can only be meant to query the server
-        } else if (!to.isNodeSet() && !to.getDomain().endsWith(serviceEntity.getDomain())) {
+        } else if (!to.isNodeSet()) {
             isServerInfoRequest = serviceEntity.equals(to);
             if (!isServerInfoRequest) {
                 return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.ITEM_NOT_FOUND, stanza,

@@ -70,12 +70,12 @@ public class ExtendedDiscoInfoTestCase extends TestCase {
             }
         });
 
-        DefaultServerRuntimeContext runtimeContext = new DefaultServerRuntimeContext(EntityImpl.parse("test.vysper.org"), null);
+        DefaultServerRuntimeContext runtimeContext = new DefaultServerRuntimeContext(EntityImpl.parse("vysper.org"), null);
         runtimeContext.registerServerRuntimeContextService(serviceCollector);
 
         DiscoInfoIQHandler infoIQHandler = new DiscoInfoIQHandler();
 
-        StanzaBuilder request = StanzaBuilder.createIQStanza(EntityImpl.parse("user@vysper.org"), EntityImpl.parse("info.test.vysper.org"), IQStanzaType.GET, "1");
+        StanzaBuilder request = StanzaBuilder.createIQStanza(EntityImpl.parse("user@vysper.org"), EntityImpl.parse("info@vysper.org"), IQStanzaType.GET, "1");
 
         IQStanza finalStanza = (IQStanza)XMPPCoreStanza.getWrapper(request.getFinalStanza());
         
