@@ -38,9 +38,13 @@ public class Item {
         this.name = name;
         this.node = node;
     }
+    
+    public Item(Entity jid, String name) {
+        this(jid, name, null);
+    }
 
     public Item(Entity jid) {
-        this.jid = jid;
+        this(jid, null, null);
     }
 
     public Entity getJid() {
