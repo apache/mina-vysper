@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
+package org.apache.vysper.xmpp.modules.extension.xep0045_muc.model;
 
 import org.apache.vysper.compliance.SpecCompliant;
 
