@@ -36,7 +36,7 @@ public class MemoryStorageProviderRegistry extends OpenStorageProviderRegistry {
         
         // provider from external modules, low coupling, fail when modules are not present
         add("org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeInMemoryStorageProvider");
-        add("org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.CollectionnodeInMemoryStorageProvider");
+        add("org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.CollectionNodeInMemoryStorageProvider");
     }
 
 }
