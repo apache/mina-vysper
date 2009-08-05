@@ -35,6 +35,6 @@ public interface SubscriberVisitor {
      * @param nodeName the name of the node
      * @param sub the subscriber JID
      */
-    void visit(String nodeName, Entity sub);
+    public void visit(String nodeName, Entity sub);
 
 }

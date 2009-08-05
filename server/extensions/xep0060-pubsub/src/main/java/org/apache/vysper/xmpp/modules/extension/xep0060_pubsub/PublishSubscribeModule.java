@@ -26,6 +26,7 @@ import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubCreateNodeHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubPublishHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubRetrieveSubscriptionsHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubSubscribeHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubUnsubscribeHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner.PubSubOwnerConfigureNodeHandler;
@@ -165,12 +166,12 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
         List<Item> items = null;
         
         if(request.getNode() == null || request.getNode().length() == 0) {
-            NodeVisitor nv = new ServiceDiscoItemsVisitor(serviceConfiguration);
+            ServiceDiscoItemsVisitor nv = new ServiceDiscoItemsVisitor(serviceConfiguration);
             root.acceptNodes(nv);
             items = nv.getNodeItemList();
         } else {
             LeafNode node = root.find(request.getNode());
-            ItemVisitor iv = new NodeDiscoItemsVisitor(request.getTo());
+            NodeDiscoItemsVisitor iv = new NodeDiscoItemsVisitor(request.getTo());
             node.acceptItems(iv);
             items = iv.getItemList();
         }
@@ -210,6 +211,7 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
         pubsubHandlers.add(new PubSubUnsubscribeHandler(serviceConfiguration));
         pubsubHandlers.add(new PubSubPublishHandler(serviceConfiguration));
         pubsubHandlers.add(new PubSubCreateNodeHandler(serviceConfiguration));
+        pubsubHandlers.add(new PubSubRetrieveSubscriptionsHandler(serviceConfiguration));
         dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB, pubsubHandlers));
     }
 }

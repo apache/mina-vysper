@@ -19,13 +19,10 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
-import java.util.List;
-
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
 
 /**
- * The NodeVisitor is used to visit all subscriptions of a collection node.
+ * The NodeVisitor is used to visit all nodes of a collection node.
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
@@ -37,11 +34,7 @@ public interface NodeVisitor {
      * 
      * @param ln the node (for more detailed data)
      */
-    void visit(LeafNode ln);
+    public void visit(LeafNode ln);
 
-    /**
-     * @return the ordered list of items.
-     */
-    List<Item> getNodeItemList();
 
 }
