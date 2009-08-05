@@ -31,7 +31,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-public class CollectionnodeInMemoryStorageProvider implements CollectionNodeStorageProvider {
+public class CollectionNodeInMemoryStorageProvider implements CollectionNodeStorageProvider {
 
     // Map to store the nodes, access via JID
     protected Map<String, LeafNode> nodes;
@@ -39,7 +39,7 @@ public class CollectionnodeInMemoryStorageProvider implements CollectionNodeStor
     /**
      * Initialize the storage provider.
      */
-    public CollectionnodeInMemoryStorageProvider() {
+    public CollectionNodeInMemoryStorageProvider() {
         nodes = new HashMap<String, LeafNode>();
     }
 

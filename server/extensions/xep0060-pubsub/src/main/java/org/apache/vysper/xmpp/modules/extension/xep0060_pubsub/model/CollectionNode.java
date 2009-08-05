@@ -22,7 +22,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.NodeVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.CollectionNodeStorageProvider;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.CollectionnodeInMemoryStorageProvider;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.CollectionNodeInMemoryStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeInMemoryStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeStorageProvider;
 
@@ -50,7 +50,7 @@ public class CollectionNode {
      * Initializes the default in-memory storage providers.
      */
     private void initStorageProviders() {
-        collectionNodeStorage = new CollectionnodeInMemoryStorageProvider();
+        collectionNodeStorage = new CollectionNodeInMemoryStorageProvider();
         leafNodeStorage = new LeafNodeInMemoryStorageProvider();
     }
 

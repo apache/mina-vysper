@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
+package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.feature;
 
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
