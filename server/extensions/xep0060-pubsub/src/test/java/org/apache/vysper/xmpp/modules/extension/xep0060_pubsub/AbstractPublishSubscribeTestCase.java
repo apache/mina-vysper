@@ -28,7 +28,7 @@ import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.AbstractStanzaGenerator;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.CollectionnodeInMemoryStorageProvider;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.CollectionNodeInMemoryStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeInMemoryStorageProvider;
 import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceCollector;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
@@ -110,7 +110,7 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
     
     protected void configureStorageProvider(TestSessionContext tsc) {
         OpenStorageProviderRegistry storageProviderRegistry = new OpenStorageProviderRegistry();
-        storageProviderRegistry.add(new CollectionnodeInMemoryStorageProvider());
+        storageProviderRegistry.add(new CollectionNodeInMemoryStorageProvider());
         storageProviderRegistry.add(new LeafNodeInMemoryStorageProvider());
         ((DefaultServerRuntimeContext) tsc.getServerRuntimeContext()).setStorageProviderRegistry(storageProviderRegistry);
     }
