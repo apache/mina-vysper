@@ -24,6 +24,7 @@ import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubServiceConfiguration;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
@@ -47,8 +48,8 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
     /**
      * @param root
      */
-    public PubSubSubscribeHandler(CollectionNode root) {
-        super(root);
+    public PubSubSubscribeHandler(PubSubServiceConfiguration serviceConfiguration) {
+        super(serviceConfiguration);
     }
 
     /**
@@ -82,13 +83,15 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
     protected Stanza handleSet(IQStanza stanza,
             ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
-        Entity receiver = stanza.getTo();
+        Entity serverJID = serviceConfiguration.getServerJID();
+        CollectionNode root = serviceConfiguration.getRootNode();
+        
         Entity sender = extractSenderJID(stanza, sessionContext);
         Entity subJID = null;
 
         String iqStanzaID = stanza.getAttributeValue("id");
 
-        StanzaBuilder sb = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.RESULT, iqStanzaID);
+        StanzaBuilder sb = StanzaBuilder.createIQStanza(serverJID, sender, IQStanzaType.RESULT, iqStanzaID);
         sb.startInnerElement("pubsub");
         sb.addNamespaceAttribute(NamespaceURIs.XEP0060_PUBSUB);
 
@@ -98,12 +101,12 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
         try {
             subJID = EntityImpl.parse(strSubJID);
         } catch (EntityFormatException e) {
-            return errorStanzaGenerator.generateJIDMalformedErrorStanza(sender, receiver, stanza);
+            return errorStanzaGenerator.generateJIDMalformedErrorStanza(sender, serverJID, stanza);
         }
 
         if(!sender.getBareJID().equals(subJID.getBareJID())) {
             // error condition 1 (6.1.3)
-            return errorStanzaGenerator.generateJIDDontMatchErrorStanza(sender, receiver, stanza);
+            return errorStanzaGenerator.generateJIDDontMatchErrorStanza(sender, serverJID, stanza);
         }
 
         String nodeName = extractNodeName(stanza);
@@ -111,7 +114,7 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
 
         if(node == null) {
             // no such node (error condition 11 (6.1.3))
-            return errorStanzaGenerator.generateNoNodeErrorStanza(sender, receiver, stanza);
+            return errorStanzaGenerator.generateNoNodeErrorStanza(sender, serverJID, stanza);
         }
 
         String id = idGenerator.create();

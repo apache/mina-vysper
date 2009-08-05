@@ -58,8 +58,8 @@ import org.slf4j.LoggerFactory;
 @SpecCompliant(spec="xep-0060", comment="spec. version: 1.13rc", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
 public class PublishSubscribeModule extends DefaultDiscoAwareModule implements ServerInfoRequestListener, ItemRequestListener {
 
-    // The service itself acts like a collection node, this is the "root"
-    private CollectionNode root = null;
+    // The configuration of the service
+    private PubSubServiceConfiguration serviceConfiguration = null;
     // for debugging
     private final Logger logger = LoggerFactory.getLogger(PublishSubscribeModule.class);
 
@@ -67,14 +67,14 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
      * Create a new PublishSubscribeModule together with a new root-collection node.
      */
     public PublishSubscribeModule() {
-        this.root = new CollectionNode();
+        this.serviceConfiguration = new PubSubServiceConfiguration(new CollectionNode());
     }
 
     /**
      * Create a new PublishSubscribeModule together with a supplied root-collection node.
      */
-    public PublishSubscribeModule(CollectionNode root) {
-        this.root = root;
+    public PublishSubscribeModule(PubSubServiceConfiguration servcieConfiguration) {
+        this.serviceConfiguration = servcieConfiguration;
     }
 
     /**
@@ -90,16 +90,17 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
         if (collectionNodeStorageProvider == null) {
             logger.warn("No collection node storage provider found, using the default (in memory)");
         } else {
-            root.setCollectionNodeStorageProvider(collectionNodeStorageProvider);
+            serviceConfiguration.setCollectionNodeStorageProvider(collectionNodeStorageProvider);
         }
 
         if (leafNodeStorageProvider == null) {
             logger.warn("No leaf node storage provider found, using the default (in memory)");
         } else {
-            root.setLeafNodeStorageProvider(leafNodeStorageProvider);
+            serviceConfiguration.setLeafNodeStorageProvider(leafNodeStorageProvider);
         }
         
-        this.root.initialize();
+        this.serviceConfiguration.setServerJID(serverRuntimeContext.getServerEnitity());
+        this.serviceConfiguration.initialize();
     }
 
     /**
@@ -133,6 +134,7 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
      * @see ServerInfoRequestListener#getServerInfosFor(InfoRequest)
      */
     public List<InfoElement> getServerInfosFor(InfoRequest request) throws ServiceDiscoveryRequestException {
+        CollectionNode root = serviceConfiguration.getRootNode();
         List<InfoElement> infoElements = new ArrayList<InfoElement>();
         if(request.getNode() == null || request.getNode().length() == 0) {
             infoElements.add(new Identity("pubsub", "service"));
@@ -159,10 +161,11 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
      * @see ItemRequestListener#getItemsFor(InfoRequest)
      */
     public List<Item> getItemsFor(InfoRequest request) throws ServiceDiscoveryRequestException {
+        CollectionNode root = serviceConfiguration.getRootNode();
         List<Item> items = null;
         
         if(request.getNode() == null || request.getNode().length() == 0) {
-            NodeVisitor nv = new ServiceDiscoItemsVisitor();
+            NodeVisitor nv = new ServiceDiscoItemsVisitor(serviceConfiguration);
             root.acceptNodes(nv);
             items = nv.getNodeItemList();
         } else {
@@ -192,8 +195,8 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
      */
     private void addPubsubOwnerHandlers(List<HandlerDictionary> dictionary) {
         ArrayList<StanzaHandler> pubsubOwnerHandlers = new ArrayList<StanzaHandler>();
-        pubsubOwnerHandlers.add(new PubSubOwnerConfigureNodeHandler(root));
-        pubsubOwnerHandlers.add(new PubSubOwnerDeleteNodeHandler(root));
+        pubsubOwnerHandlers.add(new PubSubOwnerConfigureNodeHandler(serviceConfiguration));
+        pubsubOwnerHandlers.add(new PubSubOwnerDeleteNodeHandler(serviceConfiguration));
         dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB_OWNER, pubsubOwnerHandlers));
     }
 
@@ -203,10 +206,10 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
      */
     private void addPubsubHandlers(List<HandlerDictionary> dictionary) {
         ArrayList<StanzaHandler> pubsubHandlers = new ArrayList<StanzaHandler>();
-        pubsubHandlers.add(new PubSubSubscribeHandler(root));
-        pubsubHandlers.add(new PubSubUnsubscribeHandler(root));
-        pubsubHandlers.add(new PubSubPublishHandler(root));
-        pubsubHandlers.add(new PubSubCreateNodeHandler(root));
+        pubsubHandlers.add(new PubSubSubscribeHandler(serviceConfiguration));
+        pubsubHandlers.add(new PubSubUnsubscribeHandler(serviceConfiguration));
+        pubsubHandlers.add(new PubSubPublishHandler(serviceConfiguration));
+        pubsubHandlers.add(new PubSubCreateNodeHandler(serviceConfiguration));
         dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB, pubsubHandlers));
     }
 }

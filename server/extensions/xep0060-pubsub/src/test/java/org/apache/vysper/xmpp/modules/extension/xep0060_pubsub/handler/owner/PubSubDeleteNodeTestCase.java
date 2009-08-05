@@ -67,12 +67,14 @@ public class PubSubDeleteNodeTestCase extends AbstractPublishSubscribeTestCase {
 
     @Override
     protected IQHandler getHandler() {
-        return new PubSubOwnerDeleteNodeHandler(root);
+        return new PubSubOwnerDeleteNodeHandler(serviceConfiguration);
     }
 
     public void testDelete() throws Exception {
         String testNode = "test";
-        LeafNode node = root.createNode(pubsubService, testNode, client);
+        LeafNode node = new LeafNode(serviceConfiguration, testNode, client);
+        root.add(node);
+        
         node.subscribe("someid", client); // make the owner subscriber
         node.subscribe("otherid1", new EntityImpl("yoda", "starwars.com", "spaceship"));
         node.subscribe("otherid2", new EntityImpl("r2d2", "starwars.com", "desert"));
@@ -100,7 +102,7 @@ public class PubSubDeleteNodeTestCase extends AbstractPublishSubscribeTestCase {
     
     public void testDeleteNotAuth() throws Exception {
         String testNode = "test";
-        root.createNode(pubsubService, testNode, client);
+        root.add(new LeafNode(serviceConfiguration, testNode, client));
         
         assertNotNull(root.find(testNode));
         Entity clientNotAuthorized = new EntityImpl("darthvader", "deathstar.tld", null);

@@ -26,9 +26,9 @@ import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubAffiliation;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubServiceConfiguration;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberPayloadNotificationVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.feature.PubsubFeatures;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeInMemoryStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeStorageProvider;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Identity;
@@ -44,26 +44,45 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
  * @author The Apache MINA Project (http://mina.apache.org)
  */
 public class LeafNode {
-
-    // the jid of the server the node is on
-    protected Entity serverJID;
+    
     // the name of the node (free text)
     protected String title;
     // the unique name (per server) of the node
     protected String name;
     // the storage provider for storing and retrieving node information.
-    protected LeafNodeStorageProvider storage = new LeafNodeInMemoryStorageProvider();
+    protected LeafNodeStorageProvider storage = null;
+    // the service configuration
+    protected PubSubServiceConfiguration serviceConfiguration = null;
 
     /**
-     * Creates a new LeafNode with the specified JID.
-     * @param serverJID the JID of the node
-     * @param name the unique name of the node (per server)
-     * @param title the free-text title of the node (what is it about?)
+     * Creates a new LeafNode with the specified name and title. The creator will be added as owner.
      */
-    public LeafNode(Entity serverJID, String name, String title) {
-        this.serverJID = serverJID;
+    public LeafNode(PubSubServiceConfiguration serviceConfiguration, String name, String title, Entity creator) {
+        init(serviceConfiguration, name, title, creator);
+    }
+
+    /**
+     * Creates a new LeafNode with the specified name. The creator will be added as owner.
+     */
+    public LeafNode(PubSubServiceConfiguration serviceConfiguration, String name, Entity creator) {
+        init(serviceConfiguration, name, null, creator);
+    }
+
+    /**
+     * Method to actually do the initialization process.
+     * 
+     * @param serviceConfiguration
+     * @param name
+     * @param title
+     * @param creator
+     */
+    private void init(PubSubServiceConfiguration serviceConfiguration, String name, String title, Entity creator) {
+        this.serviceConfiguration = serviceConfiguration;
         this.name = name;
         this.title = title;
+        this.storage = serviceConfiguration.getLeafNodeStorageProvider();
+        this.storage.initialize(this);
+        this.addOwner(creator);
     }
 
     /**
@@ -168,7 +187,7 @@ public class LeafNode {
      * @param item the payload of the message.
      */
     protected void sendMessageToSubscriber(StanzaRelay stanzaRelay, XMLElement item) {
-        storage.acceptForEachSubscriber(name, new SubscriberPayloadNotificationVisitor(serverJID, stanzaRelay, item));
+        storage.acceptForEachSubscriber(name, new SubscriberPayloadNotificationVisitor(serviceConfiguration.getServerJID(), stanzaRelay, item));
     }
 
     /**
@@ -183,13 +202,6 @@ public class LeafNode {
      */
     public String getTitle() {
         return title;
-    }
-    
-    /**
-     * @return the JID of the server the nodes lies on.
-     */
-    public Entity getServerJID() {
-        return serverJID;
     }
 
     /**

@@ -19,12 +19,8 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model;
 
-import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.NodeVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.CollectionNodeStorageProvider;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.CollectionNodeInMemoryStorageProvider;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeInMemoryStorageProvider;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeStorageProvider;
 
 /**
  * A collection node is a special pubsub node containing only other nodes. Either more CollectionNodes or
@@ -36,23 +32,6 @@ public class CollectionNode {
 
     // the storage provider for storing and retrieving node-info
     protected CollectionNodeStorageProvider collectionNodeStorage;
-    // the storage provider for leaf nodes
-    protected LeafNodeStorageProvider leafNodeStorage;
-
-    /**
-     * Creates a new CollectionNode, leaves the nodeJID uninitialized.
-     */
-    public CollectionNode() {
-        initStorageProviders();
-    }
-
-    /**
-     * Initializes the default in-memory storage providers.
-     */
-    private void initStorageProviders() {
-        collectionNodeStorage = new CollectionNodeInMemoryStorageProvider();
-        leafNodeStorage = new LeafNodeInMemoryStorageProvider();
-    }
 
     /**
      * Search for a given node via its name. We currently only support a flat hierarchy, so no
@@ -65,71 +44,20 @@ public class CollectionNode {
     }
 
     /**
-     * Creates a new node under the given JID.
-     * 
-     * @param serverJID the JID of the server this node is associated with.
-     * @param nodeName the unique node-name of the node (its key)
-     * @param givenName the free-text name of the node
-     * @param creator the JID of the creator of the node
-     * @return the newly created LeafNode.
-     * @throws DuplicateNodeException if the JID is already taken.
+     * Adds the given leaf node to the collection. If the node is already present
+     * (or another node with the same name), it will be replaced with the new one.
+     * @param node
      */
-    public LeafNode createNode(Entity serverJID, String nodeName, String givenName, Entity creator) throws DuplicateNodeException {
-        LeafNode node = new LeafNode(serverJID, nodeName, givenName);
-        node.setPersistenceManager(leafNodeStorage);
-        node.initialize();
-
-        if(collectionNodeStorage.containsNode(nodeName)) {
-            throw new DuplicateNodeException(serverJID.getFullQualifiedName() + nodeName + " " + givenName + " already present");
-        }
-
+    public void add(LeafNode node) {
         collectionNodeStorage.storeNode(node);
-        
-        node.addOwner(creator);
-        return node;
     }
     
     /**
-     * Convenience method to create a node without a free-text name (optional).
-     * 
-     * @param serverJID the JID of the server new node lies on.
-     * @param nodeName the unique name of the node
-     * @param creator the creator of the node
-     * @return the newly create LeafNode
-     * @throws DuplicateNodeException
+     * Visit all nodes.
+     * @param nv
      */
-    public LeafNode createNode(Entity serverJID, String nodeName, Entity creator) throws DuplicateNodeException {
-        return this.createNode(serverJID, nodeName, null, creator);
-    }
-
-    /**
-     * Change the storage provider to be used for the collection nodes.
-     * 
-     * @param storageProvider the new storage provider.
-     */
-    public void setCollectionNodeStorageProvider(CollectionNodeStorageProvider storageProvider) {
-        this.collectionNodeStorage = storageProvider;
-    }
-
-    /**
-     * Change the storage provider to be used for the leaf nodes.
-     * 
-     * @param storageProvider the new storage provider.
-     */
-    public void setLeafNodeStorageProvider(LeafNodeStorageProvider storageProvider) {
-        this.leafNodeStorage = storageProvider;
-    }
-
     public void acceptNodes(NodeVisitor nv) {
         collectionNodeStorage.acceptNodes(nv);
-    }
-
-    /**
-     * Called after setting the storage providers to do its own initialization tasks.
-     */
-    public void initialize() {
-        this.collectionNodeStorage.initialize();
-        this.leafNodeStorage.initialize();
     }
 
     /**
@@ -138,5 +66,13 @@ public class CollectionNode {
      */
     public void deleteNode(String nodeName) {
         this.collectionNodeStorage.deleteNode(nodeName);
+    }
+
+    /**
+     * Changes the storage provider for the collection node.
+     * @param collectionNodeStorageProvider
+     */
+    public void setCollectionNodeStorageProvider(CollectionNodeStorageProvider collectionNodeStorageProvider) {
+        this.collectionNodeStorage = collectionNodeStorageProvider;        
     }
 }

@@ -24,6 +24,7 @@ import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubServiceConfiguration;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.MultipleSubscriptionException;
@@ -48,8 +49,8 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
     /**
      * @param root
      */
-    public PubSubUnsubscribeHandler(CollectionNode root) {
-        super(root);
+    public PubSubUnsubscribeHandler(PubSubServiceConfiguration serviceConfiguration) {
+        super(serviceConfiguration);
     }
 
     /**
@@ -77,13 +78,15 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
     protected Stanza handleSet(IQStanza stanza,
             ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
-        Entity receiver = stanza.getTo();
+        Entity serverJID = serviceConfiguration.getServerJID();
+        CollectionNode root = serviceConfiguration.getRootNode();
+        
         Entity sender = extractSenderJID(stanza, sessionContext);
         Entity subJID = null;
 
         String iqStanzaID = stanza.getAttributeValue("id");
 
-        StanzaBuilder sb = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.RESULT, iqStanzaID);
+        StanzaBuilder sb = StanzaBuilder.createIQStanza(serverJID, sender, IQStanzaType.RESULT, iqStanzaID);
         sb.startInnerElement("pubsub");
         sb.addNamespaceAttribute(NamespaceURIs.XEP0060_PUBSUB);
 
@@ -95,12 +98,12 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
             subJID = EntityImpl.parse(strSubJID);
         } catch (EntityFormatException e) {
             // return error stanza... (general error)
-            return errorStanzaGenerator.generateJIDMalformedErrorStanza(sender, receiver, stanza);
+            return errorStanzaGenerator.generateJIDMalformedErrorStanza(sender, serverJID, stanza);
         }
 
         if(!sender.getBareJID().equals(subJID.getBareJID())) {
             // insufficient privileges (error condition 3 (6.2.3))
-            return errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, receiver, stanza);
+            return errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, serverJID, stanza);
         }
 
         String nodeName = extractNodeName(stanza);
@@ -108,23 +111,23 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
 
         if(node == null) {
             // no such node (error condition 4 (6.2.3))
-            return errorStanzaGenerator.generateNoNodeErrorStanza(sender, receiver, stanza);
+            return errorStanzaGenerator.generateNoNodeErrorStanza(sender, serverJID, stanza);
         }
 
         if(strSubID == null) {
             try {
                 if(node.unsubscribe(subJID) == false) {
                     // has no subscription (6.2.3.2)
-                    return errorStanzaGenerator.generateNoSuchSubscriberErrorStanza(sender, receiver, stanza);
+                    return errorStanzaGenerator.generateNoSuchSubscriberErrorStanza(sender, serverJID, stanza);
                 }
             } catch(MultipleSubscriptionException e) {
                 // error case 6.2.3.1
-                return errorStanzaGenerator.generateSubIDRequiredErrorStanza(sender, receiver, stanza);
+                return errorStanzaGenerator.generateSubIDRequiredErrorStanza(sender, serverJID, stanza);
             }
         } else {
             if(node.unsubscribe(strSubID, subJID) == false) {
                 // subID not valid (6.2.3.5)
-                return errorStanzaGenerator.generateSubIDNotValidErrorStanza(sender, receiver, stanza);
+                return errorStanzaGenerator.generateSubIDNotValidErrorStanza(sender, serverJID, stanza);
             }
         }
 

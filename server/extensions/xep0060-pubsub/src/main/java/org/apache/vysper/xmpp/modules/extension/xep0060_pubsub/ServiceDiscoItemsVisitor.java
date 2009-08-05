@@ -32,14 +32,19 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
 public class ServiceDiscoItemsVisitor implements NodeVisitor {
 
     private List<Item> itemList = new ArrayList<Item>();
+    private PubSubServiceConfiguration serviceConfiguration;
     
+    public ServiceDiscoItemsVisitor(PubSubServiceConfiguration serviceConfiguration) {
+        this.serviceConfiguration = serviceConfiguration;
+    }
+
     /**
      * Prepare the node-list for the disco#items response.
      * 
      * @see org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.NodeVisitor#visit(org.apache.vysper.xmpp.addressing.Entity, org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode)
      */
     public void visit(LeafNode ln) {
-        this.itemList.add(new Item(ln.getServerJID(), ln.getTitle(), ln.getName()));
+        this.itemList.add(new Item(serviceConfiguration.getServerJID(), ln.getTitle(), ln.getName()));
     }
 
     /**

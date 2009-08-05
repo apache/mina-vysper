@@ -43,7 +43,8 @@ public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        node = root.createNode(serverEntity, "news", "Node used for testing purposes", client);
+        node = new LeafNode(serviceConfiguration, "news", "Node used for testing purposes", client);
+        root.add(node);
     }
     
     @Override
@@ -53,7 +54,7 @@ public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
 
     @Override
     protected IQHandler getHandler() {
-        return new PubSubPublishHandler(root);
+        return new PubSubPublishHandler(serviceConfiguration);
     }
 
     public void testPublishResponse() {

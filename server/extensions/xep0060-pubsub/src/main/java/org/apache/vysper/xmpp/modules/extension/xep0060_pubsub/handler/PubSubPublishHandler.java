@@ -24,6 +24,7 @@ import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubPrivilege;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubServiceConfiguration;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
@@ -47,8 +48,8 @@ public class PubSubPublishHandler extends AbstractPubSubGeneralHandler {
     /**
      * @param root
      */
-    public PubSubPublishHandler(CollectionNode root) {
-        super(root);
+    public PubSubPublishHandler(PubSubServiceConfiguration serviceConfiguration) {
+        super(serviceConfiguration);
     }
 
     /**
@@ -79,12 +80,14 @@ public class PubSubPublishHandler extends AbstractPubSubGeneralHandler {
     protected Stanza handleSet(IQStanza stanza,
             ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
-        Entity receiver = stanza.getTo();
+        Entity serverJID = serviceConfiguration.getServerJID();
+        CollectionNode root = serviceConfiguration.getRootNode();
+        
         Entity sender = extractSenderJID(stanza, sessionContext);
 
         String iqStanzaID = stanza.getAttributeValue("id");
 
-        StanzaBuilder sb = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.RESULT, iqStanzaID);
+        StanzaBuilder sb = StanzaBuilder.createIQStanza(serverJID, sender, IQStanzaType.RESULT, iqStanzaID);
         sb.startInnerElement("pubsub");
         sb.addNamespaceAttribute(NamespaceURIs.XEP0060_PUBSUB);
 
@@ -98,12 +101,12 @@ public class PubSubPublishHandler extends AbstractPubSubGeneralHandler {
 
         if(node == null) {
             // node does not exist - error condition 3 (7.1.3)
-            return errorStanzaGenerator.generateNoNodeErrorStanza(sender, receiver, stanza);
+            return errorStanzaGenerator.generateNoNodeErrorStanza(sender, serverJID, stanza);
         }
 
         if(!node.isAuthorized(sender, PubSubPrivilege.PUBLISH)) {
             // not enough privileges to publish - error condition 1 (7.1.3)
-            return errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, receiver, stanza);
+            return errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, serverJID, stanza);
         }
 
         if(strID == null) {

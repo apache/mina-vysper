@@ -21,7 +21,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner;
 
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeIQHandler;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubServiceConfiguration;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 
 /**
@@ -36,8 +36,8 @@ public abstract class AbstractPubSubOwnerHandler extends AbstractPublishSubscrib
     /**
      * @param root
      */
-    public AbstractPubSubOwnerHandler(CollectionNode root) {
-        super(root);
+    public AbstractPubSubOwnerHandler(PubSubServiceConfiguration serviceConfiguration) {
+        super(serviceConfiguration);
     }
 
     /**

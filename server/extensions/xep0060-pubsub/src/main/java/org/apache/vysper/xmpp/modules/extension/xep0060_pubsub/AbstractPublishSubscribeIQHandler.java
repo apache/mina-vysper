@@ -21,7 +21,6 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.ErrorStanzaGenerator;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.uuid.JVMBuiltinUUIDGenerator;
@@ -38,8 +37,8 @@ public abstract class AbstractPublishSubscribeIQHandler extends DefaultIQHandler
 
     // one ErrorStanzaGenerator available for all subclasses
     protected ErrorStanzaGenerator errorStanzaGenerator = null;
-    // the pubsub service itself is a collection node
-    protected CollectionNode root;
+    // the pubsub service configuration
+    protected PubSubServiceConfiguration serviceConfiguration = null;
     // we need to generate some IDs
     protected UUIDGenerator idGenerator;
 
@@ -48,8 +47,8 @@ public abstract class AbstractPublishSubscribeIQHandler extends DefaultIQHandler
      * 
      * @param root the one and only "root" CollectionNode
      */
-    public AbstractPublishSubscribeIQHandler(CollectionNode root) {
-        this.root = root;
+    public AbstractPublishSubscribeIQHandler(PubSubServiceConfiguration serviceConfiguration) {
+        this.serviceConfiguration = serviceConfiguration;
         this.idGenerator = new JVMBuiltinUUIDGenerator();
         errorStanzaGenerator = new ErrorStanzaGenerator();
     }

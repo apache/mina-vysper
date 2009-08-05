@@ -20,7 +20,7 @@
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner;
 
 import org.apache.vysper.compliance.SpecCompliant;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubServiceConfiguration;
 
 
 /**
@@ -35,8 +35,8 @@ public class PubSubOwnerConfigureNodeHandler extends AbstractPubSubOwnerHandler 
     /**
      * @param root
      */
-    public PubSubOwnerConfigureNodeHandler(CollectionNode root) {
-        super(root);
+    public PubSubOwnerConfigureNodeHandler(PubSubServiceConfiguration serviceConfiguration) {
+        super(serviceConfiguration);
     }
 
     /**

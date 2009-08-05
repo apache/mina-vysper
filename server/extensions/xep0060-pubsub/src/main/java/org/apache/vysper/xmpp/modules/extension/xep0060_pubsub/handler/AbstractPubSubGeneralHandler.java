@@ -20,7 +20,7 @@
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeIQHandler;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubServiceConfiguration;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 
 /**
@@ -33,8 +33,8 @@ public abstract class AbstractPubSubGeneralHandler extends AbstractPublishSubscr
     /**
      * @param root
      */
-    public AbstractPubSubGeneralHandler(CollectionNode root) {
-        super(root);
+    public AbstractPubSubGeneralHandler(PubSubServiceConfiguration serviceConfiguration) {
+        super(serviceConfiguration);
     }
 
     /**

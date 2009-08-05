@@ -22,8 +22,9 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 import org.apache.vysper.compliance.SpecCompliance;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubServiceConfiguration;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.DuplicateNodeException;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -44,8 +45,8 @@ public class PubSubCreateNodeHandler extends AbstractPubSubGeneralHandler {
     /**
      * @param root
      */
-    public PubSubCreateNodeHandler(CollectionNode root) {
-        super(root);
+    public PubSubCreateNodeHandler(PubSubServiceConfiguration serviceConfiguration) {
+        super(serviceConfiguration);
     }
 
     /**
@@ -70,20 +71,23 @@ public class PubSubCreateNodeHandler extends AbstractPubSubGeneralHandler {
     protected Stanza handleSet(IQStanza stanza,
             ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
-        Entity receiver = stanza.getTo();
+        Entity serverJID = serviceConfiguration.getServerJID();
+        CollectionNode root = serviceConfiguration.getRootNode();
+        
         Entity sender = extractSenderJID(stanza, sessionContext);
 
         String iqStanzaID = stanza.getAttributeValue("id");
 
-        StanzaBuilder sb = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.RESULT, iqStanzaID);
+        StanzaBuilder sb = StanzaBuilder.createIQStanza(serverJID, sender, IQStanzaType.RESULT, iqStanzaID);
 
         String nodeName = extractNodeName(stanza);
 
-        try {
-            root.createNode(receiver, nodeName, sender);
-        } catch (DuplicateNodeException e) {
-            return errorStanzaGenerator.generateDuplicateNodeErrorStanza(sender, receiver, stanza);
+        if(root.find(nodeName) != null) {
+            return errorStanzaGenerator.generateDuplicateNodeErrorStanza(sender, serverJID, stanza);
         }
+
+        LeafNode node = new LeafNode(serviceConfiguration, nodeName, sender);
+        root.add(node);
 
         return new IQStanza(sb.getFinalStanza());
     }

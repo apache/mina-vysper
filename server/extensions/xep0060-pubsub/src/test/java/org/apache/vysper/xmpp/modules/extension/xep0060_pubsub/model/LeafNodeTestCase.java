@@ -23,6 +23,7 @@ import junit.framework.TestCase;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubServiceConfiguration;
 
 /**
  * @author The Apache MINA Project (http://mina.apache.org)
@@ -36,8 +37,11 @@ public class LeafNodeTestCase extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         Entity nodeJID = new EntityImpl(null, "pubsub.vysper.org", null);
-        node = new LeafNode(nodeJID, "node", "Some test node");
-        node.initialize();
+        PubSubServiceConfiguration serviceConfig = new PubSubServiceConfiguration(new CollectionNode());
+        serviceConfig.setServerJID(nodeJID);
+        Entity creatorJID = new EntityImpl("creator", "vysper.org", null);
+        
+        node = new LeafNode(serviceConfig, "node", "Some test node", creatorJID);
     }
 
     public void testSubscribe() throws Exception {

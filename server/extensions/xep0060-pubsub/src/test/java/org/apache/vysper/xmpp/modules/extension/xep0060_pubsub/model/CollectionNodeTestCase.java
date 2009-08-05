@@ -23,6 +23,7 @@ import junit.framework.TestCase;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubServiceConfiguration;
 
 /**
  * @author The Apache MINA Project (http://mina.apache.org)
@@ -32,36 +33,29 @@ public class CollectionNodeTestCase extends TestCase  {
 
     protected CollectionNode collection;
     protected Entity owner;
+    protected PubSubServiceConfiguration serviceConfig;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        collection = new CollectionNode();
-        collection.initialize();
         
+        collection = new CollectionNode();
+        serviceConfig = new PubSubServiceConfiguration(collection);
+
         owner = new EntityImpl("owner","vysper.org", null);
+        Entity jid = new EntityImpl(null, "pubsub.vysper.org", null);
+        serviceConfig.setServerJID(jid);
     }
 
     public void testCreateNode() throws Exception {
-        Entity jid = new EntityImpl(null, "pubsub.vysper.org", null);
-        LeafNode test1 = collection.createNode(jid, "test1", owner);
+        LeafNode test1 = new LeafNode(serviceConfig, "test1", owner);
+        collection.add(test1);
         assertNotNull(test1);
     }
 
-    public void testCreateNodeTwice() {
-        Entity jid = new EntityImpl(null, "pubsub.vysper.org", null);
-        try {
-            collection.createNode(jid, "test1", owner);
-            collection.createNode(jid, "test1", owner);
-            fail();
-        } catch(DuplicateNodeException e) {
-            // ok
-        }
-    }
-
     public void testInsertFind() throws Exception {
-        Entity jid = new EntityImpl(null, "pubsub.vysper.org", null);
-        LeafNode insertedNode = collection.createNode(jid, "test1", owner);
+        LeafNode insertedNode = new LeafNode(serviceConfig, "test1", owner);
+        collection.add(insertedNode);
         LeafNode foundNode = collection.find("test1");
         assertEquals(insertedNode, foundNode);
     }

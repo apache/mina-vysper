@@ -63,7 +63,7 @@ public class PubSubCreateNodeTestCase extends AbstractPublishSubscribeTestCase {
 
     @Override
     protected IQHandler getHandler() {
-        return new PubSubCreateNodeHandler(root);
+        return new PubSubCreateNodeHandler(serviceConfiguration);
     }
 
     public void testCreate() throws Exception {
@@ -85,7 +85,7 @@ public class PubSubCreateNodeTestCase extends AbstractPublishSubscribeTestCase {
     
     public void testCreateDuplicate() throws Exception {
         String testNode = "test";
-        root.createNode(pubsubService, testNode, client);
+        root.add(new LeafNode(serviceConfiguration, testNode, client));
         assertNotNull(root.find(testNode)); // should be there
         
         AbstractStanzaGenerator sg = getDefaultStanzaGenerator();

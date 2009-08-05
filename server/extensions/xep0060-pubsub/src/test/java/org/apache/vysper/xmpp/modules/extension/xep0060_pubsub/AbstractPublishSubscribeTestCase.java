@@ -52,6 +52,7 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
     protected Entity client = null;
     protected Entity pubsubService = null;
     protected IQHandler handler = null;
+    protected PubSubServiceConfiguration serviceConfiguration = null;
     protected CollectionNode root = null;
     protected Entity serverEntity = null;
     protected StanzaReceiverRelay relay = null;
@@ -73,7 +74,8 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
         sessionContext = createTestSessionContext(serverEntity);
 
         root = new CollectionNode();
-        configurePubsubModule(sessionContext, root);
+        serviceConfiguration = new PubSubServiceConfiguration(root);
+        configurePubsubModule(sessionContext, serviceConfiguration);
 
         clientBare = new EntityImpl("tester", "vysper.org", null);
         sessionContext.setInitiatingEntity(clientBare);
@@ -104,8 +106,8 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
         ((DefaultServerRuntimeContext) tsc.getServerRuntimeContext()).registerServerRuntimeContextService(serviceCollector);
     }
 
-    protected void configurePubsubModule(TestSessionContext tsc, CollectionNode root) {
-        ((DefaultServerRuntimeContext) tsc.getServerRuntimeContext()).addModule(new PublishSubscribeModule(root));
+    protected void configurePubsubModule(TestSessionContext tsc, PubSubServiceConfiguration serviceConfiguration) {
+        ((DefaultServerRuntimeContext) tsc.getServerRuntimeContext()).addModule(new PublishSubscribeModule(serviceConfiguration));
     }
     
     protected void configureStorageProvider(TestSessionContext tsc) {

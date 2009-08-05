@@ -55,8 +55,8 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
     }
     
     public void testSomeItems() throws Exception {
-        root.createNode(serverEntity, "news", "News", client);
-        root.createNode(serverEntity, "blogs", "Blogs", client);
+        root.add(new LeafNode(serviceConfiguration, "news", "News", client));
+        root.add(new LeafNode(serviceConfiguration, "blogs", "Blogs", client));
         
         DefaultDiscoInfoStanzaGenerator sg = (DefaultDiscoInfoStanzaGenerator)getDefaultStanzaGenerator();
         Stanza stanza = sg.getStanza(client, pubsubService.getBareJID(), "id123");
@@ -101,7 +101,7 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
     }
     
     public void testNodeItemsNone() throws Exception {
-        root.createNode(serverEntity, "news", "News", client);
+        root.add(new LeafNode(serviceConfiguration, "news", "News", client));
         
         DefaultDiscoInfoStanzaGenerator sg = (DefaultDiscoInfoStanzaGenerator)getDefaultStanzaGenerator();
         Stanza stanza = sg.getStanza(client, pubsubService.getBareJID(), "id123", "news");
@@ -126,7 +126,8 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
     }
     
     public void testNodeItemsSome() throws Exception {
-        LeafNode node = root.createNode(serverEntity, "news", "News", client);
+        LeafNode node = new LeafNode(serviceConfiguration, "news", "News", client);
+        root.add(node);
         
         XMLElement item1 = new XMLElement("item1","namespace1",(Attribute[])null, (XMLFragment[])null);
         XMLElement item2 = new XMLElement("item2","namespace2",(Attribute[])null, (XMLFragment[])null);

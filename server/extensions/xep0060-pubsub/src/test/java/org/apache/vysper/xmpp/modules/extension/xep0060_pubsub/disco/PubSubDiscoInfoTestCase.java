@@ -8,6 +8,7 @@ import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeTestCase;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.feature.PubsubFeatures;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.AbstractStanzaGenerator;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.modules.servicediscovery.handler.DiscoInfoIQHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
@@ -74,7 +75,7 @@ public class PubSubDiscoInfoTestCase extends AbstractPublishSubscribeTestCase {
     }
     
     public void testInfoRequestForANode() throws Exception {
-        root.createNode(serverEntity, "news", "News", client);
+        root.add(new LeafNode(serviceConfiguration, "news", "News", client));
 
         DefaultDiscoInfoStanzaGenerator sg = (DefaultDiscoInfoStanzaGenerator)getDefaultStanzaGenerator();
         Stanza stanza = sg.getStanza(client, pubsubService.getBareJID(), "id123","news");

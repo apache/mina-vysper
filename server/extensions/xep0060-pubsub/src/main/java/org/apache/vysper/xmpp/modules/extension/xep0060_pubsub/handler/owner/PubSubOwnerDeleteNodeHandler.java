@@ -24,6 +24,7 @@ import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubPrivilege;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubServiceConfiguration;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -48,8 +49,8 @@ public class PubSubOwnerDeleteNodeHandler extends AbstractPubSubOwnerHandler {
     /**
      * @param root
      */
-    public PubSubOwnerDeleteNodeHandler(CollectionNode root) {
-        super(root);
+    public PubSubOwnerDeleteNodeHandler(PubSubServiceConfiguration serviceConfiguration) {
+        super(serviceConfiguration);
     }
 
     /**
@@ -74,20 +75,22 @@ public class PubSubOwnerDeleteNodeHandler extends AbstractPubSubOwnerHandler {
     protected Stanza handleSet(IQStanza stanza,
             ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
-        Entity receiver = stanza.getTo();
+        Entity serverJID = serviceConfiguration.getServerJID();
+        CollectionNode root = serviceConfiguration.getRootNode();
+        
         Entity sender = extractSenderJID(stanza, sessionContext);
         
         String iqStanzaID = stanza.getAttributeValue("id");
-        StanzaBuilder sb = StanzaBuilder.createIQStanza(receiver, sender, IQStanzaType.RESULT, iqStanzaID);
+        StanzaBuilder sb = StanzaBuilder.createIQStanza(serverJID, sender, IQStanzaType.RESULT, iqStanzaID);
         String nodeName = extractNodeName(stanza);
         LeafNode node = root.find(nodeName);
         
         if(node == null) {
-            return errorStanzaGenerator.generateNoNodeErrorStanza(sender, receiver, stanza);
+            return errorStanzaGenerator.generateNoNodeErrorStanza(sender, serverJID, stanza);
         }
         
         if(!node.isAuthorized(sender, PubSubPrivilege.DELETE)) {
-            return errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, receiver, stanza);
+            return errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, serverJID, stanza);
         }
         
         sendDeleteNotifications(serverRuntimeContext, sender, nodeName, node);

@@ -42,7 +42,8 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        node = root.createNode(serverEntity, "news", "Node used for testing purposes", client);
+        node = new LeafNode(serviceConfiguration, "news", "Node used for testing purposes", client);
+        root.add(node);
     }
     
     class DefaultUnsubscribeStanzaGenerator extends AbstractStanzaGenerator {
@@ -100,7 +101,7 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
 
     @Override
     protected IQHandler getHandler() {
-        return new PubSubUnsubscribeHandler(root);
+        return new PubSubUnsubscribeHandler(serviceConfiguration);
     }
 
     public void testUnsubscribe() throws Exception {
