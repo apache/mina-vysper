@@ -23,6 +23,7 @@ import org.apache.vysper.compliance.SpecCompliance;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubPrivilege;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -85,7 +86,7 @@ public class PubSubOwnerDeleteNodeHandler extends AbstractPubSubOwnerHandler {
             return errorStanzaGenerator.generateNoNodeErrorStanza(sender, receiver, stanza);
         }
         
-        if(!node.isSubscribed(sender)) {
+        if(!node.isAuthorized(sender, PubSubPrivilege.DELETE)) {
             return errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, receiver, stanza);
         }
         

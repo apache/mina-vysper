@@ -80,7 +80,7 @@ public class PubSubCreateNodeHandler extends AbstractPubSubGeneralHandler {
         String nodeName = extractNodeName(stanza);
 
         try {
-            root.createNode(receiver, nodeName);
+            root.createNode(receiver, nodeName, sender);
         } catch (DuplicateNodeException e) {
             return errorStanzaGenerator.generateDuplicateNodeErrorStanza(sender, receiver, stanza);
         }

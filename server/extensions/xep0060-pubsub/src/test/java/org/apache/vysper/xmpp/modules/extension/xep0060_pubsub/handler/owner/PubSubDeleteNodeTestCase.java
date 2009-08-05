@@ -72,8 +72,8 @@ public class PubSubDeleteNodeTestCase extends AbstractPublishSubscribeTestCase {
 
     public void testDelete() throws Exception {
         String testNode = "test";
-        LeafNode node = root.createNode(pubsubService, testNode);
-        node.subscribe("someid", client); // make the client subscriber (=owner)
+        LeafNode node = root.createNode(pubsubService, testNode, client);
+        node.subscribe("someid", client); // make the owner subscriber
         node.subscribe("otherid1", new EntityImpl("yoda", "starwars.com", "spaceship"));
         node.subscribe("otherid2", new EntityImpl("r2d2", "starwars.com", "desert"));
         node.subscribe("otherid3", new EntityImpl("anakin", "starwars.com", "deathstar"));
@@ -100,12 +100,13 @@ public class PubSubDeleteNodeTestCase extends AbstractPublishSubscribeTestCase {
     
     public void testDeleteNotAuth() throws Exception {
         String testNode = "test";
-        root.createNode(pubsubService, testNode);
+        root.createNode(pubsubService, testNode, client);
         
         assertNotNull(root.find(testNode));
+        Entity clientNotAuthorized = new EntityImpl("darthvader", "deathstar.tld", null);
         
         AbstractStanzaGenerator sg = getDefaultStanzaGenerator();
-        Stanza stanza = sg.getStanza(client, pubsubService, "id123", testNode);
+        Stanza stanza = sg.getStanza(clientNotAuthorized, pubsubService, "id123", testNode);
         ResponseStanzaContainer result = sendStanza(stanza, true);
         assertTrue(result.hasResponse());
         IQStanza response = new IQStanza(result.getResponseStanza());

@@ -43,7 +43,7 @@ public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        node = root.createNode(serverEntity, "news", "Node used for testing purposes");
+        node = root.createNode(serverEntity, "news", "Node used for testing purposes", client);
     }
     
     @Override

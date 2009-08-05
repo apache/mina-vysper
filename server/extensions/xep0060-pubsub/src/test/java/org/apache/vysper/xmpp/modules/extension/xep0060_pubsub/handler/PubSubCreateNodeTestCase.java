@@ -85,7 +85,7 @@ public class PubSubCreateNodeTestCase extends AbstractPublishSubscribeTestCase {
     
     public void testCreateDuplicate() throws Exception {
         String testNode = "test";
-        root.createNode(pubsubService, testNode);
+        root.createNode(pubsubService, testNode, client);
         assertNotNull(root.find(testNode)); // should be there
         
         AbstractStanzaGenerator sg = getDefaultStanzaGenerator();

@@ -74,7 +74,7 @@ public class PubSubDiscoInfoTestCase extends AbstractPublishSubscribeTestCase {
     }
     
     public void testInfoRequestForANode() throws Exception {
-        root.createNode(serverEntity, "news", "News");
+        root.createNode(serverEntity, "news", "News", client);
 
         DefaultDiscoInfoStanzaGenerator sg = (DefaultDiscoInfoStanzaGenerator)getDefaultStanzaGenerator();
         Stanza stanza = sg.getStanza(client, pubsubService.getBareJID(), "id123","news");

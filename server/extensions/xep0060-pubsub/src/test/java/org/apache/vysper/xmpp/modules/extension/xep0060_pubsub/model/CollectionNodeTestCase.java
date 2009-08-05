@@ -31,25 +31,28 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 public class CollectionNodeTestCase extends TestCase  {
 
     protected CollectionNode collection;
+    protected Entity owner;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         collection = new CollectionNode();
         collection.initialize();
+        
+        owner = new EntityImpl("owner","vysper.org", null);
     }
 
     public void testCreateNode() throws Exception {
         Entity jid = new EntityImpl(null, "pubsub.vysper.org", null);
-        LeafNode test1 = collection.createNode(jid, "test1");
+        LeafNode test1 = collection.createNode(jid, "test1", owner);
         assertNotNull(test1);
     }
 
     public void testCreateNodeTwice() {
         Entity jid = new EntityImpl(null, "pubsub.vysper.org", null);
         try {
-            collection.createNode(jid, "test1");
-            collection.createNode(jid, "test1");
+            collection.createNode(jid, "test1", owner);
+            collection.createNode(jid, "test1", owner);
             fail();
         } catch(DuplicateNodeException e) {
             // ok
@@ -58,7 +61,7 @@ public class CollectionNodeTestCase extends TestCase  {
 
     public void testInsertFind() throws Exception {
         Entity jid = new EntityImpl(null, "pubsub.vysper.org", null);
-        LeafNode insertedNode = collection.createNode(jid, "test1");
+        LeafNode insertedNode = collection.createNode(jid, "test1", owner);
         LeafNode foundNode = collection.find("test1");
         assertEquals(insertedNode, foundNode);
     }

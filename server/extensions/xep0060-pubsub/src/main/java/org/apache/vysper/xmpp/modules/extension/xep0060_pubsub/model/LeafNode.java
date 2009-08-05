@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubAffiliation;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberPayloadNotificationVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.feature.PubsubFeatures;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeInMemoryStorageProvider;
@@ -227,7 +228,30 @@ public class LeafNode {
         storage.initialize(this);
     }
 
+    /**
+     * Removes this node from the storage.
+     */
     public void delete() {
         this.storage.delete(this.name);
+    }
+
+    /**
+     * Adds the given entity to the owner list.
+     * 
+     * @param owner
+     */
+    public void addOwner(Entity owner) {
+        this.storage.addOwner(name,owner);
+    }
+
+    /**
+     * Check whether the given JID is allowed to perform the requested task.
+     * @param sender
+     * @param requestedAffiliation
+     * @return
+     */
+    public boolean isAuthorized(Entity sender, PubSubAffiliation requestedAffiliation) {
+        PubSubAffiliation affiliation = this.storage.getAffiliation(name, sender);
+        return affiliation.compareTo(requestedAffiliation) >= 0;
     }
 }

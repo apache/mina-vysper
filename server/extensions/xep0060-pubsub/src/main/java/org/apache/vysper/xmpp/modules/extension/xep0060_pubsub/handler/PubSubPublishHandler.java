@@ -23,6 +23,7 @@ import org.apache.vysper.compliance.SpecCompliance;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubPrivilege;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
@@ -100,7 +101,7 @@ public class PubSubPublishHandler extends AbstractPubSubGeneralHandler {
             return errorStanzaGenerator.generateNoNodeErrorStanza(sender, receiver, stanza);
         }
 
-        if(!node.isSubscribed(sender)) {
+        if(!node.isAuthorized(sender, PubSubPrivilege.PUBLISH)) {
             // not enough privileges to publish - error condition 1 (7.1.3)
             return errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, receiver, stanza);
         }

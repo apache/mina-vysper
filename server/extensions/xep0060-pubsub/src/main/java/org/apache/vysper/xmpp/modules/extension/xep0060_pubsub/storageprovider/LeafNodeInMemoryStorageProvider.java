@@ -19,11 +19,13 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubAffiliation;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.PayloadItem;
@@ -37,6 +39,8 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
  */
 public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider {
 
+    // The node owners
+    protected Map<String,Map<Entity, PubSubAffiliation>> nodeAffiliations;
     // stores subscribers to a node, access via subid
     protected Map<String,Map<String, Entity>> nodeSubscribers;
     // stores messages to a node, access via itemid
@@ -48,6 +52,7 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
     public LeafNodeInMemoryStorageProvider() {
         this.nodeSubscribers = new TreeMap<String, Map<String, Entity>>();
         this.nodeMessages = new TreeMap<String, Map<String, PayloadItem>>();
+        this.nodeAffiliations = new TreeMap<String, Map<Entity, PubSubAffiliation>>();
     }
 
     /**
@@ -161,6 +166,7 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
     public void initialize(LeafNode leafNode) {
         nodeMessages.put(leafNode.getName(), new TreeMap<String, PayloadItem>());
         nodeSubscribers.put(leafNode.getName(), new TreeMap<String, Entity>());
+        nodeAffiliations.put(leafNode.getName(), new HashMap<Entity, PubSubAffiliation>());
     }
 
     /**
@@ -169,5 +175,25 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
     public void delete(String name) {
         nodeMessages.remove(name);
         nodeSubscribers.remove(name);
+        nodeAffiliations.remove(name);
+    }
+
+    /**
+     * Add the entity to the owner list of the given node.
+     * The owner is stored as bare JID.
+     */
+    public void addOwner(String nodeName, Entity owner) {
+        Map<Entity, PubSubAffiliation> affils = this.nodeAffiliations.get(nodeName);
+        Entity bareOwner = owner.getBareJID();
+        affils.put(bareOwner, PubSubAffiliation.OWNER);
+    }
+
+    /**
+     * Returns the affiliation of the entity to the node. Only the bare JID will be compared.
+     */
+    public PubSubAffiliation getAffiliation(String nodeName, Entity entity) {
+        PubSubAffiliation psa = this.nodeAffiliations.get(nodeName)
+                                                     .get(entity.getBareJID());
+        return psa != null ? psa : PubSubAffiliation.NONE; // NONE if there is no affiliation known.
     }
 }

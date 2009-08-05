@@ -70,10 +70,11 @@ public class CollectionNode {
      * @param serverJID the JID of the server this node is associated with.
      * @param nodeName the unique node-name of the node (its key)
      * @param givenName the free-text name of the node
+     * @param creator the JID of the creator of the node
      * @return the newly created LeafNode.
      * @throws DuplicateNodeException if the JID is already taken.
      */
-    public LeafNode createNode(Entity serverJID, String nodeName, String givenName) throws DuplicateNodeException {
+    public LeafNode createNode(Entity serverJID, String nodeName, String givenName, Entity creator) throws DuplicateNodeException {
         LeafNode node = new LeafNode(serverJID, nodeName, givenName);
         node.setPersistenceManager(leafNodeStorage);
         node.initialize();
@@ -83,7 +84,8 @@ public class CollectionNode {
         }
 
         collectionNodeStorage.storeNode(node);
-
+        
+        node.addOwner(creator);
         return node;
     }
     
@@ -92,11 +94,12 @@ public class CollectionNode {
      * 
      * @param serverJID the JID of the server new node lies on.
      * @param nodeName the unique name of the node
+     * @param creator the creator of the node
      * @return the newly create LeafNode
      * @throws DuplicateNodeException
      */
-    public LeafNode createNode(Entity serverJID, String nodeName) throws DuplicateNodeException {
-        return this.createNode(serverJID, nodeName, null);
+    public LeafNode createNode(Entity serverJID, String nodeName, Entity creator) throws DuplicateNodeException {
+        return this.createNode(serverJID, nodeName, null, creator);
     }
 
     /**

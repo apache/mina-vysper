@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider;
 import org.apache.vysper.storage.StorageProvider;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubAffiliation;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
@@ -135,5 +136,16 @@ public interface LeafNodeStorageProvider extends StorageProvider {
      * Remove the specified node from the storage.
      */
     public void delete(String name);
+
+    /**
+     * Add the entity to the owner list of the given node.
+     * @param owner
+     */
+    public void addOwner(String nodeName, Entity owner);
+
+    /**
+     * Returns the affiliation of the entity to the node identified by nodeName.
+     */
+    public PubSubAffiliation getAffiliation(String nodeName, Entity entity);
 
 }
