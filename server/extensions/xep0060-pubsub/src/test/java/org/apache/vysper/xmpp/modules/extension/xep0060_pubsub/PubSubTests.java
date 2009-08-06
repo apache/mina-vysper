@@ -26,6 +26,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.disco.PubSubDisco
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.disco.PubSubDiscoItemsTestCase;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubCreateNodeTestCase;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubPublishTestCase;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubRetrieveSubscriptionsTestCase;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubSubscribeTestCase;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubUnsubscribeTestCase;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner.PubSubConfigureNodeTestCase;
@@ -50,6 +51,7 @@ public class PubSubTests {
         suite.addTestSuite(PubSubPublishTestCase.class);
         suite.addTestSuite(PubSubSubscribeTestCase.class);
         suite.addTestSuite(PubSubUnsubscribeTestCase.class);
+        suite.addTestSuite(PubSubRetrieveSubscriptionsTestCase.class);
 
         suite.addTestSuite(CollectionNodeTestCase.class);
         suite.addTestSuite(LeafNodeTestCase.class);

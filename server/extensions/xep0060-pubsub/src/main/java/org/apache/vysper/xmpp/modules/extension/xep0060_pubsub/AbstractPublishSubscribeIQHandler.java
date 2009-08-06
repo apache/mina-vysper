@@ -110,9 +110,6 @@ public abstract class AbstractPublishSubscribeIQHandler extends DefaultIQHandler
      */
     protected String extractNodeName(IQStanza stanza) {
         String node = stanza.getFirstInnerElement().getFirstInnerElement().getAttributeValue("node");
-        if(node == null) {
-            //throw Exception();
-        }
         return node;
     }
 }

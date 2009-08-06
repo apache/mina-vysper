@@ -138,8 +138,8 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
      */
     public void acceptForEachSubscriber(String nodeName, SubscriberVisitor subscriberVisitor) {
         Map<String, Entity> subscribers = nodeSubscribers.get(nodeName);
-        for(Entity sub : subscribers.values()) {
-            subscriberVisitor.visit(nodeName, sub);
+        for(String subID : subscribers.keySet()) {
+            subscriberVisitor.visit(nodeName, subID, subscribers.get(subID));
         }
     }
 

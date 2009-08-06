@@ -65,9 +65,10 @@ public class SubscriberPayloadNotificationVisitor implements SubscriberVisitor {
      * Send each visited subscriber a notification with the configured payload included.
      * 
      * @param nodeJID the node from which the message comes from
+     * @param subscriptionID the subscription ID
      * @param subscriber the receiver of the notification
      */
-    public void visit(String nodeName, Entity subscriber) {
+    public void visit(String nodeName, String subscriptionID, Entity subscriber) {
         Stanza event = createMessageEventStanza(nodeName, subscriber, "en", item); // TODO extract the hardcoded "en"
 
         try {

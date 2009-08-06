@@ -33,8 +33,9 @@ public interface SubscriberVisitor {
      * over all subscriptions of a node.
      * 
      * @param nodeName the name of the node
+     * @param subID the subscription ID
      * @param sub the subscriber JID
      */
-    public void visit(String nodeName, Entity sub);
+    public void visit(String nodeName, String subID, Entity sub);
 
 }

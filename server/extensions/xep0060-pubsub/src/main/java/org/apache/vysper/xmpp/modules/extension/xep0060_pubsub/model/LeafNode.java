@@ -28,6 +28,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubAffiliation;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubServiceConfiguration;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberPayloadNotificationVisitor;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.feature.PubsubFeatures;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeStorageProvider;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
@@ -191,6 +192,14 @@ public class LeafNode {
     }
 
     /**
+     * Call the SubscriberVisitor for each subscription of this node.
+     * @param sv
+     */
+    public void acceptSubscribers(SubscriberVisitor sv) {
+        storage.acceptForEachSubscriber(name, sv);
+    }
+    
+    /**
      * @return the name of the node.
      */
     public String getName() {
@@ -220,6 +229,7 @@ public class LeafNode {
         infoElements.add(PubsubFeatures.MULTI_SUBSCRIBE.getFeature());
         infoElements.add(PubsubFeatures.PUBLISH.getFeature());
         infoElements.add(PubsubFeatures.SUBSCRIBE.getFeature());
+        infoElements.add(PubsubFeatures.RETRIEVE_SUBSCRIPTIONS.getFeature());
         return infoElements;
     }
 
