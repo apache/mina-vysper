@@ -26,6 +26,7 @@ import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubCreateNodeHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubPublishHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubRetrieveAffiliationsHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubRetrieveSubscriptionsHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubSubscribeHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubUnsubscribeHandler;
@@ -212,6 +213,7 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
         pubsubHandlers.add(new PubSubPublishHandler(serviceConfiguration));
         pubsubHandlers.add(new PubSubCreateNodeHandler(serviceConfiguration));
         pubsubHandlers.add(new PubSubRetrieveSubscriptionsHandler(serviceConfiguration));
+        pubsubHandlers.add(new PubSubRetrieveAffiliationsHandler(serviceConfiguration));
         dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB, pubsubHandlers));
     }
 }

@@ -20,24 +20,34 @@
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
 /**
- * This class defines which affiliations are known. The order of the
- * constants is important and defines the hierarchy.
- * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-public enum PubSubAffiliation {
-    OUTCAST ("outcast"),
-    NONE ("none"),
-    MEMBER ("member"),
-    PUBLISHER ("publisher"),
-    OWNER ("owner");
-    
-    private final String xep0060Name;
-    private PubSubAffiliation(String name) {
-        this.xep0060Name = name;
+public class AffiliationItem {
+
+    protected String nodeName = null;
+    protected PubSubAffiliation affiliation = null;
+
+    /**
+     * Creates a new affiliation item with the supplied values.
+     * @param nodeName
+     * @param affil
+     */
+    public AffiliationItem(String nodeName, PubSubAffiliation affil) {
+        this.nodeName = nodeName;
+        this.affiliation = affil;
     }
-    
-    public String toString() {
-        return xep0060Name;
+
+    /**
+     * Returns the node of this affiliation.
+     */
+    public String getNodeName() {
+        return nodeName;
+    }
+
+    /**
+     * Returns the state of the affiliation.
+     */
+    public PubSubAffiliation getAffiliation() {
+        return affiliation;
     }
 }

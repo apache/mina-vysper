@@ -230,6 +230,7 @@ public class LeafNode {
         infoElements.add(PubsubFeatures.PUBLISH.getFeature());
         infoElements.add(PubsubFeatures.SUBSCRIBE.getFeature());
         infoElements.add(PubsubFeatures.RETRIEVE_SUBSCRIPTIONS.getFeature());
+        infoElements.add(PubsubFeatures.RETRIEVE_AFFILIATIONS.getFeature());
         return infoElements;
     }
 
@@ -275,5 +276,14 @@ public class LeafNode {
     public boolean isAuthorized(Entity sender, PubSubAffiliation requestedAffiliation) {
         PubSubAffiliation affiliation = this.storage.getAffiliation(name, sender);
         return affiliation.compareTo(requestedAffiliation) >= 0;
+    }
+
+    /**
+     * Returns the affiliation for the given bareJID.
+     * @param bareJID
+     * @return All affiliations ("NONE" if no other affiliation is known).
+     */
+    public PubSubAffiliation getAffiliation(Entity bareJID) {
+        return this.storage.getAffiliation(name, bareJID);
     }
 }
