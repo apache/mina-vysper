@@ -19,43 +19,47 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.Module;
-import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceCollector;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Identity;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequestListener;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.stanza.IQStanzaType;
-import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
-import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
 
 /**
  * 
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public abstract class AbstractServerInfoDiscoTestCase extends AbstractInfoDiscoTestCase {
-
-    protected ServerInfoRequestListener getServerInfoRequestListener() {
-        Module module = getModule();
-        if(module instanceof ServerInfoRequestListener) {
-            return (ServerInfoRequestListener) module;
-        } else {
-            throw new RuntimeException("Module does not implement ServerInfoRequestListener");
-        }
-    }
+public class MUCRoomInfoDiscoTestCase extends AbstractInfoDiscoTestCase {
     
-    protected Entity getTo() {
-        return SERVER_JID;
-    }
-
+    private static final Entity ROOM_JID = parseUnchecked("jid1@vysper.org");
     
     @Override
-    protected void addListener(ServiceCollector serviceCollector) {
-        serviceCollector.addServerInfoRequestListener(getServerInfoRequestListener());
+    protected Module getModule() {
+        Conference conference = new Conference("Foo");
+        conference.createRoom(ROOM_JID, "Room1", RoomType.Hidden, RoomType.PasswordProtected);
+        return new MUCModule(conference);
+    }
+    
+    @Override
+    protected Identity getExpectedIdentity() {
+        return new Identity("conference", "text", "Room1");
+    }
+
+    @Override
+    protected List<String> getExpectedFeatures() {
+        return Arrays.asList(
+                NamespaceURIs.XEP0045_MUC,
+                "muc_passwordprotected",
+                "muc_hidden"
+                );
+    }
+
+    @Override
+    protected Entity getTo() {
+        return ROOM_JID;
     }
 }

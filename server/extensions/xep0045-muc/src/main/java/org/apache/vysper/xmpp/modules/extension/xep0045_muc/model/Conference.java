@@ -19,19 +19,30 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.storage.InMemoryRoomStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.storage.OccupantStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.storage.RoomStorageProvider;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.Identity;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestListener;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequestListener;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 
 /**
  * Represents the root of a conference, containing rooms
  * 
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class Conference {
+public class Conference implements ServerInfoRequestListener, ItemRequestListener {
 
     private String name;
 
@@ -55,12 +66,16 @@ public class Conference {
         return roomStorageProvider.getAllRooms();
     }
     
-    public Room createRoom(Entity jid, String name) {
+    public Room createRoom(Entity jid, String name, RoomType... types) {
         if(roomStorageProvider.roomExists(jid)) {
             throw new IllegalArgumentException("Room already exists with JID: " + jid);
         }
         
-        return roomStorageProvider.createRoom(jid, name);
+        return roomStorageProvider.createRoom(jid, name, types);
+    }
+    
+    public Room findRoom(Entity jid) {
+        return roomStorageProvider.findRoom(jid);
     }
     
     public OccupantStorageProvider getOccupantStorageProvider() {
@@ -83,5 +98,23 @@ public class Conference {
 
     public String getName() {
         return name;
+    }
+
+    public List<InfoElement> getServerInfosFor(InfoRequest request) {
+        List<InfoElement> infoElements = new ArrayList<InfoElement>();
+        infoElements.add(new Identity("conference", "text", getName()));
+        infoElements.add(new Feature(NamespaceURIs.XEP0045_MUC));
+        return infoElements;
+    }
+
+    public List<Item> getItemsFor(InfoRequest request) {
+        List<Item> items = new ArrayList<Item>();
+        Collection<Room> rooms = getAllRooms();
+        
+        for(Room room : rooms) {
+            items.add(new Item(room.getJID(), room.getName()));
+        }
+        
+        return items;
     }
 }

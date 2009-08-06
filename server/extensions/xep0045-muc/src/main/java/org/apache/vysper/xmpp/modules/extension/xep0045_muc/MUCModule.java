@@ -32,6 +32,7 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Identity;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequestListener;
@@ -47,7 +48,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequestListener, ItemRequestListener {
+public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequestListener, InfoRequestListener, ItemRequestListener {
 
     private Conference conference;
     
@@ -102,10 +103,7 @@ public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequ
     }
 
     public List<InfoElement> getServerInfosFor(InfoRequest request) {
-        List<InfoElement> infoElements = new ArrayList<InfoElement>();
-        infoElements.add(new Identity("conference", "text", conference.getName()));
-        infoElements.add(new Feature(NamespaceURIs.XEP0045_MUC));
-        return infoElements;
+        return conference.getServerInfosFor(request);
     }
 
     /**
@@ -123,18 +121,41 @@ public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequ
      * @see ItemRequestListener#getItemsFor(InfoRequest)
      */
     public List<Item> getItemsFor(InfoRequest request) throws ServiceDiscoveryRequestException {
-        List<Item> items = new ArrayList<Item>();
-        Collection<Room> rooms = conference.getAllRooms();
-        
-        for(Room room : rooms) {
-            items.add(new Item(room.getJID(), room.getName()));
+        if(request.getTo().getNode() == null) {
+            // items request on the component
+            return conference.getItemsFor(request);
+        } else {
+            // might be an items request on a room
+            Room room = conference.findRoom(request.getTo());
+            if(room != null) {
+                return room.getItemsFor(request);
+            } else {
+                return null;
+            }
+            
         }
-        
-        return items;
     }
     
     @Override
     protected void addHandlerDictionaries(List<HandlerDictionary> dictionary) {
         
+    }
+
+    /**
+     * Make this object available for disco#items requests for rooms
+     */
+    @Override
+    protected void addInfoRequestListeners(List<InfoRequestListener> infoRequestListeners) {
+        infoRequestListeners.add(this);
+    }
+    
+    public List<InfoElement> getInfosFor(InfoRequest request)
+            throws ServiceDiscoveryRequestException {
+        Room room = conference.findRoom(request.getTo());
+        if(room != null) {
+            return room.getInfosFor(request);
+        } else {
+            return null;
+        }
     }
 }

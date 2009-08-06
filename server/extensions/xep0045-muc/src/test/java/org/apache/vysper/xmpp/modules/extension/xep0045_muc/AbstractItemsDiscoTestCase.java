@@ -26,19 +26,14 @@ import java.util.List;
 import junit.framework.AssertionFailedError;
 
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
-import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.Module;
+import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceCollector;
 import org.apache.vysper.xmpp.modules.servicediscovery.handler.DiscoItemIQHandler;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestListener;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
-import org.apache.vysper.xmpp.protocol.SessionStateHolder;
-import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
-import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
-import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
@@ -57,6 +52,10 @@ public abstract class AbstractItemsDiscoTestCase extends AbstractDiscoTestCase {
         }
     }
     
+    protected IQHandler createDiscoIQHandler() {
+        return new DiscoItemIQHandler();
+    }
+    
     /**
      * Default, expect no features
      * @throws EntityFormatException 
@@ -65,25 +64,24 @@ public abstract class AbstractItemsDiscoTestCase extends AbstractDiscoTestCase {
         return Collections.emptyList();
     }
     
-    public void testDiscoItems() throws Exception {
-        ServiceCollector serviceCollector = new ServiceCollector();
+    @Override
+    protected void addListener(ServiceCollector serviceCollector) {
         serviceCollector.addItemRequestListener(getItemRequestListener());
-
-        DefaultServerRuntimeContext runtimeContext = new DefaultServerRuntimeContext(EntityImpl.parse("vysper.org"), null);
-        runtimeContext.registerServerRuntimeContextService(serviceCollector);
-
-        DiscoItemIQHandler itemIQHandler = new DiscoItemIQHandler();
-
-        StanzaBuilder request = StanzaBuilder.createIQStanza(EntityImpl.parse("user@vysper.org"), EntityImpl.parse("vysper.org"), IQStanzaType.GET, "1");
+    }
+    
+    @Override
+    protected StanzaBuilder buildRequest() {
+        StanzaBuilder request = StanzaBuilder.createIQStanza(USER_JID, SERVER_JID, IQStanzaType.GET, "1");
         request.startInnerElement("query", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_ITEMS).endInnerElement();
-        
-        ResponseStanzaContainer resultStanzaContainer = itemIQHandler.execute(request.getFinalStanza(), runtimeContext, false, new TestSessionContext(runtimeContext, new SessionStateHolder()), null);
-        Stanza resultStanza = resultStanzaContainer.getResponseStanza();
+        return request;
+    }
 
-        XMLElement queryElement = resultStanza.getFirstInnerElement();
-        
+    @Override
+    protected void assertResponse(XMLElement queryElement)
+            throws Exception {
         assertItems(queryElement);
     }
+
 
     private void assertItems(XMLElement queryElement) throws Exception {
         List<XMLElement> itemElements = queryElement.getInnerElementsNamed("item");

@@ -21,7 +21,22 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
 
 import junit.framework.TestCase;
 
+import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityFormatException;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.Module;
+import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
+import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceCollector;
+import org.apache.vysper.xmpp.modules.servicediscovery.handler.DiscoInfoIQHandler;
+import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
+import org.apache.vysper.xmpp.server.TestSessionContext;
+import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.xmlfragment.Renderer;
+import org.apache.vysper.xmpp.xmlfragment.XMLElement;
+import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
 
 /**
  * 
@@ -29,6 +44,45 @@ import org.apache.vysper.xmpp.modules.Module;
  */
 public abstract class AbstractDiscoTestCase extends TestCase {
 
-    protected abstract Module getModule();
+    protected static Entity parseUnchecked(String jid) {
+        try {
+            return EntityImpl.parse(jid);
+        } catch (EntityFormatException e) {
+            throw new RuntimeException(e);
+        }
+    }
     
+    protected static final Entity SERVER_JID = parseUnchecked("vysper.org");
+    protected static final Entity USER_JID = parseUnchecked("user@vysper.org");
+
+    protected abstract Module getModule();
+
+    protected abstract void assertResponse(XMLElement queryElement)
+            throws Exception;
+
+    protected abstract StanzaBuilder buildRequest();
+
+    protected abstract void addListener(ServiceCollector serviceCollector);
+    
+    protected abstract IQHandler createDiscoIQHandler();
+    
+    public void testDisco() throws Exception {
+        ServiceCollector serviceCollector = new ServiceCollector();
+        addListener(serviceCollector);
+
+        DefaultServerRuntimeContext runtimeContext = new DefaultServerRuntimeContext(SERVER_JID, null);
+        runtimeContext.registerServerRuntimeContextService(serviceCollector);
+
+        IQHandler infoIQHandler = createDiscoIQHandler();
+
+        StanzaBuilder request = buildRequest();
+        
+        ResponseStanzaContainer resultStanzaContainer = infoIQHandler.execute(request.getFinalStanza(), runtimeContext, false, new TestSessionContext(runtimeContext, new SessionStateHolder()), null);
+        Stanza resultStanza = resultStanzaContainer.getResponseStanza();
+
+        System.out.println(new Renderer(resultStanza).getComplete());
+        XMLElement queryElement = resultStanza.getFirstInnerElement();
+        
+        assertResponse(queryElement);
+    }
 }

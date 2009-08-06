@@ -40,7 +40,7 @@ public class MUCServerInfoDiscoTestCase extends AbstractServerInfoDiscoTestCase 
     }
 
     @Override
-    protected List<String> getExpectedServerInfoFeatures() {
+    protected List<String> getExpectedFeatures() {
         return Arrays.asList(NamespaceURIs.XEP0045_MUC);
     }
     
