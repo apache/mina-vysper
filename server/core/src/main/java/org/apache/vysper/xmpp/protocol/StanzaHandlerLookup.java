@@ -83,28 +83,30 @@ public class StanzaHandlerLookup {
     }
 
     private StanzaHandler getPresenceHandler(Stanza stanza) {
-        return presenceHandler;
+        return getHandler(stanza, presenceHandler);
     }
 
     private StanzaHandler getMessageHandler(Stanza stanza) {
-        return messageHandler;
+        return getHandler(stanza, messageHandler);
     }
 
     private StanzaHandler getIQHandler(Stanza stanza) {
+        return getHandler(stanza, iqHandler);
+    }
 
+    private StanzaHandler getHandler(Stanza stanza, StanzaHandler defaultHandler) {
         StanzaHandler handlerForElement = null;
 
         if (stanza.getVerifier().subElementsPresentExact(1)) {
             XMLElement firstInnerElement = stanza.getFirstInnerElement();
             handlerForElement = getHandlerForElement(stanza, firstInnerElement);
+            return handlerForElement;
         } else {
             // if no specialized handler can be identified, return general handler
-            return iqHandler;
+            return defaultHandler;
         }
-
-        return handlerForElement;
     }
-
+    
     /**
      * tries to find the handler by trying
      * 1. value of xmlElement's XMLNS attribute, if unique
