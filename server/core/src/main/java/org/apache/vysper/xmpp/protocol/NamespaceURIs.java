@@ -51,6 +51,10 @@ public class NamespaceURIs {
     public static final String XEP0030_SERVICE_DISCOVERY_ITEMS = "http://jabber.org/protocol/disco#items";
     public static final String XEP0030_SERVICE_DISCOVERY_INFO  = "http://jabber.org/protocol/disco#info";
     public static final String XEP0045_MUC = "http://jabber.org/protocol/muc";
+    public static final String XEP0045_MUC_ADMIN = "http://jabber.org/protocol/muc#admin";
+    public static final String XEP0045_MUC_OWNER = "http://jabber.org/protocol/muc#owner";
+    public static final String XEP0045_MUC_UNIQUE = "http://jabber.org/protocol/muc#unique";
+    public static final String XEP0045_MUC_USER = "http://jabber.org/protocol/muc#user";
     public static final String XEP0060_PUBSUB = "http://jabber.org/protocol/pubsub";
     public static final String XEP0060_PUBSUB_EVENT = "http://jabber.org/protocol/pubsub#event";
     public static final String XEP0060_PUBSUB_OWNER = "http://jabber.org/protocol/pubsub#owner";
