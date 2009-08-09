@@ -132,7 +132,6 @@ public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequ
             } else {
                 return null;
             }
-            
         }
     }
     

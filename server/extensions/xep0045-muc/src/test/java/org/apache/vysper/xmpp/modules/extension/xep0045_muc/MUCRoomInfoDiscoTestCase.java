@@ -35,7 +35,7 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
  */
 public class MUCRoomInfoDiscoTestCase extends AbstractInfoDiscoTestCase {
     
-    private static final Entity ROOM_JID = parseUnchecked("jid1@vysper.org");
+    private static final Entity ROOM_JID = TestUtil.parseUnchecked("jid1@vysper.org");
     
     @Override
     protected Module getModule() {

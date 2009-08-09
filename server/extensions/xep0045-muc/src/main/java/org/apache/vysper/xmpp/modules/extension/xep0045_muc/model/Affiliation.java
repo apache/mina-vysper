@@ -22,24 +22,35 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc.model;
 import org.apache.vysper.compliance.SpecCompliant;
 
 /**
- * These affiliations are long-lived in that they persist across a user's visits to the room and are not affected by happenings in the room. In addition, there is no one-to-one mapping between these affiliations and an occupant's role within the room. Affiliations are granted, revoked, and maintained based on the user's bare JID.
+ * These affiliations are long-lived in that they persist across a user's visits to the room and 
+ * are not affected by happenings in the room. In addition, there is no one-to-one mapping between 
+ * these affiliations and an occupant's role within the room. Affiliations are granted, revoked, 
+ * and maintained based on the user's bare JID.
  * 
- * If a user without a defined affiliation enters a room, the user's affiliation is defined as "none"; however, this affiliation does not persist across visits (i.e., a service does not maintain a "none list" across visits).
+ * If a user without a defined affiliation enters a room, the user's affiliation is defined as "none"; 
+ * however, this affiliation does not persist across visits (i.e., a service does not maintain a "none 
+ * list" across visits).
  * 
- * The member affiliation provides a way for a room owner or admin to specify a "whitelist" of users who are allowed to enter a members-only room. When a member enters a members-only room, his or her affiliation does not change, no matter what his or her role is. The member affiliation also provides a way for users to effectively register with an open room and thus be lastingly associated with that room in some way (one result may be that the user's nickname is reserved in the room).
+ * The member affiliation provides a way for a room owner or admin to specify a "whitelist" of users 
+ * who are allowed to enter a members-only room. When a member enters a members-only room, his or her 
+ * affiliation does not change, no matter what his or her role is. The member affiliation also provides 
+ * a way for users to effectively register with an open room and thus be lastingly associated with that 
+ * room in some way (one result may be that the user's nickname is reserved in the room).
  * 
  * An outcast is a user who has been banned from a room and who is not allowed to enter the room.
  * 
- * Information about affiliations MUST be sent in all presence stanzas generated or reflected by the room and sent to occupants * 
+ * Information about affiliations MUST be sent in all presence stanzas generated or reflected by the room 
+ * and sent to occupants
  * 
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-@SpecCompliant(spec="xep-0045", section="5.2", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+@SpecCompliant(spec = "xep-0045", section = "5.2", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
 public enum Affiliation {
 
-    Owner,
-    Admin,
-    Member,
-    Outcast,
-    None
+    Owner, Admin, Member, Outcast, None;
+
+    @Override
+    public String toString() {
+        return name().toLowerCase();
+    }
 }

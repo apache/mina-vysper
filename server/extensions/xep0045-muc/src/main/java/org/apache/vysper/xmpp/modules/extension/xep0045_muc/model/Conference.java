@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.storage.InMemoryOccupantStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.storage.InMemoryRoomStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.storage.OccupantStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.storage.RoomStorageProvider;
@@ -34,7 +35,6 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequestListener;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 
 /**
@@ -47,7 +47,7 @@ public class Conference implements ServerInfoRequestListener, ItemRequestListene
     private String name;
 
     private RoomStorageProvider roomStorageProvider = new InMemoryRoomStorageProvider();
-    private OccupantStorageProvider occupantStorageProvider;
+    private OccupantStorageProvider occupantStorageProvider = new InMemoryOccupantStorageProvider();
     
     public Conference(String name) {
         if(name == null || name.trim().length() == 0) {
@@ -76,6 +76,14 @@ public class Conference implements ServerInfoRequestListener, ItemRequestListene
     
     public Room findRoom(Entity jid) {
         return roomStorageProvider.findRoom(jid);
+    }
+    
+    public Room findOrCreateRoom(Entity jid, String name, RoomType... types) {
+        Room room = findRoom(jid);
+        if(room == null) {
+            room = createRoom(jid, name, types);
+        }
+        return room;
     }
     
     public OccupantStorageProvider getOccupantStorageProvider() {

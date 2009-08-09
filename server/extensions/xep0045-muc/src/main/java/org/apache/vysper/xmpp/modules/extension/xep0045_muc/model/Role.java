@@ -19,18 +19,30 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.model;
 
+import java.util.EnumSet;
+
 import org.apache.vysper.compliance.SpecCompliant;
 
 /**
- * Roles are temporary in that they do not necessarily persist across a user's visits to the room and MAY change during the course of an occupant's visit to the room. An implementation MAY persist roles across visits and SHOULD do so for moderated rooms (since the distinction between visitor and participant is critical to the functioning of a moderated room).
+ * Roles are temporary in that they do not necessarily persist across a user's visits to the room and MAY 
+ * change during the course of an occupant's visit to the room. An implementation MAY persist roles across 
+ * visits and SHOULD do so for moderated rooms (since the distinction between visitor and participant is 
+ * critical to the functioning of a moderated room).
  * 
- * There is no one-to-one mapping between roles and affiliations (e.g., a member could be a participant or a visitor).
+ * There is no one-to-one mapping between roles and affiliations (e.g., a member could be a participant or 
+ * a visitor).
  * 
- * A moderator is the most powerful occupant within the context of the room, and can to some extent manage other occupants' roles in the room. A participant has fewer privileges than a moderator, although he or she always has the right to speak. A visitor is a more restricted role within the context of a moderated room, since visitors are not allowed to send messages to all occupants.
+ * A moderator is the most powerful occupant within the context of the room, and can to some extent manage 
+ * other occupants' roles in the room. A participant has fewer privileges than a moderator, although he or 
+ * she always has the right to speak. A visitor is a more restricted role within the context of a moderated 
+ * room, since visitors are not allowed to send messages to all occupants.
  * 
- * Roles are granted, revoked, and maintained based on the occupant's room nickname or full JID rather than bare JID. The privileges associated with these roles, as well as the actions that trigger changes in roles, are defined below.
+ * Roles are granted, revoked, and maintained based on the occupant's room nickname or full JID rather than 
+ * bare JID. The privileges associated with these roles, as well as the actions that trigger changes in roles, 
+ * are defined below.
  * 
- * Information about roles MUST be sent in all presence stanzas generated or reflected by the room and thus sent to occupants.
+ * Information about roles MUST be sent in all presence stanzas generated or reflected by the room and thus 
+ * sent to occupants.
  * 
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
@@ -40,5 +52,32 @@ public enum Role {
     Moderator,
     None,
     Participant,
-    Visitor
+    Visitor;
+    
+    @Override
+    public String toString() {
+        return name().toLowerCase();
+    }
+    
+    @SpecCompliant(spec="xep-0045", section="7.1.4", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+    public static Role getRole(Affiliation affiliation, EnumSet<RoomType> roomTypes) {
+        switch(affiliation) {
+        case Owner:
+        case Admin:
+            return Moderator;
+        case Member:
+            return Participant;
+        case None:
+            if(roomTypes.contains(RoomType.MembersOnly)) {
+                return None;
+            } else if(roomTypes.contains(RoomType.Moderated)) {
+                return Visitor;
+            } else {
+                return Participant;
+            }
+        default:
+            // no role for Outcast
+            return null;
+        }
+    }
 }

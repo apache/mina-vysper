@@ -21,8 +21,13 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
@@ -48,7 +53,19 @@ public class Room implements InfoRequestListener, ItemRequestListener {
     private Entity jid;
     private String name;
     
+    // keep in a map to allow for quick access
+    private Map<Entity, Occupant> occupants = new ConcurrentHashMap<Entity, Occupant>();
+    
     public Room(Entity jid, String name, RoomType... types) {
+        if(jid == null) {
+            throw new IllegalArgumentException("JID can not be null");
+        } else if(jid.getResource() != null) {
+            throw new IllegalArgumentException("JID must be bare");
+        }
+        if(name == null || name.trim().length() == 0) {
+            throw new IllegalArgumentException("Name can not be null or empty");
+        }
+        
         this.jid = jid;
         this.name = name;
         
@@ -73,7 +90,36 @@ public class Room implements InfoRequestListener, ItemRequestListener {
     public String getName() {
         return name;
     }
+    
+    public EnumSet<RoomType> getRoomTypes() {
+        return roomTypes.clone();
+    }
 
+    public Occupant addOccupant(Entity occupantJid, String name) {
+        // TODO uses a default Affiliation.None, later to be looked up based on the user
+        Affiliation affiliation = Affiliation.None;
+        Role role = Role.getRole(affiliation, roomTypes);
+        Occupant occupant = new Occupant(occupantJid, name, affiliation, role); 
+        occupants.put(occupantJid, occupant);
+        return occupant;
+    }
+
+    
+    
+    public void removeOccupant(Entity occupantJid) {
+        occupants.remove(occupantJid);
+    }
+    
+    public Set<Occupant> getOccupants() {
+        Set<Occupant> set = new HashSet<Occupant>();
+        
+        for(Occupant occupant : occupants.values()) {
+            set.add(occupant);
+        }
+        
+        return Collections.unmodifiableSet(set);
+    }
+    
     public List<InfoElement> getInfosFor(InfoRequest request)
             throws ServiceDiscoveryRequestException {
         List<InfoElement> infoElements = new ArrayList<InfoElement>();

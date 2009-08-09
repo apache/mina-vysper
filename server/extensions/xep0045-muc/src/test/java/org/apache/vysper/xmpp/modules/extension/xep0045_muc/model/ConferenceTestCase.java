@@ -27,6 +27,7 @@ import junit.framework.TestCase;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.TestUtil;
 
 /**
  * 
@@ -34,16 +35,8 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
  */
 public class ConferenceTestCase extends TestCase {
     
-    private Entity jid1;
-    private Entity jid2;
-    
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        
-        jid1 = EntityImpl.parse("jid1@vysper.org");
-        jid2 = EntityImpl.parse("jid2@vysper.org");
-    }
+    private Entity jid1 = TestUtil.parseUnchecked("jid1@vysper.org");
+    private Entity jid2 = TestUtil.parseUnchecked("jid2@vysper.org");
     
     public void testGetName() {
         Conference conference = new Conference("foo");
