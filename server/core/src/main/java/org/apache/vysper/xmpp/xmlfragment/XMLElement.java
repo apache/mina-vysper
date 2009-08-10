@@ -168,6 +168,25 @@ public class XMLElement implements XMLFragment {
         if (innerTexts.size() > 1) throw new XMLSemanticError("element has more than one inner text fragment");
         return innerTexts.get(0);
     }
+    
+    /**
+     * Get the complete inner text
+     * @return The concatenated inner text or null if no text fragments exist
+     */
+    public XMLText getInnerText() {
+        boolean hadText = false;
+        StringBuffer sb = new StringBuffer();
+        for(XMLText text : getInnerTexts()) {
+            sb.append(text.getText());
+            hadText = true;
+        }
+        if(hadText) {
+            return new XMLText(sb.toString());
+        } else {
+            return null;
+        }
+            
+    }
 
     /**
      * collects all inner elements named as given parameter
