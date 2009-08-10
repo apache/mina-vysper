@@ -27,7 +27,9 @@ import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultPresenceHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
@@ -112,7 +114,7 @@ public class MUCEnterRoomHandler extends DefaultPresenceHandler {
         
         // relay presence of the newly added occupant to all existing occupants
         for(Occupant occupant : room.getOccupants()) {
-            sendNewOccupantPresence(newOccupant, occupant, room, sessionContext);
+            sendNewOccupantPresenceToExisting(newOccupant, occupant, room, sessionContext);
         }
         
         return null;
@@ -144,17 +146,32 @@ public class MUCEnterRoomHandler extends DefaultPresenceHandler {
         relayStanza(newOccupant.getJid(), builder.getFinalStanza(), sessionContext);
     }
     
-    private void sendNewOccupantPresence(Occupant newOccupant, Occupant existingOccupant, Room room, SessionContext sessionContext) {
+    private void sendNewOccupantPresenceToExisting(Occupant newOccupant, Occupant existingOccupant, Room room, SessionContext sessionContext) {
         Entity roomAndNewUserNick = new EntityImpl(room.getJID(), newOccupant.getName());
         
         StanzaBuilder builder = StanzaBuilder.createPresenceStanza(roomAndNewUserNick, existingOccupant.getJid(), null, null, null, null);
         builder.startInnerElement("x", NamespaceURIs.XEP0045_MUC_USER);
         builder.startInnerElement("item")
             .addAttribute("affiliation", newOccupant.getAffiliation().toString())
-            .addAttribute("role", newOccupant.getRole().toString())
-            .endInnerElement();
+            .addAttribute("role", newOccupant.getRole().toString());
+        
+        // section 7.1.5
+        if(room.getRoomTypes().contains(RoomType.NonAnonymous) ||
+                (room.getRoomTypes().contains(RoomType.SemiAnonymous) && existingOccupant.getRole() == Role.Moderator)) {
+            // room is non-anonymous or semi-anonmoys and the occupant a moderator, send full user JID
+            builder.addAttribute("jid", newOccupant.getJid().getFullQualifiedName());
+            // TODO unit test for semi + moderator
+        }
+            
+        builder.endInnerElement();
         
         if(existingOccupant.getJid().equals(newOccupant.getJid())) {
+            
+            if(room.getRoomTypes().contains(RoomType.NonAnonymous)) {
+                // notify the user that this is a non-anonymous room
+                builder.startInnerElement("status").addAttribute("code", "100").endInnerElement();
+            }
+            
             // send status to indicate that this is the users own presence
             builder.startInnerElement("status").addAttribute("code", "110").endInnerElement();
         }

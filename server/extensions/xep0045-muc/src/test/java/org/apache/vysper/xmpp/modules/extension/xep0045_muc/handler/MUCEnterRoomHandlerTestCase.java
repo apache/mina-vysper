@@ -153,6 +153,16 @@ public class MUCEnterRoomHandlerTestCase extends TestCase {
         assertEquals(room1Jid.getFullQualifiedName() + "/nick", user2JoinedStanza.getFrom().getFullQualifiedName());
         // should be to the existing user
         assertEquals(occupant1Jid, user2JoinedStanza.getTo());
+        
+        XMLElement xElement = user2JoinedStanza.getSingleInnerElementsNamed("x");
+        assertEquals(NamespaceURIs.XEP0045_MUC_USER, xElement.getNamespaceURI());
+        
+        // since this room is non-anonymous, x must contain an item element with the users full JID
+        XMLElement itemElement = xElement.getSingleInnerElementsNamed("item");
+        assertEquals(occupant2Jid.getFullQualifiedName(), itemElement.getAttributeValue("jid"));
+        assertEquals("none", itemElement.getAttributeValue("affiliation"));
+        assertEquals("participant", itemElement.getAttributeValue("role"));
+
 
         // verify stanzas to the new user on all existing users, including himself with status=110 element
         // own presence must be sent last
@@ -162,14 +172,15 @@ public class MUCEnterRoomHandlerTestCase extends TestCase {
         assertEquals(room1Jid.getFullQualifiedName() + "/Some nick", stanza.getFrom().getFullQualifiedName());
         assertEquals(occupant2Jid, stanza.getTo());
 
-        // assert stanza from the joining user, must have extra status=110 element
+        // assert stanza from the joining user, must have extra status=110 element        
         stanza = occupant2Queue.getNext();
         assertNotNull(stanza);
         assertEquals(room1JidWithNick, stanza.getFrom());
         assertEquals(occupant2Jid, stanza.getTo());
-        XMLElement statusElement = stanza.getFirstInnerElement().getSingleInnerElementsNamed("status");
-        assertNotNull(statusElement);
-        assertEquals("110", statusElement.getAttributeValue("code"));
+        List<XMLElement> statusElements = stanza.getFirstInnerElement().getInnerElementsNamed("status");
+        assertEquals(2, statusElements.size());
+        assertEquals("100", statusElements.get(0).getAttributeValue("code"));
+        assertEquals("110", statusElements.get(1).getAttributeValue("code"));
         
     }
 }
