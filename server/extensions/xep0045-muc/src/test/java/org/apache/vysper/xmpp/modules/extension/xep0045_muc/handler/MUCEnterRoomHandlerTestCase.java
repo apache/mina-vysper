@@ -13,6 +13,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.TestUtil;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.server.TestSessionContext;
@@ -63,9 +64,17 @@ public class MUCEnterRoomHandlerTestCase extends TestCase {
     }
 
     private Stanza enterRoom(Entity occupantJid, Entity roomJid) {
+        return enterRoom(occupantJid, roomJid, null);
+    }
+    
+    private Stanza enterRoom(Entity occupantJid, Entity roomJid, String password) {
         StanzaBuilder stanzaBuilder = StanzaBuilder.createPresenceStanza(occupantJid, roomJid, null, null, null, null);
-        stanzaBuilder.startInnerElement("x").addNamespaceAttribute(NamespaceURIs.XEP0045_MUC).endInnerElement();
-
+        stanzaBuilder.startInnerElement("x").addNamespaceAttribute(NamespaceURIs.XEP0045_MUC);
+        if(password != null) {
+            stanzaBuilder.startInnerElement("password").addText(password).endInnerElement();
+        }
+        
+        stanzaBuilder.endInnerElement();
         Stanza presenceStanza = stanzaBuilder.getFinalStanza();
         ResponseStanzaContainer container = handler.execute(presenceStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, null);
         if(container != null) {
@@ -107,10 +116,33 @@ public class MUCEnterRoomHandlerTestCase extends TestCase {
         // try entering without a nick
         PresenceStanza response = (PresenceStanza) enterRoom(occupant1Jid, room1Jid);
 
+        assertErrorStanza(response, room1Jid, occupant1Jid, "modify", "jid-malformed");
+    }
+    
+    public void testEnterWithPassword() {
+        Room room = conference.createRoom(room2Jid, "Room 1", RoomType.PasswordProtected);
+        room.setPassword("secret");
+
+        // no error should be returned
+        assertNull(enterRoom(occupant1Jid, room2JidWithNick, "secret"));
+        assertEquals(1, room.getOccupants().size());
+    }
+    
+    public void testEnterWithoutPassword() {
+        Room room = conference.createRoom(room2Jid, "Room 1", RoomType.PasswordProtected);
+        room.setPassword("secret");
+
+        // try entering without a password
+        PresenceStanza response = (PresenceStanza) enterRoom(occupant1Jid, room2JidWithNick);
+        
+        assertErrorStanza(response, room2Jid, occupant1Jid, "auth", "not-authorized");
+    }
+
+    private void assertErrorStanza(PresenceStanza response, Entity from, Entity to, String type, String errorName) {
         assertNotNull(response);
         assertEquals("presence", response.getName());
-        assertEquals(occupant1Jid, response.getTo());
-        assertEquals(room1Jid, response.getFrom());
+        assertEquals(to, response.getTo());
+        assertEquals(from, response.getFrom());
         assertEquals("error", response.getType());
         
         List<XMLElement> innerElements = response.getInnerElements();
@@ -121,12 +153,11 @@ public class MUCEnterRoomHandlerTestCase extends TestCase {
 
         XMLElement errorElement = innerElements.get(1);
         assertEquals("error", errorElement.getName());
-        assertEquals("modify", errorElement.getAttributeValue("type"));
+        assertEquals(type, errorElement.getAttributeValue("type"));
         
         XMLElement jidMalformedElement = errorElement.getFirstInnerElement();
-        assertEquals("jid-malformed", jidMalformedElement.getName());
+        assertEquals(errorName, jidMalformedElement.getName());
         assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, jidMalformedElement.getNamespaceURI());
-        
     }
     
     public void testEnterRoomWithRelays() throws Exception {
@@ -138,14 +169,6 @@ public class MUCEnterRoomHandlerTestCase extends TestCase {
         
         // now, let user 2 enter room
         enterRoom(occupant2Jid, room1JidWithNick);
-
-//        <presence
-//        from='darkcave@chat.shakespeare.lit/firstwitch'
-//        to='hag66@shakespeare.lit/pda'>
-//      <x xmlns='http://jabber.org/protocol/muc#user'>
-//        <item affiliation='owner' role='moderator'/>
-//      </x>
-//    </presence>
 
         // verify stanzas to existing occupants on the new user
         Stanza user2JoinedStanza = occupant1Queue.getNext();

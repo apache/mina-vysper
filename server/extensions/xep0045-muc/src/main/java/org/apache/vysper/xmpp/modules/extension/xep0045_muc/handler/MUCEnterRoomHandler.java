@@ -37,6 +37,8 @@ import org.apache.vysper.xmpp.stanza.PresenceStanza;
 import org.apache.vysper.xmpp.stanza.PresenceStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.xmlfragment.XMLElement;
+import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +64,7 @@ public class MUCEnterRoomHandler extends DefaultPresenceHandler {
         return verifyInnerNamespace(stanza, NamespaceURIs.XEP0045_MUC);
     }
 
-    private Stanza sendError(Entity roomJid, Entity occupantJid, String error) {
+    private Stanza sendError(Entity roomJid, Entity occupantJid, String type, String error) {
         //        <presence
         //        from='darkcave@chat.shakespeare.lit'
         //        to='hag66@shakespeare.lit/pda'
@@ -79,7 +81,7 @@ public class MUCEnterRoomHandler extends DefaultPresenceHandler {
         // the MUC child element (i.e., <x xmlns='http://jabber.org/protocol/muc'/>) in the 
         // <presence/> stanza of type "error"."
         builder.startInnerElement("x", NamespaceURIs.XEP0045_MUC).endInnerElement();
-        builder.startInnerElement("error").addAttribute("type", "modify");
+        builder.startInnerElement("error").addAttribute("type", type);
         builder.startInnerElement(error, NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).endInnerElement();
         builder.endInnerElement();
         
@@ -99,11 +101,34 @@ public class MUCEnterRoomHandler extends DefaultPresenceHandler {
         
         // user did not send nick name
         if(nick == null) {
-            return sendError(roomJid, newOccupantJid, "jid-malformed");
+            return sendError(roomJid, newOccupantJid, "modify", "jid-malformed");
         }
         
         // TODO what to use for the room name?
         Room room = conference.findOrCreateRoom(roomJid, roomJid.getNode());
+        
+        // check password if password protected
+        if(room.isRoomType(RoomType.PasswordProtected)) {
+            // TODO room constructor for password
+            
+            String password = null;
+            try {
+                XMLElement xElement = stanza.getSingleInnerElementsNamed("x");
+                if(xElement != null) {
+                    XMLElement passwordElement = xElement.getSingleInnerElementsNamed("password");
+                    if(passwordElement != null) {
+                        password = passwordElement.getInnerText().getText();
+                    }
+                }
+            } catch (XMLSemanticError e) {
+                password = null;
+            }
+            
+            if(password == null || !password.equals(room.getPassword())) {
+                // password missing or not matching
+                return sendError(roomJid, newOccupantJid, "auth", "not-authorized");
+            }
+        }
         
         Occupant newOccupant = room.addOccupant(newOccupantJid, nick);
         

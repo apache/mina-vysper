@@ -52,6 +52,7 @@ public class Room implements InfoRequestListener, ItemRequestListener {
 
     private Entity jid;
     private String name;
+    private String password;
     
     // keep in a map to allow for quick access
     private Map<Entity, Occupant> occupants = new ConcurrentHashMap<Entity, Occupant>();
@@ -94,6 +95,10 @@ public class Room implements InfoRequestListener, ItemRequestListener {
     public EnumSet<RoomType> getRoomTypes() {
         return roomTypes.clone();
     }
+    
+    public boolean isRoomType(RoomType type) {
+        return roomTypes.contains(type);
+    }
 
     public Occupant addOccupant(Entity occupantJid, String name) {
         // TODO uses a default Affiliation.None, later to be looked up based on the user
@@ -112,7 +117,6 @@ public class Room implements InfoRequestListener, ItemRequestListener {
     
     public Set<Occupant> getOccupants() {
         Set<Occupant> set = new HashSet<Occupant>();
-        
         for(Occupant occupant : occupants.values()) {
             set.add(occupant);
         }
@@ -137,6 +141,14 @@ public class Room implements InfoRequestListener, ItemRequestListener {
             throws ServiceDiscoveryRequestException {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+    
+    public void setPassword(String password) {
+        this.password = password;
     }
     
 }
