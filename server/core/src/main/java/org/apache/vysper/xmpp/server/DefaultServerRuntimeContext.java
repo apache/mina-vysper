@@ -20,6 +20,12 @@
 
 package org.apache.vysper.xmpp.server;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.net.ssl.SSLContext;
+
 import org.apache.vysper.storage.OpenStorageProviderRegistry;
 import org.apache.vysper.storage.StorageProvider;
 import org.apache.vysper.storage.StorageProviderRegistry;
@@ -36,6 +42,7 @@ import org.apache.vysper.xmpp.protocol.QueuedStanzaProcessor;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaHandlerLookup;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
+import org.apache.vysper.xmpp.protocol.SubdomainHandlerDictionary;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.state.presence.LatestPresenceCache;
 import org.apache.vysper.xmpp.state.presence.SimplePresenceCache;
@@ -44,11 +51,6 @@ import org.apache.vysper.xmpp.uuid.JVMBuiltinUUIDGenerator;
 import org.apache.vysper.xmpp.uuid.UUIDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.net.ssl.SSLContext;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -63,7 +65,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     /**
      * directory where all available processors for incoming stanzas are located
      */
-    private StanzaHandlerLookup stanzaHandlerLookup = new StanzaHandlerLookup();
+    private StanzaHandlerLookup stanzaHandlerLookup;
 
     /**
      * the 'domain' the server is directly serving for
@@ -121,6 +123,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         this.serverEntity = serverEntity;
         this.stanzaRelay = stanzaRelay;
         this.resourceRegistry = new ResourceRegistry();
+        this.stanzaHandlerLookup = new StanzaHandlerLookup(serverEntity);
     }
 
     public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay, StorageProviderRegistry storageProviderRegistry) {
@@ -182,6 +185,10 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         stanzaHandlerLookup.addDictionary(namespaceHandlerDictionary);
     }
 
+    public void addDictionary(SubdomainHandlerDictionary subdomainHandlerDictionary) {
+        stanzaHandlerLookup.addDictionary(subdomainHandlerDictionary);
+    }
+    
     protected void addDictionaries(List<NamespaceHandlerDictionary> dictionaries) {
         for (NamespaceHandlerDictionary dictionary : dictionaries) {
             addDictionary(dictionary);
@@ -236,7 +243,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         return storageProviderRegistry.retrieve(clazz);
     }
 
-    public void setModules(List<Module> modules) {
+    public void addModules(List<Module> modules) {
         for (Module module : modules) {
             addModuleInternal(module);
         }
@@ -269,12 +276,28 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
 
         List<HandlerDictionary> handlerDictionaryList = module.getHandlerDictionaries();
         if (handlerDictionaryList != null) {
+            boolean addedNamespaceHandler = false;
+            boolean addedSubdomainHandler = false;
+
             for (HandlerDictionary handlerDictionary : handlerDictionaryList) {
                 if (handlerDictionary instanceof NamespaceHandlerDictionary) {
                     addDictionary((NamespaceHandlerDictionary) handlerDictionary);
+                    addedNamespaceHandler = true;
+                } else if (handlerDictionary instanceof SubdomainHandlerDictionary) {
+                    addDictionary((SubdomainHandlerDictionary) handlerDictionary);
+                    addedSubdomainHandler = true;
                 } else {
-                    throw new RuntimeException("arbitrary HandlerDictionary implementations not supported yet, only NamespaceHandlerDictionary.");
+                    throw new RuntimeException("arbitrary HandlerDictionary implementations not supported yet, " +
+                    		"only NamespaceHandlerDictionary and SubdomainHandlerDictionary.");
                 }
+            }
+            
+            // make sure that a module does not add both namespace and subdomain handlers 
+            if(addedNamespaceHandler && addedSubdomainHandler) {
+                throw new RuntimeException("Module adding both " +
+                    " NamespaceHandlerDictionary and SubdomainHandlerDictionary. Only one type is" +
+                    "allowed per module");
+ 
             }
         }
     }

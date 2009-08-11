@@ -30,5 +30,5 @@ public interface ModuleRegistry {
 
     void addModule(Module module);
 
-    void setModules(List<Module> modules);
+    void addModules(List<Module> modules);
 }

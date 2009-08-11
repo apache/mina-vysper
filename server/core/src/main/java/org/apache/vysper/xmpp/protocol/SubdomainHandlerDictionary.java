@@ -21,30 +21,32 @@ package org.apache.vysper.xmpp.protocol;
 
 import java.util.List;
 
+import org.apache.vysper.xmpp.addressing.Entity;
+
 /**
- * holds all stanza handlers for a distinct namespace
+ * holds all stanza handlers for a distinct subdomain
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class NamespaceHandlerDictionary extends AbstractHandlerDictionary {
+public class SubdomainHandlerDictionary extends AbstractHandlerDictionary {
 
-    private String namespaceURI;
+    private Entity domain;
 
-    public NamespaceHandlerDictionary(String namespaceURI) {
-        this.namespaceURI = namespaceURI;
+    public SubdomainHandlerDictionary(Entity domin) {
+        this.domain = domin;
     }
 
-    public NamespaceHandlerDictionary(String namespaceURI, List<StanzaHandler> handlerList) {
+    public SubdomainHandlerDictionary(Entity domin, List<StanzaHandler> handlerList) {
         super(handlerList);
-        this.namespaceURI = namespaceURI;
+        this.domain = domin;
     }
 
-    public NamespaceHandlerDictionary(String namespaceURI, StanzaHandler stanzaHandler) {
+    public SubdomainHandlerDictionary(Entity domin, StanzaHandler stanzaHandler) {
         super(stanzaHandler);
-        this.namespaceURI = namespaceURI;
+        this.domain = domin;
     }
 
-    public String getNamespaceURI() {
-        return namespaceURI;
+    public Entity getDomain() {
+        return domain;
     }
 }

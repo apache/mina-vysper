@@ -21,6 +21,8 @@ import java.util.ArrayList;
 
 import junit.framework.TestCase;
 
+import org.apache.vysper.TestUtil;
+import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.core.base.BaseStreamStanzaDictionary;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.core.base.handler.MessageHandler;
@@ -35,6 +37,9 @@ import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
  */
 public class StanzaHandlerLookupTestCase extends TestCase {
 
+    private static final Entity SERVER_ENTITY = TestUtil.parseUnchecked("vysper.org");
+    private static final Entity SUBDOMAIN_ENTITY = TestUtil.parseUnchecked("sub.vysper.org");
+    
     public void testDictionaryHierarchy() {
         NamespaceHandlerDictionary upperNamespaceHandlerDictionary = new NamespaceHandlerDictionary("testNSURI1");
         CallTestStanzaHandler upperStanzaHandler = new CallTestStanzaHandler("testDictionaryHierarchy", "testNSURI1");
@@ -45,7 +50,7 @@ public class StanzaHandlerLookupTestCase extends TestCase {
         lowerNamespaceHandlerDictionary.register(lowerStanzaHandler);
 
 
-        StanzaHandlerLookup stanzaHandlerLookup = new StanzaHandlerLookup();
+        StanzaHandlerLookup stanzaHandlerLookup = new StanzaHandlerLookup(SERVER_ENTITY);
         stanzaHandlerLookup.addDictionary(upperNamespaceHandlerDictionary);
         stanzaHandlerLookup.addDictionary(lowerNamespaceHandlerDictionary);
 
@@ -70,7 +75,7 @@ public class StanzaHandlerLookupTestCase extends TestCase {
     }
 
     public void testLookupCoreHandlerClientNS() {
-        StanzaHandlerLookup stanzaHandlerLookup = new StanzaHandlerLookup();
+        StanzaHandlerLookup stanzaHandlerLookup = new StanzaHandlerLookup(SERVER_ENTITY);
         stanzaHandlerLookup.addDictionary(new BaseStreamStanzaDictionary());
 
         Stanza stanza = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT).getFinalStanza();
@@ -82,7 +87,7 @@ public class StanzaHandlerLookupTestCase extends TestCase {
     }
 
     public void testLookupCoreHandlerServerNS() {
-        StanzaHandlerLookup stanzaHandlerLookup = new StanzaHandlerLookup();
+        StanzaHandlerLookup stanzaHandlerLookup = new StanzaHandlerLookup(SERVER_ENTITY);
         stanzaHandlerLookup.addDictionary(new BaseStreamStanzaDictionary());
 
         Stanza stanza = new StanzaBuilder("iq", NamespaceURIs.JABBER_SERVER).getFinalStanza();
@@ -94,7 +99,7 @@ public class StanzaHandlerLookupTestCase extends TestCase {
     }
 
     public void testLookupCoreHandlerWrongNamespace() {
-        StanzaHandlerLookup stanzaHandlerLookup = new StanzaHandlerLookup();
+        StanzaHandlerLookup stanzaHandlerLookup = new StanzaHandlerLookup(SERVER_ENTITY);
         stanzaHandlerLookup.addDictionary(new BaseStreamStanzaDictionary());
 
         Stanza stanza = new StanzaBuilder("iq", "arbitraryNamespace").getFinalStanza();
@@ -104,7 +109,7 @@ public class StanzaHandlerLookupTestCase extends TestCase {
     }
 
     public void testLookupPresenceHandler() {
-        StanzaHandlerLookup stanzaHandlerLookup = new StanzaHandlerLookup();
+        StanzaHandlerLookup stanzaHandlerLookup = new StanzaHandlerLookup(SERVER_ENTITY);
         stanzaHandlerLookup.addDictionary(new BaseStreamStanzaDictionary());
 
         Stanza stanza = new StanzaBuilder("presence", NamespaceURIs.JABBER_CLIENT).getFinalStanza();
@@ -115,7 +120,7 @@ public class StanzaHandlerLookupTestCase extends TestCase {
     }
 
     public void testLookupMessageHandler() {
-        StanzaHandlerLookup stanzaHandlerLookup = new StanzaHandlerLookup();
+        StanzaHandlerLookup stanzaHandlerLookup = new StanzaHandlerLookup(SERVER_ENTITY);
         stanzaHandlerLookup.addDictionary(new BaseStreamStanzaDictionary());
 
         Stanza stanza = new StanzaBuilder("message", NamespaceURIs.JABBER_CLIENT).getFinalStanza();
@@ -126,7 +131,7 @@ public class StanzaHandlerLookupTestCase extends TestCase {
     }
 
     public void testLookupSpecializedIQHandler() {
-        StanzaHandlerLookup stanzaHandlerLookup = new StanzaHandlerLookup();
+        StanzaHandlerLookup stanzaHandlerLookup = new StanzaHandlerLookup(SERVER_ENTITY);
         stanzaHandlerLookup.addDictionary(new BaseStreamStanzaDictionary());
 
         NamespaceHandlerDictionary testDictionary = new NamespaceHandlerDictionary("test:namespace:OK");
@@ -145,14 +150,34 @@ public class StanzaHandlerLookupTestCase extends TestCase {
         handler = stanzaHandlerLookup.getHandler(stanza);
         assertNotNull("handler found", handler);
         assertTrue("test handler", TestIQHandler.class.equals(handler.getClass()));
+    }
+    
+    public void testLookupSubdomain() {
+        StanzaHandlerLookup stanzaHandlerLookup = new StanzaHandlerLookup(SERVER_ENTITY);
 
+        SubdomainHandlerDictionary testDictionary = new SubdomainHandlerDictionary(SUBDOMAIN_ENTITY);
+        testDictionary.register(new TestIQHandler("test", "test:namespace"));
+        stanzaHandlerLookup.addDictionary(testDictionary);
 
+        Stanza stanza = buildStanza("test", "test:namespace", "test@sub.vysper.org");
+
+        StanzaHandler handler = stanzaHandlerLookup.getHandler(stanza);
+
+        assertNotNull("handler found", handler);
+        assertTrue("test handler", TestIQHandler.class.equals(handler.getClass()));
     }
 
     private Stanza buildStanza(String name, String namespaceURI) {
+        return buildStanza(name, namespaceURI, null);
+    }
+    
+    private Stanza buildStanza(String name, String namespaceURI, String to) {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT);
         stanzaBuilder.addAttribute("id", "1");
         stanzaBuilder.addAttribute("type", "get");
+        if(to != null) {
+            stanzaBuilder.addAttribute("to", to);
+        }
         stanzaBuilder.startInnerElement(name, namespaceURI).endInnerElement();
         Stanza stanza = stanzaBuilder.getFinalStanza();
         return stanza;

@@ -17,34 +17,25 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.protocol;
+package org.apache.vysper;
 
-import java.util.List;
+import junit.framework.TestCase;
+
+import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityFormatException;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 
 /**
- * holds all stanza handlers for a distinct namespace
- *
+ * 
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class NamespaceHandlerDictionary extends AbstractHandlerDictionary {
+public abstract class TestUtil extends TestCase {
 
-    private String namespaceURI;
-
-    public NamespaceHandlerDictionary(String namespaceURI) {
-        this.namespaceURI = namespaceURI;
-    }
-
-    public NamespaceHandlerDictionary(String namespaceURI, List<StanzaHandler> handlerList) {
-        super(handlerList);
-        this.namespaceURI = namespaceURI;
-    }
-
-    public NamespaceHandlerDictionary(String namespaceURI, StanzaHandler stanzaHandler) {
-        super(stanzaHandler);
-        this.namespaceURI = namespaceURI;
-    }
-
-    public String getNamespaceURI() {
-        return namespaceURI;
+    public static Entity parseUnchecked(String jid) {
+        try {
+            return EntityImpl.parse(jid);
+        } catch (EntityFormatException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

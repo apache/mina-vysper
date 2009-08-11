@@ -19,7 +19,12 @@
  */
 package org.apache.vysper.xmpp.server;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.vysper.storage.StorageProviderRegistry;
+import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
 import org.apache.vysper.xmpp.authorization.Plain;
@@ -33,11 +38,8 @@ import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.roster.RosterModule;
 import org.apache.vysper.xmpp.modules.servicediscovery.ServiceDiscoveryModule;
 import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
+import org.apache.vysper.xmpp.protocol.SubdomainHandlerDictionary;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * this class is able to boot a standalone XMPP server.
@@ -135,11 +137,9 @@ public class XMPPServer {
     }
 
     public void addModule(Module module) {
-        ArrayList<Module> list = new ArrayList<Module>();
-        list.add(module);
-        serverRuntimeContext.setModules(list);
+        serverRuntimeContext.addModule(module);
     }
-
+    
     private void addCoreDictionaries(List<NamespaceHandlerDictionary> dictionaries) {
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.base.BaseStreamStanzaDictionary());
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.starttls.StartTLSStanzaDictionary());
