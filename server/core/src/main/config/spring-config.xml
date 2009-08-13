@@ -76,7 +76,7 @@
         <property name="startTLSRequired" value="true"/>
     </bean>
     
-    <bean id="server" class="org.apache.vysper.xmpp.server.DefaultServerRuntimeContext" >
+    <bean id="server" class="org.apache.vysper.spring.SpringCompatibleDefaultServerRuntimeContext" >
         <constructor-arg >
             <bean class="org.apache.vysper.xmpp.addressing.EntityImpl" >
                 <constructor-arg value=""/>
