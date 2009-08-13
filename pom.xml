@@ -81,14 +81,6 @@
 
   <repositories>
     <repository>
-      <!-- 
-          To be removed when http://jira.codehaus.org/browse/MAVENUPLOAD-2519 
-          and http://jira.codehaus.org/browse/MAVENUPLOAD-2521 are closed 
-        -->
-      <id>smack-temp-repo</id>
-      <url>http://people.apache.org/~ngn/vysper-repo/</url>
-    </repository>
-    <repository>
       <id>ehcache-repo</id>
       <url>http://oss.sonatype.org/content/repositories/sourceforge-releases</url>
     </repository>
