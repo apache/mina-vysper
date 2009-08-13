@@ -32,18 +32,18 @@ public class SubdomainHandlerDictionary extends AbstractHandlerDictionary {
 
     private Entity domain;
 
-    public SubdomainHandlerDictionary(Entity domin) {
-        this.domain = domin;
+    public SubdomainHandlerDictionary(Entity domain) {
+        this.domain = domain;
     }
 
-    public SubdomainHandlerDictionary(Entity domin, List<StanzaHandler> handlerList) {
+    public SubdomainHandlerDictionary(Entity domain, List<StanzaHandler> handlerList) {
         super(handlerList);
-        this.domain = domin;
+        this.domain = domain;
     }
 
-    public SubdomainHandlerDictionary(Entity domin, StanzaHandler stanzaHandler) {
+    public SubdomainHandlerDictionary(Entity domain, StanzaHandler stanzaHandler) {
         super(stanzaHandler);
-        this.domain = domin;
+        this.domain = domain;
     }
 
     public Entity getDomain() {
