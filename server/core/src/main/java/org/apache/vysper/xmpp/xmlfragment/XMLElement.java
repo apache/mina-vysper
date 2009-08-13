@@ -97,9 +97,6 @@ public class XMLElement implements XMLFragment {
         
         String uri = getAttributeValue(xmlnsName);
         
-        if(uri == null) {
-            uri = "";
-        }
         return uri;
     }
 
