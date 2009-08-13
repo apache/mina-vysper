@@ -19,8 +19,6 @@
  */
 package org.apache.vysper;
 
-import junit.framework.TestCase;
-
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -29,7 +27,7 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
  * 
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public abstract class TestUtil extends TestCase {
+public abstract class TestUtil {
 
     public static Entity parseUnchecked(String jid) {
         try {
