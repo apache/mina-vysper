@@ -39,17 +39,14 @@ public class PubsubTableModel extends AbstractTableModel {
         return columnNames[col];
     }
     
-    @Override
     public int getColumnCount() {
         return columnNames.length;
     }
 
-    @Override
     public int getRowCount() {
         return nodes.size();
     }
 
-    @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         PubsubNode n = nodes.get(rowIndex);
         

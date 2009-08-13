@@ -100,7 +100,6 @@ public class PubsubClientGUI implements Runnable, TableModelListener {
         connection.disconnect();
     }
 
-    @Override
     public void run() {
         createAndShowGUI();
         registerShutDownHook();
@@ -190,7 +189,6 @@ public class PubsubClientGUI implements Runnable, TableModelListener {
         return connection;
     }
 
-    @Override
     public void tableChanged(TableModelEvent event) {
         try {
             Boolean sub = (Boolean)dtm.getValueAt(event.getFirstRow(), event.getColumn());
