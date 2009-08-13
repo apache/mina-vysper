@@ -222,6 +222,10 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         return presenceCache;
     }
 
+    /**
+     * add a runtime service. makes the service dynamically discoverable at runtime.
+     * @param service
+     */
     public void registerServerRuntimeContextService(ServerRuntimeContextService service) {
         if (service == null) throw new IllegalStateException("service must not be null");
         if (serverRuntimeContextServiceMap.get(service.getServiceName()) != null) {
@@ -230,19 +234,48 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         serverRuntimeContextServiceMap.put(service.getServiceName(), service);
     }
 
+    /**
+     * retrieves a previously registered runtime context service. The RosterManager is a good example of such a service.
+     * This allows for modules, extensions and other services to discover their dependencies at runtime.
+     *  
+     * @see org.apache.vysper.xmpp.server.DefaultServerRuntimeContext#getStorageProvider(Class) 
+     * @param name
+     * @return
+     */
     public ServerRuntimeContextService getServerRuntimeContextService(String name) {
         return serverRuntimeContextServiceMap.get(name);
     }
 
+    /**
+     * adds a whole set of storage providers at once to the system.
+     * @param storageProviderRegistry
+     */
     public void setStorageProviderRegistry(StorageProviderRegistry storageProviderRegistry) {
         logger.info("replacing the storage provider registry with " + storageProviderRegistry.getClass().getCanonicalName());
         this.storageProviderRegistry = storageProviderRegistry;
     }
 
+    /**
+     * retrieves a particular storage provider. 
+     * @param clazz
+     * @return
+     */
     public StorageProvider getStorageProvider(Class<? extends StorageProvider> clazz) {
         return storageProviderRegistry.retrieve(clazz);
     }
 
+    /**
+     * adds and initializes a list of Modules. A module extends the server's functionality by adding an 
+     * XMPP extension ('XEP') to it. (More) Modules can be added at runtime.
+     * This approach has an advantage over adding modules one by one, in that it allows for a better
+     * dependency management: all modules from the list to first discover each other before initialize()
+     * get's called for every one of them. 
+     *  
+     * @see org.apache.vysper.xmpp.server.DefaultServerRuntimeContext#registerServerRuntimeContextService(org.apache.vysper.xmpp.modules.ServerRuntimeContextService)
+     * @see org.apache.vysper.xmpp.server.DefaultServerRuntimeContext#getServerRuntimeContextService(String)  
+     * @see org.apache.vysper.xmpp.modules.Module
+     * @param modules List of modules
+     */
     public void addModules(List<Module> modules) {
         for (Module module : modules) {
             addModuleInternal(module);
@@ -252,12 +285,19 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         }
     }
 
+    /**
+     * adds and initializes a single Module. a module extends the server's functionality by adding an 
+     * XMPP extension ('XEP') to it.
+     * @see org.apache.vysper.xmpp.modules.Module
+     * @see DefaultServerRuntimeContext#addModules(java.util.List) for adding a number of modules at once
+     * @param modules
+     */
     public void addModule(Module module) {
         addModuleInternal(module);
         module.initialize(this);
     }
     
-    public void addModuleInternal(Module module) {
+    protected void addModuleInternal(Module module) {
 
         logger.info("adding module... {} ({})", module.getName(), module.getVersion());
 
