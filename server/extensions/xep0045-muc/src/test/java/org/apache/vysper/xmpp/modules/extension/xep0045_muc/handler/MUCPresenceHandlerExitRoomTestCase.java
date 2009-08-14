@@ -19,8 +19,16 @@ import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
 public class MUCPresenceHandlerExitRoomTestCase extends AbstractMUCPresenceHandlerTestCase {
     
     private Stanza exitRoom(Entity occupantJid, Entity roomJid) {
+        return exitRoom(occupantJid, roomJid, null);
+    }
+    
+    private Stanza exitRoom(Entity occupantJid, Entity roomJid, String status) {
         StanzaBuilder stanzaBuilder = StanzaBuilder.createPresenceStanza(occupantJid, roomJid, null, PresenceStanzaType.UNAVAILABLE, null, null);
 
+        if(status != null) {
+            stanzaBuilder.startInnerElement("status").addText(status).endInnerElement();
+        }
+        
         Stanza presenceStanza = stanzaBuilder.getFinalStanza();
         ResponseStanzaContainer container = handler.execute(presenceStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, null);
         if(container != null) {
@@ -85,12 +93,27 @@ public class MUCPresenceHandlerExitRoomTestCase extends AbstractMUCPresenceHandl
         exitRoom(occupant2Jid, room1JidWithNick);
 
         // verify stanzas to existing occupants on the exiting user
-        assertExitPresenceStanza(room1Jid, "Nick 2", occupant1Jid, occupant1Queue.getNext(), false);
-        assertExitPresenceStanza(room1Jid, "Nick 2", occupant2Jid, occupant2Queue.getNext(), true);
+        assertExitPresenceStanza(room1Jid, "Nick 2", occupant1Jid, occupant1Queue.getNext(), null, false);
+        assertExitPresenceStanza(room1Jid, "Nick 2", occupant2Jid, occupant2Queue.getNext(), null, true);
+    }
+    
+    public void testExitRoomWithRelaysWithStatus() throws Exception {
+        String statusMessage = "Custom status";
+        
+        // add occupants to the room
+        Room room = conference.findOrCreateRoom(room1Jid, "Room 1");
+        room.addOccupant(occupant1Jid, "Nick 1");
+        room.addOccupant(occupant2Jid, "Nick 2");
+        
+        // now, let user 2 exit room
+        exitRoom(occupant2Jid, room1JidWithNick, statusMessage);
 
+        // verify stanzas to existing occupants on the exiting user
+        assertExitPresenceStanza(room1Jid, "Nick 2", occupant1Jid, occupant1Queue.getNext(), statusMessage, false);
+        assertExitPresenceStanza(room1Jid, "Nick 2", occupant2Jid, occupant2Queue.getNext(), statusMessage, true);
     }
 
-    private void assertExitPresenceStanza(Entity roomJid, String nick, Entity to, Stanza stanza, boolean own) throws XMLSemanticError {
+    private void assertExitPresenceStanza(Entity roomJid, String nick, Entity to, Stanza stanza, String expectedStatus, boolean own) throws XMLSemanticError {
         // should be from room + nick name
         assertEquals(roomJid.getFullQualifiedName() + "/" + nick, stanza.getFrom().getFullQualifiedName());
         // should be to the existing user
@@ -110,6 +133,13 @@ public class MUCPresenceHandlerExitRoomTestCase extends AbstractMUCPresenceHandl
             List<XMLElement> statuses = xElement.getInnerElementsNamed("status");
             assertEquals(1, statuses.size());
             assertEquals("110", statuses.get(0).getAttributeValue("code"));
+        }
+        
+        if(expectedStatus != null) {
+            List<XMLElement> statuses = xElement.getInnerElementsNamed("status");
+            assertEquals(1, statuses.size());
+            assertEquals(expectedStatus, statuses.get(0).getInnerText().getText());
+            
         }
     }
 }

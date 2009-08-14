@@ -188,10 +188,20 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
                 Set<Occupant> allOccupants = room.getOccupants(); 
                 
                 room.removeOccupant(occupantJid);
+
+                String statusMessage = null;
+                try {
+                    XMLElement statusElement = stanza.getSingleInnerElementsNamed("status");
+                    if(statusElement != null && statusElement.getInnerText() != null) {
+                        statusMessage = statusElement.getInnerText().getText();
+                    }
+                } catch (XMLSemanticError e) {
+                    // ignore, status element did not exist
+                }
                 
                 // relay presence of the newly added occupant to all existing occupants
                 for(Occupant occupant : allOccupants) {
-                    sendExitRoomPresenceToExisting(exitingOccupant, occupant, room, sessionContext);
+                    sendExitRoomPresenceToExisting(exitingOccupant, occupant, room, statusMessage, sessionContext);
                 }
                 
                 if(room.isRoomType(RoomType.Temporary) && room.isEmpty()) {
@@ -263,7 +273,8 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         relayStanza(existingOccupant.getJid(), builder.getFinalStanza(), sessionContext);
     }
     
-    private void sendExitRoomPresenceToExisting(Occupant exitingOccupant, Occupant existingOccupant, Room room, SessionContext sessionContext) {
+    private void sendExitRoomPresenceToExisting(Occupant exitingOccupant, Occupant existingOccupant, Room room, 
+            String statusMessage, SessionContext sessionContext) {
         Entity roomAndNewUserNick = new EntityImpl(room.getJID(), exitingOccupant.getName());
         
         StanzaBuilder builder = StanzaBuilder.createPresenceStanza(roomAndNewUserNick, existingOccupant.getJid(), null, 
@@ -276,9 +287,21 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
             
         builder.endInnerElement();
         
-        if(existingOccupant.getJid().equals(exitingOccupant.getJid())) {
-            // send status to indicate that this is the users own presence
-            builder.startInnerElement("status").addAttribute("code", "110").endInnerElement();
+        // is this stanza to be sent to the exiting user himself?
+        boolean ownStanza = existingOccupant.getJid().equals(exitingOccupant.getJid()); 
+        
+        if(ownStanza || statusMessage != null) {
+            builder.startInnerElement("status");
+            
+            if(ownStanza) {
+                // send status to indicate that this is the users own presence
+                builder.addAttribute("code", "110");
+            }
+            if(statusMessage != null) {
+                builder.addText(statusMessage);
+            }
+            
+            builder.endInnerElement();
         }
         builder.endInnerElement();
 
