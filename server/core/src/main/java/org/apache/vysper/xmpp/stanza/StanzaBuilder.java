@@ -53,7 +53,7 @@ public class StanzaBuilder {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("message");
         stanzaBuilder.addAttribute("from", from.getFullQualifiedName());
         stanzaBuilder.addAttribute("to", to.getFullQualifiedName());
-        stanzaBuilder.addAttribute("xml:lang", lang);
+        if(lang != null) stanzaBuilder.addAttribute("xml:lang", lang);
         stanzaBuilder.startInnerElement("body").addText(body).endInnerElement();
         return stanzaBuilder;
     }
