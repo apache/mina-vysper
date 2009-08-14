@@ -19,20 +19,10 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceCollector;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.Identity;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequestListener;
-import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.stanza.IQStanzaType;
-import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
-import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
 
 /**
  * 

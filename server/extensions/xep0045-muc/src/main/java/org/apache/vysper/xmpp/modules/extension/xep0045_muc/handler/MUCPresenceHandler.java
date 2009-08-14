@@ -19,6 +19,8 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 
+import java.util.Set;
+
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -49,19 +51,34 @@ import org.slf4j.LoggerFactory;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 @SpecCompliant(spec="xep-0045", section="7.1", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
-public class MUCEnterRoomHandler extends DefaultPresenceHandler {
+public class MUCPresenceHandler extends DefaultPresenceHandler {
 
-    final Logger logger = LoggerFactory.getLogger(MUCEnterRoomHandler.class);
+    final Logger logger = LoggerFactory.getLogger(MUCPresenceHandler.class);
 
     private Conference conference;
     
-    public MUCEnterRoomHandler(Conference conference) {
+    public MUCPresenceHandler(Conference conference) {
         this.conference = conference;
     }
 
     @Override
     protected boolean verifyNamespace(Stanza stanza) {
-        return verifyInnerNamespace(stanza, NamespaceURIs.XEP0045_MUC);
+        // either, the stanza should have a x element with the MUC namespace. Or, no extension 
+        // element at all. Else, return false
+        
+        XMLElement xElement = stanza.getFirstInnerElement();
+        if(xElement != null && xElement.getName().equals("x") 
+                && xElement.getNamespaceURI().equals(NamespaceURIs.XEP0045_MUC)) {
+            // got x element and in the correct namespace
+            return true;
+        } else if(xElement != null && xElement.getNamespaceURI() == null) {
+            // no extension namespace, ok
+            return true;
+        } else if(xElement == null) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private Stanza sendError(Entity roomJid, Entity occupantJid, String type, String error) {
@@ -92,18 +109,31 @@ public class MUCEnterRoomHandler extends DefaultPresenceHandler {
     protected Stanza executePresenceLogic(PresenceStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         // TODO handle null
         Entity roomAndNick = stanza.getTo();
+        // TODO handle null
+        Entity occupantJid = stanza.getFrom();
         
         Entity roomJid = roomAndNick.getBareJID();
         String nick = roomAndNick.getResource();
         
-        // TODO handle null
-        Entity newOccupantJid = stanza.getFrom();
-        
         // user did not send nick name
         if(nick == null) {
-            return sendError(roomJid, newOccupantJid, "modify", "jid-malformed");
+            return sendError(roomJid, occupantJid, "modify", "jid-malformed");
+        }
+
+        String type = stanza.getType();
+        
+        if(type == null) {
+            return enterRoom(stanza, roomJid, occupantJid, nick, sessionContext);
+        } else if(type.equals("unavailable")) {
+            return exitRoom(stanza, roomJid, occupantJid, nick, sessionContext);
+        } else {
+            throw new RuntimeException("Presence type not handled by MUC module: " + type);
         }
         
+    }
+
+    private Stanza enterRoom(PresenceStanza stanza, Entity roomJid,
+            Entity newOccupantJid, String nick, SessionContext sessionContext) {
         // TODO what to use for the room name?
         Room room = conference.findOrCreateRoom(roomJid, roomJid.getNode());
         
@@ -145,6 +175,34 @@ public class MUCEnterRoomHandler extends DefaultPresenceHandler {
         return null;
     }
     
+    private Stanza exitRoom(PresenceStanza stanza, Entity roomJid,
+            Entity occupantJid, String nick, SessionContext sessionContext) {
+        Room room = conference.findRoom(roomJid);
+        
+        // room must exist, or we do nothing
+        if(room != null) {
+            Occupant exitingOccupant = room.findOccupant(occupantJid);
+            
+            // user must by in room, or we do nothing
+            if(exitingOccupant != null) {
+                Set<Occupant> allOccupants = room.getOccupants(); 
+                
+                room.removeOccupant(occupantJid);
+                
+                // relay presence of the newly added occupant to all existing occupants
+                for(Occupant occupant : allOccupants) {
+                    sendExitRoomPresenceToExisting(exitingOccupant, occupant, room, sessionContext);
+                }
+                
+                if(room.isRoomType(RoomType.Temporary) && room.isEmpty()) {
+                    conference.deleteRoom(roomJid);                    
+                }
+            }
+        }
+        
+        return null;
+    }
+
     private void sendExistingOccupantToNewOccupant(Occupant newOccupant, Occupant existingOccupant, Room room, SessionContext sessionContext) {
         //            <presence
         //            from='darkcave@chat.shakespeare.lit/firstwitch'
@@ -197,6 +255,28 @@ public class MUCEnterRoomHandler extends DefaultPresenceHandler {
                 builder.startInnerElement("status").addAttribute("code", "100").endInnerElement();
             }
             
+            // send status to indicate that this is the users own presence
+            builder.startInnerElement("status").addAttribute("code", "110").endInnerElement();
+        }
+        builder.endInnerElement();
+
+        relayStanza(existingOccupant.getJid(), builder.getFinalStanza(), sessionContext);
+    }
+    
+    private void sendExitRoomPresenceToExisting(Occupant exitingOccupant, Occupant existingOccupant, Room room, SessionContext sessionContext) {
+        Entity roomAndNewUserNick = new EntityImpl(room.getJID(), exitingOccupant.getName());
+        
+        StanzaBuilder builder = StanzaBuilder.createPresenceStanza(roomAndNewUserNick, existingOccupant.getJid(), null, 
+                PresenceStanzaType.UNAVAILABLE, null, null);
+        builder.startInnerElement("x", NamespaceURIs.XEP0045_MUC_USER);
+        builder.startInnerElement("item")
+            .addAttribute("affiliation", exitingOccupant.getAffiliation().toString())
+            // must be none since the user is leaving
+            .addAttribute("role", "none");
+            
+        builder.endInnerElement();
+        
+        if(existingOccupant.getJid().equals(exitingOccupant.getJid())) {
             // send status to indicate that this is the users own presence
             builder.startInnerElement("status").addAttribute("code", "110").endInnerElement();
         }

@@ -109,10 +109,20 @@ public class Room implements InfoRequestListener, ItemRequestListener {
         return occupant;
     }
 
-    
+    public Occupant findOccupant(Entity occupantJid) {
+        return occupants.get(occupantJid);
+    }
     
     public void removeOccupant(Entity occupantJid) {
         occupants.remove(occupantJid);
+    }
+    
+    public int getOccupantCount() {
+        return occupants.size();
+    }
+    
+    public boolean isEmpty() {
+        return occupants.isEmpty();
     }
     
     public Set<Occupant> getOccupants() {

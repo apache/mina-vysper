@@ -74,6 +74,12 @@ public class Conference implements ServerInfoRequestListener, ItemRequestListene
         return roomStorageProvider.createRoom(jid, name, types);
     }
     
+
+    public void deleteRoom(Entity jid) {
+        roomStorageProvider.deleteRoom(jid);
+        
+    }
+    
     public Room findRoom(Entity jid) {
         return roomStorageProvider.findRoom(jid);
     }
@@ -125,4 +131,5 @@ public class Conference implements ServerInfoRequestListener, ItemRequestListene
         
         return items;
     }
+
 }

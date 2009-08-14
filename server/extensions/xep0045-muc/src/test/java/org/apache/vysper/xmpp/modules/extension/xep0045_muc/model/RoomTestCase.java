@@ -23,9 +23,8 @@ import java.util.EnumSet;
 
 import junit.framework.TestCase;
 
+import org.apache.vysper.TestUtil;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.modules.extension.xep0045_muc.TestUtil;
-import org.jivesoftware.smackx.workgroup.packet.RoomTransfer;
 
 /**
  * 

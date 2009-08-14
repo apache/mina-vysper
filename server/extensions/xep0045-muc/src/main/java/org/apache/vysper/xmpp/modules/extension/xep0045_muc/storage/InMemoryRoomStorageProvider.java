@@ -59,6 +59,11 @@ public class InMemoryRoomStorageProvider implements RoomStorageProvider {
         return rooms.containsKey(jid);
     }
 
+    public void deleteRoom(Entity jid) {
+        rooms.remove(jid);
+        
+    }
+
 
 
     

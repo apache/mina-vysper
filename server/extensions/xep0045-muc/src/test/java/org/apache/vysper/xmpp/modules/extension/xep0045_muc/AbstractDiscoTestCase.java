@@ -21,6 +21,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
 
 import junit.framework.TestCase;
 
+import org.apache.vysper.TestUtil;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
@@ -40,6 +41,7 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 public abstract class AbstractDiscoTestCase extends TestCase {
     
     protected static final Entity SERVER_JID = TestUtil.parseUnchecked("vysper.org");
+    protected static final Entity MODULE_JID = TestUtil.parseUnchecked("chat.vysper.org");
     protected static final Entity USER_JID = TestUtil.parseUnchecked("user@vysper.org");
 
     protected abstract Module getModule();

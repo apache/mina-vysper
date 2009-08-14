@@ -19,17 +19,15 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
+import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler.MUCPresenceHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.storage.OccupantStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.storage.RoomStorageProvider;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.Identity;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequestListener;
@@ -38,7 +36,7 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestLis
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
-import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.SubdomainHandlerDictionary;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,14 +49,17 @@ import org.slf4j.LoggerFactory;
 public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequestListener, InfoRequestListener, ItemRequestListener {
 
     private Conference conference;
+    private Entity domain;
     
     private final Logger logger = LoggerFactory.getLogger(MUCModule.class);
     
-    public MUCModule() {
+    public MUCModule(Entity domain) {
+        this.domain = domain;
         this.conference = new Conference("Conference");
     }
     
-    public MUCModule(Conference conference) {
+    public MUCModule(Entity domain, Conference conference) {
+        this.domain = domain;
         this.conference = conference;
     }
 
@@ -136,8 +137,13 @@ public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequ
     }
     
     @Override
-    protected void addHandlerDictionaries(List<HandlerDictionary> dictionary) {
+    protected void addHandlerDictionaries(List<HandlerDictionary> dictionaries) {
+        // MUC is only supported for running on a subdomain
         
+        SubdomainHandlerDictionary dictionary = new SubdomainHandlerDictionary(domain);
+        dictionary.register(new MUCPresenceHandler(conference));
+        
+        dictionaries.add(dictionary);
     }
 
     /**

@@ -37,4 +37,6 @@ public interface RoomStorageProvider extends StorageProvider {
     boolean roomExists(Entity jid);
     
     Room findRoom(Entity jid);
+    
+    void deleteRoom(Entity jid);
 }

@@ -1,22 +1,13 @@
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import junit.framework.TestCase;
 
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.delivery.StanzaReceiverQueue;
-import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
-import org.apache.vysper.xmpp.modules.extension.xep0045_muc.TestUtil;
-import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
-import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.PresenceStanza;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -24,44 +15,7 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
  */
-public class MUCEnterRoomHandlerTestCase extends TestCase {
-    
-    private TestSessionContext sessionContext;
-
-    protected Entity room1Jid = TestUtil.parseUnchecked("room1@vysper.org");
-    protected Entity room2Jid = TestUtil.parseUnchecked("room2@vysper.org");
-
-    protected Entity room1JidWithNick = TestUtil.parseUnchecked("room1@vysper.org/nick");
-    protected Entity room2JidWithNick = TestUtil.parseUnchecked("room2@vysper.org/nick");
-    
-    protected Entity occupant1Jid = TestUtil.parseUnchecked("user1@vysper.org");
-    protected Entity occupant2Jid = TestUtil.parseUnchecked("user2@vysper.org");
-    protected MUCEnterRoomHandler handler;
-
-    private Conference conference;
-
-    private StanzaReceiverQueue occupant1Queue;
-
-    private StanzaReceiverQueue occupant2Queue;
-    
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        
-        sessionContext = TestSessionContext.createWithStanzaReceiverRelayAuthenticated();
-        sessionContext.setInitiatingEntity(occupant1Jid);
-        
-        StanzaReceiverRelay stanzaRelay = (StanzaReceiverRelay) sessionContext.getServerRuntimeContext().getStanzaRelay();
-        occupant1Queue = new StanzaReceiverQueue();
-        occupant2Queue = new StanzaReceiverQueue();
-        stanzaRelay.add(occupant1Jid, occupant1Queue);
-        stanzaRelay.add(occupant2Jid, occupant2Queue);
-        
-        conference = new Conference("foo");
-        conference.createRoom(room1Jid, "Room 1");
-        
-        handler = new MUCEnterRoomHandler(conference);
-    }
+public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCPresenceHandlerTestCase {
 
     private Stanza enterRoom(Entity occupantJid, Entity roomJid) {
         return enterRoom(occupantJid, roomJid, null);
