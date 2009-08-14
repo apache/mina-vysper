@@ -25,7 +25,7 @@ import java.util.List;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
-import org.apache.vysper.xmpp.stanza.PresenceStanza;
+import org.apache.vysper.xmpp.stanza.MessageStanza;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
 import org.apache.vysper.xmpp.stanza.StanzaErrorType;
@@ -34,20 +34,20 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 import org.apache.vysper.xmpp.xmlfragment.XMLElementVerifier;
 
 /**
- * handling presence stanzas
+ * handling message stanzas
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class DefaultPresenceHandler extends XMPPCoreStanzaHandler {
+public class DefaultMessageHandler extends XMPPCoreStanzaHandler {
 
 
     public String getName() {
-        return "presence";
+        return "message";
     }
 
     @Override
     protected boolean verifyType(Stanza stanza) {
-        return PresenceStanza.isOfType(stanza);
+        return MessageStanza.isOfType(stanza);
     }
 
     protected boolean verifyInnerNamespace(Stanza stanza, String namespace) {
@@ -61,15 +61,15 @@ public class DefaultPresenceHandler extends XMPPCoreStanzaHandler {
 
     @Override
     protected Stanza executeCore(XMPPCoreStanza coreStanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza, SessionContext sessionContext) {
-        PresenceStanza stanza = (PresenceStanza)coreStanza;
+        MessageStanza stanza = (MessageStanza)coreStanza;
 
-        return executePresenceLogic(stanza, serverRuntimeContext, sessionContext);
+        return executeMessageLogic(stanza, serverRuntimeContext, sessionContext);
     }
 
     /**
-     * must be overridden by specialized presence handlers
+     * must be overridden by specialized message handlers
      */
-    protected Stanza executePresenceLogic(PresenceStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected Stanza executeMessageLogic(MessageStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         // this is default behavior and must be replaced by overrider
         return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
                 StanzaErrorType.CANCEL,
