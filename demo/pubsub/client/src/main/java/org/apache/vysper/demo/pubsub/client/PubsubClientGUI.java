@@ -20,6 +20,7 @@
 package org.apache.vysper.demo.pubsub.client;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.GridLayout;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,17 +36,15 @@ import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smackx.packet.DiscoverItems;
 import org.jivesoftware.smackx.packet.DiscoverItems.Item;
 import org.jivesoftware.smackx.pubsub.Affiliation;
-import org.jivesoftware.smackx.pubsub.Node;
 import org.jivesoftware.smackx.pubsub.PubSubManager;
 import org.jivesoftware.smackx.pubsub.Subscription;
 
@@ -56,9 +55,9 @@ import org.jivesoftware.smackx.pubsub.Subscription;
  *
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-public class PubsubClientGUI implements Runnable, TableModelListener {
+public class PubsubClientGUI implements Runnable {
     private JFrame frame;
-    private PubsubTableModel dtm = new PubsubTableModel();
+    private PubsubTableModel tableModel = new PubsubTableModel();
     private XMPPConnection connection;
     private PubSubManager pubsubMgr;
     private String username;
@@ -75,12 +74,15 @@ public class PubsubClientGUI implements Runnable, TableModelListener {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
 
-        JTable nodeTable = new JTable(dtm);
+        JTable nodeTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(nodeTable);
         nodeTable.setFillsViewportHeight(true);
-        dtm.addTableModelListener(this);
+        nodeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tableModel.addTableModelListener(new PubsubTableModelListener(this));
 
         JButton create = new JButton("Create");
+        create.setActionCommand("create");
+        create.addActionListener(new PubsubCreateButtonListener(this));
 
         JButton delete = new JButton("Delete");
         
@@ -133,7 +135,7 @@ public class PubsubClientGUI implements Runnable, TableModelListener {
         });
     }
 
-    private void refresh() {
+    public void refresh() {
         Map<String, PubsubNode> lookup = new HashMap<String, PubsubNode>();
 
         try {
@@ -144,17 +146,18 @@ public class PubsubClientGUI implements Runnable, TableModelListener {
             e.printStackTrace();
         }
 
+        tableModel.clear();
         for(PubsubNode n : lookup.values()) {
-            dtm.addRow(n);
+            tableModel.addRow(n);
         }
     }
 
     private void discoverAffiliations(Map<String, PubsubNode> lookup) throws XMPPException {
         List<Affiliation> lAffiliations = pubsubMgr.getAffiliations();
         for(Affiliation affiliation : lAffiliations) {
-            System.out.print(affiliation.getNodeId());
-            System.out.print(": ");
-            System.out.println(affiliation.getType());
+            System.out.print(affiliation.getType());
+            System.out.print(" of ");
+            System.out.println(affiliation.getNodeId());
 
             PubsubNode n = lookup.get(affiliation.getNodeId());
             n.setOwnership(affiliation.getType().toString().equals("owner"));
@@ -164,9 +167,9 @@ public class PubsubClientGUI implements Runnable, TableModelListener {
     private void discoverSubscriptions(Map<String, PubsubNode> lookup) throws XMPPException {
         List<Subscription> lSubscriptions = pubsubMgr.getSubscriptions();
         for(Subscription subscription : lSubscriptions) {
-            System.out.print(subscription.getNode());
-            System.out.print(": ");
-            System.out.println(subscription.getState());
+            System.out.print(subscription.getState());
+            System.out.print(" at ");
+            System.out.println(subscription.getNode());
 
             PubsubNode n = lookup.get(subscription.getNode());
             if(n != null) {
@@ -198,6 +201,7 @@ public class PubsubClientGUI implements Runnable, TableModelListener {
                 connection = connect(username, password, hostname);
                 loginOK = true;
             } catch (XMPPException e) {
+                System.err.println("Login failed for user "+username);
                 e.printStackTrace();
             }
         } while(loginOK == false);
@@ -259,20 +263,19 @@ public class PubsubClientGUI implements Runnable, TableModelListener {
         return connection;
     }
 
-    public void tableChanged(TableModelEvent event) {
-        try {
-            Boolean sub = (Boolean)dtm.getValueAt(event.getFirstRow(), event.getColumn());
-            String nodeName = (String)dtm.getValueAt(event.getFirstRow(), 0);
+    public Component getFrame() {
+        return frame;
+    }
 
-            Node node = pubsubMgr.getNode(nodeName);
+    public PubSubManager getPubsubMgr() {
+        return pubsubMgr;
+    }
 
-            if(sub.booleanValue()) { // contains the new value (soll)
-                node.subscribe(jid);
-            } else {
-                node.unsubscribe(jid);
-            }
-        } catch(Exception ex) {
-            ex.printStackTrace();
-        }
+    public PubsubTableModel getTableModel() {
+        return tableModel;
+    }
+
+    public String getJID() {
+        return jid;
     }
 }

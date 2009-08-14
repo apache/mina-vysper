@@ -76,16 +76,24 @@ public class PubsubTableModel extends AbstractTableModel {
     
     public void addRow(PubsubNode node) {
         this.nodes.add(node);
+        fireTableRowsInserted(getRowCount()-1, getColumnCount()-1);
     }
     
     public void deleteRow(int rowIndex) {
         this.nodes.remove(rowIndex);
+        fireTableRowsDeleted(rowIndex, rowIndex);
     }
     
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         PubsubNode n = this.nodes.get(rowIndex);
         if(columnIndex == 1) n.setSubscribed((Boolean)aValue);
-        super.fireTableCellUpdated(rowIndex, columnIndex);
+        fireTableCellUpdated(rowIndex, columnIndex);
+    }
+
+    public void clear() {
+        int rowCount = getRowCount();
+        nodes.clear();
+        fireTableRowsDeleted(0, rowCount);
     }
 }
