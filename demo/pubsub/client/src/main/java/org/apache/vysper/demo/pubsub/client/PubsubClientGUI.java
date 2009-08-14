@@ -19,6 +19,8 @@
  */
 package org.apache.vysper.demo.pubsub.client;
 
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -26,9 +28,13 @@ import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.TableModelEvent;
@@ -51,18 +57,23 @@ import org.jivesoftware.smackx.pubsub.Subscription;
  * @author The Apache MINA Project (http://mina.apache.org)
  */
 public class PubsubClientGUI implements Runnable, TableModelListener {
+    private JFrame frame;
     private PubsubTableModel dtm = new PubsubTableModel();
     private XMPPConnection connection;
     private PubSubManager pubsubMgr;
-    private String jid = "user1@vysper.org";
+    private String username;
+    private String hostname;
+    private String password;
+    private String jid;
 
     private void createAndShowGUI() {
         setUpLookAndFeel();
 
-        JFrame frame = new JFrame("Vysper Publish/Subscribe Client");
+        frame = new JFrame("Vysper Publish/Subscribe Client");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
 
         JTable nodeTable = new JTable(dtm);
         JScrollPane scrollPane = new JScrollPane(nodeTable);
@@ -72,14 +83,17 @@ public class PubsubClientGUI implements Runnable, TableModelListener {
         JButton create = new JButton("Create");
 
         JButton delete = new JButton("Delete");
+        
+        JPanel buttons = new JPanel();
+        buttons.add(create);
+        buttons.add(delete);
 
         frame.add(panel);
 
-        panel.add(scrollPane);
-        panel.add(create);
-        panel.add(delete);
+        panel.add(scrollPane, BorderLayout.NORTH);
+        panel.add(buttons, BorderLayout.SOUTH);
 
-        frame.pack();//setSize(200,200);
+        frame.pack();
         frame.setVisible(true);
     }
 
@@ -97,7 +111,9 @@ public class PubsubClientGUI implements Runnable, TableModelListener {
     }
 
     private void logout() {
-        connection.disconnect();
+        if(connection != null && connection.isConnected()) {
+            connection.disconnect();
+        }
     }
 
     public void run() {
@@ -174,12 +190,66 @@ public class PubsubClientGUI implements Runnable, TableModelListener {
     }
 
     private void login() {
-        try {
-            connection = connect("user1", "password1", "localhost");
-        } catch (XMPPException e) {
-            e.printStackTrace();
-        }
+        boolean loginOK = false;
+        
+        do {
+            askForCredentials();
+            try {
+                connection = connect(username, password, hostname);
+                loginOK = true;
+            } catch (XMPPException e) {
+                e.printStackTrace();
+            }
+        } while(loginOK == false);
+        
         pubsubMgr = new PubSubManager(connection);
+    }
+
+    private void askForCredentials() {
+        JLabel jidLab = new JLabel("JID");
+        JTextField jidTxt = new JTextField("user1@vysper.org");
+        jidLab.setLabelFor(jidTxt);
+        
+        JLabel usernameLab = new JLabel("Username");
+        JTextField usernameTxt = new JTextField("user1");
+        usernameLab.setLabelFor(usernameTxt);
+        
+        JLabel hostLab = new JLabel("Host");
+        JTextField hostTxt = new JTextField("localhost");
+        hostLab.setLabelFor(hostTxt);
+        
+        JLabel passwordLab = new JLabel("Password");
+        JTextField passwordTxt = new JPasswordField("password1");
+        passwordLab.setLabelFor(passwordTxt);
+        
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(4,2));
+        panel.add(jidLab);
+        panel.add(jidTxt);
+        panel.add(usernameLab);
+        panel.add(usernameTxt);
+        panel.add(hostLab);
+        panel.add(hostTxt);
+        panel.add(passwordLab);
+        panel.add(passwordTxt);
+        
+        int answer = JOptionPane.showOptionDialog(frame,
+                panel,
+                "Login",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                new String[] {"Login", "Exit"},
+                "Login");
+
+        if(answer != 0) {
+            System.exit(0);
+        }
+        
+        this.username = usernameTxt.getText();
+        this.hostname = hostTxt.getText();
+        this.password = passwordTxt.getText();
+        this.jid = jidTxt.getText();
     }
 
     private XMPPConnection connect(String username, String password, String host) throws XMPPException {
