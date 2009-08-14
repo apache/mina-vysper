@@ -69,5 +69,9 @@ public class Occupant {
         return jid;
     }
     
+    public boolean hasVoice() {
+        return role == Role.Moderator || role == Role.Participant;
+    }
+    
     
 }

@@ -19,6 +19,8 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.vysper.compliance.SpecCompliant;
@@ -39,7 +41,9 @@ import org.apache.vysper.xmpp.stanza.PresenceStanza;
 import org.apache.vysper.xmpp.stanza.PresenceStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.xmlfragment.Attribute;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
+import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,46 +67,16 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
 
     @Override
     protected boolean verifyNamespace(Stanza stanza) {
-        // either, the stanza should have a x element with the MUC namespace. Or, no extension 
-        // element at all. Else, return false
-        
-        XMLElement xElement = stanza.getFirstInnerElement();
-        if(xElement != null && xElement.getName().equals("x") 
-                && xElement.getNamespaceURI().equals(NamespaceURIs.XEP0045_MUC)) {
-            // got x element and in the correct namespace
-            return true;
-        } else if(xElement != null && xElement.getNamespaceURI() == null) {
-            // no extension namespace, ok
-            return true;
-        } else if(xElement == null) {
-            return true;
-        } else {
-            return false;
-        }
+        return MUCHandlerHelper.verifyNamespace(stanza);
     }
 
-    private Stanza sendError(Entity roomJid, Entity occupantJid, String type, String error) {
-        //        <presence
-        //        from='darkcave@chat.shakespeare.lit'
-        //        to='hag66@shakespeare.lit/pda'
-        //        type='error'>
-        //      <error type='modify'>
-        //        <jid-malformed xmlns='urn:ietf:params:xml:ns:xmpp-stanzas'/>
-        //      </error>
-        //    </presence>
-
-        StanzaBuilder builder = StanzaBuilder.createPresenceStanza(roomJid, occupantJid, null, 
-                PresenceStanzaType.ERROR, null, null);
-        
+    private Stanza createPresenceErrorStanza(Entity from, Entity to, String type, String errorName) {
         // "Note: If an error occurs in relation to joining a room, the service SHOULD include 
         // the MUC child element (i.e., <x xmlns='http://jabber.org/protocol/muc'/>) in the 
         // <presence/> stanza of type "error"."
-        builder.startInnerElement("x", NamespaceURIs.XEP0045_MUC).endInnerElement();
-        builder.startInnerElement("error").addAttribute("type", type);
-        builder.startInnerElement(error, NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).endInnerElement();
-        builder.endInnerElement();
-        
-        return PresenceStanza.getWrapper(builder.getFinalStanza());
+
+        XMLElement xElement = new XMLElement("x", NamespaceURIs.XEP0045_MUC, (List<Attribute>)null, (List<XMLFragment>)null);
+        return MUCHandlerHelper.createErrorStanza("presence", from, to, type, errorName, Arrays.asList(xElement));
     }
     
     @Override
@@ -117,7 +91,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         
         // user did not send nick name
         if(nick == null) {
-            return sendError(roomJid, occupantJid, "modify", "jid-malformed");
+            return createPresenceErrorStanza(roomJid, occupantJid, "modify", "jid-malformed");
         }
 
         String type = stanza.getType();
@@ -156,7 +130,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
             
             if(password == null || !password.equals(room.getPassword())) {
                 // password missing or not matching
-                return sendError(roomJid, newOccupantJid, "auth", "not-authorized");
+                return createPresenceErrorStanza(roomJid, newOccupantJid, "auth", "not-authorized");
             }
         }
         

@@ -7,7 +7,9 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.ProtocolException;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.stanza.PresenceStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -16,19 +18,15 @@ import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
 
 /**
  */
-public class MUCPresenceHandlerExitRoomTestCase extends AbstractMUCPresenceHandlerTestCase {
+public class MUCPresenceHandlerExitRoomTestCase extends AbstractMUCHandlerTestCase {
     
-    private Stanza exitRoom(Entity occupantJid, Entity roomJid) {
+    private Stanza exitRoom(Entity occupantJid, Entity roomJid) throws ProtocolException {
         return exitRoom(occupantJid, roomJid, null);
     }
     
-    private Stanza exitRoom(Entity occupantJid, Entity roomJid, String status) {
-        StanzaBuilder stanzaBuilder = StanzaBuilder.createPresenceStanza(occupantJid, roomJid, null, PresenceStanzaType.UNAVAILABLE, null, null);
+    private Stanza exitRoom(Entity occupantJid, Entity roomJid, String status) throws ProtocolException {
+        StanzaBuilder stanzaBuilder = StanzaBuilder.createPresenceStanza(occupantJid, roomJid, null, PresenceStanzaType.UNAVAILABLE, null, status);
 
-        if(status != null) {
-            stanzaBuilder.startInnerElement("status").addText(status).endInnerElement();
-        }
-        
         Stanza presenceStanza = stanzaBuilder.getFinalStanza();
         ResponseStanzaContainer container = handler.execute(presenceStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, null);
         if(container != null) {
@@ -38,7 +36,12 @@ public class MUCPresenceHandlerExitRoomTestCase extends AbstractMUCPresenceHandl
         }
     }
     
-    public void testExitRoom() {
+    @Override
+    protected StanzaHandler createHandler() {
+        return new MUCPresenceHandler(conference);
+    }
+    
+    public void testExitRoom() throws Exception {
         Room room = conference.findRoom(room1Jid);
         room.addOccupant(occupant1Jid, "Nick1");
         room.addOccupant(occupant2Jid, "Nick2");
@@ -51,17 +54,17 @@ public class MUCPresenceHandlerExitRoomTestCase extends AbstractMUCPresenceHandl
         assertEquals(occupant2Jid, occupant.getJid());
     }
 
-    public void testExitNonexistingRoom() {
+    public void testExitNonexistingRoom() throws Exception {
         // Quietly ignore
         assertNull(exitRoom(occupant1Jid, room2JidWithNick));
     }
 
-    public void testExitRoomWithoutEntering() {
+    public void testExitRoomWithoutEntering() throws Exception {
         // Exit a room where the user is not a participant, quietly ignore
         assertNull(exitRoom(occupant1Jid, room1JidWithNick));
     }
 
-    public void testTemporaryRoomDeleted() {
+    public void testTemporaryRoomDeleted() throws Exception {
         // Room1 is temporary
         Room room = conference.findRoom(room1Jid);
         assertTrue(room.isRoomType(RoomType.Temporary));
@@ -73,7 +76,7 @@ public class MUCPresenceHandlerExitRoomTestCase extends AbstractMUCPresenceHandl
     }
     
 
-    public void testPersistentRoomNotDeleted() {
+    public void testPersistentRoomNotDeleted() throws Exception {
         // Room2 is persistent
         Room room = conference.createRoom(room2Jid, "Room 2", RoomType.Persistent);
         room.addOccupant(occupant1Jid, "Nick1");

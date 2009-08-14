@@ -1,5 +1,6 @@
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.vysper.xmpp.addressing.Entity;
@@ -7,21 +8,25 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.ProtocolException;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.stanza.PresenceStanza;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.xmlfragment.Attribute;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
+import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 
 /**
  */
-public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCPresenceHandlerTestCase {
+public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestCase {
 
-    private Stanza enterRoom(Entity occupantJid, Entity roomJid) {
+    private Stanza enterRoom(Entity occupantJid, Entity roomJid) throws ProtocolException {
         return enterRoom(occupantJid, roomJid, null);
     }
     
-    private Stanza enterRoom(Entity occupantJid, Entity roomJid, String password) {
+    private Stanza enterRoom(Entity occupantJid, Entity roomJid, String password) throws ProtocolException {
         StanzaBuilder stanzaBuilder = StanzaBuilder.createPresenceStanza(occupantJid, roomJid, null, null, null, null);
         stanzaBuilder.startInnerElement("x").addNamespaceAttribute(NamespaceURIs.XEP0045_MUC);
         if(password != null) {
@@ -38,7 +43,13 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCPresenceHand
         }
     }
     
-    public void testEnterExistingRoom() {
+
+    @Override
+    protected StanzaHandler createHandler() {
+        return new MUCPresenceHandler(conference);
+    }
+    
+    public void testEnterExistingRoom() throws Exception {
         Room room = conference.findRoom(room1Jid);
         assertEquals(0, room.getOccupants().size());
 
@@ -51,7 +62,7 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCPresenceHand
         assertEquals("nick", occupant.getName());
     }
 
-    public void testEnterNonExistingRoom() {
+    public void testEnterNonExistingRoom() throws Exception {
         Room room = conference.findRoom(room2Jid);
         assertNull(room);
 
@@ -66,14 +77,14 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCPresenceHand
         assertEquals("nick", occupant.getName());
     }
     
-    public void testEnterWithoutNick() {
+    public void testEnterWithoutNick() throws Exception {
         // try entering without a nick
         PresenceStanza response = (PresenceStanza) enterRoom(occupant1Jid, room1Jid);
 
-        assertErrorStanza(response, room1Jid, occupant1Jid, "modify", "jid-malformed");
+        assertPresenceErrorStanza(response, room1Jid, occupant1Jid, "modify", "jid-malformed");
     }
     
-    public void testEnterWithPassword() {
+    public void testEnterWithPassword() throws Exception {
         Room room = conference.createRoom(room2Jid, "Room 1", RoomType.PasswordProtected);
         room.setPassword("secret");
 
@@ -82,37 +93,22 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCPresenceHand
         assertEquals(1, room.getOccupants().size());
     }
     
-    public void testEnterWithoutPassword() {
+    public void testEnterWithoutPassword() throws Exception {
         Room room = conference.createRoom(room2Jid, "Room 1", RoomType.PasswordProtected);
         room.setPassword("secret");
 
         // try entering without a password
         PresenceStanza response = (PresenceStanza) enterRoom(occupant1Jid, room2JidWithNick);
         
-        assertErrorStanza(response, room2Jid, occupant1Jid, "auth", "not-authorized");
+        assertPresenceErrorStanza(response, room2Jid, occupant1Jid, "auth", "not-authorized");
     }
 
-    private void assertErrorStanza(PresenceStanza response, Entity from, Entity to, String type, String errorName) {
-        assertNotNull(response);
-        assertEquals("presence", response.getName());
-        assertEquals(to, response.getTo());
-        assertEquals(from, response.getFrom());
-        assertEquals("error", response.getType());
-        
-        List<XMLElement> innerElements = response.getInnerElements();
-        
-        XMLElement xElement = innerElements.get(0);
-        assertEquals("x", xElement.getName());
-        assertEquals(NamespaceURIs.XEP0045_MUC, xElement.getNamespaceURI());
-
-        XMLElement errorElement = innerElements.get(1);
-        assertEquals("error", errorElement.getName());
-        assertEquals(type, errorElement.getAttributeValue("type"));
-        
-        XMLElement jidMalformedElement = errorElement.getFirstInnerElement();
-        assertEquals(errorName, jidMalformedElement.getName());
-        assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, jidMalformedElement.getNamespaceURI());
+    private void assertPresenceErrorStanza(PresenceStanza response, Entity from, Entity to,
+            String type, String errorName) {
+        XMLElement xElement = new XMLElement("x", NamespaceURIs.XEP0045_MUC, (Attribute[])null, (XMLFragment[])null);
+        assertErrorStanza(response, "presence", from, to, type, errorName, Arrays.asList(xElement));
     }
+
     
     public void testEnterRoomWithRelays() throws Exception {
 
