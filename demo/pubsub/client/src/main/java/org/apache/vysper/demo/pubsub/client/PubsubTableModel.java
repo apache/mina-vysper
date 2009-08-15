@@ -112,4 +112,13 @@ public class PubsubTableModel extends AbstractTableModel {
         Collections.sort(this.nodes);
         fireTableRowsInserted(0, this.getRowCount()-1);
     }
+
+    public boolean isOwner(String nodeID) {
+        for(PubsubNode n : nodes) {
+            if(n.getNode().equals(nodeID)) {
+                return n.getOwnership();
+            }
+        }
+        return false;
+    }
 }

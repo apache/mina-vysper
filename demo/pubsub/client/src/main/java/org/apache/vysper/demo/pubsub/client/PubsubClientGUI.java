@@ -47,6 +47,7 @@ import javax.swing.event.ListSelectionListener;
 public class PubsubClientGUI implements Runnable, ListSelectionListener {
     private JFrame frame;
     private JButton delete;
+    private JButton open;
     private PubsubClientModel pcm = new PubsubClientModel();
 
     private void createAndShowGUI() {
@@ -68,11 +69,16 @@ public class PubsubClientGUI implements Runnable, ListSelectionListener {
         lsm.addListSelectionListener(this);
         tableModel.addTableModelListener(new PubsubTableModelListener(pcm));
 
-        JButton create = new JButton("Create");
+        JButton create = new JButton("Create node");
         create.setActionCommand("create");
         create.addActionListener(new PubsubCreateButtonListener(frame, pcm));
 
-        delete = new JButton("Delete");
+        open = new JButton("Open node");
+        open.setActionCommand("open");
+        open.addActionListener(new PubsubOpenButtonListener(pcm));
+        disableOpenButton();
+        
+        delete = new JButton("Delete node");
         delete.setActionCommand("delete");
         delete.addActionListener(new PubsubDeleteButtonListener(frame, pcm));
         delete.setEnabled(false);
@@ -83,6 +89,7 @@ public class PubsubClientGUI implements Runnable, ListSelectionListener {
         
         JPanel buttons = new JPanel();
         buttons.add(create);
+        buttons.add(open);
         buttons.add(delete);
         buttons.add(refresh);
 
@@ -182,24 +189,43 @@ public class PubsubClientGUI implements Runnable, ListSelectionListener {
         ListSelectionModel lsm = (ListSelectionModel)e.getSource();
         if(e.getValueIsAdjusting()) {
             if(lsm.isSelectionEmpty()) {
-                // disable delete button
-                delete.setEnabled(false);
-                pcm.deselectNode();
+                disableOpenButton();
+                disableDeleteButton();
             } else {
-                // store the node and enable delete button
-                PubsubTableModel tableModel = pcm.getTableModel();
-                
-                int idx = getNewSelectionIndex(e, tableModel);
-                
-                String selectedNode = (String)tableModel.getValueAt(idx, 0);
-                pcm.selectNode(selectedNode);
-                Boolean owner = (Boolean)tableModel.getValueAt(idx, 2);
-                if(owner !=null && owner == Boolean.TRUE ) { //owner
-                    delete.setEnabled(true);
-                } else {
-                    delete.setEnabled(false);
-                }
+                changeOpenButton();
+                changeDeleteButton(e);
             }
+        }
+    }
+
+    private void disableOpenButton() {
+        // disable open button
+        open.setEnabled(false);
+    }
+
+    private void disableDeleteButton() {
+        // disable delete button
+        delete.setEnabled(false);
+        pcm.deselectNode();
+    }
+
+    private void changeOpenButton() {
+        open.setEnabled(true);
+    }
+
+    private void changeDeleteButton(ListSelectionEvent e) {
+        // store the node and enable delete button
+        PubsubTableModel tableModel = pcm.getTableModel();
+        
+        int idx = getNewSelectionIndex(e, tableModel);
+        
+        String selectedNode = (String)tableModel.getValueAt(idx, 0);
+        pcm.selectNode(selectedNode);
+        Boolean owner = (Boolean)tableModel.getValueAt(idx, 2);
+        if(owner !=null && owner == Boolean.TRUE ) { //owner
+            delete.setEnabled(true);
+        } else {
+            delete.setEnabled(false);
         }
     }
 

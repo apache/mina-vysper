@@ -23,6 +23,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+
+import javax.swing.DefaultListModel;
 
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
@@ -33,7 +36,9 @@ import org.jivesoftware.smackx.pubsub.PubSubManager;
 import org.jivesoftware.smackx.pubsub.Subscription;
 
 public class PubsubClientModel {
+    private Map<String, DefaultListModel> nodeMessages = new TreeMap<String, DefaultListModel>();
     private PubsubTableModel tableModel = new PubsubTableModel();
+    private PubsubEventListener pel = new PubsubEventListener(this);
     
     private XMPPConnection connection;
     private PubSubManager pubsubMgr;
@@ -133,6 +138,12 @@ public class PubsubClientModel {
         tableModel.startBulkAdd();
         for(PubsubNode n : lookup.values()) {
             tableModel.bulkAddRow(n);
+            
+            try {
+                pubsubMgr.getNode(n.getNode()).addItemEventListener(pel); // TODO maybe we add one listener more than one times?
+            } catch (XMPPException e) {
+                e.printStackTrace();
+            }
         }
         tableModel.endBulkAdd();
     }
@@ -169,5 +180,17 @@ public class PubsubClientModel {
     
     public String getSelectedNode() {
         return this.selectedNode;
+    }
+
+    public DefaultListModel getListModel(String nodeID) {
+        if(!nodeMessages.containsKey(nodeID)) {
+            DefaultListModel dlm = new DefaultListModel();
+            nodeMessages.put(nodeID, dlm);
+        }
+        return nodeMessages.get(nodeID);
+    }
+
+    public boolean isOwner(String nodeID) {
+        return tableModel.isOwner(nodeID);
     }
 }
