@@ -77,9 +77,14 @@ public class PubsubClientGUI implements Runnable, ListSelectionListener {
         delete.addActionListener(new PubsubDeleteButtonListener(frame, pcm));
         delete.setEnabled(false);
         
+        JButton refresh = new JButton("Refresh");
+        refresh.setActionCommand("refresh");
+        refresh.addActionListener(new PubsubRefreshButtonListener(pcm));
+        
         JPanel buttons = new JPanel();
         buttons.add(create);
         buttons.add(delete);
+        buttons.add(refresh);
 
         frame.add(panel);
 
