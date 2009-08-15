@@ -19,7 +19,9 @@
  */
 package org.apache.vysper.demo.pubsub.client;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -32,7 +34,7 @@ public class PubsubTableModel extends AbstractTableModel {
     private static final long serialVersionUID = -3788690749950634883L;
     
     private final String[] columnNames = new String[] {"Node", "Subscribed", "Owner"}; 
-    private Vector<PubsubNode> nodes = new Vector<PubsubNode>();
+    private List<PubsubNode> nodes = new ArrayList<PubsubNode>();
     
     @Override
     public String getColumnName(int col) {
@@ -76,7 +78,12 @@ public class PubsubTableModel extends AbstractTableModel {
     
     public void addRow(PubsubNode node) {
         this.nodes.add(node);
+        Collections.sort(this.nodes);
         fireTableRowsInserted(getRowCount()-1, getColumnCount()-1);
+    }
+
+    public void bulkAddRow(PubsubNode node) {
+        this.nodes.add(node);
     }
     
     public void deleteRow(int rowIndex) {
@@ -95,5 +102,14 @@ public class PubsubTableModel extends AbstractTableModel {
         int rowCount = getRowCount();
         nodes.clear();
         fireTableRowsDeleted(0, rowCount);
+    }
+
+    public void startBulkAdd() {
+        // for consistency
+    }
+
+    public void endBulkAdd() {
+        Collections.sort(this.nodes);
+        fireTableRowsInserted(0, this.getRowCount()-1);
     }
 }

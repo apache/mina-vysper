@@ -24,7 +24,7 @@ package org.apache.vysper.demo.pubsub.client;
  *
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-public class PubsubNode {
+public class PubsubNode implements Comparable<PubsubNode> {
     private String node;
     private Boolean subscribed;
     private Boolean ownership;
@@ -59,5 +59,9 @@ public class PubsubNode {
     @Override
     public int hashCode() {
         return getNode().hashCode();
+    }
+
+    public int compareTo(PubsubNode o) {
+        return this.node.compareTo(o.getNode());
     }
 }

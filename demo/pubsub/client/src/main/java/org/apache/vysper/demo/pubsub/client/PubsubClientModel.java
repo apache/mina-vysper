@@ -130,9 +130,11 @@ public class PubsubClientModel {
         }
 
         tableModel.clear();
+        tableModel.startBulkAdd();
         for(PubsubNode n : lookup.values()) {
-            tableModel.addRow(n);
+            tableModel.bulkAddRow(n);
         }
+        tableModel.endBulkAdd();
     }
 
     public void logout() {
