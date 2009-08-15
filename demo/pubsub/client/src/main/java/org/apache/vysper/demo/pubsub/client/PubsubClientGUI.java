@@ -175,19 +175,37 @@ public class PubsubClientGUI implements Runnable, ListSelectionListener {
 
     public void valueChanged(ListSelectionEvent e) {
         ListSelectionModel lsm = (ListSelectionModel)e.getSource();
-        if(lsm.isSelectionEmpty()) {
-            // disable delete button
-            delete.setEnabled(false);
-            pcm.deselectNode();
-        } else {
-            // store the node and enable delete button
-            PubsubTableModel tableModel = pcm.getTableModel();
-            String selectedNode = (String)tableModel.getValueAt(e.getFirstIndex(), 0);
-            pcm.selectNode(selectedNode);
-            if((Boolean)tableModel.getValueAt(e.getFirstIndex(), 2)) { //owner
-                delete.setEnabled(true);
+        if(e.getValueIsAdjusting()) {
+            if(lsm.isSelectionEmpty()) {
+                // disable delete button
+                delete.setEnabled(false);
+                pcm.deselectNode();
+            } else {
+                // store the node and enable delete button
+                PubsubTableModel tableModel = pcm.getTableModel();
+                
+                int idx = getNewSelectionIndex(e, tableModel);
+                
+                String selectedNode = (String)tableModel.getValueAt(idx, 0);
+                pcm.selectNode(selectedNode);
+                Boolean owner = (Boolean)tableModel.getValueAt(idx, 2);
+                if(owner !=null && owner == Boolean.TRUE ) { //owner
+                    delete.setEnabled(true);
+                } else {
+                    delete.setEnabled(false);
+                }
             }
         }
+    }
+
+    private int getNewSelectionIndex(ListSelectionEvent e, PubsubTableModel tableModel) {
+        int idx = e.getFirstIndex(); // check which one is the right index (the new one)
+        String selectedNode = (String)tableModel.getValueAt(idx, 0);
+        if(pcm.getSelectedNode() != null && pcm.getSelectedNode().equals(selectedNode)) {
+            idx = e.getLastIndex();
+            
+        }
+        return idx;
     }
 
 }

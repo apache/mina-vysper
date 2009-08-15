@@ -31,6 +31,8 @@ public class PubsubNode {
     
     public PubsubNode(String node) {
         this.node = node;
+        this.subscribed = false;
+        this.ownership = false;
     }
     
     public String getNode() {
@@ -39,13 +41,13 @@ public class PubsubNode {
     public Boolean getSubscribed() {
         return subscribed;
     }
-    public void setSubscribed(Boolean subscribed) {
+    public void setSubscribed(boolean subscribed) {
         this.subscribed = subscribed;
     }
-    public Boolean getOwnership() {
+    public boolean getOwnership() {
         return ownership;
     }
-    public void setOwnership(Boolean owner) {
+    public void setOwnership(boolean owner) {
         this.ownership = owner;
     }
     
