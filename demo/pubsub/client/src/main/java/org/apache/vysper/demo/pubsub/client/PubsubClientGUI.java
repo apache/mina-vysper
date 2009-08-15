@@ -20,12 +20,7 @@
 package org.apache.vysper.demo.pubsub.client;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.GridLayout;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -39,14 +34,8 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-
-import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smackx.packet.DiscoverItems;
-import org.jivesoftware.smackx.packet.DiscoverItems.Item;
-import org.jivesoftware.smackx.pubsub.Affiliation;
-import org.jivesoftware.smackx.pubsub.PubSubManager;
-import org.jivesoftware.smackx.pubsub.Subscription;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 /**
  * A simple demo application for the pubsub module of Vysper. It allows to lookup
@@ -55,19 +44,16 @@ import org.jivesoftware.smackx.pubsub.Subscription;
  *
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-public class PubsubClientGUI implements Runnable {
+public class PubsubClientGUI implements Runnable, ListSelectionListener {
     private JFrame frame;
-    private PubsubTableModel tableModel = new PubsubTableModel();
-    private XMPPConnection connection;
-    private PubSubManager pubsubMgr;
-    private String username;
-    private String hostname;
-    private String password;
-    private String jid;
+    private JButton delete;
+    private PubsubClientModel pcm = new PubsubClientModel();
 
     private void createAndShowGUI() {
         setUpLookAndFeel();
 
+        PubsubTableModel tableModel = pcm.getTableModel();
+        
         frame = new JFrame("Vysper Publish/Subscribe Client");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -78,13 +64,18 @@ public class PubsubClientGUI implements Runnable {
         JScrollPane scrollPane = new JScrollPane(nodeTable);
         nodeTable.setFillsViewportHeight(true);
         nodeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tableModel.addTableModelListener(new PubsubTableModelListener(this));
+        ListSelectionModel lsm = nodeTable.getSelectionModel();
+        lsm.addListSelectionListener(this);
+        tableModel.addTableModelListener(new PubsubTableModelListener(pcm));
 
         JButton create = new JButton("Create");
         create.setActionCommand("create");
-        create.addActionListener(new PubsubCreateButtonListener(this));
+        create.addActionListener(new PubsubCreateButtonListener(frame, pcm));
 
-        JButton delete = new JButton("Delete");
+        delete = new JButton("Delete");
+        delete.setActionCommand("delete");
+        delete.addActionListener(new PubsubDeleteButtonListener(frame, pcm));
+        delete.setEnabled(false);
         
         JPanel buttons = new JPanel();
         buttons.add(create);
@@ -112,101 +103,27 @@ public class PubsubClientGUI implements Runnable {
         SwingUtilities.invokeLater(ex1);
     }
 
-    private void logout() {
-        if(connection != null && connection.isConnected()) {
-            connection.disconnect();
-        }
-    }
-
     public void run() {
         createAndShowGUI();
         registerShutDownHook();
 
         login();
-        refresh();
+        pcm.refresh();
+    }
+    
+    public void login() {
+        do {
+            askForCredentials();
+        } while(pcm.login() == false);
     }
 
     private void registerShutDownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                logout();
+                pcm.logout();
             }
         });
-    }
-
-    public void refresh() {
-        Map<String, PubsubNode> lookup = new HashMap<String, PubsubNode>();
-
-        try {
-            discoverNodes(lookup);
-            discoverSubscriptions(lookup);
-            discoverAffiliations(lookup);
-        } catch (XMPPException e) {
-            e.printStackTrace();
-        }
-
-        tableModel.clear();
-        for(PubsubNode n : lookup.values()) {
-            tableModel.addRow(n);
-        }
-    }
-
-    private void discoverAffiliations(Map<String, PubsubNode> lookup) throws XMPPException {
-        List<Affiliation> lAffiliations = pubsubMgr.getAffiliations();
-        for(Affiliation affiliation : lAffiliations) {
-            System.out.print(affiliation.getType());
-            System.out.print(" of ");
-            System.out.println(affiliation.getNodeId());
-
-            PubsubNode n = lookup.get(affiliation.getNodeId());
-            n.setOwnership(affiliation.getType().toString().equals("owner"));
-        }
-    }
-
-    private void discoverSubscriptions(Map<String, PubsubNode> lookup) throws XMPPException {
-        List<Subscription> lSubscriptions = pubsubMgr.getSubscriptions();
-        for(Subscription subscription : lSubscriptions) {
-            System.out.print(subscription.getState());
-            System.out.print(" at ");
-            System.out.println(subscription.getNode());
-
-            PubsubNode n = lookup.get(subscription.getNode());
-            if(n != null) {
-                n.setSubscribed(subscription.getState().toString().equals("subscribed"));
-            }
-        }
-    }
-
-    private void discoverNodes(Map<String, PubsubNode> lookup) throws XMPPException {
-        DiscoverItems di = pubsubMgr.discoverNodes();
-        Iterator<Item> iIt = di.getItems();
-        while(iIt.hasNext()) {
-            Item i = iIt.next();
-            System.out.println("Adding " + i.getNode());
-
-            PubsubNode n = new PubsubNode(i.getNode());
-            if(n != null) {
-                lookup.put(i.getNode(), n);
-            }
-        }
-    }
-
-    private void login() {
-        boolean loginOK = false;
-        
-        do {
-            askForCredentials();
-            try {
-                connection = connect(username, password, hostname);
-                loginOK = true;
-            } catch (XMPPException e) {
-                System.err.println("Login failed for user "+username);
-                e.printStackTrace();
-            }
-        } while(loginOK == false);
-        
-        pubsubMgr = new PubSubManager(connection);
     }
 
     private void askForCredentials() {
@@ -250,32 +167,27 @@ public class PubsubClientGUI implements Runnable {
             System.exit(0);
         }
         
-        this.username = usernameTxt.getText();
-        this.hostname = hostTxt.getText();
-        this.password = passwordTxt.getText();
-        this.jid = jidTxt.getText();
+        pcm.setUsername(usernameTxt.getText());
+        pcm.setHostname(hostTxt.getText());
+        pcm.setPassword(passwordTxt.getText());
+        pcm.setJID(jidTxt.getText());
     }
 
-    private XMPPConnection connect(String username, String password, String host) throws XMPPException {
-        XMPPConnection connection = new XMPPConnection(host);
-        connection.connect();
-        connection.login(username, password);
-        return connection;
+    public void valueChanged(ListSelectionEvent e) {
+        ListSelectionModel lsm = (ListSelectionModel)e.getSource();
+        if(lsm.isSelectionEmpty()) {
+            // disable delete button
+            delete.setEnabled(false);
+            pcm.deselectNode();
+        } else {
+            // store the node and enable delete button
+            PubsubTableModel tableModel = pcm.getTableModel();
+            String selectedNode = (String)tableModel.getValueAt(e.getFirstIndex(), 0);
+            pcm.selectNode(selectedNode);
+            if((Boolean)tableModel.getValueAt(e.getFirstIndex(), 2)) { //owner
+                delete.setEnabled(true);
+            }
+        }
     }
 
-    public Component getFrame() {
-        return frame;
-    }
-
-    public PubSubManager getPubsubMgr() {
-        return pubsubMgr;
-    }
-
-    public PubsubTableModel getTableModel() {
-        return tableModel;
-    }
-
-    public String getJID() {
-        return jid;
-    }
 }

@@ -19,66 +19,54 @@
  */
 package org.apache.vysper.demo.pubsub.client;
 
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.jivesoftware.smack.XMPPException;
 
-public class PubsubCreateButtonListener implements ActionListener {
+public class PubsubDeleteButtonListener implements ActionListener {
 
-    private String nodeID;
     private PubsubClientModel parent;
     private JFrame frame;
     
-    public PubsubCreateButtonListener(JFrame frame, PubsubClientModel parent) {
+    public PubsubDeleteButtonListener(JFrame frame, PubsubClientModel parent) {
         this.parent = parent;
         this.frame = frame;
     }
     
     public void actionPerformed(ActionEvent e) {
-        if(askForNodeName()) {
+        String nodeID = parent.getSelectedNode();
+        if(nodeID != null && askForSure()) {
             try {
-                parent.getPubsubMgr().createNode(nodeID);
-                System.out.println("Node created " + nodeID);
+                parent.getPubsubMgr().deleteNode(nodeID);
+                System.out.println("Node deleted: " + nodeID);
                 parent.refresh();
             } catch (XMPPException e1) {
-                System.err.println("Couldn't create node "+nodeID);
+                System.err.println("Couldn't delete node "+nodeID);
                 e1.printStackTrace();
             }
         }
     }
     
-    private boolean askForNodeName() {
+    private boolean askForSure() {
         JLabel nodeLab = new JLabel("Node ID");
         JTextField nodeTxt = new JTextField();
         nodeLab.setLabelFor(nodeTxt);
-                
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(2,1));
-        panel.add(nodeLab);
-        panel.add(nodeTxt);
         
-        int answer = JOptionPane.showOptionDialog(frame,
-                panel,
-                "Create new node",
+        int answer = JOptionPane.showConfirmDialog(frame,
+                "The node and all associated data will be lost!",
+                "Delete node?",
                 JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                new String[] {"OK", "Cancel"},
-                null);
+                JOptionPane.WARNING_MESSAGE);
 
-        if(answer != 0) {
+        if(answer != JOptionPane.OK_OPTION) {
             return false;
         }
-        
-        this.nodeID = nodeTxt.getText();
         return true;
     }
 

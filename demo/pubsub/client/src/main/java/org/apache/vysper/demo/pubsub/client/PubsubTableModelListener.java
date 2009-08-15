@@ -26,9 +26,9 @@ import org.jivesoftware.smackx.pubsub.Node;
 import org.jivesoftware.smackx.pubsub.PubSubManager;
 
 public class PubsubTableModelListener implements TableModelListener {
-    private PubsubClientGUI parent;
+    private PubsubClientModel parent;
 
-    public PubsubTableModelListener(PubsubClientGUI parent) {
+    public PubsubTableModelListener(PubsubClientModel parent) {
         this.parent = parent;
     }
 
