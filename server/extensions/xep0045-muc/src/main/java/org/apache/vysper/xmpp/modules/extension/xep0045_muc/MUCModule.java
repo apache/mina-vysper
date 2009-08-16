@@ -22,7 +22,10 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
 import java.util.List;
 
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityFormatException;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler.MUCMessageHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler.MUCPresenceHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
@@ -54,13 +57,20 @@ public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequ
     private final Logger logger = LoggerFactory.getLogger(MUCModule.class);
     
     public MUCModule(Entity domain) {
-        this.domain = domain;
-        this.conference = new Conference("Conference");
+        this(domain, new Conference("Conference"));
     }
     
     public MUCModule(Entity domain, Conference conference) {
         this.domain = domain;
         this.conference = conference;
+    }
+    
+    public MUCModule(String domain) throws EntityFormatException {
+        this(EntityImpl.parse(domain));
+    }
+    
+    public MUCModule(String domain, Conference conference) throws EntityFormatException {
+        this(EntityImpl.parse(domain), conference);
     }
 
     /**
@@ -142,6 +152,7 @@ public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequ
         
         SubdomainHandlerDictionary dictionary = new SubdomainHandlerDictionary(domain);
         dictionary.register(new MUCPresenceHandler(conference));
+        dictionary.register(new MUCMessageHandler(conference));
         
         dictionaries.add(dictionary);
     }
