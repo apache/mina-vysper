@@ -44,7 +44,7 @@ public class MUCHandlerHelper {
                 && xElement.getNamespaceURI().equals(NamespaceURIs.XEP0045_MUC)) {
             // got x element and in the correct namespace
             return true;
-        } else if(xElement != null && xElement.getNamespaceURI() == null) {
+        } else if(xElement != null && xElement.getNamespaceURI().length() == 0) {
             // no extension namespace, ok
             return true;
         } else if(xElement == null) {
