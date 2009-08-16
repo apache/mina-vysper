@@ -97,6 +97,11 @@ public class XMLElement implements XMLFragment {
         
         String uri = getAttributeValue(xmlnsName);
         
+        // return empty string if the element is in the empty namespace
+        if(uri == null) {
+            uri = "";
+        }
+        
         return uri;
     }
 
