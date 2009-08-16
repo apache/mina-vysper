@@ -35,6 +35,11 @@ public class Occupant {
     private String name;
     
     public Occupant(Entity jid, String name, Affiliation affiliation, Role role) {
+        if(jid == null) throw new IllegalArgumentException("JID can not be null");
+        if(name == null) throw new IllegalArgumentException("Name can not be null");
+        if(affiliation == null) throw new IllegalArgumentException("Affiliation can not be null");
+        if(role == null) throw new IllegalArgumentException("Role can not be null");
+        
         this.jid = jid;
         this.name = name;
         this.affiliation = affiliation;
@@ -73,5 +78,9 @@ public class Occupant {
         return role == Role.Moderator || role == Role.Participant;
     }
     
+    @Override
+    public String toString() {
+        return jid.getFullQualifiedName();
+    }
     
 }
