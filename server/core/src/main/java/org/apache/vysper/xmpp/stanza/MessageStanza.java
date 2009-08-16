@@ -82,7 +82,7 @@ public class MessageStanza extends XMPPCoreStanza {
      *
      * @param lang
      * @return
-     * @throws XMLSemanticError - if langauge attributes are not unique, RFC3921/2.1.2.2
+     * @throws XMLSemanticError - if language attributes are not unique, RFC3921/2.1.2.2
      */
     public String getBody(String lang) throws XMLSemanticError {
         XMLElement element = getBodies().get(lang);
