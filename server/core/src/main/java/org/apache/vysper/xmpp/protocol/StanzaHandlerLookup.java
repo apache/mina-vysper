@@ -140,11 +140,11 @@ public class StanzaHandlerLookup {
     }
     
     private StanzaHandler getPresenceHandler(Stanza stanza) {
-        return getHandler(stanza, presenceHandler);
+        return presenceHandler;
     }
 
     private StanzaHandler getMessageHandler(Stanza stanza) {
-        return getHandler(stanza, messageHandler);
+        return messageHandler;
     }
 
     private StanzaHandler getIQHandler(Stanza stanza) {
