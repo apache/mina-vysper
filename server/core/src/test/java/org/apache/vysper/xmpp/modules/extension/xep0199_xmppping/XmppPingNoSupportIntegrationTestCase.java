@@ -35,7 +35,7 @@ public class XmppPingNoSupportIntegrationTestCase extends AbstractIntegrationTes
         PingPacket pingRequest = new PingPacket();
         pingRequest.setType(IQ.Type.GET);
         pingRequest.setTo(SERVER_DOMAIN);
-        pingRequest.setFrom(TEST_USERNAME);
+        pingRequest.setFrom(TEST_USERNAME1);
 
         IQ result = (IQ)sendSync(client, pingRequest);
         
@@ -43,7 +43,7 @@ public class XmppPingNoSupportIntegrationTestCase extends AbstractIntegrationTes
         assertNotNull(result);
         assertEquals(IQ.Type.ERROR, result.getType());
         assertEquals(SERVER_DOMAIN, result.getFrom());
-        assertEquals(TEST_USERNAME, result.getTo());
+        assertEquals(TEST_USERNAME1, result.getTo());
         assertEquals("service-unavailable", result.getError().getCondition());
     }
 }

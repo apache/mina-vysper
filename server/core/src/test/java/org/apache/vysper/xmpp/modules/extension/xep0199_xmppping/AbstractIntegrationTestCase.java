@@ -45,13 +45,17 @@ public abstract class AbstractIntegrationTestCase extends TestCase {
     private final Logger logger = LoggerFactory.getLogger(AbstractIntegrationTestCase.class);
     
     protected static final String SERVER_DOMAIN = "vysper.org";
-    protected static final String TEST_USERNAME = "test@vysper.org";
-    protected static final String TEST_PASSWORD = "test";
+
+    protected static final String TEST_USERNAME1 = "test1@vysper.org";
+    protected static final String TEST_PASSWORD1 = "password";
+    protected static final String TEST_USERNAME2 = "test2@vysper.org";
+    protected static final String TEST_PASSWORD2 = "password";
 
     private static final int DEFAULT_SERVER_PORT = 25222;
     
     protected XMPPConnection client;
     private XMPPServer server;
+    protected int port;
 
     protected void addModules(XMPPServer server) {
         // default, do nothing
@@ -59,18 +63,19 @@ public abstract class AbstractIntegrationTestCase extends TestCase {
     
     @Override
     protected void setUp() throws Exception {
-        int port = findFreePort();
+        port = findFreePort();
         
         startServer(port);
         
-        connectClient(port);
+        client = connectClient(port, TEST_USERNAME1, TEST_PASSWORD1);
     }
 
     private void startServer(int port) throws Exception {
         StorageProviderRegistry providerRegistry = new MemoryStorageProviderRegistry();
         
         AccountManagement accountManagement = (AccountManagement) providerRegistry.retrieve(AccountManagement.class);
-        accountManagement.addUser(TEST_USERNAME, TEST_PASSWORD);
+        accountManagement.addUser(TEST_USERNAME1, TEST_PASSWORD1);
+        accountManagement.addUser(TEST_USERNAME2, TEST_PASSWORD2);
 
         server = new XMPPServer(SERVER_DOMAIN);
         
@@ -86,7 +91,7 @@ public abstract class AbstractIntegrationTestCase extends TestCase {
         addModules(server);
     }
     
-    private void connectClient(int port) throws Exception {
+    protected XMPPConnection connectClient(int port, String username, String password) throws Exception {
         ConnectionConfiguration connectionConfiguration = new ConnectionConfiguration("localhost", port);
         connectionConfiguration.setCompressionEnabled(false);
         connectionConfiguration.setSecurityMode(ConnectionConfiguration.SecurityMode.required);
@@ -94,11 +99,12 @@ public abstract class AbstractIntegrationTestCase extends TestCase {
         connectionConfiguration.setDebuggerEnabled(false);
         
         XMPPConnection.DEBUG_ENABLED = true;
-        client = new XMPPConnection(connectionConfiguration);
+        XMPPConnection client = new XMPPConnection(connectionConfiguration);
         
         client.connect();
         
-        client.login(TEST_USERNAME, TEST_PASSWORD);
+        client.login(username, password);
+        return client;
     }
 
     protected Packet sendSync(XMPPConnection client, Packet request) {
