@@ -38,6 +38,7 @@ import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.MessageStanza;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.stanza.MessageStanzaType;
 import org.apache.vysper.xmpp.xmlfragment.Attribute;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
@@ -93,8 +94,8 @@ public class MUCMessageHandler extends DefaultMessageHandler {
             SessionContext sessionContext) {
 
         logger.debug("Received message for MUC");
-        String type = stanza.getType();
-        if(type != null && type.equals("groupchat")) {
+        MessageStanzaType type = stanza.getMessageType();
+        if(type != null && type == MessageStanzaType.GROUPCHAT) {
             // groupchat, message to a room
             
             Entity roomWithNickJid = stanza.getTo();

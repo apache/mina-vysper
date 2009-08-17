@@ -58,6 +58,12 @@ public class StanzaBuilder {
         return stanzaBuilder;
     }
 
+    public static StanzaBuilder createMessageStanza(Entity from, Entity to, MessageStanzaType type, String lang, String body) {
+        StanzaBuilder stanzaBuilder = createMessageStanza(from, to, lang, body);
+        if (type != null) stanzaBuilder.addAttribute("type", type.value());
+        return stanzaBuilder;
+    }
+
     public static StanzaBuilder createPresenceStanza(Entity from, Entity to, String lang, PresenceStanzaType type, String show, String status) {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("presence");
         if (from != null) stanzaBuilder.addAttribute("from", from.getFullQualifiedName());

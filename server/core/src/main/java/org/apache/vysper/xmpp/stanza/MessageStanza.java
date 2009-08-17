@@ -52,7 +52,7 @@ public class MessageStanza extends XMPPCoreStanza {
         return NAME;
     }
 
-    public MessageStanzaType getIQType() {
+    public MessageStanzaType getMessageType() {
         String type = getType();
         if (type == null) return null;
         return MessageStanzaType.valueOfWithDefault(type);

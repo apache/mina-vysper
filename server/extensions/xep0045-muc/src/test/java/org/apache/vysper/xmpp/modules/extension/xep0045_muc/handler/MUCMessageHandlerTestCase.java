@@ -1,19 +1,14 @@
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
-import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
-import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
-import org.apache.vysper.xmpp.stanza.PresenceStanza;
-import org.apache.vysper.xmpp.stanza.PresenceStanzaType;
+import org.apache.vysper.xmpp.stanza.MessageStanzaType;
+import static org.apache.vysper.xmpp.stanza.MessageStanzaType.GROUPCHAT;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.xmlfragment.Attribute;
@@ -22,15 +17,15 @@ import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
 import org.apache.vysper.xmpp.xmlfragment.XMLText;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  */
 public class MUCMessageHandlerTestCase extends AbstractMUCHandlerTestCase {
     
-    private Stanza sendMessage(Entity occupantJid, Entity roomJid, String type, String body) throws ProtocolException {
-        StanzaBuilder stanzaBuilder = StanzaBuilder.createMessageStanza(occupantJid, roomJid, null, body);
-        if(type != null) {
-            stanzaBuilder.addAttribute("type", type);
-        }
+    private Stanza sendMessage(Entity occupantJid, Entity roomJid, MessageStanzaType type, String body) throws ProtocolException {
+        StanzaBuilder stanzaBuilder = StanzaBuilder.createMessageStanza(occupantJid, roomJid, type, null, body);
         
         Stanza messageStanza = stanzaBuilder.getFinalStanza();
         ResponseStanzaContainer container = handler.execute(messageStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, null);
@@ -68,7 +63,7 @@ public class MUCMessageHandlerTestCase extends AbstractMUCHandlerTestCase {
         
         
         // now, let user 2 exit room
-        Stanza errorStanza = sendMessage(occupant1Jid, room1JidWithNick, "groupchat", body);
+        Stanza errorStanza = sendMessage(occupant1Jid, room1JidWithNick, GROUPCHAT, body);
 
         XMLText text = new XMLText(body);
         XMLElement expectedBody = new XMLElement("body", null, (Attribute[])null, new XMLFragment[]{text});
@@ -88,7 +83,7 @@ public class MUCMessageHandlerTestCase extends AbstractMUCHandlerTestCase {
         room.addOccupant(occupant2Jid, "Nick 2");
         
         // now, let user 2 exit room
-        sendMessage(occupant1Jid, room1JidWithNick, "groupchat", body);
+        sendMessage(occupant1Jid, room1JidWithNick, GROUPCHAT, body);
 
         // verify stanzas to existing occupants on the exiting user
         assertMessageStanza(room1JidWithNick, occupant1Jid, "groupchat", body, occupant1Queue.getNext());
