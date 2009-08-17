@@ -109,8 +109,24 @@ public class Room implements InfoRequestListener, ItemRequestListener {
         return occupant;
     }
 
-    public Occupant findOccupant(Entity occupantJid) {
+    public Occupant findOccupantByJID(Entity occupantJid) {
         return occupants.get(occupantJid);
+    }
+
+    public Occupant findOccupantByNick(String nick) {
+        for(Occupant occupant : getOccupants()) {
+            if(occupant.getName().equals(nick)) return occupant;
+        }
+         
+        return null;
+    }
+
+    public boolean isInRoom(Entity jid) {
+        return findOccupantByJID(jid) != null;
+    }
+
+    public boolean isInRoom(String nick) {
+        return findOccupantByNick(nick) != null;
     }
     
     public void removeOccupant(Entity occupantJid) {

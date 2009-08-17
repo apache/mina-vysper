@@ -54,7 +54,7 @@ public class MUCHandlerHelper {
         }
     }
     
-    public static Stanza createErrorStanza(String stanzaName, Entity from, Entity to, String type, String errorName, List<XMLElement> innerElements) {
+    public static Stanza createErrorStanza(String stanzaName, Entity from, Entity to, String id, String type, String errorName, List<XMLElement> innerElements) {
         //        <presence
         //        from='darkcave@chat.shakespeare.lit'
         //        to='hag66@shakespeare.lit/pda'
@@ -67,6 +67,7 @@ public class MUCHandlerHelper {
         StanzaBuilder builder = new StanzaBuilder(stanzaName);
         builder.addAttribute("from", from.getFullQualifiedName());
         builder.addAttribute("to", to.getFullQualifiedName());
+        if(id != null) builder.addAttribute("id", id);
         builder.addAttribute("type", "error");
         
         if(innerElements != null) {

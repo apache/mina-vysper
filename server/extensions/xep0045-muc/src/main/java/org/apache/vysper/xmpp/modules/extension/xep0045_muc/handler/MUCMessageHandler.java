@@ -72,6 +72,9 @@ public class MUCMessageHandler extends DefaultMessageHandler {
         StanzaBuilder builder = new StanzaBuilder("message");
         builder.addAttribute("from", from.getFullQualifiedName());
         builder.addAttribute("to", to.getFullQualifiedName());
+        if(original.getAttribute("type") != null) {
+            builder.addAttribute("type", original.getAttributeValue("type"));
+        }
         
         for(XMLElement innerElement : original.getInnerElements()) {
             builder.addPreparedElement(innerElement);
@@ -80,8 +83,8 @@ public class MUCMessageHandler extends DefaultMessageHandler {
         return builder.getFinalStanza();
     }
     
-    private Stanza createMessageErrorStanza(Entity from, Entity to, String type, String errorName, Stanza stanza) {
-        return MUCHandlerHelper.createErrorStanza("message", from, to, type, errorName, stanza.getInnerElements());
+    private Stanza createMessageErrorStanza(Entity from, Entity to, String id, String type, String errorName, Stanza stanza) {
+        return MUCHandlerHelper.createErrorStanza("message", from, to, id, type, errorName, stanza.getInnerElements());
     }
     
     @Override
@@ -89,15 +92,21 @@ public class MUCMessageHandler extends DefaultMessageHandler {
             ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
 
+        logger.debug("Received message for MUC");
         String type = stanza.getType();
         if(type != null && type.equals("groupchat")) {
             // groupchat, message to a room
+            
             Entity roomWithNickJid = stanza.getTo();
+            logger.debug("Received groupchat message to {}", roomWithNickJid);
             Room room = conference.findRoom(roomWithNickJid.getBareJID());
             if(room != null) {
                 // sender must be participant in room
                 Entity from = stanza.getFrom();
-                Occupant sendingOccupant = room.findOccupant(from);
+                if(from == null) {
+                    from = sessionContext.getInitiatingEntity();
+                }
+                Occupant sendingOccupant = room.findOccupantByJID(from);
                 
                 if(sendingOccupant != null) {
                     
@@ -105,20 +114,24 @@ public class MUCMessageHandler extends DefaultMessageHandler {
                     if(sendingOccupant.hasVoice()) {
                         // relay message to all occupants in room
                         
+                        logger.debug("Relaying message to all room occupants");
                         for(Occupant occupent : room.getOccupants()) {
+                            logger.debug("Relaying message to  {}", occupent);
                             relayStanza(occupent.getJid(), 
                                     copyMessageStanza(roomAndSendingNick, occupent.getJid(), stanza), 
                                     sessionContext);
                         }
                     } else {
-                        return createMessageErrorStanza(room.getJID(), from, "modify", "forbidden", stanza);
+                        return createMessageErrorStanza(room.getJID(), from, stanza.getID(), "modify", "forbidden", stanza);
                     }
                 } else {
-                    return createMessageErrorStanza(room.getJID(), from, "modify", "not-acceptable", stanza);
+                    return createMessageErrorStanza(room.getJID(), from, stanza.getID(), "modify", "not-acceptable", stanza);
                 }
             } else {
                 // TODO how to handle unknown room?
             }
+        } else {
+            // TODO handle non-groupchat messages
         }
         
         return null;

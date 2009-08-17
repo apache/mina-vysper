@@ -132,6 +132,29 @@ public class RoomTestCase extends TestCase {
         
         occupant = room.getOccupants().iterator().next();
         assertEquals(occupantJid2, occupant.getJid());
+    }
+    
+    public void testFindOccupantByJID() {
+        Room room = new Room(roomJid1, "Room 1");
+        room.addOccupant(occupantJid1, "Nick 1");
+        room.addOccupant(occupantJid2, "Nick 2");
+        
+        Occupant occupant = room.findOccupantByJID(occupantJid1);
+        assertNotNull(occupant);
+        assertEquals(occupantJid1, occupant.getJid());
+        
+        assertNull(room.findOccupantByJID(TestUtil.parseUnchecked("dummy@vysper.org")));
+    }
 
+    public void testFindOccupantByNick() {
+        Room room = new Room(roomJid1, "Room 1");
+        room.addOccupant(occupantJid1, "Nick 1");
+        room.addOccupant(occupantJid2, "Nick 2");
+        
+        Occupant occupant = room.findOccupantByNick("Nick 2");
+        assertNotNull(occupant);
+        assertEquals(occupantJid2, occupant.getJid());
+        
+        assertNull(room.findOccupantByNick("Dummy"));
     }
 }

@@ -15,6 +15,7 @@ import org.apache.vysper.xmpp.stanza.PresenceStanza;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.xmlfragment.Attribute;
+import org.apache.vysper.xmpp.xmlfragment.NamespaceAttribute;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 
@@ -61,6 +62,13 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestC
         assertEquals(occupant1Jid, occupant.getJid());
         assertEquals("nick", occupant.getName());
     }
+    
+    public void testEnterRoomWithDuplicateNick() throws Exception {
+        assertNull(enterRoom(occupant1Jid, room1JidWithNick));
+        Stanza error = enterRoom(occupant2Jid, room1JidWithNick);
+        
+        assertNotNull(error);
+    }
 
     public void testEnterNonExistingRoom() throws Exception {
         Room room = conference.findRoom(room2Jid);
@@ -105,7 +113,8 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestC
 
     private void assertPresenceErrorStanza(PresenceStanza response, Entity from, Entity to,
             String type, String errorName) {
-        XMLElement xElement = new XMLElement("x", NamespaceURIs.XEP0045_MUC, (Attribute[])null, (XMLFragment[])null);
+        Attribute xmlns = new NamespaceAttribute(NamespaceURIs.XEP0045_MUC);
+        XMLElement xElement = new XMLElement("x", null, Arrays.asList(xmlns), (XMLFragment[])null);
         assertErrorStanza(response, "presence", from, to, type, errorName, Arrays.asList(xElement));
     }
 

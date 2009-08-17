@@ -70,28 +70,33 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         return MUCHandlerHelper.verifyNamespace(stanza);
     }
 
-    private Stanza createPresenceErrorStanza(Entity from, Entity to, String type, String errorName) {
+    private Stanza createPresenceErrorStanza(Entity from, Entity to, String id, String type, String errorName) {
         // "Note: If an error occurs in relation to joining a room, the service SHOULD include 
         // the MUC child element (i.e., <x xmlns='http://jabber.org/protocol/muc'/>) in the 
         // <presence/> stanza of type "error"."
 
-        XMLElement xElement = new XMLElement("x", NamespaceURIs.XEP0045_MUC, (List<Attribute>)null, (List<XMLFragment>)null);
-        return MUCHandlerHelper.createErrorStanza("presence", from, to, type, errorName, Arrays.asList(xElement));
+        Attribute xmlns = new Attribute("xmlns", NamespaceURIs.XEP0045_MUC);
+        XMLElement xElement = new XMLElement("x", null, Arrays.asList(xmlns), (List<XMLFragment>)null);
+        
+        return MUCHandlerHelper.createErrorStanza("presence", from, to, id, type, errorName, Arrays.asList(xElement));
     }
     
     @Override
     protected Stanza executePresenceLogic(PresenceStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         // TODO handle null
         Entity roomAndNick = stanza.getTo();
-        // TODO handle null
+
         Entity occupantJid = stanza.getFrom();
+        if(occupantJid == null) {
+            occupantJid = sessionContext.getInitiatingEntity();
+        }
         
         Entity roomJid = roomAndNick.getBareJID();
         String nick = roomAndNick.getResource();
         
         // user did not send nick name
         if(nick == null) {
-            return createPresenceErrorStanza(roomJid, occupantJid, "modify", "jid-malformed");
+            return createPresenceErrorStanza(roomJid, occupantJid, stanza.getID(), "modify", "jid-malformed");
         }
 
         String type = stanza.getType();
@@ -108,8 +113,15 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
 
     private Stanza enterRoom(PresenceStanza stanza, Entity roomJid,
             Entity newOccupantJid, String nick, SessionContext sessionContext) {
+        logger.debug("{} has requested to enter room {}", newOccupantJid, roomJid);
+        
         // TODO what to use for the room name?
         Room room = conference.findOrCreateRoom(roomJid, roomJid.getNode());
+        
+        if(room.isInRoom(nick)) {
+            // user is already in room
+            return createPresenceErrorStanza(roomJid, newOccupantJid, stanza.getID(), "cancel", "conflict");
+        }
         
         // check password if password protected
         if(room.isRoomType(RoomType.PasswordProtected)) {
@@ -130,7 +142,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
             
             if(password == null || !password.equals(room.getPassword())) {
                 // password missing or not matching
-                return createPresenceErrorStanza(roomJid, newOccupantJid, "auth", "not-authorized");
+                return createPresenceErrorStanza(roomJid, newOccupantJid, stanza.getID(), "auth", "not-authorized");
             }
         }
         
@@ -146,6 +158,8 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
             sendNewOccupantPresenceToExisting(newOccupant, occupant, room, sessionContext);
         }
         
+        logger.debug("{} successfully entered room {}", newOccupantJid, roomJid);
+
         return null;
     }
     
@@ -155,7 +169,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         
         // room must exist, or we do nothing
         if(room != null) {
-            Occupant exitingOccupant = room.findOccupant(occupantJid);
+            Occupant exitingOccupant = room.findOccupantByJID(occupantJid);
             
             // user must by in room, or we do nothing
             if(exitingOccupant != null) {
@@ -210,6 +224,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
             .endInnerElement();
         builder.endInnerElement();
         
+        logger.debug("Room presence from {} sent to {}", newOccupant, roomAndOccupantNick);
         relayStanza(newOccupant.getJid(), builder.getFinalStanza(), sessionContext);
     }
     
@@ -244,6 +259,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         }
         builder.endInnerElement();
 
+        logger.debug("Room presence from {} sent to {}", roomAndNewUserNick, existingOccupant);
         relayStanza(existingOccupant.getJid(), builder.getFinalStanza(), sessionContext);
     }
     

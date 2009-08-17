@@ -91,13 +91,16 @@ public class MUCMessageHandlerTestCase extends AbstractMUCHandlerTestCase {
         sendMessage(occupant1Jid, room1JidWithNick, "groupchat", body);
 
         // verify stanzas to existing occupants on the exiting user
-        assertMessageStanza(room1JidWithNick, occupant1Jid, body, occupant1Queue.getNext());
-        assertMessageStanza(room1JidWithNick, occupant2Jid, body, occupant2Queue.getNext());
+        assertMessageStanza(room1JidWithNick, occupant1Jid, "groupchat", body, occupant1Queue.getNext());
+        assertMessageStanza(room1JidWithNick, occupant2Jid, "groupchat", body, occupant2Queue.getNext());
     }
 
-    private void assertMessageStanza(Entity from, Entity to, String body, Stanza stanza) throws XMLSemanticError {
+    private void assertMessageStanza(Entity from, Entity to, String type, String body, Stanza stanza) throws XMLSemanticError {
         assertEquals(from, stanza.getFrom());
         assertEquals(to, stanza.getTo());
+        if(type != null) {
+            assertEquals(type, stanza.getAttributeValue("type"));
+        }
         
         XMLElement bodyElement = stanza.getSingleInnerElementsNamed("body");
         assertEquals(body, bodyElement.getInnerText().getText());
