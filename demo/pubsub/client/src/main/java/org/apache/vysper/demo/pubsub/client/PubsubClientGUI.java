@@ -63,7 +63,7 @@ public class PubsubClientGUI implements Runnable, ListSelectionListener {
 
         JTable nodeTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(nodeTable);
-        nodeTable.setFillsViewportHeight(true);
+        //nodeTable.setFillsViewportHeight(true);
         nodeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         ListSelectionModel lsm = nodeTable.getSelectionModel();
         lsm.addListSelectionListener(this);
