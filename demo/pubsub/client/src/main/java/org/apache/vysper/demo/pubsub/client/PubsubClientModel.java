@@ -34,6 +34,7 @@ import org.jivesoftware.smackx.packet.DiscoverItems.Item;
 import org.jivesoftware.smackx.pubsub.Affiliation;
 import org.jivesoftware.smackx.pubsub.PubSubManager;
 import org.jivesoftware.smackx.pubsub.Subscription;
+import org.jivesoftware.smackx.pubsub.Node;
 
 public class PubsubClientModel {
     private Map<String, DefaultListModel> nodeMessages = new TreeMap<String, DefaultListModel>();
@@ -140,7 +141,9 @@ public class PubsubClientModel {
             tableModel.bulkAddRow(n);
             
             try {
-                pubsubMgr.getNode(n.getNode()).addItemEventListener(pel); // TODO maybe we add one listener more than one times?
+                Node node = pubsubMgr.getNode(n.getNode());
+                node.removeItemEventListener(pel); // remove the listener in cases we already know the node
+                node.addItemEventListener(pel); // add the listener for events
             } catch (XMPPException e) {
                 e.printStackTrace();
             }
