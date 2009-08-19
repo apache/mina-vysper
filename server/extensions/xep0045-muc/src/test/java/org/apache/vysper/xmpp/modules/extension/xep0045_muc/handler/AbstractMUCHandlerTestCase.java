@@ -21,14 +21,16 @@ public abstract class AbstractMUCHandlerTestCase extends TestCase {
     
     protected TestSessionContext sessionContext;
 
-    protected Entity room1Jid = TestUtil.parseUnchecked("room1@vysper.org");
-    protected Entity room2Jid = TestUtil.parseUnchecked("room2@vysper.org");
+    protected static final Entity MODULE_JID = TestUtil.parseUnchecked("chat.vysper.org");
 
-    protected Entity room1JidWithNick = TestUtil.parseUnchecked("room1@vysper.org/nick");
-    protected Entity room2JidWithNick = TestUtil.parseUnchecked("room2@vysper.org/nick");
+    protected static final Entity ROOM1_JID = TestUtil.parseUnchecked("room1@chat.vysper.org");
+    protected static final Entity ROOM2_JID = TestUtil.parseUnchecked("room2@chat.vysper.org");
+
+    protected static final Entity ROOM1_JID_WITH_NICK = TestUtil.parseUnchecked("room1@chat.vysper.org/nick");
+    protected static final Entity ROOM2_JID_WITH_NICK = TestUtil.parseUnchecked("room2@chat.vysper.org/nick");
     
-    protected Entity occupant1Jid = TestUtil.parseUnchecked("user1@vysper.org");
-    protected Entity occupant2Jid = TestUtil.parseUnchecked("user2@vysper.org");
+    protected static final Entity OCCUPANT1_JID = TestUtil.parseUnchecked("user1@vysper.org");
+    protected static final Entity OCCUPANT2_JID = TestUtil.parseUnchecked("user2@vysper.org");
     protected StanzaHandler handler;
 
     protected Conference conference = new Conference("foo");
@@ -40,13 +42,13 @@ public abstract class AbstractMUCHandlerTestCase extends TestCase {
     @Override
     protected void setUp() throws Exception {
         sessionContext = TestSessionContext.createWithStanzaReceiverRelayAuthenticated();
-        sessionContext.setInitiatingEntity(occupant1Jid);
+        sessionContext.setInitiatingEntity(OCCUPANT1_JID);
         
         StanzaReceiverRelay stanzaRelay = (StanzaReceiverRelay) sessionContext.getServerRuntimeContext().getStanzaRelay();
-        stanzaRelay.add(occupant1Jid, occupant1Queue);
-        stanzaRelay.add(occupant2Jid, occupant2Queue);
+        stanzaRelay.add(OCCUPANT1_JID, occupant1Queue);
+        stanzaRelay.add(OCCUPANT2_JID, occupant2Queue);
         
-        conference.createRoom(room1Jid, "Room 1");
+        conference.createRoom(ROOM1_JID, "Room 1");
         
         handler = createHandler();
     }

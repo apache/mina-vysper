@@ -20,7 +20,6 @@
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.vysper.compliance.SpecCompliance;
@@ -33,17 +32,15 @@ import org.apache.vysper.xmpp.modules.core.base.handler.DefaultMessageHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
-import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.MessageStanza;
+import org.apache.vysper.xmpp.stanza.MessageStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.stanza.MessageStanzaType;
+import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
+import org.apache.vysper.xmpp.stanza.StanzaErrorType;
 import org.apache.vysper.xmpp.xmlfragment.Attribute;
-import org.apache.vysper.xmpp.xmlfragment.Renderer;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
-import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,9 +58,11 @@ public class MUCMessageHandler extends DefaultMessageHandler {
     final Logger logger = LoggerFactory.getLogger(MUCMessageHandler.class);
 
     private Conference conference;
+    private Entity moduleDomain;
 
-    public MUCMessageHandler(Conference conference) {
+    public MUCMessageHandler(Conference conference, Entity moduleDomain) {
         this.conference = conference;
+        this.moduleDomain = moduleDomain;
     }
 
     @Override
@@ -71,8 +70,9 @@ public class MUCMessageHandler extends DefaultMessageHandler {
         return MUCHandlerHelper.verifyNamespace(stanza);
     }
     
-    private Stanza createMessageErrorStanza(Entity from, Entity to, String id, String type, String errorName, Stanza stanza) {
-        return MUCHandlerHelper.createErrorStanza("message", from, to, id, type, errorName, stanza.getInnerElements());
+    private Stanza createMessageErrorStanza(Entity from, Entity to, String id, StanzaErrorType type, 
+            StanzaErrorCondition errorCondition, Stanza stanza) {
+        return MUCHandlerHelper.createErrorStanza("message", from, to, id, type.value(), errorCondition.value(), stanza.getInnerElements());
     }
     
     @Override
@@ -81,21 +81,25 @@ public class MUCMessageHandler extends DefaultMessageHandler {
             SessionContext sessionContext) {
 
         logger.debug("Received message for MUC");
+        Entity from = sessionContext.getInitiatingEntity();
+        Entity roomWithNickJid = stanza.getTo();
+        Entity roomJid = roomWithNickJid.getBareJID();
+
         MessageStanzaType type = stanza.getMessageType();
         if(type != null && type == MessageStanzaType.GROUPCHAT) {
             // groupchat, message to a room
+
+            // must not have a nick
+            if(roomWithNickJid.getResource() != null) {
+                return createMessageErrorStanza(roomJid, from, stanza.getID(), StanzaErrorType.MODIFY, StanzaErrorCondition.BAD_REQUEST, stanza);
+            }
             
-            Entity roomWithNickJid = stanza.getTo();
-            logger.debug("Received groupchat message to {}", roomWithNickJid);
-            Room room = conference.findRoom(roomWithNickJid.getBareJID());
+            logger.debug("Received groupchat message to {}", roomJid);
+            Room room = conference.findRoom(roomJid);
             if(room != null) {
-                // sender must be participant in room
-                Entity from = stanza.getFrom();
-                if(from == null) {
-                    from = sessionContext.getInitiatingEntity();
-                }
                 Occupant sendingOccupant = room.findOccupantByJID(from);
                 
+                // sender must be participant in room
                 if(sendingOccupant != null) {
                     
                     Entity roomAndSendingNick = new EntityImpl(room.getJID(), sendingOccupant.getName());
@@ -114,20 +118,50 @@ public class MUCMessageHandler extends DefaultMessageHandler {
                                     sessionContext);
                         }
                     } else {
-                        return createMessageErrorStanza(room.getJID(), from, stanza.getID(), "modify", "forbidden", stanza);
+                        return createMessageErrorStanza(room.getJID(), from, stanza.getID(), StanzaErrorType.MODIFY, StanzaErrorCondition.FORBIDDEN, stanza);
                     }
                 } else {
-                    return createMessageErrorStanza(room.getJID(), from, stanza.getID(), "modify", "not-acceptable", stanza);
+                    return createMessageErrorStanza(room.getJID(), from, stanza.getID(), StanzaErrorType.MODIFY, StanzaErrorCondition.NOT_ACCEPTABLE, stanza);
                 }
             } else {
-                // TODO how to handle unknown room?
+                return createMessageErrorStanza(moduleDomain, from, stanza.getID(), StanzaErrorType.MODIFY, StanzaErrorCondition.ITEM_NOT_FOUND, stanza);
             }
-        } else {
-            // TODO handle non-groupchat messages
+        } else if(type == null  || type == MessageStanzaType.CHAT) {
+            // private message
+            logger.debug("Received direct message to {}", roomWithNickJid);
+            Room room = conference.findRoom(roomJid);
+            if(room != null) {
+                Occupant sendingOccupant = room.findOccupantByJID(from);
+                
+                // sender must be participant in room
+                if(sendingOccupant != null) {
+                    Occupant receivingOccupant = room.findOccupantByNick(roomWithNickJid.getResource());
+                    
+                    // must be sent to an existing occupant in the room
+                    if(receivingOccupant != null) {
+                    
+                        Entity roomAndSendingNick = new EntityImpl(room.getJID(), sendingOccupant.getName());
+                        logger.debug("Relaying message to  {}", receivingOccupant);
+                        List<Attribute> replaceAttributes = new ArrayList<Attribute>();
+                        replaceAttributes.add(new Attribute("from", roomAndSendingNick.getFullQualifiedName()));
+                        replaceAttributes.add(new Attribute("to", receivingOccupant.getJid().getFullQualifiedName()));
+                    
+                        relayStanza(receivingOccupant.getJid(), 
+                            StanzaBuilder.createClone(stanza, true, replaceAttributes).getFinalStanza(),
+                            sessionContext);
+                    } else {
+                        // TODO correct error?
+                        return createMessageErrorStanza(moduleDomain, from, stanza.getID(), StanzaErrorType.MODIFY, StanzaErrorCondition.ITEM_NOT_FOUND, stanza);
+                    }
+                } else {
+                    return createMessageErrorStanza(room.getJID(), from, stanza.getID(), StanzaErrorType.MODIFY, StanzaErrorCondition.NOT_ACCEPTABLE, stanza);
+                }
+            } else {
+                return createMessageErrorStanza(moduleDomain, from, stanza.getID(), StanzaErrorType.MODIFY, StanzaErrorCondition.ITEM_NOT_FOUND, stanza);
+            }
         }
         
         return null;
-        
     }
 
     protected void relayStanza(Entity receiver, Stanza stanza,

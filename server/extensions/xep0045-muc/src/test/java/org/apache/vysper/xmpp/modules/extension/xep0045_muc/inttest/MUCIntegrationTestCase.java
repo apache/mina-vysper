@@ -112,7 +112,7 @@ public class MUCIntegrationTestCase extends AbstractIntegrationTestCase {
 
     }
 
-    public void testSendMessage() throws Exception {
+    public void testSendMessageToRoom() throws Exception {
         chat.join("Nick");
         chat2.join("Nick2");
 
@@ -129,5 +129,4 @@ public class MUCIntegrationTestCase extends AbstractIntegrationTestCase {
         assertEquals(ROOM_JID + "/Nick", message.getFrom());
         assertEquals(TEST_USERNAME2, message.getTo());
     }
-    
 }

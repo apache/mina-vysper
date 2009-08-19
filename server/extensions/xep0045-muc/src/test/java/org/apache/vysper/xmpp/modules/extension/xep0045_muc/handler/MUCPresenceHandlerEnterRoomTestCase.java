@@ -51,64 +51,64 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestC
     }
     
     public void testEnterExistingRoom() throws Exception {
-        Room room = conference.findRoom(room1Jid);
+        Room room = conference.findRoom(ROOM1_JID);
         assertEquals(0, room.getOccupants().size());
 
-        enterRoom(occupant1Jid, room1JidWithNick);
+        enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK);
 
         assertEquals(1, room.getOccupants().size());
         Occupant occupant = room.getOccupants().iterator().next();
         
-        assertEquals(occupant1Jid, occupant.getJid());
+        assertEquals(OCCUPANT1_JID, occupant.getJid());
         assertEquals("nick", occupant.getName());
     }
     
     public void testEnterRoomWithDuplicateNick() throws Exception {
-        assertNull(enterRoom(occupant1Jid, room1JidWithNick));
-        Stanza error = enterRoom(occupant2Jid, room1JidWithNick);
+        assertNull(enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK));
+        Stanza error = enterRoom(OCCUPANT2_JID, ROOM1_JID_WITH_NICK);
         
         assertNotNull(error);
     }
 
     public void testEnterNonExistingRoom() throws Exception {
-        Room room = conference.findRoom(room2Jid);
+        Room room = conference.findRoom(ROOM2_JID);
         assertNull(room);
 
-        enterRoom(occupant1Jid, room2JidWithNick);
+        enterRoom(OCCUPANT1_JID, ROOM2_JID_WITH_NICK);
 
-        room = conference.findRoom(room2Jid);
+        room = conference.findRoom(ROOM2_JID);
         assertNotNull(room);
         assertEquals(1, room.getOccupants().size());
         Occupant occupant = room.getOccupants().iterator().next();
         
-        assertEquals(occupant1Jid, occupant.getJid());
+        assertEquals(OCCUPANT1_JID, occupant.getJid());
         assertEquals("nick", occupant.getName());
     }
     
     public void testEnterWithoutNick() throws Exception {
         // try entering without a nick
-        PresenceStanza response = (PresenceStanza) enterRoom(occupant1Jid, room1Jid);
+        PresenceStanza response = (PresenceStanza) enterRoom(OCCUPANT1_JID, ROOM1_JID);
 
-        assertPresenceErrorStanza(response, room1Jid, occupant1Jid, "modify", "jid-malformed");
+        assertPresenceErrorStanza(response, ROOM1_JID, OCCUPANT1_JID, "modify", "jid-malformed");
     }
     
     public void testEnterWithPassword() throws Exception {
-        Room room = conference.createRoom(room2Jid, "Room 1", RoomType.PasswordProtected);
+        Room room = conference.createRoom(ROOM2_JID, "Room 1", RoomType.PasswordProtected);
         room.setPassword("secret");
 
         // no error should be returned
-        assertNull(enterRoom(occupant1Jid, room2JidWithNick, "secret"));
+        assertNull(enterRoom(OCCUPANT1_JID, ROOM2_JID_WITH_NICK, "secret"));
         assertEquals(1, room.getOccupants().size());
     }
     
     public void testEnterWithoutPassword() throws Exception {
-        Room room = conference.createRoom(room2Jid, "Room 1", RoomType.PasswordProtected);
+        Room room = conference.createRoom(ROOM2_JID, "Room 1", RoomType.PasswordProtected);
         room.setPassword("secret");
 
         // try entering without a password
-        PresenceStanza response = (PresenceStanza) enterRoom(occupant1Jid, room2JidWithNick);
+        PresenceStanza response = (PresenceStanza) enterRoom(OCCUPANT1_JID, ROOM2_JID_WITH_NICK);
         
-        assertPresenceErrorStanza(response, room2Jid, occupant1Jid, "auth", "not-authorized");
+        assertPresenceErrorStanza(response, ROOM2_JID, OCCUPANT1_JID, "auth", "not-authorized");
     }
 
     private void assertPresenceErrorStanza(PresenceStanza response, Entity from, Entity to,
@@ -123,25 +123,25 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestC
 
 
         // add one occupant to the room
-        Room room = conference.findOrCreateRoom(room1Jid, "Room 1");
-        room.addOccupant(occupant1Jid, "Some nick");
+        Room room = conference.findOrCreateRoom(ROOM1_JID, "Room 1");
+        room.addOccupant(OCCUPANT2_JID, "Some nick");
         
-        // now, let user 2 enter room
-        enterRoom(occupant2Jid, room1JidWithNick);
+        // now, let user 1 enter room
+        enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK);
 
         // verify stanzas to existing occupants on the new user
-        Stanza user2JoinedStanza = occupant1Queue.getNext();
+        Stanza user1JoinedStanza = occupant2Queue.getNext();
         // should be from room + nick name
-        assertEquals(room1Jid.getFullQualifiedName() + "/nick", user2JoinedStanza.getFrom().getFullQualifiedName());
+        assertEquals(ROOM1_JID.getFullQualifiedName() + "/nick", user1JoinedStanza.getFrom().getFullQualifiedName());
         // should be to the existing user
-        assertEquals(occupant1Jid, user2JoinedStanza.getTo());
+        assertEquals(OCCUPANT2_JID, user1JoinedStanza.getTo());
         
-        XMLElement xElement = user2JoinedStanza.getSingleInnerElementsNamed("x");
+        XMLElement xElement = user1JoinedStanza.getSingleInnerElementsNamed("x");
         assertEquals(NamespaceURIs.XEP0045_MUC_USER, xElement.getNamespaceURI());
         
         // since this room is non-anonymous, x must contain an item element with the users full JID
         XMLElement itemElement = xElement.getSingleInnerElementsNamed("item");
-        assertEquals(occupant2Jid.getFullQualifiedName(), itemElement.getAttributeValue("jid"));
+        assertEquals(OCCUPANT1_JID.getFullQualifiedName(), itemElement.getAttributeValue("jid"));
         assertEquals("none", itemElement.getAttributeValue("affiliation"));
         assertEquals("participant", itemElement.getAttributeValue("role"));
 
@@ -149,16 +149,16 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestC
         // verify stanzas to the new user on all existing users, including himself with status=110 element
         // own presence must be sent last
         // assert the stanza from the already existing user
-        Stanza stanza = occupant2Queue.getNext();
+        Stanza stanza = occupant1Queue.getNext();
         assertNotNull(stanza);
-        assertEquals(room1Jid.getFullQualifiedName() + "/Some nick", stanza.getFrom().getFullQualifiedName());
-        assertEquals(occupant2Jid, stanza.getTo());
+        assertEquals(ROOM1_JID.getFullQualifiedName() + "/Some nick", stanza.getFrom().getFullQualifiedName());
+        assertEquals(OCCUPANT1_JID, stanza.getTo());
 
         // assert stanza from the joining user, must have extra status=110 element        
-        stanza = occupant2Queue.getNext();
+        stanza = occupant1Queue.getNext();
         assertNotNull(stanza);
-        assertEquals(room1JidWithNick, stanza.getFrom());
-        assertEquals(occupant2Jid, stanza.getTo());
+        assertEquals(ROOM1_JID_WITH_NICK, stanza.getFrom());
+        assertEquals(OCCUPANT1_JID, stanza.getTo());
         List<XMLElement> statusElements = stanza.getFirstInnerElement().getInnerElementsNamed("status");
         assertEquals(2, statusElements.size());
         assertEquals("100", statusElements.get(0).getAttributeValue("code"));

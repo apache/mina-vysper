@@ -42,78 +42,78 @@ public class MUCPresenceHandlerExitRoomTestCase extends AbstractMUCHandlerTestCa
     }
     
     public void testExitRoom() throws Exception {
-        Room room = conference.findRoom(room1Jid);
-        room.addOccupant(occupant1Jid, "Nick1");
-        room.addOccupant(occupant2Jid, "Nick2");
+        Room room = conference.findRoom(ROOM1_JID);
+        room.addOccupant(OCCUPANT1_JID, "Nick1");
+        room.addOccupant(OCCUPANT2_JID, "Nick2");
 
-        assertNull(exitRoom(occupant1Jid, room1JidWithNick));
+        assertNull(exitRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK));
 
         assertEquals(1, room.getOccupants().size());
         Occupant occupant = room.getOccupants().iterator().next();
         
-        assertEquals(occupant2Jid, occupant.getJid());
+        assertEquals(OCCUPANT2_JID, occupant.getJid());
     }
 
     public void testExitNonexistingRoom() throws Exception {
         // Quietly ignore
-        assertNull(exitRoom(occupant1Jid, room2JidWithNick));
+        assertNull(exitRoom(OCCUPANT1_JID, ROOM2_JID_WITH_NICK));
     }
 
     public void testExitRoomWithoutEntering() throws Exception {
         // Exit a room where the user is not a participant, quietly ignore
-        assertNull(exitRoom(occupant1Jid, room1JidWithNick));
+        assertNull(exitRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK));
     }
 
     public void testTemporaryRoomDeleted() throws Exception {
         // Room1 is temporary
-        Room room = conference.findRoom(room1Jid);
+        Room room = conference.findRoom(ROOM1_JID);
         assertTrue(room.isRoomType(RoomType.Temporary));
-        room.addOccupant(occupant1Jid, "Nick1");
+        room.addOccupant(OCCUPANT1_JID, "Nick1");
 
         // exit room, room should be deleted
-        assertNull(exitRoom(occupant1Jid, room1JidWithNick));
-        assertNull(conference.findRoom(room1Jid));
+        assertNull(exitRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK));
+        assertNull(conference.findRoom(ROOM1_JID));
     }
     
 
     public void testPersistentRoomNotDeleted() throws Exception {
         // Room2 is persistent
-        Room room = conference.createRoom(room2Jid, "Room 2", RoomType.Persistent);
-        room.addOccupant(occupant1Jid, "Nick1");
+        Room room = conference.createRoom(ROOM2_JID, "Room 2", RoomType.Persistent);
+        room.addOccupant(OCCUPANT1_JID, "Nick1");
 
         // exit room, room should be deleted
-        assertNull(exitRoom(occupant1Jid, room1JidWithNick));
-        assertNotNull(conference.findRoom(room1Jid));
+        assertNull(exitRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK));
+        assertNotNull(conference.findRoom(ROOM1_JID));
     }
     
     public void testExitRoomWithRelays() throws Exception {
         // add occupants to the room
-        Room room = conference.findOrCreateRoom(room1Jid, "Room 1");
-        room.addOccupant(occupant1Jid, "Nick 1");
-        room.addOccupant(occupant2Jid, "Nick 2");
+        Room room = conference.findOrCreateRoom(ROOM1_JID, "Room 1");
+        room.addOccupant(OCCUPANT1_JID, "Nick 1");
+        room.addOccupant(OCCUPANT2_JID, "Nick 2");
         
-        // now, let user 2 exit room
-        exitRoom(occupant2Jid, room1JidWithNick);
+        // now, let user 1 exit room
+        exitRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK);
 
         // verify stanzas to existing occupants on the exiting user
-        assertExitPresenceStanza(room1Jid, "Nick 2", occupant1Jid, occupant1Queue.getNext(), null, false);
-        assertExitPresenceStanza(room1Jid, "Nick 2", occupant2Jid, occupant2Queue.getNext(), null, true);
+        assertExitPresenceStanza(ROOM1_JID, "Nick 1", OCCUPANT1_JID, occupant1Queue.getNext(), null, true);
+        assertExitPresenceStanza(ROOM1_JID, "Nick 1", OCCUPANT2_JID, occupant2Queue.getNext(), null, false);
     }
     
     public void testExitRoomWithRelaysWithStatus() throws Exception {
         String statusMessage = "Custom status";
         
         // add occupants to the room
-        Room room = conference.findOrCreateRoom(room1Jid, "Room 1");
-        room.addOccupant(occupant1Jid, "Nick 1");
-        room.addOccupant(occupant2Jid, "Nick 2");
+        Room room = conference.findOrCreateRoom(ROOM1_JID, "Room 1");
+        room.addOccupant(OCCUPANT1_JID, "Nick 1");
+        room.addOccupant(OCCUPANT2_JID, "Nick 2");
         
-        // now, let user 2 exit room
-        exitRoom(occupant2Jid, room1JidWithNick, statusMessage);
+        // now, let user 1 exit room
+        exitRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK, statusMessage);
 
         // verify stanzas to existing occupants on the exiting user
-        assertExitPresenceStanza(room1Jid, "Nick 2", occupant1Jid, occupant1Queue.getNext(), statusMessage, false);
-        assertExitPresenceStanza(room1Jid, "Nick 2", occupant2Jid, occupant2Queue.getNext(), statusMessage, true);
+        assertExitPresenceStanza(ROOM1_JID, "Nick 1", OCCUPANT1_JID, occupant1Queue.getNext(), statusMessage, true);
+        assertExitPresenceStanza(ROOM1_JID, "Nick 1", OCCUPANT2_JID, occupant2Queue.getNext(), statusMessage, false);
     }
 
     private void assertExitPresenceStanza(Entity roomJid, String nick, Entity to, Stanza stanza, String expectedStatus, boolean own) throws XMLSemanticError {

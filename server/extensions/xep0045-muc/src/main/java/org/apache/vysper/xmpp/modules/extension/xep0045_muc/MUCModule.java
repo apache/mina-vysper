@@ -152,7 +152,7 @@ public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequ
         
         SubdomainHandlerDictionary dictionary = new SubdomainHandlerDictionary(domain);
         dictionary.register(new MUCPresenceHandler(conference));
-        dictionary.register(new MUCMessageHandler(conference));
+        dictionary.register(new MUCMessageHandler(conference, domain));
         
         dictionaries.add(dictionary);
     }
