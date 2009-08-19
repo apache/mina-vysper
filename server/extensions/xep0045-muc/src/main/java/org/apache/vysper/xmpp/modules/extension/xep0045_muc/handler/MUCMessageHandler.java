@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -40,6 +41,7 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.MessageStanzaType;
 import org.apache.vysper.xmpp.xmlfragment.Attribute;
+import org.apache.vysper.xmpp.xmlfragment.Renderer;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 import org.slf4j.Logger;
@@ -67,21 +69,6 @@ public class MUCMessageHandler extends DefaultMessageHandler {
     @Override
     protected boolean verifyNamespace(Stanza stanza) {
         return MUCHandlerHelper.verifyNamespace(stanza);
-    }
-    
-    private Stanza copyMessageStanza(Entity from, Entity to, Stanza original) {
-        StanzaBuilder builder = new StanzaBuilder("message");
-        builder.addAttribute("from", from.getFullQualifiedName());
-        builder.addAttribute("to", to.getFullQualifiedName());
-        if(original.getAttribute("type") != null) {
-            builder.addAttribute("type", original.getAttributeValue("type"));
-        }
-        
-        for(XMLElement innerElement : original.getInnerElements()) {
-            builder.addPreparedElement(innerElement);
-        }
-        
-        return builder.getFinalStanza();
     }
     
     private Stanza createMessageErrorStanza(Entity from, Entity to, String id, String type, String errorName, Stanza stanza) {
@@ -118,8 +105,12 @@ public class MUCMessageHandler extends DefaultMessageHandler {
                         logger.debug("Relaying message to all room occupants");
                         for(Occupant occupent : room.getOccupants()) {
                             logger.debug("Relaying message to  {}", occupent);
+                            List<Attribute> replaceAttributes = new ArrayList<Attribute>();
+                            replaceAttributes.add(new Attribute("from", roomAndSendingNick.getFullQualifiedName()));
+                            replaceAttributes.add(new Attribute("to", occupent.getJid().getFullQualifiedName()));
+                            
                             relayStanza(occupent.getJid(), 
-                                    copyMessageStanza(roomAndSendingNick, occupent.getJid(), stanza), 
+                                    StanzaBuilder.createClone(stanza, true, replaceAttributes).getFinalStanza(),
                                     sessionContext);
                         }
                     } else {
