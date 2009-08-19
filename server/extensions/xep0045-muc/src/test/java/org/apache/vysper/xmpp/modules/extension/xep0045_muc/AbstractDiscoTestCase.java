@@ -55,6 +55,8 @@ public abstract class AbstractDiscoTestCase extends TestCase {
     
     protected abstract IQHandler createDiscoIQHandler();
     
+    protected abstract Entity getTo();
+    
     public void testDisco() throws Exception {
         ServiceCollector serviceCollector = new ServiceCollector();
         addListener(serviceCollector);

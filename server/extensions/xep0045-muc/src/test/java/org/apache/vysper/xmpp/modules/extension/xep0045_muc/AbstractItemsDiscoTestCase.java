@@ -71,7 +71,7 @@ public abstract class AbstractItemsDiscoTestCase extends AbstractDiscoTestCase {
     
     @Override
     protected StanzaBuilder buildRequest() {
-        StanzaBuilder request = StanzaBuilder.createIQStanza(USER_JID, SERVER_JID, IQStanzaType.GET, "1");
+        StanzaBuilder request = StanzaBuilder.createIQStanza(USER_JID, getTo(), IQStanzaType.GET, "1");
         request.startInnerElement("query", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_ITEMS).endInnerElement();
         return request;
     }

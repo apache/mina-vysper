@@ -56,8 +56,6 @@ public abstract class AbstractInfoDiscoTestCase extends AbstractDiscoTestCase {
     }
 
     
-    protected abstract Entity getTo();
-    
     /**
      * Default, expect no identity
      */

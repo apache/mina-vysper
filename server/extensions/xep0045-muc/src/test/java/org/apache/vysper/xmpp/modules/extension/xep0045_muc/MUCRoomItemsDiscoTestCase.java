@@ -25,37 +25,46 @@ import java.util.List;
 import org.apache.vysper.TestUtil;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
 
 /**
  * 
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class MUCItemsDiscoTestCase extends AbstractItemsDiscoTestCase {
+public class MUCRoomItemsDiscoTestCase extends AbstractItemsDiscoTestCase {
     
-    private static final Entity ROOM1_JID = TestUtil.parseUnchecked("jid1@vysper.org");
-    private static final Entity ROME2_JID = TestUtil.parseUnchecked("jid2@vysper.org");
+    private static final Entity ROOM_JID = TestUtil.parseUnchecked("jid1@vysper.org");
+    
+    private static final Entity USER1_JID = TestUtil.parseUnchecked("user1@vysper.org");
+    private static final Entity USER2_JID = TestUtil.parseUnchecked("user2@vysper.org");
+
+    private static final Entity OCCUPANT1_JID = new EntityImpl(ROOM_JID, "Nick 1");
+    private static final Entity OCCUPANT2_JID = new EntityImpl(ROOM_JID, "Nick 2");
+
     
     @Override
     protected Module getModule() {
         Conference conference = new Conference("Foo");
-        conference.createRoom(ROOM1_JID, "room1");
-        conference.createRoom(ROME2_JID, "room2");
+        Room room = conference.createRoom(ROOM_JID, "room1");
+        room.addOccupant(USER1_JID, "Nick 1");
+        room.addOccupant(USER2_JID, "Nick 2");
         return new MUCModule(MODULE_JID, conference);
     }
 
     @Override
     protected List<Item> getExpectedItems() throws EntityFormatException {
         return Arrays.asList(
-                new Item(ROOM1_JID, "room1"),
-                new Item(ROME2_JID, "room2")
+                new Item(OCCUPANT1_JID),
+                new Item(OCCUPANT2_JID)
         );
     }
 
     @Override
     protected Entity getTo() {
-        return SERVER_JID;
+        return ROOM_JID;
     }
 }

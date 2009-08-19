@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Identity;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
@@ -165,8 +166,18 @@ public class Room implements InfoRequestListener, ItemRequestListener {
 
     public List<Item> getItemsFor(InfoRequest request)
             throws ServiceDiscoveryRequestException {
-        // TODO Auto-generated method stub
-        return null;
+        // List of users
+        List<Item> items = new ArrayList<Item>();
+        
+        // TODO is this the right way to determine if the room is private?
+        if(isRoomType(RoomType.FullyAnonymous) || isRoomType(RoomType.SemiAnonymous)) {
+            // private room, return empty list
+        } else {
+            for(Occupant occupant : getOccupants()) {
+                items.add(new Item(new EntityImpl(getJID(), occupant.getName())));
+            }
+        } 
+        return items;
     }
 
     public String getPassword() {
