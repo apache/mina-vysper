@@ -120,7 +120,7 @@ public class StanzaBuilder {
             for (Iterator<Attribute> it = replacingAttributesCopy.iterator(); it.hasNext();) {
                 Attribute replacingAttribute = it.next();
                 if (replacingAttribute == null) continue;
-                if (replacingAttribute.equals(originalAttribute)) {
+                if (replacingAttribute.getName().equals(originalAttribute.getName())) {
                     stanzaBuilder.addAttribute(replacingAttribute);
                     it.remove(); // this has been processed
                     wasReplaced = true;
