@@ -184,7 +184,7 @@ public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequ
     
     private void relayDiscoStanza(Entity receiver, InfoRequest request, String ns) {
         // TODO how to get id?
-        StanzaBuilder builder = StanzaBuilder.createIQStanza(request.getFrom(), receiver, IQStanzaType.GET, "1");
+        StanzaBuilder builder = StanzaBuilder.createIQStanza(request.getFrom(), receiver, IQStanzaType.GET, request.getID());
         builder.startInnerElement("query", ns);
         if(request.getNode() != null) {
             builder.addAttribute("node", request.getNode());

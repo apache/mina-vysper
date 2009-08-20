@@ -32,8 +32,6 @@ public abstract class AbstractMUCOccupantDiscoTestCase extends AbstractMUCHandle
         }
     }
     
-    
-    
     @Override
     protected void setUp() throws Exception {
         super.setUp();
@@ -55,7 +53,7 @@ public abstract class AbstractMUCOccupantDiscoTestCase extends AbstractMUCHandle
         room.addOccupant(OCCUPANT1_JID, "nick");
         room.addOccupant(OCCUPANT2_JID, "Nick 2");
 
-        StanzaBuilder request = StanzaBuilder.createIQStanza(OCCUPANT1_JID, new EntityImpl(ROOM1_JID, "Nick 2"), IQStanzaType.GET, "1");
+        StanzaBuilder request = StanzaBuilder.createIQStanza(OCCUPANT1_JID, new EntityImpl(ROOM1_JID, "Nick 2"), IQStanzaType.GET, "123");
         request.startInnerElement("query", getNamespace()).endInnerElement();
 
         // send message to room
@@ -67,6 +65,7 @@ public abstract class AbstractMUCOccupantDiscoTestCase extends AbstractMUCHandle
         assertEquals(OCCUPANT1_JID, stanza.getFrom());
         assertEquals(OCCUPANT2_JID, stanza.getTo());
         assertEquals("get", stanza.getAttributeValue("type"));
+        assertEquals("123", stanza.getAttributeValue("id"));
         XMLElement query = stanza.getFirstInnerElement();
         assertNotNull(query);
         assertEquals(getNamespace(), query.getNamespaceURI());
