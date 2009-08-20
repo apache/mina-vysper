@@ -30,11 +30,13 @@ public class InfoRequest {
     private Entity from;
     private Entity to;
     private String node = null;
+    private String id;
 
-    public InfoRequest(Entity from, Entity to, String node) {
+    public InfoRequest(Entity from, Entity to, String node, String id) {
         this.from = from;
         this.to = to;
         this.node = node;
+        this.id = id;
     }
 
     public Entity getFrom() {
@@ -47,5 +49,12 @@ public class InfoRequest {
 
     public String getNode() {
         return node;
+    }
+    
+    /**
+     * The ID of the original request
+     */
+    public String getID() {
+        return id;
     }
 }

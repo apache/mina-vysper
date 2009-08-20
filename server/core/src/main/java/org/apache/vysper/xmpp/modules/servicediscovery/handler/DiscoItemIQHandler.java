@@ -103,7 +103,7 @@ public class DiscoItemIQHandler extends DefaultIQHandler {
         // collect all the item response elements
         List<Item> items = null;
         try {
-            items = serviceCollector.processItemRequest(new InfoRequest(stanza.getFrom(), stanza.getTo(), node));
+            items = serviceCollector.processItemRequest(new InfoRequest(stanza.getFrom(), stanza.getTo(), node, stanza.getID()));
         } catch (ServiceDiscoveryRequestException e) {
             // the request yields an error
             StanzaErrorCondition stanzaErrorCondition = e.getErrorCondition();

@@ -114,9 +114,9 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
         List<InfoElement> elements = null;
         try {
             if (isServerInfoRequest) {
-                elements = serviceCollector.processServerInfoRequest(new InfoRequest(stanza.getFrom(), to, node));
+                elements = serviceCollector.processServerInfoRequest(new InfoRequest(stanza.getFrom(), to, node, stanza.getID()));
             } else {
-                elements = serviceCollector.processInfoRequest(new InfoRequest(stanza.getFrom(), to, node));
+                elements = serviceCollector.processInfoRequest(new InfoRequest(stanza.getFrom(), to, node, stanza.getID()));
             }
         } catch (ServiceDiscoveryRequestException e) {
             // the request yields an error
