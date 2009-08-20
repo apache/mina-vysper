@@ -19,15 +19,19 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.delivery.DeliveryException;
+import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler.MUCMessageHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler.MUCPresenceHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.storage.OccupantStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.storage.RoomStorageProvider;
@@ -39,8 +43,12 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestLis
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.SubdomainHandlerDictionary;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.stanza.IQStanzaType;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.xmlfragment.Attribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +63,7 @@ public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequ
     private Entity domain;
     
     private final Logger logger = LoggerFactory.getLogger(MUCModule.class);
+    private ServerRuntimeContext serverRuntimeContext;
     
     public MUCModule(Entity domain) {
         this(domain, new Conference("Conference"));
@@ -79,10 +88,11 @@ public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequ
     @Override
     public void initialize(ServerRuntimeContext serverRuntimeContext) {
         super.initialize(serverRuntimeContext);
-
+        
+        this.serverRuntimeContext = serverRuntimeContext;
         RoomStorageProvider roomStorageProvider = (RoomStorageProvider) serverRuntimeContext.getStorageProvider(RoomStorageProvider.class);
         OccupantStorageProvider occupantStorageProvider = (OccupantStorageProvider) serverRuntimeContext.getStorageProvider(OccupantStorageProvider.class);
-        
+
         if (roomStorageProvider == null) {
             logger.warn("No room storage provider found, using the default (in memory)");
         } else {
@@ -132,18 +142,25 @@ public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequ
      * @see ItemRequestListener#getItemsFor(InfoRequest)
      */
     public List<Item> getItemsFor(InfoRequest request) throws ServiceDiscoveryRequestException {
-        if(request.getTo().getNode() == null) {
+        Entity to = request.getTo();
+        if(to.getNode() == null) {
             // items request on the component
             return conference.getItemsFor(request);
         } else {
             // might be an items request on a room
-            Room room = conference.findRoom(request.getTo());
+            Room room = conference.findRoom(to.getBareJID());
             if(room != null) {
-                return room.getItemsFor(request);
-            } else {
-                return null;
+                if(to.getResource() != null) {
+                    // request for an occupant
+                    Occupant occupant = room.findOccupantByNick(to.getResource());
+                    // request for occupant, relay
+                    if(occupant != null) relayDiscoStanza(occupant.getJid(), request, NamespaceURIs.XEP0030_SERVICE_DISCOVERY_ITEMS);
+                } else {
+                    return room.getItemsFor(request);
+                }
             }
         }
+        return null;
     }
     
     @Override
@@ -165,13 +182,39 @@ public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequ
         infoRequestListeners.add(this);
     }
     
+    private void relayDiscoStanza(Entity receiver, InfoRequest request, String ns) {
+        // TODO how to get id?
+        StanzaBuilder builder = StanzaBuilder.createIQStanza(request.getFrom(), receiver, IQStanzaType.GET, "1");
+        builder.startInnerElement("query", ns);
+        if(request.getNode() != null) {
+            builder.addAttribute("node", request.getNode());
+        }
+
+        try {
+            serverRuntimeContext.getStanzaRelay().relay(receiver, builder.getFinalStanza(), new IgnoreFailureStrategy());
+        } catch (DeliveryException e) {
+            // ignore
+        }
+        
+    }
+    
     public List<InfoElement> getInfosFor(InfoRequest request)
             throws ServiceDiscoveryRequestException {
-        Room room = conference.findRoom(request.getTo());
-        if(room != null) {
-            return room.getInfosFor(request);
-        } else {
-            return null;
+        Entity to = request.getTo();
+        
+        if(to.getNode() != null) {
+            Room room = conference.findRoom(to.getBareJID());
+            if(room != null) {
+                if(to.getResource() != null) {
+                    Occupant occupant = room.findOccupantByNick(to.getResource());
+                    // request for occupant, relay
+                    if(occupant != null) relayDiscoStanza(occupant.getJid(), request, NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO);
+                } else {
+                // request for room
+                    return room.getInfosFor(request);
+                }
+            }
         }
+        return null;
     }
 }
