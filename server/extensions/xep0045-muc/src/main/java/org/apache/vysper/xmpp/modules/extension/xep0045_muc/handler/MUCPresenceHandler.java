@@ -99,68 +99,91 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         String type = stanza.getType();
         
         if(type == null) {
-            return enterRoom(stanza, roomJid, occupantJid, nick, sessionContext);
+            return available(stanza, roomJid, occupantJid, nick, sessionContext);
         } else if(type.equals("unavailable")) {
-            return exitRoom(stanza, roomJid, occupantJid, nick, sessionContext);
+            return unavailable(stanza, roomJid, occupantJid, nick, sessionContext);
         } else {
             throw new RuntimeException("Presence type not handled by MUC module: " + type);
         }
         
     }
 
-    private Stanza enterRoom(PresenceStanza stanza, Entity roomJid,
+    private Stanza available(PresenceStanza stanza, Entity roomJid,
             Entity newOccupantJid, String nick, SessionContext sessionContext) {
-        logger.debug("{} has requested to enter room {}", newOccupantJid, roomJid);
         
         // TODO what to use for the room name?
         Room room = conference.findOrCreateRoom(roomJid, roomJid.getNode());
         
         if(room.isInRoom(nick)) {
-            // user is already in room
+            // user with this nick is already in room
             return createPresenceErrorStanza(roomJid, newOccupantJid, stanza.getID(), "cancel", "conflict");
         }
         
-        // check password if password protected
-        if(room.isRoomType(RoomType.PasswordProtected)) {
-            // TODO room constructor for password
-            
-            String password = null;
-            try {
-                XMLElement xElement = stanza.getSingleInnerElementsNamed("x");
-                if(xElement != null) {
-                    XMLElement passwordElement = xElement.getSingleInnerElementsNamed("password");
-                    if(passwordElement != null) {
-                        password = passwordElement.getInnerText().getText();
-                    }
-                }
-            } catch (XMLSemanticError e) {
-                password = null;
-            }
-            
-            if(password == null || !password.equals(room.getPassword())) {
-                // password missing or not matching
-                return createPresenceErrorStanza(roomJid, newOccupantJid, stanza.getID(), "auth", "not-authorized");
-            }
-        }
-        
-        Occupant newOccupant = room.addOccupant(newOccupantJid, nick);
-        
-        // relay presence of all existing room occupants to the now joined occupant
-        for(Occupant occupant : room.getOccupants()) {
-            sendExistingOccupantToNewOccupant(newOccupant, occupant, room, sessionContext);
-        }
-        
-        // relay presence of the newly added occupant to all existing occupants
-        for(Occupant occupant : room.getOccupants()) {
-            sendNewOccupantPresenceToExisting(newOccupant, occupant, room, sessionContext);
-        }
-        
-        logger.debug("{} successfully entered room {}", newOccupantJid, roomJid);
+        if(room.isInRoom(newOccupantJid)) {
+            // user is already in room, change nick
+            logger.debug("{} has requested to change nick in room {}", newOccupantJid, roomJid);
 
+            // occupant is already in room
+            Occupant occupant = room.findOccupantByJID(newOccupantJid);
+            if(nick.equals(occupant.getName())) {
+                // TODO nick unchanged, should we do anything here? 
+            } else {
+                String oldNick = occupant.getName();
+                // update the nick
+                occupant.setName(nick);
+                
+                // send out unavailable presences to all existing occupants
+                for(Occupant receiver : room.getOccupants()) {
+                    sendChangeNickUnavailable(occupant, oldNick, receiver, room, sessionContext);
+                }
+                
+                // send out available presences to all existing occupants
+                for(Occupant receiver : room.getOccupants()) {
+                    sendChangeNickAvailable(occupant, receiver, room, sessionContext);
+                }
+
+            }
+        } else {
+            logger.debug("{} has requested to enter room {}", newOccupantJid, roomJid);
+            // check password if password protected
+            if(room.isRoomType(RoomType.PasswordProtected)) {
+                String password = null;
+                try {
+                    XMLElement xElement = stanza.getSingleInnerElementsNamed("x");
+                    if(xElement != null) {
+                        XMLElement passwordElement = xElement.getSingleInnerElementsNamed("password");
+                        if(passwordElement != null) {
+                            password = passwordElement.getInnerText().getText();
+                        }
+                    }
+                } catch (XMLSemanticError e) {
+                    password = null;
+                }
+                
+                if(password == null || !password.equals(room.getPassword())) {
+                    // password missing or not matching
+                    return createPresenceErrorStanza(roomJid, newOccupantJid, stanza.getID(), "auth", "not-authorized");
+                }
+            }
+            
+            Occupant newOccupant = room.addOccupant(newOccupantJid, nick);
+            
+            // relay presence of all existing room occupants to the now joined occupant
+            for(Occupant occupant : room.getOccupants()) {
+                sendExistingOccupantToNewOccupant(newOccupant, occupant, room, sessionContext);
+            }
+            
+            // relay presence of the newly added occupant to all existing occupants
+            for(Occupant occupant : room.getOccupants()) {
+                sendNewOccupantPresenceToExisting(newOccupant, occupant, room, sessionContext);
+            }
+            
+            logger.debug("{} successfully entered room {}", newOccupantJid, roomJid);
+        }
         return null;
-    }
+    }   
     
-    private Stanza exitRoom(PresenceStanza stanza, Entity roomJid,
+    private Stanza unavailable(PresenceStanza stanza, Entity roomJid,
             Entity occupantJid, String nick, SessionContext sessionContext) {
         Room room = conference.findRoom(roomJid);
         
@@ -230,19 +253,11 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         
         StanzaBuilder builder = StanzaBuilder.createPresenceStanza(roomAndNewUserNick, existingOccupant.getJid(), null, null, null, null);
         builder.startInnerElement("x", NamespaceURIs.XEP0045_MUC_USER);
-        builder.startInnerElement("item")
-            .addAttribute("affiliation", newOccupant.getAffiliation().toString())
-            .addAttribute("role", newOccupant.getRole().toString());
         
-        // section 7.1.5
-        if(room.getRoomTypes().contains(RoomType.NonAnonymous) ||
-                (room.getRoomTypes().contains(RoomType.SemiAnonymous) && existingOccupant.getRole() == Role.Moderator)) {
-            // room is non-anonymous or semi-anonmoys and the occupant a moderator, send full user JID
-            builder.addAttribute("jid", newOccupant.getJid().getFullQualifiedName());
-            // TODO unit test for semi + moderator
-        }
-            
-        builder.endInnerElement();
+        // room is non-anonymous or semi-anonmoys and the occupant a moderator, send full user JID
+        boolean includeJid = room.getRoomTypes().contains(RoomType.NonAnonymous) ||
+            (room.getRoomTypes().contains(RoomType.SemiAnonymous) && existingOccupant.getRole() == Role.Moderator); 
+        new MUCUserItem(newOccupant).insertElement(builder, includeJid, false);
         
         if(existingOccupant.getJid().equals(newOccupant.getJid())) {
             
@@ -259,6 +274,53 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         logger.debug("Room presence from {} sent to {}", roomAndNewUserNick, existingOccupant);
         relayStanza(existingOccupant.getJid(), builder.getFinalStanza(), sessionContext);
     }
+
+    private void sendChangeNickUnavailable(Occupant changer, String oldNick, Occupant receiver, Room room, SessionContext sessionContext) {
+        Entity roomAndOldNick = new EntityImpl(room.getJID(), oldNick);
+        
+        StanzaBuilder builder = StanzaBuilder.createPresenceStanza(roomAndOldNick, receiver.getJid(), null, 
+                PresenceStanzaType.UNAVAILABLE, null, null);
+        builder.startInnerElement("x", NamespaceURIs.XEP0045_MUC_USER);
+        
+        
+        boolean includeJid = includeJidInItem(room, receiver); 
+        new MUCUserItem(changer).insertElement(builder, includeJid, true);
+        
+        builder.startInnerElement("status").addAttribute("code", "330").endInnerElement();
+        if(receiver.getJid().equals(changer.getJid())) {
+            // send status to indicate that this is the users own presence
+            builder.startInnerElement("status").addAttribute("code", "110").endInnerElement();
+        }
+        builder.endInnerElement();
+
+        logger.debug("Room presence from {} sent to {}", roomAndOldNick, receiver);
+        relayStanza(receiver.getJid(), builder.getFinalStanza(), sessionContext);
+    }
+
+    
+    private boolean includeJidInItem(Room room, Occupant receiver) {
+     // room is non-anonymous or semi-anonmoys and the occupant a moderator, send full user JID
+        return room.getRoomTypes().contains(RoomType.NonAnonymous) ||
+            (room.getRoomTypes().contains(RoomType.SemiAnonymous) && receiver.getRole() == Role.Moderator);
+    }
+    private void sendChangeNickAvailable(Occupant changer, Occupant receiver, Room room, SessionContext sessionContext) {
+        Entity roomAndOldNick = new EntityImpl(room.getJID(), changer.getName());
+        
+        StanzaBuilder builder = StanzaBuilder.createPresenceStanza(roomAndOldNick, receiver.getJid(), null, null, null, null);
+        builder.startInnerElement("x", NamespaceURIs.XEP0045_MUC_USER);
+        
+        boolean includeJid = includeJidInItem(room, receiver);  
+        new MUCUserItem(changer).insertElement(builder, includeJid, false);
+        
+        if(receiver.getJid().equals(changer.getJid())) {
+            // send status to indicate that this is the users own presence
+            builder.startInnerElement("status").addAttribute("code", "110").endInnerElement();
+        }
+        builder.endInnerElement();
+
+        relayStanza(receiver.getJid(), builder.getFinalStanza(), sessionContext);
+    }
+
     
     private void sendExitRoomPresenceToExisting(Occupant exitingOccupant, Occupant existingOccupant, Room room, 
             String statusMessage, SessionContext sessionContext) {
