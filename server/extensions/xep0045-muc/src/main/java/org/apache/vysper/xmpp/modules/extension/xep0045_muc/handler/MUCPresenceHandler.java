@@ -29,6 +29,7 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultPresenceHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler.Status.StatusCode;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
@@ -263,11 +264,11 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
             
             if(room.getRoomTypes().contains(RoomType.NonAnonymous)) {
                 // notify the user that this is a non-anonymous room
-                builder.startInnerElement("status").addAttribute("code", "100").endInnerElement();
+                new Status(StatusCode.ROOM_NON_ANONYMOUS).insertElement(builder);
             }
             
             // send status to indicate that this is the users own presence
-            builder.startInnerElement("status").addAttribute("code", "110").endInnerElement();
+            new Status(StatusCode.OWN_PRESENCE).insertElement(builder);
         }
         builder.endInnerElement();
 
@@ -285,11 +286,11 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         
         boolean includeJid = includeJidInItem(room, receiver); 
         new MUCUserItem(changer).insertElement(builder, includeJid, true);
+        new Status(StatusCode.NEW_NICK).insertElement(builder);
         
-        builder.startInnerElement("status").addAttribute("code", "330").endInnerElement();
         if(receiver.getJid().equals(changer.getJid())) {
             // send status to indicate that this is the users own presence
-            builder.startInnerElement("status").addAttribute("code", "110").endInnerElement();
+            new Status(StatusCode.OWN_PRESENCE).insertElement(builder);
         }
         builder.endInnerElement();
 
@@ -314,7 +315,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         
         if(receiver.getJid().equals(changer.getJid())) {
             // send status to indicate that this is the users own presence
-            builder.startInnerElement("status").addAttribute("code", "110").endInnerElement();
+            new Status(StatusCode.OWN_PRESENCE).insertElement(builder);
         }
         builder.endInnerElement();
 
@@ -340,17 +341,15 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         boolean ownStanza = existingOccupant.getJid().equals(exitingOccupant.getJid()); 
         
         if(ownStanza || statusMessage != null) {
-            builder.startInnerElement("status");
-            
+
+            Status status;
             if(ownStanza) {
                 // send status to indicate that this is the users own presence
-                builder.addAttribute("code", "110");
+                status = new Status(StatusCode.OWN_PRESENCE, statusMessage);
+            } else {
+                status = new Status(statusMessage);
             }
-            if(statusMessage != null) {
-                builder.addText(statusMessage);
-            }
-            
-            builder.endInnerElement();
+            status.insertElement(builder);
         }
         builder.endInnerElement();
 

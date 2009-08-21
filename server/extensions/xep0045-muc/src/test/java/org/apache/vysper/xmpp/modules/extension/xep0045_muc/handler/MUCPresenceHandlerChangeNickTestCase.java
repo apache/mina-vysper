@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler.Status.StatusCode;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Affiliation;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
@@ -54,13 +55,13 @@ public class MUCPresenceHandlerChangeNickTestCase extends AbstractMUCHandlerTest
 
         MUCUserItem unavailbleItem = new MUCUserItem(OCCUPANT1_JID, "new nick", Affiliation.None, Role.Participant);
         assertPresenceStanza(occupant1Queue.getNext(), new EntityImpl(ROOM1_JID, "nick"), OCCUPANT1_JID, "unavailable", 
-                Arrays.asList(unavailbleItem), Arrays.asList(330, 110));
+                Arrays.asList(unavailbleItem), Arrays.asList(StatusCode.NEW_NICK, StatusCode.OWN_PRESENCE));
         assertPresenceStanza(occupant2Queue.getNext(), new EntityImpl(ROOM1_JID, "nick"), OCCUPANT2_JID, "unavailable", 
-                Arrays.asList(unavailbleItem), Arrays.asList(330));
+                Arrays.asList(unavailbleItem), Arrays.asList(StatusCode.NEW_NICK));
 
         MUCUserItem availbleItem = new MUCUserItem(OCCUPANT1_JID, null, Affiliation.None, Role.Participant);
         assertPresenceStanza(occupant1Queue.getNext(), new EntityImpl(ROOM1_JID, "new nick"), OCCUPANT1_JID, null, 
-                Arrays.asList(availbleItem), Arrays.asList(110));
+                Arrays.asList(availbleItem), Arrays.asList(StatusCode.OWN_PRESENCE));
         assertPresenceStanza(occupant2Queue.getNext(), new EntityImpl(ROOM1_JID, "new nick"), OCCUPANT2_JID, null, 
                 Arrays.asList(availbleItem), null);
     }
@@ -76,7 +77,7 @@ public class MUCPresenceHandlerChangeNickTestCase extends AbstractMUCHandlerTest
     }
 
     private void assertPresenceStanza(Stanza stanza, Entity expectedFrom, Entity expectedTo, String expectedType,
-            List<MUCUserItem> expectedItems, List<Integer> expectedStatuses) {
+            List<MUCUserItem> expectedItems, List<StatusCode> expectedStatuses) {
 
         assertNotNull(stanza);
         assertEquals(expectedFrom, stanza.getFrom());
@@ -86,14 +87,25 @@ public class MUCPresenceHandlerChangeNickTestCase extends AbstractMUCHandlerTest
         XMLElement xElm = stanza.getFirstInnerElement();
         assertEquals(NamespaceURIs.XEP0045_MUC_USER, xElm.getNamespaceURI());
         
-        Iterator<XMLElement> itemElements = xElm.getInnerElements().iterator();
+        Iterator<XMLElement> innerElements = xElm.getInnerElements().iterator();
         for(MUCUserItem item : expectedItems) {
-            XMLElement itemElm = itemElements.next();
+            XMLElement itemElm = innerElements.next();
             
+            assertEquals("item", itemElm.getName());
             assertEquals(item.getJid().getFullQualifiedName(), itemElm.getAttributeValue("jid"));
             assertEquals(item.getNick(), itemElm.getAttributeValue("nick"));
             assertEquals(item.getAffiliation().toString(), itemElm.getAttributeValue("affiliation"));
             assertEquals(item.getRole().toString(), itemElm.getAttributeValue("role"));
+        }
+        
+        if(expectedStatuses != null) {
+            for(StatusCode status : expectedStatuses) {
+                XMLElement statusElm = innerElements.next();
+    
+                assertEquals("status", statusElm.getName());
+                assertEquals(status.code(), Integer.parseInt(statusElm.getAttributeValue("code")));
+    
+            }
         }
     }
     
