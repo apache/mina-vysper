@@ -19,13 +19,20 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
+import org.apache.vysper.xmpp.addressing.Entity;
+
 /**
- * This class defines which privileges are required for certain tasks.
- * 
+ * This visitor visits all member-affiliations of a given node.
+ *
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-public class PubSubPrivilege {
-    public static final PubSubAffiliation DELETE = PubSubAffiliation.OWNER;
-    public static final PubSubAffiliation PUBLISH = PubSubAffiliation.PUBLISHER;
-    public static final PubSubAffiliation MANAGE_AFFILIATIONS = PubSubAffiliation.OWNER;
+public interface MemberAffiliationVisitor {
+    /**
+     * visit is part of the "visitor pattern" and should be used to iterate
+     * over all member-affiliations of a node.
+     * 
+     * @param jid
+     * @param affiliation
+     */
+    public void visit(Entity jid, PubSubAffiliation affiliation);
 }

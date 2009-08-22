@@ -24,11 +24,7 @@ import java.util.List;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubAffiliation;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubServiceConfiguration;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberPayloadNotificationVisitor;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberVisitor;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.*;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.feature.PubsubFeatures;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeStorageProvider;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
@@ -241,6 +237,15 @@ public class LeafNode {
      */
     public void acceptItems(ItemVisitor iv) {
         storage.acceptForEachItem(name, iv);
+    }
+
+    /**
+     * Visits each member of this node.
+     *
+     * @param mav the visitor
+     */
+    public void acceptMemberAffiliations(MemberAffiliationVisitor mav) {
+        storage.acceptForEachMemberAffiliation(name, mav);
     }
 
     /**

@@ -24,6 +24,7 @@ import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubAffiliation;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberVisitor;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.MemberAffiliationVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
@@ -121,7 +122,8 @@ public interface LeafNodeStorageProvider extends StorageProvider {
 
     /**
      * Visits each item ever published to the node.
-     * 
+     *
+     * @param nodeName
      * @param iv the Visitor.
      */
     public void acceptForEachItem(String nodeName, ItemVisitor iv);
@@ -148,4 +150,8 @@ public interface LeafNodeStorageProvider extends StorageProvider {
      */
     public PubSubAffiliation getAffiliation(String nodeName, Entity entity);
 
+    /**
+     * Visits each member-affiliation of the given node.
+     */
+    void acceptForEachMemberAffiliation(String name, MemberAffiliationVisitor mav);
 }

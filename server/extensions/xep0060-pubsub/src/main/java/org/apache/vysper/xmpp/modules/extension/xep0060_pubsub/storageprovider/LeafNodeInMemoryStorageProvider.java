@@ -27,6 +27,7 @@ import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubAffiliation;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberVisitor;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.MemberAffiliationVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.PayloadItem;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
@@ -195,5 +196,16 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
         PubSubAffiliation psa = this.nodeAffiliations.get(nodeName)
                                                      .get(entity.getBareJID());
         return psa != null ? psa : PubSubAffiliation.NONE; // NONE if there is no affiliation known.
+    }
+
+    /**
+     * Call the visitor with the each member JID and its associated affiliation.
+     */
+    public void acceptForEachMemberAffiliation(String name, MemberAffiliationVisitor mav) {
+        Map<Entity, PubSubAffiliation> affils = this.nodeAffiliations.get(name);
+        for(Entity jid : affils.keySet()) {
+            PubSubAffiliation affil = affils.get(jid);
+            mav.visit(jid, affil);
+        }
     }
 }

@@ -21,42 +21,36 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 
+import java.util.List;
+import java.util.ArrayList;
+
 /**
+ * This visitor visits all member-affiliations of a given node and collects it for later retrieval.
+ *
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-public class AffiliationItem {
-
-    protected String nodeName = null;
-    protected Entity jid = null;
-    protected PubSubAffiliation affiliation = null;
+public class CollectingMemberAffiliationVisitor implements MemberAffiliationVisitor {
+    // the list of user <-> nodeName affiliation
+    protected List<AffiliationItem> affiliations = null;
+    private String nodeName;
 
     /**
-     * Creates a new affiliation item with the supplied values.
+     * Create a new visitor preconfigured with the node name.
+     * @param nodeName
      */
-    public AffiliationItem(String nodeName, Entity jid, PubSubAffiliation affil) {
+    public CollectingMemberAffiliationVisitor(String nodeName) {
         this.nodeName = nodeName;
-        this.jid = jid;
-        this.affiliation = affil;
+        this.affiliations = new ArrayList<AffiliationItem>();
     }
 
     /**
-     * Returns the node of this affiliation.
+     * Returns the collected affiliations.
      */
-    public String getNodeName() {
-        return nodeName;
+    public List<AffiliationItem> getAffiliations() {
+        return affiliations;
     }
 
-    /**
-     * Returns the state of the affiliation.
-     */
-    public PubSubAffiliation getAffiliation() {
-        return affiliation;
-    }
-
-    /**
-     * Returns the JID of the affiliation.
-     */
-    public Entity getJID() {
-        return jid;
+    public void visit(Entity jid, PubSubAffiliation affiliation) {
+        affiliations.add(new AffiliationItem(this.nodeName, jid, affiliation));
     }
 }

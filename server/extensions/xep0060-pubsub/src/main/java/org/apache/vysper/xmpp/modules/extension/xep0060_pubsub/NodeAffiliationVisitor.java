@@ -17,16 +17,13 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
+package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
+
+import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AffiliationItem;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.NodeVisitor;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubAffiliation;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 
 /**
  * @author The Apache MINA Project (http://mina.apache.org)
@@ -52,7 +49,7 @@ public class NodeAffiliationVisitor implements NodeVisitor {
     public void visit(LeafNode ln) {
         PubSubAffiliation affil = ln.getAffiliation(bareJID);
         if(!affil.equals(PubSubAffiliation.NONE)) {
-            AffiliationItem ai = new AffiliationItem(ln.getName(), affil);
+            AffiliationItem ai = new AffiliationItem(ln.getName(), bareJID, affil);
             affiliations.add(ai);
         }
     }
