@@ -47,6 +47,8 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 public class PubSubRetrieveSubscriptionsHandler extends AbstractPubSubGeneralHandler {
 
     /**
+     * Creates a new handler for subscriptions requests of a user.
+     *
      * @param serviceConfiguration
      */
     public PubSubRetrieveSubscriptionsHandler(PubSubServiceConfiguration serviceConfiguration) {

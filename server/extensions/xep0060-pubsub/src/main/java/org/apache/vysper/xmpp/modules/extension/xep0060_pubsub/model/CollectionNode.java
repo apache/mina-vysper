@@ -54,7 +54,8 @@ public class CollectionNode {
     
     /**
      * Visit all nodes.
-     * @param nv
+     *
+     * @param nv the visitor to be called.
      */
     public void acceptNodes(NodeVisitor nv) {
         collectionNodeStorage.acceptNodes(nv);
@@ -62,6 +63,7 @@ public class CollectionNode {
 
     /**
      * Deletes a node.
+     *
      * @param nodeName the node to delete
      */
     public void deleteNode(String nodeName) {
@@ -70,6 +72,7 @@ public class CollectionNode {
 
     /**
      * Changes the storage provider for the collection node.
+     * 
      * @param collectionNodeStorageProvider
      */
     public void setCollectionNodeStorageProvider(CollectionNodeStorageProvider collectionNodeStorageProvider) {

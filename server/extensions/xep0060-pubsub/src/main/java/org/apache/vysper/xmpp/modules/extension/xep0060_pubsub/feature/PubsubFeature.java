@@ -33,7 +33,15 @@ public class PubsubFeature {
     protected String description;
     protected PubsubFeatureLevel level;
     protected String xep0060chapter;
-    
+
+    /**
+     * Creates a new Pubsub Feature object with the given values.
+     * 
+     * @param name
+     * @param description
+     * @param level
+     * @param xep0060chapter
+     */
     public PubsubFeature(String name, String description, PubsubFeatureLevel level, String xep0060chapter) {
         this.name = name;
         this.description = description;

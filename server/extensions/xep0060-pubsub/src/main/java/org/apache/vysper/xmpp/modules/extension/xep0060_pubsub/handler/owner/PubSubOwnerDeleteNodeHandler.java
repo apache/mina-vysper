@@ -47,7 +47,7 @@ import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 public class PubSubOwnerDeleteNodeHandler extends AbstractPubSubOwnerHandler {
 
     /**
-     * @param root
+     * Create a new delete handler with the supplied configuration object.
      */
     public PubSubOwnerDeleteNodeHandler(PubSubServiceConfiguration serviceConfiguration) {
         super(serviceConfiguration);

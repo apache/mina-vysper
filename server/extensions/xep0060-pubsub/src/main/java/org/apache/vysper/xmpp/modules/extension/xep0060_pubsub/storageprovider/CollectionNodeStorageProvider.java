@@ -55,7 +55,7 @@ public interface CollectionNodeStorageProvider extends StorageProvider {
     /**
      * Call the NodeVisitor for each node of the given collection node.
      * 
-     * @param nv
+     * @param nv the visitior to be called.
      */
     public void acceptNodes(NodeVisitor nv);
 

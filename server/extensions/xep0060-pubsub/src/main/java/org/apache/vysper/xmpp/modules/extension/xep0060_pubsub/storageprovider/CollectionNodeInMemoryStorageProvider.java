@@ -67,6 +67,8 @@ public class CollectionNodeInMemoryStorageProvider implements CollectionNodeStor
 
     /**
      * Walk through all known nodes, calling visit on each.
+     *
+     * @param nv the visitor to be called.
      */
     public void acceptNodes(NodeVisitor nv) {
         for(String node : nodes.keySet()) {

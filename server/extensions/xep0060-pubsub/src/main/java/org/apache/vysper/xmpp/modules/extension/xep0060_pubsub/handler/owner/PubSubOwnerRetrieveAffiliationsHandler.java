@@ -49,6 +49,8 @@ public class PubSubOwnerRetrieveAffiliationsHandler extends AbstractPubSubOwnerH
 
     /**
      * Creates a new handler with the supplied configuration object.
+     *
+     * @param serviceConfiguration configuration object to use.
      */
     public PubSubOwnerRetrieveAffiliationsHandler(PubSubServiceConfiguration serviceConfiguration) {
         super(serviceConfiguration);

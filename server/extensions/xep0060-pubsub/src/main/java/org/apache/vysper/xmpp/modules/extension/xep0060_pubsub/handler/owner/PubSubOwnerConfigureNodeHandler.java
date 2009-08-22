@@ -33,7 +33,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubServiceConf
 public class PubSubOwnerConfigureNodeHandler extends AbstractPubSubOwnerHandler {
 
     /**
-     * @param root
+     * Create a new configuration handler with the supplied configuration object.
      */
     public PubSubOwnerConfigureNodeHandler(PubSubServiceConfiguration serviceConfiguration) {
         super(serviceConfiguration);

@@ -47,7 +47,9 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
 
     /**
-     * @param root
+     * Creates a new unsubscribe handler for users.
+     *
+     * @param serviceConfiguration
      */
     public PubSubUnsubscribeHandler(PubSubServiceConfiguration serviceConfiguration) {
         super(serviceConfiguration);

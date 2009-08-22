@@ -31,7 +31,9 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 public abstract class AbstractPubSubGeneralHandler extends AbstractPublishSubscribeIQHandler {
 
     /**
-     * @param root
+     * Initializes the abstract handler with the given configuration object.
+     *
+     * @param serviceConfiguration
      */
     public AbstractPubSubGeneralHandler(PubSubServiceConfiguration serviceConfiguration) {
         super(serviceConfiguration);

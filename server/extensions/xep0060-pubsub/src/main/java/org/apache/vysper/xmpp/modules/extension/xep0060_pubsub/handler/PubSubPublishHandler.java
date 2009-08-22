@@ -46,7 +46,9 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 public class PubSubPublishHandler extends AbstractPubSubGeneralHandler {
 
     /**
-     * @param root
+     * Creates a new handler for publish requests.
+     *
+     * @param serviceConfiguration
      */
     public PubSubPublishHandler(PubSubServiceConfiguration serviceConfiguration) {
         super(serviceConfiguration);

@@ -45,6 +45,8 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 public class PubSubRetrieveAffiliationsHandler extends AbstractPubSubGeneralHandler {
 
     /**
+     * Creates a new handler for affiliations requests of a user.
+     *
      * @param serviceConfiguration
      */
     public PubSubRetrieveAffiliationsHandler(PubSubServiceConfiguration serviceConfiguration) {

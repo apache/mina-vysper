@@ -34,7 +34,7 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 public abstract class AbstractPubSubOwnerHandler extends AbstractPublishSubscribeIQHandler {
 
     /**
-     * @param root
+     * Delegate the initialization with the configuration object to the superclass.
      */
     public AbstractPubSubOwnerHandler(PubSubServiceConfiguration serviceConfiguration) {
         super(serviceConfiguration);

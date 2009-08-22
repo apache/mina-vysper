@@ -43,7 +43,9 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 public class PubSubCreateNodeHandler extends AbstractPubSubGeneralHandler {
 
     /**
-     * @param root
+     * Creates a new handler for create requests.
+     *
+     * @param serviceConfiguration
      */
     public PubSubCreateNodeHandler(PubSubServiceConfiguration serviceConfiguration) {
         super(serviceConfiguration);
