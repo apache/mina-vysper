@@ -40,4 +40,19 @@ public enum PubSubAffiliation {
     public String toString() {
         return xep0060Name;
     }
+
+    /**
+     * Returns the correct PubSubAffiliation object for the given string.
+     * The case will be ignored.
+     *
+     * @param name The name of the requested affiliation object.
+     * @return the affiliation object, NONE if not known.
+     */
+    public static PubSubAffiliation get(String name) {
+        if(name.equalsIgnoreCase(OUTCAST.toString())) return OUTCAST;
+        if(name.equalsIgnoreCase(MEMBER.toString())) return MEMBER;
+        if(name.equalsIgnoreCase(PUBLISHER.toString())) return PUBLISHER;
+        if(name.equalsIgnoreCase(OWNER.toString())) return OWNER;
+        return NONE;
+    }
 }

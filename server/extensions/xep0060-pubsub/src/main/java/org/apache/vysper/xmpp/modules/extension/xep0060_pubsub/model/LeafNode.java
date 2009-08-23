@@ -79,7 +79,11 @@ public class LeafNode {
         this.title = title;
         this.storage = serviceConfiguration.getLeafNodeStorageProvider();
         this.storage.initialize(this);
-        this.addOwner(creator);
+        try {
+            this.setAffiliation(creator, PubSubAffiliation.OWNER);
+        } catch (LastOwnerResignedException e) {
+            // won't happen
+        }
     }
 
     /**
@@ -268,8 +272,8 @@ public class LeafNode {
      * 
      * @param owner
      */
-    public void addOwner(Entity owner) {
-        this.storage.addOwner(name,owner);
+    public void setAffiliation(Entity owner, PubSubAffiliation affiliation) throws LastOwnerResignedException {
+        this.storage.setAffiliation(name, owner, affiliation);
     }
 
     /**
@@ -285,10 +289,10 @@ public class LeafNode {
 
     /**
      * Returns the affiliation for the given bareJID.
-     * @param bareJID
+     * @param entity the entity for which the affiliation should be returned.
      * @return All affiliations ("NONE" if no other affiliation is known).
      */
-    public PubSubAffiliation getAffiliation(Entity bareJID) {
-        return this.storage.getAffiliation(name, bareJID);
+    public PubSubAffiliation getAffiliation(Entity entity) {
+        return this.storage.getAffiliation(name, entity);
     }
 }

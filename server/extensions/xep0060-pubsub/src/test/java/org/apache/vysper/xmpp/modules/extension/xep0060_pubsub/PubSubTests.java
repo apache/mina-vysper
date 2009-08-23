@@ -32,6 +32,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubUns
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner.PubSubConfigureNodeTestCase;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner.PubSubDeleteNodeTestCase;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner.PubSubOwnerRetrieveAffiliationsTestCase;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner.PubSubOwnerModifyAffiliationsTestCase;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNodeTestCase;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNodeTestCase;
 
@@ -49,6 +50,7 @@ public class PubSubTests {
         suite.addTestSuite(PubSubDeleteNodeTestCase.class);
         suite.addTestSuite(PubSubConfigureNodeTestCase.class);
         suite.addTestSuite(PubSubOwnerRetrieveAffiliationsTestCase.class);
+        suite.addTestSuite(PubSubOwnerModifyAffiliationsTestCase.class);
 
         suite.addTestSuite(PubSubCreateNodeTestCase.class);
         suite.addTestSuite(PubSubPublishTestCase.class);

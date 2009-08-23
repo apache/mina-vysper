@@ -22,12 +22,12 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner;
 import org.apache.vysper.compliance.SpecCompliance;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AffiliationItem;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.CollectingMemberAffiliationVisitor;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubPrivilege;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubServiceConfiguration;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.addressing.EntityFormatException;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.*;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LastOwnerResignedException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
@@ -35,6 +35,7 @@ import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 import java.util.List;
 
@@ -45,14 +46,14 @@ import java.util.List;
  * @author The Apache MINA Project (http://mina.apache.org)
  */
 @SpecCompliant(spec="xep-0060", section="8.9", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
-public class PubSubOwnerRetrieveAffiliationsHandler extends AbstractPubSubOwnerHandler {
+public class PubSubOwnerManageAffiliationsHandler extends AbstractPubSubOwnerHandler {
 
     /**
      * Creates a new handler with the supplied configuration object.
      *
      * @param serviceConfiguration configuration object to use.
      */
-    public PubSubOwnerRetrieveAffiliationsHandler(PubSubServiceConfiguration serviceConfiguration) {
+    public PubSubOwnerManageAffiliationsHandler(PubSubServiceConfiguration serviceConfiguration) {
         super(serviceConfiguration);
     }
 
@@ -104,6 +105,69 @@ public class PubSubOwnerRetrieveAffiliationsHandler extends AbstractPubSubOwnerH
 
         List<AffiliationItem> affiliations = collectAllAffiliations(node);
         buildSuccessStanza(sb, node, affiliations);
+
+        sb.endInnerElement();
+        return new IQStanza(sb.getFinalStanza());
+    }
+
+    /**
+     * This method takes care of handling the "affiliations" use-case including all (relevant) error conditions.
+     *
+     * @return the appropriate response stanza (either success or some error condition).
+     */
+    @Override
+    @SpecCompliance(compliant = {
+            @SpecCompliant(spec="xep-0060", section="8.9.2.2", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
+            , @SpecCompliant(spec="xep-0060", section="8.9.2.3.3", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+            , @SpecCompliant(spec="xep-0060", section="8.9.2.3.4", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+        })
+    protected Stanza handleSet(IQStanza stanza,
+            ServerRuntimeContext serverRuntimeContext,
+            SessionContext sessionContext) {
+        Entity serverJID = serviceConfiguration.getServerJID();
+        CollectionNode root = serviceConfiguration.getRootNode();
+        Entity sender = extractSenderJID(stanza, sessionContext);
+
+        String iqStanzaID = stanza.getAttributeValue("id");
+        StanzaBuilder sb = StanzaBuilder.createIQStanza(serverJID, sender, IQStanzaType.RESULT, iqStanzaID);
+        sb.startInnerElement("pubsub");
+        sb.addNamespaceAttribute(NamespaceURIs.XEP0060_PUBSUB_OWNER);
+
+        String nodeName = extractNodeName(stanza);
+        LeafNode node = root.find(nodeName);
+
+        if(node == null) {
+            return errorStanzaGenerator.generateNoNodeErrorStanza(sender, serverJID, stanza);
+        }
+
+        if(!node.isAuthorized(sender, PubSubPrivilege.MANAGE_AFFILIATIONS)) {
+            return errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, serverJID, stanza);
+        }
+
+
+        XMLElement affiliationElement = null;
+        try {
+            if(stanza.getFirstInnerElement().getFirstInnerElement().getInnerElements().size() != 1) {
+                return errorStanzaGenerator.generateNotAcceptableErrorStanza(serverJID, sender, stanza);
+            }
+
+            affiliationElement = stanza.getFirstInnerElement().getFirstInnerElement().getFirstInnerElement();
+
+            Entity userJID = null;
+            try {
+                userJID = EntityImpl.parse(affiliationElement.getAttributeValue("jid"));
+            } catch (EntityFormatException e) {
+                return errorStanzaGenerator.generateJIDMalformedErrorStanza(serverJID, sender, stanza); // TODO not defined in the standard(?)
+            }
+
+            PubSubAffiliation newAffiliation = PubSubAffiliation.get(affiliationElement.getAttributeValue("affiliation"));
+            node.setAffiliation(userJID, newAffiliation);
+        } catch(LastOwnerResignedException e) {
+            // if the last owner tries to resign.
+            return errorStanzaGenerator.generateNotAcceptableErrorStanza(serverJID, sender, stanza);
+        } catch(Throwable t) { // possible null-pointer
+            return errorStanzaGenerator.generateBadRequestErrorStanza(serverJID, sender, stanza); // TODO not defined in the standard(?)
+        }
 
         sb.endInnerElement();
         return new IQStanza(sb.getFinalStanza());

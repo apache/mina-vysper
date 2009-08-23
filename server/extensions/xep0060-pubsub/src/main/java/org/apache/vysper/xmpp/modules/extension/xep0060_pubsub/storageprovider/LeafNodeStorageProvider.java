@@ -26,6 +26,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubAffiliation
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.MemberAffiliationVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LastOwnerResignedException;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
@@ -143,7 +144,7 @@ public interface LeafNodeStorageProvider extends StorageProvider {
      * Add the entity to the owner list of the given node.
      * @param owner
      */
-    public void addOwner(String nodeName, Entity owner);
+    public void setAffiliation(String nodeName, Entity owner, PubSubAffiliation affiliation) throws LastOwnerResignedException;
 
     /**
      * Returns the affiliation of the entity to the node identified by nodeName.

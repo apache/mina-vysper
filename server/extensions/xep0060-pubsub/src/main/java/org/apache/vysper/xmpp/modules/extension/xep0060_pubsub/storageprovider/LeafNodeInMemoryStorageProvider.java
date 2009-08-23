@@ -30,6 +30,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberVisitor
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.MemberAffiliationVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.PayloadItem;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LastOwnerResignedException;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
@@ -183,10 +184,37 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
      * Add the entity to the owner list of the given node.
      * The owner is stored as bare JID.
      */
-    public void addOwner(String nodeName, Entity owner) {
+    public void setAffiliation(String nodeName, Entity entity, PubSubAffiliation affiliation) throws LastOwnerResignedException {
         Map<Entity, PubSubAffiliation> affils = this.nodeAffiliations.get(nodeName);
-        Entity bareOwner = owner.getBareJID();
-        affils.put(bareOwner, PubSubAffiliation.OWNER);
+        Entity bareJID = entity.getBareJID();
+
+        if(getAffiliation(nodeName, bareJID).equals(PubSubAffiliation.OWNER)
+                && !affiliation.equals(PubSubAffiliation.OWNER)
+                && countAffiliations(nodeName, PubSubAffiliation.OWNER) == 1) {
+            throw new LastOwnerResignedException(bareJID.getFullQualifiedName() + " tried to resign from " + nodeName);
+        }
+
+        if(affiliation.equals(PubSubAffiliation.NONE)) {
+            affils.remove(bareJID); // NONE affiliations are not stored.
+        } else {
+            affils.put(bareJID, affiliation);
+        }
+    }
+
+    /**
+     * Calculates how many users with the given affiliation are present for this node.
+     * @param nodeName the node to check
+     * @param affiliation to count
+     * @return the number of owners.
+     */
+    private int countAffiliations(String nodeName, PubSubAffiliation affiliation) {
+        Map<Entity, PubSubAffiliation> affils = this.nodeAffiliations.get(nodeName);
+        int i = 0;
+        for(PubSubAffiliation a : affils.values()) {
+            if(a.equals(affiliation))
+                ++i;
+        }
+        return i;
     }
 
     /**

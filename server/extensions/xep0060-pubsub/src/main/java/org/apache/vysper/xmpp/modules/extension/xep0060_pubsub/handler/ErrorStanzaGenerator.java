@@ -141,6 +141,18 @@ public class ErrorStanzaGenerator {
     }
 
     /**
+     * Create a general error stanza (bad-request).
+     *
+     * @param sender who sent the erroneous request.
+     * @param receiver who was the recipient of the erroneous request.
+     * @param stanza the stanza of the erroneous request.
+     * @return the generated stanza.
+     */
+    public Stanza generateBadRequestErrorStanza(Entity sender, Entity receiver, IQStanza stanza) {
+        return errorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza, StanzaErrorType.MODIFY, null, null, null);
+    }
+
+    /**
      * Create a conflict error stanza. For example if a node with an existing nodeID is to be created.
      * 
      * @param sender
@@ -165,4 +177,15 @@ public class ErrorStanzaGenerator {
         return element;
     }
 
+    /**
+     * Create a general error stanza (bad-request).
+     *
+     * @param sender who sent the erroneous request.
+     * @param receiver who was the recipient of the erroneous request.
+     * @param stanza the stanza of the erroneous request.
+     * @return the generated stanza.
+     */
+    public Stanza generateNotAcceptableErrorStanza(Entity sender, Entity receiver, IQStanza stanza) {
+        return errorResponses.getStanzaError(StanzaErrorCondition.NOT_ACCEPTABLE, stanza, StanzaErrorType.MODIFY, null, null, null);
+    }
 }
