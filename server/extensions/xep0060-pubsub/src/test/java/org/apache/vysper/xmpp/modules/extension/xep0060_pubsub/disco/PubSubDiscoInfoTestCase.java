@@ -121,6 +121,7 @@ public class PubSubDiscoInfoTestCase extends AbstractPublishSubscribeTestCase {
                 , PubsubFeatures.SUBSCRIBE.toString()
                 , PubsubFeatures.RETRIEVE_SUBSCRIPTIONS.toString()
                 , PubsubFeatures.RETRIEVE_AFFILIATIONS.toString()
+                , PubsubFeatures.MODIFY_AFFILIATIONS.toString()
                 };
         XMLElement[] elementList = collectFeatures(inner, featuresList);
         

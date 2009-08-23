@@ -231,6 +231,7 @@ public class LeafNode {
         infoElements.add(PubsubFeatures.SUBSCRIBE.getFeature());
         infoElements.add(PubsubFeatures.RETRIEVE_SUBSCRIPTIONS.getFeature());
         infoElements.add(PubsubFeatures.RETRIEVE_AFFILIATIONS.getFeature());
+        infoElements.add(PubsubFeatures.MODIFY_AFFILIATIONS.getFeature());
         return infoElements;
     }
 
