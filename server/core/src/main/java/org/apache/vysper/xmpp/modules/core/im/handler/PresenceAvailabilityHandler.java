@@ -200,7 +200,8 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
                 rosterManager, user, registry);
 
         if (!user.isResourceSet()) throw new RuntimeException("resource id not available");
-        ResourceState resourceState = registry.getResourceState(user.getResource());
+        String resourceId = user.getResource();
+        ResourceState resourceState = registry.getResourceState(resourceId);
 
         boolean isPresenceUpdate = resourceState != null && ResourceState.isAvailable(resourceState);
 
@@ -213,11 +214,14 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
             // things to be done for initial presence
 
             // set resource state
-            ResourceState currentState = registry.getResourceState(user.getResource());
+            ResourceState currentState = registry.getResourceState(resourceId);
             // set to AVAILABLE, but do not override AVAILABLE_INTERESTED
-            registry.setResourceState(user.getResource(), ResourceState.makeAvailable(currentState));
+            registry.setResourceState(resourceId, ResourceState.makeAvailable(currentState));
         }
-        updateResourcePriority(registry, sessionContext.getInitiatingEntity(), presenceStanza.getPrioritySafe());
+        
+        // the presence priority is optional, but if contained, it might become relevant for
+        // message delivery (see RFC3921bis-05#8.3.1.1)
+        registry.setResourcePriority(resourceId, presenceStanza.getPrioritySafe());
 
         List<Entity> contacts = new ArrayList<Entity>();
 
@@ -364,15 +368,6 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
 
         return stanza;
 	}
-
-    /**
-     * the presence priority is optional, but if contained, it might become relevant for
-     * message delivery (see RFC3921bis-05#8.3.1.1)
-     */
-    private void updateResourcePriority(ResourceRegistry registry, Entity initiatingEntity, int priority) {
-        if (initiatingEntity == null || initiatingEntity.getResource() == null) return;
-        registry.setResourcePriority(initiatingEntity.getResource(), priority);
-    }
 
     private void relayTo(Entity from, List<Entity> tos, PresenceStanza original, SessionContext sessionContext) {
         List<Attribute> toFromReplacements = new ArrayList<Attribute>();

@@ -75,9 +75,11 @@ public class ResourceRegistryTestCase extends TestCase {
         
         TestSessionContext sessionContext1 = TestSessionContext.createSessionContext(entity);
         String resourceId1 = resourceRegistry.bindSession(sessionContext1);
+        resourceRegistry.setResourcePriority(resourceId1, -1);
         
         TestSessionContext sessionContext2 = TestSessionContext.createSessionContext(entity);
         String resourceId2 = resourceRegistry.bindSession(sessionContext2);
+        resourceRegistry.setResourcePriority(resourceId2, 1);
         
         assertNotNull(resourceId1);
         assertNotNull(resourceId2);
@@ -91,6 +93,20 @@ public class ResourceRegistryTestCase extends TestCase {
         assertEquals(2, resourceList.size());
         assertTrue(sessionList.contains(sessionContext1));
         assertTrue(sessionList.contains(sessionContext2));
+        
+        SessionContext hightestPrioSession = resourceRegistry.getHighestPrioSession(entity, null);
+        assertSame(resourceRegistry.getSessionContext(resourceId2), hightestPrioSession);
+        
+        resourceRegistry.setResourcePriority(resourceId1, 2); // make this highes prio
+        hightestPrioSession = resourceRegistry.getHighestPrioSession(entity, null);
+        assertSame(resourceRegistry.getSessionContext(resourceId1), hightestPrioSession);
+
+        hightestPrioSession = resourceRegistry.getHighestPrioSession(entity, 2); // still highest prio
+        assertSame(resourceRegistry.getSessionContext(resourceId1), hightestPrioSession);
+        
+        hightestPrioSession = resourceRegistry.getHighestPrioSession(entity, 3); // now, all prios are below threshold
+        assertNull(hightestPrioSession);
+        
     }
 
     public void testAddOneEntityMultipleResources_TolerateResourceIds() throws EntityFormatException {

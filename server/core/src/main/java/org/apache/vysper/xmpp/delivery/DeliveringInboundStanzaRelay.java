@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.delivery;
 
+import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
@@ -27,24 +28,31 @@ import org.apache.vysper.xmpp.protocol.worker.InboundStanzaProtocolWorker;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
+import org.apache.vysper.xmpp.stanza.IQStanza;
+import org.apache.vysper.xmpp.stanza.PresenceStanza;
+import org.apache.vysper.xmpp.stanza.MessageStanza;
+import org.apache.vysper.xmpp.stanza.MessageStanzaType;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
-import org.apache.vysper.storage.StorageProviderRegistry;
+import org.apache.vysper.compliance.SpecCompliant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
- * relays stanzas to internal sessions, acts as a 'stage' by using a ThreadPoolExecutor
- * TODO: re-work the whole relay result
- *
+ * relays all 'incoming' stanzas to internal sessions, acts as a 'stage' by using a ThreadPoolExecutor
+ * 'incoming' here means:
+ * a. stanzas coming in from other servers
+ * b. stanzas coming from other (local) sessions and are targeted to clients on this server
+ *  
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class DeliveringInboundStanzaRelay implements StanzaRelay {
@@ -53,9 +61,12 @@ public class DeliveringInboundStanzaRelay implements StanzaRelay {
 
     private static final InboundStanzaProtocolWorker INBOUND_STANZA_PROTOCOL_WORKER = new InboundStanzaProtocolWorker();
 
+    private static final Integer PRIO_THRESHOLD = 0;
+    
     protected ResourceRegistry resourceRegistry;
     protected ExecutorService executor;
     protected AccountManagement accountVerification;
+    protected OfflineStanzaReceiver offlineStanzaReceiver = null;
 
     public DeliveringInboundStanzaRelay(ResourceRegistry resourceRegistry, StorageProviderRegistry storageProviderRegistry) {
         this(resourceRegistry, (AccountManagement)storageProviderRegistry.retrieve(AccountManagement.class));
@@ -118,49 +129,151 @@ public class DeliveringInboundStanzaRelay implements StanzaRelay {
             return relayResult;
         }
 
+        /**
+         * @return
+         */
+        @SpecCompliant(spec="draft-ietf-xmpp-3921bis-00", section="8.", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
         protected RelayResult deliver() {
-            List<RelayResult> relayResults = new ArrayList<RelayResult>();
             try {
-                if (!accountVerification.verifyAccountExists(receiver)) {
-                    logger.warn("cannot relay to unexisting receiver {} stanza {}", receiver.getFullQualifiedName(), stanza.toString());
-                    return new RelayResult(new NoSuchLocalUserException());
-                }
-                List<SessionContext> receivingSessions = resourceRegistry.getSessions(receiver);
-                if (receivingSessions == null || receivingSessions.size() == 0) {
-                    logger.warn("cannot relay to offline receiver {} stanza {}", receiver.getFullQualifiedName(), stanza.toString());
-                    return new RelayResult(new LocalRecipientOfflineException());
+                if (receiver.isResourceSet()) {
+                    return deliverToFullJID();
                 } else {
-                    relayToSessions(relayResults, receivingSessions);
+                    return deliverToBareJID();
                 }
+
             } catch (RuntimeException e) {
                 return new RelayResult(new DeliveryException(e));
             }
+        }
 
-            // TODO handle this properly, don't only return the first failure
-            for (RelayResult relayResult : relayResults) {
-                if (!relayResult.isRelayed()) return relayResult;
+        @SpecCompliant(spec="draft-ietf-xmpp-3921bis-00", section="8.3.", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+        private RelayResult deliverToBareJID() {
+            XMPPCoreStanza xmppStanza = XMPPCoreStanza.getWrapper(stanza);
+            if (xmppStanza == null) new RelayResult(new DeliveryException("unable to deliver stanza which is not IQ, presence or message"));
+
+            if (PresenceStanza.isOfType(stanza)) {
+                return relayToAllSessions();
+            } else if (MessageStanza.isOfType(stanza)) {
+                MessageStanza messageStanza = (MessageStanza)xmppStanza;
+                MessageStanzaType messageStanzaType = messageStanza.getMessageType();
+                switch (messageStanzaType) {
+                    case CHAT:
+                    case NORMAL:
+                        return relayToBestSession(false);
+                    
+                    case ERROR:
+                        // silently ignore
+                        return null;
+                    
+                    case GROUPCHAT:
+                        return new RelayResult(new ServiceNotAvailableException());
+                        
+                    case HEADLINE:
+                        return relayToAllSessions();
+                    
+                    default:
+                        throw new RuntimeException("unhandled message type " + messageStanzaType.value());
+                }
+            } else if (IQStanza.isOfType(stanza)) {
+                // TODO handle on behalf of the user/client
+                throw new RuntimeException("inbound IQ not yet handled");
+            }
+
+            return relayNotPossible();
+        }
+
+        @SpecCompliant(spec="draft-ietf-xmpp-3921bis-00", section="8.2.", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+        private RelayResult deliverToFullJID() {
+            XMPPCoreStanza xmppStanza = XMPPCoreStanza.getWrapper(stanza);
+            if (xmppStanza == null) new RelayResult(new DeliveryException("unable to deliver stanza which is not IQ, presence or message"));
+
+            // all special cases are handled by the inbound handlers!
+            if (PresenceStanza.isOfType(stanza)) {
+                // TODO cannot deliver presence with type  AVAIL or UNAVAIL: silently ignore
+                // TODO cannot deliver presence with type  SUBSCRIBE: see 3921bis section 3.1.3
+                // TODO cannot deliver presence with type  (UN)SUBSCRIBED, UNSUBSCRIBE: silently ignore
+                return relayToBestSession(false);
+            } else if (MessageStanza.isOfType(stanza)) {
+                MessageStanza messageStanza = (MessageStanza)xmppStanza;
+                MessageStanzaType messageStanzaType = messageStanza.getMessageType();
+                boolean fallbackToBareJIDAllowed = messageStanzaType == MessageStanzaType.CHAT || 
+                                                   messageStanzaType == MessageStanzaType.HEADLINE ||
+                                                   messageStanzaType == MessageStanzaType.NORMAL;
+                // TODO cannot deliver ERROR: silently ignore
+                // TODO cannot deliver GROUPCHAT: service n/a
+                return relayToBestSession(fallbackToBareJIDAllowed);
+
+            } else if (IQStanza.isOfType(stanza)) {
+                // TODO no resource matches: service n/a
+                return relayToBestSession(false);
+            }
+ 
+            // for any other type of stanza 
+            return new RelayResult(new ServiceNotAvailableException());
+        }
+
+        private RelayResult relayNotPossible() {
+            if (!accountVerification.verifyAccountExists(receiver)) {
+                logger.warn("cannot relay to unexisting receiver {} stanza {}", receiver.getFullQualifiedName(), stanza.toString());
+                return new RelayResult(new NoSuchLocalUserException());
+            } else if (offlineStanzaReceiver != null) {
+                offlineStanzaReceiver.receive(stanza);
+                return new RelayResult(new DeliveredToOfflineReceiverException());
+            } else {
+                logger.warn("cannot relay to offline receiver {} stanza {}", receiver.getFullQualifiedName(), stanza.toString());
+                return new RelayResult(new LocalRecipientOfflineException());
+            }
+        }
+
+        protected RelayResult relayToBestSession(final boolean fallbackToBareJIDAllowed) {
+            SessionContext receivingSession = resourceRegistry.getHighestPrioSession(receiver, PRIO_THRESHOLD);
+
+            if (receivingSession == null && receiver.isResourceSet() && fallbackToBareJIDAllowed) {
+                // no concrete session for this resource has been found
+                // fall back to bare JID
+                receivingSession = resourceRegistry.getHighestPrioSession(receiver.getBareJID(), PRIO_THRESHOLD);
+            }
+
+            if (receivingSession == null) {
+                return relayNotPossible();
+            }
+            
+            if (receivingSession.getState() != SessionState.AUTHENTICATED) {
+                return new RelayResult(new DeliveryException("no relay to non-authenticated sessions"));
+            }
+            try {
+                StanzaHandler stanzaHandler = receivingSession.getServerRuntimeContext().getHandler(stanza);
+                INBOUND_STANZA_PROTOCOL_WORKER.processStanza(receivingSession, sessionStateHolder, stanza, stanzaHandler);
+            } catch (Exception e) {
+                return new RelayResult(new DeliveryException(e));
             }
             return new RelayResult(); // return success result
         }
+        
+        protected RelayResult relayToAllSessions() {
+            // the individual results are currently only recorded pro forma
+            List<RelayResult> relayResults = new ArrayList<RelayResult>();
+            
+            List<SessionContext> receivingSessions = resourceRegistry.getSessions(receiver);
 
-        protected void relayToSessions(List<RelayResult> relayResults, List<SessionContext> receivingSessions) {
             if (receivingSessions.size() > 1) {
-                logger.warn("multiplexing: {} sessions will be processing {} ", receivingSessions.size(), stanza);
-            }
-            for (SessionContext sessionContext : receivingSessions) {
-                if (sessionContext.getState() != SessionState.AUTHENTICATED) {
-                    relayResults.add(new RelayResult(new DeliveryException("no relay to non-authenticated sessions")));
-                    continue;
-                }
-                try {
-                    StanzaHandler stanzaHandler = sessionContext.getServerRuntimeContext().getHandler(stanza);
-                    INBOUND_STANZA_PROTOCOL_WORKER.processStanza(sessionContext, sessionStateHolder, stanza, stanzaHandler);
-                } catch (Exception e) {
-                    // TODO do not break out here. we should try to deliver to the others first!
-                    relayResults.add(new RelayResult(new DeliveryException(e)));
-                }
-            }
-        }
+                 logger.warn("multiplexing: {} sessions will be processing {} ", receivingSessions.size(), stanza);
+             }
+             for (SessionContext sessionContext : receivingSessions) {
+                 if (sessionContext.getState() != SessionState.AUTHENTICATED) {
+                     relayResults.add(new RelayResult(new DeliveryException("no relay to non-authenticated sessions")));
+                     continue;
+                 }
+                 try {
+                     StanzaHandler stanzaHandler = sessionContext.getServerRuntimeContext().getHandler(stanza);
+                     INBOUND_STANZA_PROTOCOL_WORKER.processStanza(sessionContext, sessionStateHolder, stanza, stanzaHandler);
+                 } catch (Exception e) {
+                     relayResults.add(new RelayResult(new DeliveryException(e)));
+                 }
+             }
+                
+             return new RelayResult(); // return success result
+         }
     }
 
     private static class UnmodifyableSessionStateHolder extends SessionStateHolder {

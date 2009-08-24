@@ -109,7 +109,8 @@ public class ResourceRegistry {
                                 resourceForEntityList);
                     }
                     resourceForEntityList.add(resourceId);
-                    logger.info("added resource no. " + resourceForEntityList.size() + " to entity {} <- {}", initiatingEntity.getFullQualifiedName(), resourceId);
+                    logger.info("added resource no. " + resourceForEntityList.size() + " to entity {} <- {}", 
+                                initiatingEntity.getFullQualifiedName(), resourceId);
 
                     List<String> resourcesForSessionList = sessionResources.get(sessionContext);
                     if (resourcesForSessionList == null) {
@@ -117,7 +118,8 @@ public class ResourceRegistry {
                         sessionResources.put(sessionContext, resourcesForSessionList);
                     }
                     resourcesForSessionList.add(resourceId);
-                    logger.info("added resource no. " + resourcesForSessionList.size() + " to session {} <- {}", sessionContext.getSessionId(), resourceId);
+                    logger.info("added resource no. " + resourcesForSessionList.size() + " to session {} <- {}", 
+                                sessionContext.getSessionId(), resourceId);
                 }
 			}
 		}
@@ -274,6 +276,45 @@ public class ResourceRegistry {
 		}
 
 		return sessionContexts;
+	}
+
+    
+    /**
+     * retrieves the highest priorizes session for this entity. 
+     * 
+     * @param entity if this is not a bare JID, only the session for the JID's resource part will be returned, without
+     * looking at other sessions for the resource's bare JID. otherwise, in case of a full JID, it will return the 
+     * highest priorized session.
+     * @param prioThreshold if not NULL, only resources will be returned having same or higher priority. a common value 
+     * for the threshold is 0 (zero). 
+     * @return for a bare JID, it will return the hightest priorized session. for a full JID, it will return the 
+     * related session.
+     */
+    public SessionContext getHighestPrioSession(Entity entity, Integer prioThreshold) {
+        Integer currentPrio = Integer.MIN_VALUE;
+        SessionData result = null;
+
+        boolean isResourceSet = entity.isResourceSet();
+
+        List<String> boundResourceIds = getBoundResources(entity, false);
+		for (String resourceId : boundResourceIds) {
+            SessionData sessionData = boundResources.get(resourceId);
+            if (sessionData == null) continue;
+            
+            if (isResourceSet) return sessionData.context; // no prio checks, take the first proper one
+            
+            if (sessionData.priority > currentPrio) {
+                currentPrio = sessionData.priority;
+                result = sessionData;
+            }
+        }
+
+        if (prioThreshold != null && prioThreshold > currentPrio) {
+            // no session over threshold 
+            return null;
+        }
+
+		return result == null ? null : result.context;
 	}
 
     /**

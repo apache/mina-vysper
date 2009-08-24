@@ -54,7 +54,6 @@ public class MessageStanza extends XMPPCoreStanza {
 
     public MessageStanzaType getMessageType() {
         String type = getType();
-        if (type == null) return null;
         return MessageStanzaType.valueOfWithDefault(type);
     }
 

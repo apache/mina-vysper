@@ -39,6 +39,7 @@ public enum MessageStanzaType {
      * given
      */
     public static MessageStanzaType valueOfWithDefault(String value) {
+        if (value == null) return NORMAL;
         try {
             return MessageStanzaType.valueOf(value.toUpperCase());
         } catch (IllegalArgumentException e) {
