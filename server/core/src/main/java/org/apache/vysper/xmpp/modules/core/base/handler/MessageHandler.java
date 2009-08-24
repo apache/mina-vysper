@@ -97,7 +97,9 @@ public class MessageHandler extends XMPPCoreStanzaHandler {
             Entity from = stanza.getFrom();
             if (from == null || !from.isResourceSet()) {
                 // rewrite stanza with new from
-                from = new EntityImpl(sessionContext.getInitiatingEntity(), serverRuntimeContext.getResourceRegistry().getUniqueResourceForSession(sessionContext));
+                String resource = serverRuntimeContext.getResourceRegistry().getUniqueResourceForSession(sessionContext);
+                if (resource == null) throw new IllegalStateException("could not determine unique resource");
+                from = new EntityImpl(sessionContext.getInitiatingEntity(), resource);
                 StanzaBuilder stanzaBuilder = new StanzaBuilder(stanza.getName());
                 for (Attribute attribute : stanza.getAttributes()) {
                     if ("from".equals(attribute.getName())) continue;
