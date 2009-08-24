@@ -11,6 +11,8 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
+import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.PresenceStanza;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -28,6 +30,13 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestC
     }
     
     private Stanza enterRoom(Entity occupantJid, Entity roomJid, String password) throws ProtocolException {
+        SessionContext userSessionContext;
+        if(occupantJid.equals(OCCUPANT1_JID)) {
+            userSessionContext = sessionContext;
+        } else {
+            userSessionContext = sessionContext2;
+        }
+        
         StanzaBuilder stanzaBuilder = StanzaBuilder.createPresenceStanza(occupantJid, roomJid, null, null, null, null);
         stanzaBuilder.startInnerElement("x").addNamespaceAttribute(NamespaceURIs.XEP0045_MUC);
         if(password != null) {
@@ -36,14 +45,23 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestC
         
         stanzaBuilder.endInnerElement();
         Stanza presenceStanza = stanzaBuilder.getFinalStanza();
-        ResponseStanzaContainer container = handler.execute(presenceStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, null);
+        ResponseStanzaContainer container = handler.execute(presenceStanza, userSessionContext.getServerRuntimeContext(), true, userSessionContext, null);
         if(container != null) {
             return container.getResponseStanza();
         } else {
             return null;
         }
     }
-    
+
+    protected TestSessionContext sessionContext2;
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        
+        sessionContext2 = TestSessionContext.createWithStanzaReceiverRelayAuthenticated();
+        sessionContext2.setInitiatingEntity(OCCUPANT2_JID);
+    }
 
     @Override
     protected StanzaHandler createHandler() {
