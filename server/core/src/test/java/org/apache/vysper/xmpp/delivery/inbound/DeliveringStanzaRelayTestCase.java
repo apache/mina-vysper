@@ -57,8 +57,8 @@ public class DeliveringStanzaRelayTestCase extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        accountVerification = new AccountVerificationMock(); 
-        stanzaRelay = new DeliveringInboundStanzaRelay(resourceRegistry, accountVerification);
+        accountVerification = new AccountVerificationMock();
+        stanzaRelay = new DeliveringInboundStanzaRelay(EntityImpl.parse("vysper.org"), resourceRegistry, accountVerification);
     }
 
     public void testSimpleRelay() throws EntityFormatException, XMLSemanticError, DeliveryException {

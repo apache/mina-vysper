@@ -21,6 +21,7 @@ package org.apache.vysper.xmpp.delivery.inbound;
 
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
@@ -75,12 +76,14 @@ public class DeliveringInboundStanzaRelay implements StanzaRelay {
     protected ExecutorService executor;
     protected AccountManagement accountVerification;
     protected OfflineStanzaReceiver offlineStanzaReceiver = null;
+    protected Entity serverEntity;
 
-    public DeliveringInboundStanzaRelay(ResourceRegistry resourceRegistry, StorageProviderRegistry storageProviderRegistry) {
-        this(resourceRegistry, (AccountManagement)storageProviderRegistry.retrieve(AccountManagement.class));
+    public DeliveringInboundStanzaRelay(Entity serverEntity, ResourceRegistry resourceRegistry, StorageProviderRegistry storageProviderRegistry) {
+        this(serverEntity, resourceRegistry, (AccountManagement)storageProviderRegistry.retrieve(AccountManagement.class));
     }
     
-    public DeliveringInboundStanzaRelay(ResourceRegistry resourceRegistry, AccountManagement accountVerification) {
+    public DeliveringInboundStanzaRelay(Entity serverEntity, ResourceRegistry resourceRegistry, AccountManagement accountManagement) {
+        this.serverEntity = serverEntity;
         this.resourceRegistry = resourceRegistry;
         this.accountVerification = accountVerification;
         int coreThreadCount = 10;
@@ -143,6 +146,19 @@ public class DeliveringInboundStanzaRelay implements StanzaRelay {
         @SpecCompliant(spec="draft-ietf-xmpp-3921bis-00", section="8.", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
         protected RelayResult deliver() {
             try {
+                String receiverDomain = receiver.getDomain();
+                if (receiverDomain != null && !receiverDomain.equals(serverEntity.getDomain())) {
+                    if (!receiverDomain.endsWith("." + serverEntity.getDomain())) {
+                        return new RelayResult(new ServiceNotAvailableException("unsupported domain " + receiverDomain));
+                    }
+                    
+                    // TODO get components runtime context
+
+                    // pass through to component all stanzas like component.vysper.org for server domain vysper.org
+                    // TODO INBOUND_STANZA_PROTOCOL_WORKER.processStanza(null, sessionStateHolder, stanza, stanzaHandler);
+                    throw new RuntimeException("component delivery not implemented");
+                }
+
                 if (receiver.isResourceSet()) {
                     return deliverToFullJID();
                 } else {

@@ -99,8 +99,10 @@ public class XMPPServer {
 
         ResourceRegistry resourceRegistry = new ResourceRegistry();
 
+        EntityImpl serverEntity = new EntityImpl(null, serverDomain, null);
+
         AccountManagement accountManagement = (AccountManagement) storageProviderRegistry.retrieve(AccountManagement.class);
-        DeliveringInboundStanzaRelay internalStanzaRelay = new DeliveringInboundStanzaRelay(resourceRegistry, accountManagement);
+        DeliveringInboundStanzaRelay internalStanzaRelay = new DeliveringInboundStanzaRelay(serverEntity, resourceRegistry, accountManagement);
         RecordingStanzaRelay externalStanzaRelay = new RecordingStanzaRelay();
 
         StanzaRelayBroker stanzaRelayBroker = new StanzaRelayBroker();
@@ -109,8 +111,6 @@ public class XMPPServer {
 
         ServerFeatures serverFeatures = new ServerFeatures();
         serverFeatures.setAuthenticationMethods(saslMechanisms);
-
-        EntityImpl serverEntity = new EntityImpl(null, serverDomain, null);
 
         serverRuntimeContext = new DefaultServerRuntimeContext(serverEntity, stanzaRelayBroker, serverFeatures, dictionaries, resourceRegistry);
         serverRuntimeContext.setStorageProviderRegistry(storageProviderRegistry);
