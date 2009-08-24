@@ -21,8 +21,8 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.delivery.DeliveryException;
-import org.apache.vysper.xmpp.delivery.DeliveryFailureStrategy;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;

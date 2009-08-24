@@ -19,7 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.core.base.handler.async;
 
-import org.apache.vysper.xmpp.delivery.DeliveryException;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;

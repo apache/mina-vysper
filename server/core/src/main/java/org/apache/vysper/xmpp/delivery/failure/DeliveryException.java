@@ -17,26 +17,27 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.delivery;
+package org.apache.vysper.xmpp.delivery.failure;
 
 /**
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class LocalRecipientOfflineException extends DeliveryException {
-    public LocalRecipientOfflineException() {
+public class DeliveryException extends Exception {
+
+    public DeliveryException() {
         super();
     }
 
-    public LocalRecipientOfflineException(String string) {
+    public DeliveryException(String string) {
         super(string);
     }
 
-    public LocalRecipientOfflineException(String string, Throwable throwable) {
+    public DeliveryException(String string, Throwable throwable) {
         super(string, throwable);
     }
 
-    public LocalRecipientOfflineException(Throwable throwable) {
+    public DeliveryException(Throwable throwable) {
         super(throwable);
     }
 }

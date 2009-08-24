@@ -42,7 +42,7 @@
     <!-- choose one of the storage registries -->
     <alias name="jcrStorageRegistry" alias="storageRegistry" />
     
-    <bean id="internalOutboundRelay" class="org.apache.vysper.xmpp.delivery.DeliveringInboundStanzaRelay" >
+    <bean id="internalOutboundRelay" class="org.apache.vysper.xmpp.delivery.inbound.DeliveringInboundStanzaRelay" >
         <constructor-arg ref="resourceRegistry"/>
         <constructor-arg ref="storageRegistry"/>
     </bean>

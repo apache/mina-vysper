@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.delivery;
+package org.apache.vysper.xmpp.delivery.inbound;
 
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
@@ -34,6 +34,14 @@ import org.apache.vysper.xmpp.stanza.PresenceStanza;
 import org.apache.vysper.xmpp.stanza.MessageStanza;
 import org.apache.vysper.xmpp.stanza.MessageStanzaType;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
+import org.apache.vysper.xmpp.delivery.StanzaRelay;
+import org.apache.vysper.xmpp.delivery.OfflineStanzaReceiver;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
+import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
+import org.apache.vysper.xmpp.delivery.failure.DeliveredToOfflineReceiverException;
+import org.apache.vysper.xmpp.delivery.failure.NoSuchLocalUserException;
+import org.apache.vysper.xmpp.delivery.failure.LocalRecipientOfflineException;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

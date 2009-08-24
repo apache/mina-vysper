@@ -24,21 +24,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.vysper.storage.StorageProviderRegistry;
-import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
 import org.apache.vysper.xmpp.authorization.Plain;
 import org.apache.vysper.xmpp.authorization.SASLMechanism;
 import org.apache.vysper.xmpp.cryptography.BogusTrustManagerFactory;
 import org.apache.vysper.xmpp.cryptography.FileBasedTLSContextFactory;
-import org.apache.vysper.xmpp.delivery.DeliveringInboundStanzaRelay;
+import org.apache.vysper.xmpp.delivery.inbound.DeliveringInboundStanzaRelay;
 import org.apache.vysper.xmpp.delivery.RecordingStanzaRelay;
 import org.apache.vysper.xmpp.delivery.StanzaRelayBroker;
 import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.roster.RosterModule;
 import org.apache.vysper.xmpp.modules.servicediscovery.ServiceDiscoveryModule;
 import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
-import org.apache.vysper.xmpp.protocol.SubdomainHandlerDictionary;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 
 /**

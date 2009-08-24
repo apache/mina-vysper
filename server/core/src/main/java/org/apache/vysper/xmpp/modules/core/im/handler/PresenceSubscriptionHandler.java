@@ -25,7 +25,7 @@ import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.IN_PRO
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.NOT_STARTED;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.delivery.DeliveryException;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.LocalDeliveryUtils;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;

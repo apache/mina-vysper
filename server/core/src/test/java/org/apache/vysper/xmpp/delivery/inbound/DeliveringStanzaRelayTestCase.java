@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.delivery;
+package org.apache.vysper.xmpp.delivery.inbound;
 
 import junit.framework.TestCase;
 import org.apache.vysper.xmpp.addressing.Entity;
@@ -26,6 +26,8 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.AccountCreationException;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
+import org.apache.vysper.xmpp.delivery.inbound.DeliveringInboundStanzaRelay;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;

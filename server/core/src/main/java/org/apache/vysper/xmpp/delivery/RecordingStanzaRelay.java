@@ -21,6 +21,8 @@ package org.apache.vysper.xmpp.delivery;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
 
 import java.util.ArrayList;
 import java.util.Iterator;

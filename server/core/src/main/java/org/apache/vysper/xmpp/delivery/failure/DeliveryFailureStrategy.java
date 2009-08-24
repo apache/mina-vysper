@@ -17,9 +17,10 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.delivery;
+package org.apache.vysper.xmpp.delivery.failure;
 
 import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 
 /**
  * there are many reasons why a stanza may fail to deliver: remote server not answering, local addressee has
@@ -36,7 +37,7 @@ public interface DeliveryFailureStrategy {
      *
      * @param failedToDeliverStanza - stanza which could not be delivered
      * @param deliveryException - optional: exception which occured during the failed delivery
-     * @throws DeliveryException - exception which occured during failure strategy execution.
+     * @throws org.apache.vysper.xmpp.delivery.failure.DeliveryException - exception which occured during failure strategy execution.
      */
     public void process(Stanza failedToDeliverStanza, DeliveryException deliveryException) throws DeliveryException;
 

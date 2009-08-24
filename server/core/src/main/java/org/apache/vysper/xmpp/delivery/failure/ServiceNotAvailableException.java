@@ -1,4 +1,6 @@
-package org.apache.vysper.xmpp.delivery;
+package org.apache.vysper.xmpp.delivery.failure;
+
+import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 
 /**
  */

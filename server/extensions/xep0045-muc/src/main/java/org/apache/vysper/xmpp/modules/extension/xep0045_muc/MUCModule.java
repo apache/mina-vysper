@@ -19,13 +19,12 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.delivery.DeliveryException;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler.MUCMessageHandler;
@@ -48,7 +47,6 @@ import org.apache.vysper.xmpp.protocol.SubdomainHandlerDictionary;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.xmlfragment.Attribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

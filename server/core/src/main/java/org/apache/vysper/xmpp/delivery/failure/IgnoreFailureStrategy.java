@@ -19,8 +19,8 @@
  */
 package org.apache.vysper.xmpp.delivery.failure;
 
-import org.apache.vysper.xmpp.delivery.DeliveryFailureStrategy;
-import org.apache.vysper.xmpp.delivery.DeliveryException;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**

@@ -29,7 +29,7 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
-import org.apache.vysper.xmpp.delivery.DeliveryException;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.modules.roster.persistence.RosterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

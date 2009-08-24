@@ -22,6 +22,8 @@ package org.apache.vysper.xmpp.delivery;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
 
 /**
  * relays stanzas. handles message itself, routes to another server/domain or delivers locally.
