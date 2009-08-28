@@ -87,7 +87,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         // TODO handle null
         Entity roomAndNick = stanza.getTo();
 
-        Entity occupantJid = sessionContext.getInitiatingEntity();
+        Entity occupantJid = stanza.getFrom();
         
         Entity roomJid = roomAndNick.getBareJID();
         String nick = roomAndNick.getResource();
