@@ -30,6 +30,7 @@ import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.state.presence.LatestPresenceCache;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
+import org.apache.vysper.xmpp.server.components.Component;
 
 import javax.net.ssl.SSLContext;
 
@@ -66,4 +67,8 @@ public interface ServerRuntimeContext {
     ServerRuntimeContextService getServerRuntimeContextService(String name);
     
     StorageProvider getStorageProvider(Class<? extends StorageProvider> clazz);
+
+    void registerComponent(Component component);
+
+    SessionContext getComponentSession(String domain);
 }

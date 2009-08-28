@@ -47,6 +47,8 @@ import org.apache.vysper.xmpp.stanza.XMPPCoreStanzaVerifier;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceState;
 import org.apache.vysper.xmpp.xmlfragment.Attribute;
+import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -280,6 +282,20 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
                                                           RosterManager rosterManager, 
                                                           Entity user, 
                                                           ResourceRegistry registry) {
+        PresenceStanza redirectDirectedStanza = presenceStanza;
+        if (presenceStanza.getFrom() == null) {
+            StanzaBuilder builder = StanzaBuilder.createClone(presenceStanza, true, null);
+            EntityImpl from = new EntityImpl(sessionContext.getInitiatingEntity(), registry.getUniqueResourceForSession(sessionContext));
+            builder.addAttribute("from", from.getFullQualifiedName());
+            redirectDirectedStanza = (PresenceStanza)XMPPCoreStanza.getWrapper(builder.getFinalStanza());
+        }
+
+        try {
+            serverRuntimeContext.getStanzaRelay().relay(presenceStanza.getTo(), redirectDirectedStanza, new IgnoreFailureStrategy());
+        } catch (DeliveryException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
         logger.warn("directed presence is not yet implemented");
         return null;
     }

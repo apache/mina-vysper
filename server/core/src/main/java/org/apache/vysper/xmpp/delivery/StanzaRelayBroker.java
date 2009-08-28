@@ -64,7 +64,7 @@ public class StanzaRelayBroker implements StanzaRelay {
 
         boolean relayToExternal = serverRuntimeContext.getServerFeatures().isRelayingToFederationServers();
 
-        if (domain.equals(serverRuntimeContext.getServerEnitity().getDomain())) {
+        if (domain.endsWith(serverRuntimeContext.getServerEnitity().getDomain())) {
             internalRelay.relay(receiver, stanza, deliveryFailureStrategy);
         } else {
             if (!relayToExternal) throw new IllegalStateException("this server is not relaying to external currently");

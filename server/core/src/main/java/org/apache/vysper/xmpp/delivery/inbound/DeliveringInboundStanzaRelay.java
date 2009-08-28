@@ -20,6 +20,7 @@
 package org.apache.vysper.xmpp.delivery.inbound;
 
 import org.apache.vysper.storage.StorageProviderRegistry;
+import org.apache.vysper.storage.jcr.JcrStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
@@ -82,7 +83,7 @@ public class DeliveringInboundStanzaRelay implements StanzaRelay {
         this(serverEntity, resourceRegistry, (AccountManagement)storageProviderRegistry.retrieve(AccountManagement.class));
     }
     
-    public DeliveringInboundStanzaRelay(Entity serverEntity, ResourceRegistry resourceRegistry, AccountManagement accountManagement) {
+    public DeliveringInboundStanzaRelay(Entity serverEntity, ResourceRegistry resourceRegistry, AccountManagement accountVerification) {
         this.serverEntity = serverEntity;
         this.resourceRegistry = resourceRegistry;
         this.accountVerification = accountVerification;

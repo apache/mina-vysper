@@ -21,6 +21,13 @@
 
 <beans>
 
+    <!-- Domain -->
+    <bean id="domain" class="org.apache.vysper.xmpp.addressing.EntityImpl" >
+        <constructor-arg value=""/>
+        <constructor-arg value="vysper.org"/>
+        <constructor-arg value=""/>
+    </bean>
+    
     <!-- The SSL configuration -->
 
      <bean id="bogusTrustManagerFactory" class="org.apache.vysper.xmpp.cryptography.BogusTrustManagerFactory"/>
@@ -43,6 +50,7 @@
     <alias name="jcrStorageRegistry" alias="storageRegistry" />
     
     <bean id="internalOutboundRelay" class="org.apache.vysper.xmpp.delivery.inbound.DeliveringInboundStanzaRelay" >
+        <constructor-arg ref="domain" />
         <constructor-arg ref="resourceRegistry"/>
         <constructor-arg ref="storageRegistry"/>
     </bean>
@@ -77,13 +85,7 @@
     </bean>
     
     <bean id="server" class="org.apache.vysper.spring.SpringCompatibleDefaultServerRuntimeContext" >
-        <constructor-arg >
-            <bean class="org.apache.vysper.xmpp.addressing.EntityImpl" >
-                <constructor-arg value=""/>
-                <constructor-arg value="vysper.org"/>
-                <constructor-arg value=""/>
-            </bean>
-        </constructor-arg>
+        <constructor-arg ref="domain" />
         <constructor-arg ref="stanzaRelay"/>
         <constructor-arg ref="serverFeatures"/>
         <constructor-arg>

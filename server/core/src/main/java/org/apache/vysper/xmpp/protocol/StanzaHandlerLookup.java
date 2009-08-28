@@ -43,7 +43,6 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
  */
 public class StanzaHandlerLookup {
 
-    private Map<String, SubdomainHandlerDictionary> subdomainDictionaries = new LinkedHashMap<String, SubdomainHandlerDictionary>();
     private Map<String, NamespaceHandlerDictionary> namespaceDictionaries = new LinkedHashMap<String, NamespaceHandlerDictionary>();
 
     private IQHandler iqHandler = new IQHandler();
@@ -51,40 +50,12 @@ public class StanzaHandlerLookup {
     private PresenceHandler presenceHandler = new PresenceHandler();
     private static final ServiceUnavailableStanzaErrorHandler SERVICE_UNAVAILABLE_STANZA_ERROR_HANDLER = new ServiceUnavailableStanzaErrorHandler();
 
-    private Entity serverEntity;
-    
-    public StanzaHandlerLookup(Entity serverEntity) {
-        this.serverEntity = serverEntity;
-    }
-    
     public void addDictionary(NamespaceHandlerDictionary namespaceHandlerDictionary) {
         String namespace = namespaceHandlerDictionary.getNamespaceURI();
         if (namespaceDictionaries.containsKey(namespace)) throw new IllegalArgumentException("dictionary already exists covering namespace " + namespace);
         namespaceDictionaries.put(namespace, namespaceHandlerDictionary);
     }
 
-    public void addDictionary(SubdomainHandlerDictionary subdomainHandlerDictionary) {
-        Entity domain = subdomainHandlerDictionary.getDomain();
-        if(domain == null || domain.getDomain() == null) throw new IllegalArgumentException("subdomain dictionary can not be added with null domain");
-        if(domain.getDomain().equals(serverEntity.getDomain())) throw new IllegalArgumentException("a module can not register for the server domain " + domain);
-        if (subdomainDictionaries.containsKey(domain)) throw new IllegalArgumentException("dictionary already exists covering the domain " + domain);
-        subdomainDictionaries.put(domain.getDomain(), subdomainHandlerDictionary);
-    }
-    
-    private boolean forSubDomain(Stanza stanza) {
-        Entity to = stanza.getTo();
-
-        if(to != null) {
-            String stanzaDomain = to.getDomain();
-            String serverDomain = serverEntity.getDomain();
-            
-            return stanzaDomain.endsWith(serverDomain) && !serverDomain.equals(stanzaDomain);
-        } else {
-            // no "to" attribute
-            return false;
-        }
-    }
-    
     /**
      * looks into the stanza to see which handler is responsible, if any
      * @param stanza
@@ -94,13 +65,6 @@ public class StanzaHandlerLookup {
         if (stanza == null) return null;
 
         String name = stanza.getName();
-        
-        // check if this stanza is for a subdomain, and if so, if we got a module for it
-        if(forSubDomain(stanza)) {
-            StanzaHandler handler = getHandlerForSubdomain(stanza);
-            if(handler != null) return handler;
-        }
-        
         if      ("xml".equals(name)) return new XMLPrologHandler();
         else if ("stream".equals(name)) return new StreamStartHandler();
         else if (iqHandler.verify(stanza)) return getIQHandler(stanza);
@@ -119,26 +83,6 @@ public class StanzaHandlerLookup {
         }
     }
 
-    private StanzaHandler getHandlerForSubdomain(Stanza stanza) {
-        // check if we got a handler for this subdomain
-        HandlerDictionary handlerDic = subdomainDictionaries.get(stanza.getTo().getDomain());
-        if(handlerDic != null) {
-            // a module has registered for this domain
-            StanzaHandler handler = handlerDic.get(stanza);
-            if(handler != null) {
-                // found a handler, return
-                return handler;
-            } else {
-                // all messages for a subdomain must be handled by the module which has 
-                // registered for the domain, or we return unsupported stanza
-                return SERVICE_UNAVAILABLE_STANZA_ERROR_HANDLER;
-            }
-        } else {
-            // no module has registered for this subdomain 
-            return null;
-        }
-    }
-    
     private StanzaHandler getPresenceHandler(Stanza stanza) {
         return presenceHandler;
     }

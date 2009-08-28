@@ -50,7 +50,7 @@ public class StanzaHandlerLookupTestCase extends TestCase {
         lowerNamespaceHandlerDictionary.register(lowerStanzaHandler);
 
 
-        StanzaHandlerLookup stanzaHandlerLookup = new StanzaHandlerLookup(SERVER_ENTITY);
+        StanzaHandlerLookup stanzaHandlerLookup = initStanzaHandlerLookup();
         stanzaHandlerLookup.addDictionary(upperNamespaceHandlerDictionary);
         stanzaHandlerLookup.addDictionary(lowerNamespaceHandlerDictionary);
 
@@ -75,7 +75,7 @@ public class StanzaHandlerLookupTestCase extends TestCase {
     }
 
     public void testLookupCoreHandlerClientNS() {
-        StanzaHandlerLookup stanzaHandlerLookup = new StanzaHandlerLookup(SERVER_ENTITY);
+        StanzaHandlerLookup stanzaHandlerLookup = initStanzaHandlerLookup();
         stanzaHandlerLookup.addDictionary(new BaseStreamStanzaDictionary());
 
         Stanza stanza = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT).getFinalStanza();
@@ -86,8 +86,12 @@ public class StanzaHandlerLookupTestCase extends TestCase {
 
     }
 
+    private StanzaHandlerLookup initStanzaHandlerLookup() {
+        return new StanzaHandlerLookup();
+    }
+
     public void testLookupCoreHandlerServerNS() {
-        StanzaHandlerLookup stanzaHandlerLookup = new StanzaHandlerLookup(SERVER_ENTITY);
+        StanzaHandlerLookup stanzaHandlerLookup = initStanzaHandlerLookup();
         stanzaHandlerLookup.addDictionary(new BaseStreamStanzaDictionary());
 
         Stanza stanza = new StanzaBuilder("iq", NamespaceURIs.JABBER_SERVER).getFinalStanza();
@@ -99,7 +103,7 @@ public class StanzaHandlerLookupTestCase extends TestCase {
     }
 
     public void testLookupCoreHandlerWrongNamespace() {
-        StanzaHandlerLookup stanzaHandlerLookup = new StanzaHandlerLookup(SERVER_ENTITY);
+        StanzaHandlerLookup stanzaHandlerLookup = initStanzaHandlerLookup();
         stanzaHandlerLookup.addDictionary(new BaseStreamStanzaDictionary());
 
         Stanza stanza = new StanzaBuilder("iq", "arbitraryNamespace").getFinalStanza();
@@ -109,7 +113,7 @@ public class StanzaHandlerLookupTestCase extends TestCase {
     }
 
     public void testLookupPresenceHandler() {
-        StanzaHandlerLookup stanzaHandlerLookup = new StanzaHandlerLookup(SERVER_ENTITY);
+        StanzaHandlerLookup stanzaHandlerLookup = initStanzaHandlerLookup();
         stanzaHandlerLookup.addDictionary(new BaseStreamStanzaDictionary());
 
         Stanza stanza = new StanzaBuilder("presence", NamespaceURIs.JABBER_CLIENT).getFinalStanza();
@@ -120,7 +124,7 @@ public class StanzaHandlerLookupTestCase extends TestCase {
     }
 
     public void testLookupMessageHandler() {
-        StanzaHandlerLookup stanzaHandlerLookup = new StanzaHandlerLookup(SERVER_ENTITY);
+        StanzaHandlerLookup stanzaHandlerLookup = initStanzaHandlerLookup();
         stanzaHandlerLookup.addDictionary(new BaseStreamStanzaDictionary());
 
         Stanza stanza = new StanzaBuilder("message", NamespaceURIs.JABBER_CLIENT).getFinalStanza();
@@ -131,7 +135,7 @@ public class StanzaHandlerLookupTestCase extends TestCase {
     }
 
     public void testLookupSpecializedIQHandler() {
-        StanzaHandlerLookup stanzaHandlerLookup = new StanzaHandlerLookup(SERVER_ENTITY);
+        StanzaHandlerLookup stanzaHandlerLookup = initStanzaHandlerLookup();
         stanzaHandlerLookup.addDictionary(new BaseStreamStanzaDictionary());
 
         NamespaceHandlerDictionary testDictionary = new NamespaceHandlerDictionary("test:namespace:OK");
@@ -152,21 +156,6 @@ public class StanzaHandlerLookupTestCase extends TestCase {
         assertTrue("test handler", TestIQHandler.class.equals(handler.getClass()));
     }
     
-    public void testLookupSubdomain() {
-        StanzaHandlerLookup stanzaHandlerLookup = new StanzaHandlerLookup(SERVER_ENTITY);
-
-        SubdomainHandlerDictionary testDictionary = new SubdomainHandlerDictionary(SUBDOMAIN_ENTITY);
-        testDictionary.register(new TestIQHandler("test", "test:namespace"));
-        stanzaHandlerLookup.addDictionary(testDictionary);
-
-        Stanza stanza = buildStanza("test", "test:namespace", "test@sub.vysper.org");
-
-        StanzaHandler handler = stanzaHandlerLookup.getHandler(stanza);
-
-        assertNotNull("handler found", handler);
-        assertTrue("test handler", TestIQHandler.class.equals(handler.getClass()));
-    }
-
     private Stanza buildStanza(String name, String namespaceURI) {
         return buildStanza(name, namespaceURI, null);
     }

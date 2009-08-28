@@ -43,8 +43,10 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequ
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.SubdomainHandlerDictionary;
+import org.apache.vysper.xmpp.protocol.AbstractHandlerDictionary;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.components.Component;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.slf4j.Logger;
@@ -55,7 +57,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequestListener, InfoRequestListener, ItemRequestListener {
+public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequestListener, InfoRequestListener, ItemRequestListener, Component {
 
     private Conference conference;
     private Entity domain;
@@ -164,12 +166,16 @@ public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequ
     @Override
     protected void addHandlerDictionaries(List<HandlerDictionary> dictionaries) {
         // MUC is only supported for running on a subdomain
+
         
-        SubdomainHandlerDictionary dictionary = new SubdomainHandlerDictionary(domain);
+        AbstractHandlerDictionary dictionary = new AbstractHandlerDictionary() {
+            
+        };
+        
         dictionary.register(new MUCPresenceHandler(conference));
         dictionary.register(new MUCMessageHandler(conference, domain));
         
-        dictionaries.add(dictionary);
+// TODO        dictionaries.add(dictionary);
     }
 
     /**
@@ -213,6 +219,14 @@ public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequ
                 }
             }
         }
+        return null;
+    }
+
+    public String getSubdomain() {
+        return domain.getDomain();
+    }
+
+    public SessionContext getSessionContext() {
         return null;
     }
 }

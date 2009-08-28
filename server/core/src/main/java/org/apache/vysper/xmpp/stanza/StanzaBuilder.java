@@ -112,7 +112,8 @@ public class StanzaBuilder {
     public static StanzaBuilder createClone(XMLElement original, boolean deep, List<Attribute> replacingAttributes) {
         StanzaBuilder stanzaBuilder = new StanzaBuilder(original.getName(), original.getNamespacePrefix());
 
-        List<Attribute> replacingAttributesCopy = new ArrayList<Attribute>(replacingAttributes);
+        List<Attribute> replacingAttributesCopy = new ArrayList<Attribute>();
+        if (replacingAttributes != null) replacingAttributesCopy.addAll(replacingAttributes);
 
         List<Attribute> originalAttributes = original.getAttributes();
         for (Attribute originalAttribute : originalAttributes) {
