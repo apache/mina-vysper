@@ -81,7 +81,7 @@ public class MUCMessageHandler extends DefaultMessageHandler {
             SessionContext sessionContext) {
 
         logger.debug("Received message for MUC");
-        Entity from = sessionContext.getInitiatingEntity();
+        Entity from = stanza.getFrom();
         Entity roomWithNickJid = stanza.getTo();
         Entity roomJid = roomWithNickJid.getBareJID();
 
@@ -115,7 +115,7 @@ public class MUCMessageHandler extends DefaultMessageHandler {
                             
                             relayStanza(occupent.getJid(), 
                                     StanzaBuilder.createClone(stanza, true, replaceAttributes).getFinalStanza(),
-                                    sessionContext);
+                                    serverRuntimeContext);
                         }
                     } else {
                         return createMessageErrorStanza(room.getJID(), from, stanza.getID(), StanzaErrorType.MODIFY, StanzaErrorCondition.FORBIDDEN, stanza);
@@ -148,7 +148,7 @@ public class MUCMessageHandler extends DefaultMessageHandler {
                     
                         relayStanza(receivingOccupant.getJid(), 
                             StanzaBuilder.createClone(stanza, true, replaceAttributes).getFinalStanza(),
-                            sessionContext);
+                            serverRuntimeContext);
                     } else {
                         // TODO correct error?
                         return createMessageErrorStanza(moduleDomain, from, stanza.getID(), StanzaErrorType.MODIFY, StanzaErrorCondition.ITEM_NOT_FOUND, stanza);
@@ -165,9 +165,9 @@ public class MUCMessageHandler extends DefaultMessageHandler {
     }
 
     protected void relayStanza(Entity receiver, Stanza stanza,
-            SessionContext sessionContext) {
+            ServerRuntimeContext serverRuntimeContext) {
         try {
-            sessionContext.getServerRuntimeContext().getStanzaRelay().relay(
+            serverRuntimeContext.getStanzaRelay().relay(
                     receiver, stanza, new IgnoreFailureStrategy());
         } catch (DeliveryException e) {
             logger.warn("presence relaying failed ", e);
