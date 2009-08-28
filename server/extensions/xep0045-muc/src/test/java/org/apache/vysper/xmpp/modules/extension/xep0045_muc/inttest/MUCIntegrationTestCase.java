@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.vysper.TestUtil;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.MUCModule;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
@@ -121,21 +122,15 @@ public class MUCIntegrationTestCase extends AbstractIntegrationTestCase {
         chat.sendMessage("Fooo");
         Message message = chat.nextMessage(5000);
 
-        assertNull(message); // TODO REMOVE. triggers failure as soon as relaying is fixed
-        return; 
-
-        // TODO re-enable rest of the test when component relay is fully implemented
-        /*
         assertNotNull(message);
         assertEquals("Fooo", message.getBody());
         assertEquals(ROOM_JID + "/Nick", message.getFrom());
-        assertEquals(TEST_USERNAME1, message.getTo());
+        assertEquals(TEST_USERNAME1, EntityImpl.parse(message.getTo()).getBareJID().getFullQualifiedName());
         
         message = chat2.nextMessage(5000);
         assertNotNull(message);
         assertEquals("Fooo", message.getBody());
         assertEquals(ROOM_JID + "/Nick", message.getFrom());
-        assertEquals(TEST_USERNAME2, message.getTo());
-        */
+        assertEquals(TEST_USERNAME2, EntityImpl.parse(message.getTo()).getBareJID().getFullQualifiedName());
     }
 }
