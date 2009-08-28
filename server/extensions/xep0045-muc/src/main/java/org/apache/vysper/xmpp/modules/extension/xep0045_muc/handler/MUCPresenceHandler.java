@@ -100,9 +100,9 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         String type = stanza.getType();
         
         if(type == null) {
-            return available(stanza, roomJid, occupantJid, nick, sessionContext);
+            return available(stanza, roomJid, occupantJid, nick, serverRuntimeContext);
         } else if(type.equals("unavailable")) {
-            return unavailable(stanza, roomJid, occupantJid, nick, sessionContext);
+            return unavailable(stanza, roomJid, occupantJid, nick, serverRuntimeContext);
         } else {
             throw new RuntimeException("Presence type not handled by MUC module: " + type);
         }
@@ -123,7 +123,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
     }
     
     private Stanza available(PresenceStanza stanza, Entity roomJid,
-            Entity newOccupantJid, String nick, SessionContext sessionContext) {
+            Entity newOccupantJid, String nick, ServerRuntimeContext serverRuntimeContext) {
         
         // TODO what to use for the room name?
         Room room = conference.findOrCreateRoom(roomJid, roomJid.getNode());
@@ -139,7 +139,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
                 // nick unchanged, change show and status
                 for(Occupant receiver : room.getOccupants()) {
                     sendChangeShowStatus(occupant, receiver, room, getInnerElementText(stanza, "show"), 
-                            getInnerElementText(stanza, "status"), sessionContext);
+                            getInnerElementText(stanza, "status"), serverRuntimeContext);
                 }
             } else {
                 if(room.isInRoom(nick)) {
@@ -153,12 +153,12 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
                 
                 // send out unavailable presences to all existing occupants
                 for(Occupant receiver : room.getOccupants()) {
-                    sendChangeNickUnavailable(occupant, oldNick, receiver, room, sessionContext);
+                    sendChangeNickUnavailable(occupant, oldNick, receiver, room, serverRuntimeContext);
                 }
                 
                 // send out available presences to all existing occupants
                 for(Occupant receiver : room.getOccupants()) {
-                    sendChangeNickAvailable(occupant, receiver, room, sessionContext);
+                    sendChangeNickAvailable(occupant, receiver, room, serverRuntimeContext);
                 }
 
             }
@@ -195,12 +195,12 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
             
             // relay presence of all existing room occupants to the now joined occupant
             for(Occupant occupant : room.getOccupants()) {
-                sendExistingOccupantToNewOccupant(newOccupant, occupant, room, sessionContext);
+                sendExistingOccupantToNewOccupant(newOccupant, occupant, room, serverRuntimeContext);
             }
             
             // relay presence of the newly added occupant to all existing occupants
             for(Occupant occupant : room.getOccupants()) {
-                sendNewOccupantPresenceToExisting(newOccupant, occupant, room, sessionContext);
+                sendNewOccupantPresenceToExisting(newOccupant, occupant, room, serverRuntimeContext);
             }
             
             logger.debug("{} successfully entered room {}", newOccupantJid, roomJid);
@@ -209,7 +209,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
     }   
     
     private Stanza unavailable(PresenceStanza stanza, Entity roomJid,
-            Entity occupantJid, String nick, SessionContext sessionContext) {
+            Entity occupantJid, String nick, ServerRuntimeContext serverRuntimeContext) {
         Room room = conference.findRoom(roomJid);
         
         // room must exist, or we do nothing
@@ -234,7 +234,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
                 
                 // relay presence of the newly added occupant to all existing occupants
                 for(Occupant occupant : allOccupants) {
-                    sendExitRoomPresenceToExisting(exitingOccupant, occupant, room, statusMessage, sessionContext);
+                    sendExitRoomPresenceToExisting(exitingOccupant, occupant, room, statusMessage, serverRuntimeContext);
                 }
                 
                 if(room.isRoomType(RoomType.Temporary) && room.isEmpty()) {
@@ -246,7 +246,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         return null;
     }
 
-    private void sendExistingOccupantToNewOccupant(Occupant newOccupant, Occupant existingOccupant, Room room, SessionContext sessionContext) {
+    private void sendExistingOccupantToNewOccupant(Occupant newOccupant, Occupant existingOccupant, Room room, ServerRuntimeContext serverRuntimeContext) {
         //            <presence
         //            from='darkcave@chat.shakespeare.lit/firstwitch'
         //            to='hag66@shakespeare.lit/pda'>
@@ -270,10 +270,10 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         builder.endInnerElement();
         
         logger.debug("Room presence from {} sent to {}", newOccupant, roomAndOccupantNick);
-        relayStanza(newOccupant.getJid(), builder.getFinalStanza(), sessionContext);
+        relayStanza(newOccupant.getJid(), builder.getFinalStanza(), serverRuntimeContext);
     }
     
-    private void sendNewOccupantPresenceToExisting(Occupant newOccupant, Occupant existingOccupant, Room room, SessionContext sessionContext) {
+    private void sendNewOccupantPresenceToExisting(Occupant newOccupant, Occupant existingOccupant, Room room, ServerRuntimeContext serverRuntimeContext) {
         Entity roomAndNewUserNick = new EntityImpl(room.getJID(), newOccupant.getName());
         
         StanzaBuilder builder = StanzaBuilder.createPresenceStanza(roomAndNewUserNick, existingOccupant.getJid(), null, null, null, null);
@@ -297,10 +297,10 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         builder.endInnerElement();
 
         logger.debug("Room presence from {} sent to {}", roomAndNewUserNick, existingOccupant);
-        relayStanza(existingOccupant.getJid(), builder.getFinalStanza(), sessionContext);
+        relayStanza(existingOccupant.getJid(), builder.getFinalStanza(), serverRuntimeContext);
     }
 
-    private void sendChangeNickUnavailable(Occupant changer, String oldNick, Occupant receiver, Room room, SessionContext sessionContext) {
+    private void sendChangeNickUnavailable(Occupant changer, String oldNick, Occupant receiver, Room room, ServerRuntimeContext serverRuntimeContext) {
         Entity roomAndOldNick = new EntityImpl(room.getJID(), oldNick);
         
         StanzaBuilder builder = StanzaBuilder.createPresenceStanza(roomAndOldNick, receiver.getJid(), null, 
@@ -319,11 +319,11 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         builder.endInnerElement();
 
         logger.debug("Room presence from {} sent to {}", roomAndOldNick, receiver);
-        relayStanza(receiver.getJid(), builder.getFinalStanza(), sessionContext);
+        relayStanza(receiver.getJid(), builder.getFinalStanza(), serverRuntimeContext);
     }
     
 
-    private void sendChangeShowStatus(Occupant changer, Occupant receiver, Room room, String show, String status, SessionContext sessionContext) {
+    private void sendChangeShowStatus(Occupant changer, Occupant receiver, Room room, String show, String status, ServerRuntimeContext serverRuntimeContext) {
         Entity roomAndNick = new EntityImpl(room.getJID(), changer.getName());
         
         StanzaBuilder builder = StanzaBuilder.createPresenceStanza(roomAndNick, receiver.getJid(), null, 
@@ -341,7 +341,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         builder.endInnerElement();
 
         logger.debug("Room presence from {} sent to {}", roomAndNick, receiver);
-        relayStanza(receiver.getJid(), builder.getFinalStanza(), sessionContext);
+        relayStanza(receiver.getJid(), builder.getFinalStanza(), serverRuntimeContext);
     }
 
     
@@ -350,7 +350,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         return room.getRoomTypes().contains(RoomType.NonAnonymous) ||
             (room.getRoomTypes().contains(RoomType.SemiAnonymous) && receiver.getRole() == Role.Moderator);
     }
-    private void sendChangeNickAvailable(Occupant changer, Occupant receiver, Room room, SessionContext sessionContext) {
+    private void sendChangeNickAvailable(Occupant changer, Occupant receiver, Room room, ServerRuntimeContext serverRuntimeContext) {
         Entity roomAndOldNick = new EntityImpl(room.getJID(), changer.getName());
         
         StanzaBuilder builder = StanzaBuilder.createPresenceStanza(roomAndOldNick, receiver.getJid(), null, null, null, null);
@@ -365,12 +365,12 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         }
         builder.endInnerElement();
 
-        relayStanza(receiver.getJid(), builder.getFinalStanza(), sessionContext);
+        relayStanza(receiver.getJid(), builder.getFinalStanza(), serverRuntimeContext);
     }
 
     
     private void sendExitRoomPresenceToExisting(Occupant exitingOccupant, Occupant existingOccupant, Room room, 
-            String statusMessage, SessionContext sessionContext) {
+            String statusMessage, ServerRuntimeContext serverRuntimeContext) {
         Entity roomAndNewUserNick = new EntityImpl(room.getJID(), exitingOccupant.getName());
         
         StanzaBuilder builder = StanzaBuilder.createPresenceStanza(roomAndNewUserNick, existingOccupant.getJid(), null, 
@@ -399,14 +399,14 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         }
         builder.endInnerElement();
 
-        relayStanza(existingOccupant.getJid(), builder.getFinalStanza(), sessionContext);
+        relayStanza(existingOccupant.getJid(), builder.getFinalStanza(), serverRuntimeContext);
     }
     
-    protected void relayStanza(Entity receiver, Stanza stanza, SessionContext sessionContext) {
+    protected void relayStanza(Entity receiver, Stanza stanza, ServerRuntimeContext serverRuntimeContext) {
         try {
-                sessionContext.getServerRuntimeContext().getStanzaRelay().relay(receiver, stanza, new IgnoreFailureStrategy());
+                serverRuntimeContext.getStanzaRelay().relay(receiver, stanza, new IgnoreFailureStrategy());
         } catch (DeliveryException e) {
                 logger.warn("presence relaying failed ", e);
         }
-}
+    }
 }
