@@ -120,6 +120,7 @@ public class XMPPServer {
         serverRuntimeContext.addModule(new RosterModule());
 
         stanzaRelayBroker.setServerRuntimeContext(serverRuntimeContext);
+        internalStanzaRelay.setServerRuntimeContext(serverRuntimeContext);
 
         if (endpoints.size() == 0) throw new IllegalStateException("server must have at least one endpoint");
         for (Endpoint endpoint : endpoints) {

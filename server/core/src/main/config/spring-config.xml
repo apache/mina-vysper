@@ -53,6 +53,7 @@
         <constructor-arg ref="domain" />
         <constructor-arg ref="resourceRegistry"/>
         <constructor-arg ref="storageRegistry"/>
+        <property name="serverRuntimeContext" ref="server" />
     </bean>
 
     <bean id="stanzaRelay" class="org.apache.vysper.xmpp.delivery.StanzaRelayBroker" >

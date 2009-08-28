@@ -42,6 +42,7 @@ import org.apache.vysper.xmpp.protocol.QueuedStanzaProcessor;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaHandlerLookup;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
+import org.apache.vysper.xmpp.protocol.ProtocolWorker;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.state.presence.LatestPresenceCache;
 import org.apache.vysper.xmpp.state.presence.SimplePresenceCache;
@@ -92,7 +93,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     /**
      * 'input stream': receives stanzas issued by client sessions to be handled by the server
      */
-    private StanzaProcessor stanzaProcessor = new QueuedStanzaProcessor();
+    private StanzaProcessor stanzaProcessor = new QueuedStanzaProcessor(new ProtocolWorker());
 
     /**
      * 'output stream': receives stanzas issued by a session, which are going to other sessions/servers
@@ -118,6 +119,10 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
      * collection of all other services, which are mostly add-ons to the minimal setup
      */
     final private Map<String, ServerRuntimeContextService> serverRuntimeContextServiceMap = new HashMap<String, ServerRuntimeContextService>();
+
+    /**
+     * map of all registered components, index by the subdomain they are registered for
+     */
     protected final Map<String, Component> componentMap = new HashMap<String, Component>();
 
     public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay) {
@@ -334,7 +339,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         componentMap.put(component.getSubdomain(), component);
     }                          
 
-    public SessionContext getComponentSession(String domain) {
+    public StanzaProcessor getComponentStanzaProcessor(String domain) {
         String serverDomain = getServerEnitity().getDomain();
         if (!domain.endsWith(serverDomain)) {
             return null;
@@ -342,7 +347,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         String subdomain = domain.replace("." + domain, "");
         Component component = componentMap.get(subdomain);
         if (component == null) return null;
-        return component.getSessionContext();
+        return component.getStanzaProcessor();
     }
 
 }

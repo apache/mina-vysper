@@ -27,6 +27,8 @@ import java.util.concurrent.*;
 
 /**
  * stanza processor, acts as a 'stage' by using a ThreadPoolExecutor
+ * 
+ * TODO: make thread pool configuration managable
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
@@ -36,13 +38,14 @@ public class QueuedStanzaProcessor implements StanzaProcessor {
 
     protected ExecutorService executor;
 
-    protected StanzaProcessor protocolWorker = new ProtocolWorker();
+    protected StanzaProcessor stanzaProcessor;
 
-    public QueuedStanzaProcessor() {
+    public QueuedStanzaProcessor(StanzaProcessor stanzaProcessor) {
         int coreThreadCount = 10;
         int maxThreadCount = 20;
         int threadTimeoutSeconds = 2 * 60 * 1000;
-        executor = new ThreadPoolExecutor(coreThreadCount, maxThreadCount, threadTimeoutSeconds, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+        this.executor = new ThreadPoolExecutor(coreThreadCount, maxThreadCount, threadTimeoutSeconds, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+        this.stanzaProcessor = stanzaProcessor;
     }
 
     public void processStanza(ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, Stanza stanza, SessionStateHolder sessionStateHolder) {
@@ -66,7 +69,7 @@ public class QueuedStanzaProcessor implements StanzaProcessor {
         }
 
         public void run() {
-            protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza, sessionStateHolder);
+            stanzaProcessor.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza, sessionStateHolder);
         }
     }
 

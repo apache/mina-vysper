@@ -26,9 +26,11 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.protocol.worker.InboundStanzaProtocolWorker;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -78,6 +80,7 @@ public class DeliveringInboundStanzaRelay implements StanzaRelay {
     protected AccountManagement accountVerification;
     protected OfflineStanzaReceiver offlineStanzaReceiver = null;
     protected Entity serverEntity;
+    protected ServerRuntimeContext serverRuntimeContext = null;
 
     public DeliveringInboundStanzaRelay(Entity serverEntity, ResourceRegistry resourceRegistry, StorageProviderRegistry storageProviderRegistry) {
         this(serverEntity, resourceRegistry, (AccountManagement)storageProviderRegistry.retrieve(AccountManagement.class));
@@ -91,6 +94,10 @@ public class DeliveringInboundStanzaRelay implements StanzaRelay {
         int maxThreadCount = 20;
         int threadTimeoutSeconds = 2 * 60 * 1000;
         this.executor = new ThreadPoolExecutor(coreThreadCount, maxThreadCount, threadTimeoutSeconds, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+    }
+
+    public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
+        this.serverRuntimeContext = serverRuntimeContext;
     }
 
     public void relay(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy) throws DeliveryException {
@@ -149,15 +156,19 @@ public class DeliveringInboundStanzaRelay implements StanzaRelay {
             try {
                 String receiverDomain = receiver.getDomain();
                 if (receiverDomain != null && !receiverDomain.equals(serverEntity.getDomain())) {
+                    if (serverRuntimeContext == null) {
+                        return new RelayResult(new ServiceNotAvailableException("cannot retrieve component from server context"));
+                    }
                     if (!receiverDomain.endsWith("." + serverEntity.getDomain())) {
                         return new RelayResult(new ServiceNotAvailableException("unsupported domain " + receiverDomain));
                     }
-                    
-                    // TODO get components runtime context
 
-                    // pass through to component all stanzas like component.vysper.org for server domain vysper.org
-                    // TODO INBOUND_STANZA_PROTOCOL_WORKER.processStanza(null, sessionStateHolder, stanza, stanzaHandler);
-                    throw new RuntimeException("component delivery not implemented");
+                    StanzaProcessor processor = serverRuntimeContext.getComponentStanzaProcessor(receiverDomain);
+                    if (processor == null) {
+                        return new RelayResult(new ServiceNotAvailableException("cannot retrieve component stanza processor for" + receiverDomain));
+                    }
+
+                    processor.processStanza(serverRuntimeContext, null, stanza, null);
                 }
 
                 if (receiver.isResourceSet()) {

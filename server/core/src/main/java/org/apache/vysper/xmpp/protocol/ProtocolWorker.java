@@ -45,7 +45,7 @@ import java.util.Map;
 import java.util.List;
 
 /**
- * responsible for high-level XMPP protocol logic.
+ * responsible for high-level XMPP protocol logic for client-server sessions
  * determines start, end and jabber conditions.
  * reads the stream and cuts it into stanzas,
  * holds state and invokes stanza execution,

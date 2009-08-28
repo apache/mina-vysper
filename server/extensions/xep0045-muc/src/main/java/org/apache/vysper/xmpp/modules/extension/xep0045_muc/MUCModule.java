@@ -19,8 +19,6 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
 
-import java.util.List;
-
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -41,16 +39,17 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
-import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.AbstractHandlerDictionary;
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.components.Component;
+import org.apache.vysper.xmpp.server.components.ComponentStanzaProcessor;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * A module for <a href="http://xmpp.org/extensions/xep-0045.html">XEP-0045 Multi-user chat</a>.
@@ -64,6 +63,8 @@ public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequ
     
     private final Logger logger = LoggerFactory.getLogger(MUCModule.class);
     private ServerRuntimeContext serverRuntimeContext;
+
+    private ComponentStanzaProcessor stanzaProcessor;
     
     public MUCModule(Entity domain) {
         this(domain, new Conference("Conference"));
@@ -90,6 +91,12 @@ public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequ
         super.initialize(serverRuntimeContext);
         
         this.serverRuntimeContext = serverRuntimeContext;
+
+        ComponentStanzaProcessor processor = new ComponentStanzaProcessor(serverRuntimeContext);
+        processor.addHandler(new MUCPresenceHandler(conference));
+        processor.addHandler(new MUCMessageHandler(conference, domain));
+        stanzaProcessor = processor;
+
         RoomStorageProvider roomStorageProvider = (RoomStorageProvider) serverRuntimeContext.getStorageProvider(RoomStorageProvider.class);
         OccupantStorageProvider occupantStorageProvider = (OccupantStorageProvider) serverRuntimeContext.getStorageProvider(OccupantStorageProvider.class);
 
@@ -163,21 +170,6 @@ public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequ
         return null;
     }
     
-    @Override
-    protected void addHandlerDictionaries(List<HandlerDictionary> dictionaries) {
-        // MUC is only supported for running on a subdomain
-
-        
-        AbstractHandlerDictionary dictionary = new AbstractHandlerDictionary() {
-            
-        };
-        
-        dictionary.register(new MUCPresenceHandler(conference));
-        dictionary.register(new MUCMessageHandler(conference, domain));
-        
-// TODO        dictionaries.add(dictionary);
-    }
-
     /**
      * Make this object available for disco#items requests for rooms
      */
@@ -187,7 +179,6 @@ public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequ
     }
     
     private void relayDiscoStanza(Entity receiver, InfoRequest request, String ns) {
-        // TODO how to get id?
         StanzaBuilder builder = StanzaBuilder.createIQStanza(request.getFrom(), receiver, IQStanzaType.GET, request.getID());
         builder.startInnerElement("query", ns);
         if(request.getNode() != null) {
@@ -226,7 +217,7 @@ public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequ
         return domain.getDomain();
     }
 
-    public SessionContext getSessionContext() {
-        return null;
+    public StanzaProcessor getStanzaProcessor() {
+        return stanzaProcessor;
     }
 }
