@@ -24,10 +24,14 @@ import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.AbstractHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
+import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.ResponseWriter;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
+import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 
 /**
  */
@@ -59,17 +63,29 @@ public class ComponentStanzaProcessor implements StanzaProcessor {
         if (xmppStanza == null) throw new RuntimeException("cannot process only: IQ, message or presence");
 
         StanzaHandler stanzaHandler = handlers.get(xmppStanza);
-        
+
         if (stanzaHandler == null) {
             unhandledStanza(stanza);
             return;
         }
 
+        ResponseStanzaContainer responseStanzaContainer = null;
         try {
-            stanzaHandler.execute(stanza, serverRuntimeContext, false, sessionContext, sessionStateHolder);
+            responseStanzaContainer = stanzaHandler.execute(stanza, serverRuntimeContext, false, sessionContext, sessionStateHolder);
         } catch (ProtocolException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
+
+        if (responseStanzaContainer != null && responseStanzaContainer.getResponseStanza() != null) {
+            Stanza responseStanza = responseStanzaContainer.getResponseStanza();
+            try {
+                IgnoreFailureStrategy failureStrategy = new IgnoreFailureStrategy(); // TODO call back MUC module
+                serverRuntimeContext.getStanzaRelay().relay(responseStanza.getTo(), responseStanza, failureStrategy);
+            } catch (DeliveryException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
     }
 
     private void unhandledStanza(Stanza stanza) {
