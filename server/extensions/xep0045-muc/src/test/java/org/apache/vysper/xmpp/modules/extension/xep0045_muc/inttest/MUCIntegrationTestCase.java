@@ -72,7 +72,7 @@ public class MUCIntegrationTestCase extends AbstractIntegrationTestCase {
         Room room = conference.findRoom(TestUtil.parseUnchecked(ROOM_JID));
         assertEquals(1, room.getOccupantCount());
         Occupant occupant = room.getOccupants().iterator().next();
-        assertEquals(TEST_USERNAME1, occupant.getJid().getFullQualifiedName());
+        assertEquals(TEST_USERNAME1, occupant.getJid().getBareJID().getFullQualifiedName());
         assertEquals("Nick", occupant.getName());
         
         
