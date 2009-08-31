@@ -344,7 +344,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         if (!domain.endsWith(serverDomain)) {
             return null;
         }
-        String subdomain = domain.replace("." + domain, "");
+        String subdomain = domain.replace("." + serverDomain, "");
         Component component = componentMap.get(subdomain);
         if (component == null) return null;
         return component.getStanzaProcessor();
