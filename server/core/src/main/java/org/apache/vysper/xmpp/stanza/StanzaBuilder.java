@@ -146,7 +146,34 @@ public class StanzaBuilder {
 
         return stanzaBuilder;
     }
+    
+    /**
+     * creates a new stanza which only differs from the given original by 'from' and 'to' attributes. 
+     * 
+     * @param original 
+     * @param from if NOT NULL, the new 'from'
+     * @param to if NOT NULL, the new 'to'
+     * @return stanza builder with to and from replaced
+     */
+    public static StanzaBuilder createForward(Stanza original, Entity from, Entity to) {
+        List<Attribute> toFromReplacements = new ArrayList<Attribute>(2);
+        if (to != null) toFromReplacements.add(new Attribute("to", to.getFullQualifiedName()));
+        if (from != null) toFromReplacements.add(new Attribute("from", from.getFullQualifiedName()));
 
+        return createClone(original, true, toFromReplacements);
+    }
+
+    /**
+     * convenience shortcut for {@link #createForward(Stanza, org.apache.vysper.xmpp.addressing.Entity, org.apache.vysper.xmpp.addressing.Entity)}
+     * 
+     * @param original 
+     * @param from if NOT NULL, the new 'from'
+     * @param to if NOT NULL, the new 'to'
+     * @return forward stanza
+     */
+    public static Stanza createForwardStanza(Stanza original, Entity from, Entity to) {
+        return createForward(original, from, to).getFinalStanza();
+    }
 
     class ElementStruct {
         public ElementStruct parentElement = null;
