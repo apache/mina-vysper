@@ -141,6 +141,10 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
                                              SessionContext sessionContext, RosterManager rosterManager, Entity user, 
                                              ResourceRegistry registry) {
 
+        boolean hasTo = presenceStanza.getCoreVerifier().attributePresent("to");
+        if (hasTo) return handleOutboundDirectedPresence(presenceStanza, serverRuntimeContext, sessionContext, 
+                rosterManager, user, registry, true);
+
         if (!user.isResourceSet()) throw new RuntimeException("resource id not available");
         registry.setResourceState(user.getResource(), ResourceState.UNAVAILABLE);
 
@@ -199,7 +203,7 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
                                                    ResourceRegistry registry) {
         boolean hasTo = presenceStanza.getCoreVerifier().attributePresent("to");
         if (hasTo) return handleOutboundDirectedPresence(presenceStanza, serverRuntimeContext, sessionContext, 
-                rosterManager, user, registry);
+                rosterManager, user, registry, false);
 
         if (!user.isResourceSet()) throw new RuntimeException("resource id not available");
         String resourceId = user.getResource();
@@ -276,18 +280,17 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
     }
 
     @SpecCompliant(spec = "RFC3921bis-08", section = "4.6.2")
-    private PresenceStanza handleOutboundDirectedPresence(PresenceStanza presenceStanza, 
-                                                          ServerRuntimeContext serverRuntimeContext, 
-                                                          SessionContext sessionContext, 
-                                                          RosterManager rosterManager, 
-                                                          Entity user, 
-                                                          ResourceRegistry registry) {
-        PresenceStanza redirectDirectedStanza = presenceStanza;
+    private PresenceStanza handleOutboundDirectedPresence(PresenceStanza presenceStanza,
+                                                          ServerRuntimeContext serverRuntimeContext,
+                                                          SessionContext sessionContext,
+                                                          RosterManager rosterManager,
+                                                          Entity user,
+                                                          ResourceRegistry registry, 
+                                                          final boolean unvailable) {
+        Stanza redirectDirectedStanza = presenceStanza;
         if (presenceStanza.getFrom() == null) {
-            StanzaBuilder builder = StanzaBuilder.createClone(presenceStanza, true, null);
             EntityImpl from = new EntityImpl(sessionContext.getInitiatingEntity(), registry.getUniqueResourceForSession(sessionContext));
-            builder.addAttribute("from", from.getFullQualifiedName());
-            redirectDirectedStanza = (PresenceStanza)XMPPCoreStanza.getWrapper(builder.getFinalStanza());
+            redirectDirectedStanza = StanzaBuilder.createForwardStanza(presenceStanza, from, null);
         }
 
         try {
@@ -296,7 +299,7 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
 
-        logger.warn("directed presence is not yet implemented");
+        logger.warn("directed presence is not yet fully implemented");
         return null;
     }
     
@@ -386,7 +389,7 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
 	}
 
     private void relayTo(Entity from, List<Entity> tos, PresenceStanza original, SessionContext sessionContext) {
-        List<Attribute> toFromReplacements = new ArrayList<Attribute>();
+        List<Attribute> toFromReplacements = new ArrayList<Attribute>(2);
         toFromReplacements.add(new Attribute("from", from.getFullQualifiedName()));
 
         for (Entity to : tos) {
