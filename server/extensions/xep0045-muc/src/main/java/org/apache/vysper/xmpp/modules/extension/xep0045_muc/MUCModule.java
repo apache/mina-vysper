@@ -58,31 +58,28 @@ import java.util.List;
  */
 public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequestListener, InfoRequestListener, ItemRequestListener, Component {
 
+    private String subdomain = "chat";
     private Conference conference;
-    private Entity domain;
+    private Entity fullDomain;
     
     private final Logger logger = LoggerFactory.getLogger(MUCModule.class);
     private ServerRuntimeContext serverRuntimeContext;
 
     private ComponentStanzaProcessor stanzaProcessor;
-    
-    public MUCModule(Entity domain) {
-        this(domain, new Conference("Conference"));
+
+    public MUCModule(String subdomain) {
+        this(subdomain, new Conference("Conference"));
     }
     
-    public MUCModule(Entity domain, Conference conference) {
-        this.domain = domain;
+    public MUCModule() {
+        this.conference = new Conference("Conference");
+    }
+    
+    public MUCModule(String subdomain, Conference conference) {
+        this.subdomain = subdomain;
         this.conference = conference;
     }
-    
-    public MUCModule(String domain) throws EntityFormatException {
-        this(EntityImpl.parse(domain));
-    }
-    
-    public MUCModule(String domain, Conference conference) throws EntityFormatException {
-        this(EntityImpl.parse(domain), conference);
-    }
-
+        
     /**
      * Initializes the MUC module, configuring the storage providers.
      */
@@ -92,9 +89,15 @@ public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequ
         
         this.serverRuntimeContext = serverRuntimeContext;
 
+        try {
+            fullDomain = EntityImpl.parse(subdomain + "." + serverRuntimeContext.getServerEnitity().getDomain());
+        } catch (EntityFormatException e) {
+            throw new RuntimeException("failed to initialize MUC domain", e);
+        }
+
         ComponentStanzaProcessor processor = new ComponentStanzaProcessor(serverRuntimeContext);
         processor.addHandler(new MUCPresenceHandler(conference));
-        processor.addHandler(new MUCMessageHandler(conference, domain));
+        processor.addHandler(new MUCMessageHandler(conference, fullDomain));
         stanzaProcessor = processor;
 
         RoomStorageProvider roomStorageProvider = (RoomStorageProvider) serverRuntimeContext.getStorageProvider(RoomStorageProvider.class);
@@ -214,7 +217,7 @@ public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequ
     }
 
     public String getSubdomain() {
-        return domain.getDomain();
+        return subdomain;
     }
 
     public StanzaProcessor getStanzaProcessor() {

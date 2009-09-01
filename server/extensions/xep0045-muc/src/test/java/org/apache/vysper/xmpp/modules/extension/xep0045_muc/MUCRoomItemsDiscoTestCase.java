@@ -52,7 +52,7 @@ public class MUCRoomItemsDiscoTestCase extends AbstractItemsDiscoTestCase {
         Room room = conference.createRoom(ROOM_JID, "room1");
         room.addOccupant(USER1_JID, "Nick 1");
         room.addOccupant(USER2_JID, "Nick 2");
-        return new MUCModule(MODULE_JID, conference);
+        return new MUCModule(MODULE_JID.getDomain(), conference);
     }
 
     @Override

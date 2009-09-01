@@ -40,7 +40,7 @@ import org.jivesoftware.smackx.muc.MultiUserChat;
  */
 public class MUCIntegrationTestCase extends AbstractIntegrationTestCase {
 
-    private static final Entity MUC_DOMAIN = TestUtil.parseUnchecked("chat.vysper.org");
+    private static final String MUC_SUBDOMAIN = "chat";
     private static final String ROOM_JID = "room@chat.vysper.org";
     
     private Conference conference = new Conference("test conference");
@@ -53,7 +53,7 @@ public class MUCIntegrationTestCase extends AbstractIntegrationTestCase {
     
     @Override
     protected void addModules(XMPPServer server) {
-        server.addModule(new MUCModule(MUC_DOMAIN, conference));
+        server.addModule(new MUCModule(MUC_SUBDOMAIN, conference));
     }
 
     @Override

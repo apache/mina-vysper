@@ -39,6 +39,7 @@ public abstract class AbstractServerInfoDiscoTestCase extends AbstractInfoDiscoT
         }
     }
     
+    @Override
     protected Entity getTo() {
         return SERVER_JID;
     }

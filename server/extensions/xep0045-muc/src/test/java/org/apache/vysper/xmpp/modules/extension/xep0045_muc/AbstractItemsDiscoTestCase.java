@@ -52,6 +52,7 @@ public abstract class AbstractItemsDiscoTestCase extends AbstractDiscoTestCase {
         }
     }
     
+    @Override
     protected IQHandler createDiscoIQHandler() {
         return new DiscoItemIQHandler();
     }

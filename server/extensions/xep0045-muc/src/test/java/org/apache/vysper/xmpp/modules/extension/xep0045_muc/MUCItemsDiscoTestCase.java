@@ -43,7 +43,7 @@ public class MUCItemsDiscoTestCase extends AbstractItemsDiscoTestCase {
         Conference conference = new Conference("Foo");
         conference.createRoom(ROOM1_JID, "room1");
         conference.createRoom(ROME2_JID, "room2");
-        return new MUCModule(MODULE_JID, conference);
+        return new MUCModule(MODULE_JID.getDomain(), conference);
     }
 
     @Override

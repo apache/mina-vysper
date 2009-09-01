@@ -42,7 +42,7 @@ public class MUCRoomInfoDiscoTestCase extends AbstractInfoDiscoTestCase {
     protected Module getModule() {
         Conference conference = new Conference("Foo");
         conference.createRoom(ROOM_JID, "Room1", RoomType.Hidden, RoomType.PasswordProtected);
-        return new MUCModule(MODULE_JID, conference);
+        return new MUCModule(MODULE_JID.getDomain(), conference);
     }
     
     @Override

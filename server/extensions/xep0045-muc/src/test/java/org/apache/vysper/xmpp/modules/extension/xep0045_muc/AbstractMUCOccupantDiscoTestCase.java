@@ -4,14 +4,8 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler.AbstractMUCHandlerTestCase;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceCollector;
-import org.apache.vysper.xmpp.modules.servicediscovery.handler.DiscoInfoIQHandler;
-import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
-import org.apache.vysper.xmpp.protocol.SessionStateHolder;
-import org.apache.vysper.xmpp.protocol.StanzaHandler;
-import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
-import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -37,7 +31,7 @@ public abstract class AbstractMUCOccupantDiscoTestCase extends AbstractMUCHandle
         super.setUp();
         
         ServiceCollector serviceCollector = new ServiceCollector();
-        MUCModule module = new MUCModule(MODULE_JID, conference);
+        MUCModule module = new MUCModule(MODULE_JID.getDomain(), conference);
         module.initialize(sessionContext.getServerRuntimeContext());
         serviceCollector.addInfoRequestListener(module);
         serviceCollector.addItemRequestListener(module);

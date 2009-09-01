@@ -36,7 +36,7 @@ public class MUCServerInfoDiscoTestCase extends AbstractServerInfoDiscoTestCase 
     @Override
     protected Module getModule() {
         Conference conference = new Conference("Foo");
-        return new MUCModule(MODULE_JID, conference);
+        return new MUCModule(MODULE_JID.getDomain(), conference);
     }
 
     @Override
