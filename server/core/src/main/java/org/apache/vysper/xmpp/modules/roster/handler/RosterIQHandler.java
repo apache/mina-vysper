@@ -167,10 +167,10 @@ public class RosterIQHandler extends DefaultIQHandler {
 
         if (setRosterItem.getName() != null) {
             existingItem.setName(setRosterItem.getName());
-            logger.debug(user.getBareJID().getCanonicalizedName() + " roster: set roster item name to " + setRosterItem.getName());
+            logger.debug(user.getBareJID() + " roster: set roster item name to " + setRosterItem.getName());
         }
         existingItem.setGroups(setRosterItem.getGroups());
-        logger.debug(user.getBareJID().getCanonicalizedName() + " roster: roster item groups set to " + setRosterItem.getGroups());
+        logger.debug(user.getBareJID() + " roster: roster item groups set to " + setRosterItem.getGroups());
 
         try {
             // update contact persistently
