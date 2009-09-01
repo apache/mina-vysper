@@ -55,6 +55,8 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * handling presence stanzas related to availability
@@ -63,6 +65,8 @@ import java.util.Map;
  */
 public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHandler {
 
+    protected static final String DIRECTED_PRESENCE_MAP = "DIRECTED_PRESENCE_MAP_";
+    
     final Logger logger = LoggerFactory.getLogger(PresenceAvailabilityHandler.class);
 
     /**
@@ -169,6 +173,13 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
         rosterContacts_FROM.addAll(item_BOTH);
         for (RosterItem rosterContact : rosterContacts_FROM) {
             contacts.add(rosterContact.getJid());
+        }
+
+        // broadcast unavailable to all directed-presence contacts
+        Set<Entity> entitySet = getDirectedPresenceMap(sessionContext, user);
+        if (entitySet != null) {
+            contacts.addAll(entitySet);
+            entitySet.clear(); // and un-record them
         }
 
         // broadcast presence notification to all resources of
@@ -287,22 +298,50 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
                                                           Entity user,
                                                           ResourceRegistry registry, 
                                                           final boolean unvailable) {
+        final Entity to = presenceStanza.getTo();
+        Entity from = presenceStanza.getFrom();
+        
         Stanza redirectDirectedStanza = presenceStanza;
-        if (presenceStanza.getFrom() == null) {
-            EntityImpl from = new EntityImpl(sessionContext.getInitiatingEntity(), registry.getUniqueResourceForSession(sessionContext));
+        if (from == null || !from.isResourceSet()) {
+            from = new EntityImpl(sessionContext.getInitiatingEntity(), registry.getUniqueResourceForSession(sessionContext));
             redirectDirectedStanza = StanzaBuilder.createForwardStanza(presenceStanza, from, null);
         }
 
+        Set<Entity> dpMap = getDirectedPresenceMap(sessionContext, from);
+
+        boolean isFromContact;
         try {
-            serverRuntimeContext.getStanzaRelay().relay(presenceStanza.getTo(), redirectDirectedStanza, new IgnoreFailureStrategy());
-        } catch (DeliveryException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            isFromContact = rosterManager.retrieve(from.getBareJID()).getEntry(to.getBareJID()).hasFrom();
+        } catch (Exception e) {
+            isFromContact = false;
+        }
+        boolean IsTOAvailable = !ResourceState.isAvailable(registry.getResourceState(from.getResource()));
+
+        if (unvailable) {
+            dpMap.remove(to);
+        } else {
+            if (!isFromContact || !IsTOAvailable) dpMap.add(to);
         }
 
-        logger.warn("directed presence is not yet fully implemented");
+        try {
+            serverRuntimeContext.getStanzaRelay().relay(to, redirectDirectedStanza, new IgnoreFailureStrategy());
+        } catch (DeliveryException e) {
+            logger.warn("relaying directed presence failed. from = " + from + ", to = " + to);
+        }
+
         return null;
     }
-    
+
+    private Set<Entity> getDirectedPresenceMap(SessionContext sessionContext, Entity from) {
+        String mapKey = DIRECTED_PRESENCE_MAP + from.getResource();
+        Set<Entity> directedPresenceMap = (Set<Entity>)sessionContext.getAttribute(mapKey);
+        if (directedPresenceMap == null) {
+            directedPresenceMap = new HashSet<Entity>();
+            sessionContext.putAttribute(mapKey, directedPresenceMap);
+        }
+        return directedPresenceMap;
+    }
+
     @SpecCompliant(spec = "RFC3921bis-08", section = "4.5.3")
     private PresenceStanza handleInboundUnavailable(PresenceStanza presenceStanza, 
                                                     ServerRuntimeContext serverRuntimeContext, 
