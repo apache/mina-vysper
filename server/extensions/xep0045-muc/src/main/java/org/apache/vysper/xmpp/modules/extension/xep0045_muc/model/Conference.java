@@ -59,7 +59,7 @@ public class Conference implements ServerInfoRequestListener, ItemRequestListene
 
     public void initialize() {
         roomStorageProvider.initialize();
-        occupantStorageProvider.initialize();   
+        if (occupantStorageProvider != null) occupantStorageProvider.initialize();   
     }
     
     public Collection<Room> getAllRooms() {

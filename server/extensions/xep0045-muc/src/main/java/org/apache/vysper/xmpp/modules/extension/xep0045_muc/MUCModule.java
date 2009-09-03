@@ -39,6 +39,7 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.ComponentInfoRequestListener;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -50,13 +51,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * A module for <a href="http://xmpp.org/extensions/xep-0045.html">XEP-0045 Multi-user chat</a>.
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequestListener, InfoRequestListener, ItemRequestListener, Component {
+public class MUCModule 
+        extends DefaultDiscoAwareModule 
+        implements Component, ComponentInfoRequestListener, InfoRequestListener, ItemRequestListener {
 
     private String subdomain = "chat";
     private Conference conference;
@@ -128,15 +132,6 @@ public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequ
         return "1.24";
     }
 
-    @Override
-    protected void addServerInfoRequestListeners(List<ServerInfoRequestListener> serverInfoRequestListeners) {
-        serverInfoRequestListeners.add(this);
-    }
-
-    public List<InfoElement> getServerInfosFor(InfoRequest request) {
-        return conference.getServerInfosFor(request);
-    }
-
     /**
      * Make this object available for disco#items requests.
      */
@@ -145,6 +140,25 @@ public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequ
         itemRequestListeners.add(this);
     }
     
+    
+    public List<InfoElement> getComponentInfosFor(InfoRequest request) throws ServiceDiscoveryRequestException {
+        if (fullDomain.equals(request.getTo())) {
+            if (request.getTo() == null) {
+                List<InfoElement> serverInfos = conference.getServerInfosFor(request);
+                return serverInfos;
+            } else {
+                // TODO return room info
+                return null;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    protected void addComponentInfoRequestListeners(List<ComponentInfoRequestListener> componentInfoRequestListeners) {
+        componentInfoRequestListeners.add(this);
+    }
+
     /**
      * Implements the getItemsFor method from the {@link ItemRequestListener} interface.
      * Makes this modules available via disco#items and returns the associated nodes.
@@ -153,18 +167,28 @@ public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequ
      */
     public List<Item> getItemsFor(InfoRequest request) throws ServiceDiscoveryRequestException {
         Entity to = request.getTo();
-        if(to.getNode() == null) {
-            // items request on the component
-            return conference.getItemsFor(request);
-        } else {
+        if (to.getNode() == null) {
+            // react on request send to server domain or this subdomain, but not to others
+            if(fullDomain.equals(to)) {
+                List<Item> conferenceItems = conference.getItemsFor(request);
+                return conferenceItems;
+            } else if (serverRuntimeContext.getServerEnitity().equals(to)) {
+                List<Item> componentItem = new ArrayList<Item>();
+                componentItem.add(new Item(fullDomain));
+                return componentItem;
+            }
+            return null;
+        } else if (fullDomain.equals(to)) {
             // might be an items request on a room
             Room room = conference.findRoom(to.getBareJID());
-            if(room != null) {
-                if(to.getResource() != null) {
+            if (room != null) {
+                if (to.getResource() != null) {
                     // request for an occupant
                     Occupant occupant = room.findOccupantByNick(to.getResource());
                     // request for occupant, relay
-                    if(occupant != null) relayDiscoStanza(occupant.getJid(), request, NamespaceURIs.XEP0030_SERVICE_DISCOVERY_ITEMS);
+                    if (occupant != null) {
+                        relayDiscoStanza(occupant.getJid(), request, NamespaceURIs.XEP0030_SERVICE_DISCOVERY_ITEMS);
+                    }
                 } else {
                     return room.getItemsFor(request);
                 }
@@ -223,4 +247,5 @@ public class MUCModule extends DefaultDiscoAwareModule implements ServerInfoRequ
     public StanzaProcessor getStanzaProcessor() {
         return stanzaProcessor;
     }
+
 }
