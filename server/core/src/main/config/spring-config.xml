@@ -87,7 +87,6 @@
     
     <bean id="server" class="org.apache.vysper.spring.SpringCompatibleDefaultServerRuntimeContext" >
         <constructor-arg ref="domain" />
-        <constructor-arg ref="stanzaRelay"/>
         <constructor-arg ref="serverFeatures"/>
         <constructor-arg>
             <list>
@@ -100,6 +99,7 @@
             </list>
         </constructor-arg>
         <constructor-arg ref="resourceRegistry"/>
+        <property name="stanzaRelay" ref="stanzaRelay" />
         <property name="tlsContextFactory" ref="tlsContextFactory" />
         <property name="storageProviderRegistry" ref="storageRegistry" />
         <property name="modules">
