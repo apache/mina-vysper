@@ -35,9 +35,10 @@ public class ServiceCollector implements ServerRuntimeContextService, ServiceDis
 
     private static final Feature DEFAULT_FEATURE = new Feature(NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO);
 
-    protected List<InfoRequestListener> infoRequestListeners = new ArrayList<InfoRequestListener>();
-    protected List<ServerInfoRequestListener> serverInfoRequestListeners = new ArrayList<ServerInfoRequestListener>();
-    protected List<ItemRequestListener> itemRequestListeners = new ArrayList<ItemRequestListener>();
+    protected final List<InfoRequestListener> infoRequestListeners = new ArrayList<InfoRequestListener>();
+    protected final List<ServerInfoRequestListener> serverInfoRequestListeners = new ArrayList<ServerInfoRequestListener>();
+    protected final List<ComponentInfoRequestListener> componentInfoRequestListeners = new ArrayList<ComponentInfoRequestListener>();
+    protected final List<ItemRequestListener> itemRequestListeners = new ArrayList<ItemRequestListener>();
 
     public void addInfoRequestListener(InfoRequestListener infoRequestListener) {
         infoRequestListeners.add(infoRequestListener);
@@ -45,6 +46,10 @@ public class ServiceCollector implements ServerRuntimeContextService, ServiceDis
 
     public void addServerInfoRequestListener(ServerInfoRequestListener infoRequestListener) {
         serverInfoRequestListeners.add(infoRequestListener);
+    }
+
+    public void addComponentInfoRequestListener(ComponentInfoRequestListener infoRequestListener) {
+        componentInfoRequestListeners.add(infoRequestListener);
     }
 
     public void addItemRequestListener(ItemRequestListener itemRequestListener) {
@@ -73,6 +78,24 @@ public class ServiceCollector implements ServerRuntimeContextService, ServiceDis
         return elements;
     }
 
+    public List<InfoElement> processComponentInfoRequest(InfoRequest infoRequest) throws ServiceDiscoveryRequestException {
+        // sorted structure, to place all <feature/> after <identity/>
+        List<InfoElement> elements = new ArrayList<InfoElement>();
+        for (ComponentInfoRequestListener componentInfoRequestListener : componentInfoRequestListeners) {
+            List<InfoElement> elementList = null;
+            try {
+                elementList = componentInfoRequestListener.getComponentInfosFor(infoRequest);
+            } catch (ServiceDiscoveryRequestException abortion) {
+                throw abortion;
+            } catch (Throwable e) {
+                continue;
+            }
+            if (elementList != null) elements.addAll(elementList);
+        }
+        Collections.sort(elements, new ElementPartitioningComparator());
+        return elements;
+    }
+    
     /**
      * collect all non-server feature and identity info from the listeners
      */

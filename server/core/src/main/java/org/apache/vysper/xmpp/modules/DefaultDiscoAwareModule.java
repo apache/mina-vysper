@@ -24,6 +24,7 @@ import static org.apache.vysper.xmpp.modules.servicediscovery.collection.Service
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestListener;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.ComponentInfoRequestListener;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +68,13 @@ abstract public class DefaultDiscoAwareModule extends DefaultModule {
             requestListenerRegistry.addServerInfoRequestListener(serverInfoRequestListener);
         }
 
+        List<ComponentInfoRequestListener> componentInfoRequestListeners = new ArrayList<ComponentInfoRequestListener>();
+        addComponentInfoRequestListeners(componentInfoRequestListeners);
+        for (ComponentInfoRequestListener componentInfoRequestListener : componentInfoRequestListeners) {
+            if (componentInfoRequestListener == null) continue;
+            requestListenerRegistry.addComponentInfoRequestListener(componentInfoRequestListener);
+        }
+
         List<ItemRequestListener> itemRequestListeners = new ArrayList<ItemRequestListener>();
         addItemRequestListeners(itemRequestListeners);
         for (ItemRequestListener itemRequestListener : itemRequestListeners) {
@@ -81,6 +89,10 @@ abstract public class DefaultDiscoAwareModule extends DefaultModule {
     }
 
     protected void addServerInfoRequestListeners(List<ServerInfoRequestListener> serverInfoRequestListeners) {
+        // emtpy default implementation
+    }
+
+    protected void addComponentInfoRequestListeners(List<ComponentInfoRequestListener> componentInfoRequestListeners) {
         // emtpy default implementation
     }
 

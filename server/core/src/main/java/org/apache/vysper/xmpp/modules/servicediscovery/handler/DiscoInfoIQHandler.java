@@ -94,9 +94,12 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
         // if "vysper.org" is the server entity, 'to' can either be "vysper.org", "node@vysper.org", "service.vysper.org".
         Entity to = stanza.getTo();
         boolean isServerInfoRequest = false;
+        boolean isComponentInfoRequest = false;
         Entity serviceEntity = serverRuntimeContext.getServerEnitity();
         if (to == null || to.equals(serviceEntity)) {
             isServerInfoRequest = true; // this can only be meant to query the server
+        } else if (serverRuntimeContext.getComponentStanzaProcessor(to.getDomain()) != null) {
+            isComponentInfoRequest = true; // this is a query to a component
         } else if (!to.isNodeSet()) {
             isServerInfoRequest = serviceEntity.equals(to);
             if (!isServerInfoRequest) {
@@ -115,6 +118,8 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
         try {
             if (isServerInfoRequest) {
                 elements = serviceCollector.processServerInfoRequest(new InfoRequest(stanza.getFrom(), to, node, stanza.getID()));
+            } else if (isComponentInfoRequest) {
+                elements = serviceCollector.processComponentInfoRequest(new InfoRequest(stanza.getFrom(), to, node, stanza.getID()));
             } else {
                 elements = serviceCollector.processInfoRequest(new InfoRequest(stanza.getFrom(), to, node, stanza.getID()));
             }

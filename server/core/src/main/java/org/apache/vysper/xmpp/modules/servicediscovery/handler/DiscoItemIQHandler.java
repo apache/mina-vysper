@@ -85,11 +85,13 @@ public class DiscoItemIQHandler extends DefaultIQHandler {
 
         Entity to = stanza.getTo();
         boolean isServerInfoRequest = false;
+        boolean isComponentInfoRequest = false;
         if (to == null) {
             isServerInfoRequest = true; // this can only be meant to query the server
         } else if (!to.isNodeSet()) {
             isServerInfoRequest = serverRuntimeContext.getServerEnitity().equals(to);
-            if (!isServerInfoRequest) {
+            isComponentInfoRequest = serverRuntimeContext.getComponentStanzaProcessor(to.getDomain()) != null;
+            if (!isServerInfoRequest && !isComponentInfoRequest) {
                 return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.ITEM_NOT_FOUND, stanza,
                         StanzaErrorType.CANCEL,
                         "server does not handle items query requests for " + to.getFullQualifiedName(),

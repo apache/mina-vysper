@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.modules.servicediscovery.collection;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestListener;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.ComponentInfoRequestListener;
 
 /**
  * registers listeners which can react to service discovery item or info requests by yielding features, identities
@@ -38,6 +39,8 @@ public interface ServiceDiscoveryRequestListenerRegistry {
     void addInfoRequestListener(InfoRequestListener infoRequestListener);
 
     void addServerInfoRequestListener(ServerInfoRequestListener infoRequestListener);
+    
+    void addComponentInfoRequestListener(ComponentInfoRequestListener infoRequestListener);
 
     void addItemRequestListener(ItemRequestListener itemRequestListener);
 }
