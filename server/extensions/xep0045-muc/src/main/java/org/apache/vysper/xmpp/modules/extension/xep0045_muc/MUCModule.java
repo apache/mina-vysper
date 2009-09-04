@@ -142,7 +142,7 @@ public class MUCModule
     
     
     public List<InfoElement> getComponentInfosFor(InfoRequest request) throws ServiceDiscoveryRequestException {
-        if (fullDomain.equals(request.getTo())) {
+        if (fullDomain.getDomain().equals(request.getTo().getDomain())) {
             if (request.getTo().getNode() == null) {
                 List<InfoElement> serverInfos = conference.getServerInfosFor(request);
                 return serverInfos;
