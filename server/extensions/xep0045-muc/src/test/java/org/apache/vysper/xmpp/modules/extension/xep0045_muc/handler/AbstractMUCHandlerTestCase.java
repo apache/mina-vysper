@@ -21,16 +21,20 @@ public abstract class AbstractMUCHandlerTestCase extends TestCase {
     
     protected TestSessionContext sessionContext;
 
-    protected static final Entity MODULE_JID = TestUtil.parseUnchecked("chat.vysper.org");
-
-    protected static final Entity ROOM1_JID = TestUtil.parseUnchecked("room1@chat.vysper.org");
-    protected static final Entity ROOM2_JID = TestUtil.parseUnchecked("room2@chat.vysper.org");
-
-    protected static final Entity ROOM1_JID_WITH_NICK = TestUtil.parseUnchecked("room1@chat.vysper.org/nick");
-    protected static final Entity ROOM2_JID_WITH_NICK = TestUtil.parseUnchecked("room2@chat.vysper.org/nick");
+    protected static final String SERVERDOMAIN = "test";
+    protected static final String SUBDOMAIN = "chat";
+    protected static final String FULLDOMAIN = SUBDOMAIN + "." + SERVERDOMAIN;
     
-    protected static final Entity OCCUPANT1_JID = TestUtil.parseUnchecked("user1@vysper.org");
-    protected static final Entity OCCUPANT2_JID = TestUtil.parseUnchecked("user2@vysper.org");
+    protected static final Entity MODULE_JID = TestUtil.parseUnchecked(FULLDOMAIN);
+
+    protected static final Entity ROOM1_JID = TestUtil.parseUnchecked("room1@" + FULLDOMAIN);
+    protected static final Entity ROOM2_JID = TestUtil.parseUnchecked("room2@" + FULLDOMAIN);
+
+    protected static final Entity ROOM1_JID_WITH_NICK = TestUtil.parseUnchecked("room1@" + FULLDOMAIN + "/nick");
+    protected static final Entity ROOM2_JID_WITH_NICK = TestUtil.parseUnchecked("room2@" + FULLDOMAIN + "/nick");
+    
+    protected static final Entity OCCUPANT1_JID = TestUtil.parseUnchecked("user1@" + SERVERDOMAIN);
+    protected static final Entity OCCUPANT2_JID = TestUtil.parseUnchecked("user2@" + SERVERDOMAIN);
     protected StanzaHandler handler;
 
     protected Conference conference = new Conference("foo");
