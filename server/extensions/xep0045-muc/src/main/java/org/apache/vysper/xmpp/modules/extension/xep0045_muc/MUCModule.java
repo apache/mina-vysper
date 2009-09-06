@@ -19,6 +19,9 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -32,14 +35,12 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.storage.OccupantStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.storage.RoomStorageProvider;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.ComponentInfoRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestListener;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.ComponentInfoRequestListener;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -50,9 +51,6 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.ArrayList;
-
 /**
  * A module for <a href="http://xmpp.org/extensions/xep-0045.html">XEP-0045 Multi-user chat</a>.
  *
@@ -60,7 +58,7 @@ import java.util.ArrayList;
  */
 public class MUCModule 
         extends DefaultDiscoAwareModule 
-        implements Component, ComponentInfoRequestListener, InfoRequestListener, ItemRequestListener {
+        implements Component, ComponentInfoRequestListener, ItemRequestListener {
 
     private String subdomain = "chat";
     private Conference conference;
@@ -147,8 +145,21 @@ public class MUCModule
                 List<InfoElement> serverInfos = conference.getServerInfosFor(request);
                 return serverInfos;
             } else {
-                // TODO return room info
-                return null;
+                // might be an items request on a room
+                Room room = conference.findRoom(request.getTo().getBareJID());
+                if (room != null) {
+                    if (request.getTo().getResource() != null) {
+                        // request for an occupant
+                        Occupant occupant = room.findOccupantByNick(request.getTo().getResource());
+                        // request for occupant, relay
+                        if (occupant != null) {
+                            relayDiscoStanza(occupant.getJid(), request, NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO);
+                        }
+                    } else {
+                        return room.getInfosFor(request);
+                    }
+                }
+
             }
         }
         return null;
@@ -178,7 +189,7 @@ public class MUCModule
                 return componentItem;
             }
             return null;
-        } else if (fullDomain.equals(to)) {
+        } else if (fullDomain.getDomain().equals(to.getDomain())) {
             // might be an items request on a room
             Room room = conference.findRoom(to.getBareJID());
             if (room != null) {
@@ -197,14 +208,6 @@ public class MUCModule
         return null;
     }
     
-    /**
-     * Make this object available for disco#items requests for rooms
-     */
-    @Override
-    protected void addInfoRequestListeners(List<InfoRequestListener> infoRequestListeners) {
-        infoRequestListeners.add(this);
-    }
-    
     private void relayDiscoStanza(Entity receiver, InfoRequest request, String ns) {
         StanzaBuilder builder = StanzaBuilder.createIQStanza(request.getFrom(), receiver, IQStanzaType.GET, request.getID());
         builder.startInnerElement("query", ns);
@@ -219,26 +222,7 @@ public class MUCModule
         }
         
     }
-    
-    public List<InfoElement> getInfosFor(InfoRequest request)
-            throws ServiceDiscoveryRequestException {
-        Entity to = request.getTo();
-        
-        if(to.getNode() != null) {
-            Room room = conference.findRoom(to.getBareJID());
-            if(room != null) {
-                if(to.getResource() != null) {
-                    Occupant occupant = room.findOccupantByNick(to.getResource());
-                    // request for occupant, relay
-                    if(occupant != null) relayDiscoStanza(occupant.getJid(), request, NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO);
-                } else {
-                // request for room
-                    return room.getInfosFor(request);
-                }
-            }
-        }
-        return null;
-    }
+
 
     public String getSubdomain() {
         return subdomain;

@@ -26,12 +26,9 @@ import java.util.List;
 import junit.framework.AssertionFailedError;
 
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
-import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
-import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceCollector;
 import org.apache.vysper.xmpp.modules.servicediscovery.handler.DiscoItemIQHandler;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestListener;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -43,15 +40,6 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
  */
 public abstract class AbstractItemsDiscoTestCase extends AbstractDiscoTestCase {
 
-    protected ItemRequestListener getItemRequestListener() {
-        Module module = getModule();
-        if(module instanceof ItemRequestListener) {
-            return (ItemRequestListener) module;
-        } else {
-            throw new RuntimeException("Module does not implement ItemRequestListener");
-        }
-    }
-    
     @Override
     protected IQHandler createDiscoIQHandler() {
         return new DiscoItemIQHandler();
@@ -63,11 +51,6 @@ public abstract class AbstractItemsDiscoTestCase extends AbstractDiscoTestCase {
      */
     protected List<Item> getExpectedItems() throws Exception {
         return Collections.emptyList();
-    }
-    
-    @Override
-    protected void addListener(ServiceCollector serviceCollector) {
-        serviceCollector.addItemRequestListener(getItemRequestListener());
     }
     
     @Override

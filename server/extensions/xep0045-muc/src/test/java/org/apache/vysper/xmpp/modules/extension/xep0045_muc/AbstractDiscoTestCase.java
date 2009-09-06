@@ -30,8 +30,10 @@ import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
 import org.apache.vysper.xmpp.server.TestSessionContext;
+import org.apache.vysper.xmpp.server.components.Component;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.xmlfragment.Renderer;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
@@ -40,9 +42,15 @@ import org.apache.vysper.xmpp.xmlfragment.XMLElement;
  */
 public abstract class AbstractDiscoTestCase extends TestCase {
     
-    protected static final Entity SERVER_JID = TestUtil.parseUnchecked("vysper.org");
-    protected static final Entity MODULE_JID = TestUtil.parseUnchecked("chat.vysper.org");
-    protected static final Entity USER_JID = TestUtil.parseUnchecked("user@vysper.org");
+    protected static final String SUBDOMAIN = "chat";
+    protected static final String SERVERDOMAIN = "vysper.org";
+    protected static final String MODULEDOMAIN = SUBDOMAIN + "." + SERVERDOMAIN;
+    
+    protected static final Entity SERVER_JID = TestUtil.parseUnchecked(SERVERDOMAIN);
+    protected static final Entity MODULE_JID = TestUtil.parseUnchecked(MODULEDOMAIN);
+    protected static final Entity USER_JID = TestUtil.parseUnchecked("user@" + SERVERDOMAIN);
+    protected DefaultServerRuntimeContext serverRuntimeContext;
+    private ServiceCollector serviceCollector;
 
     protected abstract Module getModule();
 
@@ -51,26 +59,34 @@ public abstract class AbstractDiscoTestCase extends TestCase {
 
     protected abstract StanzaBuilder buildRequest();
 
-    protected abstract void addListener(ServiceCollector serviceCollector);
-    
     protected abstract IQHandler createDiscoIQHandler();
     
     protected abstract Entity getTo();
-    
-    public void testDisco() throws Exception {
-        ServiceCollector serviceCollector = new ServiceCollector();
-        addListener(serviceCollector);
 
-        DefaultServerRuntimeContext runtimeContext = new DefaultServerRuntimeContext(SERVER_JID, null);
-        runtimeContext.registerServerRuntimeContextService(serviceCollector);
+    
+    
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        
+        serviceCollector = new ServiceCollector();
+        serverRuntimeContext = new DefaultServerRuntimeContext(SERVER_JID, null);
+        serverRuntimeContext.registerServerRuntimeContextService(serviceCollector);
+
+        
+    }
+
+    public void testDisco() throws Exception {
+        serverRuntimeContext.registerComponent((Component) getModule());
 
         IQHandler infoIQHandler = createDiscoIQHandler();
 
         StanzaBuilder request = buildRequest();
         
-        ResponseStanzaContainer resultStanzaContainer = infoIQHandler.execute(request.getFinalStanza(), runtimeContext, false, new TestSessionContext(runtimeContext, new SessionStateHolder()), null);
+        ResponseStanzaContainer resultStanzaContainer = infoIQHandler.execute(request.getFinalStanza(), serverRuntimeContext, false, new TestSessionContext(serverRuntimeContext, new SessionStateHolder()), null);
         Stanza resultStanza = resultStanzaContainer.getResponseStanza();
 
+        assertEquals("Disco request must not return error", "result", resultStanza.getAttributeValue("type"));
         XMLElement queryElement = resultStanza.getFirstInnerElement();
         
         assertResponse(queryElement);

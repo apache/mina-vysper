@@ -36,13 +36,23 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
  */
 public class MUCRoomInfoDiscoTestCase extends AbstractInfoDiscoTestCase {
     
-    private static final Entity ROOM_JID = TestUtil.parseUnchecked("jid1@vysper.org");
+    private static final Entity ROOM_JID = TestUtil.parseUnchecked("jid1@" + MODULEDOMAIN);
+    
+    private MUCModule module;
     
     @Override
-    protected Module getModule() {
+    protected void setUp() throws Exception {
+        super.setUp();
+        
         Conference conference = new Conference("Foo");
         conference.createRoom(ROOM_JID, "Room1", RoomType.Hidden, RoomType.PasswordProtected);
-        return new MUCModule(MODULE_JID.getDomain(), conference);
+        module = new MUCModule(SUBDOMAIN, conference);
+        module.initialize(serverRuntimeContext);
+    }
+
+    @Override
+    protected Module getModule() {
+        return module;
     }
     
     @Override

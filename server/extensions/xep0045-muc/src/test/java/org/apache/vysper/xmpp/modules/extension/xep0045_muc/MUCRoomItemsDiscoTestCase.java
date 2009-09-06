@@ -37,7 +37,7 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
  */
 public class MUCRoomItemsDiscoTestCase extends AbstractItemsDiscoTestCase {
     
-    private static final Entity ROOM_JID = TestUtil.parseUnchecked("jid1@vysper.org");
+    private static final Entity ROOM_JID = TestUtil.parseUnchecked("jid1@" + MODULEDOMAIN);
     
     private static final Entity USER1_JID = TestUtil.parseUnchecked("user1@vysper.org");
     private static final Entity USER2_JID = TestUtil.parseUnchecked("user2@vysper.org");
@@ -45,14 +45,24 @@ public class MUCRoomItemsDiscoTestCase extends AbstractItemsDiscoTestCase {
     private static final Entity OCCUPANT1_JID = new EntityImpl(ROOM_JID, "Nick 1");
     private static final Entity OCCUPANT2_JID = new EntityImpl(ROOM_JID, "Nick 2");
 
+    private MUCModule module;
     
     @Override
-    protected Module getModule() {
+    protected void setUp() throws Exception {
+        super.setUp();
+        
         Conference conference = new Conference("Foo");
         Room room = conference.createRoom(ROOM_JID, "room1");
         room.addOccupant(USER1_JID, "Nick 1");
         room.addOccupant(USER2_JID, "Nick 2");
-        return new MUCModule(MODULE_JID.getDomain(), conference);
+        module = new MUCModule(SUBDOMAIN, conference);
+        module.initialize(serverRuntimeContext);
+
+    }
+
+    @Override
+    protected Module getModule() {
+        return module;
     }
 
     @Override

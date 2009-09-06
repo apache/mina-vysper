@@ -22,33 +22,24 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.vysper.TestUtil;
-import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.Identity;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 
 /**
  * 
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class MUCItemsDiscoTestCase extends AbstractItemsDiscoTestCase {
-    
-    private static final Entity ROOM1_JID = TestUtil.parseUnchecked("jid1@" + MODULE_JID);
-    private static final Entity ROME2_JID = TestUtil.parseUnchecked("jid2@" + MODULE_JID);
+public class MUCComponentInfoDiscoTestCase extends AbstractComponentInfoDiscoTestCase {
     
     private MUCModule module;
-    
-    
     
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        Conference conference = new Conference("Foo");
-        conference.createRoom(ROOM1_JID, "room1");
-        conference.createRoom(ROME2_JID, "room2");
         
+        Conference conference = new Conference("Foo");
         module = new MUCModule(SUBDOMAIN, conference);
         module.initialize(serverRuntimeContext);
     }
@@ -59,15 +50,12 @@ public class MUCItemsDiscoTestCase extends AbstractItemsDiscoTestCase {
     }
 
     @Override
-    protected List<Item> getExpectedItems() throws EntityFormatException {
-        return Arrays.asList(
-                new Item(ROOM1_JID, "room1"),
-                new Item(ROME2_JID, "room2")
-        );
+    protected List<String> getExpectedFeatures() {
+        return Arrays.asList(NamespaceURIs.XEP0045_MUC);
     }
-
+    
     @Override
-    protected Entity getTo() {
-        return MODULE_JID;
+    protected Identity getExpectedIdentity() {
+        return new Identity("conference", "text", "Foo");
     }
 }

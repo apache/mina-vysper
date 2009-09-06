@@ -23,13 +23,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
-import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceCollector;
 import org.apache.vysper.xmpp.modules.servicediscovery.handler.DiscoInfoIQHandler;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Identity;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequestListener;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -42,19 +38,9 @@ import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
  */
 public abstract class AbstractInfoDiscoTestCase extends AbstractDiscoTestCase {
 
-    protected InfoRequestListener getInfoRequestListener() {
-        Module module = getModule();
-        if(module instanceof InfoRequestListener) {
-            return (InfoRequestListener) module;
-        } else {
-            throw new RuntimeException("Module does not implement InfoRequestListener");
-        }
-    }
-    
     protected IQHandler createDiscoIQHandler() {
         return new DiscoInfoIQHandler();
     }
-
     
     /**
      * Default, expect no identity
@@ -70,11 +56,6 @@ public abstract class AbstractInfoDiscoTestCase extends AbstractDiscoTestCase {
         return Collections.emptyList();
     }
 
-    @Override
-    protected void addListener(ServiceCollector serviceCollector) {
-        serviceCollector.addInfoRequestListener(getInfoRequestListener());
-    }
-    
     @Override
     protected void assertResponse(XMLElement queryElement)
             throws XMLSemanticError {

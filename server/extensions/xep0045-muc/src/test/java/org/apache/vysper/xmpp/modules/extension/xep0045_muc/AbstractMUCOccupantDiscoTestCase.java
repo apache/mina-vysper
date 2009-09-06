@@ -31,12 +31,15 @@ public abstract class AbstractMUCOccupantDiscoTestCase extends AbstractMUCHandle
         super.setUp();
         
         ServiceCollector serviceCollector = new ServiceCollector();
-        MUCModule module = new MUCModule(MODULE_JID.getDomain(), conference);
+        sessionContext.getServerRuntimeContext().registerServerRuntimeContextService(serviceCollector);
+        
+        MUCModule module = new MUCModule(SUBDOMAIN, conference);
         module.initialize(sessionContext.getServerRuntimeContext());
-        serviceCollector.addInfoRequestListener(module);
+        sessionContext.getServerRuntimeContext().registerComponent(module);
+        
+        serviceCollector.addComponentInfoRequestListener(module);
         serviceCollector.addItemRequestListener(module);
 
-        sessionContext.getServerRuntimeContext().registerServerRuntimeContextService(serviceCollector);
     }
 
     protected abstract String getNamespace();
