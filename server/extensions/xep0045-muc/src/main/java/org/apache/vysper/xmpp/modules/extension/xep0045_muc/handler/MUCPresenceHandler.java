@@ -29,14 +29,16 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultPresenceHandler;
-import org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler.Status.StatusCode;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
-import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.DiscussionHistory;
-import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.History;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.History;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Item;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Status;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Status.StatusCode;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
@@ -174,17 +176,10 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
             
             // check password if password protected
             if(room.isRoomType(RoomType.PasswordProtected)) {
+                X x = X.fromStanza(stanza);
                 String password = null;
-                try {
-                    XMLElement xElement = stanza.getSingleInnerElementsNamed("x");
-                    if(xElement != null) {
-                        XMLElement passwordElement = xElement.getSingleInnerElementsNamed("password");
-                        if(passwordElement != null) {
-                            password = passwordElement.getInnerText().getText();
-                        }
-                    }
-                } catch (XMLSemanticError e) {
-                    password = null;
+                if(x != null) {
+                    password = x.getPassword();
                 }
                 
                 if(password == null || !password.equals(room.getPassword())) {
@@ -289,17 +284,17 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         // room is non-anonymous or semi-anonmoys and the occupant a moderator, send full user JID
         boolean includeJid = room.getRoomTypes().contains(RoomType.NonAnonymous) ||
             (room.getRoomTypes().contains(RoomType.SemiAnonymous) && existingOccupant.getRole() == Role.Moderator); 
-        new MUCUserItem(newOccupant).insertElement(builder, includeJid, false);
+        builder.addPreparedElement(new Item(newOccupant, includeJid, false));
         
         if(existingOccupant.getJid().equals(newOccupant.getJid())) {
             
             if(room.getRoomTypes().contains(RoomType.NonAnonymous)) {
                 // notify the user that this is a non-anonymous room
-                new Status(StatusCode.ROOM_NON_ANONYMOUS).insertElement(builder);
+                builder.addPreparedElement(new Status(StatusCode.ROOM_NON_ANONYMOUS));
             }
             
             // send status to indicate that this is the users own presence
-            new Status(StatusCode.OWN_PRESENCE).insertElement(builder);
+            builder.addPreparedElement(new Status(StatusCode.OWN_PRESENCE));
         }
         builder.endInnerElement();
 
@@ -316,12 +311,12 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         
         
         boolean includeJid = includeJidInItem(room, receiver); 
-        new MUCUserItem(changer).insertElement(builder, includeJid, true);
-        new Status(StatusCode.NEW_NICK).insertElement(builder);
+        builder.addPreparedElement(new Item(changer, includeJid, true));
+        builder.addPreparedElement(new Status(StatusCode.NEW_NICK));
         
         if(receiver.getJid().equals(changer.getJid())) {
             // send status to indicate that this is the users own presence
-            new Status(StatusCode.OWN_PRESENCE).insertElement(builder);
+            builder.addPreparedElement(new Status(StatusCode.OWN_PRESENCE));
         }
         builder.endInnerElement();
 
@@ -339,7 +334,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         
         
         boolean includeJid = includeJidInItem(room, receiver); 
-        new MUCUserItem(changer).insertElement(builder, includeJid, true);
+        builder.addPreparedElement(new Item(changer, includeJid, true));
         
 //        if(receiver.getJid().equals(changer.getJid())) {
 //            // send status to indicate that this is the users own presence
@@ -364,11 +359,11 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         builder.startInnerElement("x", NamespaceURIs.XEP0045_MUC_USER);
         
         boolean includeJid = includeJidInItem(room, receiver);  
-        new MUCUserItem(changer).insertElement(builder, includeJid, false);
+        builder.addPreparedElement(new Item(changer, includeJid, false));
         
         if(receiver.getJid().equals(changer.getJid())) {
             // send status to indicate that this is the users own presence
-            new Status(StatusCode.OWN_PRESENCE).insertElement(builder);
+            builder.addPreparedElement(new Status(StatusCode.OWN_PRESENCE));
         }
         builder.endInnerElement();
 
@@ -402,7 +397,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
             } else {
                 status = new Status(statusMessage);
             }
-            status.insertElement(builder);
+            builder.addPreparedElement(status);
         }
         builder.endInnerElement();
 

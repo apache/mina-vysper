@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules.extension.xep0045_muc.model;
+package org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas;
 
 import java.util.ArrayList;
 import java.util.Date;

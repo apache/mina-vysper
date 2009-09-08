@@ -17,16 +17,28 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
+package org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.vysper.xmpp.datetime.DateTimeProfile;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.xmlfragment.Attribute;
+import org.apache.vysper.xmpp.xmlfragment.NamespaceAttribute;
+import org.apache.vysper.xmpp.xmlfragment.XMLElement;
+import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
+import org.apache.vysper.xmpp.xmlfragment.XMLText;
 
 
 /**
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class Status {
+public class Status extends XMLElement {
 
     public enum StatusCode {
         /** Inform user that any occupant is allowed to see the user's full JID */
@@ -80,29 +92,30 @@ public class Status {
         }
     }
     
-    private StatusCode code;
-    private String message;
-    
     public Status(StatusCode code) {
-        this.code = code;
+        this(code, null);
     }
 
     public Status(StatusCode code, String message) {
-        this.code = code;
-        this.message = message;
+        super("status", null, 
+                createAttributes(code), 
+                createFragments(message));
     }
+    
+    private static List<Attribute> createAttributes(StatusCode code) {
+        List<Attribute> attributes = new ArrayList<Attribute>();
+        if(code != null) attributes.add(new Attribute("code", Integer.toString(code.code())));
+        return attributes;
+    }
+
+    private static List<XMLFragment> createFragments(String message) {
+        List<XMLFragment> fragments = new ArrayList<XMLFragment>();
+        if(message != null) fragments.add(new XMLText(message));
+        return fragments;
+    }
+    
 
     public Status(String message) {
-        this.message = message;
-    }
-
-    
-    public void insertElement(StanzaBuilder stanzaBuilder) {
-        stanzaBuilder.startInnerElement("status");
-        if(code != null) stanzaBuilder.addAttribute("code", Integer.toString(code.code()));
-        if(message != null) {
-            stanzaBuilder.addText(message);
-        }
-        stanzaBuilder.endInnerElement();
+        this(null, message);
     }
 }

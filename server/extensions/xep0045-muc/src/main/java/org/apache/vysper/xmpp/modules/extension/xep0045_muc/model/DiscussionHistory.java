@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.History;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.xmlfragment.Renderer;
 

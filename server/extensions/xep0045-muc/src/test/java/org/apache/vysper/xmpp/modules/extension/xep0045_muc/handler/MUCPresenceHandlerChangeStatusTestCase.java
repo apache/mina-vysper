@@ -3,9 +3,11 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 import java.util.List;
 
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Affiliation;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Item;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
@@ -45,7 +47,7 @@ public class MUCPresenceHandlerChangeStatusTestCase extends AbstractMUCHandlerTe
 
         assertNull(changeStatus(OCCUPANT1_JID, ROOM1_JID_WITH_NICK, "xa", "Gone"));
         
-        MUCUserItem item = new MUCUserItem(OCCUPANT1_JID, "nick", Affiliation.None, Role.Participant);
+        Item item = new Item(OCCUPANT1_JID, "nick", Affiliation.None, Role.Participant);
         assertPresenceStanza(occupant1Queue.getNext(), ROOM1_JID_WITH_NICK, OCCUPANT1_JID, "xa", "Gone",
                 item);
         assertPresenceStanza(occupant2Queue.getNext(), ROOM1_JID_WITH_NICK, OCCUPANT2_JID, "xa", "Gone", 
@@ -60,7 +62,7 @@ public class MUCPresenceHandlerChangeStatusTestCase extends AbstractMUCHandlerTe
 
         assertNull(changeStatus(OCCUPANT1_JID, ROOM1_JID_WITH_NICK, "xa", null));
         
-        MUCUserItem item = new MUCUserItem(OCCUPANT1_JID, "nick", Affiliation.None, Role.Participant);
+        Item item = new Item(OCCUPANT1_JID, "nick", Affiliation.None, Role.Participant);
         assertPresenceStanza(occupant1Queue.getNext(), ROOM1_JID_WITH_NICK, OCCUPANT1_JID, "xa", null,
                 item);
         assertPresenceStanza(occupant2Queue.getNext(), ROOM1_JID_WITH_NICK, OCCUPANT2_JID, "xa", null, 
@@ -75,7 +77,7 @@ public class MUCPresenceHandlerChangeStatusTestCase extends AbstractMUCHandlerTe
 
         assertNull(changeStatus(OCCUPANT1_JID, ROOM1_JID_WITH_NICK, null, "Gone"));
         
-        MUCUserItem item = new MUCUserItem(OCCUPANT1_JID, "nick", Affiliation.None, Role.Participant);
+        Item item = new Item(OCCUPANT1_JID, "nick", Affiliation.None, Role.Participant);
         assertPresenceStanza(occupant1Queue.getNext(), ROOM1_JID_WITH_NICK, OCCUPANT1_JID, null, "Gone",
                 item);
         assertPresenceStanza(occupant2Queue.getNext(), ROOM1_JID_WITH_NICK, OCCUPANT2_JID, null, "Gone", 
@@ -84,7 +86,7 @@ public class MUCPresenceHandlerChangeStatusTestCase extends AbstractMUCHandlerTe
     
     private void assertPresenceStanza(Stanza stanza, Entity expectedFrom, Entity expectedTo, String expectedShow,
             String expectedStatus,
-            MUCUserItem expectedItem) throws XMLSemanticError {
+            Item expectedItem) throws XMLSemanticError, Exception {
 
         PresenceStanza presenceStanza = (PresenceStanza) PresenceStanza.getWrapper(stanza);
         assertNotNull(stanza);

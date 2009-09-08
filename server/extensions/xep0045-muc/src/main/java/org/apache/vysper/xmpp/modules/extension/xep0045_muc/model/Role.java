@@ -80,4 +80,12 @@ public enum Role {
             return null;
         }
     }
+
+    public static Role fromString(String value) {
+        if(Moderator.toString().equals(value)) return Moderator;
+        else if(None.toString().equals(value)) return None;
+        else if(Participant.toString().equals(value)) return Participant;
+        else if(Visitor.toString().equals(value)) return Visitor;
+        else throw new IllegalArgumentException("Unknown role: " + value);
+    }
 }

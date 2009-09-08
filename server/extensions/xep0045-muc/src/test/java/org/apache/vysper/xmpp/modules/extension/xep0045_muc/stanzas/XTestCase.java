@@ -17,29 +17,32 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules.extension.xep0045_muc.model;
+package org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
+import org.apache.vysper.TestUtil;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.datetime.DateTimeProfile;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.xmlfragment.Attribute;
-import org.apache.vysper.xmpp.xmlfragment.NamespaceAttribute;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
-import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
-public class Delay extends XMLElement {
+import junit.framework.TestCase;
 
-    public Delay(Entity from, Date timestamp) {
-        super("delay", null, Arrays.asList(
-            new NamespaceAttribute(NamespaceURIs.URN_XMPP_DELAY),
-            new Attribute("from", from.getFullQualifiedName()),
-            new Attribute("stamp", DateTimeProfile.getInstance().getDateTimeInUTC(timestamp))
-            ), (List<XMLFragment>)null);
+/**
+ * 
+ * @author The Apache MINA Project (dev@mina.apache.org)
+ */
+public class XTestCase extends TestCase {
+
+    private static Entity JID = TestUtil.parseUnchecked("jid1@vysper.org");
+
+    public void testFromStanza() {
+        StanzaBuilder builder = StanzaBuilder.createMessageStanza(JID, JID, null, "Foo");
+        builder.startInnerElement("x", NamespaceURIs.XEP0045_MUC);
+        builder.startInnerElement("password").addText("secret").endInnerElement();
+        builder.endInnerElement();
+        
+        X x = X.fromStanza(builder.getFinalStanza());
+        
+        assertNotNull(x);
+        assertEquals("secret", x.getPassword());
     }
-
-    
 }
