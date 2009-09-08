@@ -31,10 +31,10 @@ import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestCase {
 
     private Stanza enterRoom(Entity occupantJid, Entity roomJid) throws ProtocolException {
-        return enterRoom(occupantJid, roomJid, null, null);
+        return enterRoom(occupantJid, roomJid, null, null, false);
     }
     
-    private Stanza enterRoom(Entity occupantJid, Entity roomJid, String password, History history) throws ProtocolException {
+    private Stanza enterRoom(Entity occupantJid, Entity roomJid, String password, History history, boolean oldProtocol) throws ProtocolException {
         SessionContext userSessionContext;
         if(occupantJid.equals(OCCUPANT1_JID)) {
             userSessionContext = sessionContext;
@@ -43,15 +43,17 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestC
         }
         
         StanzaBuilder stanzaBuilder = StanzaBuilder.createPresenceStanza(occupantJid, roomJid, null, null, null, null);
-        stanzaBuilder.startInnerElement("x").addNamespaceAttribute(NamespaceURIs.XEP0045_MUC);
-        if(password != null) {
-            stanzaBuilder.startInnerElement("password").addText(password).endInnerElement();
+        if(!oldProtocol) {
+            stanzaBuilder.startInnerElement("x").addNamespaceAttribute(NamespaceURIs.XEP0045_MUC);
+            if(password != null) {
+                stanzaBuilder.startInnerElement("password").addText(password).endInnerElement();
+            }
+            if(history != null) {
+                stanzaBuilder.addPreparedElement(history);
+            }
+            
+            stanzaBuilder.endInnerElement();
         }
-        if(history != null) {
-            stanzaBuilder.addPreparedElement(history);
-        }
-        
-        stanzaBuilder.endInnerElement();
         Stanza presenceStanza = stanzaBuilder.getFinalStanza();
         ResponseStanzaContainer container = handler.execute(presenceStanza, userSessionContext.getServerRuntimeContext(), true, userSessionContext, null);
         if(container != null) {
@@ -88,6 +90,21 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestC
         assertEquals(OCCUPANT1_JID, occupant.getJid());
         assertEquals("nick", occupant.getName());
     }
+
+    public void testEnterWithGroupchatProtocol() throws Exception {
+        Room room = conference.findRoom(ROOM1_JID);
+        assertEquals(0, room.getOccupants().size());
+
+        // enter using the old groupchat protocol
+        enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK, null, null, true);
+
+        assertEquals(1, room.getOccupants().size());
+        Occupant occupant = room.getOccupants().iterator().next();
+        
+        assertEquals(OCCUPANT1_JID, occupant.getJid());
+        assertEquals("nick", occupant.getName());
+    }
+
     
     public void testEnterRoomWithDuplicateNick() throws Exception {
         assertNull(enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK));
@@ -123,7 +140,7 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestC
         room.setPassword("secret");
 
         // no error should be returned
-        assertNull(enterRoom(OCCUPANT1_JID, ROOM2_JID_WITH_NICK, "secret", null));
+        assertNull(enterRoom(OCCUPANT1_JID, ROOM2_JID_WITH_NICK, "secret", null, false));
         assertEquals(1, room.getOccupants().size());
     }
     
@@ -203,7 +220,7 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestC
                 new Occupant(OCCUPANT2_JID, "nick2", Affiliation.None, Role.Participant));
         
         // now, let user 1 enter room
-        enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK, null, new History(2, null, null, null));
+        enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK, null, new History(2, null, null, null), false);
 
         Stanza stanza = occupant1Queue.getNext();
         // first stanza should be room presence
