@@ -54,6 +54,7 @@ public class Room implements InfoRequestListener, ItemRequestListener {
     private Entity jid;
     private String name;
     private String password;
+    private DiscussionHistory history = new DiscussionHistory();
     
     // keep in a map to allow for quick access
     private Map<Entity, Occupant> occupants = new ConcurrentHashMap<Entity, Occupant>();
@@ -186,6 +187,10 @@ public class Room implements InfoRequestListener, ItemRequestListener {
     
     public void setPassword(String password) {
         this.password = password;
+    }
+    
+    public DiscussionHistory getHistory() {
+        return history;
     }
     
 }

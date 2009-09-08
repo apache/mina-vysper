@@ -68,7 +68,7 @@ public class ServerMain {
         //server.addEndpoint(new StanzaSessionFactory());
         server.setStorageProviderRegistry(providerRegistry);
 
-        server.setTLSCertificateInfo(new File("src/main/resources/bogus_mina_tls.cert"), "boguspw");
+        server.setTLSCertificateInfo(new File("src/main/config/bogus_mina_tls.cert"), "boguspw");
 
         try {
             server.start();
@@ -83,8 +83,6 @@ public class ServerMain {
         server.addModule(new XmppPingModule());
         server.addModule(new PrivateDataModule());
         
-        Conference conference = new Conference("Test conference");
-        server.addModule(new MUCModule("chat.vysper.org", conference));
-
+        server.addModule(new MUCModule());
     }
 }

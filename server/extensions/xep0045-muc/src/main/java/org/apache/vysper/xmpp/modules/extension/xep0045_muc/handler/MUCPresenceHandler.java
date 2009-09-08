@@ -31,6 +31,8 @@ import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultPresenceHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler.Status.StatusCode;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.DiscussionHistory;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.History;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
@@ -202,6 +204,11 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
             for(Occupant occupant : room.getOccupants()) {
                 sendNewOccupantPresenceToExisting(newOccupant, occupant, room, serverRuntimeContext);
             }
+            
+            // send discussion history to user
+            boolean includeJid = room.isRoomType(RoomType.NonAnonymous);
+            List<Stanza> history = room.getHistory().createStanzas(newOccupant, includeJid, History.fromStanza(stanza));
+            relayStanzas(newOccupantJid, history, serverRuntimeContext);
             
             logger.debug("{} successfully entered room {}", newOccupantJid, roomJid);
         }
@@ -400,6 +407,12 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         builder.endInnerElement();
 
         relayStanza(existingOccupant.getJid(), builder.getFinalStanza(), serverRuntimeContext);
+    }
+
+    protected void relayStanzas(Entity receiver, List<Stanza> stanzas, ServerRuntimeContext serverRuntimeContext) {
+        for(Stanza stanza : stanzas) {
+            relayStanza(receiver, stanza, serverRuntimeContext);
+        }
     }
     
     protected void relayStanza(Entity receiver, Stanza stanza, ServerRuntimeContext serverRuntimeContext) {

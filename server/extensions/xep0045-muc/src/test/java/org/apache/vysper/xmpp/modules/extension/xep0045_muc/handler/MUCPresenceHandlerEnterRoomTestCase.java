@@ -4,7 +4,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Affiliation;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.History;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
@@ -13,6 +16,8 @@ import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.TestSessionContext;
+import org.apache.vysper.xmpp.stanza.MessageStanza;
+import org.apache.vysper.xmpp.stanza.MessageStanzaType;
 import org.apache.vysper.xmpp.stanza.PresenceStanza;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -26,10 +31,10 @@ import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestCase {
 
     private Stanza enterRoom(Entity occupantJid, Entity roomJid) throws ProtocolException {
-        return enterRoom(occupantJid, roomJid, null);
+        return enterRoom(occupantJid, roomJid, null, null);
     }
     
-    private Stanza enterRoom(Entity occupantJid, Entity roomJid, String password) throws ProtocolException {
+    private Stanza enterRoom(Entity occupantJid, Entity roomJid, String password, History history) throws ProtocolException {
         SessionContext userSessionContext;
         if(occupantJid.equals(OCCUPANT1_JID)) {
             userSessionContext = sessionContext;
@@ -41,6 +46,9 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestC
         stanzaBuilder.startInnerElement("x").addNamespaceAttribute(NamespaceURIs.XEP0045_MUC);
         if(password != null) {
             stanzaBuilder.startInnerElement("password").addText(password).endInnerElement();
+        }
+        if(history != null) {
+            stanzaBuilder.addPreparedElement(history);
         }
         
         stanzaBuilder.endInnerElement();
@@ -115,7 +123,7 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestC
         room.setPassword("secret");
 
         // no error should be returned
-        assertNull(enterRoom(OCCUPANT1_JID, ROOM2_JID_WITH_NICK, "secret"));
+        assertNull(enterRoom(OCCUPANT1_JID, ROOM2_JID_WITH_NICK, "secret", null));
         assertEquals(1, room.getOccupants().size());
     }
     
@@ -183,4 +191,41 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestC
         assertEquals("110", statusElements.get(1).getAttributeValue("code"));
         
     }
+
+    public void testDiscussionHistory() throws Exception {
+        // add some messages
+        Room room = conference.findOrCreateRoom(ROOM1_JID, "Room 1");
+        room.getHistory().append(StanzaBuilder.createMessageStanza(OCCUPANT2_JID, ROOM1_JID, MessageStanzaType.GROUPCHAT, null, "Body").getFinalStanza(), 
+                new Occupant(OCCUPANT2_JID, "nick2", Affiliation.None, Role.Participant));
+        room.getHistory().append(StanzaBuilder.createMessageStanza(OCCUPANT2_JID, ROOM1_JID, MessageStanzaType.GROUPCHAT, null, "Body2").getFinalStanza(), 
+                new Occupant(OCCUPANT2_JID, "nick2", Affiliation.None, Role.Participant));
+        room.getHistory().append(StanzaBuilder.createMessageStanza(OCCUPANT2_JID, ROOM1_JID, MessageStanzaType.GROUPCHAT, null, "Body3").getFinalStanza(), 
+                new Occupant(OCCUPANT2_JID, "nick2", Affiliation.None, Role.Participant));
+        
+        // now, let user 1 enter room
+        enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK, null, new History(2, null, null, null));
+
+        Stanza stanza = occupant1Queue.getNext();
+        // first stanza should be room presence
+        assertNotNull(stanza);
+        assertEquals("presence", stanza.getName());
+        
+        stanza = occupant1Queue.getNext();
+        // here we get the message history
+        assertNotNull(stanza);
+        assertEquals("message", stanza.getName());
+        MessageStanza msgStanza = (MessageStanza) MessageStanza.getWrapper(stanza);
+        assertEquals("Body2", msgStanza.getBody(null));
+
+        stanza = occupant1Queue.getNext();
+        // first stanza should be room presence
+        assertNotNull(stanza);
+        assertEquals("message", stanza.getName());
+        msgStanza = (MessageStanza) MessageStanza.getWrapper(stanza);
+        assertEquals("Body3", msgStanza.getBody(null));
+        
+        // we only requested two messages
+        assertNull(occupant1Queue.getNext());
+}
+
 }

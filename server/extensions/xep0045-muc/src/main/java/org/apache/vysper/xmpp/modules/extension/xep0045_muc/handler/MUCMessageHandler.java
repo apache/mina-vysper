@@ -116,7 +116,11 @@ public class MUCMessageHandler extends DefaultMessageHandler {
                             relayStanza(occupent.getJid(), 
                                     StanzaBuilder.createClone(stanza, true, replaceAttributes).getFinalStanza(),
                                     serverRuntimeContext);
+                            
                         }
+                        
+                        // add to discussion history
+                        room.getHistory().append(stanza, sendingOccupant);
                     } else {
                         return createMessageErrorStanza(room.getJID(), from, stanza.getID(), StanzaErrorType.MODIFY, StanzaErrorCondition.FORBIDDEN, stanza);
                     }

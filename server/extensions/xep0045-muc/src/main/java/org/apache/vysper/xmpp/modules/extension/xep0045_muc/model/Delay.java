@@ -17,35 +17,29 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
+package org.apache.vysper.xmpp.modules.extension.xep0045_muc.model;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
-import org.apache.vysper.xmpp.modules.Module;
-import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.Identity;
+import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.datetime.DateTimeProfile;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.xmlfragment.Attribute;
+import org.apache.vysper.xmpp.xmlfragment.NamespaceAttribute;
+import org.apache.vysper.xmpp.xmlfragment.XMLElement;
+import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 
-/**
- * 
- * @author The Apache MINA Project (dev@mina.apache.org)
- */
-public class MUCServerInfoDiscoTestCase extends AbstractServerInfoDiscoTestCase {
-    
-    @Override
-    protected Module getModule() {
-        Conference conference = new Conference("Foo");
-        return new MUCModule(MODULE_JID.getDomain(), conference);
+public class Delay extends XMLElement {
+
+    public Delay(Entity from, Date timestamp) {
+        super("delay", null, Arrays.asList(
+            new NamespaceAttribute(NamespaceURIs.URN_XMPP_DELAY),
+            new Attribute("from", from.getFullQualifiedName()),
+            new Attribute("stamp", DateTimeProfile.getInstance().getDateTimeInUTC(timestamp))
+            ), (List<XMLFragment>)null);
     }
 
-    @Override
-    protected List<String> getExpectedFeatures() {
-        return Arrays.asList(NamespaceURIs.XEP0045_MUC);
-    }
     
-    @Override
-    protected Identity getExpectedIdentity() {
-        return new Identity("conference", "text", "Foo");
-    }
 }
