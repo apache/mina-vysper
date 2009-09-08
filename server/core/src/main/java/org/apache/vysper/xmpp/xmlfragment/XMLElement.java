@@ -195,6 +195,15 @@ public class XMLElement implements XMLFragment {
      * @param name - must not be NULL
      */
     public List<XMLElement> getInnerElementsNamed(String name) {
+        return getInnerElementsNamed(name, null);
+    }
+
+    /**
+     * collects all inner elements named as given parameter
+     * @param name - must not be NULL
+     * @param namespaceUri The namespace URI used for matching. Null if namespace URIs should not be considered
+     */
+    public List<XMLElement> getInnerElementsNamed(String name, String namespaceUri) {
         if (name == null) return null;
         List<XMLElement> innerElements = getInnerElements();
         if (innerElements == null) return null;
@@ -202,19 +211,28 @@ public class XMLElement implements XMLFragment {
         Iterator<XMLElement> elementIterator = innerElements.iterator(); // this List will be modified now!
         while (elementIterator.hasNext()) {
             XMLElement xmlElement =  elementIterator.next();
-            if (!name.equals(xmlElement.getName())) elementIterator.remove();
+            if (!name.equals(xmlElement.getName()) 
+                    || (namespaceUri != null && !namespaceUri.equals(xmlElement.getNamespaceURI()))) {
+                elementIterator.remove();
+            }
         }
         return innerElements;
     }
 
+    
     public XMLElement getSingleInnerElementsNamed(String name) throws XMLSemanticError {
-        List<XMLElement> innerElements = getInnerElementsNamed(name);
+        return getSingleInnerElementsNamed(name, null);
+    }
+
+    public XMLElement getSingleInnerElementsNamed(String name, String namespaceUri) throws XMLSemanticError {
+        List<XMLElement> innerElements = getInnerElementsNamed(name, namespaceUri);
         if (innerElements == null) return null;
         if (innerElements.isEmpty()) return null;
         if (innerElements.size() > 1) throw new XMLSemanticError("element has more than one inner element named: " + name);
         return innerElements.get(0);
     }
 
+    
     /**
      * collects all inner elements with given name and puts them in a map indexed by
      * @param name
