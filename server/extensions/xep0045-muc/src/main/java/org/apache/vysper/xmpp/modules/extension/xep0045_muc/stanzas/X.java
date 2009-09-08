@@ -31,28 +31,41 @@ import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
 public class X extends XMLElement {
 
     public static X fromStanza(Stanza stanza) {
-        try {
-            XMLElement xElm = stanza.getSingleInnerElementsNamed("x", NamespaceURIs.XEP0045_MUC);
-            if(xElm != null) {
-                return new X(xElm.getInnerElements());
-            } else {
-                return null;
+        List<XMLElement> xElms = stanza.getInnerElementsNamed("x");
+        XMLElement xElm = null;
+        // find an element with one of the MUC namespaces
+        for(XMLElement elm : xElms) {
+            if(elm.getNamespaceURI() != null && elm.getNamespaceURI().startsWith(NamespaceURIs.XEP0045_MUC)) {
+                xElm = elm;
+                break;
             }
-        } catch (XMLSemanticError e) {
-            throw new IllegalArgumentException("Invalid stanza", e);
+        }
+        if(xElm != null) {
+            return new X(xElm.getInnerElements());
+        } else {
+            return null;
         }
     }
     
     public X(XMLElement...elements) {
+        this(NamespaceURIs.XEP0045_MUC, elements);
+    }
+
+    public X(String ns, XMLElement...elements) {
         super("x", null, new Attribute[]{
-            new NamespaceAttribute(NamespaceURIs.XEP0045_MUC)}, elements);
+            new NamespaceAttribute(ns)}, elements);
     }
     
     public X(List<XMLElement> elements) {
-        super("x", null, new Attribute[]{
-            new NamespaceAttribute(NamespaceURIs.XEP0045_MUC)}, elements.toArray(new XMLElement[]{}));
+        this(NamespaceURIs.XEP0045_MUC, elements);
     }
 
+    public X(String ns, List<XMLElement> elements) {
+        super("x", null, new Attribute[]{
+            new NamespaceAttribute(ns)}, elements.toArray(new XMLElement[]{}));
+    }
+
+    
     public String getPassword() {
         try {
             XMLElement passwordElm = getSingleInnerElementsNamed("password");

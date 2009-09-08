@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -29,6 +30,7 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultPresenceHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Affiliation;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
@@ -264,12 +266,10 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         
         Entity roomAndOccupantNick = new EntityImpl(room.getJID(), existingOccupant.getName());
         StanzaBuilder builder = StanzaBuilder.createPresenceStanza(roomAndOccupantNick, newOccupant.getJid(), null, null, null, null);
-        builder.startInnerElement("x", NamespaceURIs.XEP0045_MUC_USER);
-        builder.startInnerElement("item")
-            .addAttribute("affiliation", existingOccupant.getAffiliation().toString())
-            .addAttribute("role", existingOccupant.getRole().toString())
-            .endInnerElement();
-        builder.endInnerElement();
+        
+        builder.addPreparedElement(new X(NamespaceURIs.XEP0045_MUC_USER, 
+                new Item(null, null, existingOccupant.getAffiliation(), existingOccupant.getRole())));
+
         
         logger.debug("Room presence from {} sent to {}", newOccupant, roomAndOccupantNick);
         relayStanza(newOccupant.getJid(), builder.getFinalStanza(), serverRuntimeContext);
@@ -279,24 +279,26 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         Entity roomAndNewUserNick = new EntityImpl(room.getJID(), newOccupant.getName());
         
         StanzaBuilder builder = StanzaBuilder.createPresenceStanza(roomAndNewUserNick, existingOccupant.getJid(), null, null, null, null);
-        builder.startInnerElement("x", NamespaceURIs.XEP0045_MUC_USER);
+        
+        List<XMLElement> inner = new ArrayList<XMLElement>();
+
         
         // room is non-anonymous or semi-anonmoys and the occupant a moderator, send full user JID
         boolean includeJid = room.getRoomTypes().contains(RoomType.NonAnonymous) ||
             (room.getRoomTypes().contains(RoomType.SemiAnonymous) && existingOccupant.getRole() == Role.Moderator); 
-        builder.addPreparedElement(new Item(newOccupant, includeJid, false));
+        inner.add(new Item(newOccupant, includeJid, false));
         
         if(existingOccupant.getJid().equals(newOccupant.getJid())) {
             
             if(room.getRoomTypes().contains(RoomType.NonAnonymous)) {
                 // notify the user that this is a non-anonymous room
-                builder.addPreparedElement(new Status(StatusCode.ROOM_NON_ANONYMOUS));
+                inner.add(new Status(StatusCode.ROOM_NON_ANONYMOUS));
             }
             
             // send status to indicate that this is the users own presence
-            builder.addPreparedElement(new Status(StatusCode.OWN_PRESENCE));
+            inner.add(new Status(StatusCode.OWN_PRESENCE));
         }
-        builder.endInnerElement();
+        builder.addPreparedElement(new X(NamespaceURIs.XEP0045_MUC_USER, inner));
 
         logger.debug("Room presence from {} sent to {}", roomAndNewUserNick, existingOccupant);
         relayStanza(existingOccupant.getJid(), builder.getFinalStanza(), serverRuntimeContext);
@@ -307,18 +309,18 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         
         StanzaBuilder builder = StanzaBuilder.createPresenceStanza(roomAndOldNick, receiver.getJid(), null, 
                 PresenceStanzaType.UNAVAILABLE, null, null);
-        builder.startInnerElement("x", NamespaceURIs.XEP0045_MUC_USER);
         
+        List<XMLElement> inner = new ArrayList<XMLElement>();
         
         boolean includeJid = includeJidInItem(room, receiver); 
-        builder.addPreparedElement(new Item(changer, includeJid, true));
-        builder.addPreparedElement(new Status(StatusCode.NEW_NICK));
+        inner.add(new Item(changer, includeJid, true));
+        inner.add(new Status(StatusCode.NEW_NICK));
         
         if(receiver.getJid().equals(changer.getJid())) {
             // send status to indicate that this is the users own presence
-            builder.addPreparedElement(new Status(StatusCode.OWN_PRESENCE));
+            inner.add(new Status(StatusCode.OWN_PRESENCE));
         }
-        builder.endInnerElement();
+        builder.addPreparedElement(new X(NamespaceURIs.XEP0045_MUC_USER, inner));
 
         logger.debug("Room presence from {} sent to {}", roomAndOldNick, receiver);
         relayStanza(receiver.getJid(), builder.getFinalStanza(), serverRuntimeContext);
@@ -330,17 +332,14 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         
         StanzaBuilder builder = StanzaBuilder.createPresenceStanza(roomAndNick, receiver.getJid(), null, 
                 null, show, status);
-        builder.startInnerElement("x", NamespaceURIs.XEP0045_MUC_USER);
-        
         
         boolean includeJid = includeJidInItem(room, receiver); 
-        builder.addPreparedElement(new Item(changer, includeJid, true));
-        
 //        if(receiver.getJid().equals(changer.getJid())) {
 //            // send status to indicate that this is the users own presence
 //            new Status(StatusCode.OWN_PRESENCE).insertElement(builder);
 //        }
-        builder.endInnerElement();
+
+        builder.addPreparedElement(new X(NamespaceURIs.XEP0045_MUC_USER, new Item(changer, includeJid, true)));
 
         logger.debug("Room presence from {} sent to {}", roomAndNick, receiver);
         relayStanza(receiver.getJid(), builder.getFinalStanza(), serverRuntimeContext);
@@ -356,16 +355,16 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         Entity roomAndOldNick = new EntityImpl(room.getJID(), changer.getName());
         
         StanzaBuilder builder = StanzaBuilder.createPresenceStanza(roomAndOldNick, receiver.getJid(), null, null, null, null);
-        builder.startInnerElement("x", NamespaceURIs.XEP0045_MUC_USER);
         
+        List<XMLElement> inner = new ArrayList<XMLElement>();
         boolean includeJid = includeJidInItem(room, receiver);  
-        builder.addPreparedElement(new Item(changer, includeJid, false));
+        inner.add(new Item(changer, includeJid, false));
         
         if(receiver.getJid().equals(changer.getJid())) {
             // send status to indicate that this is the users own presence
-            builder.addPreparedElement(new Status(StatusCode.OWN_PRESENCE));
+            inner.add(new Status(StatusCode.OWN_PRESENCE));
         }
-        builder.endInnerElement();
+        builder.addPreparedElement(new X(NamespaceURIs.XEP0045_MUC_USER, inner));
 
         relayStanza(receiver.getJid(), builder.getFinalStanza(), serverRuntimeContext);
     }
@@ -377,13 +376,9 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         
         StanzaBuilder builder = StanzaBuilder.createPresenceStanza(roomAndNewUserNick, existingOccupant.getJid(), null, 
                 PresenceStanzaType.UNAVAILABLE, null, null);
-        builder.startInnerElement("x", NamespaceURIs.XEP0045_MUC_USER);
-        builder.startInnerElement("item")
-            .addAttribute("affiliation", exitingOccupant.getAffiliation().toString())
-            // must be none since the user is leaving
-            .addAttribute("role", "none");
-            
-        builder.endInnerElement();
+
+        List<XMLElement> inner = new ArrayList<XMLElement>();
+        inner.add(new Item(null, null, existingOccupant.getAffiliation(), Role.None));
         
         // is this stanza to be sent to the exiting user himself?
         boolean ownStanza = existingOccupant.getJid().equals(exitingOccupant.getJid()); 
@@ -397,9 +392,9 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
             } else {
                 status = new Status(statusMessage);
             }
-            builder.addPreparedElement(status);
+            inner.add(status);
         }
-        builder.endInnerElement();
+        builder.addPreparedElement(new X(NamespaceURIs.XEP0045_MUC_USER, inner));
 
         relayStanza(existingOccupant.getJid(), builder.getFinalStanza(), serverRuntimeContext);
     }
