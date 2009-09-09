@@ -55,6 +55,7 @@ public class Room implements InfoRequestListener, ItemRequestListener {
     private String name;
     private String password;
     private DiscussionHistory history = new DiscussionHistory();
+    private Affiliations affiliations = new Affiliations();
     
     // keep in a map to allow for quick access
     private Map<Entity, Occupant> occupants = new ConcurrentHashMap<Entity, Occupant>();
@@ -103,8 +104,14 @@ public class Room implements InfoRequestListener, ItemRequestListener {
     }
 
     public Occupant addOccupant(Entity occupantJid, String name) {
-        // TODO uses a default Affiliation.None, later to be looked up based on the user
-        Affiliation affiliation = Affiliation.None;
+        Affiliation affiliation = affiliations.getAffiliation(occupantJid);
+        
+        if(affiliation == Affiliation.Outcast) {
+            return null;
+        }
+        
+        // default to none
+        if(affiliation == null) affiliation = Affiliation.None;
         Role role = Role.getRole(affiliation, roomTypes);
         Occupant occupant = new Occupant(occupantJid, name, affiliation, role); 
         occupants.put(occupantJid, occupant);
@@ -192,5 +199,9 @@ public class Room implements InfoRequestListener, ItemRequestListener {
     public DiscussionHistory getHistory() {
         return history;
     }
-    
+
+    public Affiliations getAffiliations() {
+        return affiliations;
+    }
+
 }

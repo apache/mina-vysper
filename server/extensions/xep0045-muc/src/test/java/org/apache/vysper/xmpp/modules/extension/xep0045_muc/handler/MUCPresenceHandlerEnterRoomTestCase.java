@@ -105,6 +105,27 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestC
         assertEquals("nick", occupant.getName());
     }
 
+    public void testEnterAsAdmin() throws Exception {
+        Room room = conference.findRoom(ROOM1_JID);
+        room.getAffiliations().add(OCCUPANT1_JID, Affiliation.Admin);
+
+        enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK);
+
+        Occupant occupant = room.getOccupants().iterator().next();
+        
+        assertEquals(Affiliation.Admin, occupant.getAffiliation());
+    }
+
+    public void testEnterAsOutcast() throws Exception {
+        Room room = conference.findRoom(ROOM1_JID);
+        room.getAffiliations().add(OCCUPANT1_JID, Affiliation.Outcast);
+
+        Stanza error = enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK);
+        assertPresenceErrorStanza(error, ROOM1_JID, OCCUPANT1_JID, "auth", "forbidden");
+
+        assertEquals(0, room.getOccupants().size());
+    }
+
     
     public void testEnterRoomWithDuplicateNick() throws Exception {
         assertNull(enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK));

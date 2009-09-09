@@ -185,6 +185,10 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
             }
             
             Occupant newOccupant = room.addOccupant(newOccupantJid, nick);
+            if(newOccupant == null) {
+                // outcast
+                return createPresenceErrorStanza(roomJid, newOccupantJid, stanza.getID(), "auth", "forbidden");
+            }
             
             // relay presence of all existing room occupants to the now joined occupant
             for(Occupant occupant : room.getOccupants()) {
