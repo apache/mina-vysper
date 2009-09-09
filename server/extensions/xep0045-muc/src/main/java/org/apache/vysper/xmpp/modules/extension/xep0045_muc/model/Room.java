@@ -112,9 +112,14 @@ public class Room implements InfoRequestListener, ItemRequestListener {
         
         // default to none
         if(affiliation == null) affiliation = Affiliation.None;
+        
         Role role = Role.getRole(affiliation, roomTypes);
         Occupant occupant = new Occupant(occupantJid, name, affiliation, role); 
-        occupants.put(occupantJid, occupant);
+        if(isRoomType(RoomType.MembersOnly) && affiliation == Affiliation.None) {
+            // don't add non member to room
+        } else {
+            occupants.put(occupantJid, occupant);
+        }
         return occupant;
     }
 

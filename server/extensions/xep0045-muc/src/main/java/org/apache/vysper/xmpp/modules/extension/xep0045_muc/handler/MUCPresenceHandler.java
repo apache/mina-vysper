@@ -30,6 +30,7 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultPresenceHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Affiliation;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
@@ -188,6 +189,10 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
             if(newOccupant == null) {
                 // outcast
                 return createPresenceErrorStanza(roomJid, newOccupantJid, stanza.getID(), "auth", "forbidden");
+            }
+            if(room.isRoomType(RoomType.MembersOnly) && newOccupant.getAffiliation() == Affiliation.None) {
+                // non-member can not enter members only room
+                return createPresenceErrorStanza(roomJid, newOccupantJid, stanza.getID(), "auth", "registration-required");
             }
             
             // relay presence of all existing room occupants to the now joined occupant

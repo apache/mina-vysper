@@ -18,7 +18,6 @@ import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.MessageStanza;
 import org.apache.vysper.xmpp.stanza.MessageStanzaType;
-import org.apache.vysper.xmpp.stanza.PresenceStanza;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.xmlfragment.Attribute;
@@ -126,6 +125,14 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestC
         assertEquals(0, room.getOccupants().size());
     }
 
+    public void testEnterAsNonMember() throws Exception {
+        Room room = conference.createRoom(ROOM2_JID, "Room", RoomType.MembersOnly);
+
+        Stanza error = enterRoom(OCCUPANT1_JID, ROOM2_JID_WITH_NICK);
+        assertPresenceErrorStanza(error, ROOM2_JID, OCCUPANT1_JID, "auth", "registration-required");
+
+        assertEquals(0, room.getOccupants().size());
+    }
     
     public void testEnterRoomWithDuplicateNick() throws Exception {
         assertNull(enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK));
