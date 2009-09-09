@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.vysper.compliance.SpecCompliance;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
@@ -32,6 +33,7 @@ import org.apache.vysper.xmpp.modules.core.base.handler.DefaultMessageHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.MessageStanza;
@@ -130,7 +132,7 @@ public class MUCMessageHandler extends DefaultMessageHandler {
             } else {
                 return createMessageErrorStanza(moduleDomain, from, stanza.getID(), StanzaErrorType.MODIFY, StanzaErrorCondition.ITEM_NOT_FOUND, stanza);
             }
-        } else if(type == null  || type == MessageStanzaType.CHAT) {
+        } else if(type == null  || type == MessageStanzaType.CHAT || type == MessageStanzaType.NORMAL) {
             // private message
             logger.debug("Received direct message to {}", roomWithNickJid);
             Room room = conference.findRoom(roomJid);
@@ -138,28 +140,60 @@ public class MUCMessageHandler extends DefaultMessageHandler {
                 Occupant sendingOccupant = room.findOccupantByJID(from);
                 
                 // sender must be participant in room
-                if(sendingOccupant != null) {
-                    Occupant receivingOccupant = room.findOccupantByNick(roomWithNickJid.getResource());
-                    
-                    // must be sent to an existing occupant in the room
-                    if(receivingOccupant != null) {
-                    
-                        Entity roomAndSendingNick = new EntityImpl(room.getJID(), sendingOccupant.getName());
-                        logger.debug("Relaying message to  {}", receivingOccupant);
-                        List<Attribute> replaceAttributes = new ArrayList<Attribute>();
-                        replaceAttributes.add(new Attribute("from", roomAndSendingNick.getFullQualifiedName()));
-                        replaceAttributes.add(new Attribute("to", receivingOccupant.getJid().getFullQualifiedName()));
-                    
-                        relayStanza(receivingOccupant.getJid(), 
-                            StanzaBuilder.createClone(stanza, true, replaceAttributes).getFinalStanza(),
-                            serverRuntimeContext);
+                    if(roomWithNickJid.isResourceSet()) {
+                        if(sendingOccupant != null) {
+                            // got resource, private message for occupant
+                            Occupant receivingOccupant = room.findOccupantByNick(roomWithNickJid.getResource());
+                            
+                            // must be sent to an existing occupant in the room
+                            if(receivingOccupant != null) {
+                                
+                                Entity roomAndSendingNick = new EntityImpl(room.getJID(), sendingOccupant.getName());
+                                logger.debug("Relaying message to  {}", receivingOccupant);
+                                List<Attribute> replaceAttributes = new ArrayList<Attribute>();
+                                replaceAttributes.add(new Attribute("from", roomAndSendingNick.getFullQualifiedName()));
+                                replaceAttributes.add(new Attribute("to", receivingOccupant.getJid().getFullQualifiedName()));
+                                
+                                relayStanza(receivingOccupant.getJid(), 
+                                        StanzaBuilder.createClone(stanza, true, replaceAttributes).getFinalStanza(),
+                                        serverRuntimeContext);
+                            } else {
+                                // TODO correct error?
+                                return createMessageErrorStanza(moduleDomain, from, stanza.getID(), StanzaErrorType.MODIFY, StanzaErrorCondition.ITEM_NOT_FOUND, stanza);
+                            }
+                        } else {
+                            // user must be occupant to send direct message
+                            return createMessageErrorStanza(room.getJID(), from, stanza.getID(), StanzaErrorType.MODIFY, StanzaErrorCondition.NOT_ACCEPTABLE, stanza);
+                        } 
                     } else {
-                        // TODO correct error?
-                        return createMessageErrorStanza(moduleDomain, from, stanza.getID(), StanzaErrorType.MODIFY, StanzaErrorCondition.ITEM_NOT_FOUND, stanza);
-                    }
-                } else {
-                    return createMessageErrorStanza(room.getJID(), from, stanza.getID(), StanzaErrorType.MODIFY, StanzaErrorCondition.NOT_ACCEPTABLE, stanza);
-                }
+                        X x = X.fromStanza(stanza);
+                        if(x != null && x.getInvite() != null) {
+                            if(sendingOccupant != null) {
+                                // invite, forward modified invite
+                                try {
+                                    Stanza invite = MUCHandlerHelper.createInviteMessageStanza(stanza, room.getPassword());
+                                    relayStanza(invite.getTo(), invite, serverRuntimeContext);
+                                } catch (EntityFormatException e) {
+                                    // invalid format of invite element
+                                    return createMessageErrorStanza(room.getJID(), from, stanza.getID(), StanzaErrorType.MODIFY, StanzaErrorCondition.JID_MALFORMED, stanza);
+                                }
+                            } else {
+                                // user must be occupant to send invite
+                                return createMessageErrorStanza(room.getJID(), from, stanza.getID(), StanzaErrorType.MODIFY, StanzaErrorCondition.NOT_ACCEPTABLE, stanza);
+                            }
+                        } else if(x != null && x.getDecline() != null) {
+                            // invite, forward modified decline
+                            try {
+                                Stanza decline = MUCHandlerHelper.createDeclineMessageStanza(stanza);
+                                relayStanza(decline.getTo(), decline, serverRuntimeContext);
+                            } catch (EntityFormatException e) {
+                                // invalid format of invite element
+                                return createMessageErrorStanza(room.getJID(), from, stanza.getID(), StanzaErrorType.MODIFY, StanzaErrorCondition.JID_MALFORMED, stanza);
+                            }
+                        } else {
+                            return createMessageErrorStanza(room.getJID(), from, stanza.getID(), StanzaErrorType.MODIFY, StanzaErrorCondition.UNEXPECTED_REQUEST, stanza);
+                        }
+                } 
             } else {
                 return createMessageErrorStanza(moduleDomain, from, stanza.getID(), StanzaErrorType.MODIFY, StanzaErrorCondition.ITEM_NOT_FOUND, stanza);
             }

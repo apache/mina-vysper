@@ -30,7 +30,6 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultPresenceHandler;
-import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Affiliation;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
@@ -48,9 +47,7 @@ import org.apache.vysper.xmpp.stanza.PresenceStanza;
 import org.apache.vysper.xmpp.stanza.PresenceStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.xmlfragment.Attribute;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
-import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,10 +79,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         // the MUC child element (i.e., <x xmlns='http://jabber.org/protocol/muc'/>) in the 
         // <presence/> stanza of type "error"."
 
-        Attribute xmlns = new Attribute("xmlns", NamespaceURIs.XEP0045_MUC);
-        XMLElement xElement = new XMLElement("x", null, Arrays.asList(xmlns), (List<XMLFragment>)null);
-        
-        return MUCHandlerHelper.createErrorStanza("presence", from, to, id, type, errorName, Arrays.asList(xElement));
+        return MUCHandlerHelper.createErrorStanza("presence", from, to, id, type, errorName, Arrays.asList((XMLElement)new X()));
     }
     
     @Override
@@ -181,7 +175,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
                 X x = X.fromStanza(stanza);
                 String password = null;
                 if(x != null) {
-                    password = x.getPassword();
+                    password = x.getPasswordValue();
                 }
                 
                 if(password == null || !password.equals(room.getPassword())) {
@@ -226,6 +220,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
                 
                 room.removeOccupant(occupantJid);
 
+                // TODO replace with use of X
                 String statusMessage = null;
                 try {
                     XMLElement statusElement = stanza.getSingleInnerElementsNamed("status");

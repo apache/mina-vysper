@@ -65,12 +65,38 @@ public class X extends XMLElement {
             new NamespaceAttribute(ns)}, elements.toArray(new XMLElement[]{}));
     }
 
+    public Invite getInvite() {
+        try {
+            XMLElement inviteElm = getSingleInnerElementsNamed("invite");
+            if(inviteElm != null) {
+                return new Invite(inviteElm);
+            } else {
+                return null;
+            }
+        } catch (XMLSemanticError e) {
+            throw new IllegalArgumentException("Invalid stanza", e);
+        }
+    }
+
+    public Decline getDecline() {
+        try {
+            XMLElement inviteElm = getSingleInnerElementsNamed("decline");
+            if(inviteElm != null) {
+                return new Decline(inviteElm);
+            } else {
+                return null;
+            }
+        } catch (XMLSemanticError e) {
+            throw new IllegalArgumentException("Invalid stanza", e);
+        }
+    }
+
     
-    public String getPassword() {
+    public Password getPassword() {
         try {
             XMLElement passwordElm = getSingleInnerElementsNamed("password");
             if(passwordElm != null && passwordElm.getInnerText() != null) {
-                return passwordElm.getInnerText().getText();
+                return new Password(passwordElm.getInnerText().getText());
             } else {
                 return null;
             }
@@ -79,6 +105,14 @@ public class X extends XMLElement {
         }
     }
     
+    public String getPasswordValue() {
+        Password password = getPassword();
+        if(password != null && password.getInnerText() != null) {
+            return password.getInnerText().getText();
+        } else {
+            return null;
+        }
+    }
 
     
 }

@@ -19,30 +19,18 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas;
 
-import org.apache.vysper.TestUtil;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
-import junit.framework.TestCase;
+public class Decline extends AbstractInviteDecline {
 
-/**
- * 
- * @author The Apache MINA Project (dev@mina.apache.org)
- */
-public class XTestCase extends TestCase {
-
-    private static Entity JID = TestUtil.parseUnchecked("jid1@vysper.org");
-
-    public void testFromStanza() {
-        StanzaBuilder builder = StanzaBuilder.createMessageStanza(JID, JID, null, "Foo");
-        builder.startInnerElement("x", NamespaceURIs.XEP0045_MUC);
-        builder.startInnerElement("password").addText("secret").endInnerElement();
-        builder.endInnerElement();
-        
-        X x = X.fromStanza(builder.getFinalStanza());
-        
-        assertNotNull(x);
-        assertEquals("secret", x.getPasswordValue());
+    private static final String ElEMENT_NAME = "decline";
+    
+    public Decline(XMLElement elm) {
+        super(ElEMENT_NAME, elm);
+    }
+    
+    public Decline(Entity from, Entity to, String reason) {
+        super(ElEMENT_NAME, from, to, reason);
     }
 }

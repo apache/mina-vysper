@@ -10,6 +10,10 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Decline;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Invite;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Password;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
@@ -30,8 +34,16 @@ public class MUCMessageHandlerTestCase extends AbstractMUCHandlerTestCase {
 
     private Stanza sendMessage(Entity from, Entity to, MessageStanzaType type,
             String body) throws ProtocolException {
+        return sendMessage(from, to, type, body, null);
+    }
+    
+    private Stanza sendMessage(Entity from, Entity to, MessageStanzaType type,
+            String body, X x) throws ProtocolException {
         StanzaBuilder stanzaBuilder = StanzaBuilder.createMessageStanza(from,
                 to, type, null, body);
+        if(x != null) {
+            stanzaBuilder.addPreparedElement(x);
+        }
 
         Stanza messageStanza = stanzaBuilder.getFinalStanza();
         ResponseStanzaContainer container = handler.execute(messageStanza,
@@ -142,17 +154,68 @@ public class MUCMessageHandlerTestCase extends AbstractMUCHandlerTestCase {
 
     }
 
+    public void testInviteMessageWithPassword() throws Exception {
+        String reason = "Join me!";
+
+        // add occupants to the room
+        Room room = conference.findOrCreateRoom(ROOM1_JID, "Room 1");
+        room.setPassword("secret");
+        room.addOccupant(OCCUPANT1_JID, "nick");
+
+        Invite invite = new Invite(null, OCCUPANT2_JID, reason);
+        // send message to occupant 1
+        assertNull(sendMessage(OCCUPANT1_JID, ROOM1_JID, null, null, new X(invite)));
+
+        X expectedX = new X(new Invite(OCCUPANT1_JID, null, reason), new Password("secret"));
+        // verify stanzas to existing occupants on the exiting user
+        assertMessageStanza(ROOM1_JID, OCCUPANT2_JID, null, null, expectedX,
+                occupant2Queue.getNext());
+        assertNull(occupant1Queue.getNext());
+    }
+
+    public void testDeclineMessage() throws Exception {
+        String reason = "No way";
+
+        // add occupants to the room
+        Room room = conference.findOrCreateRoom(ROOM1_JID, "Room 1");
+        room.addOccupant(OCCUPANT2_JID, "nick");
+
+        Decline decline = new Decline(null, OCCUPANT2_JID, reason);
+        // send message to occupant 1
+        Stanza error = sendMessage(OCCUPANT1_JID, ROOM1_JID, null, null, new X(decline));
+        assertNull(error);
+
+        X expectedX = new X(new Decline(OCCUPANT1_JID, null, reason));
+        // verify stanzas to existing occupants on the exiting user
+        assertMessageStanza(ROOM1_JID, OCCUPANT2_JID, null, null, expectedX,
+                occupant2Queue.getNext());
+        assertNull(occupant1Queue.getNext());
+    }
+
     
     private void assertMessageStanza(Entity from, Entity to, String type,
             String body, Stanza stanza) throws XMLSemanticError {
+        assertMessageStanza(from, to, type, body, null, stanza);
+    }
+    
+    private void assertMessageStanza(Entity from, Entity to, String type,
+            String expectedBody, X expectedX, Stanza stanza) throws XMLSemanticError {
+        assertNotNull(stanza);
         assertEquals(from, stanza.getFrom());
         assertEquals(to, stanza.getTo());
         if (type != null) {
             assertEquals(type, stanza.getAttributeValue("type"));
         }
 
-        XMLElement bodyElement = stanza.getSingleInnerElementsNamed("body");
-        assertEquals(body, bodyElement.getInnerText().getText());
+        if(expectedBody != null) {
+            XMLElement bodyElement = stanza.getSingleInnerElementsNamed("body");
+            assertEquals(expectedBody, bodyElement.getInnerText().getText());
+        }
+        
+        if(expectedX != null) {
+            X actualX = X.fromStanza(stanza);
+            assertEquals(expectedX, actualX);
+        }
     }
 
     @Override

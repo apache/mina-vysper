@@ -130,7 +130,7 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestC
     
     public void testEnterWithoutNick() throws Exception {
         // try entering without a nick
-        PresenceStanza response = (PresenceStanza) enterRoom(OCCUPANT1_JID, ROOM1_JID);
+        Stanza response = enterRoom(OCCUPANT1_JID, ROOM1_JID);
 
         assertPresenceErrorStanza(response, ROOM1_JID, OCCUPANT1_JID, "modify", "jid-malformed");
     }
@@ -149,12 +149,12 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestC
         room.setPassword("secret");
 
         // try entering without a password
-        PresenceStanza response = (PresenceStanza) enterRoom(OCCUPANT1_JID, ROOM2_JID_WITH_NICK);
+        Stanza response = enterRoom(OCCUPANT1_JID, ROOM2_JID_WITH_NICK);
         
         assertPresenceErrorStanza(response, ROOM2_JID, OCCUPANT1_JID, "auth", "not-authorized");
     }
 
-    private void assertPresenceErrorStanza(PresenceStanza response, Entity from, Entity to,
+    private void assertPresenceErrorStanza(Stanza response, Entity from, Entity to,
             String type, String errorName) {
         Attribute xmlns = new NamespaceAttribute(NamespaceURIs.XEP0045_MUC);
         XMLElement xElement = new XMLElement("x", null, Arrays.asList(xmlns), (XMLFragment[])null);
