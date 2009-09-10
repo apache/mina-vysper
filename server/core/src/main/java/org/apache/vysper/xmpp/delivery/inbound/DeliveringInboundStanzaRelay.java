@@ -169,6 +169,7 @@ public class DeliveringInboundStanzaRelay implements StanzaRelay {
                     }
 
                     processor.processStanza(serverRuntimeContext, null, stanza, null);
+                    return new RelayResult();
                 }
 
                 if (receiver.isResourceSet()) {
@@ -185,7 +186,7 @@ public class DeliveringInboundStanzaRelay implements StanzaRelay {
         @SpecCompliant(spec="draft-ietf-xmpp-3921bis-00", section="8.3.", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
         private RelayResult deliverToBareJID() {
             XMPPCoreStanza xmppStanza = XMPPCoreStanza.getWrapper(stanza);
-            if (xmppStanza == null) new RelayResult(new DeliveryException("unable to deliver stanza which is not IQ, presence or message"));
+            if (xmppStanza == null) return new RelayResult(new DeliveryException("unable to deliver stanza which is not IQ, presence or message"));
 
             if (PresenceStanza.isOfType(stanza)) {
                 return relayToAllSessions();
