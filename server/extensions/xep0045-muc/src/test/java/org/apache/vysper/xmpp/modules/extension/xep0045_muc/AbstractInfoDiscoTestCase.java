@@ -38,6 +38,7 @@ import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
  */
 public abstract class AbstractInfoDiscoTestCase extends AbstractDiscoTestCase {
 
+    @Override
     protected IQHandler createDiscoIQHandler() {
         return new DiscoInfoIQHandler();
     }
