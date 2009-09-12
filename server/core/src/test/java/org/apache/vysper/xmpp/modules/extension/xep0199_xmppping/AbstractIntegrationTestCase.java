@@ -32,6 +32,7 @@ import org.apache.vysper.xmpp.authorization.AccountManagement;
 import org.apache.vysper.xmpp.server.XMPPServer;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.PacketCollector;
+import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.filter.PacketIDFilter;
 import org.jivesoftware.smack.packet.Packet;
@@ -63,6 +64,9 @@ public abstract class AbstractIntegrationTestCase extends TestCase {
     
     @Override
     protected void setUp() throws Exception {
+        // make sure Smack times out after 5 seconds
+        SmackConfiguration.setPacketReplyTimeout(5000);
+        
         port = findFreePort();
         
         startServer(port);
