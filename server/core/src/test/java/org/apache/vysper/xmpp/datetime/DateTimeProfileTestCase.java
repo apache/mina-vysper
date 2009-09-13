@@ -20,7 +20,6 @@
 package org.apache.vysper.xmpp.datetime;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.TimeZone;
 
 import junit.framework.TestCase;
@@ -58,14 +57,18 @@ public class DateTimeProfileTestCase extends TestCase {
 
     
     public void testParseDateTimeWithTz() throws Exception {
-        Date actual = dt.fromDateTime("2009-09-11T11:12:13-01:30");
-        Date expected = new Date(109, 8, 11, 9, 42, 13);
+        Calendar actual = dt.fromDateTime("2009-09-11T11:12:13-01:30");
+        Calendar expected = Calendar.getInstance(TimeZone.getTimeZone("GMT-01:30"));
+        expected.clear();
+        expected.set(2009, 8, 11, 11, 12, 13);
         assertEquals(expected, actual);
     }
 
     public void testParseDateTimeWithUTCTz() throws Exception {
-        Date actual = dt.fromDateTime("2009-09-11T11:12:13Z");
-        Date expected = new Date(109, 8, 11, 11, 12, 13);
+        Calendar actual = dt.fromDateTime("2009-09-11T11:12:13Z");
+        Calendar expected = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        expected.clear();
+        expected.set(2009, 8, 11, 11, 12, 13);
         assertEquals(expected, actual);
     }
 
@@ -79,26 +82,41 @@ public class DateTimeProfileTestCase extends TestCase {
     }
 
     public void testParseTimeWithTz() throws Exception {
-        Date actual = dt.fromTime("11:12:13-01:30");
-        Date expected = new Date(70, 0, 1, 9, 42, 13);
+        Calendar actual = dt.fromTime("11:12:13-01:30");
+        Calendar expected = Calendar.getInstance(TimeZone.getTimeZone("GMT-01:30"));
+        expected.clear();
+        expected.set(Calendar.HOUR_OF_DAY, 11);
+        expected.set(Calendar.MINUTE, 12);
+        expected.set(Calendar.SECOND, 13);
+
         assertEquals(expected, actual);
     }
 
     public void testParseTimeWithUTCTz() throws Exception {
-        Date actual = dt.fromTime("11:12:13Z");
-        Date expected = new Date(70, 0, 1, 11, 12, 13);
+        Calendar actual = dt.fromTime("11:12:13Z");
+        Calendar expected = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        expected.clear();
+        expected.set(Calendar.HOUR_OF_DAY, 11);
+        expected.set(Calendar.MINUTE, 12);
+        expected.set(Calendar.SECOND, 13);
         assertEquals(expected, actual);
     }
 
     public void testParseTimeWithoutTz() throws Exception {
-        Date actual = dt.fromTime("11:12:13");
-        Date expected = new Date(70, 0, 1, 11, 12, 13);
+        Calendar actual = dt.fromTime("11:12:13");
+        Calendar expected = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        expected.clear();
+        expected.set(Calendar.HOUR_OF_DAY, 11);
+        expected.set(Calendar.MINUTE, 12);
+        expected.set(Calendar.SECOND, 13);
         assertEquals(expected, actual);
     }
 
     public void testParseDate() throws Exception {
-        Date actual = dt.fromDate("2009-09-11");
-        Date expected = new Date(109, 8, 11);
+        Calendar actual = dt.fromDate("2009-09-11");
+        Calendar expected = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        expected.clear();
+        expected.set(2009, 8, 11);
         assertEquals(expected, actual);
     }
 

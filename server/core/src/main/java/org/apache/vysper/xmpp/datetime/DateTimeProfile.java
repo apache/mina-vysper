@@ -1,20 +1,19 @@
 package org.apache.vysper.xmpp.datetime;
 
-import org.apache.vysper.compliance.SpecCompliant;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.COMPLETE;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.IN_PROGRESS;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.TimeZone;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+
+import org.apache.vysper.compliance.SpecCompliant;
 
 /**
- * provides dates and times in XMPP conform formats
+ * provides dates and times in XMPP conformant formats
  */
 @SpecCompliant(spec = "XEP-0082", status = IN_PROGRESS, coverage = COMPLETE)
 public class DateTimeProfile {
@@ -25,10 +24,17 @@ public class DateTimeProfile {
     protected static final SimpleDateFormat utcDateTimeFormatter;
     protected static final SimpleDateFormat utcTimeFormatter;
 
-    protected static final SimpleDateFormat utcDateParser;
-    protected static final SimpleDateFormat utcDateTimeParser;
-    protected static final SimpleDateFormat utcTimeParser;
-
+    private static final String DATE_PATTERN_VALUE = "(\\d\\d\\d\\d)-(\\d\\d)-(\\d\\d)"; 
+    private static final String TIME_PATTERN_VALUE = "(\\d\\d):(\\d\\d):(\\d\\d)"; 
+    private static final String TZ_PATTERN_VALUE   = "(([+-]\\d\\d:\\d\\d)|Z)"; 
+    
+    // time zone is required for date times
+    private static final Pattern DATE_TIME_PATTERN = Pattern.compile("^" + DATE_PATTERN_VALUE + "T" 
+            + TIME_PATTERN_VALUE + TZ_PATTERN_VALUE + "$");
+    private static final Pattern DATE_PATTERN      = Pattern.compile("^" + DATE_PATTERN_VALUE + "$");
+    
+    // time zone is optional for times
+    private static final Pattern TIME_PATTERN      = Pattern.compile("^" + TIME_PATTERN_VALUE + TZ_PATTERN_VALUE + "?$");
     
     static {
         TIME_ZONE_UTC = TimeZone.getTimeZone("UTC");
@@ -38,10 +44,6 @@ public class DateTimeProfile {
         utcDateFormatter.setTimeZone(TIME_ZONE_UTC); // convert to UTC
         utcTimeFormatter = new SimpleDateFormat("HH:mm:ss'Z'");
         utcTimeFormatter.setTimeZone(TIME_ZONE_UTC); // convert to UTC
-
-        utcDateTimeParser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        utcDateParser = new SimpleDateFormat("yyyy-MM-dd");
-        utcTimeParser = new SimpleDateFormat("HH:mm:ss");
     }
     
     private final static DateTimeProfile SINGLETON = new DateTimeProfile();
@@ -66,58 +68,93 @@ public class DateTimeProfile {
         return utcTimeFormatter.format(time);
     }
 
-    public Date fromDateTime(String time) throws ParseException {
-        return parseWithTz(utcDateTimeParser, time, false);
-    }
+    /**
+     * Parses a date time compliant with ISO-8601 and XEP-0082.
+     * @param time The date time string
+     * @return A {@link Calendar} representing the date time, in the
+     *  time zone specified by the input string
+     * @throws IllegalArgumentException If the input string is not a valid date time
+     *  e.g. the time zone is missing
+     */
+    public Calendar fromDateTime(String time) {
+        Matcher matcher = DATE_TIME_PATTERN.matcher(time);
 
-    public Date fromTime(String time) throws ParseException {
-        return parseWithTz(utcTimeParser, time, true);
-    }
-
-    public Date fromDate(String time) throws ParseException {
-        return utcDateParser.parse(time);
-    }
-
-    
-    private Date parseWithTz(DateFormat format, String time, boolean optionalTz) throws ParseException {
-        int tzOffset;
-        String timeWithoutTz;
-        // tz is required for datetimes and optional for times by XEP-0082
-        if(time.endsWith("Z")) {
-            timeWithoutTz = time.substring(0, time.length() - 1);
-            tzOffset = 0;
-        } else {
-            Pattern tzPattern = Pattern.compile("([+-])(\\d\\d):(\\d\\d)$");
-            
-            Matcher matcher = tzPattern.matcher(time);
-            
-            if(matcher.find()) {
-                timeWithoutTz = time.substring(0, time.length() - 6);
-                
-                String sign = matcher.group(1);
-                int hours = Integer.parseInt(matcher.group(2));
-                int min = Integer.parseInt(matcher.group(3));
-                
-                tzOffset = hours * 60 + min;
-                if(sign.equals("-")) tzOffset = -tzOffset;
+        if(matcher.find()) {
+            int year = Integer.valueOf(matcher.group(1));
+            int month = Integer.valueOf(matcher.group(2));
+            int day = Integer.valueOf(matcher.group(3));
+            int hour = Integer.valueOf(matcher.group(4));
+            int minute = Integer.valueOf(matcher.group(5));
+            int second = Integer.valueOf(matcher.group(6));
+            String tzValue = matcher.group(7);
+            TimeZone tz;
+            if(tzValue.equals("Z")) {
+                tz = TIME_ZONE_UTC;
             } else {
-                if(optionalTz) {
-                    timeWithoutTz = time;
-                    tzOffset = 0;
-                } else {
-                    throw new IllegalArgumentException("Time zone required for date time: " + time);
-                }
+                tz = TimeZone.getTimeZone("GMT" + tzValue);
             }
+            Calendar calendar = Calendar.getInstance(tz);
+            calendar.clear();
+            calendar.set(year, month - 1, day, hour, minute, second);
+            return calendar;
+        } else {
+            throw new IllegalArgumentException("Invalid date time: " + time);
         }
-        
-        // parse without time zone
-        Date actual = format.parse(timeWithoutTz);
-        
-        // correct for time zone
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        cal.setTime(actual);
-        cal.add(Calendar.MINUTE, tzOffset);
-        return cal.getTime();
-        
+    }
+
+    /**
+     * Parses a time, compliant with ISO-8601 and XEP-0082.
+     * @param time The time string
+     * @return A {@link Calendar} representing the time, in the
+     *  time zone specified by the input string. If a time zone is not specified
+     *  in the input string, the returned {@link Calendar} will be in the UTC time zone
+     * @throws IllegalArgumentException If the input string is not a valid time
+     */
+    public Calendar fromTime(String time) {
+        Matcher matcher = TIME_PATTERN.matcher(time);
+
+        if(matcher.find()) {
+            int hour = Integer.valueOf(matcher.group(1));
+            int minute = Integer.valueOf(matcher.group(2));
+            int second = Integer.valueOf(matcher.group(3));
+            String tzValue = matcher.group(4);
+            TimeZone tz;
+            if(tzValue == null || tzValue.equals("Z")) {
+                tz = TIME_ZONE_UTC;
+            } else {
+                tz = TimeZone.getTimeZone("GMT" + tzValue);
+            }
+            Calendar calendar = Calendar.getInstance(tz);
+            calendar.clear();
+            calendar.set(Calendar.HOUR_OF_DAY, hour);
+            calendar.set(Calendar.MINUTE, minute);
+            calendar.set(Calendar.SECOND, second);
+            return calendar;
+        } else {
+            throw new IllegalArgumentException("Invalid date time: " + time);
+        }
+    }
+
+    /**
+     * Parses a date, compliant with ISO-8601 and XEP-0082.
+     * @param time The date string
+     * @return A {@link Calendar} representing the date
+     * @throws IllegalArgumentException If the input string is not a valid date
+     */
+    public Calendar fromDate(String time) {
+        Matcher matcher = DATE_PATTERN.matcher(time);
+
+        if(matcher.find()) {
+            int year = Integer.valueOf(matcher.group(1));
+            int month = Integer.valueOf(matcher.group(2));
+            int day = Integer.valueOf(matcher.group(3));
+
+            Calendar calendar = Calendar.getInstance(TIME_ZONE_UTC);
+            calendar.clear();
+            calendar.set(year, month -1, day);
+            return calendar;
+        } else {
+            throw new IllegalArgumentException("Invalid date time: " + time);
+        }
     }
 }
