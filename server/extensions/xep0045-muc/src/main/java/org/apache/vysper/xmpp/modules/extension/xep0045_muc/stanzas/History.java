@@ -20,6 +20,7 @@
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -33,8 +34,6 @@ import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
 
 public class History extends XMLElement {
 
-    
-    
     private static final String ELEMENT_HISTORY = "history";
     private static final String ATTRIBUTE_SINCE = "since";
     private static final String ATTRIBUTE_SECONDS = "seconds";
@@ -63,16 +62,16 @@ public class History extends XMLElement {
         super(ELEMENT_HISTORY, null, elm.getAttributes(), (List<XMLFragment>)null);
     }
     
-    public History(Integer maxstanzas, Integer maxchars, Integer seconds, Date since) {
+    public History(Integer maxstanzas, Integer maxchars, Integer seconds, Calendar since) {
         super(ELEMENT_HISTORY, null, createAttributes(maxstanzas, maxchars, seconds, since), (List<XMLFragment>)null);
     }
 
-    private static List<Attribute> createAttributes(Integer maxstanzas, Integer maxchars, Integer seconds, Date since) {
+    private static List<Attribute> createAttributes(Integer maxstanzas, Integer maxchars, Integer seconds, Calendar since) {
         List<Attribute> attributes = new ArrayList<Attribute>();
         if(maxstanzas != null) attributes.add(new Attribute(ATTRIBUTE_MAXSTANZAS, maxstanzas.toString()));
         if(maxchars != null) attributes.add(new Attribute(ATTRIBUTE_MAXCHARS, maxchars.toString()));
         if(seconds != null) attributes.add(new Attribute(ATTRIBUTE_SECONDS, seconds.toString()));
-        if(since != null) attributes.add(new Attribute(ATTRIBUTE_SINCE, DateTimeProfile.getInstance().getDateTimeInUTC(since)));
+        if(since != null) attributes.add(new Attribute(ATTRIBUTE_SINCE, DateTimeProfile.getInstance().getDateTimeInUTC(since.getTime())));
         return attributes;
     }
     
@@ -97,7 +96,14 @@ public class History extends XMLElement {
         return getAttributeIntValue(ATTRIBUTE_SECONDS);
     }
 
-    // TODO implement
-//    public Integer getSince() {
-//    }
+    public Calendar getSince() {
+        String value = getAttributeValue(ATTRIBUTE_SINCE);
+        if(value != null) {
+            // TODO handle IllegalArgumentException
+            Calendar timestamp = DateTimeProfile.getInstance().fromDateTime(value);
+            return timestamp;
+        } else {
+            return null;
+        }
+    }
 }

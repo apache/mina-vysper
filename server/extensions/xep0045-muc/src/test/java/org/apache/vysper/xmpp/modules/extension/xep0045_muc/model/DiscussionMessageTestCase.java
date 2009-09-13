@@ -19,7 +19,9 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.model;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
@@ -42,7 +44,7 @@ public class DiscussionMessageTestCase extends TestCase {
     private static final String NICK = "nick";
     private static final String BODY = "Body";
     private static final String SUBJECT = "Subject";
-    private static final Date TIMESTAMP = new Date();
+    private static final Calendar TIMESTAMP = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
     
     private static final Entity FROM = TestUtil.parseUnchecked("user@vysper.org/res");
@@ -88,7 +90,7 @@ public class DiscussionMessageTestCase extends TestCase {
         
         XMLElement delayElm = outStanza.getInnerElements().get(1);
         assertEquals(FROM.getFullQualifiedName(), delayElm.getAttributeValue("from"));
-        assertEquals(DateTimeProfile.getInstance().getDateTimeInUTC(TIMESTAMP), delayElm.getAttributeValue("stamp"));
+        assertEquals(DateTimeProfile.getInstance().getDateTimeInUTC(TIMESTAMP.getTime()), delayElm.getAttributeValue("stamp"));
         
     }
 }

@@ -19,7 +19,9 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.model;
 
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
@@ -31,7 +33,6 @@ import org.apache.vysper.xmpp.stanza.MessageStanza;
 import org.apache.vysper.xmpp.stanza.MessageStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.xmlfragment.Renderer;
 
 /**
  * 
@@ -52,15 +53,22 @@ public class DiscussionHistoryTestCase extends TestCase {
     private DiscussionHistory history;
 
     
+    private Calendar createTimestamp(int minutesAgo) {
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        cal.add(Calendar.MINUTE, -minutesAgo);
+        return cal;
+    }
+    
     @Override
     protected void setUp() throws Exception {
         history = new DiscussionHistory();
         
         // add some messages to the history, one more than is handled
-        for(int i = 0; i<DiscussionHistory.DEFAULT_HISTORY_SIZE + 1; i++) {
+        int maxStanzas = DiscussionHistory.DEFAULT_HISTORY_SIZE + 1;
+        for(int i = 0; i<maxStanzas; i++) {
             history.append(
-                    StanzaBuilder.createMessageStanza(FROM, ROOM_JID, MessageStanzaType.GROUPCHAT, null, BODY).getFinalStanza(),
-                    FROM_OCCUPANT);
+                    StanzaBuilder.createMessageStanza(FROM, ROOM_JID, MessageStanzaType.GROUPCHAT, null, BODY + i).getFinalStanza(),
+                    FROM_OCCUPANT, createTimestamp(maxStanzas - i));
         }
         
         // add a subject message
@@ -107,18 +115,32 @@ public class DiscussionHistoryTestCase extends TestCase {
         assertStanzas(stanzas, 0);
     }
 
+    public void test150SecondsStanzas() throws Exception {
+        List<Stanza> stanzas = history.createStanzas(RECEIVER_OCCUPANT, true, new History(null, null, 150, null));
+        
+        // 2 stanzas + subject should fit in 150 seconds
+        assertStanzas(stanzas, 3);
+    }
+
+    
+    public void testSince5minutesStanzas() throws Exception {
+        List<Stanza> stanzas = history.createStanzas(RECEIVER_OCCUPANT, true, new History(null, null, null, createTimestamp(5)));
+        
+        // 2 stanzas + subject should fit in 150 seconds
+        assertStanzas(stanzas, 6);
+    }
+
     
     private void assertStanzas(List<Stanza> stanzas, int expectedSize) throws Exception {
         assertEquals(expectedSize, stanzas.size());
 
         if(expectedSize > 0) {
-            
-            for(int i = 1; i<expectedSize - 1; i++) {
+            for(int i = 0; i<expectedSize - 1; i++) {
                 Stanza stanza = stanzas.get(i);
-                assertStanza(stanza, BODY, null);
+                assertStanza(stanza, BODY + (DiscussionHistory.DEFAULT_HISTORY_SIZE - expectedSize + 2 + i), null);
             }
 
-            // first check subject message
+            // then check subject message
             assertStanza(stanzas.get(expectedSize - 1), null, SUBJECT);
         }
     }

@@ -19,7 +19,8 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.model;
 
-import java.util.Date;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -31,21 +32,21 @@ public class DiscussionMessage {
 
     private Stanza message;
     private String fromNick;
-    private Date timestamp;
+    private Calendar timestamp;
     
     public DiscussionMessage(Stanza stanza, Occupant from) {
-        this(stanza, from, new Date());
+        this(stanza, from, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
     }
 
-    public DiscussionMessage(Stanza stanza, Occupant from, Date date) {
+    public DiscussionMessage(Stanza stanza, Occupant from, Calendar timestamp) {
         this.message = stanza;
         this.fromNick = from.getName();
         
-        this.timestamp = (Date) date.clone();
+        this.timestamp = (Calendar) timestamp.clone();
     }
     
-    public Date getTimestamp() {
-        return timestamp;
+    public Calendar getTimestamp() {
+        return (Calendar) timestamp.clone();
     }
 
     public String getNick() {
