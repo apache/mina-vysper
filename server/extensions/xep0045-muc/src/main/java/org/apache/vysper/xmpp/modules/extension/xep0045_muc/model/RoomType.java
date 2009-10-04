@@ -95,7 +95,13 @@ public enum RoomType {
     /**
      * A room that anyone is allowed to enter without first providing the correct password; antonym: Password-Protected Room.
      */
-    Unsecured("muc_unsecured");
+    Unsecured("muc_unsecured"),
+    
+    // extra features, not covered by room types as defined in the XEP
+    /**
+     * Any visitor can change the room subject, not only a moderator
+     */
+    OpenSubject(null);
     
     private String discoName;
 
@@ -159,6 +165,11 @@ public enum RoomType {
         if(types.contains(RoomType.NonAnonymous) && types.contains(RoomType.FullyAnonymous)) {
             throw new IllegalArgumentException("Room can not be both NonAnonymous and FullyAnonymous");
         }
+    }
+
+
+    public boolean includeInDisco() {
+        return discoName != null;
     }
 
 }

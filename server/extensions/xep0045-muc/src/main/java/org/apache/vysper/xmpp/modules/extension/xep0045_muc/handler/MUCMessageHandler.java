@@ -32,7 +32,9 @@ import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultMessageHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
@@ -43,6 +45,7 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
 import org.apache.vysper.xmpp.stanza.StanzaErrorType;
 import org.apache.vysper.xmpp.xmlfragment.Attribute;
+import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,6 +110,18 @@ public class MUCMessageHandler extends DefaultMessageHandler {
                     Entity roomAndSendingNick = new EntityImpl(room.getJID(), sendingOccupant.getName());
                     if(sendingOccupant.hasVoice()) {
                         // relay message to all occupants in room
+                        
+                        try {
+                            if(stanza.getSubjects() != null && !stanza.getSubjects().isEmpty()) {
+                                // subject message
+                                if(!room.isRoomType(RoomType.OpenSubject) && !sendingOccupant.isModerator()) {
+                                    // room only allows moderators to change the subject, and sender is not a moderator
+                                    return createMessageErrorStanza(room.getJID(), from, stanza.getID(), StanzaErrorType.AUTH, StanzaErrorCondition.FORBIDDEN, stanza);
+                                }
+                            }
+                        } catch (XMLSemanticError e) {
+                            // not a subject message, ignore exception
+                        }
                         
                         logger.debug("Relaying message to all room occupants");
                         for(Occupant occupent : room.getOccupants()) {

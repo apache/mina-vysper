@@ -20,7 +20,6 @@
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.model;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.TimeZone;
 
 import junit.framework.TestCase;

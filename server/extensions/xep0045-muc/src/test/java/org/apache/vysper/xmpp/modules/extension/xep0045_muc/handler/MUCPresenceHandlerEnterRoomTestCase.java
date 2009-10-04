@@ -186,7 +186,7 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestC
             String type, String errorName) {
         Attribute xmlns = new NamespaceAttribute(NamespaceURIs.XEP0045_MUC);
         XMLElement xElement = new XMLElement("x", null, Arrays.asList(xmlns), (XMLFragment[])null);
-        assertErrorStanza(response, "presence", from, to, type, errorName, Arrays.asList(xElement));
+        assertErrorStanza(response, "presence", from, to, type, errorName, xElement);
     }
 
     

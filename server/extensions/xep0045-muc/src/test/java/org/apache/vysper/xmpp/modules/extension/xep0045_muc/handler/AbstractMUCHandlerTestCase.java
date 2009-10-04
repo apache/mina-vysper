@@ -61,7 +61,7 @@ public abstract class AbstractMUCHandlerTestCase extends TestCase {
     
     
     protected void assertErrorStanza(Stanza response, String stanzaName, Entity from, Entity to, 
-            String type, String errorName, List<XMLElement> expectedInnerElements) {
+            String type, String errorName, XMLElement... expectedInnerElements) {
         assertNotNull(response);
         assertEquals(stanzaName, response.getName());
         assertEquals(to, response.getTo());

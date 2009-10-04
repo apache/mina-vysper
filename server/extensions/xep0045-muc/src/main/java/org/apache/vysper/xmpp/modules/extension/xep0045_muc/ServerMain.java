@@ -62,6 +62,7 @@ public class ServerMain {
         final AccountManagement accountManagement = (AccountManagement)providerRegistry.retrieve(AccountManagement.class);
 
         accountManagement.addUser("test@vysper.org", "password");
+        accountManagement.addUser("test2@vysper.org", "password");
 
         XMPPServer server = new XMPPServer("vysper.org");
         server.addEndpoint(new TCPEndpoint());

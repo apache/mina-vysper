@@ -171,7 +171,9 @@ public class Room implements InfoRequestListener, ItemRequestListener {
         infoElements.add(new Feature(NamespaceURIs.XEP0045_MUC));
         
         for(RoomType type : roomTypes) {
-            infoElements.add(new Feature(type.getDiscoName()));            
+            if(type.includeInDisco()) {
+                infoElements.add(new Feature(type.getDiscoName()));
+            }
         }
         
         return infoElements;

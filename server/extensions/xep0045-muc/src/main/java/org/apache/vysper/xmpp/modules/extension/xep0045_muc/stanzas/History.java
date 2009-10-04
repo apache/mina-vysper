@@ -21,7 +21,6 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.vysper.xmpp.datetime.DateTimeProfile;

@@ -83,4 +83,8 @@ public class Occupant {
         return jid.getFullQualifiedName();
     }
     
+    public boolean isModerator() {
+        return role == Role.Moderator;
+    }
+    
 }
