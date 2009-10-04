@@ -20,7 +20,7 @@ import org.apache.vysper.xmpp.xmlfragment.XMLText;
 
 /**
  */
-public class AbstractMUCMessageHandlerTestCase extends AbstractMUCHandlerTestCase {
+public abstract class AbstractMUCMessageHandlerTestCase extends AbstractMUCHandlerTestCase {
 
     protected static final String BODY = "Body";
 
