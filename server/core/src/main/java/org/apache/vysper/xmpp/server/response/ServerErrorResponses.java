@@ -72,7 +72,7 @@ public class ServerErrorResponses
         if (descriptiveText != null) {
             stanzaBuilder.startInnerElement("text")
                 .addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STREAMS)
-                .addAttribute("xml:lang", languageCode)
+                .addAttribute(NamespaceURIs.XML, "lang", languageCode)
                 .addText(descriptiveText)
                 .endInnerElement();
         }
@@ -129,7 +129,7 @@ public class ServerErrorResponses
         if (errorText != null && errorLang != null) {
             responseBuilder.startInnerElement("text")
                              .addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS)
-                             .addAttribute("xml:lang", errorLang)
+                             .addAttribute(NamespaceURIs.XML, "lang", errorLang)
                              .addText(errorText);
         }
         // optional application specific error condition element

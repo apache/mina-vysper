@@ -26,23 +26,17 @@ package org.apache.vysper.xmpp.xmlfragment;
  */
 public class Attribute {
 	private String namespaceUri;
-	private String namespacePrefix;
     private String name;
     private String value;
 
     public Attribute(String name, String value) {
-    	this(null, null, name, value);
+    	this(null, name, value);
     }
 
-    public Attribute(String namespaceUri, String name, String value) {
-    	this(namespaceUri, null, name, value);
-    }
-
-    public Attribute(String namespaceUri, String namespacePrefix, String name, String value) {
+	public Attribute(String namespaceUri, String name, String value) {
         if (name == null) throw new IllegalArgumentException("name must not be null");
         if (value == null) throw new IllegalArgumentException("value must not be null");
-        this.namespaceUri = namespaceUri;
-        this.namespacePrefix = namespacePrefix;
+        this.namespaceUri = namespaceUri == null ? "" : namespaceUri;
         this.name = name;
         this.value = value;
     }
@@ -60,11 +54,6 @@ public class Attribute {
         return namespaceUri;
     }
 
-    public String getNamespacePrefix() {
-        return namespacePrefix;
-    }
-
-    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

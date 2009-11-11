@@ -20,32 +20,9 @@
 
 package org.apache.vysper.xmpp.xmlfragment;
 
-/**
- *
- * @author The Apache MINA Project (dev@mina.apache.org)
- */
-public class NamespaceAttribute extends Attribute {
 
-    public static final String DEFAULT_NAMESPACE = "";
-
-    public static final String XMLNS = "xmlns";
-    public static final String XMLNS_AND_COLON = "xmlns:";
-    
-    private String prefix;
-
-    public NamespaceAttribute(String value) {
-        super(XMLNS, value);
-        
-        prefix = "";
-    }
-
-    public NamespaceAttribute(String nsPrefix, String value) {
-        super(XMLNS_AND_COLON + nsPrefix, value);
-        
-        prefix = nsPrefix;
-    }
-    
-    public String getPrefix() {
-    	return prefix;
-    }
+public interface NamespaceResolver {
+	
+	String resolveUri(String prefix);
+	String resolvePrefix(String uri);	
 }

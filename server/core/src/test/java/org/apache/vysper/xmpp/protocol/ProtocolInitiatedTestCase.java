@@ -41,7 +41,7 @@ public class ProtocolInitiatedTestCase extends AbstractProtocolStateTestCase {
         XMLElementVerifier responseVerifier = recordedResponse.getVerifier();
         assertTrue(responseVerifier.nameEquals("stream"));
 
-        assertTrue(responseVerifier.attributeEquals("xml:lang", "fr"));
+        assertTrue(responseVerifier.attributeEquals(NamespaceURIs.XML, "lang", "fr"));
 
         assertTrue("initiated => started", sessionContext.getState() == SessionState.STARTED);
     }
@@ -164,7 +164,7 @@ public class ProtocolInitiatedTestCase extends AbstractProtocolStateTestCase {
         // we do not supply "http://etherx.jabber.org/streams"
         StanzaBuilder stanzaBuilder = new StanzaBuilder("stream")
             .addNamespaceAttribute(NamespaceURIs.JABBER_CLIENT)
-            .addAttribute("xml:lang", "en_UK")
+            .addAttribute(NamespaceURIs.XML, "lang", "en_UK")
             .addAttribute("version", XMPPVersion.VERSION_1_0.toString());
         protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.getFinalStanza(), sessionStateHolder);
 

@@ -19,10 +19,10 @@
  */
 package org.apache.vysper.xmpp.xmlfragment;
 
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+
 import junit.framework.TestCase;
 
-/**
- */
 public class RendererTestCase extends TestCase {
 
 	public void testRenderAttribute() {
@@ -56,6 +56,34 @@ public class RendererTestCase extends TestCase {
 	public void testRenderAttributeWithLt() {
 		XMLElement elm = new XMLElement("foo", null, new Attribute[]{new Attribute("attr1", "val<ue1")}, null);
 		assertEquals("<foo attr1=\"val&lt;ue1\"></foo>", new Renderer(elm).getComplete());
+	}
+
+	public void testRenderNamespacedAttribute() {
+		XMLElement elm = new XMLElement("foo", null, new Attribute[]{
+				new Attribute("http://example.com", "attr1", "value1"),
+				new NamespaceAttribute("pr1", "http://example.com")
+				}, null);
+		assertEquals("<foo pr1:attr1=\"value1\" xmlns:pr1=\"http://example.com\"></foo>", new Renderer(elm).getComplete());
+	}
+
+	// make sure we render the xml namespace correctly, e.g for xml:lang
+	public void testRenderXmlNamespacedAttribute() {
+		XMLElement elm = new XMLElement("foo", null, new Attribute[]{
+				new Attribute(NamespaceURIs.XML, "lang", "sv")
+				}, null);
+		assertEquals("<foo xml:lang=\"sv\"></foo>", new Renderer(elm).getComplete());
+	}
+	
+	public void testRenderUndeclaredNamespacedAttribute() {
+		XMLElement elm = new XMLElement("foo", null, new Attribute[]{
+				new Attribute("http://example.com", "attr1", "value1")
+				}, null);
+		try {
+			new Renderer(elm).getComplete();
+			fail("Must throw IllegalStateException");
+		} catch (IllegalStateException e) {
+			// ok
+		}
 	}
 
 }

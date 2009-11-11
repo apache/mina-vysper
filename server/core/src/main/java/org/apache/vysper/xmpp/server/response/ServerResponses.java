@@ -65,7 +65,7 @@ public class ServerResponses {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("stream", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS, "stream")
             .addNamespaceAttribute(forClient ?  NamespaceURIs.JABBER_CLIENT : NamespaceURIs.JABBER_SERVER)
             .addAttribute("from", from.getFullQualifiedName());
-        if (xmlLang != null) stanzaBuilder.addAttribute("xml:lang", xmlLang);
+        if (xmlLang != null) stanzaBuilder.addAttribute(NamespaceURIs.XML, "lang", xmlLang);
         if (version != null) stanzaBuilder.addAttribute("version", version.toString());
         if (forClient && sessionId != null) stanzaBuilder.addAttribute("id", sessionId);
         if (innerStanza != null) stanzaBuilder.addPreparedElement(innerStanza);

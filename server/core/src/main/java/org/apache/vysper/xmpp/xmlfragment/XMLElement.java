@@ -27,6 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+
 /**
  * an immutable xml element specialized for XMPP.
  *
@@ -44,6 +46,8 @@ public class XMLElement implements XMLFragment {
      */
     private String namespacePrefix;
 
+    private NamespaceResolver nsResolver;
+    
     private List<Attribute> attributes;
     private List<XMLFragment> innerFragments;
     protected XMLElementVerifier xmlElementVerifier;
@@ -58,6 +62,8 @@ public class XMLElement implements XMLFragment {
         this.attributes = (attributes == null) ? Collections.EMPTY_LIST : Collections.unmodifiableList(attributes);
         this.innerFragments = (innerFragments == null) ? Collections.EMPTY_LIST : Collections.unmodifiableList(innerFragments);
         if (name == null) throw new IllegalArgumentException("XMLElement name cannot be null");
+        
+        nsResolver = new SimpleNamespaceResolver(this);
     }
 
     public String getName() {
@@ -74,27 +80,16 @@ public class XMLElement implements XMLFragment {
         return namespacePrefix;
     }
     
+    public NamespaceResolver getNamespaceResolver() {
+    	return nsResolver;
+    }
+    
     /**
      * Return the namespace URI.
      * @return The namespace URI for the element. 
      */
     public String getNamespaceURI() {
-        String xmlnsName;
-        
-        if(getNamespacePrefix().length() > 0) {
-            xmlnsName = "xmlns:" + getNamespacePrefix();
-        } else {
-            xmlnsName = "xmlns";
-        }
-        
-        String uri = getAttributeValue(xmlnsName);
-        
-        // return empty string if the element is in the empty namespace
-        if(uri == null) {
-            uri = "";
-        }
-        
-        return uri;
+    	return nsResolver.resolveUri(namespacePrefix);
     }
 
     public List<Attribute> getAttributes() {
@@ -102,20 +97,31 @@ public class XMLElement implements XMLFragment {
     }
 
     public Attribute getAttribute(String name) {
+    	return getAttribute("", name);
+    }
+
+    public Attribute getAttribute(String namespaceUri, String name) {
         for (Attribute attribute : attributes) {
-            if (attribute.getName().equals(name)) return attribute;
+        	// name must match and must be in empty namespace
+            if (attribute.getName().equals(name) && attribute.getNamespaceUri().equals(namespaceUri)) return attribute;
         }
         return null;
     }
 
+    
     public String getAttributeValue(String name) {
-        Attribute attribute = getAttribute(name);
+    	return getAttributeValue("", name);
+    }
+    
+    public String getAttributeValue(String namespaceUri, String name) {
+        Attribute attribute = getAttribute(namespaceUri, name);
         if (attribute == null) return null;
         else return attribute.getValue();
     }
 
+    
     public String getXMLLang() {
-        return getAttributeValue("xml:lang");
+        return getAttributeValue(NamespaceURIs.XML, "lang");
     }
 
     public List<XMLFragment> getInnerFragments() {

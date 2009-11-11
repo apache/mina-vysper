@@ -67,9 +67,9 @@ public abstract class AbstractProtocolStateTestCase extends TestCase {
         recordedResponse = sessionContext.getNextRecordedResponse();
         responseVerifier = recordedResponse.getVerifier();
         if (xmlLang == null) {
-            assertFalse(responseVerifier.attributePresent("xml:lang"));
+            assertFalse(responseVerifier.attributePresent(NamespaceURIs.XML, "lang"));
         } else {
-            assertTrue(responseVerifier.attributeEquals("xml:lang", xmlLang));
+            assertTrue(responseVerifier.attributeEquals(NamespaceURIs.XML, "lang", xmlLang));
         }
     }
 

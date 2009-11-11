@@ -63,7 +63,7 @@ public class Renderer {
         renderElementName(openElementBuffer, element, namespacePrefix, name);
         for (Attribute attribute : element.getAttributes()) {
             openElementBuffer.append(" ");
-            renderAttribute(openElementBuffer, attribute);
+            renderAttribute(openElementBuffer, attribute, element.getNamespaceResolver());
         }
         openElementBuffer.append(">");
 
@@ -91,8 +91,17 @@ public class Renderer {
         buffer.append(name);
     }
 
-    private void renderAttribute(StringBuilder buffer, Attribute attribute) {
-        buffer.append(attribute.getName()).append("=\"").append(escapeAttributeValue(attribute.getValue())).append("\"");
+    private void renderAttribute(StringBuilder buffer, Attribute attribute, NamespaceResolver nsResolver) {
+    	String qname;
+    	if(!attribute.getNamespaceUri().equals("")) {
+    		// attribute is in a namespace, resolve prefix
+    		qname = nsResolver.resolvePrefix(attribute.getNamespaceUri()) + ":" + attribute.getName();
+    	} else {
+    		qname = attribute.getName();
+    	}
+    	
+    	
+        buffer.append(qname).append("=\"").append(escapeAttributeValue(attribute.getValue())).append("\"");
     }
     
     private String escapeAttributeValue(String value) {

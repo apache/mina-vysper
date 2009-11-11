@@ -79,7 +79,7 @@ public class StreamStartHandler implements StanzaHandler {
         }
 
         // processing xml:lang
-        String xmlLang = stanza.getAttributeValue("xml:lang");
+        String xmlLang = stanza.getXMLLang();
         sessionContext.setXMLLang(xmlLang);
 
         // processing version

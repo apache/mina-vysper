@@ -44,7 +44,11 @@ public class XMLElementVerifier {
 	}
 
 	public boolean attributePresent(String name) {
-		return null != element.getAttribute(name);
+		return attributePresent("", name);
+	}
+
+	public boolean attributePresent(String namespaceUri, String name) {
+		return null != element.getAttribute(namespaceUri, name);
 	}
 
 	/**
@@ -102,10 +106,15 @@ public class XMLElementVerifier {
 	}
 
 	public boolean attributeEquals(String name, String value) {
-		return attributePresent(name)
-				&& element.getAttributeValue(name).equals(value);
+		return attributeEquals("", name, value);
+	}
+	
+	public boolean attributeEquals(String namespaceUri, String name, String value) {
+		return attributePresent(namespaceUri, name)
+				&& element.getAttributeValue(namespaceUri, name).equals(value);
 	}
 
+	
 	public boolean subElementPresent(String name) {
 		for (XMLFragment xmlFragment : element.getInnerFragments()) {
 			if (xmlFragment instanceof XMLElement) {

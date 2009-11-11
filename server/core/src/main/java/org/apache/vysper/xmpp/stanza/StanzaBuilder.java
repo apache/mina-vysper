@@ -20,6 +20,7 @@
 
 package org.apache.vysper.xmpp.stanza;
 
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.xmlfragment.Attribute;
 import org.apache.vysper.xmpp.xmlfragment.Renderer;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
@@ -53,7 +54,7 @@ public class StanzaBuilder {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("message");
         stanzaBuilder.addAttribute("from", from.getFullQualifiedName());
         stanzaBuilder.addAttribute("to", to.getFullQualifiedName());
-        if(lang != null) stanzaBuilder.addAttribute("xml:lang", lang);
+        if(lang != null) stanzaBuilder.addAttribute(NamespaceURIs.XML, "lang", lang);
         if(body != null) stanzaBuilder.startInnerElement("body").addText(body).endInnerElement();
         return stanzaBuilder;
     }
@@ -68,7 +69,7 @@ public class StanzaBuilder {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("presence");
         if (from != null) stanzaBuilder.addAttribute("from", from.getFullQualifiedName());
         if (to != null) stanzaBuilder.addAttribute("to", to.getFullQualifiedName());
-        if (lang != null) stanzaBuilder.addAttribute("xml:lang", lang);
+        if (lang != null) stanzaBuilder.addAttribute(NamespaceURIs.XML, "lang", lang);
         if (type != null) stanzaBuilder.addAttribute("type", type.value());
         if (show != null) {
             stanzaBuilder.startInnerElement("show").addText(show).endInnerElement();
@@ -228,10 +229,6 @@ public class StanzaBuilder {
         }
     }
 
-    public StanzaBuilder addAttribute(String name, String value) {
-        addAttribute(new Attribute(name, value));
-        return this;
-    }
 
     public StanzaBuilder addNamespaceAttribute(String value) {
         addAttribute(new NamespaceAttribute(value));
@@ -243,6 +240,17 @@ public class StanzaBuilder {
         return this;
     }
 
+    public StanzaBuilder addAttribute(String name, String value) {
+    	addAttribute(new Attribute(name, value));
+    	return this;
+    }
+
+    public StanzaBuilder addAttribute(String namespaceUris, String name, String value) {
+    	addAttribute(new Attribute(namespaceUris, name, value));
+    	return this;
+    }
+
+    
     public StanzaBuilder addAttribute(Attribute attribute) {
         checkReset();
         currentElement.attributes.add(attribute);

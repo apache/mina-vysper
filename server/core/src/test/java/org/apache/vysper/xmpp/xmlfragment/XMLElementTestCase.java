@@ -20,6 +20,8 @@
 package org.apache.vysper.xmpp.xmlfragment;
 
 import junit.framework.TestCase;
+
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
 import java.util.List;
@@ -33,7 +35,7 @@ public class XMLElementTestCase extends TestCase {
     public void testBasicGetters() {
         XMLElement xmlElement = new StanzaBuilder("message", "urn:test").
                 addAttribute("lang", "de").
-                addAttribute("xml:lang", "cn").
+                addAttribute(NamespaceURIs.XML, "lang", "cn").
                 addAttribute("xmllang", "en").
         getFinalStanza();
         
@@ -214,21 +216,21 @@ public class XMLElementTestCase extends TestCase {
                 startInnerElement("body").
                 endInnerElement().
                 startInnerElement("body").
-                    addAttribute("xml:lang", "en").
+                    addAttribute(NamespaceURIs.XML, "lang", "en").
                 endInnerElement().
                 startInnerElement("body").
-                    addAttribute("xml:lang", "de").
+                    addAttribute(NamespaceURIs.XML, "lang", "de").
                 endInnerElement().
                 addText("body").
                 addText("t3").
                 startInnerElement("single").
-                    addAttribute("xml:lang", "ru").
+                    addAttribute(NamespaceURIs.XML, "lang", "ru").
                 endInnerElement().
                 startInnerElement("body_inconsistent").
-                    addAttribute("xml:lang", "ru").
+                    addAttribute(NamespaceURIs.XML, "lang", "ru").
                 endInnerElement().
                 startInnerElement("body_inconsistent").
-                    addAttribute("xml:lang", "ru").
+                    addAttribute(NamespaceURIs.XML, "lang", "ru").
                 endInnerElement().
                 startInnerElement("body_lang_null").
                     addAttribute("order", "1").
@@ -266,4 +268,23 @@ public class XMLElementTestCase extends TestCase {
             // success
         }
     }
+
+    public void testGetAttribute() {
+        XMLElement xmlElement = new StanzaBuilder("test").
+                addAttribute("foo", "bar").
+                addAttribute(NamespaceURIs.XML, "lang", "cn").
+        getFinalStanza();
+        
+        assertEquals("bar", xmlElement.getAttribute("foo").getValue());
+        assertNull(xmlElement.getAttribute("http://example.com", "foo"));
+        assertNull(xmlElement.getAttribute("lang"));
+        assertEquals("cn", xmlElement.getAttribute(NamespaceURIs.XML, "lang").getValue());
+
+        assertEquals("bar", xmlElement.getAttributeValue("foo"));
+        assertNull(xmlElement.getAttributeValue("http://example.com", "foo"));
+        assertNull(xmlElement.getAttributeValue("lang"));
+        assertEquals("cn", xmlElement.getAttributeValue(NamespaceURIs.XML, "lang"));
+
+    }
+
 }

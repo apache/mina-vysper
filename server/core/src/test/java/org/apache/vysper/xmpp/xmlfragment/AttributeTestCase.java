@@ -66,13 +66,4 @@ public class AttributeTestCase extends TestCase {
 		assertFalse(att1.equals(att2));
 		assertFalse(att2.equals(att1));
 	}
-
-	public void testEqualsNamespacePrefix() {
-		Attribute att1 = new Attribute("http://example.com", "pr1", "foo", "bar");
-		Attribute att2 = new Attribute("http://example.com", "pr2", "foo", "bar");
-		
-		assertTrue(att1.equals(att2));
-		assertTrue(att2.equals(att1));
-	}
-
 }
