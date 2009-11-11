@@ -25,16 +25,29 @@ package org.apache.vysper.xmpp.xmlfragment;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class Attribute {
+	private String namespaceUri;
+	private String namespacePrefix;
     private String name;
     private String value;
 
     public Attribute(String name, String value) {
+    	this(null, null, name, value);
+    }
+
+    public Attribute(String namespaceUri, String name, String value) {
+    	this(namespaceUri, null, name, value);
+    }
+
+    public Attribute(String namespaceUri, String namespacePrefix, String name, String value) {
         if (name == null) throw new IllegalArgumentException("name must not be null");
         if (value == null) throw new IllegalArgumentException("value must not be null");
+        this.namespaceUri = namespaceUri;
+        this.namespacePrefix = namespacePrefix;
         this.name = name;
         this.value = value;
     }
 
+    
     public String getName() {
         return name;
     }
@@ -43,6 +56,15 @@ public class Attribute {
         return value;
     }
 
+    public String getNamespaceUri() {
+        return namespaceUri;
+    }
+
+    public String getNamespacePrefix() {
+        return namespacePrefix;
+    }
+
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -50,6 +72,7 @@ public class Attribute {
 
         final Attribute attribute = (Attribute) o;
 
+        if (namespaceUri != null ? !namespaceUri.equals(attribute.namespaceUri) : attribute.namespaceUri != null) return false;
         if (name != null ? !name.equals(attribute.name) : attribute.name != null) return false;
         if (value != null ? !value.equals(attribute.value) : attribute.value != null) return false;
 
@@ -59,6 +82,7 @@ public class Attribute {
     @Override
     public int hashCode() {
         int result;
+        result = (namespaceUri != null ? namespaceUri.hashCode() : 0);
         result = (name != null ? name.hashCode() : 0);
         result = 29 * result + (value != null ? value.hashCode() : 0);
         return result;

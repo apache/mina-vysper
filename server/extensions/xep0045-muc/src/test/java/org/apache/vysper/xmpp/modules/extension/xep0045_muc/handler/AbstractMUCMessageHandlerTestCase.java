@@ -68,7 +68,7 @@ public abstract class AbstractMUCMessageHandlerTestCase extends AbstractMUCHandl
 
         XMLText text = new XMLText(body);
         XMLElement expectedBody = new XMLElement("body", null,
-                (Attribute[]) null, new XMLFragment[] { text });
+                null, new XMLFragment[] { text });
         assertMessageErrorStanza(errorStanza, ROOM1_JID, OCCUPANT1_JID, "modify",
                 expectedErrorName,expectedBody);
 

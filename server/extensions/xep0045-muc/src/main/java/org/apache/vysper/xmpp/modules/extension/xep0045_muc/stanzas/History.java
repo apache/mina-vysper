@@ -58,11 +58,11 @@ public class History extends XMLElement {
     }
     
     public History(XMLElement elm) {
-        super(ELEMENT_HISTORY, null, elm.getAttributes(), (List<XMLFragment>)null);
+        super(ELEMENT_HISTORY, null, elm.getAttributes(), null);
     }
     
     public History(Integer maxstanzas, Integer maxchars, Integer seconds, Calendar since) {
-        super(ELEMENT_HISTORY, null, createAttributes(maxstanzas, maxchars, seconds, since), (List<XMLFragment>)null);
+        super(ELEMENT_HISTORY, null, createAttributes(maxstanzas, maxchars, seconds, since), null);
     }
 
     private static List<Attribute> createAttributes(Integer maxstanzas, Integer maxchars, Integer seconds, Calendar since) {

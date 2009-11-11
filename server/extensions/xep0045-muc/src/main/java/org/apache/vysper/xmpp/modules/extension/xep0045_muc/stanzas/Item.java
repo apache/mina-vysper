@@ -40,13 +40,13 @@ public class Item extends XMLElement {
 
     public Item(Occupant occupant, boolean includeJid, boolean includeNick) {
         super("item", null, 
-                createAttributes(occupant, includeJid, includeNick), (XMLFragment[])null);
+                createAttributes(occupant, includeJid, includeNick), null);
     }
 
     
     public Item(Entity jid, String nick, Affiliation affiliation, Role role) {
         super("item", null, 
-                createAttributes(jid, nick, affiliation, role), (XMLFragment[])null);
+                createAttributes(jid, nick, affiliation, role), null);
     }
 
     private static List<Attribute> createAttributes(Occupant occupant, boolean includeJid, boolean includeNick) {

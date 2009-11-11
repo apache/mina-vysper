@@ -58,7 +58,7 @@ public class DataFormEncoder {
                 Field field = reportedIterator.next();
                 reportedFields.add(encodeField(field));
             }
-            XMLElement reportedElement = new XMLElement("reported", null, (Attribute[])null, reportedFields);
+            XMLElement reportedElement = new XMLElement("reported", null, null, reportedFields);
             childElements.add(reportedElement);
 
             // all item elements with their values
@@ -69,7 +69,7 @@ public class DataFormEncoder {
                 for (Field field : itemField) {
                     itemFields.add(encodeField(field));
                 }
-                XMLElement itemElement = new XMLElement("item", null, (Attribute[])null, itemFields);
+                XMLElement itemElement = new XMLElement("item", null, null, itemFields);
                 childElements.add(itemElement);
             }
         } 
@@ -108,7 +108,7 @@ public class DataFormEncoder {
         if (field.getDesc() != null) {
             descFragment.add(new XMLText(field.getDesc()));     
         }
-        fieldElements.add(new XMLElement("desc", null, (Attribute[])null, descFragment));
+        fieldElements.add(new XMLElement("desc", null, null, descFragment));
 
         if (field.isRequired()) {
             fieldElements.add(createEmptyElement("required"));
@@ -141,6 +141,6 @@ public class DataFormEncoder {
     }
     
     protected XMLElement createTextOnlyElement(String elementName, String text) {
-        return new XMLElement(elementName, null, (Attribute[])null, new XMLFragment[]{new XMLText(text)});
+        return new XMLElement(elementName, null, null, new XMLFragment[]{new XMLText(text)});
     }
 }

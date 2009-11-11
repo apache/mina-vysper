@@ -86,7 +86,7 @@ public class MUCMessageHandlerTestCase extends AbstractMUCMessageHandlerTestCase
 
         XMLText text = new XMLText(BODY);
         XMLElement expectedBody = new XMLElement("body", null,
-                (Attribute[]) null, new XMLFragment[] { text });
+                null, new XMLFragment[] { text });
         assertMessageErrorStanza(errorStanza, ROOM1_JID, OCCUPANT1_JID, "modify",
                 "bad-request", expectedBody);
 

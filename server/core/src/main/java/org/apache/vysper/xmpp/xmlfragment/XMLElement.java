@@ -52,14 +52,6 @@ public class XMLElement implements XMLFragment {
         this(name, namespacePrefix, FragmentFactory.asList(attributes), FragmentFactory.asList(innerFragments));
     }
 
-     public XMLElement(String name, String namespacePrefix, List<Attribute> attributes, XMLFragment[] innerFragments) {
-        this(name, namespacePrefix, attributes, FragmentFactory.asList(innerFragments));
-    }
-
-     public XMLElement(String name, String namespacePrefix, Attribute[] attributes, List<XMLFragment> innerFragments) {
-        this(name, namespacePrefix, FragmentFactory.asList(attributes), innerFragments);
-    }
-
     public XMLElement(String name, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments) {
         this.namespacePrefix = namespacePrefix == null ? NamespaceAttribute.DEFAULT_NAMESPACE : namespacePrefix;
         this.name = name;

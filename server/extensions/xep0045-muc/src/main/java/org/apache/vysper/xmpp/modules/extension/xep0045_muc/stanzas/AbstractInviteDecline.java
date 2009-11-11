@@ -34,7 +34,7 @@ import org.apache.vysper.xmpp.xmlfragment.XMLText;
 public abstract class AbstractInviteDecline extends XMLElement {
 
     public AbstractInviteDecline(String elmName, XMLElement elm) {
-        super(elmName, null, elm.getAttributes(), elm.getInnerElements().toArray(new XMLElement[0]));
+        super(elmName, null, elm.getAttributes(), elm.getInnerFragments());
     }
     
     public AbstractInviteDecline(String elmName, Entity from, Entity to, String reason) {
@@ -53,7 +53,7 @@ public abstract class AbstractInviteDecline extends XMLElement {
     private static List<XMLFragment> createFragments(String reason) {
         List<XMLFragment> fragments = new ArrayList<XMLFragment>();
         if(reason != null) {
-            XMLElement reasonElm = new XMLElement("reason", null, (Attribute[])null, new XMLFragment[]{new XMLText(reason)});
+            XMLElement reasonElm = new XMLElement("reason", null, null, new XMLFragment[]{new XMLText(reason)});
             fragments.add(reasonElm);
         }
         return fragments;

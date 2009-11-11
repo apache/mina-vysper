@@ -47,15 +47,6 @@ public class Stanza extends XMLElement {
         super(name, namespacePrefix, attributes, innerFragments);
     }
 
-    public Stanza(String name, String namespacePrefix, List<Attribute> attributes, XMLFragment[] innerFragments) {
-        super(name, namespacePrefix, attributes, innerFragments);
-    }
-
-    public Stanza(String name, String namespacePrefix, Attribute[] attributes, List<XMLFragment> innerFragments) {
-        super(name, namespacePrefix, attributes, innerFragments);
-    }
-
-
     public Entity getTo() {
         return parseEntityAttribute("to");
     }

@@ -27,7 +27,7 @@ import org.apache.vysper.xmpp.xmlfragment.XMLText;
 public class Password extends XMLElement {
 
     public Password(String password) {
-        super("password", null, (Attribute[])null, new XMLFragment[]{new XMLText(password)});
+        super("password", null, null, new XMLFragment[]{new XMLText(password)});
     }
 
     

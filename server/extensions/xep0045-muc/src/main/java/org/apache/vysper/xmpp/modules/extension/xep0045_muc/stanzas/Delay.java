@@ -38,7 +38,7 @@ public class Delay extends XMLElement {
             new NamespaceAttribute(NamespaceURIs.URN_XMPP_DELAY),
             new Attribute("from", from.getFullQualifiedName()),
             new Attribute("stamp", DateTimeProfile.getInstance().getDateTimeInUTC(timestamp.getTime()))
-            ), (List<XMLFragment>)null);
+            ), null);
     }
 
     
