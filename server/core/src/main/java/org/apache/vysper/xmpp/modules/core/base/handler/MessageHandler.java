@@ -105,7 +105,7 @@ public class MessageHandler extends XMPPCoreStanzaHandler {
                     if ("from".equals(attribute.getName())) continue;
                     stanzaBuilder.addAttribute(attribute);
                 }
-                stanzaBuilder.addAttribute(new Attribute("from", from.getFullQualifiedName()));
+                stanzaBuilder.addAttribute("from", from.getFullQualifiedName());
                 for (XMLElement preparedElement : stanza.getInnerElements()) {
                     stanzaBuilder.addPreparedElement(preparedElement);
                 }
