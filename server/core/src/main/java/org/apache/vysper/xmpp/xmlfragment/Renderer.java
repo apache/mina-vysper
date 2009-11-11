@@ -92,6 +92,10 @@ public class Renderer {
     }
 
     private void renderAttribute(StringBuilder buffer, Attribute attribute) {
-        buffer.append(attribute.getName()).append("=\"").append(attribute.getValue()).append("\"");
+        buffer.append(attribute.getName()).append("=\"").append(escapeAttributeValue(attribute.getValue())).append("\"");
+    }
+    
+    private String escapeAttributeValue(String value) {
+    	return value.replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;").replace(">", "&gt;");
     }
 }
