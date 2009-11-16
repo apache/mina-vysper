@@ -27,4 +27,14 @@
   <artifactId>nbxml</artifactId>
   <name>Apache Vysper Non-blocking XML parser</name>
   <version>1.0.0-SNAPSHOT</version>
+  
+  <dependencies>
+    <!-- Test dependencies -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+  
+  </dependencies>
 </project>

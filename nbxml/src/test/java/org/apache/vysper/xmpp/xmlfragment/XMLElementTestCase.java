@@ -21,8 +21,6 @@ package org.apache.vysper.xmpp.xmlfragment;
 
 import junit.framework.TestCase;
 
-import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
 import java.util.List;
 import java.util.Map;
@@ -33,11 +31,11 @@ import java.util.Collections;
 public class XMLElementTestCase extends TestCase {
 
     public void testBasicGetters() {
-        XMLElement xmlElement = new StanzaBuilder("message", "urn:test").
+        XMLElement xmlElement = new XMLElementBuilder("message", "urn:test").
                 addAttribute("lang", "de").
                 addAttribute(NamespaceURIs.XML, "lang", "cn").
                 addAttribute("xmllang", "en").
-        getFinalStanza();
+        getFinalElement();
         
         assertEquals("message", xmlElement.getName());
         assertEquals("urn:test", xmlElement.getNamespaceURI());
@@ -53,7 +51,7 @@ public class XMLElementTestCase extends TestCase {
 
     public void testInnerTextGetters() {
         
-        XMLElement xmlElement = new StanzaBuilder("message", "jabber:test").
+        XMLElement xmlElement = new XMLElementBuilder("message", "jabber:test").
                 addText("t1").
                 startInnerElement("i1").
                 endInnerElement().
@@ -62,7 +60,7 @@ public class XMLElementTestCase extends TestCase {
                 startInnerElement("i2").
                 endInnerElement().
                 addText("t4").
-        getFinalStanza();
+        getFinalElement();
 
         List<XMLText> list = xmlElement.getInnerTexts();
         assertEquals(4, list.size());
@@ -79,10 +77,10 @@ public class XMLElementTestCase extends TestCase {
             // test succeeded
         }
 
-        xmlElement = new StanzaBuilder("message", "jabber:test").
+        xmlElement = new XMLElementBuilder("message", "jabber:test").
                 startInnerElement("i1").
                 endInnerElement().
-        getFinalStanza();
+        getFinalElement();
         try {
             assertNull(xmlElement.getSingleInnerText());
         } catch (XMLSemanticError xmlSemanticError) {
@@ -92,7 +90,7 @@ public class XMLElementTestCase extends TestCase {
 
     public void testInnerElementGetters() {
         
-        XMLElement xmlElement = new StanzaBuilder("message", "jabber:test").
+        XMLElement xmlElement = new XMLElementBuilder("message", "jabber:test").
                 addText("t1").
                 startInnerElement("i1").
                 endInnerElement().
@@ -107,7 +105,7 @@ public class XMLElementTestCase extends TestCase {
                 startInnerElement("i3").
                 endInnerElement().
                 addText("t4").
-        getFinalStanza();
+        getFinalElement();
 
         List<XMLElement> list = xmlElement.getInnerElements();
         assertEquals(4, list.size());
@@ -127,22 +125,22 @@ public class XMLElementTestCase extends TestCase {
             fail("must not raise exception");
         }
 
-        xmlElement = new StanzaBuilder("message", "jabber:test").
+        xmlElement = new XMLElementBuilder("message", "jabber:test").
                 addText("t1").
-        getFinalStanza();
+        getFinalElement();
         try {
             assertNull(xmlElement.getSingleInnerElementsNamed("none"));
         } catch (XMLSemanticError xmlSemanticError) {
             fail("must not raise error");
         }
 
-        xmlElement = new StanzaBuilder("message", "jabber:test").
+        xmlElement = new XMLElementBuilder("message", "jabber:test").
                 startInnerElement("i").
                     addAttribute("order", "1").
                 endInnerElement().
                 startInnerElement("another").
                 endInnerElement().
-        getFinalStanza();
+        getFinalElement();
         try {
             XMLElement singleXmlElement = xmlElement.getSingleInnerElementsNamed("i");
             assertEquals("i", singleXmlElement.getName());
@@ -150,14 +148,14 @@ public class XMLElementTestCase extends TestCase {
             fail("must not raise error");
         }
 
-        xmlElement = new StanzaBuilder("message", "jabber:test").
+        xmlElement = new XMLElementBuilder("message", "jabber:test").
                 startInnerElement("i").
                     addAttribute("order", "1").
                 endInnerElement().
                 startInnerElement("i").
                     addAttribute("order", "2").
                 endInnerElement().
-        getFinalStanza();
+        getFinalElement();
         try {
             xmlElement.getSingleInnerElementsNamed("i");
             fail("must raise error, more than one i-element");
@@ -168,7 +166,7 @@ public class XMLElementTestCase extends TestCase {
     
     public void testInnerElementsNamed() {
         
-        XMLElement xmlElement = new StanzaBuilder("message", "jabber:test").
+        XMLElement xmlElement = new XMLElementBuilder("message", "jabber:test").
                 addText("t1").
                 startInnerElement("body").
                 endInnerElement().
@@ -183,7 +181,7 @@ public class XMLElementTestCase extends TestCase {
                 startInnerElement("single").
                 endInnerElement().
                 addText("t4").
-        getFinalStanza();
+        getFinalElement();
 
         List<XMLElement> list = xmlElement.getInnerElementsNamed("no-exist");
         assertEquals(0, list.size());
@@ -211,7 +209,7 @@ public class XMLElementTestCase extends TestCase {
     
     public void testLanguageMapping() {
         
-        XMLElement xmlElement = new StanzaBuilder("message", "jabber:test").
+        XMLElement xmlElement = new XMLElementBuilder("message", "jabber:test").
                 addText("t1").
                 startInnerElement("body").
                 endInnerElement().
@@ -239,7 +237,7 @@ public class XMLElementTestCase extends TestCase {
                     addAttribute("order", "2").
                 endInnerElement().
                 addText("t4").
-        getFinalStanza();
+        getFinalElement();
 
         try {
             Map<String,XMLElement> map = xmlElement.getInnerElementsByXMLLangNamed("body");
@@ -270,10 +268,10 @@ public class XMLElementTestCase extends TestCase {
     }
 
     public void testGetAttribute() {
-        XMLElement xmlElement = new StanzaBuilder("test").
+        XMLElement xmlElement = new XMLElementBuilder("test").
                 addAttribute("foo", "bar").
                 addAttribute(NamespaceURIs.XML, "lang", "cn").
-        getFinalStanza();
+        getFinalElement();
         
         assertEquals("bar", xmlElement.getAttribute("foo").getValue());
         assertNull(xmlElement.getAttribute("http://example.com", "foo"));

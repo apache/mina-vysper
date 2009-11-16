@@ -19,8 +19,6 @@
  */
 package org.apache.vysper.xmpp.xmlfragment;
 
-import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-
 import junit.framework.TestCase;
 
 public class RendererTestCase extends TestCase {

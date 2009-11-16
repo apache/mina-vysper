@@ -27,8 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-
 /**
  * an immutable xml element specialized for XMPP.
  *

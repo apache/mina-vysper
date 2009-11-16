@@ -20,7 +20,6 @@
 
 package org.apache.vysper.xmpp.xmlfragment;
 
-import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 
 /**
  * Naive implementation, will be replaced in later stages of this change
