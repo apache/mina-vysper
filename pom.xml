@@ -209,6 +209,13 @@
         <version>${pom.version}</version>
       </dependency>
 
+      <!-- Spec compliance -->
+      <dependency>
+        <groupId>org.apache.vysper</groupId>
+        <artifactId>nbxml</artifactId>
+        <version>${pom.version}</version>
+      </dependency>
+
       <!-- Test dependencies -->
       <dependency>
         <groupId>junit</groupId>
@@ -360,8 +367,9 @@
   </profiles>
 
   <modules>
-    <module>server</module>
     <module>speccompliance</module>
+    <module>nbxml</module>
+    <module>server</module>
   </modules>
 
   <properties>
