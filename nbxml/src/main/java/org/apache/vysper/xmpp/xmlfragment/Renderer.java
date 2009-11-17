@@ -70,7 +70,7 @@ public class Renderer {
         for (XMLFragment xmlFragment : element.getInnerFragments()) {
             if (xmlFragment instanceof XMLElement) renderXMLElement((XMLElement) xmlFragment, elementContentBuffer, elementContentBuffer, elementContentBuffer);
             else if (xmlFragment instanceof XMLText) {
-                elementContentBuffer.append(((XMLText) xmlFragment).getText());
+                elementContentBuffer.append(escapeTextValue(((XMLText) xmlFragment).getText()));
             } else {
                 throw new UnsupportedOperationException("cannot render XML fragment of type " + xmlFragment.getClass().getName());
             }
@@ -107,4 +107,9 @@ public class Renderer {
     private String escapeAttributeValue(String value) {
     	return value.replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;").replace(">", "&gt;");
     }
+
+    private String escapeTextValue(String value) {
+    	return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+    }
+
 }
