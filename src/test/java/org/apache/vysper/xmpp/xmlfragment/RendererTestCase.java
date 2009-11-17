@@ -83,5 +83,54 @@ public class RendererTestCase extends TestCase {
 			// ok
 		}
 	}
+	
+	public void testRenderNonNamespaceElement() {
+		XMLElement elm = new XMLElement("foo", null, (Attribute[])null, null);
+		assertEquals("<foo></foo>", new Renderer(elm).getComplete());
+	}
+	
+	public void testRenderDefaultNamespaceElement() {
+		XMLElement elm = new XMLElement("foo", null, new Attribute[]{
+				new NamespaceAttribute("http://example.com")
+		}, null);
+		assertEquals("<foo xmlns=\"http://example.com\"></foo>", new Renderer(elm).getComplete());
+	}
 
+	public void testRenderPrefixedNamespaceElement() {
+		XMLElement elm = new XMLElement("foo", "pr", new Attribute[]{
+				new NamespaceAttribute("pr", "http://example.com")
+		}, null);
+		assertEquals("<pr:foo xmlns:pr=\"http://example.com\"></pr:foo>", new Renderer(elm).getComplete());
+	}
+
+	public void testRenderSimpleText() {
+		XMLElement elm = new XMLElement("foo", null, null, new XMLFragment[]{
+				new XMLText("bar")
+		});
+		assertEquals("<foo>bar</foo>", new Renderer(elm).getComplete());
+	}
+
+	public void testRenderTextWithAmpersand() {
+		XMLElement elm = new XMLElement("foo", null, null, new XMLFragment[]{
+				new XMLText("ba&r")
+		});
+		assertEquals("<foo>ba&amp;r</foo>", new Renderer(elm).getComplete());
+	}
+
+	public void testRenderTextWithGt() {
+		XMLElement elm = new XMLElement("foo", null, null, new XMLFragment[]{
+				new XMLText("ba>r")
+		});
+		assertEquals("<foo>ba&gt;r</foo>", new Renderer(elm).getComplete());
+	}
+
+	public void testRenderTextWithLt() {
+		XMLElement elm = new XMLElement("foo", null, null, new XMLFragment[]{
+				new XMLText("ba<r")
+		});
+		assertEquals("<foo>ba&lt;r</foo>", new Renderer(elm).getComplete());
+	}
+
+	
+	// TODO test allowed Unicode characters ranged in element name attribute name, attributes values, text
 }
