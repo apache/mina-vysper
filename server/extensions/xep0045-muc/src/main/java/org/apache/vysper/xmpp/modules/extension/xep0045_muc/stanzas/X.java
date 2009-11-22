@@ -52,7 +52,7 @@ public class X extends XMLElement {
     }
 
     public X(String ns, XMLElement...elements) {
-        super("x", null, new Attribute[]{
+        super(ns, "x", null, new Attribute[]{
             new NamespaceAttribute(ns)}, elements);
     }
     
@@ -61,7 +61,7 @@ public class X extends XMLElement {
     }
 
     public X(String ns, List<XMLElement> elements) {
-        super("x", null, new Attribute[]{
+        super(ns, "x", null, new Attribute[]{
             new NamespaceAttribute(ns)}, elements.toArray(new XMLElement[]{}));
     }
 

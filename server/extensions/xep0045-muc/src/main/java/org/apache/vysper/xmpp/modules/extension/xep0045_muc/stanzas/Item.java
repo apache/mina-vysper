@@ -28,6 +28,7 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Affiliation;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.xmlfragment.Attribute;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
@@ -39,13 +40,13 @@ import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 public class Item extends XMLElement {
 
     public Item(Occupant occupant, boolean includeJid, boolean includeNick) {
-        super("item", null, 
+        super(NamespaceURIs.XEP0045_MUC, "item", null, 
                 createAttributes(occupant, includeJid, includeNick), null);
     }
 
     
     public Item(Entity jid, String nick, Affiliation affiliation, Role role) {
-        super("item", null, 
+        super(NamespaceURIs.XEP0045_MUC, "item", null, 
                 createAttributes(jid, nick, affiliation, role), null);
     }
 

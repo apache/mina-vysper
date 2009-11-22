@@ -135,7 +135,7 @@ public abstract class AbstractNekopullStreamParser implements StreamParser {
             if (!fillDeep(startElementEvent.element.rawname, xmlFragments)) throw new ParsingException("XML end element not found as expected");
         }
 
-        return new Stanza(name, null, stanzaAttributes, xmlFragments);
+        return new Stanza(null, name, null, stanzaAttributes, xmlFragments);
     }
 
     private boolean fillDeep(String name, List<XMLFragment> xmlFragments) throws ParsingException {
@@ -157,7 +157,7 @@ public abstract class AbstractNekopullStreamParser implements StreamParser {
                     fillDeep(elementEvent.element.rawname, xmlInnerFragments); // (return value can be savely ignored)
 
                     // create element with all collected data
-                    XMLElement xmlInnerElement = new XMLElement(innerName, namespaceURI, stanzaAttributes, xmlInnerFragments);
+                    XMLElement xmlInnerElement = new XMLElement(namespaceURI, innerName, null, stanzaAttributes, xmlInnerFragments);
                     xmlFragments.add(xmlInnerElement);
                 } else {
                     return name.equals(elementEvent.element.rawname); // succeed if exact end element found and all is balanced

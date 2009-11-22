@@ -54,18 +54,18 @@ public class StanzaHandlerLookupTestCase extends TestCase {
         stanzaHandlerLookup.addDictionary(upperNamespaceHandlerDictionary);
         stanzaHandlerLookup.addDictionary(lowerNamespaceHandlerDictionary);
 
-        Stanza nonExistingStanza = new Stanza("testDictionaryHierarchyNotExist", "testNSURI", new ArrayList<Attribute>(), new ArrayList<XMLFragment>());
+        Stanza nonExistingStanza = new Stanza("testNSURI", "testDictionaryHierarchyNotExist", null, new ArrayList<Attribute>(), new ArrayList<XMLFragment>());
         StanzaHandler handler = stanzaHandlerLookup.getHandler(nonExistingStanza);
         assertNull("handler not found", handler);
 
-        Stanza existingStanzaNS1 = new Stanza("testDictionaryHierarchy", "testNSURI1", new ArrayList<Attribute>(), new ArrayList<XMLFragment>());
+        Stanza existingStanzaNS1 = new Stanza("testNSURI1", "testDictionaryHierarchy", null, new ArrayList<Attribute>(), new ArrayList<XMLFragment>());
         handler = stanzaHandlerLookup.getHandler(existingStanzaNS1);
         assertNotNull("handler found in dict1", handler);
         assertTrue("verify got called", ((CallTestStanzaHandler)handler).isVerifyCalled());
         assertNotSame("lower not found", lowerStanzaHandler, handler);
         assertSame("upper found", upperStanzaHandler, handler);
 
-        Stanza existingStanzaNS2 = new Stanza("testDictionaryHierarchy", "testNSURI2", new ArrayList<Attribute>(), new ArrayList<XMLFragment>());
+        Stanza existingStanzaNS2 = new Stanza("testNSURI2", "testDictionaryHierarchy", null, new ArrayList<Attribute>(), new ArrayList<XMLFragment>());
         handler = stanzaHandlerLookup.getHandler(existingStanzaNS2);
         assertTrue("verify got called", ((CallTestStanzaHandler)handler).isVerifyCalled());
         assertNotNull("handler found in dict2", handler);

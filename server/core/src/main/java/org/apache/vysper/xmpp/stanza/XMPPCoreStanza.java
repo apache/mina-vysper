@@ -44,7 +44,7 @@ abstract public class XMPPCoreStanza extends Stanza {
     }
 
     public XMPPCoreStanza(Stanza stanza) {
-        super(stanza.getName(), stanza.getNamespacePrefix(), stanza.getAttributes(), stanza.getInnerFragments());
+        super(stanza.getNamespaceURI(), stanza.getName(), stanza.getNamespacePrefix(), stanza.getAttributes(), stanza.getInnerFragments());
     }
 
     @Override

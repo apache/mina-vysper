@@ -50,8 +50,8 @@ public class CallTestStanzaHandler implements StanzaHandler {
         if (name != null && !name.equals(stanza.getName())) return false;
         if (namespaceURI == null) return true;
         
-        boolean elementNamespaceMatches = false;
-        if (namespaceURI != null && namespaceURI.equals(stanza.getNamespacePrefix())) elementNamespaceMatches = true;
+        //boolean elementNamespaceMatches = false;
+        //if (namespaceURI != null && namespaceURI.equals(stanza.getNamespacePrefix())) elementNamespaceMatches = true;
         
         boolean outerNamespaceMatches = false;
         boolean innerNamespaceMatches = false;
@@ -60,7 +60,7 @@ public class CallTestStanzaHandler implements StanzaHandler {
         if (firstInnerElement != null) {
             if (namespaceURI != null && namespaceURI.equals(firstInnerElement.getNamespaceURI())) innerNamespaceMatches = true;
         }
-        return elementNamespaceMatches || outerNamespaceMatches || innerNamespaceMatches;
+        return /*elementNamespaceMatches || */ outerNamespaceMatches || innerNamespaceMatches;
     }
 
     public boolean isSessionRequired() {

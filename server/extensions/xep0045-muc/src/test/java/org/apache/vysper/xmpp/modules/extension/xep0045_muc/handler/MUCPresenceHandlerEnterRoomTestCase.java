@@ -23,6 +23,7 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.xmlfragment.Attribute;
 import org.apache.vysper.xmpp.xmlfragment.NamespaceAttribute;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
+import org.apache.vysper.xmpp.xmlfragment.XMLElementBuilder;
 import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 
 /**
@@ -184,8 +185,7 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestC
 
     private void assertPresenceErrorStanza(Stanza response, Entity from, Entity to,
             String type, String errorName) {
-        Attribute xmlns = new NamespaceAttribute(NamespaceURIs.XEP0045_MUC);
-        XMLElement xElement = new XMLElement("x", null, Arrays.asList(xmlns), null);
+        XMLElement xElement = new XMLElementBuilder("x", NamespaceURIs.XEP0045_MUC).getFinalElement();
         assertErrorStanza(response, "presence", from, to, type, errorName, xElement);
     }
 

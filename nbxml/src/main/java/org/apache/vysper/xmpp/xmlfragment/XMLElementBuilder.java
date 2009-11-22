@@ -67,7 +67,7 @@ public class XMLElementBuilder {
         ElementStruct element = new ElementStruct();
         element.attributes = new ArrayList<Attribute>();
         element.innerFragments = new ArrayList<XMLFragment>();
-        element.element = new XMLElement(name, namespacePrefix, element.attributes, element.innerFragments);
+        element.element = new XMLElement(namespaceURI, name, namespacePrefix, element.attributes, element.innerFragments);
 
         currentElement = element;
         

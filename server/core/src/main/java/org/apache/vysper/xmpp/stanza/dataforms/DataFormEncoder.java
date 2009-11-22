@@ -43,11 +43,11 @@ public class DataFormEncoder {
         while (instructionIterator.hasNext()) {
             String instruction = instructionIterator.next();
             if (instruction == null) continue;
-            childElements.add(createTextOnlyElement("instructions", instruction));
+            childElements.add(createTextOnlyElement(NamespaceURIs.JABBER_X_DATA, "instructions", instruction));
         }
 
         if (dataForm.getTitle() != null) {
-            childElements.add(createTextOnlyElement("title", dataForm.getTitle()));
+            childElements.add(createTextOnlyElement(NamespaceURIs.JABBER_X_DATA, "title", dataForm.getTitle()));
         }
 
         if (dataForm.getType() == DataForm.Type.form) {
@@ -58,7 +58,7 @@ public class DataFormEncoder {
                 Field field = reportedIterator.next();
                 reportedFields.add(encodeField(field));
             }
-            XMLElement reportedElement = new XMLElement("reported", null, null, reportedFields);
+            XMLElement reportedElement = new XMLElement(NamespaceURIs.JABBER_X_DATA, "reported", null, null, reportedFields);
             childElements.add(reportedElement);
 
             // all item elements with their values
@@ -69,7 +69,7 @@ public class DataFormEncoder {
                 for (Field field : itemField) {
                     itemFields.add(encodeField(field));
                 }
-                XMLElement itemElement = new XMLElement("item", null, null, itemFields);
+                XMLElement itemElement = new XMLElement(NamespaceURIs.JABBER_X_DATA, "item", null, null, itemFields);
                 childElements.add(itemElement);
             }
         } 
@@ -86,7 +86,7 @@ public class DataFormEncoder {
         List<Attribute> attributes = new ArrayList<Attribute>();
         attributes.add(new Attribute("type", dataForm.getType().value()));
         
-        return new XMLElement("x", NamespaceURIs.JABBER_X_DATA, attributes, childElements);
+        return new XMLElement(NamespaceURIs.JABBER_X_DATA, "x", NamespaceURIs.JABBER_X_DATA, attributes, childElements);
     }
     
     protected XMLElement encodeField(Field field) {
@@ -108,16 +108,16 @@ public class DataFormEncoder {
         if (field.getDesc() != null) {
             descFragment.add(new XMLText(field.getDesc()));     
         }
-        fieldElements.add(new XMLElement("desc", null, null, descFragment));
+        fieldElements.add(new XMLElement(NamespaceURIs.JABBER_X_DATA, "desc", null, null, descFragment));
 
         if (field.isRequired()) {
-            fieldElements.add(createEmptyElement("required"));
+            fieldElements.add(createEmptyElement(NamespaceURIs.JABBER_X_DATA, "required"));
         }
         
         Iterator<String> valueIterator = field.getValueIterator();
         while (valueIterator.hasNext()) {
             String value = valueIterator.next();
-            XMLElement valueElement = createTextOnlyElement("value", value);
+            XMLElement valueElement = createTextOnlyElement(NamespaceURIs.JABBER_X_DATA, "value", value);
             fieldElements.add(valueElement);
         }
 
@@ -128,19 +128,19 @@ public class DataFormEncoder {
             Attribute[] attributes = option.getLabel() == null ? null : new Attribute[]{new Attribute("label", option.getLabel())};
             XMLFragment[] elements = option.getValue() == null ? null : new XMLFragment[]{new XMLText(option.getValue())};
 
-            XMLElement optionElement = new XMLElement("option", null, attributes, elements);
+            XMLElement optionElement = new XMLElement(NamespaceURIs.JABBER_X_DATA, "option", null, attributes, elements);
             fieldElements.add(optionElement);
         }
 
-        return new XMLElement("field", null, fieldAttributes, fieldElements);
+        return new XMLElement(NamespaceURIs.JABBER_X_DATA, "field", null, fieldAttributes, fieldElements);
         
     }
 
-    protected XMLElement createEmptyElement(String elementName) {
-        return new XMLElement(elementName, null, (Attribute[])null, (XMLFragment[])null);
+    protected XMLElement createEmptyElement(String namespaceURI, String elementName) {
+        return new XMLElement(namespaceURI, elementName, null, (Attribute[])null, (XMLFragment[])null);
     }
     
-    protected XMLElement createTextOnlyElement(String elementName, String text) {
-        return new XMLElement(elementName, null, null, new XMLFragment[]{new XMLText(text)});
+    protected XMLElement createTextOnlyElement(String namespaceURI, String elementName, String text) {
+        return new XMLElement(namespaceURI, elementName, null, null, new XMLFragment[]{new XMLText(text)});
     }
 }

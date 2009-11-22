@@ -21,7 +21,6 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas;
 
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.List;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.datetime.DateTimeProfile;
@@ -29,12 +28,11 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.xmlfragment.Attribute;
 import org.apache.vysper.xmpp.xmlfragment.NamespaceAttribute;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
-import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 
 public class Delay extends XMLElement {
 
     public Delay(Entity from, Calendar timestamp) {
-        super("delay", null, Arrays.asList(
+        super(NamespaceURIs.URN_XMPP_DELAY, "delay", null, Arrays.asList(
             new NamespaceAttribute(NamespaceURIs.URN_XMPP_DELAY),
             new Attribute("from", from.getFullQualifiedName()),
             new Attribute("stamp", DateTimeProfile.getInstance().getDateTimeInUTC(timestamp.getTime()))

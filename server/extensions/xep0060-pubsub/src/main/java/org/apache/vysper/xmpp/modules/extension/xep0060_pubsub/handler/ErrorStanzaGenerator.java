@@ -173,7 +173,7 @@ public class ErrorStanzaGenerator {
      * @return the <elementName xmlns="namespace"/> element
      */
     private XMLElement createXMLElement(String elementName, String namespace) {
-        XMLElement element = new XMLElement(elementName, null, new Attribute[] {new NamespaceAttribute(namespace)}, (XMLFragment[])null);
+        XMLElement element = new XMLElement(namespace, elementName, null, new Attribute[] {new NamespaceAttribute(namespace)}, (XMLFragment[])null);
         return element;
     }
 

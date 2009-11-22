@@ -5,6 +5,7 @@ import static org.apache.vysper.xmpp.stanza.MessageStanzaType.GROUPCHAT;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
@@ -14,6 +15,7 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.xmlfragment.Attribute;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
+import org.apache.vysper.xmpp.xmlfragment.XMLElementBuilder;
 import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
 import org.apache.vysper.xmpp.xmlfragment.XMLText;
@@ -66,9 +68,7 @@ public abstract class AbstractMUCMessageHandlerTestCase extends AbstractMUCHandl
         Stanza errorStanza = sendMessage(OCCUPANT1_JID, ROOM1_JID,
                 GROUPCHAT, body);
 
-        XMLText text = new XMLText(body);
-        XMLElement expectedBody = new XMLElement("body", null,
-                null, new XMLFragment[] { text });
+        XMLElement expectedBody = new XMLElementBuilder("body").addText(body).getFinalElement();
         assertMessageErrorStanza(errorStanza, ROOM1_JID, OCCUPANT1_JID, "modify",
                 expectedErrorName,expectedBody);
 

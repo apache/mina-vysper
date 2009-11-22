@@ -30,9 +30,14 @@ import java.util.List;
  */
 public class FragmentFactory {
     public static XMLElement createElementWithInnerText(String name, String text) {
-        return new XMLElement(name, null, null, asList(new XMLText(text)));
+        return createElementWithInnerText(null, name, text);
     }
 
+    public static XMLElement createElementWithInnerText(String namespaceURI, String name, String text) {
+        return new XMLElement(namespaceURI, name, null, null, asList(new XMLText(text)));
+    }
+
+    
     public static List<XMLFragment> asList(XMLFragment xmlFragment) {
         List<XMLFragment> xmlFragments = new ArrayList<XMLFragment>();
         if (xmlFragment != null) xmlFragments.add(xmlFragment);

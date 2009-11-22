@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.xmlfragment.Attribute;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
@@ -34,11 +35,11 @@ import org.apache.vysper.xmpp.xmlfragment.XMLText;
 public abstract class AbstractInviteDecline extends XMLElement {
 
     public AbstractInviteDecline(String elmName, XMLElement elm) {
-        super(elmName, null, elm.getAttributes(), elm.getInnerFragments());
+        super(NamespaceURIs.XEP0045_MUC, elmName, null, elm.getAttributes(), elm.getInnerFragments());
     }
     
     public AbstractInviteDecline(String elmName, Entity from, Entity to, String reason) {
-        super(elmName, null, 
+        super(NamespaceURIs.XEP0045_MUC, elmName, null, 
                 createAttributes(from, to), 
                 createFragments(reason));
     }
@@ -53,7 +54,7 @@ public abstract class AbstractInviteDecline extends XMLElement {
     private static List<XMLFragment> createFragments(String reason) {
         List<XMLFragment> fragments = new ArrayList<XMLFragment>();
         if(reason != null) {
-            XMLElement reasonElm = new XMLElement("reason", null, null, new XMLFragment[]{new XMLText(reason)});
+            XMLElement reasonElm = new XMLElement(NamespaceURIs.XEP0045_MUC, "reason", null, null, new XMLFragment[]{new XMLText(reason)});
             fragments.add(reasonElm);
         }
         return fragments;

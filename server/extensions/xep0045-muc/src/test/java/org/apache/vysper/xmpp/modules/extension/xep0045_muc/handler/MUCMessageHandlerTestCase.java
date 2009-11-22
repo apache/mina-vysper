@@ -16,6 +16,7 @@ import org.apache.vysper.xmpp.stanza.MessageStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.xmlfragment.Attribute;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
+import org.apache.vysper.xmpp.xmlfragment.XMLElementBuilder;
 import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 import org.apache.vysper.xmpp.xmlfragment.XMLText;
 
@@ -84,9 +85,7 @@ public class MUCMessageHandlerTestCase extends AbstractMUCMessageHandlerTestCase
         // send message to occupant 1 with type groupchat
         Stanza errorStanza = sendMessage(OCCUPANT1_JID, new EntityImpl(ROOM1_JID, "Nick 2"), MessageStanzaType.GROUPCHAT, BODY);
 
-        XMLText text = new XMLText(BODY);
-        XMLElement expectedBody = new XMLElement("body", null,
-                null, new XMLFragment[] { text });
+        XMLElement expectedBody = new XMLElementBuilder("body").addText(BODY).getFinalElement();
         assertMessageErrorStanza(errorStanza, ROOM1_JID, OCCUPANT1_JID, "modify",
                 "bad-request", expectedBody);
 

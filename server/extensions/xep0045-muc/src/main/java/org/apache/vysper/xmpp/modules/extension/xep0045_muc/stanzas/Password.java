@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas;
 
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.xmlfragment.Attribute;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
@@ -27,7 +28,7 @@ import org.apache.vysper.xmpp.xmlfragment.XMLText;
 public class Password extends XMLElement {
 
     public Password(String password) {
-        super("password", null, null, new XMLFragment[]{new XMLText(password)});
+        super(NamespaceURIs.XEP0045_MUC, "password", null, null, new XMLFragment[]{new XMLText(password)});
     }
 
     

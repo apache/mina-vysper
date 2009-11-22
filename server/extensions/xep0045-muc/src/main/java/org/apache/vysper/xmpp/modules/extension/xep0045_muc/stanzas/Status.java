@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.xmlfragment.Attribute;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
@@ -91,7 +92,7 @@ public class Status extends XMLElement {
     }
 
     public Status(StatusCode code, String message) {
-        super("status", null, 
+        super(NamespaceURIs.XEP0045_MUC, "status", null, 
                 createAttributes(code), 
                 createFragments(message));
     }

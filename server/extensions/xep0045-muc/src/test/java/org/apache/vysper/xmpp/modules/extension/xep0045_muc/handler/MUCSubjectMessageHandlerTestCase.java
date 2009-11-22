@@ -8,6 +8,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.xmlfragment.Attribute;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
+import org.apache.vysper.xmpp.xmlfragment.XMLElementBuilder;
 import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 import org.apache.vysper.xmpp.xmlfragment.XMLText;
 
@@ -57,7 +58,7 @@ public class MUCSubjectMessageHandlerTestCase extends AbstractMUCMessageHandlerT
         Stanza error = sendMessage(OCCUPANT1_JID, ROOM2_JID, GROUPCHAT, null, null, SUBJECT);
 
         assertMessageErrorStanza(error, ROOM2_JID, OCCUPANT1_JID, "auth", "forbidden", 
-                new XMLElement("subject", null, null, new XMLFragment[]{new XMLText(SUBJECT)}));
+                new XMLElementBuilder("subject").addText(SUBJECT).getFinalElement());
         
         assertNull(occupant1Queue.getNext());
         assertNull(occupant2Queue.getNext());

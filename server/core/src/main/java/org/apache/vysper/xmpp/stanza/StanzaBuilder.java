@@ -213,9 +213,9 @@ public class StanzaBuilder {
         element.attributes = new ArrayList<Attribute>();
         element.innerFragments = new ArrayList<XMLFragment>();
         if (isStanza) {
-            element.element = new Stanza(name, namespacePrefix, element.attributes, element.innerFragments);
+            element.element = new Stanza(namespaceURI, name, namespacePrefix, element.attributes, element.innerFragments);
         } else {
-            element.element = new XMLElement(name, namespacePrefix, element.attributes, element.innerFragments);
+            element.element = new XMLElement(namespaceURI, name, namespacePrefix, element.attributes, element.innerFragments);
         }
         currentElement = element;
         

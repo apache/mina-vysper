@@ -121,7 +121,7 @@ public class PubSubOwnerDeleteNodeHandler extends AbstractPubSubOwnerHandler {
      * @return the XMLElement for inclusion in the delete notification.
      */
     private XMLElement createDeleteElement(String nodeName) {
-        return new XMLElement("delete", null, new Attribute[] {new Attribute("node", nodeName)}, (XMLFragment[])null);
+        return new XMLElement(null, "delete", null, new Attribute[] {new Attribute("node", nodeName)}, (XMLFragment[])null);
     }
 
 }

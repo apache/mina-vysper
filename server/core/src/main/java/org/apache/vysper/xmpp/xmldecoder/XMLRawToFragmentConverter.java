@@ -102,7 +102,8 @@ public class XMLRawToFragmentConverter {
             } else if (particle.isOpeningOnlyElement()) {
                 XMLElement incompleteElement = getElementForOpening(particle, createStanza);
                 List<XMLFragment> innerFragments = convert(particles, particle.getElementName());
-                XMLElement completedElement = createElementOrStanza(incompleteElement.getName(), incompleteElement.getAttributes(), incompleteElement.getNamespacePrefix(), innerFragments, createStanza);
+                // TODO revisit namespace handling
+                XMLElement completedElement = createElementOrStanza(null, incompleteElement.getName(), incompleteElement.getAttributes(), incompleteElement.getNamespacePrefix(), innerFragments, createStanza);
                 fragments.add(completedElement);
             } else if (particle.isClosingOnlyElement()) {
                 String closingElementName = getElementNameForClosingOnly(particle);
@@ -143,10 +144,11 @@ public class XMLRawToFragmentConverter {
         String content = particle.getContentWithoutElement();
         List<Attribute> attributes = parseAttributes(content);
         elementName = elementName.trim();
-        return createElementOrStanza(elementName, attributes, null, (List<XMLFragment>) null, createStanza);
+        // TODO revisit namespace handling
+        return createElementOrStanza(null, elementName, attributes, null, (List<XMLFragment>) null, createStanza);
     }
 
-    private XMLElement createElementOrStanza(String elementName, List<Attribute> attributes, String namespacePrefix, List<XMLFragment> innerFragments, boolean createStanza) throws DecodingException {
+    private XMLElement createElementOrStanza(String namespaceURI, String elementName, List<Attribute> attributes, String namespacePrefix, List<XMLFragment> innerFragments, boolean createStanza) throws DecodingException {
         int i = elementName.indexOf(":");
         if (i >= 1) {
             namespacePrefix = elementName.substring(0, i);
@@ -159,10 +161,10 @@ public class XMLRawToFragmentConverter {
             throw new DecodingException("unsupported legal XML: colon at start of element name and no namespace specified");
         }
         if (createStanza) {
-            Stanza stanza = new Stanza(elementName, namespacePrefix, attributes, innerFragments);
+            Stanza stanza = new Stanza(namespaceURI, elementName, namespacePrefix, attributes, innerFragments);
             // place for filtering stanzas very early
             return stanza;
-        } else return new XMLElement(elementName, namespacePrefix, attributes, innerFragments);
+        } else return new XMLElement(namespaceURI, elementName, namespacePrefix, attributes, innerFragments);
     }
 
     private List<Attribute> parseAttributes(String content) throws DecodingException {

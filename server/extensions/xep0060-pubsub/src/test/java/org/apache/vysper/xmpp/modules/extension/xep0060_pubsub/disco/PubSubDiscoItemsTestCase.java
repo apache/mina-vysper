@@ -129,9 +129,9 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
         LeafNode node = new LeafNode(serviceConfiguration, "news", "News", client);
         root.add(node);
         
-        XMLElement item1 = new XMLElement("item1","namespace1",(Attribute[])null, (XMLFragment[])null);
-        XMLElement item2 = new XMLElement("item2","namespace2",(Attribute[])null, (XMLFragment[])null);
-        XMLElement item3 = new XMLElement("item3","namespace3",(Attribute[])null, (XMLFragment[])null);
+        XMLElement item1 = new XMLElement("namespace1", "item1", null,(Attribute[])null, (XMLFragment[])null);
+        XMLElement item2 = new XMLElement("namespace2", "item2", null,(Attribute[])null, (XMLFragment[])null);
+        XMLElement item3 = new XMLElement("namespace3", "item3", null,(Attribute[])null, (XMLFragment[])null);
         node.publish(client, relay, "itemid1", item1);
         Thread.sleep(10);
         node.publish(client, relay, "itemid2", item1); // publish this one with the same id as the next one (overwritten by the next)
