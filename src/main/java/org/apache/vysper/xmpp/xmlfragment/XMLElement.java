@@ -42,6 +42,7 @@ public class XMLElement implements XMLFragment {
      * if the namespace is 'http://ns.org', then element name b is prefixed with a.
      * NOTE: the namespace value must NOT be "b"!
      */
+    private String namespaceURI;
     private String namespacePrefix;
 
     private NamespaceResolver nsResolver;
@@ -50,12 +51,13 @@ public class XMLElement implements XMLFragment {
     private List<XMLFragment> innerFragments;
     protected XMLElementVerifier xmlElementVerifier;
 
-    public XMLElement(String name, String namespacePrefix, Attribute[] attributes, XMLFragment[] innerFragments) {
-        this(name, namespacePrefix, FragmentFactory.asList(attributes), FragmentFactory.asList(innerFragments));
+    public XMLElement(String namespaceURI, String name, String namespacePrefix, Attribute[] attributes, XMLFragment[] innerFragments) {
+        this(namespaceURI, name, namespacePrefix, FragmentFactory.asList(attributes), FragmentFactory.asList(innerFragments));
     }
 
-    public XMLElement(String name, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments) {
-        this.namespacePrefix = namespacePrefix == null ? NamespaceAttribute.DEFAULT_NAMESPACE : namespacePrefix;
+    public XMLElement(String namespaceURI, String name, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments) {
+        this.namespaceURI = namespaceURI;
+    	this.namespacePrefix = namespacePrefix == null ? NamespaceAttribute.DEFAULT_NAMESPACE : namespacePrefix;
         this.name = name;
         this.attributes = (attributes == null) ? Collections.EMPTY_LIST : Collections.unmodifiableList(attributes);
         this.innerFragments = (innerFragments == null) ? Collections.EMPTY_LIST : Collections.unmodifiableList(innerFragments);
@@ -87,7 +89,12 @@ public class XMLElement implements XMLFragment {
      * @return The namespace URI for the element. 
      */
     public String getNamespaceURI() {
-    	return nsResolver.resolveUri(namespacePrefix);
+    	// TODO clean up
+    	if(namespaceURI != null) {
+    		return namespaceURI;
+    	} else {
+    		return nsResolver.resolveUri(namespacePrefix);
+    	}
     }
 
     public List<Attribute> getAttributes() {
