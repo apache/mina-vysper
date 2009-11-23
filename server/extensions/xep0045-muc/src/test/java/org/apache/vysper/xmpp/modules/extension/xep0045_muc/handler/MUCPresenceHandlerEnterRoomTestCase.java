@@ -1,5 +1,6 @@
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -10,6 +11,8 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.History;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Password;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
@@ -44,15 +47,14 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestC
         
         StanzaBuilder stanzaBuilder = StanzaBuilder.createPresenceStanza(occupantJid, roomJid, null, null, null, null);
         if(!oldProtocol) {
-            stanzaBuilder.startInnerElement("x").addNamespaceAttribute(NamespaceURIs.XEP0045_MUC);
+        	List<XMLElement> xInnerElms = new ArrayList<XMLElement>();
             if(password != null) {
-                stanzaBuilder.startInnerElement("password").addText(password).endInnerElement();
+            	xInnerElms.add(new Password(password));
             }
             if(history != null) {
-                stanzaBuilder.addPreparedElement(history);
+            	xInnerElms.add(history);
             }
-            
-            stanzaBuilder.endInnerElement();
+            stanzaBuilder.addPreparedElement(new X(xInnerElms));
         }
         Stanza presenceStanza = stanzaBuilder.getFinalStanza();
         ResponseStanzaContainer container = handler.execute(presenceStanza, userSessionContext.getServerRuntimeContext(), true, userSessionContext, null);

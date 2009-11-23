@@ -49,7 +49,7 @@ public class XmppPingIQHandlerTestCase extends TestCase {
 
         
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(boundClient, server, IQStanzaType.GET, IQ_ID);
-        stanzaBuilder.startInnerElement("ping").addNamespaceAttribute(NamespaceURIs.URN_XMPP_PING).endInnerElement();
+        stanzaBuilder.startInnerElement("ping", NamespaceURIs.URN_XMPP_PING).endInnerElement();
 
         Stanza requestStanza = stanzaBuilder.getFinalStanza();
         ResponseStanzaContainer resp = handler.execute(requestStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, null);

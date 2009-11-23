@@ -78,7 +78,7 @@ public class MUCHandlerHelper {
         
         if(innerElements != null) {
             for(XMLElement innerElement : innerElements) {
-                   builder.addPreparedElement(innerElement);
+               builder.addPreparedElement(innerElement);
             }
         }
         

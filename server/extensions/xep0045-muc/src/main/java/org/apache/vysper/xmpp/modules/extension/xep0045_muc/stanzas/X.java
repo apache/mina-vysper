@@ -23,8 +23,6 @@ import java.util.List;
 
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.xmlfragment.Attribute;
-import org.apache.vysper.xmpp.xmlfragment.NamespaceAttribute;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
 
@@ -52,8 +50,7 @@ public class X extends XMLElement {
     }
 
     public X(String ns, XMLElement...elements) {
-        super(ns, "x", null, new Attribute[]{
-            new NamespaceAttribute(ns)}, elements);
+        super(ns, "x", null, null, elements);
     }
     
     public X(List<XMLElement> elements) {
@@ -61,10 +58,9 @@ public class X extends XMLElement {
     }
 
     public X(String ns, List<XMLElement> elements) {
-        super(ns, "x", null, new Attribute[]{
-            new NamespaceAttribute(ns)}, elements.toArray(new XMLElement[]{}));
+        super(ns, "x", null, null, elements.toArray(new XMLElement[]{}));
     }
-
+    
     public Invite getInvite() {
         try {
             XMLElement inviteElm = getSingleInnerElementsNamed("invite");

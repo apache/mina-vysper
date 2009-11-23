@@ -13,7 +13,6 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.xmlfragment.Renderer;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
@@ -74,9 +73,6 @@ public abstract class AbstractMUCHandlerTestCase extends TestCase {
         int index = 0;
         if(expectedInnerElements != null) {
             for(XMLElement expectedInnerElement : expectedInnerElements) {
-            	System.out.println(new Renderer(expectedInnerElement).getComplete());
-            	System.out.println(new Renderer(innerElements.get(index)).getComplete());
-            	
                 assertEquals(expectedInnerElement, innerElements.get(index));
                 index++;
             }

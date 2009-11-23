@@ -26,7 +26,7 @@ public class MUCPresenceHandlerChangeNickTestCase extends AbstractMUCHandlerTest
 
     private Stanza changeNick(Entity occupantJid, Entity roomWithNickJid) throws ProtocolException {
         StanzaBuilder stanzaBuilder = StanzaBuilder.createPresenceStanza(occupantJid, roomWithNickJid, null, null, null, null);
-        stanzaBuilder.startInnerElement("x").addNamespaceAttribute(NamespaceURIs.XEP0045_MUC);
+        stanzaBuilder.startInnerElement("x", NamespaceURIs.XEP0045_MUC);
         
         stanzaBuilder.endInnerElement();
         Stanza presenceStanza = stanzaBuilder.getFinalStanza();

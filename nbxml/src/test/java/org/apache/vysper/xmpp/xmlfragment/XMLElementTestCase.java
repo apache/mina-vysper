@@ -45,8 +45,7 @@ public class XMLElementTestCase extends TestCase {
         List<Attribute> list = xmlElement.getAttributes();
         assertNotNull(list);
         
-        // 3 added attributes + namespace attribute
-        assertEquals(4, list.size());
+        assertEquals(3, list.size());
     }
 
     public void testInnerTextGetters() {
