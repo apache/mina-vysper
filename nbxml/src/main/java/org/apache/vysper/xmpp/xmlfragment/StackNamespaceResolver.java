@@ -80,6 +80,13 @@ public class StackNamespaceResolver implements NamespaceResolver {
 					// restore stack
 					push(topElm);
 				}
+			} else {
+				// is there a parent in a namespace? if so, we need to reset the default namespace
+				if(elements.size() > 1 
+						&& elements.get(elements.size() - 2).getNamespaceURI().length() > 0
+						&& !ns.containsKey("")) {
+					ns.put("", "");
+				}
 			}
 		}		
 		

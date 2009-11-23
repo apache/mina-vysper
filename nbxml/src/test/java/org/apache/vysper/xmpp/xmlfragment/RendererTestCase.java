@@ -128,6 +128,25 @@ public class RendererTestCase extends TestCase {
 		assertRendering("<foo xmlns=\"http://example.com\" xmlns:pr=\"http://other.com\"><pr:bar></pr:bar></foo>", builder.getFinalElement());
 	}
 
+	public void testRenderInnerInheritedDefaultNamespaceElement() {
+		XMLElementBuilder builder = new XMLElementBuilder("foo", "http://example.com");
+		builder.startInnerElement("bar", "http://example.com");
+		assertRendering("<foo xmlns=\"http://example.com\"><bar></bar></foo>", builder.getFinalElement());
+	}
+
+	public void testRenderInnerInheritedNamespaceElement() {
+		XMLElementBuilder builder = new XMLElementBuilder("foo", "http://example.com");
+		builder.startInnerElement("bar", "http://other.com");
+		assertRendering("<foo xmlns=\"http://example.com\"><bar xmlns=\"http://other.com\"></bar></foo>", builder.getFinalElement());
+	}
+
+	
+	public void testRenderInnerNoNamespaceElement() {
+		XMLElementBuilder builder = new XMLElementBuilder("foo", "http://example.com");
+		builder.startInnerElement("bar");
+		assertRendering("<foo xmlns=\"http://example.com\"><bar xmlns=\"\"></bar></foo>", builder.getFinalElement());
+	}
+	
 	public void testRenderSimpleText() {
 		XMLElement elm = new XMLElement(null, "foo", null, null, new XMLFragment[]{
 				new XMLText("bar")
