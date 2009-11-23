@@ -70,15 +70,6 @@ public class XMLElementBuilder {
         element.element = new XMLElement(namespaceURI, name, namespacePrefix, element.attributes, element.innerFragments);
 
         currentElement = element;
-        
-        // must be done after set as currentElement
-        if(namespaceURI != null && namespaceURI.length() > 0) {
-            if(namespacePrefix == null || namespacePrefix.length() == 0) {
-                addNamespaceAttribute(namespaceURI);
-            } else {
-                addNamespaceAttribute(namespacePrefix, namespaceURI);
-            }
-        }
     }
 
 
