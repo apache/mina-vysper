@@ -145,6 +145,9 @@ public class XMLElementVerifier {
 				return true;
 			}
 		}
+		
+		if(namespaceURI.equals(element.getNamespaceURI())) return true;
+		
 		return false; // not present
 	}
 
