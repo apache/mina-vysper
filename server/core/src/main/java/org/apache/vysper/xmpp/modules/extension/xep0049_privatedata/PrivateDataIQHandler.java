@@ -96,9 +96,9 @@ public class PrivateDataIQHandler extends DefaultIQHandler {
         boolean success = persistenceManager.setPrivateData(from, queryKey, queryContent);
 
         if (success) {
-            return StanzaBuilder.createIQStanza(null, from, IQStanzaType.RESULT, stanza.getID()).getFinalStanza();
+            return StanzaBuilder.createIQStanza(null, from, IQStanzaType.RESULT, stanza.getID()).build();
         } else {
-            return StanzaBuilder.createIQStanza(null, from, IQStanzaType.ERROR, stanza.getID()).getFinalStanza();
+            return StanzaBuilder.createIQStanza(null, from, IQStanzaType.ERROR, stanza.getID()).build();
         }
     }
 
@@ -139,7 +139,7 @@ public class PrivateDataIQHandler extends DefaultIQHandler {
         } else {
             stanzaBuilder.addText(privateDataXML);
         }
-        return stanzaBuilder.getFinalStanza();
+        return stanzaBuilder.build();
     }
 
     /**

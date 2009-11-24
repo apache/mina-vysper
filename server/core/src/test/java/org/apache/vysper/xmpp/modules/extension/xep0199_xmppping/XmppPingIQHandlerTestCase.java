@@ -51,7 +51,7 @@ public class XmppPingIQHandlerTestCase extends TestCase {
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(boundClient, server, IQStanzaType.GET, IQ_ID);
         stanzaBuilder.startInnerElement("ping", NamespaceURIs.URN_XMPP_PING).endInnerElement();
 
-        Stanza requestStanza = stanzaBuilder.getFinalStanza();
+        Stanza requestStanza = stanzaBuilder.build();
         ResponseStanzaContainer resp = handler.execute(requestStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, null);
 
         // we should always get a response

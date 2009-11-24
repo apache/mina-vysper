@@ -115,7 +115,7 @@ public class RosterIQHandler extends DefaultIQHandler {
 
         // from becomes to
         StanzaBuilder stanzaBuilder = RosterStanzaUtils.createRosterItemsIQ(from, stanza.getID(), IQStanzaType.RESULT, roster);
-        return stanzaBuilder.getFinalStanza();
+        return stanzaBuilder.build();
     }
 
     @SpecCompliance( compliant = {
@@ -192,11 +192,11 @@ public class RosterIQHandler extends DefaultIQHandler {
         if (existingItem != null) {
             if (existingItem.hasFrom()) {
                 // send unsubbed
-                unsubscribedStanza = StanzaBuilder.createPresenceStanza(user.getBareJID(), contactJid, null, PresenceStanzaType.UNSUBSCRIBED, null, null).getFinalStanza();
+                unsubscribedStanza = StanzaBuilder.createPresenceStanza(user.getBareJID(), contactJid, null, PresenceStanzaType.UNSUBSCRIBED, null, null).build();
             }
             if (existingItem.hasTo()) {
                 // send unsub
-                unsubscribeStanza = StanzaBuilder.createPresenceStanza(user.getBareJID(), contactJid, null, PresenceStanzaType.UNSUBSCRIBE, null, null).getFinalStanza();
+                unsubscribeStanza = StanzaBuilder.createPresenceStanza(user.getBareJID(), contactJid, null, PresenceStanzaType.UNSUBSCRIBE, null, null).build();
             }
         }
         try {
@@ -224,7 +224,7 @@ public class RosterIQHandler extends DefaultIQHandler {
         pushRosterItemToInterestedResources(sessionContext, user, new RosterItem(contactJid, REMOVE));
 
         // return success
-        return StanzaBuilder.createIQStanza(null, user, IQStanzaType.RESULT, stanza.getID()).getFinalStanza();
+        return StanzaBuilder.createIQStanza(null, user, IQStanzaType.RESULT, stanza.getID()).build();
     }
 
     private void pushRosterItemToInterestedResources(SessionContext sessionContext, Entity user, RosterItem rosterItem) {

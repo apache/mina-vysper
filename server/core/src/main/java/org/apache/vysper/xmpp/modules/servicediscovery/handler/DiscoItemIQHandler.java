@@ -128,6 +128,6 @@ public class DiscoItemIQHandler extends DefaultIQHandler {
             }
         stanzaBuilder.endInnerElement();
 
-        return stanzaBuilder.getFinalStanza();
+        return stanzaBuilder.build();
     }
 }

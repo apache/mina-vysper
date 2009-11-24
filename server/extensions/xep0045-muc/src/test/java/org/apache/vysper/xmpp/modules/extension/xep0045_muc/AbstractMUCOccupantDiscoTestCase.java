@@ -54,7 +54,7 @@ public abstract class AbstractMUCOccupantDiscoTestCase extends AbstractMUCHandle
         request.startInnerElement("query", getNamespace()).endInnerElement();
 
         // send message to room
-        sendDisco(request.getFinalStanza());
+        sendDisco(request.build());
 
         assertNull(occupant1Queue.getNext());
         Stanza stanza = occupant2Queue.getNext(); 

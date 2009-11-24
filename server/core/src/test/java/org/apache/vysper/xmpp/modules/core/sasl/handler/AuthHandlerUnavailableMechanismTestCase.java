@@ -58,7 +58,7 @@ public class AuthHandlerUnavailableMechanismTestCase extends TestCase {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("auth");
         stanzaBuilder.addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
         stanzaBuilder.addAttribute("mechanism", "plain"); // 'PLAIN' would be correct
-        Stanza authPlainStanza = stanzaBuilder.getFinalStanza();
+        Stanza authPlainStanza = stanzaBuilder.build();
 
         AuthHandler authHandler = new AuthHandler();
         try {
@@ -74,7 +74,7 @@ public class AuthHandlerUnavailableMechanismTestCase extends TestCase {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("auth");
         stanzaBuilder.addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
         stanzaBuilder.addAttribute("mechanism", "EXTERNAL"); 
-        Stanza authPlainStanza = stanzaBuilder.getFinalStanza();
+        Stanza authPlainStanza = stanzaBuilder.build();
 
         AuthHandler authHandler = new AuthHandler();
         try {

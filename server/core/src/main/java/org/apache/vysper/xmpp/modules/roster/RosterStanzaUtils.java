@@ -55,7 +55,7 @@ public class RosterStanzaUtils {
     public static Stanza createRosterItemIQ(Entity to, String id, IQStanzaType iqStanzaType, RosterItem rosterItem) {
         List<RosterItem> itemList = new ArrayList<RosterItem>();
         itemList.add(rosterItem);
-        return createRosterItemsIQ(to, id, iqStanzaType, itemList).getFinalStanza();
+        return createRosterItemsIQ(to, id, iqStanzaType, itemList).build();
     }
 
     public static void createRosterItem(StanzaBuilder stanzaBuilder, RosterItem rosterItem) {

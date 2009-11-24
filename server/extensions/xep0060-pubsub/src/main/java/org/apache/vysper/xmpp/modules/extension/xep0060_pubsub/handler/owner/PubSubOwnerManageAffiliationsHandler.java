@@ -107,7 +107,7 @@ public class PubSubOwnerManageAffiliationsHandler extends AbstractPubSubOwnerHan
         buildSuccessStanza(sb, node, affiliations);
 
         sb.endInnerElement();
-        return new IQStanza(sb.getFinalStanza());
+        return new IQStanza(sb.build());
     }
 
     /**
@@ -170,7 +170,7 @@ public class PubSubOwnerManageAffiliationsHandler extends AbstractPubSubOwnerHan
         }
 
         sb.endInnerElement();
-        return new IQStanza(sb.getFinalStanza());
+        return new IQStanza(sb.build());
     }
 
     /**

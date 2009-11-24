@@ -68,7 +68,7 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
 
     public void testAuthPlainNoInitialResponse() throws AuthorizationFailedException {
         StanzaBuilder stanzaBuilder = createAuthPlain();
-        Stanza authPlainStanza = stanzaBuilder.getFinalStanza();
+        Stanza authPlainStanza = stanzaBuilder.build();
 
         AuthHandler authHandler = new AuthHandler();
         ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
@@ -80,7 +80,7 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
     public void testAuthPlainEmptyInitialResponse() throws AuthorizationFailedException {
         StanzaBuilder stanzaBuilder = createAuthPlain();
         stanzaBuilder.addText("=");
-        Stanza authPlainStanza = stanzaBuilder.getFinalStanza();
+        Stanza authPlainStanza = stanzaBuilder.build();
 
         AuthHandler authHandler = new AuthHandler();
         ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
@@ -93,7 +93,7 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
         StanzaBuilder stanzaBuilder = createAuthPlain();
         stanzaBuilder.addText(new String(Base64.encodeBase64("dummy\0user007\0pass007".getBytes())));
         
-        Stanza authPlainStanza = stanzaBuilder.getFinalStanza();
+        Stanza authPlainStanza = stanzaBuilder.build();
 
         assertEquals(3, AuthorizationRetriesCounter.getFromSession(sessionContext).getTriesLeft());
 
@@ -112,7 +112,7 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
         
         StanzaBuilder stanzaBuilder = createAuthPlain();
         stanzaBuilder.addText(new String(Base64.encodeBase64("dummy\0user007\0pass007".getBytes())));
-        Stanza authPlainStanza = stanzaBuilder.getFinalStanza();
+        Stanza authPlainStanza = stanzaBuilder.build();
 
         // correct credential no longer work - no retries left
         AuthHandler authHandler = new AuthHandler();
@@ -146,7 +146,7 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
         StanzaBuilder stanzaBuilder = createAuthPlain();
         stanzaBuilder.addText(new String(Base64.encodeBase64("dummy\0user008\0pass007".getBytes())));
 
-        Stanza authPlainStanza = stanzaBuilder.getFinalStanza();
+        Stanza authPlainStanza = stanzaBuilder.build();
 
         AuthHandler authHandler = new AuthHandler();
         ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, sessionStateHolder);

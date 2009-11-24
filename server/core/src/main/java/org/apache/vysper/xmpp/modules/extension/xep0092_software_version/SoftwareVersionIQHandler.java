@@ -64,6 +64,6 @@ public class SoftwareVersionIQHandler extends DefaultIQHandler {
 
         endInnerElement();
 
-        return stanzaBuilder.getFinalStanza();
+        return stanzaBuilder.build();
     }
 }

@@ -134,7 +134,7 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
         }
 
         sb.endInnerElement(); // pubsub
-        return new IQStanza(sb.getFinalStanza());
+        return new IQStanza(sb.build());
     }
 
 }

@@ -116,7 +116,7 @@ public class EhCachePresenceCacheImplTest extends LatestPresenceCacheTestCase {
      */
     protected PresenceStanza getPresenceStanza(TestUser user) {
         XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(user.getEntityFQ(),
-                                                                                                       null, null, null, null, null).getFinalStanza());
+                                                                                                       null, null, null, null, null).build());
         return (PresenceStanza)initialPresence;
     }
 

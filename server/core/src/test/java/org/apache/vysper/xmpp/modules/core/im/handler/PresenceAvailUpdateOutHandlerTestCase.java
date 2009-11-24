@@ -38,7 +38,7 @@ public class PresenceAvailUpdateOutHandlerTestCase extends PresenceHandlerBaseTe
         StanzaReceiverRelay receiverRelay = (StanzaReceiverRelay) sessionContext.getServerRuntimeContext().getStanzaRelay();
 
         // at first, initial presence
-        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), null, null, null, null, null).getFinalStanza());
+        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), null, null, null, null, null).build());
         handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext);
         assertTrue(0 < receiverRelay.getCountDelivered());
         resetRecordedStanzas(); // purge recorded 
@@ -47,7 +47,7 @@ public class PresenceAvailUpdateOutHandlerTestCase extends PresenceHandlerBaseTe
         // send update now
         final String showValue = "chatty";
         
-        XMPPCoreStanza updatePresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), null, null, null, showValue, null).getFinalStanza());
+        XMPPCoreStanza updatePresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), null, null, null, showValue, null).build());
         handler.executeCore(updatePresence, sessionContext.getServerRuntimeContext(), true, sessionContext);
         // check resource state 
         assertEquals(ResourceState.AVAILABLE, getResourceState());

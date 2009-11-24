@@ -60,7 +60,7 @@ public class TestIQHandler extends IQHandler {
 
         responseBuilder.addAttribute("type", IQStanzaType.RESULT.value());
 
-         return responseBuilder.getFinalStanza();
+         return responseBuilder.build();
     }
 
     public IQStanza getIncomingStanza() {

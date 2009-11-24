@@ -100,7 +100,7 @@ public class SubscriberPayloadNotificationVisitor implements SubscriberVisitor {
         stanzaBuilder.addPreparedElement(item);
         stanzaBuilder.endInnerElement(); // items
         stanzaBuilder.endInnerElement(); // event
-        return stanzaBuilder.getFinalStanza();
+        return stanzaBuilder.build();
     }
 
 }

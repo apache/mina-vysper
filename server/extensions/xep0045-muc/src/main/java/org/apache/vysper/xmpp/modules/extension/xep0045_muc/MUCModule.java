@@ -216,7 +216,7 @@ public class MUCModule
         }
 
         try {
-            serverRuntimeContext.getStanzaRelay().relay(receiver, builder.getFinalStanza(), new IgnoreFailureStrategy());
+            serverRuntimeContext.getStanzaRelay().relay(receiver, builder.build(), new IgnoreFailureStrategy());
         } catch (DeliveryException e) {
             // ignore
         }

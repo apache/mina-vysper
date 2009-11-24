@@ -25,7 +25,7 @@ public class MUCPresenceHandlerChangeStatusTestCase extends AbstractMUCHandlerTe
     private Stanza changeStatus(Entity occupantJid, Entity roomWithNickJid, String show, String status) throws ProtocolException {
         StanzaBuilder stanzaBuilder = StanzaBuilder.createPresenceStanza(occupantJid, roomWithNickJid, null, null, show, status);
         
-        Stanza presenceStanza = stanzaBuilder.getFinalStanza();
+        Stanza presenceStanza = stanzaBuilder.build();
         ResponseStanzaContainer container = handler.execute(presenceStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, null);
         if(container != null) {
             return container.getResponseStanza();

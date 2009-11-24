@@ -44,7 +44,7 @@ public class PresenceSubRequestOutHandlerTestCase extends PresenceHandlerBaseTes
 
         // now entity 'unrelated' approves the subscription
 
-        XMPPCoreStanza requestApproval = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(unrelatedUser.getEntityFQ(), initiatingUser.getEntity(), null, PresenceStanzaType.SUBSCRIBED, null, null).getFinalStanza());
+        XMPPCoreStanza requestApproval = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(unrelatedUser.getEntityFQ(), initiatingUser.getEntity(), null, PresenceStanzaType.SUBSCRIBED, null, null).build());
         handler.executeCore(requestApproval, sessionContext.getServerRuntimeContext(), false, sessionContext);
 
         // 3 roster pushes but...
@@ -62,7 +62,7 @@ public class PresenceSubRequestOutHandlerTestCase extends PresenceHandlerBaseTes
         setResourceState(initiatingUser.getBoundResourceId(), ResourceState.AVAILABLE_INTERESTED);
 
         // SUBSCRIBE FROM
-        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), unrelatedUser.getEntity(), null, PresenceStanzaType.SUBSCRIBE, null, null).getFinalStanza());
+        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), unrelatedUser.getEntity(), null, PresenceStanzaType.SUBSCRIBE, null, null).build());
 
         handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext);
         assertEquals(ResourceState.AVAILABLE_INTERESTED, getResourceState());
@@ -104,7 +104,7 @@ public class PresenceSubRequestOutHandlerTestCase extends PresenceHandlerBaseTes
         setResourceState(initiatingUser.getBoundResourceId(), ResourceState.AVAILABLE_INTERESTED);
 
         // SUBSCRIBE FROM
-        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), subscribed_FROM.getEntity(), null, PresenceStanzaType.SUBSCRIBE, null, null).getFinalStanza());
+        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), subscribed_FROM.getEntity(), null, PresenceStanzaType.SUBSCRIBE, null, null).build());
 
         handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext);
         assertEquals(ResourceState.AVAILABLE_INTERESTED, getResourceState());
@@ -136,7 +136,7 @@ public class PresenceSubRequestOutHandlerTestCase extends PresenceHandlerBaseTes
 
         setResourceState(initiatingUser.getBoundResourceId(), ResourceState.AVAILABLE_INTERESTED);
 
-        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), subscribed_TO.getEntity(), null, PresenceStanzaType.SUBSCRIBE, null, null).getFinalStanza());
+        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), subscribed_TO.getEntity(), null, PresenceStanzaType.SUBSCRIBE, null, null).build());
 
         handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext);
         assertEquals(ResourceState.AVAILABLE_INTERESTED, getResourceState());
@@ -148,7 +148,7 @@ public class PresenceSubRequestOutHandlerTestCase extends PresenceHandlerBaseTes
 
         setResourceState(initiatingUser.getBoundResourceId(), ResourceState.AVAILABLE_INTERESTED);
 
-        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), subscribed_BOTH.getEntity(), null, PresenceStanzaType.SUBSCRIBE, null, null).getFinalStanza());
+        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), subscribed_BOTH.getEntity(), null, PresenceStanzaType.SUBSCRIBE, null, null).build());
 
         handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext);
         assertEquals(ResourceState.AVAILABLE_INTERESTED, getResourceState());

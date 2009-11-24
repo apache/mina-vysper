@@ -117,7 +117,7 @@ public class PubSubPublishHandler extends AbstractPubSubGeneralHandler {
             StanzaBuilder itemBuilder = new StanzaBuilder("item");
             itemBuilder.addAttribute("id", strID);
             itemBuilder.addPreparedElement(item.getFirstInnerElement());
-            item = itemBuilder.getFinalStanza();
+            item = itemBuilder.build();
         }
 
         StanzaRelay relay = serverRuntimeContext.getStanzaRelay();
@@ -126,7 +126,7 @@ public class PubSubPublishHandler extends AbstractPubSubGeneralHandler {
         buildSuccessStanza(sb, nodeName, strID);
 
         sb.endInnerElement(); // pubsub
-        return new IQStanza(sb.getFinalStanza());
+        return new IQStanza(sb.build());
     }
 
     /**

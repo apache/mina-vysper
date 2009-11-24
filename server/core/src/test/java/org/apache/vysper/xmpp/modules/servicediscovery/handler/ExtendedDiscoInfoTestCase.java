@@ -77,7 +77,7 @@ public class ExtendedDiscoInfoTestCase extends TestCase {
 
         StanzaBuilder request = StanzaBuilder.createIQStanza(EntityImpl.parse("user@vysper.org"), EntityImpl.parse("info@vysper.org"), IQStanzaType.GET, "1");
 
-        IQStanza finalStanza = (IQStanza)XMPPCoreStanza.getWrapper(request.getFinalStanza());
+        IQStanza finalStanza = (IQStanza)XMPPCoreStanza.getWrapper(request.build());
         
         Stanza resultStanza = infoIQHandler.handleGet(finalStanza, runtimeContext, new TestSessionContext(runtimeContext, new SessionStateHolder()));
 

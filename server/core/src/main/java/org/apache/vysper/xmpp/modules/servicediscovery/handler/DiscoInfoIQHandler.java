@@ -148,6 +148,6 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
 
         stanzaBuilder.endInnerElement();
 
-        return stanzaBuilder.getFinalStanza();
+        return stanzaBuilder.build();
     }
 }

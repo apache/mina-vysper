@@ -77,7 +77,7 @@ public class BindIQHandler extends DefaultIQHandler {
                     startInnerElement("jid").addText(entity.getFullQualifiedName()).endInnerElement().
             endInnerElement();
 
-        return stanzaBuilder.getFinalStanza();
+        return stanzaBuilder.build();
     }
 
     private Stanza bindError(IQStanza stanza, SessionContext sessionContext) {
@@ -88,6 +88,6 @@ public class BindIQHandler extends DefaultIQHandler {
                     startInnerElement("not-allowed", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).
             endInnerElement();
 
-        return stanzaBuilder.getFinalStanza();
+        return stanzaBuilder.build();
     }
 }

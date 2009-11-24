@@ -276,7 +276,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
 
         
         logger.debug("Room presence from {} sent to {}", newOccupant, roomAndOccupantNick);
-        relayStanza(newOccupant.getJid(), builder.getFinalStanza(), serverRuntimeContext);
+        relayStanza(newOccupant.getJid(), builder.build(), serverRuntimeContext);
     }
     
     private void sendNewOccupantPresenceToExisting(Occupant newOccupant, Occupant existingOccupant, Room room, ServerRuntimeContext serverRuntimeContext) {
@@ -305,7 +305,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         builder.addPreparedElement(new X(NamespaceURIs.XEP0045_MUC_USER, inner));
 
         logger.debug("Room presence from {} sent to {}", roomAndNewUserNick, existingOccupant);
-        relayStanza(existingOccupant.getJid(), builder.getFinalStanza(), serverRuntimeContext);
+        relayStanza(existingOccupant.getJid(), builder.build(), serverRuntimeContext);
     }
 
     private void sendChangeNickUnavailable(Occupant changer, String oldNick, Occupant receiver, Room room, ServerRuntimeContext serverRuntimeContext) {
@@ -327,7 +327,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         builder.addPreparedElement(new X(NamespaceURIs.XEP0045_MUC_USER, inner));
 
         logger.debug("Room presence from {} sent to {}", roomAndOldNick, receiver);
-        relayStanza(receiver.getJid(), builder.getFinalStanza(), serverRuntimeContext);
+        relayStanza(receiver.getJid(), builder.build(), serverRuntimeContext);
     }
     
 
@@ -346,7 +346,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         builder.addPreparedElement(new X(NamespaceURIs.XEP0045_MUC_USER, new Item(changer, includeJid, true)));
 
         logger.debug("Room presence from {} sent to {}", roomAndNick, receiver);
-        relayStanza(receiver.getJid(), builder.getFinalStanza(), serverRuntimeContext);
+        relayStanza(receiver.getJid(), builder.build(), serverRuntimeContext);
     }
 
     
@@ -370,7 +370,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         }
         builder.addPreparedElement(new X(NamespaceURIs.XEP0045_MUC_USER, inner));
 
-        relayStanza(receiver.getJid(), builder.getFinalStanza(), serverRuntimeContext);
+        relayStanza(receiver.getJid(), builder.build(), serverRuntimeContext);
     }
 
     
@@ -400,7 +400,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         }
         builder.addPreparedElement(new X(NamespaceURIs.XEP0045_MUC_USER, inner));
 
-        relayStanza(existingOccupant.getJid(), builder.getFinalStanza(), serverRuntimeContext);
+        relayStanza(existingOccupant.getJid(), builder.build(), serverRuntimeContext);
     }
 
     protected void relayStanzas(Entity receiver, List<Stanza> stanzas, ServerRuntimeContext serverRuntimeContext) {

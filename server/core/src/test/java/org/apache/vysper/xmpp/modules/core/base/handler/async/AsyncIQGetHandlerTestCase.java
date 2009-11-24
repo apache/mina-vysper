@@ -120,7 +120,7 @@ public class AsyncIQGetHandlerTestCase extends TestCase {
                 }
                 try {
                     Stanza finalStanza = StanzaBuilder.createIQStanza(requestStanza.getTo(), requestStanza.getFrom(), IQStanzaType.RESULT, requestStanza.getID()).
-                            startInnerElement("success").endInnerElement().getFinalStanza();
+                            startInnerElement("success").endInnerElement().build();
                     response = XMPPCoreStanza.getWrapper(finalStanza);
                 } catch (Throwable e) {
                     e.printStackTrace();
@@ -142,7 +142,7 @@ public class AsyncIQGetHandlerTestCase extends TestCase {
 
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(new EntityImpl("test", "vysper.org", null), null, IQStanzaType.GET, "id1");
         stanzaBuilder.startInnerElement("query").endInnerElement();
-        Stanza iqStanza = stanzaBuilder.getFinalStanza();
+        Stanza iqStanza = stanzaBuilder.build();
 
         ResponseStanzaContainer container = asyncIQGetHandler.execute(iqStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
         assertTrue(container == null || container.hasNoResponse());

@@ -61,7 +61,7 @@ public abstract class AbstractProtocolStateTestCase extends TestCase {
         Stanza stanza;
         Stanza recordedResponse;
         XMLElementVerifier responseVerifier;
-        stanza = new ServerResponses().getStreamOpener(true, testFrom, xmlLang, XMPPVersion.VERSION_1_0, null).getFinalStanza();
+        stanza = new ServerResponses().getStreamOpener(true, testFrom, xmlLang, XMPPVersion.VERSION_1_0, null).build();
         protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza, sessionStateHolder);
 
         recordedResponse = sessionContext.getNextRecordedResponse();
@@ -83,7 +83,7 @@ public abstract class AbstractProtocolStateTestCase extends TestCase {
         stanzaBuilder.addAttribute("id", "1");
         stanzaBuilder.addAttribute("type", "get");
 
-        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.getFinalStanza(), sessionStateHolder);
+        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(), sessionStateHolder);
 
         Stanza response = sessionContext.getNextRecordedResponse();
         XMLElementVerifier responseVerifier = response.getVerifier();
@@ -101,7 +101,7 @@ public abstract class AbstractProtocolStateTestCase extends TestCase {
         stanzaBuilder.addAttribute("id", "1");
         stanzaBuilder.addAttribute("type", "get");
 
-        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.getFinalStanza(), sessionStateHolder);
+        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(), sessionStateHolder);
 
         Stanza response = sessionContext.getNextRecordedResponse();
         

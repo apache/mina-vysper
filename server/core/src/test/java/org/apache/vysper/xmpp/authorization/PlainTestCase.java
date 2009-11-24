@@ -36,7 +36,7 @@ public class PlainTestCase extends TestCase {
 
     public void testPlainEmpty() throws XMLSemanticError {
 
-        Stanza stanza = new StanzaBuilder("plain").addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).getFinalStanza();
+        Stanza stanza = new StanzaBuilder("plain").addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).build();
 
         Stanza response = startMechanism(stanza);
         assertResponse(response, "malformed-request");
@@ -46,7 +46,7 @@ public class PlainTestCase extends TestCase {
 
         Stanza stanza = new StanzaBuilder("plain").addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
                 .addText("aEflkejidkj==")
-                .getFinalStanza();
+                .build();
 
         Stanza response = startMechanism(stanza);
         assertResponse(response, "malformed-request");
@@ -56,7 +56,7 @@ public class PlainTestCase extends TestCase {
 
         Stanza stanza = new StanzaBuilder("plain").addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
                 .addText(encode("dieter", "schluppkoweit"))
-                .getFinalStanza();
+                .build();
 
         Stanza response = startMechanism(stanza);
         assertResponse(response, "not-authorized");
@@ -66,7 +66,7 @@ public class PlainTestCase extends TestCase {
 
         Stanza stanza = new StanzaBuilder("plain").addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
                 .addText(encode("dieter", "schluppkoweit"))
-                .getFinalStanza();
+                .build();
 
         Stanza response = startMechanism(stanza);
         assertResponse(response, "not-authorized");
@@ -77,7 +77,7 @@ public class PlainTestCase extends TestCase {
         String innerText = new String(Base64.encodeBase64("continuous".getBytes()));
 
         Stanza stanza = new StanzaBuilder("plain").addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
-                .addText(innerText).getFinalStanza();
+                .addText(innerText).build();
 
         Stanza response = startMechanism(stanza);
         assertResponse(response, "malformed-request");

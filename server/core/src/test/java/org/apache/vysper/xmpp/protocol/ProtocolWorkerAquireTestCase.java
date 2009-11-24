@@ -57,7 +57,7 @@ public class ProtocolWorkerAquireTestCase extends TestCase {
         Stanza stanza = protocolWorker.aquireStanza(sessionContext, streamParser);
         assertNotNull(stanza);
 
-        Stanza expectedStanza = new StanzaBuilder("ProtocolHandlerTestStanzaHandler", "testNSURI").getFinalStanza();
+        Stanza expectedStanza = new StanzaBuilder("ProtocolHandlerTestStanzaHandler", "testNSURI").addNamespaceAttribute("testNSURI").build();
         assertEquals("stanza full match", expectedStanza, stanza);
 
     }

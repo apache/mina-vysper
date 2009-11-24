@@ -80,7 +80,7 @@ public class ProtocolInitiatedTestCase extends AbstractProtocolStateTestCase {
         Stanza stanza = new ServerResponses().getStreamOpener(true,
                                                               testFrom,
                                                               sessionContext.getXMLLang(),
-                                                              XMPPVersion.VERSION_1_0, null).getFinalStanza();
+                                                              XMPPVersion.VERSION_1_0, null).build();
         protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza, sessionStateHolder);
     }
 
@@ -154,7 +154,7 @@ public class ProtocolInitiatedTestCase extends AbstractProtocolStateTestCase {
     }
 
     protected Stanza getVersionResponse(XMPPVersion versionSent) {
-        Stanza stanza = new ServerResponses().getStreamOpener(true, testFrom, null, versionSent, null).getFinalStanza();
+        Stanza stanza = new ServerResponses().getStreamOpener(true, testFrom, null, versionSent, null).build();
         protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza, sessionStateHolder);
 
         return sessionContext.getNextRecordedResponse();
@@ -166,7 +166,7 @@ public class ProtocolInitiatedTestCase extends AbstractProtocolStateTestCase {
             .addNamespaceAttribute(NamespaceURIs.JABBER_CLIENT)
             .addAttribute(NamespaceURIs.XML, "lang", "en_UK")
             .addAttribute("version", XMPPVersion.VERSION_1_0.toString());
-        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.getFinalStanza(), sessionStateHolder);
+        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(), sessionStateHolder);
 
         Stanza response = sessionContext.getNextRecordedResponse();
         XMLElementVerifier responseVerifier = response.getVerifier();

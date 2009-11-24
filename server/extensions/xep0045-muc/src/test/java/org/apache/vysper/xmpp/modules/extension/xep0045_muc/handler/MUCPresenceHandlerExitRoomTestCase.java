@@ -27,7 +27,7 @@ public class MUCPresenceHandlerExitRoomTestCase extends AbstractMUCHandlerTestCa
     private Stanza exitRoom(Entity occupantJid, Entity roomJid, String status) throws ProtocolException {
         StanzaBuilder stanzaBuilder = StanzaBuilder.createPresenceStanza(occupantJid, roomJid, null, PresenceStanzaType.UNAVAILABLE, null, status);
 
-        Stanza presenceStanza = stanzaBuilder.getFinalStanza();
+        Stanza presenceStanza = stanzaBuilder.build();
         ResponseStanzaContainer container = handler.execute(presenceStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, null);
         if(container != null) {
             return container.getResponseStanza();

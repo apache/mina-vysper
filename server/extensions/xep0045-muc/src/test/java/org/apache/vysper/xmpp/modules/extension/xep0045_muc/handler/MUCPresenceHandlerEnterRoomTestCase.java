@@ -56,7 +56,7 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestC
             }
             stanzaBuilder.addPreparedElement(new X(xInnerElms));
         }
-        Stanza presenceStanza = stanzaBuilder.getFinalStanza();
+        Stanza presenceStanza = stanzaBuilder.build();
         ResponseStanzaContainer container = handler.execute(presenceStanza, userSessionContext.getServerRuntimeContext(), true, userSessionContext, null);
         if(container != null) {
             return container.getResponseStanza();
@@ -187,7 +187,7 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestC
 
     private void assertPresenceErrorStanza(Stanza response, Entity from, Entity to,
             String type, String errorName) {
-        XMLElement xElement = new XMLElementBuilder("x", NamespaceURIs.XEP0045_MUC).getFinalElement();
+        XMLElement xElement = new XMLElementBuilder("x", NamespaceURIs.XEP0045_MUC).build();
         assertErrorStanza(response, "presence", from, to, type, errorName, xElement);
     }
 
@@ -242,11 +242,11 @@ public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestC
     public void testDiscussionHistory() throws Exception {
         // add some messages
         Room room = conference.findOrCreateRoom(ROOM1_JID, "Room 1");
-        room.getHistory().append(StanzaBuilder.createMessageStanza(OCCUPANT2_JID, ROOM1_JID, MessageStanzaType.GROUPCHAT, null, "Body").getFinalStanza(), 
+        room.getHistory().append(StanzaBuilder.createMessageStanza(OCCUPANT2_JID, ROOM1_JID, MessageStanzaType.GROUPCHAT, null, "Body").build(), 
                 new Occupant(OCCUPANT2_JID, "nick2", Affiliation.None, Role.Participant));
-        room.getHistory().append(StanzaBuilder.createMessageStanza(OCCUPANT2_JID, ROOM1_JID, MessageStanzaType.GROUPCHAT, null, "Body2").getFinalStanza(), 
+        room.getHistory().append(StanzaBuilder.createMessageStanza(OCCUPANT2_JID, ROOM1_JID, MessageStanzaType.GROUPCHAT, null, "Body2").build(), 
                 new Occupant(OCCUPANT2_JID, "nick2", Affiliation.None, Role.Participant));
-        room.getHistory().append(StanzaBuilder.createMessageStanza(OCCUPANT2_JID, ROOM1_JID, MessageStanzaType.GROUPCHAT, null, "Body3").getFinalStanza(), 
+        room.getHistory().append(StanzaBuilder.createMessageStanza(OCCUPANT2_JID, ROOM1_JID, MessageStanzaType.GROUPCHAT, null, "Body3").build(), 
                 new Occupant(OCCUPANT2_JID, "nick2", Affiliation.None, Role.Participant));
         
         // now, let user 1 enter room

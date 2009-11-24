@@ -30,7 +30,7 @@ public class StackNamespaceResolverTestCase extends TestCase {
 	public void testPushSingleElement() {
 		XMLElement elm = new XMLElementBuilder("foo")
 			.addNamespaceAttribute("pr1", "url1")
-			.addNamespaceAttribute("pr2", "url2").getFinalElement();
+			.addNamespaceAttribute("pr2", "url2").build();
 		
 		resolver.push(elm);
 		
@@ -65,7 +65,7 @@ public class StackNamespaceResolverTestCase extends TestCase {
 	public void testPushSingleNamespacedElement() {
 		XMLElement elm = new XMLElementBuilder("foo", "defaulturl")
 			.addNamespaceAttribute("pr1", "url1")
-			.addNamespaceAttribute("pr2", "url2").getFinalElement();
+			.addNamespaceAttribute("pr2", "url2").build();
 		
 		resolver.push(elm);
 		
@@ -79,8 +79,8 @@ public class StackNamespaceResolverTestCase extends TestCase {
 	}
 	
 	public void testSimpleInheritance() {
-		XMLElement elm = new XMLElementBuilder("foo", "defaulturl").getFinalElement();
-		XMLElement innerElm = new XMLElementBuilder("inner", "innerdefaulturl").getFinalElement(); 
+		XMLElement elm = new XMLElementBuilder("foo", "defaulturl").build();
+		XMLElement innerElm = new XMLElementBuilder("inner", "innerdefaulturl").build(); 
 		
 		resolver.push(elm);
 		
@@ -98,8 +98,8 @@ public class StackNamespaceResolverTestCase extends TestCase {
 	public void testPrefixedInheritance() {
 		XMLElement elm = new XMLElementBuilder("foo", "url1")
 		.addNamespaceAttribute("pr1", "url1")
-		.getFinalElement();
-		XMLElement innerElm = new XMLElementBuilder("inner", "url1").getFinalElement(); 
+		.build();
+		XMLElement innerElm = new XMLElementBuilder("inner", "url1").build(); 
 		
 		resolver.push(elm);
 		

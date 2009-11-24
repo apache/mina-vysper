@@ -34,7 +34,7 @@ public class AuthorizationResponses {
     public Stanza getSuccess() {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("success");
         stanzaBuilder.addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
-        return stanzaBuilder.getFinalStanza();
+        return stanzaBuilder.build();
     }
 
     public Stanza getFailureNotAuthorized() {
@@ -43,7 +43,7 @@ public class AuthorizationResponses {
 
     public Stanza getFailure(SASLFailureType failureType) {
         return new StanzaBuilder("failure").addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
-                .startInnerElement(failureType.value()).endInnerElement().getFinalStanza();
+                .startInnerElement(failureType.value()).endInnerElement().build();
     }
     public Stanza getFailureMalformedRequest() {
         return getFailure(SASLFailureType.MALFORMED_REQUEST);

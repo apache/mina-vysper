@@ -42,7 +42,7 @@ public abstract class AbstractMUCMessageHandlerTestCase extends AbstractMUCHandl
             stanzaBuilder.addPreparedElement(x);
         }
 
-        Stanza messageStanza = stanzaBuilder.getFinalStanza();
+        Stanza messageStanza = stanzaBuilder.build();
         ResponseStanzaContainer container = handler.execute(messageStanza,
                 sessionContext.getServerRuntimeContext(), true, sessionContext,
                 null);
@@ -68,7 +68,7 @@ public abstract class AbstractMUCMessageHandlerTestCase extends AbstractMUCHandl
         Stanza errorStanza = sendMessage(OCCUPANT1_JID, ROOM1_JID,
                 GROUPCHAT, body);
 
-        XMLElement expectedBody = new XMLElementBuilder("body").addText(body).getFinalElement();
+        XMLElement expectedBody = new XMLElementBuilder("body").addText(body).build();
         assertMessageErrorStanza(errorStanza, ROOM1_JID, OCCUPANT1_JID, "modify",
                 expectedErrorName,expectedBody);
 

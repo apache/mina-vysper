@@ -131,7 +131,7 @@ public class MUCMessageHandler extends DefaultMessageHandler {
                             replaceAttributes.add(new Attribute("to", occupent.getJid().getFullQualifiedName()));
                             
                             relayStanza(occupent.getJid(), 
-                                    StanzaBuilder.createClone(stanza, true, replaceAttributes).getFinalStanza(),
+                                    StanzaBuilder.createClone(stanza, true, replaceAttributes).build(),
                                     serverRuntimeContext);
                             
                         }
@@ -170,7 +170,7 @@ public class MUCMessageHandler extends DefaultMessageHandler {
                                 replaceAttributes.add(new Attribute("to", receivingOccupant.getJid().getFullQualifiedName()));
                                 
                                 relayStanza(receivingOccupant.getJid(), 
-                                        StanzaBuilder.createClone(stanza, true, replaceAttributes).getFinalStanza(),
+                                        StanzaBuilder.createClone(stanza, true, replaceAttributes).build(),
                                         serverRuntimeContext);
                             } else {
                                 // TODO correct error?

@@ -72,7 +72,7 @@ public class StanzaSessionTestCase extends TestCase {
                     .addAttribute("from", "me@vysper.org")
                     .addAttribute("to", "vysper.org")
                     .addNamespaceAttribute("jabber:client")
-                .getFinalStanza()
+                .build()
         );
         Stanza stanza = waitForStanza(session);
         assertNotNull(stanza);
@@ -81,7 +81,7 @@ public class StanzaSessionTestCase extends TestCase {
                 new StanzaBuilder("starttls")
                     .addAttribute("from", "me@vysper.org")
                     .addNamespaceAttribute("urn:ietf:params:xml:ns:xmpp-tls")
-                .getFinalStanza()
+                .build()
         );
         stanza = waitForStanza(session);
         assertNotNull(stanza);
@@ -92,7 +92,7 @@ public class StanzaSessionTestCase extends TestCase {
                     .addAttribute("from", "me@vysper.org")
                     .addAttribute("to", "vysper.org")
                     .addNamespaceAttribute("jabber:client")
-                .getFinalStanza()
+                .build()
         );
         stanza = waitForStanza(session);
         assertNotNull(stanza);

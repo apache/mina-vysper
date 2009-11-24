@@ -76,7 +76,7 @@ abstract public class LatestPresenceCacheTestCase extends PresenceHandlerBaseTes
     }
 
     public XMPPCoreStanza sendInitialPresence(SessionStateHolder sessionStateHolder, TestUser user) {
-        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(user.getEntityFQ(), null, null, null, null, null).getFinalStanza());
+        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(user.getEntityFQ(), null, null, null, null, null).build());
         handler.execute(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
         return initialPresence;
     }

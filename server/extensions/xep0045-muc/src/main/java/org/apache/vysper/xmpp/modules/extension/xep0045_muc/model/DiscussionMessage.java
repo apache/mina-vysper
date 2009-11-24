@@ -77,7 +77,7 @@ public class DiscussionMessage {
         Delay delay = new Delay(delayFrom, timestamp);
         builder.addPreparedElement(delay);
         
-        return builder.getFinalStanza();
+        return builder.build();
     }
     
     public boolean hasSubject() {

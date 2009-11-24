@@ -58,7 +58,7 @@ public class ProtocolWorkerStateAwarenessTestCase extends TestCase {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT);
         stanzaBuilder.addAttribute("id", "1");
         stanzaBuilder.addAttribute("type", "get");
-        Stanza stanza = stanzaBuilder.getFinalStanza();
+        Stanza stanza = stanzaBuilder.build();
 
         assertNotAuthorized(stanza);
     }
@@ -67,7 +67,7 @@ public class ProtocolWorkerStateAwarenessTestCase extends TestCase {
 
         StanzaBuilder stanzaBuilder = new StanzaBuilder("presence", NamespaceURIs.JABBER_CLIENT);
         // TODO? add more presence specifics
-        Stanza stanza = stanzaBuilder.getFinalStanza();
+        Stanza stanza = stanzaBuilder.build();
 
         assertNotAuthorized(stanza);
     }
@@ -76,7 +76,7 @@ public class ProtocolWorkerStateAwarenessTestCase extends TestCase {
 
         StanzaBuilder stanzaBuilder = new StanzaBuilder("message", NamespaceURIs.JABBER_CLIENT);
         // TODO? add more message specifics
-        Stanza stanza = stanzaBuilder.getFinalStanza();
+        Stanza stanza = stanzaBuilder.build();
 
         assertNotAuthorized(stanza);
     }

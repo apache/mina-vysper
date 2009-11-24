@@ -38,7 +38,7 @@ import java.util.List;
 public class ServerResponses {
 
     public Stanza getStreamOpenerForError(boolean forClient, Entity from, XMPPVersion version, Stanza errorStanza) {
-        return getStreamOpener(forClient, from, null, version, errorStanza).getFinalStanza();
+        return getStreamOpener(forClient, from, null, version, errorStanza).build();
     }
 
     public Stanza getStreamOpener(boolean forClient, Entity from, XMPPVersion version, SessionContext sessionContext) {
@@ -54,7 +54,7 @@ public class ServerResponses {
 
         StanzaBuilder stanzaBuilder = getStreamOpener(forClient, from, sessionContext.getXMLLang(), version, sessionContext.getSessionId(), innerFeatureStanza);
 
-        return stanzaBuilder.getFinalStanza();
+        return stanzaBuilder.build();
     }
 
     public StanzaBuilder getStreamOpener(boolean forClient, Entity from, String xmlLang, XMPPVersion version, Stanza innerStanza) {
@@ -82,7 +82,7 @@ public class ServerResponses {
             }
         stanzaBuilder.endInnerElement();
 
-        return stanzaBuilder.getFinalStanza();
+        return stanzaBuilder.build();
     }
 
     public Stanza getFeaturesForAuthentication(List<SASLMechanism> authenticationMethods) {
@@ -95,7 +95,7 @@ public class ServerResponses {
             }
             stanzaBuilder.endInnerElement();
 
-        return stanzaBuilder.getFinalStanza();
+        return stanzaBuilder.build();
     }
 
     private Stanza getFeaturesForSession() {
@@ -112,7 +112,7 @@ public class ServerResponses {
             .startInnerElement("required").endInnerElement();
         stanzaBuilder.endInnerElement();
 
-        return stanzaBuilder.getFinalStanza();
+        return stanzaBuilder.build();
     }
 
     protected StanzaBuilder startFeatureStanza() {
@@ -125,14 +125,14 @@ public class ServerResponses {
 
         StanzaBuilder stanzaBuilder = new StanzaBuilder("proceed");
         stanzaBuilder.addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS);
-        return stanzaBuilder.getFinalStanza();
+        return stanzaBuilder.build();
     }
 
     public Stanza getAuthAborted() {
 
         StanzaBuilder stanzaBuilder = new StanzaBuilder("aborted");
         stanzaBuilder.addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS);
-        return stanzaBuilder.getFinalStanza();
+        return stanzaBuilder.build();
     }
 
 }

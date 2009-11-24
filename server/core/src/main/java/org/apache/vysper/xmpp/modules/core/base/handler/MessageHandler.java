@@ -109,7 +109,7 @@ public class MessageHandler extends XMPPCoreStanzaHandler {
                 for (XMLElement preparedElement : stanza.getInnerElements()) {
                     stanzaBuilder.addPreparedElement(preparedElement);
                 }
-                stanza = XMPPCoreStanza.getWrapper(stanzaBuilder.getFinalStanza());
+                stanza = XMPPCoreStanza.getWrapper(stanzaBuilder.build());
             }
 
             StanzaRelay stanzaRelay = serverRuntimeContext.getStanzaRelay();

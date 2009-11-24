@@ -96,7 +96,7 @@ public class PubSubOwnerDeleteNodeHandler extends AbstractPubSubOwnerHandler {
         sendDeleteNotifications(serverRuntimeContext, sender, nodeName, node);
         root.deleteNode(nodeName);
 
-        return new IQStanza(sb.getFinalStanza());
+        return new IQStanza(sb.build());
     }
 
     /**

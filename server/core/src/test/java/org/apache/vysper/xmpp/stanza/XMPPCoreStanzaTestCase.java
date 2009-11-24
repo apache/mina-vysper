@@ -30,7 +30,7 @@ public class XMPPCoreStanzaTestCase extends TestCase {
         StanzaBuilder responseBuilder = new StanzaBuilder("iq", NamespaceURIs.JABBER_SERVER);
         responseBuilder.addAttribute("id", "xzy");
         responseBuilder.addAttribute("type", IQStanzaType.RESULT.value());
-        Stanza stanza = responseBuilder.getFinalStanza();
+        Stanza stanza = responseBuilder.build();
         // do not invoke some other getVerifier()s until getCoreVerifier() 
         XMPPCoreStanza coreStanza = new IQStanza(stanza);
         assertNotNull(coreStanza.getCoreVerifier());

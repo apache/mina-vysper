@@ -125,7 +125,7 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
         buildSuccessStanza(sb, nodeName, strSubJID, id);
 
         sb.endInnerElement(); // pubsub
-        return new IQStanza(sb.getFinalStanza());
+        return new IQStanza(sb.build());
     }
 
     /**

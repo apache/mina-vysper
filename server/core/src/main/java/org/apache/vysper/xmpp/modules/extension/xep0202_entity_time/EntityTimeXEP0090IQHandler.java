@@ -83,6 +83,6 @@ public class EntityTimeXEP0090IQHandler extends DefaultIQHandler {
 
         endInnerElement();
 
-        return stanzaBuilder.getFinalStanza();
+        return stanzaBuilder.build();
     }
 }

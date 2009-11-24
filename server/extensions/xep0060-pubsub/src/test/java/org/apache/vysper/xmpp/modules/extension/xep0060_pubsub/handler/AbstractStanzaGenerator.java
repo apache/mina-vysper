@@ -73,6 +73,6 @@ public abstract class AbstractStanzaGenerator {
 
         stanzaBuilder.endInnerElement();
 
-        return stanzaBuilder.getFinalStanza();
+        return stanzaBuilder.build();
     }
 }

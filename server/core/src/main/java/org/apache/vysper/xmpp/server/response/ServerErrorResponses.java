@@ -81,7 +81,7 @@ public class ServerErrorResponses
             stanzaBuilder.addPreparedElement(applicationSpecificError);
         }
 
-        return stanzaBuilder.getFinalStanza();
+        return stanzaBuilder.build();
     }
 
     /**
@@ -107,7 +107,7 @@ public class ServerErrorResponses
 
         fillErrorStanza(stanza, type, errorCondition, errorText, errorLang, errorConditionElement, responseBuilder);
 
-        return responseBuilder.getFinalStanza();
+        return responseBuilder.build();
     }
 
     private void fillErrorStanza(XMPPCoreStanza stanza, StanzaErrorType type, StanzaErrorCondition errorCondition, String errorText, String errorLang, XMLElement errorConditionElement, StanzaBuilder responseBuilder) {
@@ -141,7 +141,7 @@ public class ServerErrorResponses
     public Stanza getTLSFailure() {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("failure");
         stanzaBuilder.addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS);
-        return stanzaBuilder.getFinalStanza();
+        return stanzaBuilder.build();
     }
 
     public Stanza getSASLFailure(SASLFailureType failureType) {
@@ -150,6 +150,6 @@ public class ServerErrorResponses
         if (failureType != null) {
             stanzaBuilder.startInnerElement(failureType.toString()).endInnerElement();
         }
-        return stanzaBuilder.getFinalStanza();
+        return stanzaBuilder.build();
     }
 }

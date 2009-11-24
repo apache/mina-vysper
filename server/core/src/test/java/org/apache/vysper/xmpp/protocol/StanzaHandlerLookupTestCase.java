@@ -78,7 +78,7 @@ public class StanzaHandlerLookupTestCase extends TestCase {
         StanzaHandlerLookup stanzaHandlerLookup = initStanzaHandlerLookup();
         stanzaHandlerLookup.addDictionary(new BaseStreamStanzaDictionary());
 
-        Stanza stanza = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT).getFinalStanza();
+        Stanza stanza = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT).build();
         StanzaHandler handler = stanzaHandlerLookup.getHandler(stanza);
 
         assertNotNull("handler found", handler);
@@ -94,7 +94,7 @@ public class StanzaHandlerLookupTestCase extends TestCase {
         StanzaHandlerLookup stanzaHandlerLookup = initStanzaHandlerLookup();
         stanzaHandlerLookup.addDictionary(new BaseStreamStanzaDictionary());
 
-        Stanza stanza = new StanzaBuilder("iq", NamespaceURIs.JABBER_SERVER).getFinalStanza();
+        Stanza stanza = new StanzaBuilder("iq", NamespaceURIs.JABBER_SERVER).build();
         StanzaHandler handler = stanzaHandlerLookup.getHandler(stanza);
 
         assertNotNull("handler found", handler);
@@ -106,7 +106,7 @@ public class StanzaHandlerLookupTestCase extends TestCase {
         StanzaHandlerLookup stanzaHandlerLookup = initStanzaHandlerLookup();
         stanzaHandlerLookup.addDictionary(new BaseStreamStanzaDictionary());
 
-        Stanza stanza = new StanzaBuilder("iq", "arbitraryNamespace").getFinalStanza();
+        Stanza stanza = new StanzaBuilder("iq", "arbitraryNamespace").build();
         StanzaHandler handler = stanzaHandlerLookup.getHandler(stanza);
 
         assertTrue("iq handler with arbitrary namespace not found", handler instanceof IQHandler);
@@ -116,7 +116,7 @@ public class StanzaHandlerLookupTestCase extends TestCase {
         StanzaHandlerLookup stanzaHandlerLookup = initStanzaHandlerLookup();
         stanzaHandlerLookup.addDictionary(new BaseStreamStanzaDictionary());
 
-        Stanza stanza = new StanzaBuilder("presence", NamespaceURIs.JABBER_CLIENT).getFinalStanza();
+        Stanza stanza = new StanzaBuilder("presence", NamespaceURIs.JABBER_CLIENT).build();
         StanzaHandler handler = stanzaHandlerLookup.getHandler(stanza);
 
         assertNotNull("handler found", handler);
@@ -127,7 +127,7 @@ public class StanzaHandlerLookupTestCase extends TestCase {
         StanzaHandlerLookup stanzaHandlerLookup = initStanzaHandlerLookup();
         stanzaHandlerLookup.addDictionary(new BaseStreamStanzaDictionary());
 
-        Stanza stanza = new StanzaBuilder("message", NamespaceURIs.JABBER_CLIENT).getFinalStanza();
+        Stanza stanza = new StanzaBuilder("message", NamespaceURIs.JABBER_CLIENT).build();
         StanzaHandler handler = stanzaHandlerLookup.getHandler(stanza);
 
         assertNotNull("handler found", handler);
@@ -168,7 +168,7 @@ public class StanzaHandlerLookupTestCase extends TestCase {
             stanzaBuilder.addAttribute("to", to);
         }
         stanzaBuilder.startInnerElement(name, namespaceURI).endInnerElement();
-        Stanza stanza = stanzaBuilder.getFinalStanza();
+        Stanza stanza = stanzaBuilder.build();
         return stanza;
     }
 }

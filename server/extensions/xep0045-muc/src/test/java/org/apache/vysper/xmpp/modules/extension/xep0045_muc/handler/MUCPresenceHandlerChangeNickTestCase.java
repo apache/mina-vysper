@@ -29,7 +29,7 @@ public class MUCPresenceHandlerChangeNickTestCase extends AbstractMUCHandlerTest
         stanzaBuilder.startInnerElement("x", NamespaceURIs.XEP0045_MUC);
         
         stanzaBuilder.endInnerElement();
-        Stanza presenceStanza = stanzaBuilder.getFinalStanza();
+        Stanza presenceStanza = stanzaBuilder.build();
         ResponseStanzaContainer container = handler.execute(presenceStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, null);
         if(container != null) {
             return container.getResponseStanza();

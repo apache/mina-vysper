@@ -55,7 +55,7 @@ public class DiscussionMessageTestCase extends TestCase {
         StanzaBuilder builder = StanzaBuilder.createMessageStanza(FROM, ROOM_JID, null, null);
         builder.startInnerElement("subject").addText(SUBJECT).endInnerElement();
         
-        DiscussionMessage item = new DiscussionMessage(builder.getFinalStanza(), FROM_OCCUPANT, TIMESTAMP);
+        DiscussionMessage item = new DiscussionMessage(builder.build(), FROM_OCCUPANT, TIMESTAMP);
         assertEquals(NICK, item.getNick());
         assertEquals(TIMESTAMP, item.getTimestamp());
         assertFalse(item.hasBody());
@@ -66,7 +66,7 @@ public class DiscussionMessageTestCase extends TestCase {
     public void testBodyMessage() {
         StanzaBuilder builder = StanzaBuilder.createMessageStanza(FROM, ROOM_JID, null, BODY);
         
-        DiscussionMessage item = new DiscussionMessage(builder.getFinalStanza(), FROM_OCCUPANT, TIMESTAMP);
+        DiscussionMessage item = new DiscussionMessage(builder.build(), FROM_OCCUPANT, TIMESTAMP);
         assertEquals(NICK, item.getNick());
         assertEquals(TIMESTAMP, item.getTimestamp());
         assertTrue(item.hasBody());
@@ -75,7 +75,7 @@ public class DiscussionMessageTestCase extends TestCase {
 
     public void testCreateStanza() throws Exception {
         StanzaBuilder builder = StanzaBuilder.createMessageStanza(FROM, ROOM_JID, MessageStanzaType.GROUPCHAT, null, BODY);
-        Stanza inStanza = builder.getFinalStanza();
+        Stanza inStanza = builder.build();
         DiscussionMessage item = new DiscussionMessage(inStanza, FROM_OCCUPANT, TIMESTAMP);
         
         Entity to = TestUtil.parseUnchecked("user2@vysper.org/res");

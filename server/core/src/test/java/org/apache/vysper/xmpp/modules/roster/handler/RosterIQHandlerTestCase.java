@@ -42,7 +42,7 @@ public class RosterIQHandlerTestCase extends TestCase {
         StanzaBuilder stanzaBuilder = createRosterGet();
 
         assertEquals(ResourceState.CONNECTED, getResourceState());
-        handler.execute(stanzaBuilder.getFinalStanza(), sessionContext.getServerRuntimeContext(), true, sessionContext, null);
+        handler.execute(stanzaBuilder.build(), sessionContext.getServerRuntimeContext(), true, sessionContext, null);
         assertEquals(ResourceState.CONNECTED_INTERESTED, getResourceState());
         
 //        C: <iq from='juliet@example.com/balcony'
@@ -60,7 +60,7 @@ public class RosterIQHandlerTestCase extends TestCase {
         // mock intial presence resource state change
         sessionContext.getServerRuntimeContext().getResourceRegistry().setResourceState(boundResourceId, ResourceState.AVAILABLE);
         
-        handler.execute(stanzaBuilder.getFinalStanza(), sessionContext.getServerRuntimeContext(), true, sessionContext, null);
+        handler.execute(stanzaBuilder.build(), sessionContext.getServerRuntimeContext(), true, sessionContext, null);
         assertEquals(ResourceState.AVAILABLE_INTERESTED, getResourceState());
     }
 

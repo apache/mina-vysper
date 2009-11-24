@@ -166,7 +166,7 @@ public class PubSubDiscoInfoTestCase extends AbstractPublishSubscribeTestCase {
             stanzaBuilder.startInnerElement("query");
             stanzaBuilder.addNamespaceAttribute(getNamespace());
 
-            return stanzaBuilder.getFinalStanza();
+            return stanzaBuilder.build();
         }
         
         @Override
@@ -178,7 +178,7 @@ public class PubSubDiscoInfoTestCase extends AbstractPublishSubscribeTestCase {
 
             stanzaBuilder.endInnerElement();
 
-            return stanzaBuilder.getFinalStanza();
+            return stanzaBuilder.build();
         }
     }
 }

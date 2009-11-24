@@ -28,7 +28,7 @@ public class MUCPresenceHandlerVerifyTestCase extends TestCase {
         builder.startInnerElement("x", NamespaceURIs.XEP0045_MUC);
         builder.endInnerElement();
         
-        assertFalse(presenceHandler.verify(builder.getFinalStanza()));
+        assertFalse(presenceHandler.verify(builder.build()));
     }
 
 
@@ -37,7 +37,7 @@ public class MUCPresenceHandlerVerifyTestCase extends TestCase {
         builder.startInnerElement("x", NamespaceURIs.XEP0045_MUC);
         builder.endInnerElement();
         
-        assertTrue(presenceHandler.verify(builder.getFinalStanza()));
+        assertTrue(presenceHandler.verify(builder.build()));
     }
 
     public void testVerifyWithNonMUCNamespace() {
@@ -45,14 +45,14 @@ public class MUCPresenceHandlerVerifyTestCase extends TestCase {
         builder.startInnerElement("x", "foo");
         builder.endInnerElement();
         
-        assertFalse(presenceHandler.verify(builder.getFinalStanza()));
+        assertFalse(presenceHandler.verify(builder.build()));
     }
 
     
     public void testVerifyWithoutMUCNamespace() {
         StanzaBuilder builder = StanzaBuilder.createPresenceStanza(FROM, TO, null, null, null, null);
         
-        assertTrue(presenceHandler.verify(builder.getFinalStanza()));
+        assertTrue(presenceHandler.verify(builder.build()));
     }
     
     
@@ -60,6 +60,6 @@ public class MUCPresenceHandlerVerifyTestCase extends TestCase {
         StanzaBuilder builder = StanzaBuilder.createPresenceStanza(FROM, TO, null, null, null, null);
         builder.startInnerElement("foo").endInnerElement();
         
-        assertTrue(presenceHandler.verify(builder.getFinalStanza()));
+        assertTrue(presenceHandler.verify(builder.build()));
     }
 }

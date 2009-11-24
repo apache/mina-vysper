@@ -91,6 +91,6 @@ public class PubSubCreateNodeHandler extends AbstractPubSubGeneralHandler {
         LeafNode node = new LeafNode(serviceConfiguration, nodeName, sender);
         root.add(node);
 
-        return new IQStanza(sb.getFinalStanza());
+        return new IQStanza(sb.build());
     }
 }

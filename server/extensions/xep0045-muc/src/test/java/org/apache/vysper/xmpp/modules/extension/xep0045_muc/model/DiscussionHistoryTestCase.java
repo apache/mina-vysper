@@ -67,14 +67,14 @@ public class DiscussionHistoryTestCase extends TestCase {
         int maxStanzas = DiscussionHistory.DEFAULT_HISTORY_SIZE + 1;
         for(int i = 0; i<maxStanzas; i++) {
             history.append(
-                    StanzaBuilder.createMessageStanza(FROM, ROOM_JID, MessageStanzaType.GROUPCHAT, null, BODY + i).getFinalStanza(),
+                    StanzaBuilder.createMessageStanza(FROM, ROOM_JID, MessageStanzaType.GROUPCHAT, null, BODY + i).build(),
                     FROM_OCCUPANT, createTimestamp(maxStanzas - i));
         }
         
         // add a subject message
         history.append(
                 StanzaBuilder.createMessageStanza(FROM, ROOM_JID, MessageStanzaType.GROUPCHAT, null, null).
-                startInnerElement("subject").addText(SUBJECT).endInnerElement().getFinalStanza(),
+                startInnerElement("subject").addText(SUBJECT).endInnerElement().build(),
                 FROM_OCCUPANT);
     }
 

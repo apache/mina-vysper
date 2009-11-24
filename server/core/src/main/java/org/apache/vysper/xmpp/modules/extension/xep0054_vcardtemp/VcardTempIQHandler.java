@@ -83,9 +83,9 @@ public class VcardTempIQHandler extends DefaultIQHandler {
         boolean success = persistenceManager.setVcard(from, vcardContent);
 
         if (success) {
-            return StanzaBuilder.createIQStanza(null, from, IQStanzaType.RESULT, stanza.getID()).getFinalStanza();
+            return StanzaBuilder.createIQStanza(null, from, IQStanzaType.RESULT, stanza.getID()).build();
         } else {
-            return StanzaBuilder.createIQStanza(null, from, IQStanzaType.ERROR, stanza.getID()).getFinalStanza();
+            return StanzaBuilder.createIQStanza(null, from, IQStanzaType.ERROR, stanza.getID()).build();
         }
     }
 
@@ -122,11 +122,11 @@ public class VcardTempIQHandler extends DefaultIQHandler {
                         endInnerElement().
                     endInnerElement();
             }
-            return stanzaBuilder.getFinalStanza();
+            return stanzaBuilder.build();
         }
 
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID());
         stanzaBuilder.addText(vcardXml);
-        return stanzaBuilder.getFinalStanza();
+        return stanzaBuilder.build();
     }
 }

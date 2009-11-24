@@ -81,7 +81,7 @@ public class MessageHandlerRelayTestCase extends TestCase {
         assertNull(receiverUser.getNextStanza()); // nothing there yet
         assertNull(senderUser.getNextStanza()); // nothing there yet
 
-        Stanza stanza = stanzaBuilder.getFinalStanza();
+        Stanza stanza = stanzaBuilder.build();
         ResponseStanzaContainer responseStanzaContainer = messageHandler.execute(stanza, senderSessionContext.getServerRuntimeContext(), true, senderSessionContext, null);
 
         Stanza receivedStanza = receiverUser.getNextStanza();
@@ -106,11 +106,11 @@ public class MessageHandlerRelayTestCase extends TestCase {
         stanzaRelay.add(sender, senderQueue);
         stanzaRelay.add(receiver, receiverQueue);
 
-        Stanza successfulMessageStanza = StanzaBuilder.createMessageStanza(sender, receiver, "en", "info").getFinalStanza();
+        Stanza successfulMessageStanza = StanzaBuilder.createMessageStanza(sender, receiver, "en", "info").build();
         ResponseStanzaContainer responseStanzaContainer = messageHandler.execute(successfulMessageStanza, senderSessionContext.getServerRuntimeContext(), true, senderSessionContext, null);
         assertEquals(successfulMessageStanza, receiverQueue.getNext());
 
-        Stanza failureMessageStanza = StanzaBuilder.createMessageStanza(sender, noReceiver, "en", "info").getFinalStanza();
+        Stanza failureMessageStanza = StanzaBuilder.createMessageStanza(sender, noReceiver, "en", "info").build();
         responseStanzaContainer = messageHandler.execute(failureMessageStanza, senderSessionContext.getServerRuntimeContext(), true, senderSessionContext, null);
         assertNull(receiverQueue.getNext());
         Stanza rejectionStanza = senderQueue.getNext();

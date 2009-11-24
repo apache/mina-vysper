@@ -433,7 +433,7 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
 
         for (Entity to : tos) {
             toFromReplacements.add(new Attribute("to", to.getFullQualifiedName()));
-            Stanza outgoingStanza = StanzaBuilder.createClone(original, true, toFromReplacements).getFinalStanza();
+            Stanza outgoingStanza = StanzaBuilder.createClone(original, true, toFromReplacements).build();
             relayStanza(to, outgoingStanza, sessionContext);
             toFromReplacements.remove(toFromReplacements.size()-1); // clear space for new 'to' attribute
         }

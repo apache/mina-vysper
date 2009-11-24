@@ -48,7 +48,7 @@ public class ServerErrorResponsesTestCase extends TestCase {
         builder.startInnerElement("ping", NamespaceURIs.URN_XMPP_PING);
         builder.endInnerElement();
         
-        Stanza request = builder.getFinalStanza();
+        Stanza request = builder.build();
         IQStanza requestIq = new IQStanza(request);
 
         ServerErrorResponses serverErrorResponses = ServerErrorResponses.getInstance();

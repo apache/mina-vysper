@@ -86,7 +86,7 @@ public class ReturnErrorToSenderFailureStrategy implements DeliveryFailureStrate
                         final Entity from = failedToDeliverStanza.getTo(); // reverse from/to
                         final Entity to = failedToDeliverStanza.getFrom(); // reverse from/to
                         StanzaBuilder builder = StanzaBuilder.createPresenceStanza(from, to, null, UNSUBSCRIBED, null, null);
-                        final Stanza finalStanza = builder.getFinalStanza();
+                        final Stanza finalStanza = builder.build();
                         stanzaRelay.relay(to, finalStanza, IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY);
                         return;
                     }

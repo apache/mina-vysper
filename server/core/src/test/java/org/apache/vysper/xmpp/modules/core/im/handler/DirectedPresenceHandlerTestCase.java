@@ -45,7 +45,7 @@ public class DirectedPresenceHandlerTestCase extends PresenceHandlerBaseTestCase
         setResourceState(initiatingUser.getBoundResourceId(), ResourceState.AVAILABLE_INTERESTED);
 
         // at first, initial presence
-        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), unrelatedUser.getEntityFQ(), null, null, null, null).getFinalStanza());
+        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), unrelatedUser.getEntityFQ(), null, null, null, null).build());
         handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext);
         assertTrue(0 < receiverRelay.getCountDelivered());
 
@@ -63,7 +63,7 @@ public class DirectedPresenceHandlerTestCase extends PresenceHandlerBaseTestCase
         resetRecordedStanzas(); // purge recorded 
 
         // directed unavailable presence 
-        XMPPCoreStanza directedUnvailPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), unrelatedUser.getEntityFQ(), null, PresenceStanzaType.UNAVAILABLE, null, null).getFinalStanza());
+        XMPPCoreStanza directedUnvailPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), unrelatedUser.getEntityFQ(), null, PresenceStanzaType.UNAVAILABLE, null, null).build());
         handler.executeCore(directedUnvailPresence, sessionContext.getServerRuntimeContext(), true, sessionContext);
         assertTrue(0 < receiverRelay.getCountDelivered());
 
@@ -86,7 +86,7 @@ public class DirectedPresenceHandlerTestCase extends PresenceHandlerBaseTestCase
         setResourceState(initiatingUser.getBoundResourceId(), ResourceState.AVAILABLE_INTERESTED);
 
         // at first, initial presence
-        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), unrelatedUser.getEntityFQ(), null, null, null, null).getFinalStanza());
+        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), unrelatedUser.getEntityFQ(), null, null, null, null).build());
         handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext);
 
         // directed presence has been recorded internally
@@ -96,7 +96,7 @@ public class DirectedPresenceHandlerTestCase extends PresenceHandlerBaseTestCase
         resetRecordedStanzas(); // purge recorded 
 
         // GENERAL unavailable presence 
-        XMPPCoreStanza generalUnavailable = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), null, null, PresenceStanzaType.UNAVAILABLE, null, null).getFinalStanza());
+        XMPPCoreStanza generalUnavailable = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), null, null, PresenceStanzaType.UNAVAILABLE, null, null).build());
         handler.executeCore(generalUnavailable, sessionContext.getServerRuntimeContext(), true, sessionContext);
         assertTrue(0 < receiverRelay.getCountDelivered());
         ResourceState resourceState = sessionContext.getServerRuntimeContext().getResourceRegistry().getResourceState(initiatingUser.getBoundResourceId());

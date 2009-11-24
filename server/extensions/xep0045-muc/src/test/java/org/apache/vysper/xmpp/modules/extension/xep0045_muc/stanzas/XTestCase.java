@@ -40,7 +40,7 @@ public class XTestCase extends TestCase {
         builder.startInnerElement("password").addText("secret").endInnerElement();
         builder.endInnerElement();
         
-        X x = X.fromStanza(builder.getFinalStanza());
+        X x = X.fromStanza(builder.build());
         
         assertNotNull(x);
         assertEquals("secret", x.getPasswordValue());

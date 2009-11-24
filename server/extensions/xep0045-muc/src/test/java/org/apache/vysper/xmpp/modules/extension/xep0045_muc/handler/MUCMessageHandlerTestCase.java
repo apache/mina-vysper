@@ -85,7 +85,7 @@ public class MUCMessageHandlerTestCase extends AbstractMUCMessageHandlerTestCase
         // send message to occupant 1 with type groupchat
         Stanza errorStanza = sendMessage(OCCUPANT1_JID, new EntityImpl(ROOM1_JID, "Nick 2"), MessageStanzaType.GROUPCHAT, BODY);
 
-        XMLElement expectedBody = new XMLElementBuilder("body").addText(BODY).getFinalElement();
+        XMLElement expectedBody = new XMLElementBuilder("body").addText(BODY).build();
         assertMessageErrorStanza(errorStanza, ROOM1_JID, OCCUPANT1_JID, "modify",
                 "bad-request", expectedBody);
 

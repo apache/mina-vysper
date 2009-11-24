@@ -33,7 +33,7 @@ public class StanzaBuilderTestCase extends TestCase {
         builder.startInnerElement("foo", "urn:bar");
         builder.endInnerElement();
         
-        Stanza stanza = builder.getFinalStanza();
+        Stanza stanza = builder.build();
         
         XMLElement innerElm = stanza.getFirstInnerElement();
         

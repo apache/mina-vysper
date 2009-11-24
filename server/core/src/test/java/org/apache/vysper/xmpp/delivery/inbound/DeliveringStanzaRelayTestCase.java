@@ -67,7 +67,7 @@ public class DeliveringStanzaRelayTestCase extends TestCase {
         sessionContext.setSessionState(SessionState.AUTHENTICATED);
         resourceRegistry.bindSession(sessionContext);
 
-        Stanza stanza = StanzaBuilder.createMessageStanza(fromEntity, toEntity, "en", "Hello").getFinalStanza();
+        Stanza stanza = StanzaBuilder.createMessageStanza(fromEntity, toEntity, "en", "Hello").build();
 
         try {
             stanzaRelay.relay(toEntity, stanza, new IgnoreFailureStrategy());
@@ -88,7 +88,7 @@ public class DeliveringStanzaRelayTestCase extends TestCase {
         boolean noResourceRemains = resourceRegistry.unbindResource(resource);
         assertTrue(noResourceRemains);
 
-        Stanza stanza = StanzaBuilder.createMessageStanza(fromEntity, toEntity, "en", "Hello").getFinalStanza();
+        Stanza stanza = StanzaBuilder.createMessageStanza(fromEntity, toEntity, "en", "Hello").build();
 
         try {
             stanzaRelay.relay(toEntity, stanza, new IgnoreFailureStrategy());

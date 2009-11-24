@@ -85,7 +85,7 @@ public class PubSubRetrieveAffiliationsHandler extends AbstractPubSubGeneralHand
         buildSuccessStanza(sb, subscriptions);
 
         sb.endInnerElement(); // pubsub
-        return new IQStanza(sb.getFinalStanza());
+        return new IQStanza(sb.build());
     }
 
     /**

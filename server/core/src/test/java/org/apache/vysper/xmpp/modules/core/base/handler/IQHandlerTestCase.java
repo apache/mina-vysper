@@ -56,7 +56,7 @@ public class IQHandlerTestCase extends TestCase {
         sessionContext.setServerToServer();
 
         TestIQHandler iqHandler = new TestIQHandler();
-        ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanzaBuilder.getFinalStanza(), sessionContext.getServerRuntimeContext(), true, sessionContext, null);
+        ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanzaBuilder.build(), sessionContext.getServerRuntimeContext(), true, sessionContext, null);
         Stanza responseStanza = responseStanzaContainer.getResponseStanza();
         XMLElementVerifier verifier = responseStanza.getVerifier();
         assertTrue("error", verifier.nameEquals("error"));
@@ -65,13 +65,13 @@ public class IQHandlerTestCase extends TestCase {
     public void testMissingID() {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT);
         stanzaBuilder.addAttribute("type", "get");
-        assertIQError(stanzaBuilder.getFinalStanza());
+        assertIQError(stanzaBuilder.build());
     }
 
     public void testDoNotRespondToErrorWithError() {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT);
         stanzaBuilder.addAttribute("type", "error");
-        Stanza stanza = stanzaBuilder.getFinalStanza(); // this stanza has no ID
+        Stanza stanza = stanzaBuilder.build(); // this stanza has no ID
 
         IQHandler iqHandler = new IQHandler();
         ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanza, sessionContext.getServerRuntimeContext(), true, sessionContext, null);
@@ -94,14 +94,14 @@ public class IQHandlerTestCase extends TestCase {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT);
         stanzaBuilder.addAttribute("id", "1");
         // missing: stanzaBuilder.addAttribute("type", "get");
-        assertIQError(stanzaBuilder.getFinalStanza());
+        assertIQError(stanzaBuilder.build());
     }
 
     public void testUnsupportedType() {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT);
         stanzaBuilder.addAttribute("id", "1");
         stanzaBuilder.addAttribute("type", "bogus");
-        assertIQError(stanzaBuilder.getFinalStanza());
+        assertIQError(stanzaBuilder.build());
     }
 
     public void testGetAndSetSubelements() {
@@ -128,14 +128,14 @@ public class IQHandlerTestCase extends TestCase {
         stanzaTwoSubs.addAttribute("type", type);
         stanzaTwoSubs.startInnerElement("firstSub").endInnerElement();
         stanzaTwoSubs.startInnerElement("secondSub").endInnerElement();
-        assertIQError(stanzaTwoSubs.getFinalStanza());
+        assertIQError(stanzaTwoSubs.build());
     }
 
     private void assertAnySub(String type) {
         StanzaBuilder stanzaNoSub = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT);
         stanzaNoSub.addAttribute("id", "1");
         stanzaNoSub.addAttribute("type", type);
-        assertIQError(stanzaNoSub.getFinalStanza());
+        assertIQError(stanzaNoSub.build());
     }
 
     public void testGet() {
@@ -145,7 +145,7 @@ public class IQHandlerTestCase extends TestCase {
         stanzaBuilder.startInnerElement("getRequest").endInnerElement();
 
         TestIQHandler iqHandler = new TestIQHandler();
-        ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanzaBuilder.getFinalStanza(), sessionContext.getServerRuntimeContext(), true, sessionContext, null);
+        ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanzaBuilder.build(), sessionContext.getServerRuntimeContext(), true, sessionContext, null);
         IQStanza incomingStanza = iqHandler.getIncomingStanza();
 
         XMPPCoreStanzaVerifier verifier = incomingStanza.getCoreVerifier();

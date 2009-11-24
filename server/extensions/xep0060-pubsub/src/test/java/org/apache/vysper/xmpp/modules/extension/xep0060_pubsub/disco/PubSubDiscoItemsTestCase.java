@@ -206,7 +206,7 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
 
             stanzaBuilder.endInnerElement();
 
-            return stanzaBuilder.getFinalStanza();
+            return stanzaBuilder.build();
         }
         
         @Override
@@ -218,7 +218,7 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
 
             stanzaBuilder.endInnerElement();
 
-            return stanzaBuilder.getFinalStanza();
+            return stanzaBuilder.build();
         }
     }
 }

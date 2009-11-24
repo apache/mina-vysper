@@ -51,7 +51,7 @@ public abstract class AbstractPresenceSpecializedHandler {
                 builder.addPreparedElement(innerElement);
             }
         }
-        return (PresenceStanza) XMPPCoreStanza.getWrapper(builder.getFinalStanza());
+        return (PresenceStanza) XMPPCoreStanza.getWrapper(builder.build());
 	}
 
     protected void relayStanza(Entity receiver, Stanza stanza, SessionContext sessionContext) {

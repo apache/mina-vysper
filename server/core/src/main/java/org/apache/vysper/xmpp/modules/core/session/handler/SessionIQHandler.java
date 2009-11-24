@@ -47,7 +47,7 @@ public class SessionIQHandler extends IQHandler {
 
             case SET:
                 return StanzaBuilder.createIQStanza(null, null, IQStanzaType.RESULT, stanza.getID())
-                                    .addAttribute("from", sessionContext.getServerJID().getFullQualifiedName()).getFinalStanza();
+                                    .addAttribute("from", sessionContext.getServerJID().getFullQualifiedName()).build();
 
             case GET:
             case ERROR:

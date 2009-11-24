@@ -86,7 +86,7 @@ public class MUCHandlerHelper {
         builder.startInnerElement(errorName, NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).endInnerElement();
         builder.endInnerElement();
         
-        return builder.getFinalStanza();
+        return builder.build();
     }
     
     public static Stanza createInviteMessageStanza(Stanza original, String password) throws EntityFormatException {
@@ -124,7 +124,7 @@ public class MUCHandlerHelper {
         
         X newX = new X(NamespaceURIs.XEP0045_MUC_USER, inner);
         builder.addPreparedElement(newX);
-        return builder.getFinalStanza();
+        return builder.build();
     }
 
 }

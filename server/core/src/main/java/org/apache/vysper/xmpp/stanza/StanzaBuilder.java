@@ -20,26 +20,23 @@
 
 package org.apache.vysper.xmpp.stanza;
 
-import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.xmlfragment.Attribute;
-import org.apache.vysper.xmpp.xmlfragment.Renderer;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
-import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
-import org.apache.vysper.xmpp.xmlfragment.XMLText;
-import org.apache.vysper.xmpp.xmlfragment.NamespaceAttribute;
-import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.addressing.EntityImpl;
-
-import java.util.Stack;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+
+import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.xmlfragment.AbstractXMLElementBuilder;
+import org.apache.vysper.xmpp.xmlfragment.Attribute;
+import org.apache.vysper.xmpp.xmlfragment.XMLElement;
+import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 
 /**
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class StanzaBuilder {
+public class StanzaBuilder extends AbstractXMLElementBuilder<StanzaBuilder, Stanza> {
 
     public static StanzaBuilder createIQStanza(Entity from, Entity to, IQStanzaType type, String id) {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("iq");
@@ -173,7 +170,7 @@ public class StanzaBuilder {
      * @return forward stanza
      */
     public static Stanza createForwardStanza(Stanza original, Entity from, Entity to) {
-        return createForward(original, from, to).getFinalStanza();
+        return createForward(original, from, to).build();
     }
 
     class ElementStruct {
@@ -182,15 +179,6 @@ public class StanzaBuilder {
         public List<Attribute> attributes = null;
         public List<XMLFragment> innerFragments = null;
     }
-
-    /**
-     * parent hierarchy for current element
-     */
-    private Stack<ElementStruct> stack = new Stack<ElementStruct>();
-    private ElementStruct currentElement = null;
-    private Stanza resultingStanza = null;
-    private boolean isReset = false;
-
 
     public StanzaBuilder(String stanzaName) {
         this(stanzaName, null);
@@ -201,116 +189,15 @@ public class StanzaBuilder {
     }
 
     public StanzaBuilder(String stanzaName, String namespaceURI, String namespacePrefix) {
-        startNewElement(stanzaName, namespaceURI, namespacePrefix, true);
-        resultingStanza = (Stanza)currentElement.element;
-        stack.push(currentElement);
+    	super(stanzaName, namespaceURI, namespacePrefix);
     }
     
-    private void startNewElement(String name, String namespaceURI, String namespacePrefix, boolean isStanza) {
-        // TODO assert that name does not contain namespace (":")
-        // TODO handle the namespace, given by URI, currently always NULL in Stanza/XMLElement constructors
-        ElementStruct element = new ElementStruct();
-        element.attributes = new ArrayList<Attribute>();
-        element.innerFragments = new ArrayList<XMLFragment>();
-        if (isStanza) {
-            element.element = new Stanza(namespaceURI, name, namespacePrefix, element.attributes, element.innerFragments);
+    protected XMLElement createElement(String namespaceURI, String name, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments) {
+        // when creating the first element, make it a stanza
+        if (currentElement == null) {
+            return new Stanza(namespaceURI, name, namespacePrefix, attributes, innerFragments);
         } else {
-            element.element = new XMLElement(namespaceURI, name, namespacePrefix, element.attributes, element.innerFragments);
+            return new XMLElement(namespaceURI, name, namespacePrefix, attributes, innerFragments);
         }
-        currentElement = element;
-        
-        // must be done after set as currentElement
-        if(namespaceURI != null && namespaceURI.length() > 0) {
-            if(namespacePrefix == null || namespacePrefix.length() == 0) {
-                addNamespaceAttribute(namespaceURI);
-            } else {
-                addNamespaceAttribute(namespacePrefix, namespaceURI);
-            }
-        }
-    }
-
-
-    public StanzaBuilder addNamespaceAttribute(String value) {
-        addAttribute(new NamespaceAttribute(value));
-        return this;
-    }
-
-    public StanzaBuilder addNamespaceAttribute(String namespacePrefix, String value) {
-        addAttribute(new NamespaceAttribute(namespacePrefix, value));
-        return this;
-    }
-
-    public StanzaBuilder addAttribute(String name, String value) {
-    	addAttribute(new Attribute(name, value));
-    	return this;
-    }
-
-    public StanzaBuilder addAttribute(String namespaceUris, String name, String value) {
-    	addAttribute(new Attribute(namespaceUris, name, value));
-    	return this;
-    }
-
-    
-    public StanzaBuilder addAttribute(Attribute attribute) {
-        checkReset();
-        currentElement.attributes.add(attribute);
-        return this;
-    }
-
-    public StanzaBuilder addText(String text) {
-        checkReset();
-        currentElement.innerFragments.add(new XMLText(text));
-        return this;
-    }
-
-    public StanzaBuilder startInnerElement(String name) {
-        return this.startInnerElement(name, null);
-    }
-
-    public StanzaBuilder startInnerElement(String name, String namespaceURI) {
-        checkReset();
-
-        startNewElement(name, namespaceURI, null, false);
-
-        stack.peek().innerFragments.add(currentElement.element); // add new one to its parent
-
-        stack.push(currentElement);
-
-        return this;
-    }
-
-    public StanzaBuilder endInnerElement() {
-        checkReset();
-        if (stack.isEmpty()) throw new IllegalStateException("cannot end beyond top element");
-
-        stack.pop(); // take current off stack and forget (it was added to its parent before)
-        currentElement = stack.peek(); // we again deal with parent, which can be receive additions
-        return this;
-    }
-
-    public StanzaBuilder addPreparedElement(XMLElement preparedElement) {
-        checkReset();
-        currentElement.innerFragments.add(preparedElement);
-        return this;
-    }
-
-    /**
-     * the stanza can only be retrieved once
-     * @return retrieves the stanza and invalidates the builder
-     */
-    public Stanza getFinalStanza() {
-        checkReset();
-        Stanza returnStanza = resultingStanza;
-        resultingStanza = null;
-        isReset = true; // reset
-        stack.clear();
-        return returnStanza;
-    }
-
-    /**
-     * assure that the immutable Stanza object is not changed after it was retrieved
-     */
-    private void checkReset() {
-        if (isReset) throw new IllegalStateException("stanza builder was reset after retrieving stanza");
     }
 }

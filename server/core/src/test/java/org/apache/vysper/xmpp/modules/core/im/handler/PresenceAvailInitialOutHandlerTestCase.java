@@ -38,7 +38,7 @@ public class PresenceAvailInitialOutHandlerTestCase extends PresenceHandlerBaseT
     protected PresenceHandler handler = new PresenceHandler();
 
     public void testInitialPresence() throws BindException, EntityFormatException {
-        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), null, null, null, null, null).getFinalStanza());
+        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), null, null, null, null, null).build());
 
         assertEquals(ResourceState.CONNECTED, getResourceState());
         handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext);
@@ -91,7 +91,7 @@ public class PresenceAvailInitialOutHandlerTestCase extends PresenceHandlerBaseT
     public void testInitialPresenceWithoutFrom() throws BindException, EntityFormatException, XMLSemanticError {
         // after setUp(), there is more than one bound resource
         // so, if leaving from == null, the handler will not know from which resource the presence really comes...
-        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(null, null, null, null, null, null).getFinalStanza());
+        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(null, null, null, null, null, null).build());
 
         Stanza stanza = handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext);
         // ... and will give an error:

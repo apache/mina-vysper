@@ -35,7 +35,7 @@ public class XMLElementTestCase extends TestCase {
                 addAttribute("lang", "de").
                 addAttribute(NamespaceURIs.XML, "lang", "cn").
                 addAttribute("xmllang", "en").
-        getFinalElement();
+        build();
         
         assertEquals("message", xmlElement.getName());
         assertEquals("urn:test", xmlElement.getNamespaceURI());
@@ -59,7 +59,7 @@ public class XMLElementTestCase extends TestCase {
                 startInnerElement("i2").
                 endInnerElement().
                 addText("t4").
-        getFinalElement();
+        build();
 
         List<XMLText> list = xmlElement.getInnerTexts();
         assertEquals(4, list.size());
@@ -79,7 +79,7 @@ public class XMLElementTestCase extends TestCase {
         xmlElement = new XMLElementBuilder("message", "jabber:test").
                 startInnerElement("i1").
                 endInnerElement().
-        getFinalElement();
+        build();
         try {
             assertNull(xmlElement.getSingleInnerText());
         } catch (XMLSemanticError xmlSemanticError) {
@@ -104,7 +104,7 @@ public class XMLElementTestCase extends TestCase {
                 startInnerElement("i3").
                 endInnerElement().
                 addText("t4").
-        getFinalElement();
+        build();
 
         List<XMLElement> list = xmlElement.getInnerElements();
         assertEquals(4, list.size());
@@ -126,7 +126,7 @@ public class XMLElementTestCase extends TestCase {
 
         xmlElement = new XMLElementBuilder("message", "jabber:test").
                 addText("t1").
-        getFinalElement();
+        build();
         try {
             assertNull(xmlElement.getSingleInnerElementsNamed("none"));
         } catch (XMLSemanticError xmlSemanticError) {
@@ -139,7 +139,7 @@ public class XMLElementTestCase extends TestCase {
                 endInnerElement().
                 startInnerElement("another").
                 endInnerElement().
-        getFinalElement();
+        build();
         try {
             XMLElement singleXmlElement = xmlElement.getSingleInnerElementsNamed("i");
             assertEquals("i", singleXmlElement.getName());
@@ -154,7 +154,7 @@ public class XMLElementTestCase extends TestCase {
                 startInnerElement("i").
                     addAttribute("order", "2").
                 endInnerElement().
-        getFinalElement();
+        build();
         try {
             xmlElement.getSingleInnerElementsNamed("i");
             fail("must raise error, more than one i-element");
@@ -180,7 +180,7 @@ public class XMLElementTestCase extends TestCase {
                 startInnerElement("single").
                 endInnerElement().
                 addText("t4").
-        getFinalElement();
+        build();
 
         List<XMLElement> list = xmlElement.getInnerElementsNamed("no-exist");
         assertEquals(0, list.size());
@@ -236,7 +236,7 @@ public class XMLElementTestCase extends TestCase {
                     addAttribute("order", "2").
                 endInnerElement().
                 addText("t4").
-        getFinalElement();
+        build();
 
         try {
             Map<String,XMLElement> map = xmlElement.getInnerElementsByXMLLangNamed("body");
@@ -270,7 +270,7 @@ public class XMLElementTestCase extends TestCase {
         XMLElement xmlElement = new XMLElementBuilder("test").
                 addAttribute("foo", "bar").
                 addAttribute(NamespaceURIs.XML, "lang", "cn").
-        getFinalElement();
+        build();
         
         assertEquals("bar", xmlElement.getAttribute("foo").getValue());
         assertNull(xmlElement.getAttribute("http://example.com", "foo"));

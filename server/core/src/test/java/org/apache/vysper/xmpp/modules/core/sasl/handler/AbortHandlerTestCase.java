@@ -68,13 +68,13 @@ public class AbortHandlerTestCase extends TestCase {
         executeAbortAuthorization_3Times();
         
         StanzaBuilder stanzaBuilder = createAbort();
-        Stanza abortPlainStanza = stanzaBuilder.getFinalStanza();
+        Stanza abortPlainStanza = stanzaBuilder.build();
 
         stanzaBuilder = new StanzaBuilder("auth");
         stanzaBuilder.addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
         stanzaBuilder.addAttribute("mechanism", "PLAIN");
         stanzaBuilder.addText(new String(Base64.encodeBase64("dummy\0user007\0pass007".getBytes())));
-        Stanza authPlainStanza = stanzaBuilder.getFinalStanza();
+        Stanza authPlainStanza = stanzaBuilder.build();
 
         // correct credential no longer work - no retries left
         AuthHandler authHandler = new AuthHandler();
@@ -107,7 +107,7 @@ public class AbortHandlerTestCase extends TestCase {
     private Stanza executeAbort() throws AuthorizationFailedException {
         StanzaBuilder stanzaBuilder = createAbort();
 
-        Stanza abortStanza = stanzaBuilder.getFinalStanza();
+        Stanza abortStanza = stanzaBuilder.build();
 
         AbortHandler abortHandler = new AbortHandler();
         ResponseStanzaContainer responseContainer = abortHandler.execute(abortStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, sessionStateHolder);

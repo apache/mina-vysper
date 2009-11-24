@@ -72,6 +72,6 @@ public class EntityTimeIQHandler extends DefaultIQHandler {
 
         endInnerElement();
 
-        return stanzaBuilder.getFinalStanza();
+        return stanzaBuilder.build();
     }
 }

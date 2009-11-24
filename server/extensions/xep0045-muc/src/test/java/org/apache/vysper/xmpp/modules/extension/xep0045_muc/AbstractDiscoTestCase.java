@@ -83,7 +83,7 @@ public abstract class AbstractDiscoTestCase extends TestCase {
 
         StanzaBuilder request = buildRequest();
         
-        ResponseStanzaContainer resultStanzaContainer = infoIQHandler.execute(request.getFinalStanza(), serverRuntimeContext, false, new TestSessionContext(serverRuntimeContext, new SessionStateHolder()), null);
+        ResponseStanzaContainer resultStanzaContainer = infoIQHandler.execute(request.build(), serverRuntimeContext, false, new TestSessionContext(serverRuntimeContext, new SessionStateHolder()), null);
         Stanza resultStanza = resultStanzaContainer.getResponseStanza();
 
         assertEquals("Disco request must not return error", "result", resultStanza.getAttributeValue("type"));
