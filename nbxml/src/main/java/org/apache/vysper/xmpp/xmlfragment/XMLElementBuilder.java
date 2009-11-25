@@ -20,6 +20,8 @@
 
 package org.apache.vysper.xmpp.xmlfragment;
 
+import java.util.List;
+
 
 /**
  * TODO For now, this is mostly a copy of StanzaBuilder. Both classes needs to be refactored.
@@ -39,4 +41,10 @@ public class XMLElementBuilder extends AbstractXMLElementBuilder<XMLElementBuild
     public XMLElementBuilder(String elementName, String namespaceURI, String namespacePrefix) {
     	super(elementName, namespaceURI, namespacePrefix);
     }
+
+	public XMLElementBuilder(String elementName, String namespaceURI,
+			String namespacePrefix, List<Attribute> attributes,
+			List<XMLFragment> innerFragments) {
+		super(elementName, namespaceURI, namespacePrefix, attributes, innerFragments);
+	}
 }

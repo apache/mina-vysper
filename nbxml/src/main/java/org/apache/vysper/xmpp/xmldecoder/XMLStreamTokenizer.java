@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.vysper.mina.codec;
+package org.apache.vysper.xmpp.xmldecoder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,10 +27,6 @@ import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.vysper.charset.CharsetUtil;
-import org.apache.vysper.xmpp.xmldecoder.DecodingException;
-import org.apache.vysper.xmpp.xmldecoder.ParticleDecoder;
-import org.apache.vysper.xmpp.xmldecoder.XMLParticle;
-import org.apache.vysper.xmpp.xmldecoder.XMLRawToFragmentConverter;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 
@@ -44,6 +40,17 @@ public class XMLStreamTokenizer extends CumulativeProtocolDecoder {
     public static final String SESSION_ATTRIBUTE_NAME = "tokenizerParticleList";
     private static final XMLRawToFragmentConverter CONVERTER = new XMLRawToFragmentConverter();
 
+    private XMLElementBuilderFactory builderFactory = new XMLElementBuilderFactory();
+    
+    public XMLStreamTokenizer() {
+    	// default constructor
+    }
+
+    public XMLStreamTokenizer(XMLElementBuilderFactory builderFactory) {
+    	this.builderFactory = builderFactory;
+    }
+
+    
     @Override
     public boolean doDecode(IoSession ioSession, ByteBuffer byteBuffer, ProtocolDecoderOutput protocolDecoderOutput) throws Exception {
 
@@ -67,11 +74,11 @@ public class XMLStreamTokenizer extends CumulativeProtocolDecoder {
                     // reset session list
                     ioSession.setAttribute(SESSION_ATTRIBUTE_NAME, new ArrayList<XMLParticle>());
 
-                    XMLFragment xmlFragment = CONVERTER.convert(particles);
+                    XMLFragment xmlFragment = CONVERTER.convert(particles, builderFactory);
 
                     if (xmlFragment instanceof XMLElement) {
                         // propagate element
-
+                    	
                         XMLElement element = (XMLElement) xmlFragment;
                         protocolDecoderOutput.write(element);
                     } else {

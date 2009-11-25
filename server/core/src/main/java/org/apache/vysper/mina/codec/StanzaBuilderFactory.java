@@ -17,25 +17,26 @@
  *  under the License.
  *
  */
+
 package org.apache.vysper.mina.codec;
 
-import org.apache.mina.filter.codec.ProtocolCodecFactory;
-import org.apache.mina.filter.codec.ProtocolDecoder;
-import org.apache.mina.filter.codec.ProtocolEncoder;
-import org.apache.vysper.xmpp.xmldecoder.XMLStreamTokenizer;
+import java.util.List;
+
+import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.xmldecoder.XMLElementBuilderFactory;
+import org.apache.vysper.xmpp.xmlfragment.AbstractXMLElementBuilder;
+import org.apache.vysper.xmpp.xmlfragment.Attribute;
+import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
+
 
 /**
- * factory class for Vysper-specific encoder and decoder
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class XMPPProtocolCodecFactory implements ProtocolCodecFactory {
+public class StanzaBuilderFactory extends XMLElementBuilderFactory {
 
-    public ProtocolEncoder getEncoder() throws Exception {
-        return new StanzaWriterProtocolEncoder();
-    }
-
-    public ProtocolDecoder getDecoder() throws Exception {
-        return new XMLStreamTokenizer(new StanzaBuilderFactory());
-    }
+	public AbstractXMLElementBuilder<StanzaBuilder, Stanza> createBuilder(String elementName, String namespaceURI, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments) {
+		return new StanzaBuilder(elementName, namespaceURI, namespacePrefix, attributes, innerFragments);
+	}
 }

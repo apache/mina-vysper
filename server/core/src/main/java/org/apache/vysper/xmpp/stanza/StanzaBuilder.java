@@ -192,7 +192,13 @@ public class StanzaBuilder extends AbstractXMLElementBuilder<StanzaBuilder, Stan
     	super(stanzaName, namespaceURI, namespacePrefix);
     }
     
-    protected XMLElement createElement(String namespaceURI, String name, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments) {
+    public StanzaBuilder(String stanzaName, String namespaceURI,
+			String namespacePrefix, List<Attribute> attributes,
+			List<XMLFragment> innerFragments) {
+    	super(stanzaName, namespaceURI, namespacePrefix, attributes, innerFragments);
+	}
+
+	protected XMLElement createElement(String namespaceURI, String name, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments) {
         // when creating the first element, make it a stanza
         if (currentElement == null) {
             return new Stanza(namespaceURI, name, namespacePrefix, attributes, innerFragments);

@@ -19,15 +19,14 @@
  */
 package org.apache.vysper.xmpp.xmldecoder;
 
-import org.apache.vysper.xmpp.stanza.Stanza;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+
 import org.apache.vysper.xmpp.xmlfragment.Attribute;
 import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 import org.apache.vysper.xmpp.xmlfragment.XMLText;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
 
 /**
  * determines, if a sequence of XMLParticles is balanced, and if it is, converts them to XMLFragments (which are understood
@@ -78,12 +77,16 @@ public class XMLRawToFragmentConverter {
     }
 
     public XMLFragment convert(List<XMLParticle> particles) throws DecodingException {
-        List<XMLFragment> xmlFragmentList = convert(particles, null);
+    	return convert(particles, new XMLElementBuilderFactory());
+    }
+    
+    public XMLFragment convert(List<XMLParticle> particles, XMLElementBuilderFactory builderFactory) throws DecodingException {
+        List<XMLFragment> xmlFragmentList = convert(particles, builderFactory, null);
         if (xmlFragmentList.size() != 1) throw new DecodingException("converter only allows for one top xml element, all others must be inner elements");
         return xmlFragmentList.get(0);
     }
 
-    protected List<XMLFragment> convert(List<XMLParticle> particles, String stopElementName) throws DecodingException {
+    protected List<XMLFragment> convert(List<XMLParticle> particles, XMLElementBuilderFactory builderFactory, String stopElementName) throws DecodingException {
         boolean createStanza = stopElementName == null;
 
         List<XMLFragment> fragments = new ArrayList<XMLFragment>();
@@ -97,13 +100,13 @@ public class XMLRawToFragmentConverter {
 
             if (particle.isOpeningElement() && particle.isClosingElement()) {
                 // has no inner elements, no need to find matching closer
-                XMLElement completeElement = getElementForOpening(particle, createStanza);
+                XMLElement completeElement = getElementForOpening(particle, builderFactory);
                 if (completeElement != null) fragments.add(completeElement);
             } else if (particle.isOpeningOnlyElement()) {
-                XMLElement incompleteElement = getElementForOpening(particle, createStanza);
-                List<XMLFragment> innerFragments = convert(particles, particle.getElementName());
+                XMLElement incompleteElement = getElementForOpening(particle, builderFactory);
+                List<XMLFragment> innerFragments = convert(particles, builderFactory, particle.getElementName());
                 // TODO revisit namespace handling
-                XMLElement completedElement = createElementOrStanza(null, incompleteElement.getName(), incompleteElement.getAttributes(), incompleteElement.getNamespacePrefix(), innerFragments, createStanza);
+                XMLElement completedElement = createElementOrStanza(null, incompleteElement.getName(), incompleteElement.getAttributes(), incompleteElement.getNamespacePrefix(), innerFragments, builderFactory);
                 fragments.add(completedElement);
             } else if (particle.isClosingOnlyElement()) {
                 String closingElementName = getElementNameForClosingOnly(particle);
@@ -135,7 +138,7 @@ public class XMLRawToFragmentConverter {
         return coreText.trim();
     }
 
-    private XMLElement getElementForOpening(XMLParticle particle, boolean createStanza) throws DecodingException {
+    private XMLElement getElementForOpening(XMLParticle particle, XMLElementBuilderFactory builderFactory) throws DecodingException {
         if (!particle.isOpeningElement()) throw new IllegalArgumentException();
 
         String elementName = particle.getElementName();
@@ -145,10 +148,10 @@ public class XMLRawToFragmentConverter {
         List<Attribute> attributes = parseAttributes(content);
         elementName = elementName.trim();
         // TODO revisit namespace handling
-        return createElementOrStanza(null, elementName, attributes, null, (List<XMLFragment>) null, createStanza);
+        return createElementOrStanza(null, elementName, attributes, null, (List<XMLFragment>) null, builderFactory);
     }
 
-    private XMLElement createElementOrStanza(String namespaceURI, String elementName, List<Attribute> attributes, String namespacePrefix, List<XMLFragment> innerFragments, boolean createStanza) throws DecodingException {
+    private XMLElement createElementOrStanza(String namespaceURI, String elementName, List<Attribute> attributes, String namespacePrefix, List<XMLFragment> innerFragments, XMLElementBuilderFactory builderFactory) throws DecodingException {
         int i = elementName.indexOf(":");
         if (i >= 1) {
             namespacePrefix = elementName.substring(0, i);
@@ -160,11 +163,8 @@ public class XMLRawToFragmentConverter {
             // but we do not support that.
             throw new DecodingException("unsupported legal XML: colon at start of element name and no namespace specified");
         }
-        if (createStanza) {
-            Stanza stanza = new Stanza(namespaceURI, elementName, namespacePrefix, attributes, innerFragments);
-            // place for filtering stanzas very early
-            return stanza;
-        } else return new XMLElement(namespaceURI, elementName, namespacePrefix, attributes, innerFragments);
+
+        return builderFactory.createBuilder(elementName, namespaceURI, namespacePrefix, attributes, innerFragments).build();
     }
 
     private List<Attribute> parseAttributes(String content) throws DecodingException {

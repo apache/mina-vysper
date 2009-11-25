@@ -61,6 +61,14 @@ public abstract class AbstractXMLElementBuilder<B extends AbstractXMLElementBuil
         resultingElement = currentElement.element;
         stack.push(currentElement);
     }
+
+    public AbstractXMLElementBuilder(String elementName, String namespaceURI, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments) {
+        startNewElement(elementName, namespaceURI, namespacePrefix);
+        resultingElement = currentElement.element;
+        if(attributes != null) currentElement.attributes.addAll(attributes);
+        if(innerFragments != null) currentElement.innerFragments.addAll(innerFragments);
+        stack.push(currentElement);
+    }
     
     protected XMLElement createElement(String namespaceURI, String name, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments) {
     	return new XMLElement(namespaceURI, name, namespacePrefix, attributes, innerFragments);

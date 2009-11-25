@@ -19,19 +19,21 @@
  */
 package org.apache.vysper.mina.codec;
 
-import junit.framework.TestCase;
-import org.apache.mina.common.ByteBuffer;
-import org.apache.mina.filter.codec.ProtocolDecoderOutput;
-import org.apache.vysper.charset.CharsetUtil;
-import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.writer.StanzaWriter;
-import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
-import org.apache.vysper.xmpp.xmlfragment.XMLText;
-
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import junit.framework.TestCase;
+
+import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.filter.codec.ProtocolDecoderOutput;
+import org.apache.vysper.charset.CharsetUtil;
+import org.apache.vysper.xmpp.writer.StanzaWriter;
+import org.apache.vysper.xmpp.xmldecoder.XMLStreamTokenizer;
+import org.apache.vysper.xmpp.xmlfragment.XMLElement;
+import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
+import org.apache.vysper.xmpp.xmlfragment.XMLText;
 
 /**
  */
@@ -121,7 +123,7 @@ public class XMLStreamTokenizerTestCase extends TestCase {
             int lkjl = 0;
         }
         assertEquals(1, protocolDecoderOutput.size());
-        Stanza stanzaParsed = (Stanza) protocolDecoderOutput.get(0);
+        XMLElement stanzaParsed = (XMLElement) protocolDecoderOutput.get(0);
         String stanzaName = stanzaParsed.getName();
         assertEquals("stream", stanzaName);
         String stanzaNS = stanzaParsed.getNamespacePrefix();
