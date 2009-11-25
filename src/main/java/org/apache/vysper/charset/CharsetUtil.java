@@ -17,34 +17,18 @@
  *  under the License.
  *
  */
+package org.apache.vysper.charset;
 
-package org.apache.vysper.xmpp.xmlfragment;
-
-import java.util.List;
-
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
 
 /**
- * TODO For now, this is mostly a copy of StanzaBuilder. Both classes needs to be refactored.
+ * utility class for charsets
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class XMLElementBuilder extends AbstractXMLElementBuilder<XMLElementBuilder, XMLElement> {
-
-    public XMLElementBuilder(String elementName) {
-        this(elementName, null);
-    }
-
-    public XMLElementBuilder(String elementName, String namespaceURI) {
-        this(elementName, namespaceURI, null);
-    }
-
-    public XMLElementBuilder(String elementName, String namespaceURI, String namespacePrefix) {
-    	super(elementName, namespaceURI, namespacePrefix);
-    }
-
-	public XMLElementBuilder(String elementName, String namespaceURI,
-			String namespacePrefix, List<Attribute> attributes,
-			List<XMLFragment> innerFragments) {
-		super(elementName, namespaceURI, namespacePrefix, attributes, innerFragments);
-	}
+public class CharsetUtil {
+    public static final CharsetDecoder UTF8_DECODER = Charset.forName("UTF-8").newDecoder();
+    public static final CharsetEncoder UTF8_ENCODER = Charset.forName("UTF-8").newEncoder();
 }

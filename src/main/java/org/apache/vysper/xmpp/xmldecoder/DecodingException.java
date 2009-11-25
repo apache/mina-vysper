@@ -17,34 +17,26 @@
  *  under the License.
  *
  */
-
-package org.apache.vysper.xmpp.xmlfragment;
-
-import java.util.List;
-
+package org.apache.vysper.xmpp.xmldecoder;
 
 /**
- * TODO For now, this is mostly a copy of StanzaBuilder. Both classes needs to be refactored.
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class XMLElementBuilder extends AbstractXMLElementBuilder<XMLElementBuilder, XMLElement> {
-
-    public XMLElementBuilder(String elementName) {
-        this(elementName, null);
+public class DecodingException extends Exception {
+    public DecodingException() {
+        super();
     }
 
-    public XMLElementBuilder(String elementName, String namespaceURI) {
-        this(elementName, namespaceURI, null);
+    public DecodingException(String s) {
+        super(s);
     }
 
-    public XMLElementBuilder(String elementName, String namespaceURI, String namespacePrefix) {
-    	super(elementName, namespaceURI, namespacePrefix);
+    public DecodingException(String s, Throwable throwable) {
+        super(s, throwable);
     }
 
-	public XMLElementBuilder(String elementName, String namespaceURI,
-			String namespacePrefix, List<Attribute> attributes,
-			List<XMLFragment> innerFragments) {
-		super(elementName, namespaceURI, namespacePrefix, attributes, innerFragments);
-	}
+    public DecodingException(Throwable throwable) {
+        super(throwable);
+    }
 }

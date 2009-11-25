@@ -18,33 +18,23 @@
  *
  */
 
-package org.apache.vysper.xmpp.xmlfragment;
+package org.apache.vysper.xmpp.xmldecoder;
 
 import java.util.List;
 
+import org.apache.vysper.xmpp.xmlfragment.AbstractXMLElementBuilder;
+import org.apache.vysper.xmpp.xmlfragment.Attribute;
+import org.apache.vysper.xmpp.xmlfragment.XMLElementBuilder;
+import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
+
 
 /**
- * TODO For now, this is mostly a copy of StanzaBuilder. Both classes needs to be refactored.
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class XMLElementBuilder extends AbstractXMLElementBuilder<XMLElementBuilder, XMLElement> {
+public class XMLElementBuilderFactory {
 
-    public XMLElementBuilder(String elementName) {
-        this(elementName, null);
-    }
-
-    public XMLElementBuilder(String elementName, String namespaceURI) {
-        this(elementName, namespaceURI, null);
-    }
-
-    public XMLElementBuilder(String elementName, String namespaceURI, String namespacePrefix) {
-    	super(elementName, namespaceURI, namespacePrefix);
-    }
-
-	public XMLElementBuilder(String elementName, String namespaceURI,
-			String namespacePrefix, List<Attribute> attributes,
-			List<XMLFragment> innerFragments) {
-		super(elementName, namespaceURI, namespacePrefix, attributes, innerFragments);
+	public AbstractXMLElementBuilder<?, ?> createBuilder(String elementName, String namespaceURI, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments) {
+		return new XMLElementBuilder(elementName, namespaceURI, namespacePrefix, attributes, innerFragments);
 	}
 }
