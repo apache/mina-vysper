@@ -20,7 +20,7 @@
 
 package org.apache.vysper.xmpp.xmlfragment;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Stack;
 
@@ -44,7 +44,7 @@ public class StackNamespaceResolver implements NamespaceResolver {
 	}
 
 	public Map<String, String> getNamespaceDeclarations() {
-		Map<String, String> ns = new HashMap<String, String>();
+		Map<String, String> ns = new LinkedHashMap<String, String>();
 		if(!elements.isEmpty()) {
 			XMLElement topElm = elements.peek();
 			for(Attribute attribute : topElm.getAttributes()) {
