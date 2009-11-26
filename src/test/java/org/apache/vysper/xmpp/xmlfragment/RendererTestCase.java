@@ -125,7 +125,7 @@ public class RendererTestCase extends TestCase {
 		XMLElementBuilder builder = new XMLElementBuilder("foo", "http://example.com");
 		builder.addNamespaceAttribute("pr", "http://other.com");
 		builder.startInnerElement("bar", "http://other.com");
-		assertRendering("<foo xmlns=\"http://example.com\" xmlns:pr=\"http://other.com\"><pr:bar></pr:bar></foo>", builder.build());
+		assertRendering("<foo xmlns:pr=\"http://other.com\" xmlns=\"http://example.com\"><pr:bar></pr:bar></foo>", builder.build());
 	}
 
 	public void testRenderInnerInheritedDefaultNamespaceElement() {
