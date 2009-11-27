@@ -75,10 +75,9 @@ public class ServerResponses {
     public Stanza getFeaturesForEncryption(SessionContext sessionContext) {
 
         StanzaBuilder stanzaBuilder = startFeatureStanza(); 
-        stanzaBuilder.startInnerElement("starttls")
-            .addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS);
+        stanzaBuilder.startInnerElement("starttls", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS);
             if (sessionContext.getServerRuntimeContext().getServerFeatures().isStartTLSRequired()) {
-                stanzaBuilder.startInnerElement("required").endInnerElement();
+                stanzaBuilder.startInnerElement("required", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS).endInnerElement();
             }
         stanzaBuilder.endInnerElement();
 
@@ -88,10 +87,9 @@ public class ServerResponses {
     public Stanza getFeaturesForAuthentication(List<SASLMechanism> authenticationMethods) {
 
         StanzaBuilder stanzaBuilder = startFeatureStanza(); 
-        stanzaBuilder.startInnerElement("mechanisms")
-            .addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
+        stanzaBuilder.startInnerElement("mechanisms", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
             for (SASLMechanism authenticationMethod : authenticationMethods) {
-                stanzaBuilder.startInnerElement("mechanism").addText(authenticationMethod.getName()).endInnerElement();
+                stanzaBuilder.startInnerElement("mechanism", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).addText(authenticationMethod.getName()).endInnerElement();
             }
             stanzaBuilder.endInnerElement();
 
@@ -101,22 +99,20 @@ public class ServerResponses {
     private Stanza getFeaturesForSession() {
         StanzaBuilder stanzaBuilder = startFeatureStanza(); 
 
-        stanzaBuilder.startInnerElement("bind")
-            .addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND)
-            .startInnerElement("required").endInnerElement();
+        stanzaBuilder.startInnerElement("bind", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND)
+            .startInnerElement("required", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND).endInnerElement();
         stanzaBuilder.endInnerElement();
 
         // session establishment is here for RFC3921 compatibility and is planed to be removed in revisions of this RFC.
-        stanzaBuilder.startInnerElement("session")
-            .addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SESSION)
-            .startInnerElement("required").endInnerElement();
+        stanzaBuilder.startInnerElement("session", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SESSION)
+            .startInnerElement("required", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SESSION).endInnerElement();
         stanzaBuilder.endInnerElement();
 
         return stanzaBuilder.build();
     }
 
     protected StanzaBuilder startFeatureStanza() {
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("features", null, "stream");
+        StanzaBuilder stanzaBuilder = new StanzaBuilder("features", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS, "stream");
         
         return stanzaBuilder;
     }
