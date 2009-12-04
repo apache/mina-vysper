@@ -36,8 +36,7 @@ public class RosterStanzaUtils {
 
     public static StanzaBuilder createRosterItemsIQ(Entity to, String id, IQStanzaType type, Iterable<RosterItem> rosterItems) {
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(null, to, type, id).
-            startInnerElement("query").
-            addNamespaceAttribute(NamespaceURIs.JABBER_IQ_ROSTER);
+            startInnerElement("query", NamespaceURIs.JABBER_IQ_ROSTER);
 
             for (RosterItem rosterItem : rosterItems) {
                 createRosterItem(stanzaBuilder, rosterItem);
@@ -59,7 +58,7 @@ public class RosterStanzaUtils {
     }
 
     public static void createRosterItem(StanzaBuilder stanzaBuilder, RosterItem rosterItem) {
-        stanzaBuilder.startInnerElement("item").
+        stanzaBuilder.startInnerElement("item", NamespaceURIs.JABBER_IQ_ROSTER).
                       addAttribute("jid", rosterItem.getJid().getFullQualifiedName());
                       if (rosterItem.getName() != null) {
                           stanzaBuilder.addAttribute("name", rosterItem.getName());
@@ -73,7 +72,7 @@ public class RosterStanzaUtils {
         List<RosterGroup> groupList = rosterItem.getGroups();
         if (groupList != null) {
             for (RosterGroup rosterGroup : groupList) {
-                stanzaBuilder.startInnerElement("group").
+                stanzaBuilder.startInnerElement("group", NamespaceURIs.JABBER_IQ_ROSTER).
                               addText(rosterGroup.getName()).
                               endInnerElement();
             }

@@ -70,8 +70,7 @@ public class AbortHandlerTestCase extends TestCase {
         StanzaBuilder stanzaBuilder = createAbort();
         Stanza abortPlainStanza = stanzaBuilder.build();
 
-        stanzaBuilder = new StanzaBuilder("auth");
-        stanzaBuilder.addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
+        stanzaBuilder = new StanzaBuilder("auth", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
         stanzaBuilder.addAttribute("mechanism", "PLAIN");
         stanzaBuilder.addText(new String(Base64.encodeBase64("dummy\0user007\0pass007".getBytes())));
         Stanza authPlainStanza = stanzaBuilder.build();

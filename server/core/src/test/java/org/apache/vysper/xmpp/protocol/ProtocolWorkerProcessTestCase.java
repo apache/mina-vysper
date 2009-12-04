@@ -197,7 +197,7 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
 
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(null, null, IQStanzaType.GET, "test");
         stanzaBuilder.addAttribute("from", new EntityImpl("charlotte", server.getDomain(), onlyBoundResource).getFullQualifiedName());
-        stanzaBuilder.startInnerElement("query").addNamespaceAttribute("testNSURI").endInnerElement();
+        stanzaBuilder.startInnerElement("query", "testNSURI").endInnerElement();
         
         protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(), sessionStateHolder);
 
@@ -220,7 +220,7 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(null, null, IQStanzaType.GET, "test");
         
         stanzaBuilder.addAttribute("from", new EntityImpl("charlotte", server.getDomain(), arbitraryUnboundResource).getFullQualifiedName());
-        stanzaBuilder.startInnerElement("query").addNamespaceAttribute("testNSURI").endInnerElement();
+        stanzaBuilder.startInnerElement("query", "testNSURI").endInnerElement();
         
         protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(), sessionStateHolder);
 
@@ -252,7 +252,7 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
 
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(null, null, IQStanzaType.GET, "test");
         stanzaBuilder.addAttribute("from", new EntityImpl("lea", server.getDomain(), null).getFullQualifiedName());
-        stanzaBuilder.startInnerElement("query").addNamespaceAttribute("testNSURI").endInnerElement();
+        stanzaBuilder.startInnerElement("query", "testNSURI").endInnerElement();
         
         protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(), sessionStateHolder);
         Stanza recordedResponse = sessionContext.getNextRecordedResponse();
@@ -266,7 +266,7 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
         // bare id allowed, only one resource is bound
         stanzaBuilder = StanzaBuilder.createIQStanza(null, null, IQStanzaType.GET, "test");
         stanzaBuilder.addAttribute("from", new EntityImpl("lea", server.getDomain(), null).getFullQualifiedName());
-        stanzaBuilder.startInnerElement("query").addNamespaceAttribute("testNSURI").endInnerElement();
+        stanzaBuilder.startInnerElement("query", "testNSURI").endInnerElement();
         protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(), sessionStateHolder);
         stanzaHandler.assertHandlerCalled();
         sessionContext.reset();
@@ -274,7 +274,7 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
         // second resource is now invalid and cannot be used anymore in a full qualified entity
         stanzaBuilder = StanzaBuilder.createIQStanza(null, null, IQStanzaType.GET, "test");
         stanzaBuilder.addAttribute("from", new EntityImpl("lea", server.getDomain(), secondBoundResource).getFullQualifiedName());
-        stanzaBuilder.startInnerElement("query").addNamespaceAttribute("testNSURI").endInnerElement();
+        stanzaBuilder.startInnerElement("query", "testNSURI").endInnerElement();
         protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(), sessionStateHolder);
         recordedResponse = sessionContext.getNextRecordedResponse();
         assertUnknownSenderError(recordedResponse);

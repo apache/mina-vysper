@@ -90,8 +90,7 @@ public class PubSubPublishHandler extends AbstractPubSubGeneralHandler {
         String iqStanzaID = stanza.getAttributeValue("id");
 
         StanzaBuilder sb = StanzaBuilder.createIQStanza(serverJID, sender, IQStanzaType.RESULT, iqStanzaID);
-        sb.startInnerElement("pubsub");
-        sb.addNamespaceAttribute(NamespaceURIs.XEP0060_PUBSUB);
+        sb.startInnerElement("pubsub", NamespaceURIs.XEP0060_PUBSUB);
 
         XMLElement publish = stanza.getFirstInnerElement().getFirstInnerElement(); // pubsub/publish
         String nodeName = publish.getAttributeValue("node"); // MUST

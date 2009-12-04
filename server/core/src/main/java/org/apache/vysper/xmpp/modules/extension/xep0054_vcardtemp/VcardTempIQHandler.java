@@ -112,13 +112,13 @@ public class VcardTempIQHandler extends DefaultIQHandler {
         if (vcardXml == null) {
             IQStanzaType iqStanzaType = returnEmptyVCardWhenNonExistent ? IQStanzaType.RESULT : IQStanzaType.ERROR;
             StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), iqStanzaType, stanza.getID());
-            stanzaBuilder.startInnerElement("vCard").addNamespaceAttribute(NamespaceURIs.VCARD_TEMP).endInnerElement();
+            stanzaBuilder.startInnerElement("vCard", NamespaceURIs.VCARD_TEMP).endInnerElement();
             if (returnEmptyVCardWhenNonExistent) {
                 // keep it like it is
             } else {
                 stanzaBuilder.
                     startInnerElement("error").addAttribute("type", "cancel").
-                        startInnerElement("item-not-found").addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).
+                        startInnerElement("item-not-found", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).
                         endInnerElement().
                     endInnerElement();
             }

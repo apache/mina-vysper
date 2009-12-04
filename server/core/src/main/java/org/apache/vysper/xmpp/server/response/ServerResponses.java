@@ -119,15 +119,13 @@ public class ServerResponses {
 
     public Stanza getTLSProceed() {
 
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("proceed");
-        stanzaBuilder.addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS);
+        StanzaBuilder stanzaBuilder = new StanzaBuilder("proceed", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS);
         return stanzaBuilder.build();
     }
 
     public Stanza getAuthAborted() {
 
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("aborted");
-        stanzaBuilder.addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS);
+        StanzaBuilder stanzaBuilder = new StanzaBuilder("aborted", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS);
         return stanzaBuilder.build();
     }
 

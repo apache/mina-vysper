@@ -121,14 +121,12 @@ public class ServerErrorResponses
                          .addAttribute("type", type.value());
 
         // insert defined error condition relating to the stanza error type
-        responseBuilder.startInnerElement(errorCondition.value());
-        responseBuilder.addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
+        responseBuilder.startInnerElement(errorCondition.value(), NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
         responseBuilder.endInnerElement();
 
         // optional error text
         if (errorText != null && errorLang != null) {
-            responseBuilder.startInnerElement("text")
-                             .addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS)
+            responseBuilder.startInnerElement("text", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS)
                              .addAttribute(NamespaceURIs.XML, "lang", errorLang)
                              .addText(errorText);
         }
@@ -139,14 +137,12 @@ public class ServerErrorResponses
     }
 
     public Stanza getTLSFailure() {
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("failure");
-        stanzaBuilder.addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS);
+        StanzaBuilder stanzaBuilder = new StanzaBuilder("failure", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS);
         return stanzaBuilder.build();
     }
 
     public Stanza getSASLFailure(SASLFailureType failureType) {
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("failure");
-        stanzaBuilder.addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
+        StanzaBuilder stanzaBuilder = new StanzaBuilder("failure", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
         if (failureType != null) {
             stanzaBuilder.startInnerElement(failureType.toString()).endInnerElement();
         }

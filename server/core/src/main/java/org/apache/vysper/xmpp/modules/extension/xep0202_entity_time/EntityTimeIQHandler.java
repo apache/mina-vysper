@@ -64,11 +64,10 @@ public class EntityTimeIQHandler extends DefaultIQHandler {
         String utcTime = DateTimeProfile.getInstance().getDateTimeInUTC(now);
 
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID()).
-            startInnerElement("time").
-            addNamespaceAttribute(NamespaceURIs.URN_XMPP_TIME).
+            startInnerElement("time", NamespaceURIs.URN_XMPP_TIME).
 
-            startInnerElement("tzo").addText(timeZone).endInnerElement().
-            startInnerElement("utc").addText(utcTime).endInnerElement().
+            startInnerElement("tzo", NamespaceURIs.URN_XMPP_TIME).addText(timeZone).endInnerElement().
+            startInnerElement("utc", NamespaceURIs.URN_XMPP_TIME).addText(utcTime).endInnerElement().
 
         endInnerElement();
 

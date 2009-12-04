@@ -66,7 +66,7 @@ public class RosterIQHandlerTestCase extends TestCase {
 
     private StanzaBuilder createRosterGet() {
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(new EntityImpl(client, boundResourceId), null, IQStanzaType.GET, "id1");
-        stanzaBuilder.startInnerElement("query").addNamespaceAttribute(NamespaceURIs.JABBER_IQ_ROSTER).endInnerElement();
+        stanzaBuilder.startInnerElement("query", NamespaceURIs.JABBER_IQ_ROSTER).endInnerElement();
         return stanzaBuilder;
     }
 

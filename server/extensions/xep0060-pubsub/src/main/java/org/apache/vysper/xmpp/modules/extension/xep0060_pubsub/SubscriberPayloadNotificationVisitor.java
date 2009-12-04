@@ -89,12 +89,11 @@ public class SubscriberPayloadNotificationVisitor implements SubscriberVisitor {
      * @return the prepared Stanza object.
      */
     private Stanza createMessageEventStanza(String nodeName, Entity to, String lang, XMLElement item) {
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("message");
+        StanzaBuilder stanzaBuilder = new StanzaBuilder("message", NamespaceURIs.XEP0060_PUBSUB_EVENT);
         stanzaBuilder.addAttribute("from", serverJID.getFullQualifiedName());
         stanzaBuilder.addAttribute("to", to.getFullQualifiedName());
         stanzaBuilder.addAttribute(NamespaceURIs.XML, "lang", lang);
         stanzaBuilder.startInnerElement("event");
-        stanzaBuilder.addNamespaceAttribute(NamespaceURIs.XEP0060_PUBSUB_EVENT);
         stanzaBuilder.startInnerElement("items");
         stanzaBuilder.addAttribute("node", nodeName);
         stanzaBuilder.addPreparedElement(item);

@@ -72,9 +72,9 @@ public class BindIQHandler extends DefaultIQHandler {
 
         StanzaBuilder stanzaBuilder =
             StanzaBuilder.createIQStanza(null, null, IQStanzaType.RESULT, stanza.getID()).
-            startInnerElement("bind").
-                    addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND).
-                    startInnerElement("jid").addText(entity.getFullQualifiedName()).endInnerElement().
+            startInnerElement("bind", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND).
+                    startInnerElement("jid", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND).
+                    addText(entity.getFullQualifiedName()).endInnerElement().
             endInnerElement();
 
         return stanzaBuilder.build();

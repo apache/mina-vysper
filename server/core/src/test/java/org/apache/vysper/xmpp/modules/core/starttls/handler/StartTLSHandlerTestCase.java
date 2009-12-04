@@ -44,8 +44,7 @@ public class StartTLSHandlerTestCase extends TestCase {
     }
 
     public void testAppropriateSessionState() {
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("starttls");
-        stanzaBuilder.addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS);
+        StanzaBuilder stanzaBuilder = new StanzaBuilder("starttls", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS);
         Stanza starttlsStanza = stanzaBuilder.build();
 
         TestSessionContext sessionContext = this.sessionContext;
@@ -81,12 +80,10 @@ public class StartTLSHandlerTestCase extends TestCase {
     public void testNamespace() {
         sessionContext.setSessionState(SessionState.STARTED);
         
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("starttls");
-        stanzaBuilder.addNamespaceAttribute(NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS);
+        StanzaBuilder stanzaBuilder = new StanzaBuilder("starttls", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS);
         Stanza wrongNSStanza = stanzaBuilder.build();
 
-        stanzaBuilder = new StanzaBuilder("starttls");
-        stanzaBuilder.addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS);
+        stanzaBuilder = new StanzaBuilder("starttls", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS);
         Stanza correctNSStanza = stanzaBuilder.build();
 
         TestSessionContext sessionContext = this.sessionContext;

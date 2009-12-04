@@ -89,8 +89,7 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
         String iqStanzaID = stanza.getAttributeValue("id");
 
         StanzaBuilder sb = StanzaBuilder.createIQStanza(serverJID, sender, IQStanzaType.RESULT, iqStanzaID);
-        sb.startInnerElement("pubsub");
-        sb.addNamespaceAttribute(NamespaceURIs.XEP0060_PUBSUB);
+        sb.startInnerElement("pubsub", NamespaceURIs.XEP0060_PUBSUB);
 
         XMLElement unsub = stanza.getFirstInnerElement().getFirstInnerElement(); // pubsub/unsubscribe
         String strSubJID = unsub.getAttributeValue("jid"); // MUST

@@ -89,8 +89,7 @@ public class PubSubOwnerManageAffiliationsHandler extends AbstractPubSubOwnerHan
 
         String iqStanzaID = stanza.getAttributeValue("id");
         StanzaBuilder sb = StanzaBuilder.createIQStanza(serverJID, sender, IQStanzaType.RESULT, iqStanzaID);
-        sb.startInnerElement("pubsub");
-        sb.addNamespaceAttribute(NamespaceURIs.XEP0060_PUBSUB_OWNER);
+        sb.startInnerElement("pubsub", NamespaceURIs.XEP0060_PUBSUB_OWNER);
         
         String nodeName = extractNodeName(stanza);
         LeafNode node = root.find(nodeName);
@@ -130,8 +129,7 @@ public class PubSubOwnerManageAffiliationsHandler extends AbstractPubSubOwnerHan
 
         String iqStanzaID = stanza.getAttributeValue("id");
         StanzaBuilder sb = StanzaBuilder.createIQStanza(serverJID, sender, IQStanzaType.RESULT, iqStanzaID);
-        sb.startInnerElement("pubsub");
-        sb.addNamespaceAttribute(NamespaceURIs.XEP0060_PUBSUB_OWNER);
+        sb.startInnerElement("pubsub", NamespaceURIs.XEP0060_PUBSUB_OWNER);
 
         String nodeName = extractNodeName(stanza);
         LeafNode node = root.find(nodeName);

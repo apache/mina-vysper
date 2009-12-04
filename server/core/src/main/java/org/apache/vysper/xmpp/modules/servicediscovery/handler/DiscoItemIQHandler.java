@@ -118,8 +118,7 @@ public class DiscoItemIQHandler extends DefaultIQHandler {
 
         // render the stanza with information collected
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(to, stanza.getFrom(), IQStanzaType.RESULT, stanza.getID()).
-            startInnerElement("query").
-            addNamespaceAttribute(NamespaceURIs.XEP0030_SERVICE_DISCOVERY_ITEMS);
+            startInnerElement("query", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_ITEMS);
             if (node != null) {
                 stanzaBuilder.addAttribute("node", node);
             }

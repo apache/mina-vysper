@@ -36,7 +36,7 @@ public class PlainTestCase extends TestCase {
 
     public void testPlainEmpty() throws XMLSemanticError {
 
-        Stanza stanza = new StanzaBuilder("plain").addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).build();
+        Stanza stanza = new StanzaBuilder("plain", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).build();
 
         Stanza response = startMechanism(stanza);
         assertResponse(response, "malformed-request");
@@ -44,7 +44,7 @@ public class PlainTestCase extends TestCase {
 
     public void testPlainNonBASE64() throws XMLSemanticError {
 
-        Stanza stanza = new StanzaBuilder("plain").addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
+        Stanza stanza = new StanzaBuilder("plain", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
                 .addText("aEflkejidkj==")
                 .build();
 
@@ -54,7 +54,7 @@ public class PlainTestCase extends TestCase {
 
     public void testPlainNonExistingUser() throws XMLSemanticError {
 
-        Stanza stanza = new StanzaBuilder("plain").addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
+        Stanza stanza = new StanzaBuilder("plain", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
                 .addText(encode("dieter", "schluppkoweit"))
                 .build();
 
@@ -64,7 +64,7 @@ public class PlainTestCase extends TestCase {
 
     public void testPlainNotExistingUser() throws XMLSemanticError {
 
-        Stanza stanza = new StanzaBuilder("plain").addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
+        Stanza stanza = new StanzaBuilder("plain", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
                 .addText(encode("dieter", "schluppkoweit"))
                 .build();
 
@@ -76,7 +76,7 @@ public class PlainTestCase extends TestCase {
 
         String innerText = new String(Base64.encodeBase64("continuous".getBytes()));
 
-        Stanza stanza = new StanzaBuilder("plain").addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
+        Stanza stanza = new StanzaBuilder("plain", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
                 .addText(innerText).build();
 
         Stanza response = startMechanism(stanza);

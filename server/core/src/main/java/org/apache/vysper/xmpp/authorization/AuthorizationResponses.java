@@ -32,8 +32,7 @@ import org.apache.vysper.xmpp.modules.core.sasl.SASLFailureType;
 public class AuthorizationResponses {
 
     public Stanza getSuccess() {
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("success");
-        stanzaBuilder.addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
+        StanzaBuilder stanzaBuilder = new StanzaBuilder("success", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
         return stanzaBuilder.build();
     }
 
@@ -42,7 +41,7 @@ public class AuthorizationResponses {
     }
 
     public Stanza getFailure(SASLFailureType failureType) {
-        return new StanzaBuilder("failure").addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
+        return new StanzaBuilder("failure", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
                 .startInnerElement(failureType.value()).endInnerElement().build();
     }
     public Stanza getFailureMalformedRequest() {

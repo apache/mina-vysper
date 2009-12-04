@@ -74,12 +74,11 @@ public class EntityTimeXEP0090IQHandler extends DefaultIQHandler {
         String displayTime = localDateFormatter.format(now);
 
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID()).
-            startInnerElement("query").
-            addNamespaceAttribute(NamespaceURIs.JABBER_IQ_TIME).
+            startInnerElement("query", NamespaceURIs.JABBER_IQ_TIME).
 
-            startInnerElement("utc").addText(utcTime).endInnerElement().
-            startInnerElement("tz").addText(timeZone).endInnerElement().
-            startInnerElement("display").addText(displayTime).endInnerElement().
+            startInnerElement("utc", NamespaceURIs.JABBER_IQ_TIME).addText(utcTime).endInnerElement().
+            startInnerElement("tz", NamespaceURIs.JABBER_IQ_TIME).addText(timeZone).endInnerElement().
+            startInnerElement("display", NamespaceURIs.JABBER_IQ_TIME).addText(displayTime).endInnerElement().
 
         endInnerElement();
 

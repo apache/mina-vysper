@@ -55,12 +55,11 @@ public class SoftwareVersionIQHandler extends DefaultIQHandler {
     protected Stanza handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
 
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID()).
-            startInnerElement("query").
-            addNamespaceAttribute(NamespaceURIs.JABBER_IQ_VERSION).
+            startInnerElement("query", NamespaceURIs.JABBER_IQ_VERSION).
 
-            startInnerElement("name").addText("Apache Vysper XMPP Server").endInnerElement().
-            startInnerElement("version").addText("0.1 beta").endInnerElement().
-            startInnerElement("os").addText(OS_VERSION).endInnerElement().
+            startInnerElement("name", NamespaceURIs.JABBER_IQ_VERSION).addText("Apache Vysper XMPP Server").endInnerElement().
+            startInnerElement("version", NamespaceURIs.JABBER_IQ_VERSION).addText("0.1 beta").endInnerElement().
+            startInnerElement("os", NamespaceURIs.JABBER_IQ_VERSION).addText(OS_VERSION).endInnerElement().
 
         endInnerElement();
 

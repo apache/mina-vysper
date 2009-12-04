@@ -78,9 +78,8 @@ public class StanzaSessionTestCase extends TestCase {
         assertNotNull(stanza);
         System.out.println(DenseStanzaLogRenderer.render(stanza));
         session.send(
-                new StanzaBuilder("starttls")
+                new StanzaBuilder("starttls", "urn:ietf:params:xml:ns:xmpp-tls")
                     .addAttribute("from", "me@vysper.org")
-                    .addNamespaceAttribute("urn:ietf:params:xml:ns:xmpp-tls")
                 .build()
         );
         stanza = waitForStanza(session);

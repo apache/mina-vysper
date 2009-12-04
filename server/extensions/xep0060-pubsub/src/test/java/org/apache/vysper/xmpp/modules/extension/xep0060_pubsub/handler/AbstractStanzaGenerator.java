@@ -66,8 +66,7 @@ public abstract class AbstractStanzaGenerator {
      */
     public Stanza getStanza(Entity client, Entity pubsub, String id, String node) {
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(client, pubsub, getStanzaType(), id);
-        stanzaBuilder.startInnerElement("pubsub");
-        stanzaBuilder.addNamespaceAttribute(getNamespace());
+        stanzaBuilder.startInnerElement("pubsub", getNamespace());
 
         buildInnerElement(client, pubsub, stanzaBuilder, node);
 

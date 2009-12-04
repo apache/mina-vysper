@@ -155,8 +155,7 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
     }
 
     private StanzaBuilder createAuthPlain() {
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("auth");
-        stanzaBuilder.addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
+        StanzaBuilder stanzaBuilder = new StanzaBuilder("auth", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
         stanzaBuilder.addAttribute("mechanism", "PLAIN");
         return stanzaBuilder;
     }

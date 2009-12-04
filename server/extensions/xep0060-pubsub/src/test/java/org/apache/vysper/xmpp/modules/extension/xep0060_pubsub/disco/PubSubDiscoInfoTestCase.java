@@ -163,8 +163,7 @@ public class PubSubDiscoInfoTestCase extends AbstractPublishSubscribeTestCase {
         
         public Stanza getStanza(Entity client, Entity pubsub, String id) {
             StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(client, pubsub, getStanzaType(), id);
-            stanzaBuilder.startInnerElement("query");
-            stanzaBuilder.addNamespaceAttribute(getNamespace());
+            stanzaBuilder.startInnerElement("query", getNamespace());
 
             return stanzaBuilder.build();
         }
@@ -172,8 +171,7 @@ public class PubSubDiscoInfoTestCase extends AbstractPublishSubscribeTestCase {
         @Override
         public Stanza getStanza(Entity client, Entity pubsub, String id, String node) {
             StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(client, pubsub, getStanzaType(), id);
-            stanzaBuilder.startInnerElement("query");
-            stanzaBuilder.addNamespaceAttribute(getNamespace());
+            stanzaBuilder.startInnerElement("query", getNamespace());
             stanzaBuilder.addAttribute("node", node);
 
             stanzaBuilder.endInnerElement();
