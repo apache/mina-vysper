@@ -93,6 +93,9 @@ public abstract class AbstractIntegrationTestCase extends TestCase {
         server.start();
 
         addModules(server);
+        
+        // allow for the server to bootstrap
+        Thread.sleep(200);
     }
     
     protected XMPPConnection connectClient(int port, String username, String password) throws Exception {
@@ -167,6 +170,7 @@ public abstract class AbstractIntegrationTestCase extends TestCase {
         }
 
         try {
+        	System.out.println("Test teardown, stopping server");
             server.stop();
         } catch(Exception ignored) {
             ;
