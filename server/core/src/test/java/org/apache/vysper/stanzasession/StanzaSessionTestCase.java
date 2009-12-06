@@ -100,7 +100,7 @@ public class StanzaSessionTestCase extends TestCase {
 
     private Stanza waitForStanza(StanzaSession session) {
         long inTime = System.currentTimeMillis();
-        while (System.currentTimeMillis() < inTime + 1000) {
+        while (System.currentTimeMillis() < inTime + 10000) {
             Stanza stanza = session.poll();
             if (stanza != null) return stanza;
             try { Thread.sleep(10); } catch (InterruptedException e) { e.printStackTrace(); }
