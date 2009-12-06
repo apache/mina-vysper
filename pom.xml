@@ -310,6 +310,15 @@
     </pluginManagement>
 
     <plugins>
+	  <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+		<configuration>
+          <excludes>
+            <exclude>**/*IntegrationTestCase*</exclude>
+      	  </excludes>
+        </configuration>
+      </plugin>
+	
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>apt-maven-plugin</artifactId>
@@ -364,6 +373,22 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <id>integrationtests</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                  <excludes>
+                    <exclude>none</exclude>
+                  </excludes>
+                </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
   </profiles>
 
   <modules>
