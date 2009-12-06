@@ -39,7 +39,7 @@ import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 public class StanzaBuilder extends AbstractXMLElementBuilder<StanzaBuilder, Stanza> {
 
     public static StanzaBuilder createIQStanza(Entity from, Entity to, IQStanzaType type, String id) {
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("iq");
+        StanzaBuilder stanzaBuilder = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT);
         if (from != null) stanzaBuilder.addAttribute("from", from.getFullQualifiedName());
         if (to != null) stanzaBuilder.addAttribute("to", to.getFullQualifiedName());
         stanzaBuilder.addAttribute("type", type.value());
@@ -48,7 +48,7 @@ public class StanzaBuilder extends AbstractXMLElementBuilder<StanzaBuilder, Stan
     }
 
     public static StanzaBuilder createMessageStanza(Entity from, Entity to, String lang, String body) {
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("message");
+        StanzaBuilder stanzaBuilder = new StanzaBuilder("message", NamespaceURIs.JABBER_CLIENT);
         stanzaBuilder.addAttribute("from", from.getFullQualifiedName());
         stanzaBuilder.addAttribute("to", to.getFullQualifiedName());
         if(lang != null) stanzaBuilder.addAttribute(NamespaceURIs.XML, "lang", lang);
@@ -63,7 +63,7 @@ public class StanzaBuilder extends AbstractXMLElementBuilder<StanzaBuilder, Stan
     }
 
     public static StanzaBuilder createPresenceStanza(Entity from, Entity to, String lang, PresenceStanzaType type, String show, String status) {
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("presence");
+        StanzaBuilder stanzaBuilder = new StanzaBuilder("presence", NamespaceURIs.JABBER_CLIENT);
         if (from != null) stanzaBuilder.addAttribute("from", from.getFullQualifiedName());
         if (to != null) stanzaBuilder.addAttribute("to", to.getFullQualifiedName());
         if (lang != null) stanzaBuilder.addAttribute(NamespaceURIs.XML, "lang", lang);
@@ -108,7 +108,7 @@ public class StanzaBuilder extends AbstractXMLElementBuilder<StanzaBuilder, Stan
      * @return
      */
     public static StanzaBuilder createClone(XMLElement original, boolean deep, List<Attribute> replacingAttributes) {
-        StanzaBuilder stanzaBuilder = new StanzaBuilder(original.getName(), original.getNamespacePrefix());
+        StanzaBuilder stanzaBuilder = new StanzaBuilder(original.getName(), original.getNamespaceURI(), original.getNamespacePrefix());
 
         List<Attribute> replacingAttributesCopy = new ArrayList<Attribute>();
         if (replacingAttributes != null) replacingAttributesCopy.addAll(replacingAttributes);

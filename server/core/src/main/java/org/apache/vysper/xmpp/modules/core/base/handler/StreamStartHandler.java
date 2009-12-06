@@ -49,7 +49,7 @@ public class StreamStartHandler implements StanzaHandler {
     public boolean verify(Stanza stanza) {
         if (stanza == null) return false;
         if (!getName().equals(stanza.getName())) return false;
-        String namespaceURI = stanza.getNamespacePrefix();
+        String namespaceURI = stanza.getNamespaceURI();
         if (namespaceURI == null) return false;
         return namespaceURI.equals(NamespaceURIs.JABBER_CLIENT) || namespaceURI.equals(NamespaceURIs.JABBER_SERVER);
     }

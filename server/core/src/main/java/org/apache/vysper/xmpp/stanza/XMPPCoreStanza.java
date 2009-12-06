@@ -73,7 +73,7 @@ abstract public class XMPPCoreStanza extends Stanza {
     }
 
     public boolean isServerCall() {
-        return getNamespacePrefix().equals(NamespaceURIs.JABBER_SERVER);
+        return getNamespaceURI().equals(NamespaceURIs.JABBER_SERVER);
     }
 
 
