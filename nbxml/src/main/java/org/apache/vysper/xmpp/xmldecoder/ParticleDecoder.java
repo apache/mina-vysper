@@ -29,6 +29,19 @@ import java.nio.charset.CharsetDecoder;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class ParticleDecoder {
+	
+	private enum State { 
+		START, IN_TEXT, IN_TAG, IN_DOUBLE_ATTRIBUTE, IN_SINGLE_ATTRIBUTE, END, END_TEXT;
+		
+		public static boolean inAttribute(State state) {
+			return state == IN_DOUBLE_ATTRIBUTE || state == IN_SINGLE_ATTRIBUTE;
+		}
+
+		public static boolean atEnd(State state) {
+			return state == END || state == END_TEXT;
+		}
+}
+	
     /**
      * split in String, either in those parts enclosed by brackets or those who are not
      * @param byteBuffer
@@ -39,24 +52,42 @@ public class ParticleDecoder {
     public static XMLParticle decodeParticle(ByteBuffer byteBuffer, CharsetDecoder charsetDecoder) throws Exception {
         int startPosition = byteBuffer.position();
 
-        //String DEBUG_VORDERBAND = byteBuffer.duplicate().getString(charsetDecoder);
+        State state = State.START;
 
         if (!byteBuffer.hasRemaining()) return null;
 
         // count opening and closing braces
         char firstChar = (char)byteBuffer.get();
-        boolean plainText = firstChar != '<';
+        if(firstChar == '<') {
+        	state = State.IN_TAG;
+        } else {
+        	state = State.IN_TEXT;
+        }
 
-        boolean endReached = false;
         while (byteBuffer.remaining() > 0) {
             char aChar = (char)byteBuffer.get();
 
-            if (plainText && aChar == '<') endReached = true;
-            if (!plainText && aChar == '>') endReached = true;
+			if (state != State.IN_TEXT && state != State.IN_SINGLE_ATTRIBUTE && aChar == '"') {
+				if (state == State.IN_DOUBLE_ATTRIBUTE) {
+					state = State.IN_TAG;
+				} else {
+					state = State.IN_DOUBLE_ATTRIBUTE;
+				}
+			}
+			if (state != State.IN_TEXT && state != State.IN_DOUBLE_ATTRIBUTE && aChar == '\'') {
+				if (state == State.IN_SINGLE_ATTRIBUTE) {
+					state = State.IN_TAG;
+				} else {
+					state = State.IN_SINGLE_ATTRIBUTE;
+				}
+			}
 
-            if (endReached) {
+            if (state == State.IN_TEXT && aChar == '<') state = State.END_TEXT;
+            if (state != State.IN_TEXT && !State.inAttribute(state) && aChar == '>') state = State.END;
+            
+            if (State.atEnd(state)) {
                 int endPosition = byteBuffer.position();
-                if (plainText) endPosition--;
+                if (state == State.END_TEXT) endPosition--;
                 int limit = byteBuffer.limit();
                 ByteBuffer stanzaBuffer = null;
                 try {
@@ -69,8 +100,7 @@ public class ParticleDecoder {
                     byteBuffer.position(endPosition);
                     byteBuffer.limit(limit);
                 }
-                //String DEBUG_HINTERBAND = stanzaBuffer.duplicate().getString(charsetDecoder);
-                //String DEBUG_REMAINS = byteBuffer.duplicate().getString(charsetDecoder);
+
                 String content = stanzaBuffer.getString(charsetDecoder);
                 return new XMLParticle(content);
             }
