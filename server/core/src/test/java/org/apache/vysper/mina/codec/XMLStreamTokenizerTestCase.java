@@ -29,11 +29,11 @@ import junit.framework.TestCase;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.vysper.charset.CharsetUtil;
+import org.apache.vysper.xml.decoder.XMLStreamTokenizer;
+import org.apache.vysper.xml.fragment.XMLElement;
+import org.apache.vysper.xml.fragment.XMLFragment;
+import org.apache.vysper.xml.fragment.XMLText;
 import org.apache.vysper.xmpp.writer.StanzaWriter;
-import org.apache.vysper.xmpp.xmldecoder.XMLStreamTokenizer;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
-import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
-import org.apache.vysper.xmpp.xmlfragment.XMLText;
 
 /**
  */

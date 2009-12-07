@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.core.base.handler;
 
+import org.apache.vysper.xml.fragment.Attribute;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
@@ -32,7 +33,6 @@ import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
-import org.apache.vysper.xmpp.xmlfragment.Attribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

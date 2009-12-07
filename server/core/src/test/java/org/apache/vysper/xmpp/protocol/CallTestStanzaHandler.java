@@ -20,10 +20,10 @@
 
 package org.apache.vysper.xmpp.protocol;
 
+import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 public class CallTestStanzaHandler implements StanzaHandler {
     private boolean handlerCalled = false;

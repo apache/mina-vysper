@@ -21,7 +21,7 @@ package org.apache.vysper.xmpp.stanza;
 
 import junit.framework.TestCase;
 
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
+import org.apache.vysper.xml.fragment.XMLElement;
 
 /**
  */

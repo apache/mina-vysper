@@ -21,8 +21,8 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model;
 
 import java.util.Date;
 
+import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
  * This class encapsulates the payload of published notifications. It stores

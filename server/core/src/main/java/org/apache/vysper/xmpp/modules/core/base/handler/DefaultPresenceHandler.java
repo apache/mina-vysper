@@ -22,6 +22,8 @@ package org.apache.vysper.xmpp.modules.core.base.handler;
 
 import java.util.List;
 
+import org.apache.vysper.xml.fragment.XMLElement;
+import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
@@ -30,8 +32,6 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
 import org.apache.vysper.xmpp.stanza.StanzaErrorType;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
-import org.apache.vysper.xmpp.xmlfragment.XMLElementVerifier;
 
 /**
  * handling presence stanzas

@@ -21,10 +21,10 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas;
 
 import java.util.List;
 
+import org.apache.vysper.xml.fragment.XMLElement;
+import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
-import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
 
 public class X extends XMLElement {
 

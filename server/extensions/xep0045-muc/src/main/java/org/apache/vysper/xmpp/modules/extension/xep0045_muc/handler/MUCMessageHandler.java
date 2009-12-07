@@ -24,6 +24,8 @@ import java.util.List;
 
 import org.apache.vysper.compliance.SpecCompliance;
 import org.apache.vysper.compliance.SpecCompliant;
+import org.apache.vysper.xml.fragment.Attribute;
+import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -44,8 +46,6 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
 import org.apache.vysper.xmpp.stanza.StanzaErrorType;
-import org.apache.vysper.xmpp.xmlfragment.Attribute;
-import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

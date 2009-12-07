@@ -19,6 +19,10 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
+import org.apache.vysper.xml.fragment.Attribute;
+import org.apache.vysper.xml.fragment.NamespaceAttribute;
+import org.apache.vysper.xml.fragment.XMLElement;
+import org.apache.vysper.xml.fragment.XMLFragment;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
@@ -26,10 +30,6 @@ import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
 import org.apache.vysper.xmpp.stanza.StanzaErrorType;
-import org.apache.vysper.xmpp.xmlfragment.Attribute;
-import org.apache.vysper.xmpp.xmlfragment.NamespaceAttribute;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
-import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 
 /**
  * The ErrorStanzaGenerator is used to unify the creation of error stanzas across the pubsub

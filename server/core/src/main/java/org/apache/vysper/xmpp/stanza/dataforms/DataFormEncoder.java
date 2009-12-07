@@ -19,11 +19,11 @@
  */
 package org.apache.vysper.xmpp.stanza.dataforms;
 
+import org.apache.vysper.xml.fragment.Attribute;
+import org.apache.vysper.xml.fragment.XMLElement;
+import org.apache.vysper.xml.fragment.XMLFragment;
+import org.apache.vysper.xml.fragment.XMLText;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.xmlfragment.Attribute;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
-import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
-import org.apache.vysper.xmpp.xmlfragment.XMLText;
 
 import java.util.ArrayList;
 import java.util.Iterator;

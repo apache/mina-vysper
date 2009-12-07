@@ -19,8 +19,8 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas;
 
+import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 public class Invite extends AbstractInviteDecline {
 

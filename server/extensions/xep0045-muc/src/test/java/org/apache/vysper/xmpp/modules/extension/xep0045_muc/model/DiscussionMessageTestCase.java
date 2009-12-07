@@ -25,6 +25,7 @@ import java.util.TimeZone;
 import junit.framework.TestCase;
 
 import org.apache.vysper.TestUtil;
+import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.datetime.DateTimeProfile;
@@ -32,7 +33,6 @@ import org.apache.vysper.xmpp.stanza.MessageStanza;
 import org.apache.vysper.xmpp.stanza.MessageStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
  * 

@@ -2,6 +2,12 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 
 import static org.apache.vysper.xmpp.stanza.MessageStanzaType.GROUPCHAT;
 
+import org.apache.vysper.xml.fragment.Attribute;
+import org.apache.vysper.xml.fragment.XMLElement;
+import org.apache.vysper.xml.fragment.XMLElementBuilder;
+import org.apache.vysper.xml.fragment.XMLFragment;
+import org.apache.vysper.xml.fragment.XMLSemanticError;
+import org.apache.vysper.xml.fragment.XMLText;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;
@@ -13,12 +19,6 @@ import org.apache.vysper.xmpp.stanza.MessageStanza;
 import org.apache.vysper.xmpp.stanza.MessageStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.xmlfragment.Attribute;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
-import org.apache.vysper.xmpp.xmlfragment.XMLElementBuilder;
-import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
-import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
-import org.apache.vysper.xmpp.xmlfragment.XMLText;
 
 /**
  */

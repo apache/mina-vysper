@@ -1,5 +1,6 @@
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
 
+import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler.AbstractMUCHandlerTestCase;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
@@ -9,7 +10,6 @@ import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
  */

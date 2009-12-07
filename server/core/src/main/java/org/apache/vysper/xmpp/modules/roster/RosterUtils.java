@@ -23,15 +23,16 @@ import org.apache.vysper.compliance.SpecCompliance;
 import org.apache.vysper.compliance.SpecCompliant;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.*;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.FINISHED;
+
+import org.apache.vysper.xml.fragment.Attribute;
+import org.apache.vysper.xml.fragment.XMLElement;
+import org.apache.vysper.xml.fragment.XMLElementVerifier;
+import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.roster.persistence.RosterManager;
 import org.apache.vysper.xmpp.stanza.IQStanza;
-import org.apache.vysper.xmpp.xmlfragment.Attribute;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
-import org.apache.vysper.xmpp.xmlfragment.XMLElementVerifier;
-import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.servicediscovery.handler;
 
+import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
 import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceCollector;
@@ -36,7 +37,6 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
 import org.apache.vysper.xmpp.stanza.StanzaErrorType;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.compliance.SpecCompliance;
 import org.slf4j.Logger;

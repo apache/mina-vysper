@@ -22,9 +22,9 @@ package org.apache.vysper.mina;
 import org.apache.mina.common.IoFilterAdapter;
 import org.apache.mina.common.IoSession;
 import org.apache.vysper.mina.codec.StanzaWriteInfo;
+import org.apache.vysper.xml.fragment.Renderer;
+import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.writer.DenseStanzaLogRenderer;
-import org.apache.vysper.xmpp.xmlfragment.Renderer;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

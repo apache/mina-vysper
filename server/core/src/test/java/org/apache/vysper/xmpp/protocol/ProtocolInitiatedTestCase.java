@@ -20,12 +20,12 @@
 
 package org.apache.vysper.xmpp.protocol;
 
+import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.server.XMPPVersion;
 import org.apache.vysper.xmpp.server.response.ServerResponses;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.xmlfragment.XMLElementVerifier;
 
 /**
  * test session initiation bevahior

@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.protocol;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.core.base.handler.MessageHandler;
@@ -30,7 +31,6 @@ import org.apache.vysper.xmpp.modules.core.base.handler.XMLPrologHandler;
 import org.apache.vysper.xmpp.modules.core.im.handler.PresenceHandler;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
  * for effeciently looking up the right handler for a stanza. at first this class tries to determine the stanza's

@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.core.sasl.handler;
 
+import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
@@ -33,7 +34,6 @@ import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
 import org.apache.vysper.xmpp.modules.core.sasl.AuthorizationRetriesCounter;
 import org.apache.vysper.xmpp.modules.core.sasl.SASLFailureType;
-import org.apache.vysper.xmpp.xmlfragment.XMLElementVerifier;
 
 /**
  *

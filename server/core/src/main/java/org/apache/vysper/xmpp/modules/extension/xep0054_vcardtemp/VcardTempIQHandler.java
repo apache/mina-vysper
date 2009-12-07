@@ -20,6 +20,9 @@
 package org.apache.vysper.xmpp.modules.extension.xep0054_vcardtemp;
 
 import org.apache.vysper.compliance.SpecCompliant;
+import org.apache.vysper.xml.fragment.Renderer;
+import org.apache.vysper.xml.fragment.XMLElement;
+import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
@@ -32,9 +35,6 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
 import org.apache.vysper.xmpp.stanza.StanzaErrorType;
-import org.apache.vysper.xmpp.xmlfragment.Renderer;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
-import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
 
 /**
  *

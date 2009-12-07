@@ -21,6 +21,8 @@ package org.apache.vysper.xmpp.modules.core.im.handler;
 
 import junit.framework.TestCase;
 import org.apache.vysper.storage.OpenStorageProviderRegistry;
+import org.apache.vysper.xml.fragment.XMLElementVerifier;
+import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
@@ -38,8 +40,6 @@ import org.apache.vysper.xmpp.stanza.PresenceStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceState;
-import org.apache.vysper.xmpp.xmlfragment.XMLElementVerifier;
-import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
 
 /**
  * base class for subclassing presence handler tests from

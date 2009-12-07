@@ -20,6 +20,7 @@
 
 package org.apache.vysper.xmpp.modules.core.base.handler;
 
+import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
@@ -29,7 +30,6 @@ import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanzaVerifier;
-import org.apache.vysper.xmpp.xmlfragment.XMLElementVerifier;
 import junit.framework.TestCase;
 
 /**

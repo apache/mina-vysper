@@ -25,9 +25,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
+import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.History;
 import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.xmlfragment.Renderer;
 
 
 /**

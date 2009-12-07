@@ -20,8 +20,8 @@
 
 package org.apache.vysper.xmpp.stanza;
 
-import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
+import org.apache.vysper.xml.fragment.XMLElement;
+import org.apache.vysper.xml.fragment.XMLSemanticError;
 
 import java.util.Map;
 

@@ -26,9 +26,9 @@ import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.apache.vysper.charset.CharsetUtil;
+import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.writer.StanzaWriter;
-import org.apache.vysper.xmpp.xmlfragment.Renderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

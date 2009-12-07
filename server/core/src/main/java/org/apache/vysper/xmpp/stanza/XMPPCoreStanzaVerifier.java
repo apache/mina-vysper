@@ -20,8 +20,8 @@
 
 package org.apache.vysper.xmpp.stanza;
 
+import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.xmlfragment.XMLElementVerifier;
 
 /**
  *

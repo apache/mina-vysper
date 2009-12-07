@@ -22,9 +22,10 @@ package org.apache.vysper.xmpp.stanza.dataforms;
 import junit.framework.TestCase;
 import static org.apache.vysper.xmpp.stanza.dataforms.DataForm.Type;
 import static org.apache.vysper.xmpp.stanza.dataforms.Field.Type.*;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
-import org.apache.vysper.xmpp.xmlfragment.XMLElementVerifier;
-import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
+
+import org.apache.vysper.xml.fragment.XMLElement;
+import org.apache.vysper.xml.fragment.XMLElementVerifier;
+import org.apache.vysper.xml.fragment.XMLSemanticError;
 
 /**
  */

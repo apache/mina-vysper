@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import junit.framework.TestCase;
 
 import org.apache.vysper.TestUtil;
+import org.apache.vysper.xml.fragment.Attribute;
+import org.apache.vysper.xml.fragment.XMLFragment;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.core.base.BaseStreamStanzaDictionary;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
@@ -30,8 +32,6 @@ import org.apache.vysper.xmpp.modules.core.base.handler.TestIQHandler;
 import org.apache.vysper.xmpp.modules.core.im.handler.PresenceHandler;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.xmlfragment.Attribute;
-import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 
 /**
  */

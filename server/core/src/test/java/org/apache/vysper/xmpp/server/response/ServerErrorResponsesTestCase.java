@@ -24,6 +24,8 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.apache.vysper.xml.fragment.Renderer;
+import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.parser.ParsingException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -31,8 +33,6 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
 import org.apache.vysper.xmpp.stanza.StanzaErrorType;
-import org.apache.vysper.xmpp.xmlfragment.Renderer;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
  */

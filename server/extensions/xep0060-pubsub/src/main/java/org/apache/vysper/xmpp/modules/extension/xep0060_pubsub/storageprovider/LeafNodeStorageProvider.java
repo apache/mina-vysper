@@ -20,6 +20,7 @@
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider;
 
 import org.apache.vysper.storage.StorageProvider;
+import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubAffiliation;
@@ -27,7 +28,6 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberVisitor
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.MemberAffiliationVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LastOwnerResignedException;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
  * This interface defines all methods a StorageProvider has to offer to be suitable

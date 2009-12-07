@@ -22,6 +22,8 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
 import junit.framework.TestCase;
 
 import org.apache.vysper.TestUtil;
+import org.apache.vysper.xml.fragment.Renderer;
+import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
@@ -33,8 +35,6 @@ import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.server.components.Component;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.xmlfragment.Renderer;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
  * 

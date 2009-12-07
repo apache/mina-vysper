@@ -25,6 +25,7 @@ import org.apache.vysper.compliance.SpecCompliant;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.IN_PROGRESS;
 import static org.apache.vysper.xmpp.stanza.PresenceStanzaType.*;
 
+import org.apache.vysper.xml.fragment.Attribute;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.core.base.handler.XMPPCoreStanzaHandler;
@@ -46,7 +47,6 @@ import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanzaVerifier;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceState;
-import org.apache.vysper.xmpp.xmlfragment.Attribute;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.slf4j.Logger;

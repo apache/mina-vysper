@@ -20,6 +20,9 @@
 package org.apache.vysper.xmpp.modules.servicediscovery.handler;
 
 import junit.framework.TestCase;
+
+import org.apache.vysper.xml.fragment.XMLElement;
+import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceCollector;
@@ -40,8 +43,6 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 import org.apache.vysper.xmpp.stanza.dataforms.DataForm;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
-import org.apache.vysper.xmpp.xmlfragment.XMLElementVerifier;
 
 import java.util.ArrayList;
 import java.util.List;

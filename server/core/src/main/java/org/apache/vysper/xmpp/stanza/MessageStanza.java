@@ -20,8 +20,8 @@
 
 package org.apache.vysper.xmpp.stanza;
 
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
-import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
+import org.apache.vysper.xml.fragment.XMLElement;
+import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.compliance.SpecCompliant;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.FINISHED;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.COMPLETE;

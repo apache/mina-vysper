@@ -20,6 +20,7 @@
 
 package org.apache.vysper.xmpp.modules.core.im.handler;
 
+import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
 import static org.apache.vysper.xmpp.stanza.PresenceStanzaType.PROBE;
@@ -29,7 +30,6 @@ import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
 import org.apache.vysper.xmpp.state.resourcebinding.BindException;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceState;
-import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
 
 /**
  */

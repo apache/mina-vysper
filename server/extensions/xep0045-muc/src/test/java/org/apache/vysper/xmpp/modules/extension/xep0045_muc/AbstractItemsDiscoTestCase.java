@@ -25,6 +25,7 @@ import java.util.List;
 
 import junit.framework.AssertionFailedError;
 
+import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.servicediscovery.handler.DiscoItemIQHandler;
@@ -32,7 +33,6 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
  * 

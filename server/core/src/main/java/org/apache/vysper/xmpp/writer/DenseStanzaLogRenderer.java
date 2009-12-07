@@ -19,7 +19,7 @@
  */
 package org.apache.vysper.xmpp.writer;
 
-import org.apache.vysper.xmpp.xmlfragment.*;
+import org.apache.vysper.xml.fragment.*;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.Stanza;

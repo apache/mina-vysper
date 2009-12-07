@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubAffiliation;
@@ -31,7 +32,6 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.MemberAffiliation
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.PayloadItem;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LastOwnerResignedException;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
  * This storage provider keeps all objects in memory and looses its content when

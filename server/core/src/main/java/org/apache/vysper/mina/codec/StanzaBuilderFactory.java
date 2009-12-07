@@ -22,12 +22,12 @@ package org.apache.vysper.mina.codec;
 
 import java.util.List;
 
+import org.apache.vysper.xml.decoder.XMLElementBuilderFactory;
+import org.apache.vysper.xml.fragment.AbstractXMLElementBuilder;
+import org.apache.vysper.xml.fragment.Attribute;
+import org.apache.vysper.xml.fragment.XMLFragment;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.xmldecoder.XMLElementBuilderFactory;
-import org.apache.vysper.xmpp.xmlfragment.AbstractXMLElementBuilder;
-import org.apache.vysper.xmpp.xmlfragment.Attribute;
-import org.apache.vysper.xmpp.xmlfragment.XMLFragment;
 
 
 /**

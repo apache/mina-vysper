@@ -20,6 +20,8 @@
 package org.apache.vysper.xmpp.delivery.inbound;
 
 import junit.framework.TestCase;
+
+import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -32,7 +34,6 @@ import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
-import org.apache.vysper.xmpp.xmlfragment.XMLSemanticError;
 
 /**
  */

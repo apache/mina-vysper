@@ -19,13 +19,13 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
+import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.ErrorStanzaGenerator;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.uuid.JVMBuiltinUUIDGenerator;
 import org.apache.vysper.xmpp.uuid.UUIDGenerator;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
  * This abstract class is the superclass of all pubsub (and related) handlers. It is responsible for correctly verifying whether a

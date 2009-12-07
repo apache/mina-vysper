@@ -20,6 +20,7 @@
 package org.apache.vysper.xmpp.authorization;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.vysper.xml.fragment.XMLText;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.core.sasl.SASLFailureType;
@@ -27,7 +28,6 @@ import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.xmlfragment.XMLText;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.compliance.SpecCompliance;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.*;

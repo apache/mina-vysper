@@ -22,7 +22,7 @@ package org.apache.vysper.mina.codec;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
-import org.apache.vysper.xmpp.xmldecoder.XMLStreamTokenizer;
+import org.apache.vysper.xml.decoder.XMLStreamTokenizer;
 
 /**
  * factory class for Vysper-specific encoder and decoder

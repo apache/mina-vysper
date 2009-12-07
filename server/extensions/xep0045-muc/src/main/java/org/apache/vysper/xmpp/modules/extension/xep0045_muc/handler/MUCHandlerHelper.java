@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.AbstractInviteDecline;
@@ -32,7 +33,6 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.xmlfragment.XMLElement;
 
 /**
  * 

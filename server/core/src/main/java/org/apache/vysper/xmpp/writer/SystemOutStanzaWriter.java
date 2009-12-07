@@ -19,8 +19,8 @@
  */
 package org.apache.vysper.xmpp.writer;
 
+import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.xmlfragment.Renderer;
 
 /**
  * writes stanza to System.out
