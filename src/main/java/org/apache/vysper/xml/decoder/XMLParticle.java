@@ -29,6 +29,16 @@ import java.util.regex.Pattern;
  */
 public class XMLParticle {
 
+	//private static final String nameStartChar = "[:A-Z_a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
+	
+	// TODO how do we handle \\U00010000-\\U000EFFFF ?
+    private static final String nameStartChar = ":A-Z_a-z\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD";
+    private static final String nameChar = nameStartChar + "-\\.0-9\\u00B7\\u0300-\\u036F\\u203F-\\u2040";
+    public static final Pattern NAME_PATTERN = Pattern.compile("^[" + nameStartChar + "][" + nameChar + "]*$");
+    public static final Pattern NAME_PREFIX_PATTERN = Pattern.compile("^xml", Pattern.CASE_INSENSITIVE);
+    
+    public static final Pattern UNESCAPE_UNICODE_PATTERN = Pattern.compile("\\&\\#(x?)(.+);");
+	
     private boolean isOpeningElement = false;
     private boolean isClosingElement = false;
     private boolean isSpecialElement = false;
@@ -91,7 +101,35 @@ public class XMLParticle {
     }
 
     public String getContent() {
-        return content;
+    	if(isText()) {
+    		return unescape(content);
+    	} else {
+    		return content;
+    	}
+    }
+    
+    
+    private String unescape(String s) {
+    	s = s.replace("&amp;", "&").replace("&gt;", ">").replace("&lt;", "<").replace("&apos;", "'").replace("&quot;", "\"");
+    
+    	StringBuffer sb = new StringBuffer();
+
+    	Matcher matcher = UNESCAPE_UNICODE_PATTERN.matcher(s);
+    	int end = 0;
+    	while(matcher.find()) {
+    		boolean isHex = matcher.group(1).equals("x");
+    		String unicodeCode = matcher.group(2);
+    		
+    		int base = isHex ? 16: 10;
+    		int i = Integer.valueOf(unicodeCode, base).intValue();
+    		char[] c = Character.toChars(i);
+    		sb.append(s.substring(end, matcher.start()));
+    		end = matcher.end();
+    		sb.append(c);
+    	}
+    	sb.append(s.substring(end, s.length()));
+    	
+    	return sb.toString();
     }
 
     public String getContentWithoutElement() throws DecodingException {
@@ -128,22 +166,23 @@ public class XMLParticle {
                 if (current == '!' || current == '?' || current == '/') continue; // TODO check, if next char is '>'
             }
             if (beforeElement) {
-                if (!isLegitemateNameStartChar(current)) {
-                    throw new DecodingException("cannot start element name with char " + (char)current);
-                }
                 beforeElement = false;
             } else {
-                if (!isLegitemateNameChar(current)) {
-                    if (!isWhitespace(current) &&  current != '>' && current != '/') {
-                        throw new DecodingException("char not allowed in element name: " + (char)current);
-                    } else {
-                        break; // name is completed
-                    }
+                if (isWhitespace(current) || current == '>' || current == '/') {
+                    break; // name is completed
                 }
             }
             elementNameBuilder.append((char)current);
         }
-        return elementNameBuilder.toString();
+        
+        String elementName = elementNameBuilder.toString();
+        
+        if(!NAME_PATTERN.matcher(elementName).find()) throw new DecodingException("Invalid element name: " + elementName);
+
+        // element names must not begin with "xml" in any casing
+        if(NAME_PREFIX_PATTERN.matcher(elementName).find()) throw new DecodingException("Names must not start with 'xml': " + elementName);
+        
+        return elementName;
     }
 
     private boolean isWhitespace(int current) {
@@ -151,19 +190,4 @@ public class XMLParticle {
                 current == '!' || current == '?' /* TODO check, if next char is '>'*/
                );
     }
-
-    /**
-     *
-     * NameChar	 ::=  Letter | Digit | '.' | '-' | '_' | ':' | CombiningChar | Extender
-     * @param c
-     * @return
-     */
-    private boolean isLegitemateNameChar(int c) {
-        return isLegitemateNameStartChar(c) || Character.isDigit(c) || c == '.' || c == '-';
-    }
-
-    private boolean isLegitemateNameStartChar(int c) {
-        return Character.isLetter(c) || c == '_' || c == ':';
-    }
-
 }
