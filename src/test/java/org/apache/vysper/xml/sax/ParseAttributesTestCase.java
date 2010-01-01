@@ -22,83 +22,71 @@ package org.apache.vysper.xml.sax;
 import java.util.Iterator;
 
 import org.apache.vysper.xml.sax.TestHandler.TestEvent;
+import org.apache.vysper.xml.sax.impl.Attribute;
 
 
 
 /**
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class ParseTextTestCase extends AbstractAsyncXMLReaderTestCase {
+public class ParseAttributesTestCase extends AbstractAsyncXMLReaderTestCase {
 
-	public void testSimpleText() throws Exception {
-		Iterator<TestEvent> events = parse("<root>text</root>").iterator();
+	public void testSimpleAttribute() throws Exception {
+		Iterator<TestEvent> events = parse("<root att='foo' />").iterator();
 
 		assertStartDocument(events.next());
-		assertStartElement("", "root", "root", events.next());
-		assertText("text", events.next());
+		assertStartElement("", "root", "root", attributes(new Attribute("att", "", "att", "foo")), events.next());
 		assertEndElement("", "root", "root", events.next());
 		assertEndDocument(events.next());
 		
 		assertFalse(events.hasNext());
 	}
 
-	public void testEscapedAmp() throws Exception {
-		Iterator<TestEvent> events = parse("<root>t&amp;ext</root>").iterator();
+	public void testMultipleAttribute() throws Exception {
+		Iterator<TestEvent> events = parse("<root att='foo' att2='bar' />").iterator();
 
 		assertStartDocument(events.next());
-		assertStartElement("", "root", "root", events.next());
-		assertText("t&ext", events.next());
+		assertStartElement("", "root", "root", 
+				attributes(new Attribute("att", "", "att", "foo"), new Attribute("att2", "", "att2", "bar")), events.next());
 		assertEndElement("", "root", "root", events.next());
 		assertEndDocument(events.next());
 		
 		assertFalse(events.hasNext());
 	}
 
-	public void testDoubleEscapedAmp() throws Exception {
-		Iterator<TestEvent> events = parse("<root>t&amp;amp;ext</root>").iterator();
+	public void testAttributeWithDoubleQuote() throws Exception {
+		Iterator<TestEvent> events = parse("<root att='f\"oo' />").iterator();
 
 		assertStartDocument(events.next());
-		assertStartElement("", "root", "root", events.next());
-		assertText("t&amp;ext", events.next());
+		assertStartElement("", "root", "root", 
+				attributes(new Attribute("att", "", "att", "f\"oo")), events.next());
 		assertEndElement("", "root", "root", events.next());
 		assertEndDocument(events.next());
 		
 		assertFalse(events.hasNext());
 	}
 
-	
-	public void testUnicodeEscape() throws Exception {
-		Iterator<TestEvent> events = parse("<root>t&#251;ext</root>").iterator();
+	public void testAttributeWithSingleQuote() throws Exception {
+		Iterator<TestEvent> events = parse("<root att=\"f'oo\" />").iterator();
 
 		assertStartDocument(events.next());
-		assertStartElement("", "root", "root", events.next());
-		assertText("tžext", events.next());
+		assertStartElement("", "root", "root", 
+				attributes(new Attribute("att", "", "att", "f'oo")), events.next());
 		assertEndElement("", "root", "root", events.next());
 		assertEndDocument(events.next());
 		
 		assertFalse(events.hasNext());
 	}
-	
-	public void testUnicodeHexEscape() throws Exception {
-		Iterator<TestEvent> events = parse("<root>t&#xFB;ext</root>").iterator();
+
+	public void testAttributeWithEscapedAmp() throws Exception {
+		Iterator<TestEvent> events = parse("<root att='f&amp;oo' />").iterator();
 
 		assertStartDocument(events.next());
-		assertStartElement("", "root", "root", events.next());
-		assertText("tžext", events.next());
+		assertStartElement("", "root", "root", 
+				attributes(new Attribute("att", "", "att", "f&oo")), events.next());
 		assertEndElement("", "root", "root", events.next());
 		assertEndDocument(events.next());
 		
 		assertFalse(events.hasNext());
 	}
-	
-	public void testTextOnly() throws Exception {
-		Iterator<TestEvent> events = parse("text</root>").iterator();
-
-		assertStartDocument(events.next());
-		assertFatalError(events.next());
-		
-		assertNoMoreevents(events);
-	}
-
-
 }

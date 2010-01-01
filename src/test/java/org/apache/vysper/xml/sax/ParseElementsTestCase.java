@@ -37,7 +37,7 @@ public class ParseElementsTestCase extends AbstractAsyncXMLReaderTestCase {
 		assertEndElement("", "root", "root", events.next());
 		assertEndDocument(events.next());
 		
-		assertFalse(events.hasNext());
+		assertNoMoreevents(events);
 	}
 
 	public void testElement() throws Exception {
@@ -48,7 +48,7 @@ public class ParseElementsTestCase extends AbstractAsyncXMLReaderTestCase {
 		assertEndElement("", "root", "root", events.next());
 		assertEndDocument(events.next());
 		
-		assertFalse(events.hasNext());
+		assertNoMoreevents(events);
 	}
 
 	public void testElements() throws Exception {
@@ -64,7 +64,7 @@ public class ParseElementsTestCase extends AbstractAsyncXMLReaderTestCase {
 		assertEndElement("", "root", "root", events.next());
 		assertEndDocument(events.next());
 		
-		assertFalse(events.hasNext());
+		assertNoMoreevents(events);
 	}
 
 	public void testIllegalClosingElement() throws Exception {
@@ -76,7 +76,7 @@ public class ParseElementsTestCase extends AbstractAsyncXMLReaderTestCase {
 		assertEndElement("", "child", "child", events.next());
 		assertFatalError(events.next());
 		
-		assertFalse(events.hasNext());
+		assertNoMoreevents(events);
 	}
 
 	public void testNumberAsFirstCharInName() throws Exception {
@@ -85,7 +85,7 @@ public class ParseElementsTestCase extends AbstractAsyncXMLReaderTestCase {
 		assertStartDocument(events.next());
 		assertFatalError(events.next());
 		
-		assertFalse(events.hasNext());
+		assertNoMoreevents(events);
 	}
 
 	public void testDashAsFirstCharInName() throws Exception {
@@ -94,7 +94,7 @@ public class ParseElementsTestCase extends AbstractAsyncXMLReaderTestCase {
 		assertStartDocument(events.next());
 		assertFatalError(events.next());
 		
-		assertFalse(events.hasNext());
+		assertNoMoreevents(events);
 	}
 
 	public void testNumberInName() throws Exception {
@@ -105,7 +105,7 @@ public class ParseElementsTestCase extends AbstractAsyncXMLReaderTestCase {
 		assertEndElement("", "r1oot", "r1oot", events.next());
 		assertEndDocument(events.next());
 		
-		assertFalse(events.hasNext());
+		assertNoMoreevents(events);
 	}
 
 	public void testInvalidUnicodeInName() throws Exception {
@@ -114,7 +114,7 @@ public class ParseElementsTestCase extends AbstractAsyncXMLReaderTestCase {
 		assertStartDocument(events.next());
 		assertFatalError(events.next());
 		
-		assertFalse(events.hasNext());
+		assertNoMoreevents(events);
 	}
 
 	public void testValidUnicodeInName() throws Exception {
@@ -126,7 +126,7 @@ public class ParseElementsTestCase extends AbstractAsyncXMLReaderTestCase {
 		assertEndDocument(events.next());
 
 		
-		assertFalse(events.hasNext());
+		assertNoMoreevents(events);
 	}
 
 	public void testXmlBeginName() throws Exception {
@@ -135,7 +135,7 @@ public class ParseElementsTestCase extends AbstractAsyncXMLReaderTestCase {
 		assertStartDocument(events.next());
 		assertFatalError(events.next());
 
-		assertFalse(events.hasNext());
+		assertNoMoreevents(events);
 	}
 
 	public void testXmlInsideName() throws Exception {
@@ -146,7 +146,7 @@ public class ParseElementsTestCase extends AbstractAsyncXMLReaderTestCase {
 		assertEndElement("", "roxmlot", "roxmlot", events.next());
 		assertEndDocument(events.next());
 
-		assertFalse(events.hasNext());
+		assertNoMoreevents(events);
 	}
 
 	
@@ -156,6 +156,6 @@ public class ParseElementsTestCase extends AbstractAsyncXMLReaderTestCase {
 		assertStartDocument(events.next());
 		assertFatalError(events.next());
 
-		assertFalse(events.hasNext());
+		assertNoMoreevents(events);
 	}
 }

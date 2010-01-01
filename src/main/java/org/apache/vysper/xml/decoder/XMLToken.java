@@ -17,32 +17,36 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xml.sax;
-
-import junit.framework.TestCase;
-
-import org.apache.vysper.xml.sax.impl.Parser;
-
+package org.apache.vysper.xml.decoder;
 
 
 /**
+ * holds a particle of XML, either representing an start or end element, or an elements body, or other text nodes.
+ *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class NameTestCase extends TestCase {
+public class XMLToken {
 
-	public void testValidName() {
-		assertTrue(Parser.NAME_PATTERN.matcher("abc").find());
-		assertTrue(Parser.NAME_PATTERN.matcher("_abc").find());
-		assertTrue(Parser.NAME_PATTERN.matcher(":abc").find());
-		assertTrue(Parser.NAME_PATTERN.matcher("Aabc").find());
-		assertTrue(Parser.NAME_PATTERN.matcher("\u00C8abc").find());
-		assertTrue(Parser.NAME_PATTERN.matcher("\u00C8abc").find());
-		assertFalse(Parser.NAME_PATTERN.matcher("3abc").find());
-		assertFalse(Parser.NAME_PATTERN.matcher("\u2001abc").find());
-		assertTrue(Parser.NAME_PATTERN.matcher("a3bc").find());
-		assertFalse(Parser.NAME_PATTERN.matcher("-abc").find());
-		assertTrue(Parser.NAME_PATTERN.matcher("ab-c").find());
-		
+	public static enum Type {
+		START_NAME,
+		END_NAME,
+		ATTRIBUTE_NAME,
+		ATTRIBUTE_VALUE,
+		COMMENT,
+		TEXT
+	}
+	
+	private Type type;
+	private String value;
+	public XMLToken(Type type, String value) {
+		this.type = type;
+		this.value = value;
 	}
 
+	public Type getType() {
+		return type;
+	}
+	public String getValue() {
+		return value;
+	}
 }

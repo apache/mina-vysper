@@ -22,6 +22,7 @@ package org.apache.vysper.xml.sax;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.vysper.charset.CharsetUtil;
 import org.apache.vysper.xml.sax.impl.DefaultAsyncXMLReader;
+import org.xml.sax.DTDHandler;
 import org.xml.sax.SAXException;
 
 
@@ -63,6 +64,31 @@ public class DefaultAsyncXMLReaderTestCase extends AbstractAsyncXMLReaderTestCas
 			reader.parse(ByteBuffer.wrap("<root>".getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
 			fail("Must throw SAXException");
 		} catch(SAXException e) {
+			// OK
+		}
+	}
+	
+	public void testSetDtdHandlerNotSupported() {
+		try {
+			new DefaultAsyncXMLReader().setDTDHandler(new DTDHandler() {
+				public void unparsedEntityDecl(String name, String publicId,
+						String systemId, String notationName) throws SAXException {
+				}
+				public void notationDecl(String name, String publicId, String systemId)
+						throws SAXException {
+				}
+			});
+			fail("Not supported, must throw RuntimeException");
+		} catch(RuntimeException e) {
+			// OK
+		}
+	}
+
+	public void testGetDtdHandlerNotSupported() {
+		try {
+			new DefaultAsyncXMLReader().getDTDHandler();
+			fail("Not supported, must throw RuntimeException");
+		} catch(RuntimeException e) {
 			// OK
 		}
 	}

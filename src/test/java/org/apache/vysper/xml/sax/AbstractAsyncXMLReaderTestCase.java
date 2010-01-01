@@ -20,6 +20,7 @@
 package org.apache.vysper.xml.sax;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -61,14 +62,25 @@ public abstract class AbstractAsyncXMLReaderTestCase extends TestCase {
 	
 	protected void assertStartElement(String expectedUri, String expectedLocalName, String expectedQName, Attributes expectedAttributes, 
 			TestEvent actual) {
-		if(!(actual instanceof StartElementEvent)) fail("Event must be StartElementEvent");
+		if(!(actual instanceof StartElementEvent)) fail("Event must be StartElementEvent but was " + actual.getClass());
 		StartElementEvent startElementEvent = (StartElementEvent) actual;
 		assertEquals("URI", expectedUri, startElementEvent.getURI());
 		assertEquals("local name", expectedLocalName, startElementEvent.getLocalName());
 		assertEquals("qName", expectedQName, startElementEvent.getQName());
-		assertEquals("Attributes", expectedAttributes, startElementEvent.getAtts());
+		assertAttributes(expectedAttributes, startElementEvent.getAtts());
 	}
 
+	protected void assertAttributes(Attributes expectedAttrs, Attributes actualAttrs) {
+		assertEquals("Attribute count", expectedAttrs.getLength(), actualAttrs.getLength());
+		
+		for(int i = 0; i<expectedAttrs.getLength(); i++) {
+			assertEquals("Local name[" + i + "]", expectedAttrs.getLocalName(i), actualAttrs.getLocalName(i));
+			assertEquals("Qname[" + i + "]", expectedAttrs.getQName(i), actualAttrs.getQName(i));
+			assertEquals("URI[" + i + "]", expectedAttrs.getURI(i), actualAttrs.getURI(i));
+			assertEquals("Value[" + i + "]", expectedAttrs.getValue(i), actualAttrs.getValue(i));
+		}
+	}
+	
 	protected void assertEndElement(String expectedUri, String expectedLocalName, String expectedQName, 
 			TestEvent actual) {
 		if(!(actual instanceof EndElementEvent)) fail("Event must be EndElementEvent");
@@ -107,4 +119,9 @@ public abstract class AbstractAsyncXMLReaderTestCase extends TestCase {
 		if(!(actual instanceof FatalErrorEvent)) fail("Event must be FatalErrorEvent but is "+ actual.getClass());
 	}
 
+	protected void assertNoMoreevents(Iterator events) {
+		if(events.hasNext()) {
+			fail("Must not be any more evens, but found one " + events.next().getClass());
+		}
+	}
 }

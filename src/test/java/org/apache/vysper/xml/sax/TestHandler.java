@@ -162,16 +162,19 @@ public class TestHandler implements ContentHandler, ErrorHandler {
 	
 	public void characters(char[] ch, int start, int length)
 			throws SAXException {
+		System.out.println("sax characters: " + new String(ch));
 		events.add(new CharacterEvent(ch, start, length));
 		
 	}
 
 	public void endDocument() throws SAXException {
+		System.out.println("sax end document");
 		events.add(new EndDocumentEvent());
 	}
 
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
+		System.out.println("sax end element: "+ qName);
 		events.add(new EndElementEvent(uri, localName, qName));
 		
 	}
@@ -204,6 +207,7 @@ public class TestHandler implements ContentHandler, ErrorHandler {
 	}
 
 	public void startDocument() throws SAXException {
+		System.out.println("sax start document");
 		events.add(new StartDocumentEvent());		
 	}
 
