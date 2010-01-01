@@ -24,6 +24,8 @@ import org.apache.vysper.charset.CharsetUtil;
 import org.apache.vysper.xml.sax.impl.DefaultAsyncXMLReader;
 import org.xml.sax.DTDHandler;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 
 
 /**
@@ -90,6 +92,57 @@ public class DefaultAsyncXMLReaderTestCase extends AbstractAsyncXMLReaderTestCas
 			fail("Not supported, must throw RuntimeException");
 		} catch(RuntimeException e) {
 			// OK
+		}
+	}
+	
+	public void testSetNotRecognizedFeature() throws SAXNotSupportedException {
+		DefaultAsyncXMLReader reader = new DefaultAsyncXMLReader();
+		try {
+			reader.setFeature("http://example.com", true);
+			fail("Must throw SAXNotRecognizedException");
+		} catch (SAXNotRecognizedException e) {
+			// OK
+		}
+	}
+
+	public void testSetNotSupportedFeature() throws SAXNotRecognizedException {
+		DefaultAsyncXMLReader reader = new DefaultAsyncXMLReader();
+		try {
+			reader.setFeature("http://xml.org/sax/features/namespace-prefixes", true);
+			fail("Must throw SAXNotSupportedException");
+		} catch (SAXNotSupportedException e) {
+			// OK
+		}
+	}
+
+	public void testSetFeature() throws SAXNotRecognizedException, SAXNotSupportedException {
+		DefaultAsyncXMLReader reader = new DefaultAsyncXMLReader();
+		reader.setFeature("http://xml.org/sax/features/namespaces", true);
+	}
+
+	public void testGetFeature() throws SAXNotRecognizedException, SAXNotSupportedException {
+		DefaultAsyncXMLReader reader = new DefaultAsyncXMLReader();
+		assertTrue(reader.getFeature("http://xml.org/sax/features/namespaces"));
+	}
+
+	public void testGetUnknownFeature() throws SAXNotSupportedException {
+		DefaultAsyncXMLReader reader = new DefaultAsyncXMLReader();
+		try {
+			assertTrue(reader.getFeature("http://example.com"));
+			fail("Must throw SAXNotRecognizedException");
+		} catch(SAXNotRecognizedException e) {
+			// ok
+		}
+	}
+	
+	public void testSetFeatureDuringParse() throws Exception {
+		DefaultAsyncXMLReader reader = new DefaultAsyncXMLReader();
+		reader.parse(ByteBuffer.wrap("<foo />".getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
+		try {
+			reader.setFeature("http://xml.org/sax/features/namespaces", true);
+			fail("Must throw SAXNotSupportedException");
+		} catch(SAXNotSupportedException e) {
+			// ok
 		}
 	}
 

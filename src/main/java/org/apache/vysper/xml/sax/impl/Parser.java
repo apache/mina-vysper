@@ -190,10 +190,22 @@ public class Parser implements TokenListener {
         }
 
 		String uri = "";
+		String localName = extractLocalName(qname);
+		
 		elements.add(fullyQualifiedName(uri, qname));
-		contentHandler.startElement(uri, qname, qname, new DefaultAttributes(attributes));
+		contentHandler.startElement(uri, localName, qname, new DefaultAttributes(attributes));
 	}
 
+	private String extractLocalName(String qname) {
+		int index = qname.indexOf(':');
+		
+		if(index > -1 ) {
+			return qname.substring(index + 1);
+		} else {
+			return qname;
+		}
+	}
+	
 	private String fullyQualifiedName(String uri, String qname) {
 		return "{" + uri + "}" + qname;
 	}
@@ -204,9 +216,11 @@ public class Parser implements TokenListener {
 		if(state == State.CLOSED) return;
 		
 		String uri = "";
+		String localName = extractLocalName(qname);
+		
 		String fqn = elements.pop();
 		if(fqn.equals(fullyQualifiedName(uri, qname))) {
-			contentHandler.endElement(uri, qname, qname);
+			contentHandler.endElement(uri, localName, qname);
 			
 			if(elements.isEmpty()) {
 				contentHandler.endDocument();

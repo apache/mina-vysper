@@ -21,6 +21,8 @@ package org.apache.vysper.xml.sax.impl;
 
 import java.io.IOException;
 import java.nio.charset.CharsetDecoder;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.mina.common.ByteBuffer;
 import org.apache.vysper.xml.sax.AsyncXMLReader;
@@ -39,17 +41,32 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class DefaultAsyncXMLReader implements AsyncXMLReader {
 
+	private static final String FEATURE_NAMESPACES = "http://xml.org/sax/features/namespaces";
+	private static final String FEATURE_NAMESPACE_PREFIXES = "http://xml.org/sax/features/namespace-prefixes";
+	
 	private ErrorHandler errorHandler = new DefaultHandler();
 	private ContentHandler contentHandler = new DefaultHandler();
 
 	private Parser parser;
+	
+	private Map<String, Boolean> features = new HashMap<String, Boolean>();
+	
+	public DefaultAsyncXMLReader() {
+		// set default features
+		features.put(FEATURE_NAMESPACES, true);
+		features.put(FEATURE_NAMESPACE_PREFIXES, false);
+	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
     public boolean getFeature (String name)
         throws SAXNotRecognizedException, SAXNotSupportedException {
-    	return false;
+    	if(features.containsKey(name)) {
+    		return features.get(name);
+    	} else {
+    		throw new SAXNotRecognizedException("Unknown feature");
+    	}
     }
 
 
@@ -59,6 +76,23 @@ public class DefaultAsyncXMLReader implements AsyncXMLReader {
     public void setFeature (String name, boolean value)
 		throws SAXNotRecognizedException, SAXNotSupportedException {
     	
+    	// features must be set before parsing starts
+    	if(parser != null) {
+    		throw new SAXNotSupportedException("Feature can not be set during parsing");
+    	}
+    	
+    	if(features.containsKey(name)) {
+    		// TODO make configurable fatures and values easier to manage
+    		if(name.equals(FEATURE_NAMESPACES) && value) {
+    			// ok
+    		} else if(name.equals(FEATURE_NAMESPACE_PREFIXES) && !value) {
+    			// ok
+    		} else {
+    			throw new SAXNotSupportedException("Not supported");
+    		}
+    	} else {
+    		throw new SAXNotRecognizedException("Unknown feature");
+    	}
     }
 
 
