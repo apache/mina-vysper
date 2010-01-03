@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 import javax.smartcardio.ATR;
 
 import org.apache.mina.common.ByteBuffer;
-import org.apache.vysper.xml.sax.impl.ParticleTokenizer.TokenListener;
+import org.apache.vysper.xml.sax.impl.XMLTokenizer.TokenListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
@@ -44,9 +44,9 @@ import org.xml.sax.SAXParseException;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class Parser implements TokenListener {
+public class XMLParser implements TokenListener {
 
-	private Logger LOG = LoggerFactory.getLogger(Parser.class);
+	private Logger LOG = LoggerFactory.getLogger(XMLParser.class);
 	
     private static final String nameStartChar = ":A-Z_a-z\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD";
     private static final String nameChar = nameStartChar + "-\\.0-9\\u00B7\\u0300-\\u036F\\u203F-\\u2040";
@@ -72,7 +72,7 @@ public class Parser implements TokenListener {
 		CLOSED
 	}
 	
-	private ParticleTokenizer tokenizer;
+	private XMLTokenizer tokenizer;
 	private State state = State.START;
 	private String qname;
 	
@@ -84,11 +84,11 @@ public class Parser implements TokenListener {
 	private Stack<String> elements = new Stack<String>();
 
 	
-	public Parser(ContentHandler contentHandler, ErrorHandler errorHandler) {
+	public XMLParser(ContentHandler contentHandler, ErrorHandler errorHandler) {
 		this.contentHandler = contentHandler;
 		this.errorHandler = errorHandler;
 		
-		this.tokenizer = new ParticleTokenizer(this);
+		this.tokenizer = new XMLTokenizer(this);
 	}
 	
     public void parse(ByteBuffer byteBuffer, CharsetDecoder charsetDecoder) throws SAXException {

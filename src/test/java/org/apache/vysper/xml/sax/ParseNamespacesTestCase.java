@@ -113,6 +113,25 @@ public class ParseNamespacesTestCase extends AbstractAsyncXMLReaderTestCase {
 		assertFalse(events.hasNext());
 	}
 
+	public void testUnknownPrefixOnElement() throws Exception {
+		Iterator<TestEvent> events = parse("<p:root />").iterator();
+
+		assertStartDocument(events.next());
+		assertFatalError(events.next());
+		
+		assertFalse(events.hasNext());
+	}
+
+	public void testUnknownPrefixOnAttribute() throws Exception {
+		Iterator<TestEvent> events = parse("<root p:att='foo' />").iterator();
+
+		assertStartDocument(events.next());
+		assertFatalError(events.next());
+		
+		assertFalse(events.hasNext());
+	}
+
+	
 	public void testInvalidNamespaceElement() throws Exception {
 		Iterator<TestEvent> events = parse("<p1:root xmlns:p1='urn:test' xmlns:p2='urn:foo'></p2:root>").iterator();
 

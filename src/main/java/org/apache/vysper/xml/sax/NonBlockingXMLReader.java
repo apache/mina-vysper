@@ -51,7 +51,7 @@ public interface NonBlockingXMLReader {
      * Some feature values may be available only in specific
      * contexts, such as before, during, or after a parse.
      * Also, some feature values may not be programmatically accessible.
-     * (In the case of an adapter for SAX1 {@link Parser}, there is no
+     * (In the case of an adapter for SAX1 {@link XMLParser}, there is no
      * implementation-independent way to expose whether the underlying
      * parser is performing validation, expanding external entities,
      * and so forth.) </p>

@@ -8,6 +8,7 @@ public class Attribute {
 	private String uri;
 	private String qname;
 	private String value;
+	
 	public Attribute(String localName, String uri, String qname,
 			String value) {
 		this.localName = localName;
@@ -15,18 +16,23 @@ public class Attribute {
 		this.qname = qname;
 		this.value = value;
 	}
+	
 	public String getLocalName() {
 		return localName;
 	}
+	
 	public String getURI() {
 		return uri;
 	}
+	
 	public String getQname() {
 		return qname;
 	}
+	
 	public String getValue() {
 		return value;
 	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

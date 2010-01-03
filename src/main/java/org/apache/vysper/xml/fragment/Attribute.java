@@ -36,7 +36,7 @@ public class Attribute {
 	public Attribute(String namespaceUri, String name, String value) {
         if (name == null) throw new IllegalArgumentException("name must not be null");
         if (value == null) throw new IllegalArgumentException("value must not be null");
-        this.namespaceUri = namespaceUri == null ? "" : namespaceUri;
+        this.namespaceUri = namespaceUri == null ? Namespaces.DEFAULT_NAMESPACE_URI : namespaceUri;
         this.name = name;
         this.value = value;
     }

@@ -31,7 +31,7 @@ import org.xml.sax.SAXException;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class ParticleTokenizer {
+public class XMLTokenizer {
 	
 	private enum State { 
 		START, 
@@ -51,7 +51,7 @@ public class ParticleTokenizer {
 	
 	private TokenListener listener;
 	
-	public ParticleTokenizer(TokenListener listeners) {
+	public XMLTokenizer(TokenListener listeners) {
 		this.listener = listeners;
 	}
 	

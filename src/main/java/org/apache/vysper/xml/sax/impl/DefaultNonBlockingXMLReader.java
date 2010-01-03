@@ -47,7 +47,7 @@ public class DefaultNonBlockingXMLReader implements NonBlockingXMLReader {
 	private ErrorHandler errorHandler = new DefaultHandler();
 	private ContentHandler contentHandler = new DefaultHandler();
 
-	private Parser parser;
+	private XMLParser parser;
 	
 	private Map<String, Boolean> features = new HashMap<String, Boolean>();
 	
@@ -170,7 +170,7 @@ public class DefaultNonBlockingXMLReader implements NonBlockingXMLReader {
 	 */
     public void parse (ByteBuffer buffer, CharsetDecoder decoder) throws IOException, SAXException {
     	if(parser == null) {
-    		parser = new Parser(contentHandler, errorHandler);
+    		parser = new XMLParser(contentHandler, errorHandler);
     	}
     	
 		parser.parse(buffer, decoder);

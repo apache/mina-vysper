@@ -22,7 +22,7 @@ package org.apache.vysper.xml.decoder;
 import org.apache.vysper.xml.fragment.AbstractXMLElementBuilder;
 import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xml.fragment.XMLElement;
-import org.apache.vysper.xml.sax.impl.Parser;
+import org.apache.vysper.xml.sax.impl.XMLParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
