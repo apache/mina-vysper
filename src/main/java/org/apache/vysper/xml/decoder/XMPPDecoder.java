@@ -26,8 +26,8 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.vysper.charset.CharsetUtil;
 import org.apache.vysper.xml.decoder.XMPPContentHandler.StanzaListener;
 import org.apache.vysper.xml.fragment.XMLElement;
-import org.apache.vysper.xml.sax.AsyncXMLReader;
-import org.apache.vysper.xml.sax.impl.DefaultAsyncXMLReader;
+import org.apache.vysper.xml.sax.NonBlockingXMLReader;
+import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
 
 /**
  * splits xml stream into handy tokens for further processing
@@ -63,10 +63,10 @@ public class XMPPDecoder extends CumulativeProtocolDecoder {
     @Override
     public boolean doDecode(IoSession ioSession, ByteBuffer byteBuffer, ProtocolDecoderOutput protocolDecoderOutput) throws Exception {
 
-    	AsyncXMLReader reader = (AsyncXMLReader) ioSession.getAttribute(SESSION_ATTRIBUTE_NAME);
+    	NonBlockingXMLReader reader = (NonBlockingXMLReader) ioSession.getAttribute(SESSION_ATTRIBUTE_NAME);
     	
         if (reader == null) {
-        	reader = new DefaultAsyncXMLReader();
+        	reader = new DefaultNonBlockingXMLReader();
         	reader.setContentHandler(new XMPPContentHandler(builderFactory));
         	
             ioSession.setAttribute(SESSION_ATTRIBUTE_NAME, reader);

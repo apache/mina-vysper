@@ -20,7 +20,7 @@
 package org.apache.vysper.xml.fragment;
 
 import org.apache.vysper.xml.fragment.Attribute;
-import org.apache.vysper.xml.fragment.NamespaceURIs;
+import org.apache.vysper.xml.fragment.Namespaces;
 import org.apache.vysper.xml.fragment.StackNamespaceResolver;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLElementBuilder;
@@ -128,7 +128,7 @@ public class StackNamespaceResolverTestCase extends TestCase {
 
 
 	public void testPushXmlNamespace() {
-		assertEquals(NamespaceURIs.XML, resolver.resolveUri("xml"));
-		assertEquals("xml", resolver.resolvePrefix(NamespaceURIs.XML));
+		assertEquals(Namespaces.XML, resolver.resolveUri("xml"));
+		assertEquals("xml", resolver.resolvePrefix(Namespaces.XML));
 	}
 }

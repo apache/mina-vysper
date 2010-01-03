@@ -161,17 +161,17 @@ public class XMLElementVerifier {
 		for (Attribute attribute : element.getAttributes()) {
 			if (attribute.getValue().equals(namespace)
 					&& attribute.getName().startsWith(
-							NamespaceAttribute.XMLNS_AND_COLON)) {
+							Namespaces.XMLNS_AND_COLON)) {
 				return attribute.getName().substring(
-						NamespaceAttribute.XMLNS_AND_COLON.length());
+						Namespaces.XMLNS_AND_COLON.length());
 			}
 		}
 		return null;
 	}
 
 	private boolean isNamespaceAttribute(Attribute attribute) {
-		return (attribute.getName().equalsIgnoreCase(NamespaceAttribute.XMLNS) || attribute
-				.getName().startsWith(NamespaceAttribute.XMLNS_AND_COLON));
+		return (attribute.getName().equalsIgnoreCase(Namespaces.XMLNS) || attribute
+				.getName().startsWith(Namespaces.XMLNS_AND_COLON));
 	}
 
 	public String getUniqueXMLNSValue() {
@@ -208,7 +208,7 @@ public class XMLElementVerifier {
 
 		XMLElement xmlElement = ((XMLElement) onlySubelement);
         boolean nameEquals = name == null ? xmlElement.getName() == null : name.equals(xmlElement.getName());
-        if (namespaceURI == null) namespaceURI = NamespaceAttribute.DEFAULT_NAMESPACE;
+        if (namespaceURI == null) namespaceURI = Namespaces.DEFAULT_NAMESPACE_URI;
         return nameEquals && namespaceURI.equals(xmlElement.getNamespaceURI());
 	}
 }

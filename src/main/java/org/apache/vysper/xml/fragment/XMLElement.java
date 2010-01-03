@@ -45,8 +45,6 @@ public class XMLElement implements XMLFragment {
     private String namespaceURI;
     private String namespacePrefix;
 
-    private NamespaceResolver nsResolver;
-    
     private List<Attribute> attributes;
     private List<XMLFragment> innerFragments;
     protected XMLElementVerifier xmlElementVerifier;
@@ -56,14 +54,12 @@ public class XMLElement implements XMLFragment {
     }
 
     public XMLElement(String namespaceURI, String name, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments) {
-        this.namespaceURI = namespaceURI;
-    	this.namespacePrefix = namespacePrefix == null ? NamespaceAttribute.DEFAULT_NAMESPACE : namespacePrefix;
+        this.namespaceURI = namespaceURI == null ? Namespaces.DEFAULT_NAMESPACE_URI : namespaceURI;
+    	this.namespacePrefix = namespacePrefix == null ? Namespaces.DEFAULT_NAMESPACE_PREFIX : namespacePrefix;
         this.name = name;
         this.attributes = (attributes == null) ? Collections.EMPTY_LIST : Collections.unmodifiableList(attributes);
         this.innerFragments = (innerFragments == null) ? Collections.EMPTY_LIST : Collections.unmodifiableList(innerFragments);
         if (name == null) throw new IllegalArgumentException("XMLElement name cannot be null");
-        
-        nsResolver = new SimpleNamespaceResolver(this);
     }
 
     public String getName() {
@@ -80,21 +76,12 @@ public class XMLElement implements XMLFragment {
         return namespacePrefix;
     }
     
-    public NamespaceResolver getNamespaceResolver() {
-    	return nsResolver;
-    }
-    
     /**
      * Return the namespace URI.
      * @return The namespace URI for the element. 
      */
     public String getNamespaceURI() {
-    	// TODO clean up
-    	if(namespaceURI != null) {
-    		return namespaceURI;
-    	} else {
-    		return nsResolver.resolveUri(namespacePrefix);
-    	}
+		return namespaceURI;
     }
 
     public List<Attribute> getAttributes() {
@@ -126,7 +113,7 @@ public class XMLElement implements XMLFragment {
 
     
     public String getXMLLang() {
-        return getAttributeValue(NamespaceURIs.XML, "lang");
+        return getAttributeValue(Namespaces.XML, "lang");
     }
 
     public List<XMLFragment> getInnerFragments() {

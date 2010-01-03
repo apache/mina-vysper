@@ -30,7 +30,7 @@ import org.apache.vysper.charset.CharsetUtil;
 import org.apache.vysper.xml.decoder.XMPPContentHandler;
 import org.apache.vysper.xml.decoder.XMPPContentHandler.StanzaListener;
 import org.apache.vysper.xml.fragment.XMLElement;
-import org.apache.vysper.xml.sax.impl.DefaultAsyncXMLReader;
+import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
 
 /**
  * @author The Apache MINA Project (dev@mina.apache.org)
@@ -46,7 +46,7 @@ public class XMPPContentHandlerTestCase extends TestCase {
 	}
 	
 	public void test() throws Exception {
-		AsyncXMLReader reader = new DefaultAsyncXMLReader();
+		NonBlockingXMLReader reader = new DefaultNonBlockingXMLReader();
 		XMPPContentHandler handler = new XMPPContentHandler();
 		TestListener listener = new TestListener();
 		handler.setListener(listener);
@@ -65,7 +65,7 @@ public class XMPPContentHandlerTestCase extends TestCase {
 		assertEquals("iq", actual.next().getName());
 	}
 	
-	private void parse(AsyncXMLReader reader, String xml) throws Exception {
+	private void parse(NonBlockingXMLReader reader, String xml) throws Exception {
 		reader.parse(ByteBuffer.wrap(xml.getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);	
 	}
 

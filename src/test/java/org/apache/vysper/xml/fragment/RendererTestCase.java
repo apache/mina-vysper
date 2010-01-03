@@ -21,7 +21,7 @@ package org.apache.vysper.xml.fragment;
 
 import org.apache.vysper.xml.fragment.Attribute;
 import org.apache.vysper.xml.fragment.NamespaceAttribute;
-import org.apache.vysper.xml.fragment.NamespaceURIs;
+import org.apache.vysper.xml.fragment.Namespaces;
 import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLElementBuilder;
@@ -76,7 +76,7 @@ public class RendererTestCase extends TestCase {
 	// make sure we render the xml namespace correctly, e.g for xml:lang
 	public void testRenderXmlNamespacedAttribute() {
 		XMLElement elm = new XMLElement(null, "foo", null, new Attribute[]{
-				new Attribute(NamespaceURIs.XML, "lang", "sv")
+				new Attribute(Namespaces.XML, "lang", "sv")
 				}, null);
 		assertRendering("<foo xml:lang=\"sv\"></foo>", elm);
 	}

@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.mina.common.ByteBuffer;
-import org.apache.vysper.xml.sax.AsyncXMLReader;
+import org.apache.vysper.xml.sax.NonBlockingXMLReader;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.DTDHandler;
 import org.xml.sax.EntityResolver;
@@ -39,7 +39,7 @@ import org.xml.sax.helpers.DefaultHandler;
 /**
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class DefaultAsyncXMLReader implements AsyncXMLReader {
+public class DefaultNonBlockingXMLReader implements NonBlockingXMLReader {
 
 	private static final String FEATURE_NAMESPACES = "http://xml.org/sax/features/namespaces";
 	private static final String FEATURE_NAMESPACE_PREFIXES = "http://xml.org/sax/features/namespace-prefixes";
@@ -51,7 +51,7 @@ public class DefaultAsyncXMLReader implements AsyncXMLReader {
 	
 	private Map<String, Boolean> features = new HashMap<String, Boolean>();
 	
-	public DefaultAsyncXMLReader() {
+	public DefaultNonBlockingXMLReader() {
 		// set default features
 		features.put(FEATURE_NAMESPACES, true);
 		features.put(FEATURE_NAMESPACE_PREFIXES, false);

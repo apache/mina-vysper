@@ -21,7 +21,7 @@ package org.apache.vysper.xml.sax;
 
 import org.apache.mina.common.ByteBuffer;
 import org.apache.vysper.charset.CharsetUtil;
-import org.apache.vysper.xml.sax.impl.DefaultAsyncXMLReader;
+import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
 import org.xml.sax.DTDHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
@@ -35,7 +35,7 @@ public class DefaultAsyncXMLReaderTestCase extends AbstractAsyncXMLReaderTestCas
 
 	public void testParseAfterFatalError() throws Exception {
 		TestHandler handler = new TestHandler();
-		AsyncXMLReader reader = new DefaultAsyncXMLReader();
+		NonBlockingXMLReader reader = new DefaultNonBlockingXMLReader();
 		reader.setContentHandler(handler);
 		reader.setErrorHandler(handler);
 
@@ -54,7 +54,7 @@ public class DefaultAsyncXMLReaderTestCase extends AbstractAsyncXMLReaderTestCas
 	
 	public void testParseAfterEndDocument() throws Exception {
 		TestHandler handler = new TestHandler();
-		AsyncXMLReader reader = new DefaultAsyncXMLReader();
+		NonBlockingXMLReader reader = new DefaultNonBlockingXMLReader();
 		reader.setContentHandler(handler);
 		reader.setErrorHandler(handler);
 
@@ -72,7 +72,7 @@ public class DefaultAsyncXMLReaderTestCase extends AbstractAsyncXMLReaderTestCas
 	
 	public void testSetDtdHandlerNotSupported() {
 		try {
-			new DefaultAsyncXMLReader().setDTDHandler(new DTDHandler() {
+			new DefaultNonBlockingXMLReader().setDTDHandler(new DTDHandler() {
 				public void unparsedEntityDecl(String name, String publicId,
 						String systemId, String notationName) throws SAXException {
 				}
@@ -88,7 +88,7 @@ public class DefaultAsyncXMLReaderTestCase extends AbstractAsyncXMLReaderTestCas
 
 	public void testGetDtdHandlerNotSupported() {
 		try {
-			new DefaultAsyncXMLReader().getDTDHandler();
+			new DefaultNonBlockingXMLReader().getDTDHandler();
 			fail("Not supported, must throw RuntimeException");
 		} catch(RuntimeException e) {
 			// OK
@@ -96,7 +96,7 @@ public class DefaultAsyncXMLReaderTestCase extends AbstractAsyncXMLReaderTestCas
 	}
 	
 	public void testSetNotRecognizedFeature() throws SAXNotSupportedException {
-		DefaultAsyncXMLReader reader = new DefaultAsyncXMLReader();
+		DefaultNonBlockingXMLReader reader = new DefaultNonBlockingXMLReader();
 		try {
 			reader.setFeature("http://example.com", true);
 			fail("Must throw SAXNotRecognizedException");
@@ -106,7 +106,7 @@ public class DefaultAsyncXMLReaderTestCase extends AbstractAsyncXMLReaderTestCas
 	}
 
 	public void testSetNotSupportedFeature() throws SAXNotRecognizedException {
-		DefaultAsyncXMLReader reader = new DefaultAsyncXMLReader();
+		DefaultNonBlockingXMLReader reader = new DefaultNonBlockingXMLReader();
 		try {
 			reader.setFeature("http://xml.org/sax/features/namespace-prefixes", true);
 			fail("Must throw SAXNotSupportedException");
@@ -116,17 +116,17 @@ public class DefaultAsyncXMLReaderTestCase extends AbstractAsyncXMLReaderTestCas
 	}
 
 	public void testSetFeature() throws SAXNotRecognizedException, SAXNotSupportedException {
-		DefaultAsyncXMLReader reader = new DefaultAsyncXMLReader();
+		DefaultNonBlockingXMLReader reader = new DefaultNonBlockingXMLReader();
 		reader.setFeature("http://xml.org/sax/features/namespaces", true);
 	}
 
 	public void testGetFeature() throws SAXNotRecognizedException, SAXNotSupportedException {
-		DefaultAsyncXMLReader reader = new DefaultAsyncXMLReader();
+		DefaultNonBlockingXMLReader reader = new DefaultNonBlockingXMLReader();
 		assertTrue(reader.getFeature("http://xml.org/sax/features/namespaces"));
 	}
 
 	public void testGetUnknownFeature() throws SAXNotSupportedException {
-		DefaultAsyncXMLReader reader = new DefaultAsyncXMLReader();
+		DefaultNonBlockingXMLReader reader = new DefaultNonBlockingXMLReader();
 		try {
 			assertTrue(reader.getFeature("http://example.com"));
 			fail("Must throw SAXNotRecognizedException");
@@ -136,7 +136,7 @@ public class DefaultAsyncXMLReaderTestCase extends AbstractAsyncXMLReaderTestCas
 	}
 	
 	public void testSetFeatureDuringParse() throws Exception {
-		DefaultAsyncXMLReader reader = new DefaultAsyncXMLReader();
+		DefaultNonBlockingXMLReader reader = new DefaultNonBlockingXMLReader();
 		reader.parse(ByteBuffer.wrap("<foo />".getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
 		try {
 			reader.setFeature("http://xml.org/sax/features/namespaces", true);

@@ -25,13 +25,13 @@ import java.util.Stack;
 import java.util.Map.Entry;
 
 import org.apache.vysper.xml.fragment.NamespaceResolver;
-import org.apache.vysper.xml.fragment.NamespaceURIs;
+import org.apache.vysper.xml.fragment.Namespaces;
 
 
 /**
  * Naive implementation, will be replaced in later stages of this change
  */
-public class StackNamespaceResolver2 implements NamespaceResolver {
+public class StackNamespaceResolver2 {
 	
 	private Stack<Map<String, String>> elements = new Stack<Map<String, String>>();
 	
@@ -49,7 +49,7 @@ public class StackNamespaceResolver2 implements NamespaceResolver {
 	public String resolveUri(String prefix) {
 		// check for the reserved xml namespace
 		if(prefix.equals("xml")) {
-			return NamespaceURIs.XML;
+			return Namespaces.XML;
 		} else {
 			// walk over the stack backwards
 			for(int i = elements.size() - 1; i>=0; i--) {
@@ -65,10 +65,8 @@ public class StackNamespaceResolver2 implements NamespaceResolver {
 		return null;
 	}
 	
-
-	
 	public String resolvePrefix(String uri) {
-		if(uri.equals(NamespaceURIs.XML)) {
+		if(uri.equals(Namespaces.XML)) {
 			return "xml";
 		} else {
 			// walk over the stack backwards

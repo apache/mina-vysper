@@ -35,7 +35,7 @@ import org.xml.sax.SAXNotSupportedException;
 /**
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public interface AsyncXMLReader {
+public interface NonBlockingXMLReader {
 
     ////////////////////////////////////////////////////////////////////
     // Configuration.

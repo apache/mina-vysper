@@ -26,21 +26,16 @@ package org.apache.vysper.xml.fragment;
  */
 public class NamespaceAttribute extends Attribute {
 
-    public static final String DEFAULT_NAMESPACE = "";
-
-    public static final String XMLNS = "xmlns";
-    public static final String XMLNS_AND_COLON = "xmlns:";
-    
-    private String prefix;
+	private String prefix;
 
     public NamespaceAttribute(String value) {
-        super(XMLNS, value);
+        super(Namespaces.XMLNS, value);
         
         prefix = "";
     }
 
     public NamespaceAttribute(String nsPrefix, String value) {
-        super(XMLNS_AND_COLON + nsPrefix, value);
+        super(Namespaces.XMLNS_AND_COLON + nsPrefix, value);
         
         prefix = nsPrefix;
     }

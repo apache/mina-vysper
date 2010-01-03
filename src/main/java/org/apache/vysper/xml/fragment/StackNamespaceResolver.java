@@ -96,7 +96,7 @@ public class StackNamespaceResolver implements NamespaceResolver {
 	public String resolveUri(String prefix) {
 		// check for the reserved xml namespace
 		if(prefix.equals("xml")) {
-			return NamespaceURIs.XML;
+			return Namespaces.XML;
 		} else {
 			for(int i = elements.size() - 1; i>=0; i--) {
 				String uri = resolveUri(elements.get(i), prefix);
@@ -140,7 +140,7 @@ public class StackNamespaceResolver implements NamespaceResolver {
 	
 	private String resolvePrefix(String uri, boolean generatePrefix) {
 		// check for the reserved xml namespace
-		if(uri.equals(NamespaceURIs.XML)) {
+		if(uri.equals(Namespaces.XML)) {
 			return "xml";
 		} else {
 			for(int i = elements.size() - 1; i>=0; i--) {

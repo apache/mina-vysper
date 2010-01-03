@@ -35,7 +35,7 @@ import org.apache.vysper.xml.sax.TestHandler.StartDocumentEvent;
 import org.apache.vysper.xml.sax.TestHandler.StartElementEvent;
 import org.apache.vysper.xml.sax.TestHandler.TestEvent;
 import org.apache.vysper.xml.sax.impl.Attribute;
-import org.apache.vysper.xml.sax.impl.DefaultAsyncXMLReader;
+import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
 import org.apache.vysper.xml.sax.impl.DefaultAttributes;
 import org.xml.sax.Attributes;
 
@@ -106,7 +106,7 @@ public abstract class AbstractAsyncXMLReaderTestCase extends TestCase {
 
 	protected List<TestEvent> parse(String xml) throws Exception {
 		TestHandler handler = new TestHandler();
-		AsyncXMLReader reader = new DefaultAsyncXMLReader();
+		NonBlockingXMLReader reader = new DefaultNonBlockingXMLReader();
 		reader.setContentHandler(handler);
 		reader.setErrorHandler(handler);
 

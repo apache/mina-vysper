@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Collections;
 
 import org.apache.vysper.xml.fragment.Attribute;
-import org.apache.vysper.xml.fragment.NamespaceURIs;
+import org.apache.vysper.xml.fragment.Namespaces;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLElementBuilder;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
@@ -40,7 +40,7 @@ public class XMLElementTestCase extends TestCase {
     public void testBasicGetters() {
         XMLElement xmlElement = new XMLElementBuilder("message", "urn:test").
                 addAttribute("lang", "de").
-                addAttribute(NamespaceURIs.XML, "lang", "cn").
+                addAttribute(Namespaces.XML, "lang", "cn").
                 addAttribute("xmllang", "en").
         build();
         
@@ -220,21 +220,21 @@ public class XMLElementTestCase extends TestCase {
                 startInnerElement("body").
                 endInnerElement().
                 startInnerElement("body").
-                    addAttribute(NamespaceURIs.XML, "lang", "en").
+                    addAttribute(Namespaces.XML, "lang", "en").
                 endInnerElement().
                 startInnerElement("body").
-                    addAttribute(NamespaceURIs.XML, "lang", "de").
+                    addAttribute(Namespaces.XML, "lang", "de").
                 endInnerElement().
                 addText("body").
                 addText("t3").
                 startInnerElement("single").
-                    addAttribute(NamespaceURIs.XML, "lang", "ru").
+                    addAttribute(Namespaces.XML, "lang", "ru").
                 endInnerElement().
                 startInnerElement("body_inconsistent").
-                    addAttribute(NamespaceURIs.XML, "lang", "ru").
+                    addAttribute(Namespaces.XML, "lang", "ru").
                 endInnerElement().
                 startInnerElement("body_inconsistent").
-                    addAttribute(NamespaceURIs.XML, "lang", "ru").
+                    addAttribute(Namespaces.XML, "lang", "ru").
                 endInnerElement().
                 startInnerElement("body_lang_null").
                     addAttribute("order", "1").
@@ -276,18 +276,18 @@ public class XMLElementTestCase extends TestCase {
     public void testGetAttribute() {
         XMLElement xmlElement = new XMLElementBuilder("test").
                 addAttribute("foo", "bar").
-                addAttribute(NamespaceURIs.XML, "lang", "cn").
+                addAttribute(Namespaces.XML, "lang", "cn").
         build();
         
         assertEquals("bar", xmlElement.getAttribute("foo").getValue());
         assertNull(xmlElement.getAttribute("http://example.com", "foo"));
         assertNull(xmlElement.getAttribute("lang"));
-        assertEquals("cn", xmlElement.getAttribute(NamespaceURIs.XML, "lang").getValue());
+        assertEquals("cn", xmlElement.getAttribute(Namespaces.XML, "lang").getValue());
 
         assertEquals("bar", xmlElement.getAttributeValue("foo"));
         assertNull(xmlElement.getAttributeValue("http://example.com", "foo"));
         assertNull(xmlElement.getAttributeValue("lang"));
-        assertEquals("cn", xmlElement.getAttributeValue(NamespaceURIs.XML, "lang"));
+        assertEquals("cn", xmlElement.getAttributeValue(Namespaces.XML, "lang"));
 
     }
 
