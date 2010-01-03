@@ -21,10 +21,15 @@ package org.apache.vysper.xml.sax.impl;
 
 import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.smartcardio.ATR;
 
 import org.apache.mina.common.ByteBuffer;
 import org.apache.vysper.xml.sax.impl.ParticleTokenizer.TokenListener;
@@ -52,6 +57,8 @@ public class Parser implements TokenListener {
 	
 	private ContentHandler contentHandler;
 	private ErrorHandler errorHandler;
+	
+	private StackNamespaceResolver2 nsResolver = new StackNamespaceResolver2();
 
 	private static enum State {
 		START,
@@ -68,7 +75,9 @@ public class Parser implements TokenListener {
 	private ParticleTokenizer tokenizer;
 	private State state = State.START;
 	private String qname;
-	private List<Attribute> attributes;
+	
+	// qname/value map
+	private Map<String, String> attributes;
 	private String attributeName;
 
 	// element names as {uri}qname
@@ -94,7 +103,7 @@ public class Parser implements TokenListener {
 		if(state == State.START) {
 			if(token.equals("<")) {
 				state = State.IN_TAG;
-				attributes = new ArrayList<Attribute>();
+				attributes = new HashMap<String, String>();
 			} else {
 				characters(token);
 			}
@@ -136,7 +145,7 @@ public class Parser implements TokenListener {
 			}
 		} else if(state == State.AFTER_ATTRIBUTE_EQUALS) {
 			// token must be attribute value
-			attributes.add(new Attribute(attributeName, "", attributeName, unescape(token)));
+			attributes.put(attributeName, unescape(token));
 			state = State.AFTER_START_NAME;
 		} else if(state == State.AFTER_END_NAME) {
 			// token must be >
@@ -189,11 +198,55 @@ public class Parser implements TokenListener {
         	return;
         }
 
-		String uri = "";
+
+		// find all namespace declarations so we can populate the NS resolver
+		Map<String, String> nsDeclarations = new HashMap<String, String>();
+		for(Entry<String, String> attribute: attributes.entrySet()) {
+			if(attribute.getKey().equals("xmlns")) {
+				// is namespace attribute
+				nsDeclarations.put("", attribute.getValue());
+			} else if(attribute.getKey().startsWith("xmlns:")) {
+				nsDeclarations.put(attribute.getKey().substring(6), attribute.getValue());
+			}
+		}
+		nsResolver.push(nsDeclarations);
+		
+		// find all non-namespace attributes
+		List<Attribute> nonNsAttributes = new ArrayList<Attribute>();
+		for(Entry<String, String> attribute: attributes.entrySet()) {
+			String attQname = attribute.getKey();
+			if(!attQname.equals("xmlns")  && !attQname.startsWith("xmlns:")) {
+				String attLocalName = extractLocalName(attQname);
+				String attPrefix = extractNsPrefix(attQname);
+				String attUri = nsResolver.resolveUri(attPrefix);
+				if(attUri == null) {
+					if(attPrefix.length() > 0) {
+						fatalError("Undeclared namespace prefix: " + attPrefix);
+						return;
+					} else {
+						attUri = "";
+					}
+				}
+				nonNsAttributes.add(new Attribute(attLocalName, attUri, attQname, attribute.getValue()));
+			}
+		}
+
+		String prefix = extractNsPrefix(qname);
+		String uri = nsResolver.resolveUri(prefix);
+		if(uri == null) {
+			if(prefix.length() > 0) {
+				fatalError("Undeclared namespace prefix: " + prefix);
+				return;
+			} else {
+				uri = "";
+			}
+		}
+		
 		String localName = extractLocalName(qname);
 		
 		elements.add(fullyQualifiedName(uri, qname));
-		contentHandler.startElement(uri, localName, qname, new DefaultAttributes(attributes));
+		
+		contentHandler.startElement(uri, localName, qname, new DefaultAttributes(nonNsAttributes));
 	}
 
 	private String extractLocalName(String qname) {
@@ -205,6 +258,17 @@ public class Parser implements TokenListener {
 			return qname;
 		}
 	}
+
+	private String extractNsPrefix(String qname) {
+		int index = qname.indexOf(':');
+		
+		if(index > -1 ) {
+			return qname.substring(0, index);
+		} else {
+			return "";
+		}
+	}
+
 	
 	private String fullyQualifiedName(String uri, String qname) {
 		return "{" + uri + "}" + qname;
@@ -215,7 +279,19 @@ public class Parser implements TokenListener {
 
 		if(state == State.CLOSED) return;
 		
-		String uri = "";
+		String prefix = extractNsPrefix(qname);
+		String uri = nsResolver.resolveUri(prefix);
+		if(uri == null) {
+			if(prefix.length() > 0) {
+				fatalError("Undeclared namespace prefix: " + prefix);
+				return;
+			} else {
+				uri = "";
+			}
+		}
+		
+		nsResolver.pop();
+		
 		String localName = extractLocalName(qname);
 		
 		String fqn = elements.pop();

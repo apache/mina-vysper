@@ -89,4 +89,17 @@ public class ParseAttributesTestCase extends AbstractAsyncXMLReaderTestCase {
 		
 		assertFalse(events.hasNext());
 	}
+
+	// Namespace declarations should not be included in attribute
+	public void testExcludeNsAttributes() throws Exception {
+		Iterator<TestEvent> events = parse("<root att='foo' xmlns:p='http://bar.com' />").iterator();
+
+		assertStartDocument(events.next());
+		assertStartElement("", "root", "root", attributes(new Attribute("att", "", "att", "foo")), events.next());
+		assertEndElement("", "root", "root", events.next());
+		assertEndDocument(events.next());
+		
+		assertFalse(events.hasNext());
+	}
+
 }

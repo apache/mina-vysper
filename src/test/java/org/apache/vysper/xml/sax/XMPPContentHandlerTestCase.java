@@ -53,7 +53,7 @@ public class XMPPContentHandlerTestCase extends TestCase {
 		
 		reader.setContentHandler(handler);
 	
-		parse(reader, "<stanza:stanza>");
+		parse(reader, "<stanza:stanza xmlns:stanza='http://etherx.jabber.org/streams'>");
 		parse(reader, "<message></message>");
 		parse(reader, "<iq>");
 		parse(reader, "</iq>");

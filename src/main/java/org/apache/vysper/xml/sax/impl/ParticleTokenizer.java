@@ -106,10 +106,12 @@ public class ParticleTokenizer {
             		emit(byteBuffer, decoder);
             		emit("=", byteBuffer);
             	} else if(c == '"') {
+            		lastPosition = byteBuffer.position();
 //            		emit("\"", byteBuffer);
             		state = State.IN_DOUBLE_ATTRIBUTE_VALUE;
             	} else if(c == '\'') {
 //            		emit("\'", byteBuffer);
+            		lastPosition = byteBuffer.position();
             		state = State.IN_SINGLE_ATTRIBUTE_VALUE;
             	} else {
             		// non-whitespace char

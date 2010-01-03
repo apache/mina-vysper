@@ -90,14 +90,13 @@ public class DefaultAttributes implements Attributes {
 
 	public String getURI(int index) {
 		if(index < 0 || index >= attributes.size()) return null;
-		
+
 		return attributes.get(index).getURI();
 	}
 
 	public String getValue(int index) {
 		if(index < 0 || index >= attributes.size()) return null;
-		
-		return attributes.get(index).getURI();
+		return attributes.get(index).getValue();
 	}
 
 	public String getValue(String qName) {
