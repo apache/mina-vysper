@@ -21,6 +21,7 @@
 package org.apache.vysper.xml.fragment;
 
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -43,8 +44,14 @@ public class XMLElementBuilder extends AbstractXMLElementBuilder<XMLElementBuild
     }
 
 	public XMLElementBuilder(String elementName, String namespaceURI,
-			String namespacePrefix, List<Attribute> attributes,
+			String namespacePrefix, List<Attribute> attributes, 
 			List<XMLFragment> innerFragments) {
-		super(elementName, namespaceURI, namespacePrefix, attributes, innerFragments);
+		super(elementName, namespaceURI, namespacePrefix, attributes, null, innerFragments);
+	}
+    
+	public XMLElementBuilder(String elementName, String namespaceURI,
+			String namespacePrefix, List<Attribute> attributes, Map<String, String> namespaces,
+			List<XMLFragment> innerFragments) {
+		super(elementName, namespaceURI, namespacePrefix, attributes, namespaces, innerFragments);
 	}
 }

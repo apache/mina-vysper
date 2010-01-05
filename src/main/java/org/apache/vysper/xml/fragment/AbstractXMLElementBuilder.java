@@ -21,7 +21,9 @@
 package org.apache.vysper.xml.fragment;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 /**
@@ -36,6 +38,7 @@ public abstract class AbstractXMLElementBuilder<B extends AbstractXMLElementBuil
         public ElementStruct parentElement = null;
         public XMLElement element = null;
         public List<Attribute> attributes = null;
+        public Map<String, String> namespaces = null;
         public List<XMLFragment> innerFragments = null;
     }
 
@@ -62,16 +65,17 @@ public abstract class AbstractXMLElementBuilder<B extends AbstractXMLElementBuil
         stack.push(currentElement);
     }
 
-    public AbstractXMLElementBuilder(String elementName, String namespaceURI, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments) {
+    public AbstractXMLElementBuilder(String elementName, String namespaceURI, String namespacePrefix, List<Attribute> attributes, Map<String, String> namespaces, List<XMLFragment> innerFragments) {
         startNewElement(elementName, namespaceURI, namespacePrefix);
         resultingElement = currentElement.element;
         if(attributes != null) currentElement.attributes.addAll(attributes);
+        if(namespaces != null) currentElement.namespaces.putAll(namespaces);
         if(innerFragments != null) currentElement.innerFragments.addAll(innerFragments);
         stack.push(currentElement);
     }
     
-    protected XMLElement createElement(String namespaceURI, String name, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments) {
-    	return new XMLElement(namespaceURI, name, namespacePrefix, attributes, innerFragments);
+    protected XMLElement createElement(String namespaceURI, String name, String namespacePrefix, List<Attribute> attributes, Map<String, String> namespaces, List<XMLFragment> innerFragments) {
+    	return new XMLElement(namespaceURI, name, namespacePrefix, attributes, innerFragments, namespaces);
     }
     
     private void startNewElement(String name, String namespaceURI, String namespacePrefix) {
@@ -79,19 +83,15 @@ public abstract class AbstractXMLElementBuilder<B extends AbstractXMLElementBuil
         // TODO handle the namespace, given by URI, currently always NULL in XMLElement constructors
         ElementStruct element = new ElementStruct();
         element.attributes = new ArrayList<Attribute>();
+        element.namespaces = new HashMap<String, String>();
         element.innerFragments = new ArrayList<XMLFragment>();
-        element.element = createElement(namespaceURI, name, namespacePrefix, element.attributes, element.innerFragments);
+        element.element = createElement(namespaceURI, name, namespacePrefix, element.attributes, element.namespaces, element.innerFragments);
 
         currentElement = element;
     }
     
-	public B addNamespaceAttribute(String value) {
-        addAttribute(new NamespaceAttribute(value));
-        return (B) this;
-    }
-
-    public B addNamespaceAttribute(String namespacePrefix, String value) {
-        addAttribute(new NamespaceAttribute(namespacePrefix, value));
+    public B declareNamespace(String namespacePrefix, String value) {
+        currentElement.namespaces.put(namespacePrefix, value);
         return (B) this;
     }
 

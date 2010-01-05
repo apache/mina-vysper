@@ -34,7 +34,7 @@ public class FragmentFactory {
     }
 
     public static XMLElement createElementWithInnerText(String namespaceURI, String name, String text) {
-        return new XMLElement(namespaceURI, name, null, null, asList(new XMLText(text)));
+        return new XMLElement(namespaceURI, name, null, null, asList(new XMLText(text)), null);
     }
 
     

@@ -83,10 +83,8 @@ public class Renderer {
         	// nor normal attributes containing namespace declarations (probably due to
         	// the parser not correctly creating namespace attributes for these which are then 
         	// copied into for example error responses)
-        	if(!(attribute instanceof NamespaceAttribute) && !hasXmlnsReservedName(attribute)) {
-        		openElementBuffer.append(" ");
-        		renderAttribute(openElementBuffer, attribute, nsResolver);
-        	}
+    		openElementBuffer.append(" ");
+    		renderAttribute(openElementBuffer, attribute, nsResolver);
         }
         openElementBuffer.append(">");
 

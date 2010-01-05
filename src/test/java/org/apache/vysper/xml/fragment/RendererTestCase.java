@@ -19,14 +19,8 @@
  */
 package org.apache.vysper.xml.fragment;
 
-import org.apache.vysper.xml.fragment.Attribute;
-import org.apache.vysper.xml.fragment.NamespaceAttribute;
-import org.apache.vysper.xml.fragment.Namespaces;
-import org.apache.vysper.xml.fragment.Renderer;
-import org.apache.vysper.xml.fragment.XMLElement;
-import org.apache.vysper.xml.fragment.XMLElementBuilder;
-import org.apache.vysper.xml.fragment.XMLFragment;
-import org.apache.vysper.xml.fragment.XMLText;
+import java.util.HashMap;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -68,8 +62,7 @@ public class RendererTestCase extends TestCase {
 	public void testRenderNamespacedAttribute() {
 		XMLElement elm = new XMLElement(null, "foo", null, new Attribute[]{
 				new Attribute("http://example.com", "attr1", "value1"),
-				new NamespaceAttribute("pr1", "http://example.com")
-				}, null);
+				}, null, nsMap("pr1", "http://example.com"));
 		assertRendering("<foo xmlns:pr1=\"http://example.com\" pr1:attr1=\"value1\"></foo>", elm);
 	}
 
@@ -100,22 +93,26 @@ public class RendererTestCase extends TestCase {
 //		assertRendering("<foo attr=\"value\" />", elm);
 //	}
 	
+	private Map<String, String> nsMap(String... ns) {
+		Map<String, String> nsMap = new HashMap<String, String>();
+		for(int i = 1; i < ns.length; i += 2) {
+			nsMap.put(ns[i - 1], ns[i]);
+		}
+		return nsMap;
+	}
+	
 	public void testRenderNonNamespaceElement() {
 		XMLElement elm = new XMLElement(null, "foo", null, (Attribute[])null, null);
 		assertRendering("<foo></foo>", elm);
 	}
 	
 	public void testRenderDefaultNamespaceElement() {
-		XMLElement elm = new XMLElement(null, "foo", null, new Attribute[]{
-				new NamespaceAttribute("http://example.com")
-		}, null);
+		XMLElement elm = new XMLElement(null, "foo", null, (Attribute[])null, null, nsMap("", "http://example.com"));
 		assertRendering("<foo xmlns=\"http://example.com\"></foo>", elm);
 	}
 
 	public void testRenderPrefixedNamespaceWithDeclarationElement() {
-		XMLElement elm = new XMLElement("http://example.com", "foo", "pr", new Attribute[]{
-				new NamespaceAttribute("pr", "http://example.com")
-		}, null);
+		XMLElement elm = new XMLElement("http://example.com", "foo", "pr", (Attribute[])null, null, nsMap("pr", "http://example.com"));
 		assertRendering("<pr:foo xmlns:pr=\"http://example.com\"></pr:foo>", elm);
 	}
 
@@ -126,13 +123,13 @@ public class RendererTestCase extends TestCase {
 
 	public void testRenderDeclaredNamespaceElement() {
 		XMLElementBuilder builder = new XMLElementBuilder("foo", "http://example.com");
-		builder.addNamespaceAttribute("pr", "http://example.com");
+		builder.declareNamespace("pr", "http://example.com");
 		assertRendering("<pr:foo xmlns:pr=\"http://example.com\"></pr:foo>", builder.build());
 	}
 
 	public void testRenderInnerNamespacedElement() {
 		XMLElementBuilder builder = new XMLElementBuilder("foo", "http://example.com");
-		builder.addNamespaceAttribute("pr", "http://other.com");
+		builder.declareNamespace("pr", "http://other.com");
 		builder.startInnerElement("bar", "http://other.com");
 		assertRendering("<foo xmlns:pr=\"http://other.com\" xmlns=\"http://example.com\"><pr:bar></pr:bar></foo>", builder.build());
 	}

@@ -23,6 +23,7 @@ package org.apache.vysper.xml.fragment;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Stack;
+import java.util.Map.Entry;
 
 
 /**
@@ -47,21 +48,16 @@ public class StackNamespaceResolver implements NamespaceResolver {
 		Map<String, String> ns = new LinkedHashMap<String, String>();
 		if(!elements.isEmpty()) {
 			XMLElement topElm = elements.peek();
-			for(Attribute attribute : topElm.getAttributes()) {
-				if(attribute instanceof NamespaceAttribute) {
-					NamespaceAttribute nsAttr = (NamespaceAttribute) attribute;
-					ns.put(nsAttr.getPrefix(), nsAttr.getValue());
-				}
+			for(Entry<String, String> entry : topElm.getDeclaredNamespaces().entrySet()) {
+				ns.put(entry.getKey(), entry.getValue());
 			}
 			
 			// look for any generated prefixes for attributes
 			for(Attribute attribute : topElm.getAttributes()) {
-				if(!(attribute instanceof NamespaceAttribute)) {
-					String attrNs = attribute.getNamespaceUri();
-					if(attrNs.length() > 0 && resolvePrefix(attrNs, false) == null) {
-						// attribute is in a namespace, and that namespace is not declared
-						ns.put(resolvePrefix(attrNs), attrNs);						
-					}
+				String attrNs = attribute.getNamespaceUri();
+				if(attrNs.length() > 0 && resolvePrefix(attrNs, false) == null) {
+					// attribute is in a namespace, and that namespace is not declared
+					ns.put(resolvePrefix(attrNs), attrNs);						
 				}
 			}
 			
@@ -122,16 +118,7 @@ public class StackNamespaceResolver implements NamespaceResolver {
 	}
 	
 	private String resolveUri(XMLElement elm, String prefix) {
-		for(Attribute attribute : elm.getAttributes()) {
-			if(attribute instanceof NamespaceAttribute) {
-				NamespaceAttribute nsAttr = (NamespaceAttribute) attribute;
-				if(nsAttr.getPrefix().equals(prefix)) {
-					return nsAttr.getValue();
-				}
-			}
-		}
-		
-		return null;
+		return elm.getDeclaredNamespaces().get(prefix);
 	}
 	
 	public String resolvePrefix(String uri) {
@@ -166,12 +153,9 @@ public class StackNamespaceResolver implements NamespaceResolver {
 	}
 	
 	private String resolvePrefix(XMLElement elm, String uri) {
-		for(Attribute attribute : elm.getAttributes()) {
-			if(attribute instanceof NamespaceAttribute) {
-				NamespaceAttribute nsAttr = (NamespaceAttribute) attribute;
-				if(nsAttr.getValue().equals(uri)) {
-					return nsAttr.getPrefix();
-				}
+		for(Entry<String, String> entry : elm.getDeclaredNamespaces().entrySet()) {
+			if(entry.getValue().equals(uri)) {
+				return entry.getKey();
 			}
 		}
 		

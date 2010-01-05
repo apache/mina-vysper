@@ -46,18 +46,28 @@ public class XMLElement implements XMLFragment {
     private String namespacePrefix;
 
     private List<Attribute> attributes;
+    private Map<String, String> namespaces;
     private List<XMLFragment> innerFragments;
     protected XMLElementVerifier xmlElementVerifier;
 
     public XMLElement(String namespaceURI, String name, String namespacePrefix, Attribute[] attributes, XMLFragment[] innerFragments) {
-        this(namespaceURI, name, namespacePrefix, FragmentFactory.asList(attributes), FragmentFactory.asList(innerFragments));
+        this(namespaceURI, name, namespacePrefix, attributes, innerFragments, null);
+    }
+    
+    public XMLElement(String namespaceURI, String name, String namespacePrefix, Attribute[] attributes, XMLFragment[] innerFragments, Map<String, String> namespaces) {
+        this(namespaceURI, name, namespacePrefix, FragmentFactory.asList(attributes), FragmentFactory.asList(innerFragments), namespaces);
     }
 
     public XMLElement(String namespaceURI, String name, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments) {
+    	this(namespaceURI, name, namespacePrefix, attributes, innerFragments, null);
+    }
+    
+    public XMLElement(String namespaceURI, String name, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments, Map<String, String> namespaces) {
         this.namespaceURI = namespaceURI == null ? Namespaces.DEFAULT_NAMESPACE_URI : namespaceURI;
     	this.namespacePrefix = namespacePrefix == null ? Namespaces.DEFAULT_NAMESPACE_PREFIX : namespacePrefix;
         this.name = name;
         this.attributes = (attributes == null) ? Collections.EMPTY_LIST : Collections.unmodifiableList(attributes);
+        this.namespaces = (namespaces == null) ? Collections.EMPTY_MAP : Collections.unmodifiableMap(namespaces);
         this.innerFragments = (innerFragments == null) ? Collections.EMPTY_LIST : Collections.unmodifiableList(innerFragments);
         if (name == null) throw new IllegalArgumentException("XMLElement name cannot be null");
     }
@@ -111,6 +121,9 @@ public class XMLElement implements XMLFragment {
         else return attribute.getValue();
     }
 
+    public Map<String, String> getDeclaredNamespaces() {
+    	return namespaces;
+    }
     
     public String getXMLLang() {
         return getAttributeValue(Namespaces.XML, "lang");
