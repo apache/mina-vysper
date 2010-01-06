@@ -41,8 +41,9 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class DefaultNonBlockingXMLReader implements NonBlockingXMLReader {
 
-	private static final String FEATURE_NAMESPACES = "http://xml.org/sax/features/namespaces";
-	private static final String FEATURE_NAMESPACE_PREFIXES = "http://xml.org/sax/features/namespace-prefixes";
+	public static final String FEATURE_NAMESPACES = "http://xml.org/sax/features/namespaces";
+	public static final String FEATURE_NAMESPACE_PREFIXES = "http://xml.org/sax/features/namespace-prefixes";
+	public static final String FEATURE_COMMENTS_FORBIDDEN = "http://mina.apache.org/vysper/features/comments-forbidden";
 	
 	private ErrorHandler errorHandler = new DefaultHandler();
 	private ContentHandler contentHandler = new DefaultHandler();
@@ -55,6 +56,7 @@ public class DefaultNonBlockingXMLReader implements NonBlockingXMLReader {
 		// set default features
 		features.put(FEATURE_NAMESPACES, true);
 		features.put(FEATURE_NAMESPACE_PREFIXES, false);
+		features.put(FEATURE_COMMENTS_FORBIDDEN, false);
 	}
 	
 	/**
@@ -87,6 +89,8 @@ public class DefaultNonBlockingXMLReader implements NonBlockingXMLReader {
     			// ok
     		} else if(name.equals(FEATURE_NAMESPACE_PREFIXES) && !value) {
     			// ok
+    		} else if(name.equals(FEATURE_COMMENTS_FORBIDDEN)) {
+    			features.put(FEATURE_COMMENTS_FORBIDDEN, value);
     		} else {
     			throw new SAXNotSupportedException("Not supported");
     		}
@@ -170,7 +174,7 @@ public class DefaultNonBlockingXMLReader implements NonBlockingXMLReader {
 	 */
     public void parse (ByteBuffer buffer, CharsetDecoder decoder) throws IOException, SAXException {
     	if(parser == null) {
-    		parser = new XMLParser(contentHandler, errorHandler);
+    		parser = new XMLParser(contentHandler, errorHandler, features);
     	}
     	
 		parser.parse(buffer, decoder);

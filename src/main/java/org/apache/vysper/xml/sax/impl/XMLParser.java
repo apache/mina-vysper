@@ -69,6 +69,7 @@ public class XMLParser implements TokenListener {
 		IN_EMPTY_TAG,
 		AFTER_ATTRIBUTE_NAME,
 		AFTER_ATTRIBUTE_EQUALS,
+		IN_COMMENT,
 		CLOSED
 	}
 	
@@ -82,13 +83,26 @@ public class XMLParser implements TokenListener {
 
 	// element names as {uri}qname
 	private Stack<String> elements = new Stack<String>();
+	
+	// features
+	boolean commentsForbidden = false;
 
 	
-	public XMLParser(ContentHandler contentHandler, ErrorHandler errorHandler) {
+	public XMLParser(ContentHandler contentHandler, ErrorHandler errorHandler, Map<String, Boolean> features) {
 		this.contentHandler = contentHandler;
 		this.errorHandler = errorHandler;
 		
+		commentsForbidden = feature(features, DefaultNonBlockingXMLReader.FEATURE_COMMENTS_FORBIDDEN, false);
+		
 		this.tokenizer = new XMLTokenizer(this);
+	}
+	
+	private boolean feature(Map<String, Boolean> features, String name, boolean defaultValue) {
+		if(features.containsKey(name)) {
+			return features.get(name);
+		} else {
+			return defaultValue;
+		}
 	}
 	
     public void parse(ByteBuffer byteBuffer, CharsetDecoder charsetDecoder) throws SAXException {
@@ -111,6 +125,13 @@ public class XMLParser implements TokenListener {
 			// token must be element name or / for a end tag
 			if(token.equals("/")) {
 				state = State.IN_END_TAG;
+			} else if(token.equals("!--")) {
+				if(commentsForbidden) {
+					fatalError("Comments not allowed");
+					return;
+				} else {
+					state = State.IN_COMMENT;
+				}
 			} else {
 				qname = token;
 				state = State.AFTER_START_NAME;
@@ -164,6 +185,9 @@ public class XMLParser implements TokenListener {
 					endElement();
 				}
 			}
+		} else if(state == State.IN_COMMENT) {
+			LOG.debug("Comment: {}", token);
+			state = State.START;
 		}
 	}
 	

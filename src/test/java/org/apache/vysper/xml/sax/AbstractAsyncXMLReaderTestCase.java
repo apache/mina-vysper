@@ -22,6 +22,8 @@ package org.apache.vysper.xml.sax;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import junit.framework.TestCase;
 
@@ -35,8 +37,8 @@ import org.apache.vysper.xml.sax.TestHandler.StartDocumentEvent;
 import org.apache.vysper.xml.sax.TestHandler.StartElementEvent;
 import org.apache.vysper.xml.sax.TestHandler.TestEvent;
 import org.apache.vysper.xml.sax.impl.Attribute;
-import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
 import org.apache.vysper.xml.sax.impl.DefaultAttributes;
+import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
 import org.xml.sax.Attributes;
 
 
@@ -105,8 +107,18 @@ public abstract class AbstractAsyncXMLReaderTestCase extends TestCase {
 	}
 
 	protected List<TestEvent> parse(String xml) throws Exception {
+		return parse(xml, null);
+	}
+	
+	protected List<TestEvent> parse(String xml, Map<String, Boolean> features) throws Exception {
 		TestHandler handler = new TestHandler();
 		NonBlockingXMLReader reader = new DefaultNonBlockingXMLReader();
+		if(features != null) {
+			for(Entry<String, Boolean> feature : features.entrySet()) {
+				reader.setFeature(feature.getKey(), feature.getValue());
+			}
+		}
+		
 		reader.setContentHandler(handler);
 		reader.setErrorHandler(handler);
 

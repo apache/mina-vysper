@@ -21,8 +21,6 @@ package org.apache.vysper.xml.sax.impl;
 
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.mina.common.ByteBuffer;
 import org.xml.sax.SAXException;
@@ -38,6 +36,10 @@ public class XMLTokenizer {
 		IN_TAG,
 		IN_DOUBLE_ATTRIBUTE_VALUE,
 		IN_SINGLE_ATTRIBUTE_VALUE,
+		AFTER_COMMENT_BANG,
+		AFTER_COMMENT_DASH1,
+		AFTER_COMMENT_DASH2,
+		IN_COMMENT,
 		IN_TEXT,
 		CLOSED
 	}
@@ -113,6 +115,9 @@ public class XMLTokenizer {
 //            		emit("\'", byteBuffer);
             		lastPosition = byteBuffer.position();
             		state = State.IN_SINGLE_ATTRIBUTE_VALUE;
+            	} else if(c == '!') {
+//            		emit("!", byteBuffer);
+            		state = State.AFTER_COMMENT_BANG;
             	} else {
             		// non-whitespace char
             	}
@@ -127,6 +132,34 @@ public class XMLTokenizer {
             		emit(byteBuffer, decoder);
 //            		emit("'", byteBuffer);
             		state = State.IN_TAG;
+            	}
+            } else if(state == State.AFTER_COMMENT_BANG) {
+            	if(c == '-') {
+            		state = State.AFTER_COMMENT_DASH1;
+            	} else {
+            		throw new SAXException("XML not well-formed");
+            	}
+            } else if(state == State.AFTER_COMMENT_DASH1) {
+            	if(c == '-') {
+            		state = State.AFTER_COMMENT_DASH2;
+            	} else {
+            		throw new SAXException("XML not well-formed");
+            	}
+            } else if(state == State.AFTER_COMMENT_DASH2) {
+            	if(Character.isWhitespace(c)) {
+            		emit("!--", byteBuffer);
+            		state = State.IN_COMMENT;
+            		lastPosition = byteBuffer.position();
+            	} else {
+            		throw new SAXException("XML not well-formed");
+            	}
+            } else if(state == State.IN_COMMENT) {
+            	if(Character.isWhitespace(c)) {
+            		emit(byteBuffer, decoder);
+            	} else if(c == '>') {
+            		// TODO handle verification of closing dashes
+            		state = State.START;
+            		lastPosition = byteBuffer.position();
             	}
             } 
         }
