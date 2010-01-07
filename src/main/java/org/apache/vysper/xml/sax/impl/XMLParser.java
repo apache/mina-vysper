@@ -29,8 +29,6 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.smartcardio.ATR;
-
 import org.apache.mina.common.ByteBuffer;
 import org.apache.vysper.xml.sax.impl.XMLTokenizer.TokenListener;
 import org.slf4j.Logger;
@@ -46,7 +44,7 @@ import org.xml.sax.SAXParseException;
  */
 public class XMLParser implements TokenListener {
 
-	private Logger LOG = LoggerFactory.getLogger(XMLParser.class);
+	private Logger log = LoggerFactory.getLogger(XMLParser.class);
 	
     private static final String nameStartChar = ":A-Z_a-z\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD";
     private static final String nameChar = nameStartChar + "-\\.0-9\\u00B7\\u0300-\\u036F\\u203F-\\u2040";
@@ -111,11 +109,14 @@ public class XMLParser implements TokenListener {
     	tokenizer.parse(byteBuffer, charsetDecoder);
     }
 
-	public void token(String token) throws SAXException {
-		LOG.debug("Parser got token {} in state {}", token, state);
+	public void token(char c, String token) throws SAXException {
+		if(log.isDebugEnabled()) {
+			String s = (token == null) ? Character.toString(c) : token;
+			log.debug("Parser got token {} in state {}", s, state);
+		}
 		
 		if(state == State.START) {
-			if(token.equals("<")) {
+			if(c == '<') {
 				state = State.IN_TAG;
 				attributes = new HashMap<String, String>();
 			} else {
@@ -123,7 +124,7 @@ public class XMLParser implements TokenListener {
 			}
 		} else if(state == State.IN_TAG) {
 			// token must be element name or / for a end tag
-			if(token.equals("/")) {
+			if(c == '/') {
 				state = State.IN_END_TAG;
 			} else if(token.equals("!--")) {
 				if(commentsForbidden) {
@@ -142,7 +143,7 @@ public class XMLParser implements TokenListener {
 			state = State.AFTER_END_NAME;
 		} else if(state == State.AFTER_START_NAME) {
 			// token must be attribute name or > or /
-			if(token.equals(">")) {
+			if(c == '>') {
 				// end of start or end tag
 				if(state == State.AFTER_START_NAME) {
 					startElement();
@@ -152,7 +153,7 @@ public class XMLParser implements TokenListener {
 					state = State.START;
 					endElement();
 				}
-			} else if(token.equals("/")) {
+			} else if(c == '/') {
 				state = State.IN_EMPTY_TAG;
 			} else {
 				// must be attribute name
@@ -161,7 +162,7 @@ public class XMLParser implements TokenListener {
 			}
 		} else if(state == State.AFTER_ATTRIBUTE_NAME) {
 			// token must be =
-			if(token.equals("=")) {
+			if(c == '=') {
 				state = State.AFTER_ATTRIBUTE_EQUALS;
 			}
 		} else if(state == State.AFTER_ATTRIBUTE_EQUALS) {
@@ -170,13 +171,13 @@ public class XMLParser implements TokenListener {
 			state = State.AFTER_START_NAME;
 		} else if(state == State.AFTER_END_NAME) {
 			// token must be >
-			if(token.equals(">")) {
+			if(c == '>') {
 				state = State.START;
 				endElement();
 			}
 		} else if(state == State.IN_EMPTY_TAG) {
 			// token must be >
-			if(token.equals(">")) {
+			if(c == '>') {
 				startElement();
 				attributes = null;
 				
@@ -186,7 +187,7 @@ public class XMLParser implements TokenListener {
 				}
 			}
 		} else if(state == State.IN_COMMENT) {
-			LOG.debug("Comment: {}", token);
+			log.debug("Comment: {}", token);
 			state = State.START;
 		}
 	}
@@ -195,7 +196,7 @@ public class XMLParser implements TokenListener {
 		// text only allowed in element
 		if(!elements.isEmpty()) {
 			String unescaped = unescape(s);
-			LOG.debug("Parser emitting characters \"{}\"", unescaped);
+			log.debug("Parser emitting characters \"{}\"", unescaped);
 			contentHandler.characters(unescaped.toCharArray(), 0, unescaped.length());
 		} else {
 			// must start document, even that document is not wellformed
@@ -205,7 +206,7 @@ public class XMLParser implements TokenListener {
 	}
 	
 	private void startElement() throws SAXException {
-		LOG.debug("StartElement {}", qname);
+		log.debug("StartElement {}", qname);
 		
 		if(elements.isEmpty()) {
 			contentHandler.startDocument();
@@ -299,7 +300,7 @@ public class XMLParser implements TokenListener {
 	}
 	
 	private void endElement() throws SAXException {	
-		LOG.debug("EndElement {}", qname);
+		log.debug("EndElement {}", qname);
 
 		if(state == State.CLOSED) return;
 		
@@ -332,7 +333,7 @@ public class XMLParser implements TokenListener {
 	}
 	
 	private void fatalError(String message) throws SAXException {
-		LOG.debug("Fatal error: {}", message);
+		log.debug("Fatal error: {}", message);
 		state = State.CLOSED;
 		tokenizer.close();
 		

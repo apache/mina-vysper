@@ -48,7 +48,7 @@ public class XMLTokenizer {
 	private State state = State.START;
 	
 	public static interface TokenListener {
-		void token(String token) throws SAXException;
+		void token(char c, String token) throws SAXException;
 	}
 	
 	private TokenListener listener;
@@ -71,7 +71,7 @@ public class XMLTokenizer {
 
             if(state == State.START) {
             	if(c == '<') {
-            		emit("<", byteBuffer);
+            		emit('<', byteBuffer);
             		state = State.IN_TAG;
             	} else {
             		state = State.IN_TEXT;
@@ -80,7 +80,7 @@ public class XMLTokenizer {
             } else if(state == State.IN_TEXT) {
             	if(c == '<') {
             		emit(byteBuffer, decoder);
-            		emit("<", byteBuffer);
+            		emit('<', byteBuffer);
             		state = State.IN_TAG;
             	} else {
 //            		sb.append(c);
@@ -90,12 +90,12 @@ public class XMLTokenizer {
             		if(checkEmit(byteBuffer)) {
             			emit(byteBuffer, decoder);
             		}
-            		emit("/", byteBuffer);
+            		emit('/', byteBuffer);
             	} else if(c == '>') {
             		if(checkEmit(byteBuffer)) {
             			emit(byteBuffer, decoder);
             		}
-                	emit(">", byteBuffer);
+                	emit('>', byteBuffer);
                 	state = State.START;
             	} else if(Character.isWhitespace(c)) {
             		if(checkEmit(byteBuffer)) {
@@ -106,7 +106,7 @@ public class XMLTokenizer {
             		}
             	} else if(c == '=') {
             		emit(byteBuffer, decoder);
-            		emit("=", byteBuffer);
+            		emit('=', byteBuffer);
             	} else if(c == '"') {
             		lastPosition = byteBuffer.position();
 //            		emit("\"", byteBuffer);
@@ -174,9 +174,17 @@ public class XMLTokenizer {
     private boolean checkEmit(ByteBuffer buffer) {
     	return buffer.position() > lastPosition + 1;
     }
+
+    private void emit(char token, ByteBuffer byteBuffer) throws SAXException {
+    	listener.token(token, null);
+    	
+    	lastPosition = byteBuffer.position();
+    }
+    
+    public static final char NO_CHAR = (char) -1;
     
     private void emit(String token, ByteBuffer byteBuffer) throws SAXException {
-    	listener.token(token);
+    	listener.token(NO_CHAR, token);
     	
     	lastPosition = byteBuffer.position();
     }
@@ -188,7 +196,7 @@ public class XMLTokenizer {
     	byteBuffer.limit(endPosition - 1);
 		
     	try {
-			listener.token(byteBuffer.getString(decoder));
+			listener.token(NO_CHAR, byteBuffer.getString(decoder));
 		} catch (CharacterCodingException e) {
 			throw new SAXException(e);
 		}
