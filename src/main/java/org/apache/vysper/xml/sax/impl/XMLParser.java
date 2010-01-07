@@ -115,14 +115,16 @@ public class XMLParser implements TokenListener {
 			log.debug("Parser got token {} in state {}", s, state);
 		}
 		
-		if(state == State.START) {
+		switch(state) {
+		case START:
 			if(c == '<') {
 				state = State.IN_TAG;
 				attributes = new HashMap<String, String>();
 			} else {
 				characters(token);
 			}
-		} else if(state == State.IN_TAG) {
+			break;
+		case IN_TAG:
 			// token must be element name or / for a end tag
 			if(c == '/') {
 				state = State.IN_END_TAG;
@@ -137,11 +139,13 @@ public class XMLParser implements TokenListener {
 				qname = token;
 				state = State.AFTER_START_NAME;
 			}
-		} else if(state == State.IN_END_TAG) {
+			break;
+		case IN_END_TAG:
 			// token must be element name
 			qname = token;
 			state = State.AFTER_END_NAME;
-		} else if(state == State.AFTER_START_NAME) {
+			break;
+		case AFTER_START_NAME:
 			// token must be attribute name or > or /
 			if(c == '>') {
 				// end of start or end tag
@@ -160,22 +164,26 @@ public class XMLParser implements TokenListener {
 				attributeName = token;
 				state = State.AFTER_ATTRIBUTE_NAME;
 			}
-		} else if(state == State.AFTER_ATTRIBUTE_NAME) {
+			break;
+		case AFTER_ATTRIBUTE_NAME:
 			// token must be =
 			if(c == '=') {
 				state = State.AFTER_ATTRIBUTE_EQUALS;
 			}
-		} else if(state == State.AFTER_ATTRIBUTE_EQUALS) {
+			break;
+		case AFTER_ATTRIBUTE_EQUALS:
 			// token must be attribute value
 			attributes.put(attributeName, unescape(token));
 			state = State.AFTER_START_NAME;
-		} else if(state == State.AFTER_END_NAME) {
+			break;
+		case AFTER_END_NAME:
 			// token must be >
 			if(c == '>') {
 				state = State.START;
 				endElement();
 			}
-		} else if(state == State.IN_EMPTY_TAG) {
+			break;
+		case IN_EMPTY_TAG:
 			// token must be >
 			if(c == '>') {
 				startElement();
@@ -186,9 +194,11 @@ public class XMLParser implements TokenListener {
 					endElement();
 				}
 			}
-		} else if(state == State.IN_COMMENT) {
+			break;
+		case IN_COMMENT:
 			log.debug("Comment: {}", token);
 			state = State.START;
+			break;
 		}
 	}
 	

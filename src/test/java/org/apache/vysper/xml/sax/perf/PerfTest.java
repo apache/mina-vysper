@@ -23,8 +23,6 @@ import org.apache.mina.common.ByteBuffer;
 import org.apache.vysper.charset.CharsetUtil;
 import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
 
-
-
 /**
  * 
  * @author The Apache MINA Project (dev@mina.apache.org)
@@ -33,13 +31,16 @@ public class PerfTest  {
 
 	public static void main(String[] args) throws Exception {
 		
-		ByteBuffer buffer = ByteBuffer.wrap("<root><child att='foo' att2='bar' />text</root>".getBytes("UTF-8"));
+		ByteBuffer opening = ByteBuffer.wrap("<p:root xmlns:p='http://example.com'>".getBytes("UTF-8"));
+		ByteBuffer buffer = ByteBuffer.wrap("<child att='foo' att2='bar' />text".getBytes("UTF-8"));
 		
+		DefaultNonBlockingXMLReader reader = new DefaultNonBlockingXMLReader();
+
 		StopWatch watch = new StopWatch();
 		
+		reader.parse(opening, CharsetUtil.UTF8_DECODER);
 		for(int i = 0; i<10000; i++) {
 			buffer.position(0);
-			DefaultNonBlockingXMLReader reader = new DefaultNonBlockingXMLReader();
 			reader.parse(buffer, CharsetUtil.UTF8_DECODER);
 		}
 		watch.stop();
