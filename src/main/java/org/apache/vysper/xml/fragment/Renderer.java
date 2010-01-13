@@ -24,8 +24,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * TODO support namespaces (inherited from outer/inheriting for inner elements)
- *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class Renderer {
@@ -65,7 +63,7 @@ public class Renderer {
     	openElementBuffer.append("<");
         renderElementName(openElementBuffer, element, nsResolver);
         
-        // render namespace delcarations
+        // render namespace declarations
         Map<String, String> nsAttrs = nsResolver.getNamespaceDeclarations();
         for(Entry<String, String> nsAttr : nsAttrs.entrySet()) {
     		openElementBuffer.append(" ");

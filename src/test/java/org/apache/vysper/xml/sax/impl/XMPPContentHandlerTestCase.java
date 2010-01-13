@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xml.sax;
+package org.apache.vysper.xml.sax.impl;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -30,6 +30,7 @@ import org.apache.vysper.charset.CharsetUtil;
 import org.apache.vysper.xml.decoder.XMPPContentHandler;
 import org.apache.vysper.xml.decoder.XMPPContentHandler.StanzaListener;
 import org.apache.vysper.xml.fragment.XMLElement;
+import org.apache.vysper.xml.sax.NonBlockingXMLReader;
 import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
 
 /**

@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xml.sax;
+package org.apache.vysper.xml.sax.impl;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,16 +29,17 @@ import junit.framework.TestCase;
 
 import org.apache.mina.common.ByteBuffer;
 import org.apache.vysper.charset.CharsetUtil;
-import org.apache.vysper.xml.sax.TestHandler.CharacterEvent;
-import org.apache.vysper.xml.sax.TestHandler.EndDocumentEvent;
-import org.apache.vysper.xml.sax.TestHandler.EndElementEvent;
-import org.apache.vysper.xml.sax.TestHandler.FatalErrorEvent;
-import org.apache.vysper.xml.sax.TestHandler.StartDocumentEvent;
-import org.apache.vysper.xml.sax.TestHandler.StartElementEvent;
-import org.apache.vysper.xml.sax.TestHandler.TestEvent;
+import org.apache.vysper.xml.sax.NonBlockingXMLReader;
 import org.apache.vysper.xml.sax.impl.Attribute;
 import org.apache.vysper.xml.sax.impl.DefaultAttributes;
 import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
+import org.apache.vysper.xml.sax.impl.TestHandler.CharacterEvent;
+import org.apache.vysper.xml.sax.impl.TestHandler.EndDocumentEvent;
+import org.apache.vysper.xml.sax.impl.TestHandler.EndElementEvent;
+import org.apache.vysper.xml.sax.impl.TestHandler.FatalErrorEvent;
+import org.apache.vysper.xml.sax.impl.TestHandler.StartDocumentEvent;
+import org.apache.vysper.xml.sax.impl.TestHandler.StartElementEvent;
+import org.apache.vysper.xml.sax.impl.TestHandler.TestEvent;
 import org.xml.sax.Attributes;
 
 
@@ -93,7 +94,7 @@ public abstract class AbstractAsyncXMLReaderTestCase extends TestCase {
 	}
 
 	protected void assertStartDocument(TestEvent actual) {
-		if(!(actual instanceof StartDocumentEvent)) fail("Event must be StartDocumentEvent");
+		if(!(actual instanceof StartDocumentEvent)) fail("Event must be StartDocumentEvent but is " + actual.getClass());
 	}
 
 	protected void assertEndDocument(TestEvent actual) {

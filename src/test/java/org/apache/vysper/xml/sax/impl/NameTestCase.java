@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xml.sax;
+package org.apache.vysper.xml.sax.impl;
 
 import junit.framework.TestCase;
 

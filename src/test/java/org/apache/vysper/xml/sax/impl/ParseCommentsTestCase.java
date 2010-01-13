@@ -17,13 +17,13 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xml.sax;
+package org.apache.vysper.xml.sax.impl;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.vysper.xml.sax.TestHandler.TestEvent;
+import org.apache.vysper.xml.sax.impl.TestHandler.TestEvent;
 
 
 /**
@@ -66,9 +66,56 @@ public class ParseCommentsTestCase extends AbstractAsyncXMLReaderTestCase {
 		assertNoMoreevents(events);
 	}
 
+	public void testCommentAdvancedContent() throws Exception {
+		Iterator<TestEvent> events = parse("<root><!-- 3 comment with multiple words --></root>").iterator();
+
+		assertStartDocument(events.next());
+		assertStartElement("", "root", "root", events.next());
+		assertEndElement("", "root", "root", events.next());
+		assertEndDocument(events.next());
+		
+		assertNoMoreevents(events);
+	}
+
+	public void testNotWellformedComment1() throws Exception {
+		Iterator<TestEvent> events = parse("<root><!- comment --></root>").iterator();
+
+		assertStartDocument(events.next());
+		assertStartElement("", "root", "root", events.next());
+		assertFatalError(events.next());
+		assertNoMoreevents(events);
+	}
+
+	public void testNotWellformedComment2() throws Exception {
+		Iterator<TestEvent> events = parse("<root><!-- comment -></root>").iterator();
+
+		assertStartDocument(events.next());
+		assertStartElement("", "root", "root", events.next());
+		assertFatalError(events.next());
+		assertNoMoreevents(events);
+	}
+
+	public void testNotWellformedComment3() throws Exception {
+		Iterator<TestEvent> events = parse("<root><!-- comment ></root>").iterator();
+
+		assertStartDocument(events.next());
+		assertStartElement("", "root", "root", events.next());
+		assertFatalError(events.next());
+		assertNoMoreevents(events);
+	}
+
+	public void testNotWellformedComment4() throws Exception {
+		Iterator<TestEvent> events = parse("<root><! comment --></root>").iterator();
+
+		assertStartDocument(events.next());
+		assertStartElement("", "root", "root", events.next());
+		assertFatalError(events.next());
+		assertNoMoreevents(events);
+	}
+	
 	public void testCommentNotAllowed() throws Exception {
 		Map<String, Boolean> features = new HashMap<String, Boolean>();
-		features.put("http://mina.apache.org/vysper/features/comments-forbidden", true);
+		features.put("http://mina.apache.org/vysper/features/comments-allowed", false);
 		
 		Iterator<TestEvent> events = parse("<root><!-- comment --></root>", features).iterator();
 

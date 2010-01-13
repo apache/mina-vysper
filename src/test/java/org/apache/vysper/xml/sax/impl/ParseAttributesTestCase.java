@@ -17,12 +17,12 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xml.sax;
+package org.apache.vysper.xml.sax.impl;
 
 import java.util.Iterator;
 
-import org.apache.vysper.xml.sax.TestHandler.TestEvent;
 import org.apache.vysper.xml.sax.impl.Attribute;
+import org.apache.vysper.xml.sax.impl.TestHandler.TestEvent;
 
 
 

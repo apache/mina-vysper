@@ -17,10 +17,11 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xml.sax;
+package org.apache.vysper.xml.sax.impl;
 
 import org.apache.mina.common.ByteBuffer;
 import org.apache.vysper.charset.CharsetUtil;
+import org.apache.vysper.xml.sax.NonBlockingXMLReader;
 import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
 import org.xml.sax.DTDHandler;
 import org.xml.sax.SAXException;

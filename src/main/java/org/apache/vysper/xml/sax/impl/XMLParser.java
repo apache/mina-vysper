@@ -67,7 +67,16 @@ public class XMLParser implements TokenListener {
 		IN_EMPTY_TAG,
 		AFTER_ATTRIBUTE_NAME,
 		AFTER_ATTRIBUTE_EQUALS,
-		IN_COMMENT,
+		AFTER_ATTRIBUTE_FIRST_QUOTE,
+		AFTER_ATTRIBUTE_VALUE,
+		AFTER_COMMENT_BANG,
+		AFTER_COMMENT_DASH1,
+		AFTER_COMMENT_DASH2,
+		AFTER_COMMENT,
+		AFTER_COMMENT_CLOSING_DASH1,
+		AFTER_COMMENT_CLOSING_DASH2,
+		AFTER_COMMENT_ENDING_DASH1,
+		AFTER_COMMENT_ENDING_DASH2,
 		CLOSED
 	}
 	
@@ -81,16 +90,17 @@ public class XMLParser implements TokenListener {
 
 	// element names as {uri}qname
 	private Stack<String> elements = new Stack<String>();
+	private boolean sentStartDocument = false; 
 	
 	// features
-	boolean commentsForbidden = false;
+	boolean commentsAllowed = true;
 
 	
 	public XMLParser(ContentHandler contentHandler, ErrorHandler errorHandler, Map<String, Boolean> features) {
 		this.contentHandler = contentHandler;
 		this.errorHandler = errorHandler;
 		
-		commentsForbidden = feature(features, DefaultNonBlockingXMLReader.FEATURE_COMMENTS_FORBIDDEN, false);
+		commentsAllowed = feature(features, DefaultNonBlockingXMLReader.FEATURE_COMMENTS_ALLOWED, true);
 		
 		this.tokenizer = new XMLTokenizer(this);
 	}
@@ -106,13 +116,17 @@ public class XMLParser implements TokenListener {
     public void parse(ByteBuffer byteBuffer, CharsetDecoder charsetDecoder) throws SAXException {
     	if(state == State.CLOSED) throw new SAXException("Parser is closed");
     	
-    	tokenizer.parse(byteBuffer, charsetDecoder);
+    	try {
+    		tokenizer.parse(byteBuffer, charsetDecoder);
+    	} catch(RuntimeException e) {
+    		fatalError(e.getMessage());
+    	}
     }
 
 	public void token(char c, String token) throws SAXException {
 		if(log.isDebugEnabled()) {
 			String s = (token == null) ? Character.toString(c) : token;
-			log.debug("Parser got token {} in state {}", s, state);
+			log.trace("Parser got token {} in state {}", s, state);
 		}
 		
 		switch(state) {
@@ -128,16 +142,21 @@ public class XMLParser implements TokenListener {
 			// token must be element name or / for a end tag
 			if(c == '/') {
 				state = State.IN_END_TAG;
-			} else if(token.equals("!--")) {
-				if(commentsForbidden) {
+			} else if(c == '!') {
+				if(commentsAllowed) {
+					state = State.AFTER_COMMENT_BANG;
+				} else {
 					fatalError("Comments not allowed");
 					return;
-				} else {
-					state = State.IN_COMMENT;
 				}
 			} else {
-				qname = token;
-				state = State.AFTER_START_NAME;
+				if(isValidName(token)) {
+					qname = token;
+					state = State.AFTER_START_NAME;
+				} else {
+					fatalError("Invalid element name: " + qname);
+					return;
+				}
 			}
 			break;
 		case IN_END_TAG:
@@ -172,9 +191,23 @@ public class XMLParser implements TokenListener {
 			}
 			break;
 		case AFTER_ATTRIBUTE_EQUALS:
+			// token must be " or '
+			if(c == '"' || c == '\'') {
+				state = State.AFTER_ATTRIBUTE_FIRST_QUOTE;
+			}
+			break;
+		case AFTER_ATTRIBUTE_FIRST_QUOTE:
 			// token must be attribute value
 			attributes.put(attributeName, unescape(token));
-			state = State.AFTER_START_NAME;
+			state = State.AFTER_ATTRIBUTE_VALUE;
+			break;
+		case AFTER_ATTRIBUTE_VALUE:
+			// token must be " or '
+			if(c == '"' || c == '\'') {
+				state = State.AFTER_START_NAME;
+			} else {
+				fatalError("Not wellformed");
+			}
 			break;
 		case AFTER_END_NAME:
 			// token must be >
@@ -195,9 +228,60 @@ public class XMLParser implements TokenListener {
 				}
 			}
 			break;
-		case IN_COMMENT:
-			log.debug("Comment: {}", token);
-			state = State.START;
+		case AFTER_COMMENT_BANG:
+			// token must be -
+			if(c == '-') {
+				state = State.AFTER_COMMENT_DASH1;
+			} else {
+				fatalError("Comment not wellformed");
+				return;
+			}
+			break;
+		case AFTER_COMMENT_DASH1:
+			// token must be -
+			if(c == '-') {
+				state = State.AFTER_COMMENT_DASH2;
+			} else {
+				fatalError("Comment not wellformed");
+				return;
+			}
+			break;
+		case AFTER_COMMENT_DASH2:
+			// we should now get the comment content, ignore
+			if(c == '-') {
+				state = State.AFTER_COMMENT_CLOSING_DASH1;
+			} else {
+				state = State.AFTER_COMMENT;
+			}
+			break;
+		case AFTER_COMMENT:
+			// token must be - or some text
+			if(c == '-') {
+				state = State.AFTER_COMMENT_CLOSING_DASH1;
+			} else if(c == '>') {
+				fatalError("Comment not wellformed");
+				return;
+			} else {
+				// ignore
+			}
+			break;
+		case AFTER_COMMENT_CLOSING_DASH1:
+			// token must be -
+			if(c == '-') {
+				state = State.AFTER_COMMENT_CLOSING_DASH2;
+			} else {
+				fatalError("Comment not wellformed");
+				return;
+			}
+			break;
+		case AFTER_COMMENT_CLOSING_DASH2:
+			// token must be >
+			if(c == '>') {
+				state = State.START;
+			} else {
+				fatalError("Comment not wellformed");
+				return;
+			}
 			break;
 		}
 	}
@@ -210,8 +294,21 @@ public class XMLParser implements TokenListener {
 			contentHandler.characters(unescaped.toCharArray(), 0, unescaped.length());
 		} else {
 			// must start document, even that document is not wellformed
-			contentHandler.startDocument();
+			startDocument();
 			fatalError("Text only allowed in element");
+		}
+	}
+	
+	private boolean isValidName(String name) {
+		// element names must only contain valid characters
+        // element names must not begin with "xml" in any casing
+        return NAME_PATTERN.matcher(name).find() && !NAME_PREFIX_PATTERN.matcher(name).find();
+	}
+	
+	private void startDocument() throws SAXException {
+		if(!sentStartDocument) {
+			contentHandler.startDocument();
+			sentStartDocument = true;
 		}
 	}
 	
@@ -219,21 +316,9 @@ public class XMLParser implements TokenListener {
 		log.debug("StartElement {}", qname);
 		
 		if(elements.isEmpty()) {
-			contentHandler.startDocument();
+			startDocument();
 		}
 		
-        if(!NAME_PATTERN.matcher(qname).find()) {
-        	fatalError("Invalid element name: " + qname);
-        	return;
-        }
-
-        // element names must not begin with "xml" in any casing
-        if(NAME_PREFIX_PATTERN.matcher(qname).find()) {
-        	fatalError("Names must not start with 'xml': " + qname);
-        	return;
-        }
-
-
 		// find all namespace declarations so we can populate the NS resolver
 		Map<String, String> nsDeclarations = new HashMap<String, String>();
 		for(Entry<String, String> attribute: attributes.entrySet()) {
@@ -346,6 +431,9 @@ public class XMLParser implements TokenListener {
 		log.debug("Fatal error: {}", message);
 		state = State.CLOSED;
 		tokenizer.close();
+		
+		// make sure we send a start document event
+		startDocument();
 		
 		errorHandler.fatalError(new SAXParseException(message, null));
 	}

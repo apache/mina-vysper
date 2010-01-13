@@ -23,6 +23,7 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 
 import org.apache.mina.common.ByteBuffer;
+import org.apache.vysper.charset.CharsetUtil;
 import org.xml.sax.SAXException;
 
 /**
@@ -30,16 +31,15 @@ import org.xml.sax.SAXException;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class XMLTokenizer {
+
+    private static final char NO_CHAR = (char) -1;
 	
 	private enum State { 
 		START, 
 		IN_TAG,
+		IN_STRING,
 		IN_DOUBLE_ATTRIBUTE_VALUE,
 		IN_SINGLE_ATTRIBUTE_VALUE,
-		AFTER_COMMENT_BANG,
-		AFTER_COMMENT_DASH1,
-		AFTER_COMMENT_DASH2,
-		IN_COMMENT,
 		IN_TEXT,
 		CLOSED
 	}
@@ -65,101 +65,66 @@ public class XMLTokenizer {
      */
     public void parse(ByteBuffer byteBuffer, CharsetDecoder decoder) throws SAXException {
         lastPosition = byteBuffer.position();
-//        StringBuffer sb = new StringBuffer();
+
         while (byteBuffer.hasRemaining() && state != State.CLOSED) {
             char c = (char)byteBuffer.get();
 
             if(state == State.START) {
             	if(c == '<') {
-            		emit('<', byteBuffer);
+            		emit(c, byteBuffer);
             		state = State.IN_TAG;
             	} else {
             		state = State.IN_TEXT;
-//            		sb.append(c);
             	}
             } else if(state == State.IN_TEXT) {
             	if(c == '<') {
             		emit(byteBuffer, decoder);
-            		emit('<', byteBuffer);
+            		emit(c, byteBuffer);
             		state = State.IN_TAG;
-            	} else {
-//            		sb.append(c);
             	}
             } else if(state == State.IN_TAG) {
-            	if(c == '/') {
-            		if(checkEmit(byteBuffer)) {
-            			emit(byteBuffer, decoder);
-            		}
-            		emit('/', byteBuffer);
-            	} else if(c == '>') {
-            		if(checkEmit(byteBuffer)) {
-            			emit(byteBuffer, decoder);
-            		}
-                	emit('>', byteBuffer);
-                	state = State.START;
-            	} else if(Character.isWhitespace(c)) {
-            		if(checkEmit(byteBuffer)) {
-            			emit(byteBuffer, decoder);
-            		} else {
-            			// ignore whitespace
-            			lastPosition = byteBuffer.position();
-            		}
-            	} else if(c == '=') {
-            		emit(byteBuffer, decoder);
-            		emit('=', byteBuffer);
+            	if(c == '>') {
+            		emit(c, byteBuffer);
+            		state = State.START;
             	} else if(c == '"') {
-            		lastPosition = byteBuffer.position();
-//            		emit("\"", byteBuffer);
-            		state = State.IN_DOUBLE_ATTRIBUTE_VALUE;
+                		emit(c, byteBuffer);
+                		state = State.IN_DOUBLE_ATTRIBUTE_VALUE;
             	} else if(c == '\'') {
-//            		emit("\'", byteBuffer);
-            		lastPosition = byteBuffer.position();
+            		emit(c, byteBuffer);
             		state = State.IN_SINGLE_ATTRIBUTE_VALUE;
-            	} else if(c == '!') {
-//            		emit("!", byteBuffer);
-            		state = State.AFTER_COMMENT_BANG;
+            	} else if(isControlChar(c)) {
+            		emit(c, byteBuffer);
+            	} else if(Character.isWhitespace(c)) {
+            		lastPosition = byteBuffer.position();
             	} else {
-            		// non-whitespace char
+            		state = State.IN_STRING;
+            	}
+            } else if(state == State.IN_STRING) {
+            	if(c == '>') {
+            		emit(byteBuffer, CharsetUtil.UTF8_DECODER);
+            		emit(c, byteBuffer);
+            		state = State.START;
+            	} else if(isControlChar(c)) {
+            		emit(byteBuffer, CharsetUtil.UTF8_DECODER);
+            		emit(c, byteBuffer);
+            		state = State.IN_TAG;
+            	} else if(Character.isWhitespace(c)) {
+            		emit(byteBuffer, CharsetUtil.UTF8_DECODER);
+            		state = State.IN_TAG;
+            	} else {
+            		// do nothing
             	}
             } else if(state == State.IN_DOUBLE_ATTRIBUTE_VALUE) {
             	if(c == '"') {
             		emit(byteBuffer, decoder);
-//            		emit("\"", byteBuffer);
+            		emit(c, byteBuffer);
             		state = State.IN_TAG;
             	}
             } else if(state == State.IN_SINGLE_ATTRIBUTE_VALUE) {
             	if(c == '\'') {
             		emit(byteBuffer, decoder);
-//            		emit("'", byteBuffer);
+            		emit(c, byteBuffer);
             		state = State.IN_TAG;
-            	}
-            } else if(state == State.AFTER_COMMENT_BANG) {
-            	if(c == '-') {
-            		state = State.AFTER_COMMENT_DASH1;
-            	} else {
-            		throw new SAXException("XML not well-formed");
-            	}
-            } else if(state == State.AFTER_COMMENT_DASH1) {
-            	if(c == '-') {
-            		state = State.AFTER_COMMENT_DASH2;
-            	} else {
-            		throw new SAXException("XML not well-formed");
-            	}
-            } else if(state == State.AFTER_COMMENT_DASH2) {
-            	if(Character.isWhitespace(c)) {
-            		emit("!--", byteBuffer);
-            		state = State.IN_COMMENT;
-            		lastPosition = byteBuffer.position();
-            	} else {
-            		throw new SAXException("XML not well-formed");
-            	}
-            } else if(state == State.IN_COMMENT) {
-            	if(Character.isWhitespace(c)) {
-            		emit(byteBuffer, decoder);
-            	} else if(c == '>') {
-            		// TODO handle verification of closing dashes
-            		state = State.START;
-            		lastPosition = byteBuffer.position();
             	}
             } 
         }
@@ -171,8 +136,8 @@ public class XMLTokenizer {
     	state = State.CLOSED;
     }
     
-    private boolean checkEmit(ByteBuffer buffer) {
-    	return buffer.position() > lastPosition + 1;
+    private boolean isControlChar(char c) {
+    	return c == '<' || c == '>' || c == '-' || c == '!' || c == '/' || c == '?' || c == '='; 
     }
 
     private void emit(char token, ByteBuffer byteBuffer) throws SAXException {
@@ -181,14 +146,6 @@ public class XMLTokenizer {
     	lastPosition = byteBuffer.position();
     }
     
-    public static final char NO_CHAR = (char) -1;
-    
-    private void emit(String token, ByteBuffer byteBuffer) throws SAXException {
-    	listener.token(NO_CHAR, token);
-    	
-    	lastPosition = byteBuffer.position();
-    }
-
     private void emit(ByteBuffer byteBuffer, CharsetDecoder decoder) throws SAXException {
     	int endPosition = byteBuffer.position();
     	int oldLimit = byteBuffer.limit();
