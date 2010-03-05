@@ -33,7 +33,7 @@
      <bean id="bogusTrustManagerFactory" class="org.apache.vysper.xmpp.cryptography.BogusTrustManagerFactory"/>
     
     <bean id="tlsContextFactory" class="org.apache.vysper.spring.ResourceBasedTLSContextFactory">
-        <constructor-arg value="file:src/main/config/bogus_mina_tls.cert"/>
+        <constructor-arg value="classpath:bogus_mina_tls.cert"/>
         <property name="password" value="boguspw" />
         <property name="trustManagerFactory"><bean class="org.apache.vysper.xmpp.cryptography.BogusTrustManagerFactory" /></property>
     </bean>
