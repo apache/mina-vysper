@@ -27,7 +27,7 @@
   <fileSets>
   	<!-- include txt files -->
     <fileSet>
-      <directory>../..</directory>
+      <directory>..</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
         <include>ABOUT.*</include>
@@ -40,7 +40,7 @@
     </fileSet>
     <!-- include configs -->
     <fileSet>
-      <directory>src/main/config/</directory>
+      <directory>../server/core/src/main/config/</directory>
       <outputDirectory>config</outputDirectory>
     </fileSet>
     

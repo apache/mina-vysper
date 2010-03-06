@@ -26,7 +26,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.vysper</groupId>
   <artifactId>vysper-parent</artifactId>
-  <name>Apache Vysper</name>
+  <name>Apache Vysper Parent</name>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <url>http://mina.apache.org/vysper</url>
@@ -395,6 +395,7 @@
     <module>speccompliance</module>
     <module>nbxml</module>
     <module>server</module>
+    <module>dist</module>
   </modules>
 
   <properties>
