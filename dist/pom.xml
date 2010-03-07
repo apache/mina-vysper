@@ -27,6 +27,7 @@
   <artifactId>vysper</artifactId>
   <name>Apache Vysper</name>
   <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
   
   <dependencies>
     <dependency>
@@ -34,9 +35,19 @@
       <artifactId>nbxml</artifactId>
     </dependency>
 
-  <dependency>
+    <dependency>
       <groupId>org.apache.vysper</groupId>
       <artifactId>vysper-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.vysper.extensions</groupId>
+      <artifactId>xep0045-muc</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.vysper.extensions</groupId>
+      <artifactId>xep0060-pubsub</artifactId>
     </dependency>
 
     <dependency>

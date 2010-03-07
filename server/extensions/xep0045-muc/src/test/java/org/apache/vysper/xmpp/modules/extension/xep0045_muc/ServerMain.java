@@ -20,18 +20,13 @@
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.vysper.mina.TCPEndpoint;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
-import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.AccountCreationException;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
-import org.apache.vysper.xmpp.modules.Module;
-import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.extension.xep0049_privatedata.PrivateDataModule;
 import org.apache.vysper.xmpp.modules.extension.xep0054_vcardtemp.VcardTempModule;
 import org.apache.vysper.xmpp.modules.extension.xep0092_software_version.SoftwareVersionModule;
@@ -40,33 +35,26 @@ import org.apache.vysper.xmpp.modules.extension.xep0202_entity_time.EntityTimeMo
 import org.apache.vysper.xmpp.server.XMPPServer;
 
 /**
- * starts the server as a standalone application
+ * starts the server with MUC as a standalone application
+ * 
+ * Note that this server assums to be running on vysper.org and with MUC on chat.vysper.org. 
+ * You will need to alias these in /etc/hosts or change them below
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class ServerMain {
 
-    /**
-     * boots the server as a standalone application
-     * 
-     * adding a module from the command line:
-     * using a runtime property, one or more modules can be specified, like this:
-     * -Dvysper.add.module=org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PublishSubscribeModule,... more ...
-     * 
-     * @param args
-     */
     public static void main(String[] args) throws AccountCreationException, EntityFormatException {
 
         StorageProviderRegistry providerRegistry = new MemoryStorageProviderRegistry();
 
-        final AccountManagement accountManagement = (AccountManagement)providerRegistry.retrieve(AccountManagement.class);
+        AccountManagement accountManagement = (AccountManagement)providerRegistry.retrieve(AccountManagement.class);
 
         accountManagement.addUser("test@vysper.org", "password");
         accountManagement.addUser("test2@vysper.org", "password");
 
         XMPPServer server = new XMPPServer("vysper.org");
         server.addEndpoint(new TCPEndpoint());
-        //server.addEndpoint(new StanzaSessionFactory());
         server.setStorageProviderRegistry(providerRegistry);
 
         server.setTLSCertificateInfo(new File("src/main/config/bogus_mina_tls.cert"), "boguspw");

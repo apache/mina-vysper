@@ -198,6 +198,12 @@
 
       <dependency>
         <groupId>org.apache.vysper</groupId>
+        <artifactId>nbxml</artifactId>
+        <version>${pom.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.vysper</groupId>
         <artifactId>vysper-core</artifactId>
         <version>${pom.version}</version>
       </dependency>
@@ -209,10 +215,15 @@
         <version>${pom.version}</version>
       </dependency>
 
-      <!-- Spec compliance -->
       <dependency>
-        <groupId>org.apache.vysper</groupId>
-        <artifactId>nbxml</artifactId>
+        <groupId>org.apache.vysper.extensions</groupId>
+        <artifactId>xep0045-muc</artifactId>
+        <version>${pom.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.vysper.extensions</groupId>
+        <artifactId>xep0060-pubsub</artifactId>
         <version>${pom.version}</version>
       </dependency>
 
