@@ -33,13 +33,15 @@ import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Iterator;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * makes response available for testing
  */
 public class TestSessionContext extends AbstractSessionContext implements StanzaWriter {
 
-    private Queue<Stanza> recordedResponses = new LinkedList<Stanza>();
+    private LinkedBlockingQueue<Stanza> recordedResponses = new LinkedBlockingQueue<Stanza>();
     private boolean closed = false;
     private boolean switchToTLSCalled;
     private boolean isReopeningXMLStream;
@@ -107,6 +109,14 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
 
     public Stanza getNextRecordedResponse() {
         return recordedResponses.poll();
+    }
+
+    public Stanza getNextRecordedResponse(long maxWaitMillis) {
+        try {
+            return recordedResponses.poll(maxWaitMillis, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            return null;
+        }
     }
 
     public Stanza getNextRecordedResponseForResource(String resource) {

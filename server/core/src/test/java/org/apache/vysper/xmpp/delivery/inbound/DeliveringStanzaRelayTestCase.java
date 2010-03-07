@@ -72,8 +72,7 @@ public class DeliveringStanzaRelayTestCase extends TestCase {
 
         try {
             stanzaRelay.relay(toEntity, stanza, new IgnoreFailureStrategy());
-            try { Thread.sleep(60); } catch (InterruptedException e) { ; } // eventually, this gets delivered
-            Stanza recordedStanza = sessionContext.getNextRecordedResponse();
+            Stanza recordedStanza = sessionContext.getNextRecordedResponse(1000);
             assertNotNull("stanza delivered", recordedStanza);
             assertEquals("Hello", recordedStanza.getSingleInnerElementsNamed("body").getSingleInnerText().getText());
         } catch (DeliveryException e) {
@@ -93,8 +92,7 @@ public class DeliveringStanzaRelayTestCase extends TestCase {
 
         try {
             stanzaRelay.relay(toEntity, stanza, new IgnoreFailureStrategy());
-            try { Thread.sleep(60); } catch (InterruptedException e) { ; } // eventually, this gets delivered
-            Stanza recordedStanza = sessionContext.getNextRecordedResponse();
+            Stanza recordedStanza = sessionContext.getNextRecordedResponse(1000);
             assertNull("stanza not delivered to unbound", recordedStanza);
         } catch (DeliveryException e) {
             throw e;
