@@ -72,7 +72,7 @@ public class ParseTextTestCase extends AbstractAsyncXMLReaderTestCase {
 
 		assertStartDocument(events.next());
 		assertStartElement("", "root", "root", events.next());
-		assertText("tûext", events.next());
+		assertText("t√ªext", events.next());
 		assertEndElement("", "root", "root", events.next());
 		assertEndDocument(events.next());
 		
@@ -84,7 +84,7 @@ public class ParseTextTestCase extends AbstractAsyncXMLReaderTestCase {
 
 		assertStartDocument(events.next());
 		assertStartElement("", "root", "root", events.next());
-		assertText("tûext", events.next());
+		assertText("t√ªext", events.next());
 		assertEndElement("", "root", "root", events.next());
 		assertEndDocument(events.next());
 		
