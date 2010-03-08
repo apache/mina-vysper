@@ -34,6 +34,26 @@ public interface SessionContext {
     static final String SESSION_ATTRIBUTE_MESSAGE_STANZA_NO_RECEIVE = "stanza.message.no_receive";
     static final String SESSION_ATTRIBUTE_PRESENCE_STANZA_NO_RECEIVE = "stanza.presence.no_receive";
 
+    public enum SessionTerminationCause {
+        /**
+         * underlying connection is broken
+         */
+        CONNECTION_ABORT,
+        /**
+         * the client regularily ended the session (sending </stream:stream>)
+         */
+        CLIENT_BYEBYE,
+        /**
+         * the server is in progress of shutting down
+         */
+        SERVER_SHUTDOWN,
+        /**
+         * the server signalled a stream error to the client and subsequently needs
+         * to close the session down 
+         */
+        STREAM_ERROR, 
+    }
+    
 	/**
 	 * Gets the {@link ServerRuntimeContext}.
 	 *
@@ -110,8 +130,9 @@ public interface SessionContext {
 
 	/**
 	 * Ends this session and the underlying TCP connection.
+     * @param give the logical cause for the session's end
 	 */
-	void endSession();
+	void endSession(SessionTerminationCause terminationCause);
 
 	/**
 	 * Gets the JID of the server this session is associated with.

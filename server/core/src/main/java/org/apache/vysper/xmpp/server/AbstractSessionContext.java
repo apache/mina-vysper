@@ -107,7 +107,7 @@ public abstract class AbstractSessionContext implements SessionContext {
         xmlLang = languageCode;
     }
 
-    public void endSession() {
+    public void endSession(SessionTerminationCause terminationCause) {
         StanzaWriter stanzaWriter = getResponseWriter();
         stanzaWriter.close();
         sessionStateHolder.setState(SessionState.CLOSED); // no more traffic going through

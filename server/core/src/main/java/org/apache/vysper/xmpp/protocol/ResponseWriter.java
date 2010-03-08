@@ -123,7 +123,7 @@ public class ResponseWriter {
 
     public static void writeErrorAndClose(SessionContext sessionContext, Stanza errorStanza) {
         writeResponse(sessionContext, errorStanza);
-        sessionContext.endSession();
+        sessionContext.endSession(SessionContext.SessionTerminationCause.STREAM_ERROR);
     }
 
 

@@ -106,7 +106,7 @@ public class XmppIoHandlerAdapter implements IoHandler {
         String sessionId = "UNKNOWN";
         if(sessionContext != null) {
             sessionId = sessionContext.getSessionId();
-            sessionContext.endSession();
+            sessionContext.endSession(SessionContext.SessionTerminationCause.CONNECTION_ABORT);
         }
         logger.info("session {} has been closed", sessionId);
     }
