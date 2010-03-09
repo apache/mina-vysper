@@ -19,8 +19,10 @@
  */
 package org.apache.vysper.mina;
 
-import org.apache.mina.common.IoFilterAdapter;
-import org.apache.mina.common.IoSession;
+import org.apache.mina.core.filterchain.IoFilterAdapter;
+import org.apache.mina.core.filterchain.IoFilter.NextFilter;
+import org.apache.mina.core.session.IoSession;
+import org.apache.mina.core.write.WriteRequest;
 import org.apache.vysper.mina.codec.StanzaWriteInfo;
 import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xml.fragment.XMLElement;
@@ -32,7 +34,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class StanzaLoggingFilter extends IoFilterAdapter {
+public abstract class StanzaLoggingFilter extends IoFilterAdapter {
 
     final Logger serverLogger = LoggerFactory.getLogger("stanza.server");
 
@@ -70,7 +72,8 @@ public class StanzaLoggingFilter extends IoFilterAdapter {
     }
 
     public void messageSent(NextFilter nextFilter, IoSession session,
-            Object message) throws Exception {
+            WriteRequest request) throws Exception {
+    	Object message = request.getMessage();
         if (message instanceof StanzaWriteInfo) {
             StanzaWriteInfo stanzaWriteInfo = (StanzaWriteInfo) message;
 
@@ -87,7 +90,7 @@ public class StanzaLoggingFilter extends IoFilterAdapter {
             }
         }
 
-        nextFilter.messageSent(session, message);
+        nextFilter.messageSent(session, request);
     }
 
     private String toXml(XMLElement element, boolean openElement,

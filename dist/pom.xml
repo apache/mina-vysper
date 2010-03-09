@@ -68,17 +68,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.mina</groupId>
-      <artifactId>mina-filter-ssl</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.mina</groupId>
-      <artifactId>mina-integration-spring</artifactId>
-      <optional>true</optional>
-    </dependency>
-
-    <dependency>
       <groupId>org.cyberneko.pull</groupId>
       <artifactId>nekopull</artifactId>
       <optional>true</optional>

@@ -19,12 +19,11 @@
  */
 package org.apache.vysper.mina;
 
-import org.apache.mina.common.IoSession;
-import org.apache.mina.common.TrafficMask;
-import org.apache.mina.common.CloseFuture;
-import org.apache.mina.common.IoFutureListener;
-import org.apache.mina.common.IoFuture;
-import org.apache.mina.filter.SSLFilter;
+import org.apache.mina.core.future.CloseFuture;
+import org.apache.mina.core.future.IoFuture;
+import org.apache.mina.core.future.IoFutureListener;
+import org.apache.mina.core.session.IoSession;
+import org.apache.mina.filter.ssl.SslFilter;
 import org.apache.vysper.mina.codec.StanzaWriteInfo;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.AbstractSessionContext;
@@ -35,8 +34,9 @@ import org.apache.vysper.xmpp.writer.StanzaWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
- * connects MINA frontend to the vysper backend
+ * connects MINA 2 frontend to the vysper backend
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
@@ -73,15 +73,16 @@ public class MinaBackedSessionContext extends AbstractSessionContext implements 
     }
 
     public void write(Stanza stanza) {
-
         if (switchToTLS) {
-            minaSession.setTrafficMask(TrafficMask.WRITE);
-            SSLFilter filter = new SSLFilter(getServerRuntimeContext().getSslContext());
+            minaSession.suspendRead();
+            minaSession.suspendWrite();
+            SslFilter filter = new SslFilter(getServerRuntimeContext().getSslContext());
             filter.setUseClientMode(false);
             minaSession.getFilterChain().addFirst("sslFilter", filter);
-            minaSession.setAttribute(SSLFilter.DISABLE_ENCRYPTION_ONCE, Boolean.TRUE);
-            minaSession.setAttribute(SSLFilter.USE_NOTIFICATION, Boolean.TRUE);
-            minaSession.setTrafficMask(TrafficMask.ALL);
+            minaSession.setAttribute(SslFilter.DISABLE_ENCRYPTION_ONCE, Boolean.TRUE);
+            minaSession.setAttribute(SslFilter.USE_NOTIFICATION, Boolean.TRUE);
+            minaSession.resumeWrite();
+            minaSession.resumeRead();
             switchToTLS = false;
         }
 

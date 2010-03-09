@@ -22,12 +22,11 @@ package org.apache.vysper.mina;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-import org.apache.mina.common.DefaultIoFilterChainBuilder;
-import org.apache.mina.filter.LoggingFilter;
+import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
-import org.apache.mina.filter.executor.ExecutorFilter;
-import org.apache.mina.transport.socket.nio.SocketAcceptor;
-import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
+import org.apache.mina.filter.logging.LoggingFilter;
+import org.apache.mina.transport.socket.SocketAcceptor;
+import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.apache.vysper.mina.codec.XMPPProtocolCodecFactory;
 import org.apache.vysper.xmpp.server.Endpoint;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -59,28 +58,25 @@ public class TCPEndpoint implements Endpoint {
     }
 
     public void start() throws IOException {
+    	NioSocketAcceptor acceptor = new NioSocketAcceptor();
+    	 
+    	DefaultIoFilterChainBuilder filterChainBuilder = new DefaultIoFilterChainBuilder();
+    	//filterChainBuilder.addLast("executorFilter", new OrderedThreadPoolExecutor());
+    	filterChainBuilder.addLast("xmppCodec", new ProtocolCodecFilter(new XMPPProtocolCodecFactory()));
+    	filterChainBuilder.addLast("loggingFilter", new LoggingFilter());
+    	acceptor.setFilterChainBuilder(filterChainBuilder);
+    	
         XmppIoHandlerAdapter adapter = new XmppIoHandlerAdapter();
         adapter.setServerRuntimeContext(serverRuntimeContext);
+        acceptor.setHandler(adapter);
+         
+        acceptor.setReuseAddress(true);
+        acceptor.bind(new InetSocketAddress(port));
 
-        XMPPProtocolCodecFactory xmppCodec = new XMPPProtocolCodecFactory();
-
-        filterChainBuilder = new DefaultIoFilterChainBuilder();
-        filterChainBuilder.addLast("executorFilter", new ExecutorFilter());
-        filterChainBuilder.addLast("xmppCodec", new ProtocolCodecFilter(xmppCodec));
-        filterChainBuilder.addLast("loggingFilter", new LoggingFilter());
-        filterChainBuilder.addLast("stanzaLoggingFilter", new StanzaLoggingFilter());
-
-        SocketAcceptorConfig socketAcceptorConfig = new SocketAcceptorConfig();
-        socketAcceptorConfig.setFilterChainBuilder(filterChainBuilder);
-        socketAcceptorConfig.setReuseAddress(true);
-
-        SocketAcceptor acceptor = new SocketAcceptor();
-        acceptor.setDefaultConfig(socketAcceptorConfig);
-        acceptor.bind(new InetSocketAddress(port), adapter);
         this.acceptor = acceptor;
     }
 
     public void stop() {
-        acceptor.unbindAll();
+        acceptor.unbind();
     }
 }

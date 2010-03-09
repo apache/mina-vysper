@@ -24,10 +24,8 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.vysper.charset.CharsetUtil;
-import org.apache.vysper.xml.decoder.ParticleDecoder;
-import org.apache.vysper.xml.decoder.XMLParticle;
 
 /**
  */
@@ -104,20 +102,20 @@ public class ParticleDecoderTestCase extends TestCase {
 	}
 
 	
-	private ByteBuffer wrap(String xml) throws Exception {
-		return ByteBuffer.wrap(xml.getBytes("UTF-8"));
+	private IoBuffer wrap(String xml) throws Exception {
+		return IoBuffer.wrap(xml.getBytes("UTF-8"));
 	}
 	
 	private XMLParticle decode(String xml) throws Exception {
 		return decode(wrap(xml));
 	}
 
-	private XMLParticle decode(ByteBuffer bb) throws Exception {
+	private XMLParticle decode(IoBuffer bb) throws Exception {
 		return ParticleDecoder.decodeParticle(bb, CharsetUtil.UTF8_DECODER);
 	}
 
 	private List<XMLParticle> decodeAll(String xml) throws Exception {
-		ByteBuffer bb = wrap(xml);
+		IoBuffer bb = wrap(xml);
 		List<XMLParticle> particles = new ArrayList<XMLParticle>();
 		
 		XMLParticle particle = decode(bb);
