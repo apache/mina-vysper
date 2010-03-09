@@ -120,12 +120,11 @@
     <!--
         MINA configuration: XMPP/TCP endpoint
     -->
-    
     <bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
         <property name="customEditors">
             <map>
                 <entry key="java.net.SocketAddress">
-                    <bean class="org.apache.mina.integration.spring.InetSocketAddressEditor" />
+                    <bean class="org.apache.mina.integration.beans.InetSocketAddressEditor" />
                 </entry>
             </map>
         </property>
@@ -138,38 +137,32 @@
     <bean id="xmppCodec" class="org.apache.vysper.mina.codec.XMPPProtocolCodecFactory">
     </bean>
 
-    <bean id="filterChainBuilder" class="org.apache.mina.integration.spring.DefaultIoFilterChainBuilderFactoryBean">
+    <bean id="filterChainBuilder" class="org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder">
       <property name="filters">
-        <list>
-              <bean class="org.apache.mina.filter.executor.ExecutorFilter" />
+        <map>
+        	<entry key="executor">
+        		<bean class="org.apache.mina.filter.executor.ExecutorFilter" />
+        	</entry>
+            <entry key="codec">  
               <bean class="org.apache.mina.filter.codec.ProtocolCodecFilter">
-                  <constructor-arg ref="xmppCodec"/>
+                  <constructor-arg>
+                  	<bean class="org.apache.vysper.mina.codec.XMPPProtocolCodecFactory" />
+                  </constructor-arg>
               </bean>
-              <bean class="org.apache.mina.filter.LoggingFilter" />
-        </list>
+            </entry>
+            <entry key="logging">
+              <bean class="org.apache.mina.filter.logging.LoggingFilter" />
+            </entry>
+        </map>
       </property>
     </bean>
 
     <!-- socket based xmpp: IoAcceptor binding to xmpp port 5222 -->
-    <bean id="ioAcceptor" class="org.apache.mina.integration.spring.IoAcceptorFactoryBean">
-      <property name="target">
-        <bean class="org.apache.mina.transport.socket.nio.SocketAcceptor" />
-      </property>
-      <property name="bindings">
-        <list>                            
-          <bean class="org.apache.mina.integration.spring.Binding">
-            <property name="address" value=":5222" />
-            <property name="handler" ref="xmppHandler" />
-            <property name="serviceConfig">
-              <bean class="org.apache.mina.transport.socket.nio.SocketAcceptorConfig">
-                <property name="filterChainBuilder" ref="filterChainBuilder" />
-                <property name="reuseAddress" value="true" />
-              </bean>
-            </property>
-          </bean>
-        </list>
-      </property>
-    </bean>
-
+    <bean id="ioAcceptor" class="org.apache.mina.transport.socket.nio.NioSocketAcceptor" init-method="bind" destroy-method="unbind">
+    	<property name="defaultLocalAddress" value=":5222" />
+    	<property name="handler" ref="xmppHandler" />
+    	<property name="filterChainBuilder" ref="filterChainBuilder" />
+    	<property name="reuseAddress" value="true" />
+	</bean>
 
 </beans>
