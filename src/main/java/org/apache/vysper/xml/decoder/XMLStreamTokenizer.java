@@ -22,8 +22,8 @@ package org.apache.vysper.xml.decoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.mina.common.ByteBuffer;
-import org.apache.mina.common.IoSession;
+import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.vysper.charset.CharsetUtil;
@@ -52,7 +52,7 @@ public class XMLStreamTokenizer extends CumulativeProtocolDecoder {
 
     
     @Override
-    public boolean doDecode(IoSession ioSession, ByteBuffer byteBuffer, ProtocolDecoderOutput protocolDecoderOutput) throws Exception {
+    public boolean doDecode(IoSession ioSession, IoBuffer byteBuffer, ProtocolDecoderOutput protocolDecoderOutput) throws Exception {
 
         XMLParticle xmlParticle = ParticleDecoder.decodeParticle(byteBuffer, CharsetUtil.UTF8_DECODER);
 
