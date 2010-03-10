@@ -424,7 +424,7 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
 
         logger.info("{} has become available", stanza.getFrom().getFullQualifiedName());
 
-        return stanza;
+        return null;
 	}
 
     private void relayTo(Entity from, List<Entity> tos, PresenceStanza original, SessionContext sessionContext) {
