@@ -31,6 +31,8 @@ import org.apache.vysper.xml.fragment.XMLFragment;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.commandstanza.EndOfSessionCommandStanza;
+import org.apache.vysper.xmpp.server.SessionContext;
 
 /**
  *
@@ -60,6 +62,16 @@ public class StanzaBuilder extends AbstractXMLElementBuilder<StanzaBuilder, Stan
         StanzaBuilder stanzaBuilder = createMessageStanza(from, to, lang, body);
         if (type != null) stanzaBuilder.addAttribute("type", type.value());
         return stanzaBuilder;
+    }
+
+    public static Stanza createUnavailablePresenceStanza(String status, SessionContext.SessionTerminationCause terminationCause) {
+        StanzaBuilder presenceUnavailBuilder = createPresenceStanza(null, null, null, PresenceStanzaType.UNAVAILABLE, null, status);
+        if (terminationCause == null) {
+            return presenceUnavailBuilder.build();
+        }
+        else {
+            return new EndOfSessionCommandStanza(presenceUnavailBuilder.build(), terminationCause);
+        }
     }
 
     public static StanzaBuilder createPresenceStanza(Entity from, Entity to, String lang, PresenceStanzaType type, String show, String status) {

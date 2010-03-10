@@ -324,13 +324,18 @@ public class ResourceRegistry {
 	 *            the resource identifier
 	 * @param state
 	 *            the {@link ResourceState} to set
+     * @return true iff the state has effectively changed
 	 */
-	public void setResourceState(String resourceId, ResourceState state) {
+	public boolean setResourceState(String resourceId, ResourceState state) {
 		SessionData data = boundResources.get(resourceId);
-		if (data == null) {
+        if (data == null) {
             throw new IllegalArgumentException("resource not registered: " + resourceId);
         }
-        data.state = state;
+        synchronized (data) {
+            boolean result =  data.state != state;
+            data.state = state;
+            return result;
+        }
 	}
 
     /**

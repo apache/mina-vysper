@@ -34,6 +34,7 @@ import org.apache.vysper.xmpp.modules.roster.RosterItem;
 import org.apache.vysper.xmpp.modules.roster.RosterUtils;
 import org.apache.vysper.xmpp.modules.roster.SubscriptionType;
 import org.apache.vysper.xmpp.modules.roster.persistence.RosterManager;
+import org.apache.vysper.xmpp.protocol.commandstanza.EndOfSessionCommandStanza;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
@@ -91,7 +92,7 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
         XMPPCoreStanzaVerifier verifier = presenceStanza.getCoreVerifier();
         ResourceRegistry registry = serverRuntimeContext.getResourceRegistry();
 
-        // check if presence reception is turned of either globally or locally
+        // check if presence reception is turned off either globally or locally
         if (!serverRuntimeContext.getServerFeatures().isRelayingPresence() ||
             (sessionContext != null && 
              sessionContext.getAttribute(SessionContext.SESSION_ATTRIBUTE_PRESENCE_STANZA_NO_RECEIVE) != null)) {
@@ -150,9 +151,17 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
                 rosterManager, user, registry, true);
 
         if (!user.isResourceSet()) throw new RuntimeException("resource id not available");
-        registry.setResourceState(user.getResource(), ResourceState.UNAVAILABLE);
+        boolean stateChanged = registry.setResourceState(user.getResource(), ResourceState.UNAVAILABLE);
+        // avoid races from closing connections and unavail presence stanza handlings happening quasi-concurrently
+        if (!stateChanged) return null;
 
         sessionContext.getServerRuntimeContext().getPresenceCache().remove(user);
+
+        SessionContext.SessionTerminationCause terminationCause = null;
+        if (presenceStanza instanceof EndOfSessionCommandStanza) {
+            EndOfSessionCommandStanza commandStanza = (EndOfSessionCommandStanza) presenceStanza;
+            terminationCause = commandStanza.getSessionTerminationCause();
+        }
 
         // TODO check if we do have to do something about resource priority
 
@@ -185,6 +194,9 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
         // broadcast presence notification to all resources of
         // current entity.
         List<String> resources = registry.getAvailableResources(user);
+        if (!SessionContext.SessionTerminationCause.isClientReceivingStanzas(terminationCause)) {
+            resources.remove(user.getResource());
+        }
         for (String resource : resources) {
             Entity otherResource = new EntityImpl(user, resource);
             contacts.add(otherResource);

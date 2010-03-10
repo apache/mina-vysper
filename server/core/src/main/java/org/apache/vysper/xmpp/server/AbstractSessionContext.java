@@ -21,22 +21,30 @@
 package org.apache.vysper.xmpp.server;
 
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.protocol.ProtocolException;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.protocol.StanzaHandler;
+import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.state.resourcebinding.BindException;
 import org.apache.vysper.xmpp.uuid.JVMBuiltinUUIDGenerator;
 import org.apache.vysper.xmpp.uuid.UUIDGenerator;
 import org.apache.vysper.xmpp.writer.StanzaWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * provides default session context behavior
- *
+ * 
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public abstract class AbstractSessionContext implements SessionContext {
 
+    private static final Logger logger = LoggerFactory.getLogger(AbstractSessionContext.class);
+    
     protected ServerRuntimeContext serverRuntimeContext;
     protected String sessionId;
     protected String xmlLang;
@@ -108,14 +116,32 @@ public abstract class AbstractSessionContext implements SessionContext {
     }
 
     public void endSession(SessionTerminationCause terminationCause) {
-        StanzaWriter stanzaWriter = getResponseWriter();
-        stanzaWriter.close();
-        sessionStateHolder.setState(SessionState.CLOSED); // no more traffic going through
-        getServerRuntimeContext().getResourceRegistry().unbindSession(this);
-        // TODO send unavailable to all contacts and other resources
-        // TODO remove latest availability from LatestPresenceCache
-        // TODO close underlying transport (TCP socket)
-    }
+		StanzaWriter stanzaWriter = getResponseWriter();
+		stanzaWriter.close();
+
+        if (terminationCause == null) {
+            throw new RuntimeException("no termination cause given");
+        }
+
+		if (terminationCause == SessionTerminationCause.CLIENT_BYEBYE ||
+            terminationCause == SessionTerminationCause.CONNECTION_ABORT ||
+            terminationCause == SessionTerminationCause.STREAM_ERROR) {
+            Stanza unavailableStanza = StanzaBuilder.createUnavailablePresenceStanza(null, terminationCause);
+            StanzaHandler handler = serverRuntimeContext.getHandler(unavailableStanza);
+            try {
+                handler.execute(unavailableStanza, serverRuntimeContext, true, this, sessionStateHolder);
+            } catch (ProtocolException e) {
+                logger.error("Failed to send unavailable stanza on connection close", e);
+            }
+        } else if (terminationCause == SessionTerminationCause.SERVER_SHUTDOWN) {
+            // do nothing
+        } else {
+            throw new IllegalArgumentException("endSession() not implemented for termination cause");
+        }
+
+        sessionStateHolder.setState(SessionState.CLOSED); // no more traffic
+		// TODO close underlying transport (TCP socket)
+	}
 
     public Entity getServerJID() {
         return serverEntity;

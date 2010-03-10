@@ -51,9 +51,14 @@ public interface SessionContext {
          * the server signalled a stream error to the client and subsequently needs
          * to close the session down 
          */
-        STREAM_ERROR, 
+        STREAM_ERROR;
+
+        public static boolean isClientReceivingStanzas(SessionTerminationCause cause) {
+            return cause == null || cause == SERVER_SHUTDOWN || cause == CLIENT_BYEBYE; 
+        }
+
     }
-    
+
 	/**
 	 * Gets the {@link ServerRuntimeContext}.
 	 *

@@ -93,10 +93,10 @@ public class PresenceStanza extends XMPPCoreStanza {
             try {
                 intValue = Integer.parseInt(priorityString);
             } catch (NumberFormatException e) {
-                throw new XMLSemanticError("presence priority must be an imteger value in the -128 to 127 range", e);
+                throw new XMLSemanticError("presence priority must be an integer value in the -128 to 127 range", e);
             }
             if (intValue < -128 || intValue > 127) {
-                throw new XMLSemanticError("presence priority must be an imteger value in the -128 to 127 range");
+                throw new XMLSemanticError("presence priority must be an integer value in the -128 to 127 range");
             }
             priorityValue = intValue;
         }
