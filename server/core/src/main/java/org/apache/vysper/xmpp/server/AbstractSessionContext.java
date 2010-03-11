@@ -124,8 +124,7 @@ public abstract class AbstractSessionContext implements SessionContext {
         }
 
 		if (terminationCause == SessionTerminationCause.CLIENT_BYEBYE ||
-            terminationCause == SessionTerminationCause.CONNECTION_ABORT ||
-            terminationCause == SessionTerminationCause.STREAM_ERROR) {
+            terminationCause == SessionTerminationCause.CONNECTION_ABORT) {
             Stanza unavailableStanza = StanzaBuilder.createUnavailablePresenceStanza(null, terminationCause);
             StanzaHandler handler = serverRuntimeContext.getHandler(unavailableStanza);
             try {
@@ -135,6 +134,9 @@ public abstract class AbstractSessionContext implements SessionContext {
             }
         } else if (terminationCause == SessionTerminationCause.SERVER_SHUTDOWN) {
             // do nothing
+        } else if (terminationCause == SessionTerminationCause.STREAM_ERROR) {
+            // TODO find a solution for informing the contacts without breaking test cases
+            // but do nothing for now
         } else {
             throw new IllegalArgumentException("endSession() not implemented for termination cause");
         }
