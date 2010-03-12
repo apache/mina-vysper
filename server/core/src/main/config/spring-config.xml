@@ -47,7 +47,7 @@
     <bean id="jcrStorageRegistry" class="org.apache.vysper.storage.jcr.JcrStorageProviderRegistry" />
 
     <!-- choose one of the storage registries -->
-    <alias name="jcrStorageRegistry" alias="storageRegistry" />
+    <alias name="inmemoryStorageRegistry" alias="storageRegistry" />
     
     <bean id="internalOutboundRelay" class="org.apache.vysper.xmpp.delivery.inbound.DeliveringInboundStanzaRelay" >
         <constructor-arg ref="domain" />
