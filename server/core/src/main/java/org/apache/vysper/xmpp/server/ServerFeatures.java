@@ -56,6 +56,16 @@ public class ServerFeatures {
      */
     private int authenticationRetries = 3;
 
+    /**
+     * decide to which client's resources a message will be delivered:
+     * (a) to the highest-priority available resource(s)
+     * (b) to all available resources with non-negative presence priority 
+     *
+     * see http://xmpp.org/internet-drafts/draft-ietf-xmpp-3921bis-05.html#rules-barejid-resource-message
+     *
+     */
+    private boolean deliverMessageToHighestPriorityResourcesOnly = false; 
+
     public ServerFeatures() {
         // default constructor
     }
@@ -102,5 +112,13 @@ public class ServerFeatures {
 
     public void setRelayingToFederationServers(boolean relayToFederationServers) {
         this.relayToFederationServers = relayToFederationServers;
+    }
+
+    public boolean isDeliveringMessageToHighestPriorityResourcesOnly() {
+        return deliverMessageToHighestPriorityResourcesOnly;
+    }
+
+    public void setDeliverMessageToHighestPriorityResourcesOnly(boolean deliverMessageToHighestPriorityResourcesOnly) {
+        this.deliverMessageToHighestPriorityResourcesOnly = deliverMessageToHighestPriorityResourcesOnly;
     }
 }

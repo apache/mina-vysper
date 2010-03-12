@@ -19,9 +19,9 @@
  */
 package org.apache.vysper.xmpp.delivery.failure;
 
-import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
-import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.stanza.Stanza;
+
+import java.util.List;
 
 /**
  *
@@ -31,7 +31,7 @@ public class IgnoreFailureStrategy implements DeliveryFailureStrategy {
 
     public final static IgnoreFailureStrategy IGNORE_FAILURE_STRATEGY = new IgnoreFailureStrategy();
 
-    public void process(Stanza failedToDeliverStanza, DeliveryException deliveryException) {
+    public void process(Stanza failedToDeliverStanza, List<DeliveryException> deliveryException) throws DeliveryException {
         // do nothing
     }
 }

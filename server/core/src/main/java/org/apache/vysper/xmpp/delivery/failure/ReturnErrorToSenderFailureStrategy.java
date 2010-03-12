@@ -26,6 +26,9 @@ import static org.apache.vysper.xmpp.stanza.PresenceStanzaType.*;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.compliance.SpecCompliance;
 import org.apache.vysper.compliance.SpecCompliant;
+
+import java.util.List;
+
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.*;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.*;
 
@@ -46,7 +49,7 @@ public class ReturnErrorToSenderFailureStrategy implements DeliveryFailureStrate
         @SpecCompliant(spec="rfc3921bis-08", section = "8.3.2", status = NOT_STARTED, coverage = UNKNOWN),
         @SpecCompliant(spec="rfc3921bis-08", section = "4.3", status = NOT_STARTED, coverage = UNKNOWN)
     })
-    public void process(Stanza failedToDeliverStanza, DeliveryException deliveryException) throws DeliveryException {
+    public void process(Stanza failedToDeliverStanza, List<DeliveryException> deliveryExceptions) throws DeliveryException {
 
         StanzaErrorCondition stanzaErrorCondition = StanzaErrorCondition.SERVICE_UNAVAILABLE;
         StanzaErrorType errorType = StanzaErrorType.CANCEL;
@@ -59,7 +62,11 @@ public class ReturnErrorToSenderFailureStrategy implements DeliveryFailureStrate
             return; // do not answer these
         }
 
-        if (deliveryException != null) {
+        if (deliveryExceptions == null) {
+            XMPPCoreStanza error = XMPPCoreStanza.getWrapper(ServerErrorResponses.getInstance().getStanzaError(stanzaErrorCondition, failedCoreStanza, errorType, "stanza could not be delivered", "en", null));
+            stanzaRelay.relay(error.getTo(), error, IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY);
+        } else if (deliveryExceptions.size() == 1) {
+            DeliveryException deliveryException = deliveryExceptions.get(0);
             if (deliveryException instanceof LocalRecipientOfflineException) {
                 // TODO implement 8.2.3 here
                 stanzaErrorCondition = StanzaErrorCondition.RECIPIENT_UNAVAILABLE;
@@ -73,11 +80,11 @@ public class ReturnErrorToSenderFailureStrategy implements DeliveryFailureStrate
                 if (failedCoreStanza instanceof PresenceStanza) {
                     final PresenceStanzaType presenceStanzaType = ((PresenceStanza) failedCoreStanza).getPresenceType();
                     if (presenceStanzaType == null ||
-                        presenceStanzaType == SUBSCRIBED ||
-                        presenceStanzaType == UNSUBSCRIBE ||
-                        presenceStanzaType == UNSUBSCRIBED ||
-                        presenceStanzaType == UNAVAILABLE ||
-                        presenceStanzaType == ERROR) {
+                            presenceStanzaType == SUBSCRIBED ||
+                            presenceStanzaType == UNSUBSCRIBE ||
+                            presenceStanzaType == UNSUBSCRIBED ||
+                            presenceStanzaType == UNAVAILABLE ||
+                            presenceStanzaType == ERROR) {
                         return; // silently ignore
                     }
                     // TODO what happens with PROBE? 8.1 is silent here, but see 4.3
@@ -92,9 +99,8 @@ public class ReturnErrorToSenderFailureStrategy implements DeliveryFailureStrate
                     }
                 }
             }
+        } else if (deliveryExceptions.size() > 1) {
+            throw new RuntimeException("cannot return to sender for multiple failed deliveries");
         }
-
-        XMPPCoreStanza error = XMPPCoreStanza.getWrapper(ServerErrorResponses.getInstance().getStanzaError(stanzaErrorCondition, failedCoreStanza, errorType, "stanza could not be delivered", "en", null));
-        stanzaRelay.relay(error.getTo(), error, IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY);
     }
 }

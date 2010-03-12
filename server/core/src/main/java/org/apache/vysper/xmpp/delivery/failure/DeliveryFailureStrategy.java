@@ -22,6 +22,8 @@ package org.apache.vysper.xmpp.delivery.failure;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 
+import java.util.List;
+
 /**
  * there are many reasons why a stanza may fail to deliver: remote server not answering, local addressee has
  * become unavailable, the server has no more resources to process etc.
@@ -39,6 +41,6 @@ public interface DeliveryFailureStrategy {
      * @param deliveryException - optional: exception which occured during the failed delivery
      * @throws org.apache.vysper.xmpp.delivery.failure.DeliveryException - exception which occured during failure strategy execution.
      */
-    public void process(Stanza failedToDeliverStanza, DeliveryException deliveryException) throws DeliveryException;
+    public void process(Stanza failedToDeliverStanza, List<DeliveryException> deliveryException) throws DeliveryException;
 
 }

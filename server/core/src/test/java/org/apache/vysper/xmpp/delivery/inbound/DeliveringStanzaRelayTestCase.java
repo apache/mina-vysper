@@ -29,10 +29,12 @@ import org.apache.vysper.xmpp.authorization.AccountCreationException;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
+import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.state.resourcebinding.BindException;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 
 /**
@@ -98,4 +100,86 @@ public class DeliveringStanzaRelayTestCase extends TestCase {
             throw e;
         }
     }
+
+    public void testRelayToTwoRecepients_DeliverToALL() throws EntityFormatException, XMLSemanticError, DeliveryException, BindException {
+        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(null, null);
+        
+        // !! DeliverMessageToHighestPriorityResourcesOnly = FALSE
+        serverRuntimeContext.getServerFeatures().setDeliverMessageToHighestPriorityResourcesOnly(false);
+
+        stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
+
+        EntityImpl fromEntity = EntityImpl.parse("userFrom@vysper.org");
+
+        EntityImpl toEntity = EntityImpl.parse("userTo@vysper.org");
+
+
+        TestSessionContext sessionContextToEntity_1_prio3 = createSessionForTo(toEntity, 3); // NON-NEGATIVE
+        TestSessionContext sessionContextToEntity_2_prio0 = createSessionForTo(toEntity, 0); // NON-NEGATIVE
+        TestSessionContext sessionContextToEntity_3_prio3 = createSessionForTo(toEntity, 3); // NON-NEGATIVE
+        TestSessionContext sessionContextToEntity_4_prioMinus = createSessionForTo(toEntity, -1); // not receiving, negative
+
+        Stanza stanza = StanzaBuilder.createMessageStanza(fromEntity, toEntity, "en", "Hello").build();
+
+        try {
+            stanzaRelay.relay(toEntity, stanza, new IgnoreFailureStrategy());
+            Stanza recordedStanza_1 = sessionContextToEntity_1_prio3.getNextRecordedResponse(100);
+            assertNotNull("stanza 1 delivered", recordedStanza_1);
+            Stanza recordedStanza_2 = sessionContextToEntity_2_prio0.getNextRecordedResponse(100);
+            assertNotNull("stanza 2 delivered", recordedStanza_2);
+            Stanza recordedStanza_3 = sessionContextToEntity_3_prio3.getNextRecordedResponse(100);
+            assertNotNull("stanza 3 delivered", recordedStanza_3);
+            Stanza recordedStanza_4 = sessionContextToEntity_4_prioMinus.getNextRecordedResponse(100);
+            assertNull("stanza 4 delivered", recordedStanza_4);
+        } catch (DeliveryException e) {
+            throw e;
+        }
+
+    }
+
+    public void testRelayToTwoRecepients_DeliverToHIGHEST() throws EntityFormatException, XMLSemanticError, DeliveryException, BindException {
+        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(null, null);
+
+        // !! DeliverMessageToHighestPriorityResourcesOnly = TRUE
+        serverRuntimeContext.getServerFeatures().setDeliverMessageToHighestPriorityResourcesOnly(true);
+
+        stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
+
+        EntityImpl fromEntity = EntityImpl.parse("userFrom@vysper.org");
+
+        EntityImpl toEntity = EntityImpl.parse("userTo@vysper.org");
+
+
+        TestSessionContext sessionContextToEntity_1_prio3 = createSessionForTo(toEntity, 3); // HIGHEST PRIO
+        TestSessionContext sessionContextToEntity_2_prio0 = createSessionForTo(toEntity, 1); // not receiving
+        TestSessionContext sessionContextToEntity_3_prio3 = createSessionForTo(toEntity, 3); // HIGHEST PRIO
+        TestSessionContext sessionContextToEntity_4_prioMinus = createSessionForTo(toEntity, -1); // not receiving
+
+        Stanza stanza = StanzaBuilder.createMessageStanza(fromEntity, toEntity, "en", "Hello").build();
+
+        try {
+            stanzaRelay.relay(toEntity, stanza, new IgnoreFailureStrategy());
+            Stanza recordedStanza_1 = sessionContextToEntity_1_prio3.getNextRecordedResponse(100);
+            assertNotNull("stanza 1 delivered", recordedStanza_1);
+            Stanza recordedStanza_2 = sessionContextToEntity_2_prio0.getNextRecordedResponse(100);
+            assertNull("stanza 2 not delivered", recordedStanza_2);
+            Stanza recordedStanza_3 = sessionContextToEntity_3_prio3.getNextRecordedResponse(100);
+            assertNotNull("stanza 3 delivered", recordedStanza_3);
+            Stanza recordedStanza_4 = sessionContextToEntity_4_prioMinus.getNextRecordedResponse(100);
+            assertNull("stanza 4 not delivered", recordedStanza_4);
+        } catch (DeliveryException e) {
+            throw e;
+        }
+
+    }
+
+    private TestSessionContext createSessionForTo(EntityImpl toEntity, final int priority) {
+        TestSessionContext sessionContextToEntity = TestSessionContext.createSessionContext(toEntity);
+        sessionContextToEntity.setSessionState(SessionState.AUTHENTICATED);
+        String toEntityRes = resourceRegistry.bindSession(sessionContextToEntity);
+        resourceRegistry.setResourcePriority(toEntityRes, priority);
+        return sessionContextToEntity;
+    }
+
+
 }

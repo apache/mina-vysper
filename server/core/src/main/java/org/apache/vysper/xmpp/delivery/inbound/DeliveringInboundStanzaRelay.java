@@ -20,9 +20,7 @@
 package org.apache.vysper.xmpp.delivery.inbound;
 
 import org.apache.vysper.storage.StorageProviderRegistry;
-import org.apache.vysper.storage.jcr.JcrStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
@@ -50,6 +48,7 @@ import org.apache.vysper.compliance.SpecCompliant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -58,6 +57,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * relays all 'incoming' stanzas to internal sessions, acts as a 'stage' by using a ThreadPoolExecutor
@@ -130,14 +130,14 @@ public class DeliveringInboundStanzaRelay implements StanzaRelay {
 
         public RelayResult call() {
             RelayResult relayResult = deliver();
-            if (relayResult == null || relayResult.isRelayed()) return relayResult;
+            if (relayResult == null || !relayResult.hasProcessingErrors()) return relayResult;
             return runFailureStrategy(relayResult);
         }
 
         private RelayResult runFailureStrategy(RelayResult relayResult) {
             if (deliveryFailureStrategy != null) {
                 try {
-                    deliveryFailureStrategy.process(stanza, relayResult.getProcessingError());
+                    deliveryFailureStrategy.process(stanza, relayResult.getProcessingErrors());
                 } catch (DeliveryException e) {
                     return new RelayResult(e);
                 } catch (RuntimeException e) {
@@ -196,7 +196,8 @@ public class DeliveringInboundStanzaRelay implements StanzaRelay {
                 switch (messageStanzaType) {
                     case CHAT:
                     case NORMAL:
-                        return relayToBestSession(false);
+                        return serverRuntimeContext.getServerFeatures().isDeliveringMessageToHighestPriorityResourcesOnly() ?
+                                relayToBestSessions(false) : relayToAllSessions(0);
                     
                     case ERROR:
                         // silently ignore
@@ -229,7 +230,7 @@ public class DeliveringInboundStanzaRelay implements StanzaRelay {
                 // TODO cannot deliver presence with type  AVAIL or UNAVAIL: silently ignore
                 // TODO cannot deliver presence with type  SUBSCRIBE: see 3921bis section 3.1.3
                 // TODO cannot deliver presence with type  (UN)SUBSCRIBED, UNSUBSCRIBE: silently ignore
-                return relayToBestSession(false);
+                return relayToBestSessions(false);
             } else if (MessageStanza.isOfType(stanza)) {
                 MessageStanza messageStanza = (MessageStanza)xmppStanza;
                 MessageStanzaType messageStanzaType = messageStanza.getMessageType();
@@ -238,11 +239,11 @@ public class DeliveringInboundStanzaRelay implements StanzaRelay {
                                                    messageStanzaType == MessageStanzaType.NORMAL;
                 // TODO cannot deliver ERROR: silently ignore
                 // TODO cannot deliver GROUPCHAT: service n/a
-                return relayToBestSession(fallbackToBareJIDAllowed);
+                return relayToBestSessions(fallbackToBareJIDAllowed);
 
             } else if (IQStanza.isOfType(stanza)) {
                 // TODO no resource matches: service n/a
-                return relayToBestSession(false);
+                return relayToBestSessions(false);
             }
  
             // for any other type of stanza 
@@ -262,54 +263,67 @@ public class DeliveringInboundStanzaRelay implements StanzaRelay {
             }
         }
 
-        protected RelayResult relayToBestSession(final boolean fallbackToBareJIDAllowed) {
-            SessionContext receivingSession = resourceRegistry.getHighestPrioSession(receiver, PRIO_THRESHOLD);
+        protected RelayResult relayToBestSessions(final boolean fallbackToBareJIDAllowed) {
+            List<SessionContext> receivingSessions = resourceRegistry.getHighestPrioSessions(receiver, PRIO_THRESHOLD);
 
-            if (receivingSession == null && receiver.isResourceSet() && fallbackToBareJIDAllowed) {
+            if (receivingSessions.size() == 0 && receiver.isResourceSet() && fallbackToBareJIDAllowed) {
                 // no concrete session for this resource has been found
                 // fall back to bare JID
-                receivingSession = resourceRegistry.getHighestPrioSession(receiver.getBareJID(), PRIO_THRESHOLD);
+                receivingSessions = resourceRegistry.getHighestPrioSessions(receiver.getBareJID(), PRIO_THRESHOLD);
             }
 
-            if (receivingSession == null) {
+            if (receivingSessions.size() == 0) {
                 return relayNotPossible();
             }
-            
-            if (receivingSession.getState() != SessionState.AUTHENTICATED) {
-                return new RelayResult(new DeliveryException("no relay to non-authenticated sessions"));
+
+            RelayResult relayResult = new RelayResult();
+            for (SessionContext receivingSession : receivingSessions) {
+                if (receivingSession.getState() != SessionState.AUTHENTICATED) {
+                    relayResult.addProcessingError(new DeliveryException("no relay to non-authenticated sessions"));
+                    continue;
+                }
+                try {
+                    StanzaHandler stanzaHandler = receivingSession.getServerRuntimeContext().getHandler(stanza);
+                    INBOUND_STANZA_PROTOCOL_WORKER.processStanza(receivingSession, sessionStateHolder, stanza, stanzaHandler);
+                } catch (Exception e) {
+                    relayResult.addProcessingError(new DeliveryException("no relay to non-authenticated sessions"));
+                    continue;
+                }
+
             }
-            try {
-                StanzaHandler stanzaHandler = receivingSession.getServerRuntimeContext().getHandler(stanza);
-                INBOUND_STANZA_PROTOCOL_WORKER.processStanza(receivingSession, sessionStateHolder, stanza, stanzaHandler);
-            } catch (Exception e) {
-                return new RelayResult(new DeliveryException(e));
-            }
-            return new RelayResult(); // return success result
+            return relayResult;
         }
         
         protected RelayResult relayToAllSessions() {
-            // the individual results are currently only recorded pro forma
-            List<RelayResult> relayResults = new ArrayList<RelayResult>();
-            
-            List<SessionContext> receivingSessions = resourceRegistry.getSessions(receiver);
+            return relayToAllSessions(null);
+        }
+
+        protected RelayResult relayToAllSessions(Integer prioThreshold) {
+
+            List<SessionContext> receivingSessions = prioThreshold == null ?
+                                                            resourceRegistry.getSessions(receiver) :
+                                                            resourceRegistry.getSessions(receiver, 0);
 
             if (receivingSessions.size() > 1) {
                  logger.warn("multiplexing: {} sessions will be processing {} ", receivingSessions.size(), stanza);
              }
+
+            RelayResult relayResult = new RelayResult();
+
              for (SessionContext sessionContext : receivingSessions) {
                  if (sessionContext.getState() != SessionState.AUTHENTICATED) {
-                     relayResults.add(new RelayResult(new DeliveryException("no relay to non-authenticated sessions")));
+                     relayResult.addProcessingError(new DeliveryException("no relay to non-authenticated sessions"));
                      continue;
                  }
                  try {
                      StanzaHandler stanzaHandler = sessionContext.getServerRuntimeContext().getHandler(stanza);
                      INBOUND_STANZA_PROTOCOL_WORKER.processStanza(sessionContext, sessionStateHolder, stanza, stanzaHandler);
                  } catch (Exception e) {
-                     relayResults.add(new RelayResult(new DeliveryException(e)));
+                     relayResult.addProcessingError(new DeliveryException(e));
                  }
              }
-                
-             return new RelayResult(); // return success result
+
+            return relayResult; // return success result
          }
     }
 
@@ -327,24 +341,36 @@ public class DeliveringInboundStanzaRelay implements StanzaRelay {
     }
 
     private static class RelayResult {
-        private DeliveryException processingError;
-        private boolean relayed;
-
-        public RelayResult(DeliveryException processingError) {
-            this.processingError = processingError;
-            this.relayed = false;
-        }
+        private List<DeliveryException> processingErrors = null;
+        private AtomicInteger relayed = new AtomicInteger(0);
 
         public RelayResult() {
-            this.relayed = true;
+            // empty
         }
 
-        public DeliveryException getProcessingError() {
-            return processingError;
+        public RelayResult(DeliveryException processingError) {
+            addProcessingError(processingError);
+        }
+
+        /*package*/ void addProcessingError(DeliveryException processingError) {
+            if (processingError == null) processingErrors = new ArrayList<DeliveryException>();
+            processingErrors.add(processingError);
         }
 
         public boolean isRelayed() {
-            return relayed;
+            return relayed.get() > 0;
+        }
+
+        public List<DeliveryException> getProcessingErrors() {
+            if (processingErrors == null) {
+                return Collections.<DeliveryException>emptyList();
+            } else {
+                return Collections.unmodifiableList(processingErrors);
+            }
+        }
+
+        public boolean hasProcessingErrors() {
+            return processingErrors != null && processingErrors.size() > 0;
         }
     }
 

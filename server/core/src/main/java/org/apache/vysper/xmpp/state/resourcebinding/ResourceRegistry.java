@@ -278,21 +278,44 @@ public class ResourceRegistry {
 		return sessionContexts;
 	}
 
+    /**
+     * retrieves sessions with same or above threshold
+     *
+     * @param entity all session for the bare jid will be considered.
+     * @param prioThreshold only resources will be returned having same or higher priority. a common value
+     * for the threshold is 0 (zero), which is also the default when param is NULL.
+     * @return returns the sessions matching the given JID (bare) with same or higher priority
+     */
+    public List<SessionContext> getSessions(Entity entity, Integer prioThreshold) {
+        if (prioThreshold == null) prioThreshold = 0;
+        List<SessionContext> results = new ArrayList<SessionContext>();
+
+        List<String> boundResourceIds = getBoundResources(entity, true);
+		for (String resourceId : boundResourceIds) {
+            SessionData sessionData = boundResources.get(resourceId);
+            if (sessionData == null) continue;
+
+            if (sessionData.priority >= prioThreshold) {
+                results.add(sessionData.context);
+            }
+        }
+        return results;
+	}
     
     /**
-     * retrieves the highest priorizes session for this entity. 
+     * retrieves the highest prioritized session(s) for this entity.
      * 
      * @param entity if this is not a bare JID, only the session for the JID's resource part will be returned, without
-     * looking at other sessions for the resource's bare JID. otherwise, in case of a full JID, it will return the 
-     * highest priorized session.
-     * @param prioThreshold if not NULL, only resources will be returned having same or higher priority. a common value 
-     * for the threshold is 0 (zero). 
-     * @return for a bare JID, it will return the hightest priorized session. for a full JID, it will return the 
+     * looking at other sessions for the resource's bare JID. otherwise, in case of a full JID, it will return the
+     * highest prioritized sessions.
+     * @param prioThreshold if not NULL, only resources will be returned having same or higher priority. a common value
+     * for the threshold is 0 (zero).
+     * @return for a bare JID, it will return the highest prioritized sessions. for a full JID, it will return the
      * related session.
      */
-    public SessionContext getHighestPrioSession(Entity entity, Integer prioThreshold) {
-        Integer currentPrio = Integer.MIN_VALUE;
-        SessionData result = null;
+    public List<SessionContext> getHighestPrioSessions(Entity entity, Integer prioThreshold) {
+        Integer currentPrio = prioThreshold == null ? Integer.MIN_VALUE : prioThreshold;
+        List<SessionContext> results = new ArrayList<SessionContext>();
 
         boolean isResourceSet = entity.isResourceSet();
 
@@ -301,20 +324,24 @@ public class ResourceRegistry {
             SessionData sessionData = boundResources.get(resourceId);
             if (sessionData == null) continue;
             
-            if (isResourceSet) return sessionData.context; // no prio checks, take the first proper one
+            if (isResourceSet) {
+                // if resource id matches, there can only be one result
+                // this overrides even parameter prio threshold
+                results.clear();
+                results.add(sessionData.context);
+                return results;
+            }
             
             if (sessionData.priority > currentPrio) {
+                results.clear(); // discard all accumulated lower prio sessions
                 currentPrio = sessionData.priority;
-                result = sessionData;
+                results.add(sessionData.context);
+            } else if(sessionData.priority.intValue() == currentPrio.intValue()) {
+                results.add(sessionData.context);
             }
         }
 
-        if (prioThreshold != null && prioThreshold > currentPrio) {
-            // no session over threshold 
-            return null;
-        }
-
-		return result == null ? null : result.context;
+        return results;
 	}
 
     /**
