@@ -64,6 +64,9 @@ public class DeliveringStanzaRelayTestCase extends TestCase {
     }
 
     public void testSimpleRelay() throws EntityFormatException, XMLSemanticError, DeliveryException {
+        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(null, null);
+        stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
+        
         EntityImpl fromEntity = EntityImpl.parse("userFrom@vysper.org");
         EntityImpl toEntity = EntityImpl.parse("userTo@vysper.org");
         TestSessionContext sessionContext = TestSessionContext.createSessionContext(toEntity);
