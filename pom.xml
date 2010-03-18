@@ -365,6 +365,12 @@
                 </goals>
               </execution>
             </executions>
+			<configuration>
+				<excludes>
+					<exclude>*.txt</exclude>
+					<exclude>release.properties</exclude>
+				</excludes>
+			</configuration>
           </plugin>
         </plugins>
       </build>
