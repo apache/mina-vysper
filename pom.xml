@@ -368,13 +368,6 @@
           </plugin>
         </plugins>
       </build>
-
-	  <modules>
-	    <module>speccompliance</module>
-	    <module>nbxml</module>
-	    <module>server</module>
-	    <module>dist</module>
-	  </modules>
     </profile>
     <profile>
       <id>integrationtests</id>
@@ -398,6 +391,7 @@
     <module>speccompliance</module>
     <module>nbxml</module>
     <module>server</module>
+    <module>dist</module>
   </modules>
 
   <properties>
