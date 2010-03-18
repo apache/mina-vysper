@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 /**
  * provides default session context behavior
@@ -141,7 +142,11 @@ public abstract class AbstractSessionContext implements SessionContext {
             throw new IllegalArgumentException("endSession() not implemented for termination cause");
         }
 
+        // unbind session and remove from registry
+        serverRuntimeContext.getResourceRegistry().unbindSession(this);
+        
         sessionStateHolder.setState(SessionState.CLOSED); // no more traffic
+        
 		// TODO close underlying transport (TCP socket)
 	}
 
