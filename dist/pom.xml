@@ -16,7 +16,7 @@
     limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
     <artifactId>vysper-parent</artifactId>
     <groupId>org.apache.vysper</groupId>
@@ -210,8 +210,8 @@
               <tasks>
           		<!-- this is only needed because windows freak out on long cmd lines, so we strip of the absolute path
           			 from the lib dir to make windows happy again -->
-                <replace file="${project.build.directory}/appassembler/bin/run.bat" token="%BASEDIR%\lib" value="..\lib"/>
-                <replace file="${project.build.directory}/appassembler/bin/run.sh" token="setenv" value="setenv.sh"/>
+                <replace file="${project.build.directory}/appassembler/bin/run.bat" token="%BASEDIR%\lib" value="..\lib" />
+                <replace file="${project.build.directory}/appassembler/bin/run.sh" token="setenv" value="setenv.sh" />
               </tasks>
 
             </configuration>
@@ -237,7 +237,35 @@
           </execution>
         </executions>
       </plugin>
-
 	</plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>apache-release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>rat-maven-plugin</artifactId>
+            <version>1.0-alpha-3</version>
+            <executions>
+              <execution>
+                <id>verify-licenses</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+              </execution>
+            </executions>
+			<configuration>
+				<excludes>
+					<exclude>.dummy</exclude>
+				</excludes>
+			</configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
