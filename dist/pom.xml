@@ -20,13 +20,13 @@
   <parent>
     <artifactId>vysper-parent</artifactId>
     <groupId>org.apache.vysper</groupId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.5</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.vysper</groupId>
   <artifactId>vysper</artifactId>
   <name>Apache Vysper</name>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>0.5</version>
   <packaging>pom</packaging>
   
   <dependencies>
