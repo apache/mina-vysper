@@ -1,32 +1,68 @@
-** Contributing **
+** SOURCE CODE **
+
+The most recent source code can be retrieved using SVN
+
+  svn checkout http://svn.apache.org/repos/asf/mina/sandbox/vysper/trunk
+
+** BUILDING ** 
+
+You need Apache Maven 2, Maven 2.2.1 or later is recommended. Run
+  mvn install
+and you should find a number of JAR files in different target/ folders.
+The different build artifacts are compiled in dist/.
+
+** RUNNING **
+
+There are different ways to run Vysper
+
+A ready-to-run setup is created by the build in 
+  dist/targtet/appassembler/
+Under  
+  dist/targtet/appassembler/bin
+you'll find start scripts for Unix/Mac and Windows.
+
+This makes use of the Spring-based server runtime.
+Main class is 
+  org.apache.vysper.spring.ServerMain
+and the bean configuration is located in 
+  server/core/src/main/config/spring-config.xml
+
+There is a non-Spring runtime, too:
+  org.apache.vysper.spring.ServerMain
+The source code shows how the different components are plugged together.
+
+It can serve as a template for integrating Vysper in any other application.
+The class
+  org.apache.vysper.xmpp.server.XMPPServer
+is built to make the server easily configurable and embeddable.
+  
+** CONFIGURATION **
+
+Vysper uses SSL encryption per default.
+For this purpose, an TLS certificate is provided.
+It is highly recommended to create and use a self-generated certificate!
+
+There are three users configured by default.
+Their account names are user1@vysper.org ... user3@vysper.org
+and their password is password1 for all three.
+Please change these settings before starting!
+
+Please note that the domain vysper.org is not running an XMPP server.
+If you go with the default setup and don't configure your own domain name,
+please note that you have to configure your Jabber clients to force the host name
+(for example the IP or localhost, depending on how you run it).
+
+** CONTRIBUTING **
 
 You can contribute by creating a new JIRA issue entry (or working on an existing).
 JIRA can be found at https://issues.apache.org/jira
 You need an account there. 
+The project name is "VYSPER".
 
-https://issues.apache.org/jira/browse/VYSPER
+For an overview of all VYSPER related issues, visit 
+http://issues.apache.org/jira/browse/VYSPER
 
-Any contribution should come in form of a patch attached to a JIRA entry.  
+Any contribution is highly welcome. It can easily reviewed if it comes in form of a patch attached to a JIRA entry.  
 
-Currently, all coding is done unit test driven. Well, at least it should ;-)
+Currently, all coding is done unit test driven. Well, at least it should be ;-)
 
-** Tools ** 
-
-Apache Maven is used as the build tool.
-
-** Compiling ** 
-
-mvn compile
-
-** Running Unit Tests **
-
-mvn test
-
-** Running the Server **
-
-Server is started using class org.apache.vysper.spring.ServerMain
-
-** Running a test client **
-
-A Smack-based client can be run against the server by executing main class org.apache.vysper.smack.BasicClient
-The client also opens a UI logging all stanzas
