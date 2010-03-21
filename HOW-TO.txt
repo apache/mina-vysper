@@ -1,3 +1,28 @@
+** ABOUT Apache Vysper and XMPP **
+
+This project aims at delivering a server implementation of both the core and IM parts of the XMPP protocol 
+(as specified in RFCs 3920 [1] + 3921 [2]).
+
+"Vysper" is pronounced like in "whisper".
+
+XMPP[3] is an open, secure and extensible instant messaging protocol which has evolved from Jabber.
+It provides interoperability features for communication with other XMPP and non-XMPP servers.
+It is used and supported by many IM applications, both client and server.
+
+The protocol and its many extensions (called XEPs) are maintained by the XMPP Standards Foundation (XSF) [4].
+
+In addition to the basic protocol and many small extensions, Vysper currently comes with working implementations for 
+  Multi-User Chat (XEP-0045) [5]
+and
+  Publish-Subscribe (XEP-0060) [6] 
+
+[1] http://www.ietf.org/rfc/rfc3920.txt
+[2] http://www.ietf.org/rfc/rfc3921.txt
+[3] http://en.wikipedia.org/wiki/XMPP
+[4] http://www.xmpp.org/
+[5] http://xmpp.org/extensions/xep-0045.html
+[6] http://xmpp.org/extensions/xep-0060.html
+
 ** SOURCE CODE **
 
 The most recent source code can be retrieved using SVN
