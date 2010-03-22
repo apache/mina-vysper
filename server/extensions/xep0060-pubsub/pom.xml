@@ -20,13 +20,13 @@
   <parent>
     <artifactId>vysper-extensions</artifactId>
     <groupId>org.apache.vysper</groupId>
-    <version>0.5</version>
+    <version>0.6-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.vysper.extensions</groupId>
   <artifactId>xep0060-pubsub</artifactId>
   <name>Apache Vysper XEP-0060 Publish-Subscribe</name>
-  <version>0.5</version>
+  <version>0.6-SNAPSHOT</version>
   
   
   <dependencies>
