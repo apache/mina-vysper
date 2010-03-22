@@ -91,3 +91,5 @@ Any contribution is highly welcome. It can easily reviewed if it comes in form o
 
 Currently, all coding is done unit test driven. Well, at least it should be ;-)
 
+Please find us on MINA'S developer mailing list dev@mina.apache.org. 
+
