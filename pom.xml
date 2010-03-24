@@ -27,7 +27,7 @@
   <groupId>org.apache.vysper</groupId>
   <artifactId>vysper-parent</artifactId>
   <name>Apache Vysper Parent</name>
-  <version>0.6-SNAPSHOT</version>
+  <version>0.5</version>
   <packaging>pom</packaging>
   <url>http://mina.apache.org/vysper</url>
 
@@ -74,9 +74,9 @@
   </mailingLists>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/mina/sandbox/vysper/trunk</connection>
-    <developerConnection> scm:svn:https://svn.apache.org/repos/asf/mina/sandbox/vysper/trunk</developerConnection>
-    <url>http://svn.apache.org/viewvc/mina/sandbox/vysper/trunk</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/mina/sandbox/vysper/tags/0.5</connection>
+    <developerConnection> scm:svn:https://svn.apache.org/repos/asf/mina/sandbox/vysper/tags/0.5</developerConnection>
+    <url>http://svn.apache.org/viewvc/mina/sandbox/vysper/tags/0.5</url>
   </scm>
 
   <repositories>
