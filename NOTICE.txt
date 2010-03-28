@@ -12,7 +12,7 @@
      Spring Framework (http://www.springframework.org/).
 
    This product also includes software developed by
-     The Legends of the Bouncy Castle (http://www.bouncycastle.org).
+     The Legion of the Bouncy Castle (http://www.bouncycastle.org).
 
    This product also includes software developed by
      Erich Gamma, Kent Beck and the JUnit Team (http://junit.sourceforge.org)
@@ -54,5 +54,5 @@
 
    The following provides more details on the included cryptographic
    software:
-     Secure Socket Layer library by The Legends of the Bounty Castle
+     Secure Socket Layer library by The Legion of the Bouncy Castle
 
