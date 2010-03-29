@@ -37,9 +37,13 @@ public class RosterSubscriptionMutator {
     }
 
     public enum Result {
+        /** the type was added to the subscription state**/
         OK,
+        /** an illegal type was supplied **/
         ILLEGAL_ARGUMENT,
+        /** the type was already present **/
         ALREADY_SET,
+        /** the type was not added **/
         FAILED
     }
 

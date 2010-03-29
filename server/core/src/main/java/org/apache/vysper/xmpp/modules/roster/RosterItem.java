@@ -28,16 +28,37 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 /**
- * one contact in the roster
+ * one contact in the roster of a user, the subscription can either be pending, or established, depending on the values
+ * of the subscriptionType and askSubscriptionType fields.
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class RosterItem {
 
+    /**
+     * the contact's JID, eg. "zappa@vysper.org"
+     */
     private Entity jid;
+
+    /**
+     * a user-chosen, descriptive, often short name ('nick'), eg. "Frank Zappa", or "Frank"
+     */
     private String name;
+
+    /**
+     * all the groups the item is displayed under. this list can be empty.
+     */
     private final List<RosterGroup> groups = new ArrayList<RosterGroup>();
+
+    /**
+     * type of subscription either FROM, TO or both. depending on the value of askSubscriptionType, FROM or TO
+     * subscriptions might be still pending and awaiting approval 
+     */
     private SubscriptionType subscriptionType;
+
+    /**
+     * records pending subscriptions, awaiting approval
+     */
     private AskSubscriptionType askSubscriptionType;
 
     public RosterItem(Entity jid, SubscriptionType subscriptionType) {
@@ -68,17 +89,29 @@ public class RosterItem {
         return name;
     }
 
+    /**
+     * sets the user-chosen name for the contact
+     * @param name
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     * unmodifyable list of groups containing this contact
+     * @return list, containing 0..n groups
+     */
     public List<RosterGroup> getGroups() {
         return Collections.unmodifiableList(groups);
     }
 
+    /**
+     * the list of groups the contact will be contained in. all previous groups are replaced by the given list.
+     * @param newGroups 0..n groups
+     */
     public void setGroups(List<RosterGroup> newGroups) {
         this.groups.clear();
-        this.groups.addAll(newGroups);
+        if (newGroups != null) this.groups.addAll(newGroups);
     }
 
     public SubscriptionType getSubscriptionType() {
@@ -103,14 +136,23 @@ public class RosterItem {
         this.askSubscriptionType = askSubscribe;
     }
 
+    /**
+     * @return TRUE, iff the contact sends presence to the user
+     */
     public boolean hasTo() {
         return subscriptionType == TO || subscriptionType == BOTH;
     }
 
+    /**
+     * @return TRUE, iff the contact receives presence from the contact
+     */
     public boolean hasFrom() {
         return subscriptionType == FROM || subscriptionType == BOTH;
     }
 
+    /**
+     * @return TRUE, iff the user and the contact mutually receive each other's presence
+     */
     public boolean isBoth() {
         return subscriptionType == BOTH;
     }

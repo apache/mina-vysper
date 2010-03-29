@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
+ * a mutable roster implementation
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */

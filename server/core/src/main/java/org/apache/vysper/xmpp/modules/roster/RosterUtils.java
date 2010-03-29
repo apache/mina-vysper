@@ -40,10 +40,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
+ * some roster logic
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class RosterUtils {
+
+    /**
+     * takes the roster of a user and groups items by subscription state. this is helpful when all FROM items
+     * are needed and then all TO items - but the roster is only iterated once. 
+     */
     public static Map<SubscriptionType, List<RosterItem>> getRosterItemsByState(RosterManager rosterManager, Entity user) {
         Map<SubscriptionType, List<RosterItem>> rosterItemMap = new HashMap<SubscriptionType, List<RosterItem>>();
 
@@ -69,14 +74,23 @@ public class RosterUtils {
         return rosterItemMap;
     }
 
+    /**
+     * extracts a roster item from the given stanza
+     */
     public static RosterItem parseRosterItem(IQStanza stanza) throws RosterBadRequestException, RosterNotAcceptableException {
         return parseRosterItem(stanza, false); // do not read subscription types (except 'remove')
     }
 
+    /**
+     * extracts a roster item from the given stanza, with relaxed semantical checks for testing
+     */
     public static RosterItem parseRosterItemForTesting(IQStanza stanza) throws RosterBadRequestException, RosterNotAcceptableException {
         return parseRosterItem(stanza, true); // do also parse subscription types
     }
 
+    /**
+     * extracts a roster item from the stanza and checks for integrity according to the XMPP spec
+     */
     @SpecCompliance(compliant = {
         @SpecCompliant(spec="rfc3921bis-08", section = "2.1.1", status = FINISHED, coverage = COMPLETE),
         @SpecCompliant(spec="rfc3921bis-08", section = "2.1.3", status = FINISHED,

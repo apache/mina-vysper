@@ -29,11 +29,16 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
+ * factory methods for roster related stanzas
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class RosterStanzaUtils {
 
+    /**
+     * creates IQ stanza containing the given roster items.
+     * the server returns this stanza when the client requests or changes the roster
+     */
     public static StanzaBuilder createRosterItemsIQ(Entity to, String id, IQStanzaType type, Iterable<RosterItem> rosterItems) {
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(null, to, type, id).
             startInnerElement("query", NamespaceURIs.JABBER_IQ_ROSTER);
@@ -47,16 +52,27 @@ public class RosterStanzaUtils {
         return stanzaBuilder;
     }
 
+    /**
+     * create IQ stanza for pushing a roster item update to the client
+     */
     public static Stanza createRosterItemPushIQ(Entity to, String id, RosterItem rosterItem) {
         return createRosterItemIQ(to, id, IQStanzaType.SET, rosterItem);
     }
 
+    /**
+     * general purpose factory method to create a roster IQ stanza for sending roster item information to the client
+     */
     public static Stanza createRosterItemIQ(Entity to, String id, IQStanzaType iqStanzaType, RosterItem rosterItem) {
         List<RosterItem> itemList = new ArrayList<RosterItem>();
         itemList.add(rosterItem);
         return createRosterItemsIQ(to, id, iqStanzaType, itemList).build();
     }
 
+    /**
+     * adds the given roster item to the roster stanza in creation
+     * @param stanzaBuilder represents the stanza in creation
+     * @param rosterItem the added roster item
+     */
     public static void createRosterItem(StanzaBuilder stanzaBuilder, RosterItem rosterItem) {
         stanzaBuilder.startInnerElement("item", NamespaceURIs.JABBER_IQ_ROSTER).
                       addAttribute("jid", rosterItem.getJid().getFullQualifiedName());

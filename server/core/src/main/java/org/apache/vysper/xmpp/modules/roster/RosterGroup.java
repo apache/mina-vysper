@@ -20,6 +20,8 @@
 package org.apache.vysper.xmpp.modules.roster;
 
 /**
+ * groups contacts under a user-chosen descriptive name, for example, group "family" could
+ * contain contacts "mum" and "dad".
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */

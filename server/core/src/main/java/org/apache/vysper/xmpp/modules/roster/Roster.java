@@ -24,7 +24,8 @@ import org.apache.vysper.xmpp.addressing.Entity;
 import java.util.Iterator;
 
 /**
- * a whole roster for a user
+ * the whole roster for a user. contains all the user's contacts, with both pending and established subscriptions.
+ * the roster is persisted on the server and requested by the client with every login.
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */

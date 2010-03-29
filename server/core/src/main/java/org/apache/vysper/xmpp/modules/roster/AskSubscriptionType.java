@@ -20,13 +20,22 @@
 package org.apache.vysper.xmpp.modules.roster;
 
 /**
- *
+ * type of pending subscriptions
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public enum AskSubscriptionType {
 
+    /**
+     * no pending subscriptions
+     */
     NOT_SET(null),
+    /**
+     * new subscription request to be confirmed by the contact
+     */
     ASK_SUBSCRIBE("subscribe"),
+    /**
+     * confirmed subscription request
+     */
     ASK_SUBSCRIBED("subscribed");
 
     private final String value;
