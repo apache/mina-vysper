@@ -32,6 +32,13 @@ import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
  */
 public interface StanzaRelay {
 
+    /**
+     * relaying a stanza
+     * @param receiver the stanza receiver
+     * @param stanza the payload
+     * @param deliveryFailureStrategy what to do in case of errors
+     * @throws DeliveryException relaying failed
+     */
     public void relay(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy) throws DeliveryException;
 
 }

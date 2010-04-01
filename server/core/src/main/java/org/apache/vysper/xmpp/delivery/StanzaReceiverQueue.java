@@ -25,7 +25,7 @@ import java.util.Queue;
 import java.util.LinkedList;
 
 /**
- * records stanzas as they come in
+ * records stanzas as they come in, holds them (as a 'stage') until they are processed 
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */

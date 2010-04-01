@@ -302,7 +302,7 @@ public class DeliveringInboundStanzaRelay implements StanzaRelay {
 
             List<SessionContext> receivingSessions = prioThreshold == null ?
                                                             resourceRegistry.getSessions(receiver) :
-                                                            resourceRegistry.getSessions(receiver, 0);
+                                                            resourceRegistry.getSessions(receiver, prioThreshold);
 
             if (receivingSessions.size() > 1) {
                  logger.warn("multiplexing: {} sessions will be processing {} ", receivingSessions.size(), stanza);

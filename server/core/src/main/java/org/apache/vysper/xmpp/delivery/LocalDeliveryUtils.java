@@ -33,6 +33,12 @@ public class LocalDeliveryUtils {
 
     final static Logger logger = LoggerFactory.getLogger(LocalDeliveryUtils.class);
 
+    /**
+     * delivers a stanza to a server-local resource. used for sending a stanza to all resources of the same user.
+     * @param registry registry to look up session by resource ID
+     * @param resource receiving resource ID
+     * @param push stanza to be pushed
+     */
     public static void relayToResourceDirectly(ResourceRegistry registry, String resource, Stanza push) {
         try {
             SessionContext targetContext = registry.getSessionContext(resource);

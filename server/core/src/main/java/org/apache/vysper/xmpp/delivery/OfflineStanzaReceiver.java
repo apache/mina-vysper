@@ -22,7 +22,8 @@ package org.apache.vysper.xmpp.delivery;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
- * receives stanzas addressed to offline receivers
+ * receives stanzas addressed to receivers which are currently offline
+ * handles persistency, retry and expiration
  * TODO: this is more or less a placeholder interface currently.
  */
 public interface OfflineStanzaReceiver {

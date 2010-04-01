@@ -46,6 +46,9 @@ public class StanzaReceiverRelay implements StanzaRelay {
         this.serverRuntimeContext = serverRuntimeContext;
     }
 
+    /**
+     * add new receiver
+     */
     public void add(Entity receiverID, StanzaReceiver receiver) {
         receiverMap.put(receiverID, receiver);
     }
@@ -80,6 +83,9 @@ public class StanzaReceiverRelay implements StanzaRelay {
         return countDelivered;
     }
 
+    /**
+     * all receiver queues are emptied
+     */
     public void resetAll() {
         synchronized (receiverMap) {
             for (StanzaReceiver receiver : receiverMap.values()) {

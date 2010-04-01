@@ -26,7 +26,9 @@ import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
 
 /**
- * relays stanzas. handles message itself, routes to another server/domain or delivers locally.
+ * central component for delivering stanzas.
+ * handles message by routing to another server/domain or delivers locally.
+ * messages are processed immediately, so this is not a 'staging' StanzaRelay like the downstream internal and external relay.
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
@@ -36,10 +38,16 @@ public class StanzaRelayBroker implements StanzaRelay {
     protected StanzaRelay externalRelay;
     protected ServerRuntimeContext serverRuntimeContext;
 
+    /**
+     * a StanzaRelay receiving stanzas which are targeted to server-local JIDs
+     */
     public void setInternalRelay(StanzaRelay internalRelay) {
         this.internalRelay = internalRelay;
     }
 
+    /**
+     * a StanzaRelay receiving stanzas which are targeted to JIDs which are external to this server
+     */
     public void setExternalRelay(StanzaRelay externalRelay) {
         this.externalRelay = externalRelay;
     }

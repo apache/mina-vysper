@@ -29,8 +29,8 @@ import java.util.Iterator;
 
 /**
  * a relay which does not relay anything but simply records the sequence of entity/stanza pairs received
- * and makes it accessible for debugging or testing purposes
- * for a little bit more advanced testing relay see StanzaReceiverRelay
+ * and makes it accessible for debugging or testing purposes.
+ * for a little bit more advanced testing relay see StanzaReceiverRelay.
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
