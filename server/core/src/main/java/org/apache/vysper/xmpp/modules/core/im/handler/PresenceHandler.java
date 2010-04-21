@@ -21,6 +21,7 @@ package org.apache.vysper.xmpp.modules.core.im.handler;
 
 import org.apache.vysper.xmpp.modules.core.base.handler.XMPPCoreStanzaHandler;
 import org.apache.vysper.xmpp.modules.roster.persistence.RosterManager;
+import org.apache.vysper.xmpp.modules.roster.persistence.RosterManagerUtils;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.stanza.PresenceStanza;
@@ -54,15 +55,8 @@ public class PresenceHandler extends XMPPCoreStanzaHandler {
 
         boolean subscriptionRelated = isSubscriptionType(presenceStanza.getPresenceType());
 
-        RosterManager rosterManager = null;
-        try {
-            rosterManager = (RosterManager)serverRuntimeContext.getStorageProvider(RosterManager.class);
-        } catch (Exception e) {
-            // System.err.println("failed to retrieve roster manager for session id = " + sessionContext.getSessionId());
-            String sessionId = sessionContext == null ? "NO_SESSION" : sessionContext.getSessionId();
-            throw new RuntimeException("failed to retrieve roster manager for session id = " + sessionId);
-        }
-
+        RosterManager rosterManager = RosterManagerUtils.getRosterInstance(serverRuntimeContext, sessionContext);
+        
         if (!subscriptionRelated) return AVAILABILITY_HANDLER.executeCorePresence(serverRuntimeContext, isOutboundStanza, sessionContext, presenceStanza, rosterManager);
         else return SUBSCRIPTION_HANDLER.executeCorePresence(serverRuntimeContext, isOutboundStanza, sessionContext, presenceStanza, rosterManager);
     }

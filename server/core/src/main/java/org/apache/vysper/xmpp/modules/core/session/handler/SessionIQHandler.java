@@ -41,7 +41,7 @@ public class SessionIQHandler extends IQHandler {
     }
 
     @Override
-    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza, SessionContext sessionContext) {
 
         switch (stanza.getIQType()) {
 

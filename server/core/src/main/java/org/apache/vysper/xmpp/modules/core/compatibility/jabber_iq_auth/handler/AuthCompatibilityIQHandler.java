@@ -44,7 +44,7 @@ public class AuthCompatibilityIQHandler extends IQHandler {
     }
 
     @Override
-    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza, SessionContext sessionContext) {
 
         // from XEP 78 - http://www.xmpp.org/extensions/xep-0078.html:
         // If the server does not support non-SASL authentication (e.g., because it supports only SASL authentication

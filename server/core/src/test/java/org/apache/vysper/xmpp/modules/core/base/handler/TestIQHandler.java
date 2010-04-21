@@ -52,7 +52,7 @@ public class TestIQHandler extends IQHandler {
     }
 
     @Override
-    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza, SessionContext sessionContext) {
         incomingStanza = stanza;
 
         StanzaBuilder responseBuilder = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT, stanza.getNamespacePrefix());

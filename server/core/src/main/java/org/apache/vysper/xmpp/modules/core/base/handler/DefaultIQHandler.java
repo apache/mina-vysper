@@ -59,7 +59,7 @@ public abstract class DefaultIQHandler extends IQHandler {
     protected abstract boolean verifyNamespace(Stanza stanza);
 
     @Override
-    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza, SessionContext sessionContext) {
 
         switch (stanza.getIQType()) {
             case ERROR:

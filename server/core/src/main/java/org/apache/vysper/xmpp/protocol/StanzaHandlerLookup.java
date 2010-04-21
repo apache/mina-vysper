@@ -25,6 +25,7 @@ import java.util.Map;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
+import org.apache.vysper.xmpp.modules.core.base.handler.RelayingIQHandler;
 import org.apache.vysper.xmpp.modules.core.base.handler.MessageHandler;
 import org.apache.vysper.xmpp.modules.core.base.handler.StreamStartHandler;
 import org.apache.vysper.xmpp.modules.core.base.handler.XMLPrologHandler;
@@ -45,7 +46,7 @@ public class StanzaHandlerLookup {
 
     private Map<String, NamespaceHandlerDictionary> namespaceDictionaries = new LinkedHashMap<String, NamespaceHandlerDictionary>();
 
-    private IQHandler iqHandler = new IQHandler();
+    private IQHandler iqHandler = new RelayingIQHandler();
     private MessageHandler messageHandler = new MessageHandler();
     private PresenceHandler presenceHandler = new PresenceHandler();
     private static final ServiceUnavailableStanzaErrorHandler SERVICE_UNAVAILABLE_STANZA_ERROR_HANDLER = new ServiceUnavailableStanzaErrorHandler();
@@ -92,22 +93,21 @@ public class StanzaHandlerLookup {
     }
 
     private StanzaHandler getIQHandler(Stanza stanza) {
-        return getHandler(stanza, iqHandler);
-    }
-
-    private StanzaHandler getHandler(Stanza stanza, StanzaHandler defaultHandler) {
         StanzaHandler handlerForElement = null;
 
-        if (stanza.getVerifier().subElementsPresentExact(1)) {
+        Entity to = stanza.getTo();
+        boolean isAddressedToServer = (to == null || (!to.isNodeSet() && !to.isResourceSet()));
+        
+        if (isAddressedToServer && stanza.getVerifier().subElementsPresentExact(1)) {
             XMLElement firstInnerElement = stanza.getFirstInnerElement();
             handlerForElement = getHandlerForElement(stanza, firstInnerElement);
             return handlerForElement;
         } else {
             // if no specialized handler can be identified, return general handler
-            return defaultHandler;
+            return iqHandler;
         }
     }
-    
+
     /**
      * tries to find the handler by trying
      * 1. value of xmlElement's XMLNS attribute, if unique

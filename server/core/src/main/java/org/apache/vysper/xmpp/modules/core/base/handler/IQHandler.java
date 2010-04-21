@@ -117,7 +117,7 @@ public class IQHandler extends XMPPCoreStanzaHandler {
         }
 
 
-        return executeIQLogic(stanza, serverRuntimeContext, sessionContext);
+        return executeIQLogic(stanza, serverRuntimeContext, isOutboundStanza, sessionContext);
     }
 
     protected String getErrorLanguage(ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
@@ -128,7 +128,7 @@ public class IQHandler extends XMPPCoreStanzaHandler {
     /**
      * must be overridden by specialized IQ handlers
      */
-    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza, SessionContext sessionContext) {
         // this is default behavior and must be replaced by overrider
         return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
                 StanzaErrorType.CANCEL,

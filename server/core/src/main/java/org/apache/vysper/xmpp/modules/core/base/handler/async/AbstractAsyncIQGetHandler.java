@@ -49,7 +49,7 @@ abstract public class AbstractAsyncIQGetHandler extends IQHandler {
     abstract protected RunnableFuture<XMPPCoreStanza> createGetTask(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext);
 
     @Override
-    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza, SessionContext sessionContext) {
         switch (stanza.getIQType()) {
             case GET:
                 executeGetIQLogicAsync(stanza, serverRuntimeContext, sessionContext);
