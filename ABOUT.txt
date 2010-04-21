@@ -27,7 +27,7 @@ and
 
 The most recent source code can be retrieved using SVN
 
-  svn checkout http://svn.apache.org/repos/asf/mina/sandbox/vysper/trunk
+  svn checkout http://svn.apache.org/repos/asf/mina/vysper/trunk
 
 ** BUILDING ** 
 

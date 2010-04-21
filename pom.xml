@@ -74,9 +74,9 @@
   </mailingLists>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/mina/sandbox/vysper/trunk</connection>
-    <developerConnection> scm:svn:https://svn.apache.org/repos/asf/mina/sandbox/vysper/trunk</developerConnection>
-    <url>http://svn.apache.org/viewvc/mina/sandbox/vysper/trunk</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/mina/vysper/trunk</connection>
+    <developerConnection> scm:svn:https://svn.apache.org/repos/asf/mina/vysper/trunk</developerConnection>
+    <url>http://svn.apache.org/viewvc/mina/vysper/trunk</url>
   </scm>
 
   <repositories>
@@ -261,7 +261,7 @@
         <plugin>
           <artifactId>maven-release-plugin</artifactId>
           <configuration>
-            <tagBase> https://svn.apache.org/repos/asf/mina/sandbox/vysper/tags/ </tagBase>
+            <tagBase> https://svn.apache.org/repos/asf/mina/vysper/tags/ </tagBase>
           </configuration>
         </plugin>
 
