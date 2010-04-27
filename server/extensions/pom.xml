@@ -21,13 +21,13 @@
     <parent>
         <artifactId>vysper-server</artifactId>
         <groupId>org.apache.vysper</groupId>
-        <version>0.5-SNAPSHOT</version>
+        <version>0.6-SNAPSHOT</version>
     </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.vysper</groupId>
   <artifactId>vysper-extensions</artifactId>
   <name>Apache Vysper Extensions</name>
-  <version>0.5-SNAPSHOT</version>
+  <version>0.6-SNAPSHOT</version>
    <packaging>pom</packaging>
 
   <modules>
