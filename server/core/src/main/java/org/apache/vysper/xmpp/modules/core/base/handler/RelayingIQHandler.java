@@ -42,9 +42,10 @@ public class RelayingIQHandler extends IQHandler {
 
     @Override
     protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza, SessionContext sessionContext) {
-        // only handle IQs which are not directed to the server.
+        // only handle IQs which are not directed to the server (vysper.org).
         // in the case where an IQ is send to the server, StanzaHandlerLookup.getIQHandler is responsible for
         // looking it up and we shouldn't have been come here in the first place.
+        // but we might will relay to a component (chat.vysper.org)
         Entity to = stanza.getTo();
         if (to == null || to.equals(sessionContext.getServerJID())) {
             return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
@@ -56,20 +57,24 @@ public class RelayingIQHandler extends IQHandler {
 
         if (outboundStanza) {
             try {
+                boolean toComponent = !to.isNodeSet() && !to.isResourceSet();
+                
                 Entity from = stanza.getFrom();
                 if (from == null || !from.isResourceSet()) {
                     from = new EntityImpl(sessionContext.getInitiatingEntity(), serverRuntimeContext.getResourceRegistry().getUniqueResourceForSession(sessionContext));
                 }
 
                 // determine if the is a matching subscription...
-                boolean isFromContact;
-                try {
-                    isFromContact = rosterManager.retrieve(from.getBareJID()).getEntry(to.getBareJID()).hasFrom();
-                } catch (Exception e) {
-                    isFromContact = false;
+                boolean isFromContact = false;
+                if (!toComponent) {
+                    try {
+                        isFromContact = rosterManager.retrieve(from.getBareJID()).getEntry(to.getBareJID()).hasFrom();
+                    } catch (Exception e) {
+                        isFromContact = false;
+                    }
                 }
-                // ...otherwise relaying is denied
-                if (!isFromContact) {
+                // deny relaying if neither isFromContact nor toComponent
+                if (!isFromContact && !toComponent) {
                     return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE, stanza,
                             StanzaErrorType.CANCEL,
                             null, null, null);
@@ -84,16 +89,19 @@ public class RelayingIQHandler extends IQHandler {
             // write inbound stanza to the user
 
             Entity from = stanza.getFrom();
-            
-            // determine if the is a matching subscription...
-            boolean isToContact;
-            try {
-                isToContact = rosterManager.retrieve(to.getBareJID()).getEntry(from.getBareJID()).hasTo();
-            } catch (Exception e) {
-                isToContact = false;
+            boolean fromComponent = (from != null) && (!from.isNodeSet()) && (!from.isResourceSet());
+
+            // determine if 'from' is a component or a matching subscription...
+            boolean isToContact = false;
+            if (!fromComponent) {
+                try {
+                    isToContact = rosterManager.retrieve(to.getBareJID()).getEntry(from.getBareJID()).hasTo();
+                } catch (Exception e) {
+                    isToContact = false;
+                }
             }
             // ...otherwise relaying is denied
-            if (!isToContact) {
+            if (!isToContact && !fromComponent) {
                 return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE, stanza,
                         StanzaErrorType.CANCEL,
                         null, null, null);

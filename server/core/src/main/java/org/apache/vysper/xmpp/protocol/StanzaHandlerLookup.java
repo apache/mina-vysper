@@ -19,9 +19,6 @@
  */
 package org.apache.vysper.xmpp.protocol;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
@@ -30,6 +27,7 @@ import org.apache.vysper.xmpp.modules.core.base.handler.MessageHandler;
 import org.apache.vysper.xmpp.modules.core.base.handler.StreamStartHandler;
 import org.apache.vysper.xmpp.modules.core.base.handler.XMLPrologHandler;
 import org.apache.vysper.xmpp.modules.core.im.handler.PresenceHandler;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 
@@ -42,19 +40,16 @@ import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class StanzaHandlerLookup {
-
-    private Map<String, NamespaceHandlerDictionary> namespaceDictionaries = new LinkedHashMap<String, NamespaceHandlerDictionary>();
+public class StanzaHandlerLookup extends AbstractStanzaHandlerLookup {
 
     private IQHandler iqHandler = new RelayingIQHandler();
     private MessageHandler messageHandler = new MessageHandler();
     private PresenceHandler presenceHandler = new PresenceHandler();
     private static final ServiceUnavailableStanzaErrorHandler SERVICE_UNAVAILABLE_STANZA_ERROR_HANDLER = new ServiceUnavailableStanzaErrorHandler();
+    protected ServerRuntimeContext serverRuntimeContext;
 
-    public void addDictionary(NamespaceHandlerDictionary namespaceHandlerDictionary) {
-        String namespace = namespaceHandlerDictionary.getNamespaceURI();
-        if (namespaceDictionaries.containsKey(namespace)) throw new IllegalArgumentException("dictionary already exists covering namespace " + namespace);
-        namespaceDictionaries.put(namespace, namespaceHandlerDictionary);
+    public StanzaHandlerLookup(ServerRuntimeContext serverRuntimeContext) {
+        this.serverRuntimeContext = serverRuntimeContext;
     }
 
     /**
@@ -62,6 +57,7 @@ public class StanzaHandlerLookup {
      * @param stanza
      * @return NULL, if no handler could be
      */
+    @Override
     public StanzaHandler getHandler(Stanza stanza) {
         if (stanza == null) return null;
 
@@ -80,7 +76,10 @@ public class StanzaHandlerLookup {
             // d. an evil forged stanza
             // e. some extension we don't know yet
             // ...so we delegate:
-            return getHandlerForElement(stanza, stanza);
+            StanzaHandler stanzaHandler = getHandlerForElement(stanza, stanza);
+            // ... and if we could not resolve and it's a core stanza, we can safely return an error
+            if (stanzaHandler == null && XMPPCoreStanza.getWrapper(stanza) != null) return SERVICE_UNAVAILABLE_STANZA_ERROR_HANDLER;
+            return stanzaHandler;
         }
     }
 
@@ -96,38 +95,27 @@ public class StanzaHandlerLookup {
         StanzaHandler handlerForElement = null;
 
         Entity to = stanza.getTo();
-        boolean isAddressedToServer = (to == null || (!to.isNodeSet() && !to.isResourceSet()));
-        
-        if (isAddressedToServer && stanza.getVerifier().subElementsPresentExact(1)) {
+        Entity serverEntity = (serverRuntimeContext == null) ? null : serverRuntimeContext.getServerEnitity();
+        boolean isAddressedToServerOrComponent = (to == null || (!to.isNodeSet() && !to.isResourceSet()));
+        boolean isAddressedToComponent = (to != null) && isAddressedToServerOrComponent && serverEntity != null && (!serverEntity.equals(to));
+        boolean isAddressedToServer = (to == null) || (isAddressedToServerOrComponent && !isAddressedToComponent);
+
+        // The following cases must be properly handled:
+        // 1. IQ disco stanza always handled by disco subsystem, not addressee
+        // 2. to = someone@vysper.org => relay
+        // 3. to = vysper.org => service unavailable
+        // 4. to = component.vysper.org => relay
+
+        // if no specialized handler can be identified, return general handler (relay)
+        StanzaHandler resolvedHandler = null;
+
+        if (stanza.getVerifier().subElementsPresentExact(1)) {
             XMLElement firstInnerElement = stanza.getFirstInnerElement();
             handlerForElement = getHandlerForElement(stanza, firstInnerElement);
-            return handlerForElement;
-        } else {
-            // if no specialized handler can be identified, return general handler
-            return iqHandler;
+            if (handlerForElement != null) resolvedHandler = handlerForElement;
+            if (resolvedHandler == null && isAddressedToServer && XMPPCoreStanza.getWrapper(stanza) != null) resolvedHandler = SERVICE_UNAVAILABLE_STANZA_ERROR_HANDLER;
         }
+        if (resolvedHandler == null) resolvedHandler = iqHandler;
+        return resolvedHandler;
     }
-
-    /**
-     * tries to find the handler by trying
-     * 1. value of xmlElement's XMLNS attribute, if unique
-     * 2. xmlElements namespace, if the element name has a namespace prefix
-     */
-    private StanzaHandler getHandlerForElement(Stanza stanza, XMLElement xmlElement) {
-
-        String namespace = xmlElement.getNamespaceURI();
-        NamespaceHandlerDictionary namespaceHandlerDictionary = namespaceDictionaries.get(namespace);
-
-        // another try to get a dictionary
-        if (namespaceHandlerDictionary == null) {
-            namespace = xmlElement.getNamespacePrefix();
-            namespaceHandlerDictionary = namespaceDictionaries.get(namespace);
-        }
-        if (namespaceHandlerDictionary != null) return namespaceHandlerDictionary.get(stanza);
-
-        if (XMPPCoreStanza.getWrapper(stanza) != null) return SERVICE_UNAVAILABLE_STANZA_ERROR_HANDLER;
-
-        return null;
-    }
-
 }

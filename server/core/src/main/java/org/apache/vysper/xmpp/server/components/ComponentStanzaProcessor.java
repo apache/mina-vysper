@@ -19,13 +19,7 @@
  */
 package org.apache.vysper.xmpp.server.components;
 
-import org.apache.vysper.xmpp.protocol.StanzaProcessor;
-import org.apache.vysper.xmpp.protocol.SessionStateHolder;
-import org.apache.vysper.xmpp.protocol.AbstractHandlerDictionary;
-import org.apache.vysper.xmpp.protocol.StanzaHandler;
-import org.apache.vysper.xmpp.protocol.ProtocolException;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
-import org.apache.vysper.xmpp.protocol.ResponseWriter;
+import org.apache.vysper.xmpp.protocol.*;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -37,32 +31,29 @@ import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
  */
 public class ComponentStanzaProcessor implements StanzaProcessor {
 
-    private static class ComponentHandlerDictionary extends AbstractHandlerDictionary {
-
-        public ComponentHandlerDictionary() {
-            super();
-        }
-    }
-
     protected ServerRuntimeContext serverRuntimeContext;
     
-    protected ComponentHandlerDictionary handlers = new ComponentHandlerDictionary();
+    protected ComponentStanzaHandlerLookup componentStanzaHandlerLookup = new ComponentStanzaHandlerLookup();
 
     public ComponentStanzaProcessor(ServerRuntimeContext serverRuntimeContext) {
         this.serverRuntimeContext = serverRuntimeContext;
     }
     
     public void addHandler(StanzaHandler stanzaHandler) {
-        handlers.register(stanzaHandler);
+        componentStanzaHandlerLookup.addDefaultHandler(stanzaHandler);
     }
     
+    public void addDictionary(NamespaceHandlerDictionary namespaceHandlerDictionary) {
+        componentStanzaHandlerLookup.addDictionary(namespaceHandlerDictionary);
+    }
+
     public void processStanza(ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, Stanza stanza, SessionStateHolder sessionStateHolder) {
         if (stanza == null) throw new RuntimeException("cannot process NULL stanzas");
 
         XMPPCoreStanza xmppStanza = XMPPCoreStanza.getWrapper(stanza);
         if (xmppStanza == null) throw new RuntimeException("cannot process only: IQ, message or presence");
 
-        StanzaHandler stanzaHandler = handlers.get(xmppStanza);
+        StanzaHandler stanzaHandler = componentStanzaHandlerLookup.getHandler(xmppStanza);
 
         if (stanzaHandler == null) {
             unhandledStanza(stanza);
@@ -79,7 +70,7 @@ public class ComponentStanzaProcessor implements StanzaProcessor {
         if (responseStanzaContainer != null && responseStanzaContainer.getResponseStanza() != null) {
             Stanza responseStanza = responseStanzaContainer.getResponseStanza();
             try {
-                IgnoreFailureStrategy failureStrategy = new IgnoreFailureStrategy(); // TODO call back MUC module
+                IgnoreFailureStrategy failureStrategy = new IgnoreFailureStrategy(); // TODO call back module
                 serverRuntimeContext.getStanzaRelay().relay(responseStanza.getTo(), responseStanza, failureStrategy);
             } catch (DeliveryException e) {
                 throw new RuntimeException(e);

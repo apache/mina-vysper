@@ -27,8 +27,17 @@ import org.apache.vysper.xmpp.protocol.StanzaProcessor;
  * components have a dedicated context in which they receive stanzas 
  */
 public interface Component {
-    
+
+    /**
+     * the subdomain this component should become available under.
+     * example: subdomain = 'chat' + server domain = 'vysper.org' => 'chat.vysper.org'
+     * @return
+     */
     String getSubdomain();
-    
+
+    /**
+     * retrieve the stanza processor for the component
+     * @return
+     */
     StanzaProcessor getStanzaProcessor();
 }

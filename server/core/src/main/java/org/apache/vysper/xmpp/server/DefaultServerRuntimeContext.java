@@ -129,7 +129,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         this.serverEntity = serverEntity;
         this.stanzaRelay = stanzaRelay;
         this.resourceRegistry = new ResourceRegistry();
-        this.stanzaHandlerLookup = new StanzaHandlerLookup();
+        this.stanzaHandlerLookup = new StanzaHandlerLookup(this);
     }
 
     public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay, StorageProviderRegistry storageProviderRegistry) {

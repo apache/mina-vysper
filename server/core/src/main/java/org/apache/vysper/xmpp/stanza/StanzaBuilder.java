@@ -89,6 +89,10 @@ public class StanzaBuilder extends AbstractXMLElementBuilder<StanzaBuilder, Stan
         return stanzaBuilder;
     }
 
+    public static StanzaBuilder createDirectReply(XMPPCoreStanza original, boolean fromIsServerOnly, IQStanzaType type) {
+        return createDirectReply(original, fromIsServerOnly, type == null ? null : type.value());
+    }
+
     public static StanzaBuilder createDirectReply(XMPPCoreStanza original, boolean fromIsServerOnly, String type) {
         if (original == null) throw new IllegalArgumentException();
 

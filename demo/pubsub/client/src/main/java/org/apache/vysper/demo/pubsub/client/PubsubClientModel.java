@@ -105,6 +105,7 @@ public class PubsubClientModel {
     }
 
     public boolean login() {
+        XMPPConnection.DEBUG_ENABLED = false;
         try {
             connection = connect(username, password, hostname);
         } catch (XMPPException e) {
@@ -113,7 +114,7 @@ public class PubsubClientModel {
             return false;
         }
         
-        pubsubMgr = new PubSubManager(connection);
+        pubsubMgr = new PubSubManager(connection, "pubsub.vysper.org");
         return true;
     }
 
@@ -129,7 +130,17 @@ public class PubsubClientModel {
 
         try {
             discoverNodes(lookup);
+        } catch (XMPPException e) {
+            e.printStackTrace();
+        }
+
+        try {
             discoverSubscriptions(lookup);
+        } catch (XMPPException e) {
+            e.printStackTrace();
+        }
+
+        try {
             discoverAffiliations(lookup);
         } catch (XMPPException e) {
             e.printStackTrace();

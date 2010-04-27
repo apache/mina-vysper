@@ -57,7 +57,11 @@ public class StanzaRelayBroker implements StanzaRelay {
     }
 
     public void relay(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy) throws DeliveryException {
-        if (receiver == null || !receiver.isNodeSet()) {
+
+        boolean toServerTLD = receiver == null ||
+                              (!receiver.isNodeSet() && serverRuntimeContext.getServerEnitity().getDomain().equals(receiver.getDomain()));
+        boolean toComponent = !toServerTLD && !receiver.isNodeSet();
+        if (toServerTLD) {
             // TODO handle by server
 
             // TODO if received <message/> from another server 'to' MUST be set

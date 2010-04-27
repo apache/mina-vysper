@@ -87,7 +87,7 @@ public class StanzaHandlerLookupTestCase extends TestCase {
     }
 
     private StanzaHandlerLookup initStanzaHandlerLookup() {
-        return new StanzaHandlerLookup();
+        return new StanzaHandlerLookup(null);
     }
 
     public void testLookupCoreHandlerServerNS() {
@@ -148,7 +148,7 @@ public class StanzaHandlerLookupTestCase extends TestCase {
 
         stanza = buildStanza("testFAIL", "test:namespace:OK");
         handler = stanzaHandlerLookup.getHandler(stanza);
-        assertNull("handler not found for name", handler);
+        assertTrue("handler not found for name", handler instanceof ServiceUnavailableStanzaErrorHandler);
 
         stanza = buildStanza("testOK", "test:namespace:OK");
         handler = stanzaHandlerLookup.getHandler(stanza);
