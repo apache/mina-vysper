@@ -78,9 +78,7 @@ public class PubSubCreateNodeHandler extends AbstractPubSubGeneralHandler {
         
         Entity sender = extractSenderJID(stanza, sessionContext);
 
-        String iqStanzaID = stanza.getAttributeValue("id");
-
-        StanzaBuilder sb = StanzaBuilder.createIQStanza(serverJID, sender, IQStanzaType.RESULT, iqStanzaID);
+        StanzaBuilder sb = StanzaBuilder.createDirectReply(stanza, false, IQStanzaType.RESULT);
 
         String nodeName = extractNodeName(stanza);
 

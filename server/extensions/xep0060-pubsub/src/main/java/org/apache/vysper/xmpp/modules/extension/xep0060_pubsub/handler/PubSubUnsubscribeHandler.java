@@ -86,9 +86,7 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
         Entity sender = extractSenderJID(stanza, sessionContext);
         Entity subJID = null;
 
-        String iqStanzaID = stanza.getAttributeValue("id");
-
-        StanzaBuilder sb = StanzaBuilder.createIQStanza(serverJID, sender, IQStanzaType.RESULT, iqStanzaID);
+        StanzaBuilder sb = StanzaBuilder.createDirectReply(stanza, false, IQStanzaType.RESULT);
         sb.startInnerElement("pubsub", NamespaceURIs.XEP0060_PUBSUB);
 
         XMLElement unsub = stanza.getFirstInnerElement().getFirstInnerElement(); // pubsub/unsubscribe
@@ -117,7 +115,7 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
 
         if(strSubID == null) {
             try {
-                if(node.unsubscribe(subJID) == false) {
+                if(!node.unsubscribe(subJID)) {
                     // has no subscription (6.2.3.2)
                     return errorStanzaGenerator.generateNoSuchSubscriberErrorStanza(sender, serverJID, stanza);
                 }
@@ -126,7 +124,7 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
                 return errorStanzaGenerator.generateSubIDRequiredErrorStanza(sender, serverJID, stanza);
             }
         } else {
-            if(node.unsubscribe(strSubID, subJID) == false) {
+            if(!node.unsubscribe(strSubID, subJID)) {
                 // subID not valid (6.2.3.5)
                 return errorStanzaGenerator.generateSubIDNotValidErrorStanza(sender, serverJID, stanza);
             }

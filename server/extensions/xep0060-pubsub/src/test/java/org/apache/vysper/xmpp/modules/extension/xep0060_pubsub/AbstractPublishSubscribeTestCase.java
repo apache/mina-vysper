@@ -70,7 +70,7 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        serverEntity = new EntityImpl(null, "pubsub.vysper.org", null);
+        serverEntity = new EntityImpl(null, "vysper.org", null);
         sessionContext = createTestSessionContext(serverEntity);
 
         root = new CollectionNode();

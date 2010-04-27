@@ -23,6 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.vysper.compliance.SpecCompliant;
+import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityFormatException;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
 import org.apache.vysper.xmpp.modules.core.base.handler.MessageHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubCreateNodeHandler;
@@ -37,19 +40,11 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionN
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.CollectionNodeStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeStorageProvider;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.Identity;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestListener;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequestListener;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
-import org.apache.vysper.xmpp.protocol.HandlerDictionary;
-import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
-import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.StanzaHandler;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.*;
+import org.apache.vysper.xmpp.protocol.*;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.components.Component;
+import org.apache.vysper.xmpp.server.components.ComponentStanzaProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,25 +54,40 @@ import org.slf4j.LoggerFactory;
  * @author The Apache MINA Project (http://mina.apache.org)
  */
 @SpecCompliant(spec="xep-0060", comment="spec. version: 1.13rc", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
-public class PublishSubscribeModule extends DefaultDiscoAwareModule implements ServerInfoRequestListener, ItemRequestListener {
+public class PublishSubscribeModule
+        extends DefaultDiscoAwareModule
+        implements Component, ComponentInfoRequestListener, ItemRequestListener {
 
     // The configuration of the service
     private PubSubServiceConfiguration serviceConfiguration = null;
     // for debugging
     private final Logger logger = LoggerFactory.getLogger(PublishSubscribeModule.class);
 
+    private ComponentStanzaProcessor stanzaProcessor;
+    private ServerRuntimeContext serverRuntimeContext;
+
+    /**
+     * the subdomain this module becomes know under.
+     */
+    protected String subdomain = "pubsub";
+
+    /**
+     * the domain derived from the subdomain and the server domain
+     */
+    protected Entity fullDomain;
+
     /**
      * Create a new PublishSubscribeModule together with a new root-collection node.
      */
     public PublishSubscribeModule() {
-        this.serviceConfiguration = new PubSubServiceConfiguration(new CollectionNode());
+        this(new PubSubServiceConfiguration(new CollectionNode()));
     }
 
     /**
      * Create a new PublishSubscribeModule together with a supplied root-collection node.
      */
-    public PublishSubscribeModule(PubSubServiceConfiguration servcieConfiguration) {
-        this.serviceConfiguration = servcieConfiguration;
+    public PublishSubscribeModule(PubSubServiceConfiguration serviceConfiguration) {
+        this.serviceConfiguration = serviceConfiguration;
     }
 
     /**
@@ -86,6 +96,14 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
     @Override
     public void initialize(ServerRuntimeContext serverRuntimeContext) {
         super.initialize(serverRuntimeContext);
+
+        this.serverRuntimeContext = serverRuntimeContext;
+        
+        try {
+            fullDomain = EntityImpl.parse(subdomain + "." + serverRuntimeContext.getServerEnitity().getDomain());
+        } catch (EntityFormatException e) {
+            throw new RuntimeException("failed to initialize PubSub domain", e);
+        }
 
         CollectionNodeStorageProvider collectionNodeStorageProvider = (CollectionNodeStorageProvider) serverRuntimeContext.getStorageProvider(CollectionNodeStorageProvider.class);
         LeafNodeStorageProvider leafNodeStorageProvider = (LeafNodeStorageProvider) serverRuntimeContext.getStorageProvider(LeafNodeStorageProvider.class);
@@ -102,6 +120,12 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
             serviceConfiguration.setLeafNodeStorageProvider(leafNodeStorageProvider);
         }
         
+        ComponentStanzaProcessor processor = new ComponentStanzaProcessor(serverRuntimeContext);
+        addPubsubHandlers(processor);
+        addPubsubOwnerHandlers(processor);
+        processor.addDictionary(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB_EVENT, new MessageHandler()));
+        stanzaProcessor = processor;
+
         this.serviceConfiguration.setServerJID(serverRuntimeContext.getServerEnitity());
         this.serviceConfiguration.initialize();
     }
@@ -123,30 +147,29 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
     }
 
     /**
-     * Make this object available for disco#info requests.
-     */
-    @Override
-    protected void addServerInfoRequestListeners(List<ServerInfoRequestListener> serverInfoRequestListeners) {
-        serverInfoRequestListeners.add(this);
-    }
-
-    /**
      * Implements the getServerInfosFor method from the {@link ServerInfoRequestListener} interface.
      * Makes this modules available via disco#info as "pubsub service" in the pubsub namespace.
      * 
-     * @see ServerInfoRequestListener#getServerInfosFor(InfoRequest)
+     * @see ComponentInfoRequestListener#getComponentInfosFor(org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest) 
      */
-    public List<InfoElement> getServerInfosFor(InfoRequest request) throws ServiceDiscoveryRequestException {
+    public List<InfoElement> getComponentInfosFor(InfoRequest request) throws ServiceDiscoveryRequestException {
+        if (!fullDomain.getDomain().equals(request.getTo().getDomain())) return null;
+        
         CollectionNode root = serviceConfiguration.getRootNode();
         List<InfoElement> infoElements = new ArrayList<InfoElement>();
         if(request.getNode() == null || request.getNode().length() == 0) {
-            infoElements.add(new Identity("pubsub", "service"));
+            infoElements.add(new Identity("pubsub", "service", "Publish-Subscribe"));
             infoElements.add(new Feature(NamespaceURIs.XEP0060_PUBSUB));
         } else {
             LeafNode node = root.find(request.getNode());
             infoElements.addAll(node.getNodeInfosFor(request));
         }
         return infoElements;
+    }
+
+    @Override
+    protected void addComponentInfoRequestListeners(List<ComponentInfoRequestListener> componentInfoRequestListeners) {
+        componentInfoRequestListeners.add(this);
     }
 
     /**
@@ -168,6 +191,12 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
         List<Item> items = null;
         
         if(request.getNode() == null || request.getNode().length() == 0) {
+            if (serverRuntimeContext.getServerEnitity().equals(request.getTo())) {
+                // top level item request. for example return entry for "pubsub.vysper.org" on request for "vysper.org"
+                List<Item> componentItem = new ArrayList<Item>();
+                componentItem.add(new Item(fullDomain));
+                return componentItem;
+            }
             ServiceDiscoItemsVisitor nv = new ServiceDiscoItemsVisitor(serviceConfiguration);
             root.acceptNodes(nv);
             items = nv.getNodeItemList();
@@ -182,33 +211,21 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
     }
 
     /**
-     * Registers the handlers for the various stanza types known to this pubsub implementation.
-     * 
-     * @see DefaultModule#addHandlerDictionaries(List<HandlerDictionary> dictionary)
-     */
-    @Override
-    protected void addHandlerDictionaries(List<HandlerDictionary> dictionary) {
-        addPubsubHandlers(dictionary);
-        addPubsubOwnerHandlers(dictionary);
-        dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB_EVENT, new MessageHandler()));
-    }
-
-    /**
      * Inserts the handlers for the pubsub#owner namespace into the HandlerDictionary.
      * @param dictionary the list to which the handlers should be appended.
      */
-    private void addPubsubOwnerHandlers(List<HandlerDictionary> dictionary) {
+    private void addPubsubOwnerHandlers(ComponentStanzaProcessor dictionary) {
         ArrayList<StanzaHandler> pubsubOwnerHandlers = new ArrayList<StanzaHandler>();
         pubsubOwnerHandlers.add(new PubSubOwnerConfigureNodeHandler(serviceConfiguration));
         pubsubOwnerHandlers.add(new PubSubOwnerDeleteNodeHandler(serviceConfiguration));
-        dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB_OWNER, pubsubOwnerHandlers));
+        dictionary.addDictionary(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB_OWNER, pubsubOwnerHandlers));
     }
 
     /**
      * Inserts the handlers for the pubsub namespace into the HandlerDictionary.
      * @param dictionary the list to which the handlers should be appended.
      */
-    private void addPubsubHandlers(List<HandlerDictionary> dictionary) {
+    private void addPubsubHandlers(ComponentStanzaProcessor dictionary) {
         ArrayList<StanzaHandler> pubsubHandlers = new ArrayList<StanzaHandler>();
         pubsubHandlers.add(new PubSubSubscribeHandler(serviceConfiguration));
         pubsubHandlers.add(new PubSubUnsubscribeHandler(serviceConfiguration));
@@ -216,6 +233,14 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements S
         pubsubHandlers.add(new PubSubCreateNodeHandler(serviceConfiguration));
         pubsubHandlers.add(new PubSubRetrieveSubscriptionsHandler(serviceConfiguration));
         pubsubHandlers.add(new PubSubRetrieveAffiliationsHandler(serviceConfiguration));
-        dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB, pubsubHandlers));
+        dictionary.addDictionary(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB, pubsubHandlers));
+    }
+
+    public String getSubdomain() {
+        return subdomain;
+    }
+
+    public StanzaProcessor getStanzaProcessor() {
+        return stanzaProcessor;
     }
 }

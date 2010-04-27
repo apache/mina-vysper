@@ -91,9 +91,7 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
         Entity sender = extractSenderJID(stanza, sessionContext);
         Entity subJID = null;
 
-        String iqStanzaID = stanza.getAttributeValue("id");
-
-        StanzaBuilder sb = StanzaBuilder.createIQStanza(serverJID, sender, IQStanzaType.RESULT, iqStanzaID);
+        StanzaBuilder sb = StanzaBuilder.createDirectReply(stanza, false, IQStanzaType.RESULT);
         sb.startInnerElement("pubsub", NamespaceURIs.XEP0060_PUBSUB);
 
         XMLElement sub = stanza.getFirstInnerElement().getFirstInnerElement(); // pubsub/subscribe

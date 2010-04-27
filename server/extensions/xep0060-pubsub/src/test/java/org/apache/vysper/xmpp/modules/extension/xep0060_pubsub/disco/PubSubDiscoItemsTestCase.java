@@ -185,8 +185,7 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
         boolean bItem2 = false;
         boolean bItem3 = false;
         for(XMLElement el : inner) {
-            if(el.getName().equals("item") 
-                    && el.getAttributeValue("jid").equals(serverEntity.getFullQualifiedName())) {
+            if(el.getName().equals("item") && el.getAttributeValue("jid").equals(pubsubService.getFullQualifiedName())) {
                 if(!bItem1 && el.getAttributeValue("name").equals("itemid1")) {
                     bItem1 = true;
                 } else if(bItem1 && !bItem2 && el.getAttributeValue("name").equals("itemid2")) {
