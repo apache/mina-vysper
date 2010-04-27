@@ -140,29 +140,28 @@ public class MUCModule
     
     
     public List<InfoElement> getComponentInfosFor(InfoRequest request) throws ServiceDiscoveryRequestException {
-        if (fullDomain.getDomain().equals(request.getTo().getDomain())) {
-            if (request.getTo().getNode() == null) {
-                List<InfoElement> serverInfos = conference.getServerInfosFor(request);
-                return serverInfos;
-            } else {
-                // might be an items request on a room
-                Room room = conference.findRoom(request.getTo().getBareJID());
-                if (room != null) {
-                    if (request.getTo().getResource() != null) {
-                        // request for an occupant
-                        Occupant occupant = room.findOccupantByNick(request.getTo().getResource());
-                        // request for occupant, relay
-                        if (occupant != null) {
-                            relayDiscoStanza(occupant.getJid(), request, NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO);
-                        }
-                    } else {
-                        return room.getInfosFor(request);
-                    }
+        if (!fullDomain.getDomain().equals(request.getTo().getDomain())) return null;
+        
+        if (request.getTo().getNode() == null) {
+            List<InfoElement> serverInfos = conference.getServerInfosFor(request);
+            return serverInfos;
+        } else {
+            // might be an items request on a room
+            Room room = conference.findRoom(request.getTo().getBareJID());
+            if (room == null) return null;
+            
+            if (request.getTo().getResource() != null) {
+                // request for an occupant
+                Occupant occupant = room.findOccupantByNick(request.getTo().getResource());
+                // request for occupant, relay
+                if (occupant != null) {
+                    relayDiscoStanza(occupant.getJid(), request, NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO);
                 }
-
+                return null;
+            } else {
+                return room.getInfosFor(request);
             }
         }
-        return null;
     }
 
     @Override

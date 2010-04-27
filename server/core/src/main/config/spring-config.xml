@@ -109,7 +109,7 @@
                 <bean class="org.apache.vysper.xmpp.modules.extension.xep0092_software_version.SoftwareVersionModule" />
                 <bean class="org.apache.vysper.xmpp.modules.extension.xep0202_entity_time.EntityTimeModule" />
                 <bean class="org.apache.vysper.xmpp.modules.extension.xep0054_vcardtemp.VcardTempModule" />
-                <!-- below some more modules which are available as separatly-built jars. 
+                <!-- below some more modules which are available as separately-built jars. 
                      make sure they are on the classpath when enabling them -->
                 <bean class="org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PublishSubscribeModule" />
                 <bean class="org.apache.vysper.xmpp.modules.extension.xep0045_muc.MUCModule" />
