@@ -196,6 +196,8 @@ public class PublishSubscribeModule
                 List<Item> componentItem = new ArrayList<Item>();
                 componentItem.add(new Item(fullDomain));
                 return componentItem;
+            } else if (!fullDomain.equals(request.getTo())) {
+                return null; // not in component's domain
             }
             ServiceDiscoItemsVisitor nv = new ServiceDiscoItemsVisitor(serviceConfiguration);
             root.acceptNodes(nv);
