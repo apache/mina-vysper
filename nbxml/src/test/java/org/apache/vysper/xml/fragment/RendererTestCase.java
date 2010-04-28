@@ -153,7 +153,7 @@ public class RendererTestCase extends TestCase {
 	public void testRenderInnerNoNamespaceElement() {
 		XMLElementBuilder builder = new XMLElementBuilder("foo", "http://example.com");
 		builder.startInnerElement("bar");
-		assertRendering("<foo xmlns=\"http://example.com\"><bar xmlns=\"\"></bar></foo>", builder.build());
+		assertRendering("<foo xmlns=\"http://example.com\"><bar ></bar></foo>", builder.build());
 	}
 	
 	public void testRenderSimpleText() {

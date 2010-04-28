@@ -70,12 +70,15 @@ public class Renderer {
         for(Entry<String, String> nsAttr : nsAttrs.entrySet()) {
     		openElementBuffer.append(" ");
     		String name;
-    		if(nsAttr.getKey().length() == 0) {
+            String value = nsAttr.getValue();
+    		if(value == null || value.length() == 0) {
+                continue; // don't issue "xmlns=''", this will only confuse clients
+            } else if(nsAttr.getKey().length() == 0) {
     			name = "xmlns";
     		} else {
     			name = "xmlns:" + nsAttr.getKey();
     		}
-    		renderAttribute(openElementBuffer, name, nsAttr.getValue());
+            renderAttribute(openElementBuffer, name, value);
         }
         
         for (Attribute attribute : element.getAttributes()) {
