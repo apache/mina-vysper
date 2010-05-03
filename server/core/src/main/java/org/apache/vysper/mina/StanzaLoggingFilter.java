@@ -20,7 +20,6 @@
 package org.apache.vysper.mina;
 
 import org.apache.mina.core.filterchain.IoFilterAdapter;
-import org.apache.mina.core.filterchain.IoFilter.NextFilter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.vysper.mina.codec.StanzaWriteInfo;
@@ -34,7 +33,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public abstract class StanzaLoggingFilter extends IoFilterAdapter {
+public class StanzaLoggingFilter extends IoFilterAdapter {
 
     final Logger serverLogger = LoggerFactory.getLogger("stanza.server");
 
