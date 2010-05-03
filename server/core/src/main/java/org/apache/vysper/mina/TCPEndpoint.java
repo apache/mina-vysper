@@ -63,7 +63,7 @@ public class TCPEndpoint implements Endpoint {
     	DefaultIoFilterChainBuilder filterChainBuilder = new DefaultIoFilterChainBuilder();
     	//filterChainBuilder.addLast("executorFilter", new OrderedThreadPoolExecutor());
     	filterChainBuilder.addLast("xmppCodec", new ProtocolCodecFilter(new XMPPProtocolCodecFactory()));
-    	filterChainBuilder.addLast("loggingFilter", new LoggingFilter());
+    	filterChainBuilder.addLast("loggingFilter", new StanzaLoggingFilter());
     	acceptor.setFilterChainBuilder(filterChainBuilder);
     	
         XmppIoHandlerAdapter adapter = new XmppIoHandlerAdapter();
