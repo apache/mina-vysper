@@ -25,13 +25,12 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.vysper.charset.CharsetUtil;
 import org.apache.vysper.xml.decoder.XMPPContentHandler;
 import org.apache.vysper.xml.decoder.XMPPContentHandler.StanzaListener;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.sax.NonBlockingXMLReader;
-import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
 
 /**
  * @author The Apache MINA Project (dev@mina.apache.org)
@@ -67,7 +66,7 @@ public class XMPPContentHandlerTestCase extends TestCase {
 	}
 	
 	private void parse(NonBlockingXMLReader reader, String xml) throws Exception {
-		reader.parse(ByteBuffer.wrap(xml.getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);	
+		reader.parse(IoBuffer.wrap(xml.getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);	
 	}
 
 }

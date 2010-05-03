@@ -24,18 +24,17 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.Map.Entry;
 
-import org.apache.vysper.xml.fragment.NamespaceResolver;
 import org.apache.vysper.xml.fragment.Namespaces;
 
 
 /**
  * Naive implementation, will be replaced in later stages of this change
  */
-public class StackNamespaceResolver2 {
+public class ParserNamespaceResolver {
 	
 	private Stack<Map<String, String>> elements = new Stack<Map<String, String>>();
 	
-	public StackNamespaceResolver2() {
+	public ParserNamespaceResolver() {
 	}
 
 	public void push(Map<String, String> elmXmlns) {

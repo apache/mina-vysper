@@ -27,12 +27,9 @@ import java.util.Map.Entry;
 
 import junit.framework.TestCase;
 
-import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.vysper.charset.CharsetUtil;
 import org.apache.vysper.xml.sax.NonBlockingXMLReader;
-import org.apache.vysper.xml.sax.impl.Attribute;
-import org.apache.vysper.xml.sax.impl.DefaultAttributes;
-import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
 import org.apache.vysper.xml.sax.impl.TestHandler.CharacterEvent;
 import org.apache.vysper.xml.sax.impl.TestHandler.EndDocumentEvent;
 import org.apache.vysper.xml.sax.impl.TestHandler.EndElementEvent;
@@ -123,7 +120,7 @@ public abstract class AbstractAsyncXMLReaderTestCase extends TestCase {
 		reader.setContentHandler(handler);
 		reader.setErrorHandler(handler);
 
-		reader.parse(ByteBuffer.wrap(xml.getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
+		reader.parse(IoBuffer.wrap(xml.getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
 		
 		return handler.getEvents();
 	}

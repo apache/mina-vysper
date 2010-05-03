@@ -29,11 +29,11 @@ import java.util.Map.Entry;
 /**
  * Naive implementation, will be replaced in later stages of this change
  */
-public class StackNamespaceResolver implements NamespaceResolver {
+public class ResolverNamespaceResolver {
 	
 	private Stack<XMLElement> elements = new Stack<XMLElement>();
 	
-	public StackNamespaceResolver() {
+	public ResolverNamespaceResolver() {
 	}
 
 	public void push(XMLElement elm) {

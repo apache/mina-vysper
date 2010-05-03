@@ -52,6 +52,17 @@ public class ParseNamespacesTestCase extends AbstractAsyncXMLReaderTestCase {
 		assertFalse(events.hasNext());
 	}
 
+	public void testDefaultedAttribute() throws Exception {
+		Iterator<TestEvent> events = parse("<root att='foo' xmlns='urn:test'></root>").iterator();
+
+		assertStartDocument(events.next());
+		assertStartElement("urn:test", "root", "root", attributes(new Attribute("att", "", "att", "foo")), events.next());
+		assertEndElement("urn:test", "root", "root", events.next());
+		assertEndDocument(events.next());
+		
+		assertFalse(events.hasNext());
+	}
+
 	
 	public void testSimpleQNameElement() throws Exception {
 		Iterator<TestEvent> events = parse("<p:root xmlns:p='urn:test'></p:root>").iterator();

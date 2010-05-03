@@ -19,10 +19,9 @@
  */
 package org.apache.vysper.xml.sax.impl;
 
-import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.vysper.charset.CharsetUtil;
 import org.apache.vysper.xml.sax.NonBlockingXMLReader;
-import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
 import org.xml.sax.DTDHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
@@ -41,11 +40,11 @@ public class DefaultAsyncXMLReaderTestCase extends AbstractAsyncXMLReaderTestCas
 		reader.setErrorHandler(handler);
 
 		// causes a fatal error
-		reader.parse(ByteBuffer.wrap("<root></error>".getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
+		reader.parse(IoBuffer.wrap("<root></error>".getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
 		
 		try {
 			// not allowed to parse after an error
-			reader.parse(ByteBuffer.wrap("<root>".getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
+			reader.parse(IoBuffer.wrap("<root>".getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
 			fail("Must throw SAXException");
 		} catch(SAXException e) {
 			// OK
@@ -60,11 +59,11 @@ public class DefaultAsyncXMLReaderTestCase extends AbstractAsyncXMLReaderTestCas
 		reader.setErrorHandler(handler);
 
 		// causes a fatal error
-		reader.parse(ByteBuffer.wrap("<root></root>".getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
+		reader.parse(IoBuffer.wrap("<root></root>".getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
 		
 		try {
 			// not allowed to parse after end of document
-			reader.parse(ByteBuffer.wrap("<root>".getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
+			reader.parse(IoBuffer.wrap("<root>".getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
 			fail("Must throw SAXException");
 		} catch(SAXException e) {
 			// OK
@@ -138,7 +137,7 @@ public class DefaultAsyncXMLReaderTestCase extends AbstractAsyncXMLReaderTestCas
 	
 	public void testSetFeatureDuringParse() throws Exception {
 		DefaultNonBlockingXMLReader reader = new DefaultNonBlockingXMLReader();
-		reader.parse(ByteBuffer.wrap("<foo />".getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
+		reader.parse(IoBuffer.wrap("<foo />".getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
 		try {
 			reader.setFeature("http://xml.org/sax/features/namespaces", true);
 			fail("Must throw SAXNotSupportedException");

@@ -29,11 +29,20 @@ import org.apache.vysper.xml.fragment.XMLFragment;
 
 
 /**
- *
+ * Factory for creating {@link XMLElementBuilder} instances
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class XMLElementBuilderFactory {
 
+	/**
+	 * Create a {@link XMLElementBuilder}
+	 * @param elementName The element local name
+	 * @param namespaceURI The element namespace URI
+	 * @param namespacePrefix The element namespace prefix, or null if namespace should be default
+	 * @param attributes The element attributes or null if no attributes
+	 * @param innerFragments The element inner fragments or null if no inner fragments 
+	 * @return
+	 */
 	public AbstractXMLElementBuilder<?, ?> createBuilder(String elementName, String namespaceURI, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments) {
 		return new XMLElementBuilder(elementName, namespaceURI, namespacePrefix, attributes, innerFragments);
 	}

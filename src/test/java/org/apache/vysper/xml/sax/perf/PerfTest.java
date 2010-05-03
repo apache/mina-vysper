@@ -19,23 +19,44 @@
  */
 package org.apache.vysper.xml.sax.perf;
 
-import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.vysper.charset.CharsetUtil;
+import org.apache.vysper.xml.decoder.XMPPContentHandler;
+import org.apache.vysper.xml.decoder.XMPPContentHandler.StanzaListener;
+import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
 
 /**
  * 
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class PerfTest  {
+public class PerfTest   {
 
+	private static class CounterStanzaListener implements StanzaListener {
+
+		public int counter = 0;
+		
+		public void stanza(XMLElement element) {
+			counter++;
+		}
+		
+	}
+	
+	private static final String SINGLE_LEVEL_XML = "<child att='foo' att2='bar'></child>";
+	private static final String NESTED_XML = "<child att='foo' att2='bar'><child2><child3><child4></child4></child3></child2></child>";
+
+	
 	public static void main(String[] args) throws Exception {
 		
-		ByteBuffer opening = ByteBuffer.wrap("<p:root xmlns:p='http://example.com'>".getBytes("UTF-8"));
-		ByteBuffer buffer = ByteBuffer.wrap("<child att='foo' att2='bar' />text".getBytes("UTF-8"));
+		IoBuffer opening = IoBuffer.wrap("<p:root xmlns:p='http://example.com'>".getBytes("UTF-8"));
+		IoBuffer buffer = IoBuffer.wrap(SINGLE_LEVEL_XML.getBytes("UTF-8"));
 		
 		DefaultNonBlockingXMLReader reader = new DefaultNonBlockingXMLReader();
-
+		CounterStanzaListener listener = new CounterStanzaListener();
+		XMPPContentHandler contentHandler = new XMPPContentHandler();
+		contentHandler.setListener(listener);
+		reader.setContentHandler(contentHandler);
+		
 		StopWatch watch = new StopWatch();
 		
 		reader.parse(opening, CharsetUtil.UTF8_DECODER);
@@ -45,6 +66,7 @@ public class PerfTest  {
 		}
 		watch.stop();
 
+		System.out.println(listener.counter + " stanzas parsed");
 		System.out.println(watch);
 		
 	}

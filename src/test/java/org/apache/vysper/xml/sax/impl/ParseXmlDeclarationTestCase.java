@@ -17,12 +17,28 @@
  *  under the License.
  *
  */
+package org.apache.vysper.xml.sax.impl;
 
-package org.apache.vysper.xml.fragment;
+import java.util.Iterator;
+
+import org.apache.vysper.xml.sax.impl.TestHandler.TestEvent;
 
 
-public interface NamespaceResolver {
-	
-	String resolveUri(String prefix);
-	String resolvePrefix(String uri);	
+/**
+ * @author The Apache MINA Project (dev@mina.apache.org)
+ */
+public class ParseXmlDeclarationTestCase extends AbstractAsyncXMLReaderTestCase {
+
+	public void testEmptyElement() throws Exception {
+		Iterator<TestEvent> events = parse("<?xml version=\"1.0\"?><root />").iterator();
+
+		assertStartDocument(events.next());
+		// no event for the declaration
+		assertStartElement("", "root", "root", events.next());
+		assertEndElement("", "root", "root", events.next());
+		assertEndDocument(events.next());
+		
+		assertNoMoreevents(events);
+	}
+
 }

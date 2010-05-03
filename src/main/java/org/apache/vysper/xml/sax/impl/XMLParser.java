@@ -29,7 +29,7 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.vysper.xml.sax.impl.XMLTokenizer.TokenListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,11 +56,12 @@ public class XMLParser implements TokenListener {
 	private ContentHandler contentHandler;
 	private ErrorHandler errorHandler;
 	
-	private StackNamespaceResolver2 nsResolver = new StackNamespaceResolver2();
+	private ParserNamespaceResolver nsResolver = new ParserNamespaceResolver();
 
 	private static enum State {
 		START,
 		IN_TAG,
+		IN_DECLARATION,
 		IN_END_TAG,
 		AFTER_START_NAME,
 		AFTER_END_NAME,
@@ -93,6 +94,7 @@ public class XMLParser implements TokenListener {
 	private boolean sentStartDocument = false; 
 	
 	// features
+	boolean reportNsAttributes = false;
 	boolean commentsAllowed = true;
 
 	
@@ -101,6 +103,7 @@ public class XMLParser implements TokenListener {
 		this.errorHandler = errorHandler;
 		
 		commentsAllowed = feature(features, DefaultNonBlockingXMLReader.FEATURE_COMMENTS_ALLOWED, true);
+		reportNsAttributes = feature(features, DefaultNonBlockingXMLReader.FEATURE_NAMESPACE_PREFIXES, false);
 		
 		this.tokenizer = new XMLTokenizer(this);
 	}
@@ -113,18 +116,19 @@ public class XMLParser implements TokenListener {
 		}
 	}
 	
-    public void parse(ByteBuffer byteBuffer, CharsetDecoder charsetDecoder) throws SAXException {
+    public void parse(IoBuffer byteBuffer, CharsetDecoder charsetDecoder) throws SAXException {
     	if(state == State.CLOSED) throw new SAXException("Parser is closed");
     	
     	try {
     		tokenizer.parse(byteBuffer, charsetDecoder);
     	} catch(RuntimeException e) {
+    		e.printStackTrace();
     		fatalError(e.getMessage());
     	}
     }
 
 	public void token(char c, String token) throws SAXException {
-		if(log.isDebugEnabled()) {
+		if(log.isTraceEnabled()) {
 			String s = (token == null) ? Character.toString(c) : token;
 			log.trace("Parser got token {} in state {}", s, state);
 		}
@@ -142,6 +146,8 @@ public class XMLParser implements TokenListener {
 			// token must be element name or / for a end tag
 			if(c == '/') {
 				state = State.IN_END_TAG;
+			} else if(c == '?') {
+					state = State.IN_DECLARATION;
 			} else if(c == '!') {
 				if(commentsAllowed) {
 					state = State.AFTER_COMMENT_BANG;
@@ -283,6 +289,12 @@ public class XMLParser implements TokenListener {
 				return;
 			}
 			break;
+		case IN_DECLARATION:
+			// wait for >
+			if(c == '>') {
+				state = State.START;
+			} 
+			break;
 		}
 	}
 	
@@ -335,17 +347,27 @@ public class XMLParser implements TokenListener {
 		List<Attribute> nonNsAttributes = new ArrayList<Attribute>();
 		for(Entry<String, String> attribute: attributes.entrySet()) {
 			String attQname = attribute.getKey();
-			if(!attQname.equals("xmlns")  && !attQname.startsWith("xmlns:")) {
+			
+			// only report NS declaration attributes if the feature is set to
+			if(reportNsAttributes) {
+				nonNsAttributes.add(new Attribute(attQname, null, attQname, attribute.getValue()));
+			} else if(!attQname.equals("xmlns")  && !attQname.startsWith("xmlns:")) {
 				String attLocalName = extractLocalName(attQname);
 				String attPrefix = extractNsPrefix(attQname);
-				String attUri = nsResolver.resolveUri(attPrefix);
-				if(attUri == null) {
-					if(attPrefix.length() > 0) {
-						fatalError("Undeclared namespace prefix: " + attPrefix);
-						return;
-					} else {
-						attUri = "";
+				String attUri;
+				if(attPrefix.length() > 0) { 
+					attUri = nsResolver.resolveUri(attPrefix);
+					if(attUri == null) {
+						if(attPrefix.length() > 0) {
+							fatalError("Undeclared namespace prefix: " + attPrefix);
+							return;
+						} else {
+							attUri = "";
+						}
 					}
+				} else {
+					// by default, attributes are in the empty namespace
+					attUri = "";
 				}
 				nonNsAttributes.add(new Attribute(attLocalName, attUri, attQname, attribute.getValue()));
 			}
@@ -434,7 +456,7 @@ public class XMLParser implements TokenListener {
 		
 		// make sure we send a start document event
 		startDocument();
-		
+
 		errorHandler.fatalError(new SAXParseException(message, null));
 	}
 	

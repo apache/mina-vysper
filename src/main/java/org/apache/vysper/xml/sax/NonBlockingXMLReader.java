@@ -22,7 +22,8 @@ package org.apache.vysper.xml.sax;
 import java.io.IOException;
 import java.nio.charset.CharsetDecoder;
 
-import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.vysper.xml.sax.impl.XMLParser;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.DTDHandler;
 import org.xml.sax.EntityResolver;
@@ -300,7 +301,14 @@ public interface NonBlockingXMLReader {
      */
     public ErrorHandler getErrorHandler ();
 
-    public void parse (ByteBuffer buffer, CharsetDecoder decoder) throws IOException, SAXException;
+    /**
+     * Parse XML in non-blocking mode. Issues events to the registered {@link ContentHandler} and {@link ErrorHandler}
+     * @param buffer Buffer containing XML input data 
+     * @param decoder The charset decoder to use for parsing
+     * @throws IOException
+     * @throws SAXException
+     */
+    public void parse (IoBuffer buffer, CharsetDecoder decoder) throws IOException, SAXException;
 
 
 

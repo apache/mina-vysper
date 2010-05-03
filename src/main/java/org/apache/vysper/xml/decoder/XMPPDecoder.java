@@ -19,8 +19,8 @@
  */
 package org.apache.vysper.xml.decoder;
 
-import org.apache.mina.common.ByteBuffer;
-import org.apache.mina.common.IoSession;
+import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.vysper.charset.CharsetUtil;
@@ -36,7 +36,9 @@ import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
  */
 public class XMPPDecoder extends CumulativeProtocolDecoder {
 
-    public static final String SESSION_ATTRIBUTE_NAME = "xmppParser";
+    private static final String STREAM_STREAM = "<stream:stream";
+
+	public static final String SESSION_ATTRIBUTE_NAME = "xmppParser";
 
     private XMLElementBuilderFactory builderFactory = new XMLElementBuilderFactory();
     
@@ -56,28 +58,44 @@ public class XMPPDecoder extends CumulativeProtocolDecoder {
 		}
 
 		public void stanza(XMLElement element) {
+			if(element.getName().equals("stream")) {
+				// reset the reader 
+			}
+			
 			protocolDecoder.write(element);
 		}
     }
     
-    @Override
-    public boolean doDecode(IoSession ioSession, ByteBuffer byteBuffer, ProtocolDecoderOutput protocolDecoderOutput) throws Exception {
-
-    	NonBlockingXMLReader reader = (NonBlockingXMLReader) ioSession.getAttribute(SESSION_ATTRIBUTE_NAME);
+    /**
+     * {@inheritDoc}
+     */
+	@Override
+	protected boolean doDecode(IoSession session,
+			IoBuffer in, ProtocolDecoderOutput out) throws Exception {
+    	NonBlockingXMLReader reader = (NonBlockingXMLReader) session.getAttribute(SESSION_ATTRIBUTE_NAME);
     	
-        if (reader == null) {
+    	// peek to find XML stream resets
+    	// TODO this is a bit ugly, revisit
+    	in.mark();
+    	String peek = in.getString(14, CharsetUtil.UTF8_DECODER);
+    	in.reset();
+
+    	if (reader == null || STREAM_STREAM.equals(peek)) {
         	reader = new DefaultNonBlockingXMLReader();
+        	
+        	// we need to check the jabber:client/jabber:server NS declarations
+        	reader.setFeature(DefaultNonBlockingXMLReader.FEATURE_NAMESPACE_PREFIXES, true);
         	reader.setContentHandler(new XMPPContentHandler(builderFactory));
         	
-            ioSession.setAttribute(SESSION_ATTRIBUTE_NAME, reader);
+        	session.setAttribute(SESSION_ATTRIBUTE_NAME, reader);
         }
         
         XMPPContentHandler contentHandler = (XMPPContentHandler) reader.getContentHandler();
-        contentHandler.setListener(new MinaStanzaListener(protocolDecoderOutput));
+        contentHandler.setListener(new MinaStanzaListener(out));
     	
-        reader.parse(byteBuffer, CharsetUtil.UTF8_DECODER);
+        reader.parse(in, CharsetUtil.UTF8_DECODER);
     	
         // we have parsed what we got, invoke again when more data is available
         return false;
-    }
+	}
 }

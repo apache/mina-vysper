@@ -20,6 +20,7 @@
 
 package org.apache.vysper.xml.fragment;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -139,9 +140,13 @@ public class XMLElementVerifier {
 	}
 
 	public boolean namespacePresent(String namespaceURI) {
-		for (Attribute attribute : element.getAttributes()) {
-			if (isNamespaceAttribute(attribute)
-					&& attribute.getValue().equals(namespaceURI)) {
+		Collection<String> nsUris = element.getDeclaredNamespaces().values();
+		if(nsUris.contains(namespaceURI)) {
+			return true;
+		}
+		
+		for(Attribute attribute : element.getAttributes()) {
+			if(attribute.getName().startsWith("xmlns") && attribute.getValue().equals(namespaceURI)) {
 				return true;
 			}
 		}

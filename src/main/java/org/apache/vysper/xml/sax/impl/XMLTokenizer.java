@@ -22,7 +22,7 @@ package org.apache.vysper.xml.sax.impl;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 
-import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.vysper.charset.CharsetUtil;
 import org.xml.sax.SAXException;
 
@@ -63,7 +63,7 @@ public class XMLTokenizer {
      * @return the new particle or NULL, if the buffer was exhausted before the particle was completed
      * @throws Exception
      */
-    public void parse(ByteBuffer byteBuffer, CharsetDecoder decoder) throws SAXException {
+    public void parse(IoBuffer byteBuffer, CharsetDecoder decoder) throws SAXException {
         lastPosition = byteBuffer.position();
 
         while (byteBuffer.hasRemaining() && state != State.CLOSED) {
@@ -140,13 +140,13 @@ public class XMLTokenizer {
     	return c == '<' || c == '>' || c == '-' || c == '!' || c == '/' || c == '?' || c == '='; 
     }
 
-    private void emit(char token, ByteBuffer byteBuffer) throws SAXException {
+    private void emit(char token, IoBuffer byteBuffer) throws SAXException {
     	listener.token(token, null);
     	
     	lastPosition = byteBuffer.position();
     }
     
-    private void emit(ByteBuffer byteBuffer, CharsetDecoder decoder) throws SAXException {
+    private void emit(IoBuffer byteBuffer, CharsetDecoder decoder) throws SAXException {
     	int endPosition = byteBuffer.position();
     	int oldLimit = byteBuffer.limit();
     	byteBuffer.position(lastPosition);

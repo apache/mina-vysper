@@ -37,7 +37,7 @@ public class Renderer {
     public Renderer(XMLElement element) {
         this.topElement = element;
         
-        StackNamespaceResolver nsResolver = new StackNamespaceResolver();
+        ResolverNamespaceResolver nsResolver = new ResolverNamespaceResolver();
         renderXMLElement(topElement, nsResolver, openElementBuffer, elementContentBuffer, closeElementBuffer);
     }
 
@@ -57,7 +57,7 @@ public class Renderer {
         return openElementBuffer.toString() + elementContentBuffer.toString() + closeElementBuffer.toString();
     }
 
-    private void renderXMLElement(XMLElement element, StackNamespaceResolver nsResolver, StringBuilder openElementBuffer, StringBuilder elementContentBuffer, StringBuilder closeElementBuffer) {
+    private void renderXMLElement(XMLElement element, ResolverNamespaceResolver nsResolver, StringBuilder openElementBuffer, StringBuilder elementContentBuffer, StringBuilder closeElementBuffer) {
         nsResolver.push(element);
     	
     	openElementBuffer.append("<");
@@ -77,12 +77,15 @@ public class Renderer {
         }
         
         for (Attribute attribute : element.getAttributes()) {
-        	// make sure we do not render namespace attributes, 
+        	// make sure we do not render namespace attributes,
         	// nor normal attributes containing namespace declarations (probably due to
         	// the parser not correctly creating namespace attributes for these which are then 
         	// copied into for example error responses)
-    		openElementBuffer.append(" ");
-    		renderAttribute(openElementBuffer, attribute, nsResolver);
+        	
+        	if(!attribute.getName().startsWith("xmlns")) {
+        		openElementBuffer.append(" ");
+        		renderAttribute(openElementBuffer, attribute, nsResolver);        		
+        	}
         }
         openElementBuffer.append(">");
 
@@ -108,7 +111,7 @@ public class Renderer {
     	return name.equals("xmlns") || name.startsWith("xmlns:");
     }
     
-    private void renderElementName(StringBuilder buffer, XMLElement element, NamespaceResolver nsResolver) {
+    private void renderElementName(StringBuilder buffer, XMLElement element, ResolverNamespaceResolver nsResolver) {
         // if the element has a namespace prefix, retrieves the prefix from the defining attribute
         if (element.getNamespacePrefix().length() > 0) {
             buffer.append(element.getNamespacePrefix()).append(COLON);
@@ -123,7 +126,7 @@ public class Renderer {
         buffer.append(element.getName());
     }
 
-    private void renderAttribute(StringBuilder buffer, Attribute attribute, NamespaceResolver nsResolver) {
+    private void renderAttribute(StringBuilder buffer, Attribute attribute, ResolverNamespaceResolver nsResolver) {
     	String qname;
     	if(!attribute.getNamespaceUri().equals("")) {
     		// attribute is in a namespace, resolve prefix

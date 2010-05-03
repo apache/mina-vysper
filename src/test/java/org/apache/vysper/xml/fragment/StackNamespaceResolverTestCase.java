@@ -21,7 +21,7 @@ package org.apache.vysper.xml.fragment;
 
 import org.apache.vysper.xml.fragment.Attribute;
 import org.apache.vysper.xml.fragment.Namespaces;
-import org.apache.vysper.xml.fragment.StackNamespaceResolver;
+import org.apache.vysper.xml.fragment.ResolverNamespaceResolver;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLElementBuilder;
 
@@ -31,7 +31,7 @@ import junit.framework.TestCase;
  */
 public class StackNamespaceResolverTestCase extends TestCase {
 
-	private StackNamespaceResolver resolver = new StackNamespaceResolver();
+	private ResolverNamespaceResolver resolver = new ResolverNamespaceResolver();
 
 	public void testPushSingleElement() {
 		XMLElement elm = new XMLElementBuilder("foo")

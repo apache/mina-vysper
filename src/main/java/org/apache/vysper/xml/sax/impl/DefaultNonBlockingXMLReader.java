@@ -24,7 +24,7 @@ import java.nio.charset.CharsetDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.vysper.xml.sax.NonBlockingXMLReader;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.DTDHandler;
@@ -84,11 +84,11 @@ public class DefaultNonBlockingXMLReader implements NonBlockingXMLReader {
     	}
     	
     	if(features.containsKey(name)) {
-    		// TODO make configurable fatures and values easier to manage
+    		// TODO make configurable features and values easier to manage
     		if(name.equals(FEATURE_NAMESPACES) && value) {
     			// ok
-    		} else if(name.equals(FEATURE_NAMESPACE_PREFIXES) && !value) {
-    			// ok
+    		} else if(name.equals(FEATURE_NAMESPACE_PREFIXES)) {
+    			features.put(FEATURE_NAMESPACE_PREFIXES, value);
     		} else if(name.equals(FEATURE_COMMENTS_ALLOWED)) {
     			features.put(FEATURE_COMMENTS_ALLOWED, value);
     		} else {
@@ -172,7 +172,7 @@ public class DefaultNonBlockingXMLReader implements NonBlockingXMLReader {
 	/**
 	 * {@inheritDoc}
 	 */
-    public void parse (ByteBuffer buffer, CharsetDecoder decoder) throws IOException, SAXException {
+    public void parse (IoBuffer buffer, CharsetDecoder decoder) throws IOException, SAXException {
     	if(parser == null) {
     		parser = new XMLParser(contentHandler, errorHandler, features);
     	}
