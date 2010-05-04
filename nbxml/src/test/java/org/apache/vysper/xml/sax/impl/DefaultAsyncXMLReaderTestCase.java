@@ -108,7 +108,7 @@ public class DefaultAsyncXMLReaderTestCase extends AbstractAsyncXMLReaderTestCas
 	public void testSetNotSupportedFeature() throws SAXNotRecognizedException {
 		DefaultNonBlockingXMLReader reader = new DefaultNonBlockingXMLReader();
 		try {
-			reader.setFeature("http://xml.org/sax/features/namespace-prefixes", true);
+			reader.setFeature("http://xml.org/sax/features/namespaces", false);
 			fail("Must throw SAXNotSupportedException");
 		} catch (SAXNotSupportedException e) {
 			// OK
