@@ -82,26 +82,25 @@ public class DenseStanzaLogRenderer {
             if ("query".equals(firstInnerElement.getName())) {
                 renderIQQuery(stringBuilder, firstInnerElement);
             } else {
-                renderAttribute(stringBuilder, firstInnerElement, NamespaceAttribute.XMLNS);
+            	renderNamespace(stringBuilder, firstInnerElement);
             }
         }
     }
 
     private static void renderIQQuery(StringBuilder stringBuilder, XMLElement queryElement) {
-        Attribute attribute = queryElement.getAttribute(NamespaceAttribute.XMLNS);
-        if (attribute == null) {
-            stringBuilder.append(ELEMENT_SEPARATOR).append("?").append(NamespaceAttribute.XMLNS).append("?");
+        String nsUri = queryElement.getNamespaceURI();
+        if (nsUri == null) {
+            stringBuilder.append(ELEMENT_SEPARATOR).append("?").append("xmlns").append("?");
             return;
         }
-        String xmlns = attribute.getValue();
-        if (!xmlns.startsWith("http://jabber.org/protocol/disco")) {
-            renderAttribute(stringBuilder, queryElement, NamespaceAttribute.XMLNS);
+        if (!nsUri.startsWith("http://jabber.org/protocol/disco")) {
+            renderNamespace(stringBuilder, queryElement);
             return;
         }
         stringBuilder.append(ELEMENT_SEPARATOR).append("disco");
-        if (xmlns.equals("http://jabber.org/protocol/disco#items")) {
+        if (nsUri.equals("http://jabber.org/protocol/disco#items")) {
             stringBuilder.append(ELEMENT_SEPARATOR).append("items");
-        } else if (xmlns.equals("http://jabber.org/protocol/disco#info")) {
+        } else if (nsUri.equals("http://jabber.org/protocol/disco#info")) {
             stringBuilder.append(ELEMENT_SEPARATOR).append("info");
             List<XMLElement> features = queryElement.getInnerElementsNamed("feature");
             if (features != null) for (XMLElement feature : features) {
@@ -198,6 +197,14 @@ public class DenseStanzaLogRenderer {
 
     }
 
+    private static void renderNamespace(StringBuilder stringBuilder, XMLElement element) {
+        String ns = element.getNamespaceURI();
+        if (ns != null) {
+            renderAttributeForm(stringBuilder, "xmlns", ns);
+        }
+    }
+
+    
     private static void renderAttribute(StringBuilder stringBuilder, XMLElement element, String attributeName) {
         String attributeValue = element.getAttributeValue(attributeName);
         if (attributeValue != null) {

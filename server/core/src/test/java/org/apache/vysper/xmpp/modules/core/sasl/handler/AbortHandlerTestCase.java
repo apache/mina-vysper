@@ -116,8 +116,7 @@ public class AbortHandlerTestCase extends TestCase {
     }
 
     private StanzaBuilder createAbort() {
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("abort");
-        stanzaBuilder.addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
+        StanzaBuilder stanzaBuilder = new StanzaBuilder("abort", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
         return stanzaBuilder;
     }
 

@@ -19,8 +19,11 @@
  */
 package org.apache.vysper.xmpp.protocol;
 
-import org.apache.vysper.xmpp.parser.ParsingException;
-import org.apache.vysper.xmpp.parser.StreamParser;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.protocol.exception.TLSException;
 import org.apache.vysper.xmpp.protocol.worker.AuthenticatedProtocolWorker;
 import org.apache.vysper.xmpp.protocol.worker.EncryptedProtocolWorker;
@@ -29,20 +32,14 @@ import org.apache.vysper.xmpp.protocol.worker.EndOrClosedProtocolWorker;
 import org.apache.vysper.xmpp.protocol.worker.InitiatedProtocolWorker;
 import org.apache.vysper.xmpp.protocol.worker.StartedProtocolWorker;
 import org.apache.vysper.xmpp.protocol.worker.UnconnectedProtocolWorker;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
-import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
-import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.writer.DenseStanzaLogRenderer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
 
 /**
  * responsible for high-level XMPP protocol logic for client-server sessions
@@ -74,25 +71,6 @@ public class ProtocolWorker implements StanzaProcessor {
         stateWorker.put(SessionState.CLOSED, new EndOrClosedProtocolWorker());
     }
 
-    /**
-     * reads next stanza from stream, if the worker is used in a pull szenario (testing).
-     * @param sessionContext
-     * @param streamParser
-     * @return new stanza
-     */
-    public Stanza aquireStanza(SessionContext sessionContext, StreamParser streamParser) {
-        Stanza stanza = null;
-        try {
-            stanza = streamParser.getNextStanza();
-        } catch (ParsingException e) {
-            responseWriter.handleParsingException(sessionContext, e);
-            return null;
-        }
-
-        if (stanza == null) return null; // no next stanza for the moment
-
-        return stanza;
-    }
 
     /**
      * executes the handler for a stanza, handles Protocol exceptions.

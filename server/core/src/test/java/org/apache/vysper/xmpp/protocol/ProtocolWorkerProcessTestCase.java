@@ -169,7 +169,7 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(null, null, IQStanzaType.GET, "test");
         // we set a different from user name 'ernest'!
         stanzaBuilder.addAttribute("from", new EntityImpl("ernest", server.getDomain(), null).getFullQualifiedName());
-        stanzaBuilder.startInnerElement("query").addNamespaceAttribute("jabber:iq:roster").endInnerElement();
+        stanzaBuilder.startInnerElement("query", "jabber:iq:roster").endInnerElement();
         
         protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(), sessionStateHolder);
 

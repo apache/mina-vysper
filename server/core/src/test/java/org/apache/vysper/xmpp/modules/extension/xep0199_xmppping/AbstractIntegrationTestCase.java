@@ -25,6 +25,7 @@ import java.net.ServerSocket;
 
 import junit.framework.TestCase;
 
+import org.apache.vysper.mina.StanzaLoggingFilter;
 import org.apache.vysper.mina.TCPEndpoint;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
@@ -104,10 +105,14 @@ public abstract class AbstractIntegrationTestCase extends TestCase {
         connectionConfiguration.setSecurityMode(ConnectionConfiguration.SecurityMode.required);
         connectionConfiguration.setSASLAuthenticationEnabled(true);
         connectionConfiguration.setDebuggerEnabled(false);
+        connectionConfiguration.setKeystorePath("src/main/config/bogus_mina_tls.cert");
+        connectionConfiguration.setTruststorePath("src/main/config/bogus_mina_tls.cert");
+        connectionConfiguration.setTruststorePassword("boguspw");
+        
         
         XMPPConnection.DEBUG_ENABLED = true;
         XMPPConnection client = new XMPPConnection(connectionConfiguration);
-        
+
         client.connect();
         
         client.login(username, password);

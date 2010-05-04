@@ -19,8 +19,6 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
-import org.apache.vysper.xml.fragment.Attribute;
-import org.apache.vysper.xml.fragment.NamespaceAttribute;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLFragment;
 import org.apache.vysper.xmpp.addressing.Entity;
@@ -173,7 +171,7 @@ public class ErrorStanzaGenerator {
      * @return the <elementName xmlns="namespace"/> element
      */
     private XMLElement createXMLElement(String elementName, String namespace) {
-        XMLElement element = new XMLElement(namespace, elementName, null, new Attribute[] {new NamespaceAttribute(namespace)}, (XMLFragment[])null);
+        XMLElement element = new XMLElement(namespace, elementName, null, null, (XMLFragment[])null);
         return element;
     }
 

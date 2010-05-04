@@ -20,16 +20,18 @@
 
 package org.apache.vysper.xmpp.stanza;
 
+import java.util.List;
+import java.util.Map;
+
 import org.apache.vysper.xml.fragment.Attribute;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLFragment;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.core.base.handler.XMPPCoreStanzaHandler;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.writer.DenseStanzaLogRenderer;
-
-import java.util.List;
 
 /**
  * immutable container for all data contained in an XMPP stanza.
@@ -40,13 +42,22 @@ import java.util.List;
 public class Stanza extends XMLElement {
 
     public Stanza(String namespaceURI, String name, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments) {
-        super(namespaceURI, name, namespacePrefix, attributes, innerFragments);
+        this(namespaceURI, name, namespacePrefix, attributes, innerFragments, null);
     }
 
+    public Stanza(String namespaceURI, String name, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments, Map<String, String> namespaces) {
+    	super(namespaceURI, name, namespacePrefix, attributes, innerFragments, namespaces);
+    }
+    
     public Stanza(String namespaceURI, String name, String namespacePrefix, Attribute[] attributes, XMLFragment[] innerFragments) {
-        super(namespaceURI, name, namespacePrefix, attributes, innerFragments);
+        this(namespaceURI, name, namespacePrefix, attributes, innerFragments, null);
     }
 
+    public Stanza(String namespaceURI, String name, String namespacePrefix, Attribute[] attributes, XMLFragment[] innerFragments, Map<String, String> namespaces) {
+        super(namespaceURI, name, namespacePrefix, attributes, innerFragments, namespaces);
+    }
+
+    
     public Entity getTo() {
         return parseEntityAttribute("to");
     }
@@ -63,10 +74,9 @@ public class Stanza extends XMLElement {
     }
 
     public Entity parseEntityAttribute(String attributeName) {
-        boolean isPresent = getVerifier().attributePresent(attributeName);
         EntityImpl entity = null;
-        if (isPresent) {
-            String attributeValue = getAttributeValue(attributeName);
+        String attributeValue = getAttributeValue(attributeName);
+        if(attributeValue != null) {
             try {
                 entity = EntityImpl.parse(attributeValue);
             } catch (EntityFormatException e) {

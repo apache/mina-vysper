@@ -71,7 +71,7 @@ public class StanzaSessionTestCase extends TestCase {
                 new StanzaBuilder("stream", "http://etherx.jabber.org/streams", "stream")
                     .addAttribute("from", "me@vysper.org")
                     .addAttribute("to", "vysper.org")
-                    .addNamespaceAttribute("jabber:client")
+                    .declareNamespace("", "jabber:client")
                 .build()
         );
         Stanza stanza = waitForStanza(session);
@@ -90,7 +90,7 @@ public class StanzaSessionTestCase extends TestCase {
                 new StanzaBuilder("stream", "http://etherx.jabber.org/streams", "stream")
                     .addAttribute("from", "me@vysper.org")
                     .addAttribute("to", "vysper.org")
-                    .addNamespaceAttribute("jabber:client")
+                    .declareNamespace("", "jabber:client")
                 .build()
         );
         stanza = waitForStanza(session);

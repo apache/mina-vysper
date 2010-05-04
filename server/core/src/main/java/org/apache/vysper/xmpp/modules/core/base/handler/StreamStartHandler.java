@@ -60,7 +60,8 @@ public class StreamStartHandler implements StanzaHandler {
 
     public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder) {
         XMLElementVerifier xmlElementVerifier = stanza.getVerifier();
-        boolean jabberNamespace = xmlElementVerifier.namespacePresent(NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS);
+        boolean jabberNamespace = NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS.equals(stanza.getNamespaceURI());
+        
         boolean clientCall = xmlElementVerifier.namespacePresent(NamespaceURIs.JABBER_CLIENT);
         boolean serverCall = xmlElementVerifier.namespacePresent(NamespaceURIs.JABBER_SERVER);
 

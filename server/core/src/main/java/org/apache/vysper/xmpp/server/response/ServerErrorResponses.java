@@ -65,13 +65,10 @@ public class ServerErrorResponses
         if (languageCode == null) languageCode = "en_US";
         StanzaBuilder stanzaBuilder = new StanzaBuilder("error");
 
-        stanzaBuilder.startInnerElement(definedErrorCondition.value())
-            .addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STREAMS)
-            .endInnerElement();
+        stanzaBuilder.startInnerElement(definedErrorCondition.value(), NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STREAMS).endInnerElement();
 
         if (descriptiveText != null) {
-            stanzaBuilder.startInnerElement("text")
-                .addNamespaceAttribute(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STREAMS)
+            stanzaBuilder.startInnerElement("text", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STREAMS)
                 .addAttribute(NamespaceURIs.XML, "lang", languageCode)
                 .addText(descriptiveText)
                 .endInnerElement();

@@ -20,6 +20,7 @@
 
 package org.apache.vysper.xmpp.protocol;
 
+import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.server.XMPPVersion;
@@ -39,6 +40,7 @@ public class ProtocolInitiatedTestCase extends AbstractProtocolStateTestCase {
 
         Stanza recordedResponse = sessionContext.getNextRecordedResponse();
         XMLElementVerifier responseVerifier = recordedResponse.getVerifier();
+        
         assertTrue(responseVerifier.nameEquals("stream"));
 
         assertTrue(responseVerifier.attributeEquals(NamespaceURIs.XML, "lang", "fr"));
@@ -163,7 +165,7 @@ public class ProtocolInitiatedTestCase extends AbstractProtocolStateTestCase {
     public void testProcessClientStreamOpeningResponse_MissingMainNamespace() {
         // we do not supply "http://etherx.jabber.org/streams"
         StanzaBuilder stanzaBuilder = new StanzaBuilder("stream")
-            .addNamespaceAttribute(NamespaceURIs.JABBER_CLIENT)
+        	.declareNamespace("", NamespaceURIs.JABBER_CLIENT)
             .addAttribute(NamespaceURIs.XML, "lang", "en_UK")
             .addAttribute("version", XMPPVersion.VERSION_1_0.toString());
         protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(), sessionStateHolder);

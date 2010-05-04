@@ -23,7 +23,7 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
-import org.apache.vysper.xml.decoder.XMLStreamTokenizer;
+import org.apache.vysper.xml.decoder.XMPPDecoder;
 
 /**
  * factory class for Vysper-specific encoder and decoder
@@ -37,6 +37,6 @@ public class XMPPProtocolCodecFactory implements ProtocolCodecFactory {
     }
 
 	public ProtocolDecoder getDecoder(IoSession s) throws Exception {
-        return new XMLStreamTokenizer(new StanzaBuilderFactory());
+        return new XMPPDecoder(new StanzaBuilderFactory());
     }
 }

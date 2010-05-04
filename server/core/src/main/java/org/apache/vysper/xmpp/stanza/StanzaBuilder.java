@@ -23,6 +23,7 @@ package org.apache.vysper.xmpp.stanza;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.vysper.xml.fragment.AbstractXMLElementBuilder;
 import org.apache.vysper.xml.fragment.Attribute;
@@ -207,19 +208,26 @@ public class StanzaBuilder extends AbstractXMLElementBuilder<StanzaBuilder, Stan
     public StanzaBuilder(String stanzaName, String namespaceURI, String namespacePrefix) {
     	super(stanzaName, namespaceURI, namespacePrefix);
     }
-    
+
     public StanzaBuilder(String stanzaName, String namespaceURI,
 			String namespacePrefix, List<Attribute> attributes,
 			List<XMLFragment> innerFragments) {
-    	super(stanzaName, namespaceURI, namespacePrefix, attributes, innerFragments);
+    	super(stanzaName, namespaceURI, namespacePrefix, attributes, null, innerFragments);
 	}
 
-	protected XMLElement createElement(String namespaceURI, String name, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments) {
+    public StanzaBuilder(String stanzaName, String namespaceURI,
+			String namespacePrefix, List<Attribute> attributes,
+			Map<String, String> namespaces, 
+			List<XMLFragment> innerFragments) {
+    	super(stanzaName, namespaceURI, namespacePrefix, attributes, namespaces, innerFragments);
+	}
+
+	protected XMLElement createElement(String namespaceURI, String name, String namespacePrefix, List<Attribute> attributes, Map<String, String> namespaces, List<XMLFragment> innerFragments) {
         // when creating the first element, make it a stanza
         if (currentElement == null) {
-            return new Stanza(namespaceURI, name, namespacePrefix, attributes, innerFragments);
+            return new Stanza(namespaceURI, name, namespacePrefix, attributes, innerFragments, namespaces);
         } else {
-            return new XMLElement(namespaceURI, name, namespacePrefix, attributes, innerFragments);
+            return new XMLElement(namespaceURI, name, namespacePrefix, attributes, innerFragments, namespaces);
         }
     }
 }
