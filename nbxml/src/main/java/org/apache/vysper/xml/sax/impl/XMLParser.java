@@ -302,7 +302,7 @@ public class XMLParser implements TokenListener {
 		// text only allowed in element
 		if(!elements.isEmpty()) {
 			String unescaped = unescape(s);
-			log.debug("Parser emitting characters \"{}\"", unescaped);
+			log.trace("Parser emitting characters \"{}\"", unescaped);
 			contentHandler.characters(unescaped.toCharArray(), 0, unescaped.length());
 		} else {
 			// must start document, even that document is not wellformed
@@ -325,7 +325,7 @@ public class XMLParser implements TokenListener {
 	}
 	
 	private void startElement() throws SAXException {
-		log.debug("StartElement {}", qname);
+		log.trace("StartElement {}", qname);
 		
 		if(elements.isEmpty()) {
 			startDocument();
@@ -417,7 +417,7 @@ public class XMLParser implements TokenListener {
 	}
 	
 	private void endElement() throws SAXException {	
-		log.debug("EndElement {}", qname);
+		log.trace("EndElement {}", qname);
 
 		if(state == State.CLOSED) return;
 		
