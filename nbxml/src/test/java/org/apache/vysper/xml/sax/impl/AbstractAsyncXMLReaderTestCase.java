@@ -62,12 +62,20 @@ public abstract class AbstractAsyncXMLReaderTestCase extends TestCase {
 	
 	protected void assertStartElement(String expectedUri, String expectedLocalName, String expectedQName, Attributes expectedAttributes, 
 			TestEvent actual) {
+		printIfFatal(actual);
 		if(!(actual instanceof StartElementEvent)) fail("Event must be StartElementEvent but was " + actual.getClass());
 		StartElementEvent startElementEvent = (StartElementEvent) actual;
 		assertEquals("URI", expectedUri, startElementEvent.getURI());
 		assertEquals("local name", expectedLocalName, startElementEvent.getLocalName());
 		assertEquals("qName", expectedQName, startElementEvent.getQName());
 		assertAttributes(expectedAttributes, startElementEvent.getAtts());
+	}
+	
+	private void printIfFatal(TestEvent actual) {
+		if(actual instanceof FatalErrorEvent) {
+			((FatalErrorEvent)actual).getException().printStackTrace();
+		}
+		
 	}
 
 	protected void assertAttributes(Attributes expectedAttrs, Attributes actualAttrs) {
@@ -83,6 +91,7 @@ public abstract class AbstractAsyncXMLReaderTestCase extends TestCase {
 	
 	protected void assertEndElement(String expectedUri, String expectedLocalName, String expectedQName, 
 			TestEvent actual) {
+		printIfFatal(actual);
 		if(!(actual instanceof EndElementEvent)) fail("Event must be EndElementEvent");
 		EndElementEvent endElementEvent = (EndElementEvent) actual;
 		assertEquals("URI", expectedUri, endElementEvent.getURI());
@@ -91,14 +100,17 @@ public abstract class AbstractAsyncXMLReaderTestCase extends TestCase {
 	}
 
 	protected void assertStartDocument(TestEvent actual) {
+		printIfFatal(actual);
 		if(!(actual instanceof StartDocumentEvent)) fail("Event must be StartDocumentEvent but is " + actual.getClass());
 	}
 
 	protected void assertEndDocument(TestEvent actual) {
+		printIfFatal(actual);
 		if(!(actual instanceof EndDocumentEvent)) fail("Event must be EndDocumentEvent");
 	}
 
 	protected void assertText(String expected, TestEvent actual) {
+		printIfFatal(actual);
 		if(!(actual instanceof CharacterEvent)) fail("Event must be CharacterEvent");
 		
 		assertEquals(expected, ((CharacterEvent)actual).getCharacters());

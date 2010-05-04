@@ -30,7 +30,7 @@ import org.apache.vysper.xml.sax.impl.TestHandler.TestEvent;
 public class ParseXmlDeclarationTestCase extends AbstractAsyncXMLReaderTestCase {
 
 	public void testEmptyElement() throws Exception {
-		Iterator<TestEvent> events = parse("<?xml version=\"1.0\"?><root />").iterator();
+		Iterator<TestEvent> events = parse("<?xml version=\"1.0\"?>\n <root />").iterator();
 
 		assertStartDocument(events.next());
 		// no event for the declaration

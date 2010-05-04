@@ -304,10 +304,13 @@ public class XMLParser implements TokenListener {
 			String unescaped = unescape(s);
 			log.trace("Parser emitting characters \"{}\"", unescaped);
 			contentHandler.characters(unescaped.toCharArray(), 0, unescaped.length());
-		} else {
+		} else if (s.trim().length() > 0) {
 			// must start document, even that document is not wellformed
 			startDocument();
 			fatalError("Text only allowed in element");
+		} else {
+			// ignorable whitespace
+			startDocument();
 		}
 	}
 	
