@@ -26,7 +26,7 @@
   <groupId>org.apache.vysper</groupId>
   <artifactId>nbxml</artifactId>
   <name>Apache Vysper Non-blocking XML parser</name>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>0.6-SNAPSHOT</version>
   
   <dependencies>
     <dependency>
