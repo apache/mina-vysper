@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.servicediscovery.management;
 
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
 /**
@@ -45,6 +46,6 @@ public class Feature implements InfoElement {
     }
 
     public void insertElement(StanzaBuilder stanzaBuilder) {
-        stanzaBuilder.startInnerElement("feature").addAttribute("var", var).endInnerElement();
+        stanzaBuilder.startInnerElement("feature", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO).addAttribute("var", var).endInnerElement();
     }
 }

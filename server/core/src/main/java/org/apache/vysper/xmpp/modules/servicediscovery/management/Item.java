@@ -20,6 +20,7 @@
 package org.apache.vysper.xmpp.modules.servicediscovery.management;
 
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
 /**
@@ -60,7 +61,7 @@ public class Item {
     }
 
     public void insertElement(StanzaBuilder stanzaBuilder) {
-        stanzaBuilder.startInnerElement("item");
+        stanzaBuilder.startInnerElement("item", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_ITEMS);
             if (jid != null) stanzaBuilder.addAttribute("jid", jid.getFullQualifiedName());
             if (name != null) stanzaBuilder.addAttribute("name", name);
             if (node != null) stanzaBuilder.addAttribute("node", node);

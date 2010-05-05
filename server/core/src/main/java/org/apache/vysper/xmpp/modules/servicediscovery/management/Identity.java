@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.servicediscovery.management;
 
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
 /**
@@ -62,7 +63,7 @@ public class Identity implements InfoElement {
     }
 
     public void insertElement(StanzaBuilder stanzaBuilder) {
-        stanzaBuilder.startInnerElement("identity").
+        stanzaBuilder.startInnerElement("identity", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO).
                 addAttribute("category", category).
                 addAttribute("type", type);
                 if (name != null) {
