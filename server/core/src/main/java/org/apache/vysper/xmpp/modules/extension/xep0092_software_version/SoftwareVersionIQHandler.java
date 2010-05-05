@@ -36,6 +36,8 @@ import org.apache.vysper.compliance.SpecCompliant;
 @SpecCompliant(spec="xep-0092", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
 public class SoftwareVersionIQHandler extends DefaultIQHandler {
 
+    public static final String VYSPER_RELEASE = "0.6-SNAPSHOT";
+    
     public static final String OS_VERSION =
             System.getProperty("os.name", "undetermined") + " " +
             System.getProperty("os.arch", "") + " " +
@@ -58,7 +60,7 @@ public class SoftwareVersionIQHandler extends DefaultIQHandler {
             startInnerElement("query", NamespaceURIs.JABBER_IQ_VERSION).
 
             startInnerElement("name", NamespaceURIs.JABBER_IQ_VERSION).addText("Apache Vysper XMPP Server").endInnerElement().
-            startInnerElement("version", NamespaceURIs.JABBER_IQ_VERSION).addText("0.1 beta").endInnerElement().
+            startInnerElement("version", NamespaceURIs.JABBER_IQ_VERSION).addText(VYSPER_RELEASE).endInnerElement().
             startInnerElement("os", NamespaceURIs.JABBER_IQ_VERSION).addText(OS_VERSION).endInnerElement().
 
         endInnerElement();
