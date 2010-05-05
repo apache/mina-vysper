@@ -76,7 +76,9 @@ public class XMPPContentHandler implements ContentHandler {
 	public void characters(char[] ch, int start, int length)
 			throws SAXException {
 		// TODO handle start and length
-		builder.addText(new String(ch));
+		if(builder != null) {
+			builder.addText(new String(ch));
+		}
 		
 	}
 
@@ -90,7 +92,7 @@ public class XMPPContentHandler implements ContentHandler {
 			// complete stanza, emit
 			emitStanza();
 		} else if(depth == 0) {
-			// end stanza:stanza element
+			// end stream:stream element
 			// TODO handle
 		} else {
 			builder.endInnerElement();

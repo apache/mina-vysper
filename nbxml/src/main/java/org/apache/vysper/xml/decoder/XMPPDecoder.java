@@ -36,6 +36,7 @@ import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
  */
 public class XMPPDecoder extends CumulativeProtocolDecoder {
 
+	private static final String XML_DECL = "<?xml";
     private static final String STREAM_STREAM = "<stream:stream";
 
 	public static final String SESSION_ATTRIBUTE_NAME = "xmppParser";
@@ -80,7 +81,7 @@ public class XMPPDecoder extends CumulativeProtocolDecoder {
     	String peek = in.getString(14, CharsetUtil.UTF8_DECODER);
     	in.reset();
 
-    	if (reader == null || STREAM_STREAM.equals(peek)) {
+    	if (reader == null || STREAM_STREAM.equals(peek) || (peek != null && peek.startsWith(XML_DECL))) {
         	reader = new DefaultNonBlockingXMLReader();
         	
         	// we need to check the jabber:client/jabber:server NS declarations
