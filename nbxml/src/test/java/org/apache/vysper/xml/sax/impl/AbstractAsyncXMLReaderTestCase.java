@@ -117,15 +117,20 @@ public abstract class AbstractAsyncXMLReaderTestCase extends TestCase {
 	}
 
 	protected List<TestEvent> parse(String xml) throws Exception {
-		return parse(xml, null);
+		return parse(xml, null, null);
 	}
 	
-	protected List<TestEvent> parse(String xml, Map<String, Boolean> features) throws Exception {
+	protected List<TestEvent> parse(String xml, Map<String, Boolean> features, Map<String, Object> properties) throws Exception {
 		TestHandler handler = new TestHandler();
 		NonBlockingXMLReader reader = new DefaultNonBlockingXMLReader();
 		if(features != null) {
 			for(Entry<String, Boolean> feature : features.entrySet()) {
 				reader.setFeature(feature.getKey(), feature.getValue());
+			}
+		}
+		if(properties != null) {
+			for(Entry<String, Object> property : properties.entrySet()) {
+				reader.setProperty(property.getKey(), property.getValue());
 			}
 		}
 		

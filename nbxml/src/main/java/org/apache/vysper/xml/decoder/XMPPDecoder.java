@@ -75,17 +75,16 @@ public class XMPPDecoder extends CumulativeProtocolDecoder {
 			IoBuffer in, ProtocolDecoderOutput out) throws Exception {
     	NonBlockingXMLReader reader = (NonBlockingXMLReader) session.getAttribute(SESSION_ATTRIBUTE_NAME);
     	
-    	// peek to find XML stream resets
-    	// TODO this is a bit ugly, revisit
-    	in.mark();
-    	String peek = in.getString(14, CharsetUtil.UTF8_DECODER);
-    	in.reset();
-
-    	if (reader == null || STREAM_STREAM.equals(peek) || (peek != null && peek.startsWith(XML_DECL))) {
+    	if (reader == null) {
         	reader = new DefaultNonBlockingXMLReader();
         	
         	// we need to check the jabber:client/jabber:server NS declarations
         	reader.setFeature(DefaultNonBlockingXMLReader.FEATURE_NAMESPACE_PREFIXES, true);
+        	
+        	// allow parser to restart XML stream
+        	reader.setFeature(DefaultNonBlockingXMLReader.FEATURE_RESTART_ALLOWED, true);
+        	reader.setProperty(DefaultNonBlockingXMLReader.PROPERTY_RESTART_QNAME, "stream:stream");
+        	
         	reader.setContentHandler(new XMPPContentHandler(builderFactory));
         	
         	session.setAttribute(SESSION_ATTRIBUTE_NAME, reader);

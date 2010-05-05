@@ -187,5 +187,8 @@ public class XMPPContentHandler implements ContentHandler {
     /**
      * {@inheritDoc}
      */
-	public void startDocument() throws SAXException { /* ignore */ }
+	public void startDocument() throws SAXException { 
+		depth = 0;
+		builder = null;
+	}
 }

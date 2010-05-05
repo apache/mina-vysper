@@ -117,7 +117,7 @@ public class ParseCommentsTestCase extends AbstractAsyncXMLReaderTestCase {
 		Map<String, Boolean> features = new HashMap<String, Boolean>();
 		features.put("http://mina.apache.org/vysper/features/comments-allowed", false);
 		
-		Iterator<TestEvent> events = parse("<root><!-- comment --></root>", features).iterator();
+		Iterator<TestEvent> events = parse("<root><!-- comment --></root>", features, null).iterator();
 
 		assertStartDocument(events.next());
 		assertStartElement("", "root", "root", events.next());

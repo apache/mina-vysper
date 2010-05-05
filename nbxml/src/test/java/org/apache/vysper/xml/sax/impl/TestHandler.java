@@ -213,6 +213,7 @@ public class TestHandler implements ContentHandler, ErrorHandler {
 
 	public void startElement(String uri, String localName, String qName,
 			Attributes atts) throws SAXException {
+		System.out.println("sax start element " + qName);
 		events.add(new StartElementEvent(uri, localName, qName, atts));
 		
 	}

@@ -94,16 +94,22 @@ public class XMLParser implements TokenListener {
 	private boolean sentStartDocument = false; 
 	
 	// features
-	boolean reportNsAttributes = false;
-	boolean commentsAllowed = true;
+	private boolean reportNsAttributes = false;
+	private boolean commentsAllowed = true;
+	private boolean restartsAllowed = false;
+	private String restartQname = null;
 
 	
-	public XMLParser(ContentHandler contentHandler, ErrorHandler errorHandler, Map<String, Boolean> features) {
+	public XMLParser(ContentHandler contentHandler, ErrorHandler errorHandler, Map<String, Boolean> features, Map<String, Object> properties) {
 		this.contentHandler = contentHandler;
 		this.errorHandler = errorHandler;
 		
 		commentsAllowed = feature(features, DefaultNonBlockingXMLReader.FEATURE_COMMENTS_ALLOWED, true);
 		reportNsAttributes = feature(features, DefaultNonBlockingXMLReader.FEATURE_NAMESPACE_PREFIXES, false);
+		reportNsAttributes = feature(features, DefaultNonBlockingXMLReader.FEATURE_NAMESPACE_PREFIXES, false);
+		restartsAllowed = feature(features, DefaultNonBlockingXMLReader.FEATURE_RESTART_ALLOWED, false);
+		restartQname = (String)properties.get(DefaultNonBlockingXMLReader.PROPERTY_RESTART_QNAME);
+		
 		
 		this.tokenizer = new XMLTokenizer(this);
 	}
@@ -148,6 +154,7 @@ public class XMLParser implements TokenListener {
 				state = State.IN_END_TAG;
 			} else if(c == '?') {
 					state = State.IN_DECLARATION;
+					xmlDeclaration();
 			} else if(c == '!') {
 				if(commentsAllowed) {
 					state = State.AFTER_COMMENT_BANG;
@@ -320,6 +327,31 @@ public class XMLParser implements TokenListener {
         return NAME_PATTERN.matcher(name).find() && !NAME_PREFIX_PATTERN.matcher(name).find();
 	}
 	
+	private boolean needsRestart() {
+		return elements.size() > 0;
+	}
+	
+	private void restart() {
+		log.trace("Restarting XML stream");
+		
+		elements.clear();
+		nsResolver = new ParserNamespaceResolver();
+		sentStartDocument = false;
+	}
+	
+	private void xmlDeclaration() {
+		// we got an XML declaration, should we restart stream?
+		// TODO could also be a PI, if we want to support PIs, this code needs further attention
+		if(needsRestart()) {
+			if(restartsAllowed) {
+				// ok, restart
+				restart();
+			} else {
+				// restarts not allowed, fail 
+			}
+		}
+	}
+	
 	private void startDocument() throws SAXException {
 		if(!sentStartDocument) {
 			contentHandler.startDocument();
@@ -329,6 +361,11 @@ public class XMLParser implements TokenListener {
 	
 	private void startElement() throws SAXException {
 		log.trace("StartElement {}", qname);
+		
+		// check if this should restart stream
+		if(restartsAllowed && needsRestart() && qname.equals(restartQname)) {
+			restart();
+		}
 		
 		if(elements.isEmpty()) {
 			startDocument();

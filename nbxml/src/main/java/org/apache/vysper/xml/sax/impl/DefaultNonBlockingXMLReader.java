@@ -44,6 +44,8 @@ public class DefaultNonBlockingXMLReader implements NonBlockingXMLReader {
 	public static final String FEATURE_NAMESPACES = "http://xml.org/sax/features/namespaces";
 	public static final String FEATURE_NAMESPACE_PREFIXES = "http://xml.org/sax/features/namespace-prefixes";
 	public static final String FEATURE_COMMENTS_ALLOWED = "http://mina.apache.org/vysper/features/comments-allowed";
+	public static final String FEATURE_RESTART_ALLOWED = "http://mina.apache.org/vysper/features/restart-allowed";
+	public static final String PROPERTY_RESTART_QNAME = "http://mina.apache.org/vysper/properties/restart-qname";
 	
 	private ErrorHandler errorHandler = new DefaultHandler();
 	private ContentHandler contentHandler = new DefaultHandler();
@@ -51,12 +53,14 @@ public class DefaultNonBlockingXMLReader implements NonBlockingXMLReader {
 	private XMLParser parser;
 	
 	private Map<String, Boolean> features = new HashMap<String, Boolean>();
+	private Map<String, Object> properties = new HashMap<String, Object>();
 	
 	public DefaultNonBlockingXMLReader() {
 		// set default features
 		features.put(FEATURE_NAMESPACES, true);
 		features.put(FEATURE_NAMESPACE_PREFIXES, false);
 		features.put(FEATURE_COMMENTS_ALLOWED, true);
+		features.put(FEATURE_RESTART_ALLOWED, false);
 	}
 	
 	/**
@@ -91,6 +95,8 @@ public class DefaultNonBlockingXMLReader implements NonBlockingXMLReader {
     			features.put(FEATURE_NAMESPACE_PREFIXES, value);
     		} else if(name.equals(FEATURE_COMMENTS_ALLOWED)) {
     			features.put(FEATURE_COMMENTS_ALLOWED, value);
+    		} else if(name.equals(FEATURE_RESTART_ALLOWED)) {
+    			features.put(FEATURE_RESTART_ALLOWED, value);
     		} else {
     			throw new SAXNotSupportedException("Not supported");
     		}
@@ -105,7 +111,7 @@ public class DefaultNonBlockingXMLReader implements NonBlockingXMLReader {
 	 */
     public Object getProperty (String name)
 	throws SAXNotRecognizedException, SAXNotSupportedException {
-    	return null;
+    	return properties.get(name);
     }
 
 	/**
@@ -113,7 +119,7 @@ public class DefaultNonBlockingXMLReader implements NonBlockingXMLReader {
 	 */
     public void setProperty (String name, Object value)
     	throws SAXNotRecognizedException, SAXNotSupportedException {
-    	
+    	properties.put(name, value);
     }
 
 	/**
@@ -174,7 +180,7 @@ public class DefaultNonBlockingXMLReader implements NonBlockingXMLReader {
 	 */
     public void parse (IoBuffer buffer, CharsetDecoder decoder) throws IOException, SAXException {
     	if(parser == null) {
-    		parser = new XMLParser(contentHandler, errorHandler, features);
+    		parser = new XMLParser(contentHandler, errorHandler, features, properties);
     	}
     	
 		parser.parse(buffer, decoder);
