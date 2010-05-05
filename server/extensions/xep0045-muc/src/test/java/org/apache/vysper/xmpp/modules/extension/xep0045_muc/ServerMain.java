@@ -44,14 +44,14 @@ import org.apache.vysper.xmpp.server.XMPPServer;
  */
 public class ServerMain {
 
-    public static void main(String[] args) throws AccountCreationException, EntityFormatException {
+    public static void main(String[] args) throws Exception {
 
         StorageProviderRegistry providerRegistry = new MemoryStorageProviderRegistry();
 
         AccountManagement accountManagement = (AccountManagement)providerRegistry.retrieve(AccountManagement.class);
 
-        accountManagement.addUser("test@vysper.org", "password");
-        accountManagement.addUser("test2@vysper.org", "password");
+        accountManagement.addUser("user1@vysper.org", "password1");
+        accountManagement.addUser("user2@vysper.org", "password1");
 
         XMPPServer server = new XMPPServer("vysper.org");
         server.addEndpoint(new TCPEndpoint());
@@ -59,12 +59,8 @@ public class ServerMain {
 
         server.setTLSCertificateInfo(new File("src/main/config/bogus_mina_tls.cert"), "boguspw");
 
-        try {
-            server.start();
-            System.out.println("vysper server is running...");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        server.start();
+        System.out.println("vysper server is running...");
 
         server.addModule(new SoftwareVersionModule());
         server.addModule(new EntityTimeModule());
