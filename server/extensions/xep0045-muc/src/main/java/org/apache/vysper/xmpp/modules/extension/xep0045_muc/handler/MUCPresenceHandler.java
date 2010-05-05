@@ -72,7 +72,8 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
 
     @Override
     protected boolean verifyNamespace(Stanza stanza) {
-        return MUCHandlerHelper.verifyNamespace(stanza);
+		// accept all messages sent to this module
+		return true;
     }
 
     private Stanza createPresenceErrorStanza(Entity from, Entity to, String id, String type, String errorName) {
@@ -99,7 +100,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         }
 
         String type = stanza.getType();
-        
+        System.out.println("11111" + stanza);
         if(type == null) {
             return available(stanza, roomJid, occupantJid, nick, serverRuntimeContext);
         } else if(type.equals("unavailable")) {
@@ -128,7 +129,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         
         // TODO what to use for the room name?
         Room room = conference.findOrCreateRoom(roomJid, roomJid.getNode());
-        
+        System.out.println(room);
         
         if(room.isInRoom(newOccupantJid)) {
             // user is already in room, change nick

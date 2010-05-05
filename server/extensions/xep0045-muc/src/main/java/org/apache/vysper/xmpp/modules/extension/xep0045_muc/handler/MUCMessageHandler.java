@@ -72,7 +72,8 @@ public class MUCMessageHandler extends DefaultMessageHandler {
 
     @Override
     protected boolean verifyNamespace(Stanza stanza) {
-        return MUCHandlerHelper.verifyNamespace(stanza);
+    	// accept all messages sent to this module
+    	return true;
     }
     
     private Stanza createMessageErrorStanza(Entity from, Entity to, String id, StanzaErrorType type, 
