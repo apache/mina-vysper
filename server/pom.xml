@@ -34,4 +34,15 @@
     <module>core</module>
     <module>extensions</module>
   </modules>
+
+  <profiles>
+	<profile>
+      <id>inttest</id>
+      <modules>
+    	<module>core</module>
+    	<module>core-inttest</module>
+        <module>extensions</module>
+      </modules>
+    </profile>
+  </profiles>
 </project>
