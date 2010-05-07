@@ -20,33 +20,33 @@
 
 package org.apache.vysper.xmpp.server.response;
 
-import org.apache.vysper.xmpp.parser.ParsingException;
-import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.parser.StringStreamParser;
-import org.apache.vysper.xmpp.authorization.SASLMechanism;
-import org.apache.vysper.xmpp.authorization.Anonymous;
-import org.apache.vysper.xmpp.authorization.Plain;
-import org.apache.vysper.xmpp.authorization.External;
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.TestCase;
 
-import java.util.List;
-import java.util.ArrayList;
+import org.apache.vysper.xmpp.authorization.Anonymous;
+import org.apache.vysper.xmpp.authorization.External;
+import org.apache.vysper.xmpp.authorization.Plain;
+import org.apache.vysper.xmpp.authorization.SASLMechanism;
+import org.apache.vysper.xmpp.parser.ParsingException;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
 /**
  */
 public class ServerResponsesTestCase extends TestCase {
 
     public void testFeaturesForAuthentication() throws ParsingException {
-        StringStreamParser parser = new StringStreamParser(
-                "<features>" +
-                  "<mechanisms xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>" +
-                    "<mechanism>EXTERNAL</mechanism>" +
-                    "<mechanism>PLAIN</mechanism>" +
-                    "<mechanism>ANONYMOUS</mechanism>" +
-                  "</mechanisms>" +
-                "</features>");
 
-        Stanza stanza = parser.getNextStanza();
+        Stanza stanza = new StanzaBuilder("features")
+        	.startInnerElement("mechanisms", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
+        		.startInnerElement("mechanism", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).addText("EXTERNAL").endInnerElement()
+        		.startInnerElement("mechanism", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).addText("PLAIN").endInnerElement()
+        		.startInnerElement("mechanism", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).addText("ANONYMOUS").endInnerElement()
+        	.endInnerElement()
+        	.build();
 
 
         List<SASLMechanism> mechanismList = new ArrayList<SASLMechanism>();
