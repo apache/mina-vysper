@@ -34,4 +34,16 @@
     <module>xep0060-pubsub</module>
     <module>xep0045-muc</module>
   </modules>
+
+  <profiles>
+	<profile>
+      <id>inttest</id>
+      <modules>
+	    <module>xep0060-pubsub</module>
+	    <module>xep0045-muc</module>
+	    <module>xep0045-muc-inttest</module>
+      </modules>
+    </profile>
+  </profiles>
+
 </project>
