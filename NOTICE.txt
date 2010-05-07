@@ -2,8 +2,8 @@
    ==      NOTICE file for use with the Apache License, Version 2.0,      ==
    =========================================================================
 
-   Apache Vysper, an Apache Labs Project
-   Copyright 2006-2008 The Apache Software Foundation
+   Apache Vysper, an Apache MINA Project
+   Copyright 2006-2010 The Apache Software Foundation
 
    This product includes software developed at
      The Apache Software Foundation (http://www.apache.org/).
@@ -19,10 +19,6 @@
      slf4j.org (http://slf4j.org).
    under the MIT License
 
-   This product also includes software ("nekopull") developed by Andy Clark
-   under The CyberNeko Software License, Version 1.0
-   NekoPull is used with kind permission of Andy Clark (andyc at a. o.). Thanks, Andy!
-   
    This product also includes software developed by
      Jive Software (http://www.jivesoftware.com/)
    under The Apache License
