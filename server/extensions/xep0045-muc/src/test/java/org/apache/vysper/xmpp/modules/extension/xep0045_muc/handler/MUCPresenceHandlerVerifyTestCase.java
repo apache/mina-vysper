@@ -59,15 +59,6 @@ public class MUCPresenceHandlerVerifyTestCase extends TestCase {
         assertTrue(presenceHandler.verify(builder.build()));
     }
 
-    public void testVerifyWithNonMUCNamespace() {
-        StanzaBuilder builder = StanzaBuilder.createPresenceStanza(FROM, TO, null, null, null, null);
-        builder.startInnerElement("x", "foo");
-        builder.endInnerElement();
-        
-        assertFalse(presenceHandler.verify(builder.build()));
-    }
-
-    
     public void testVerifyWithoutMUCNamespace() {
         StanzaBuilder builder = StanzaBuilder.createPresenceStanza(FROM, TO, null, null, null, null);
         

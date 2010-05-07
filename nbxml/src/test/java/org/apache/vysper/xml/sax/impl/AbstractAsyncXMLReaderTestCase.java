@@ -82,10 +82,13 @@ public abstract class AbstractAsyncXMLReaderTestCase extends TestCase {
 		assertEquals("Attribute count", expectedAttrs.getLength(), actualAttrs.getLength());
 		
 		for(int i = 0; i<expectedAttrs.getLength(); i++) {
-			assertEquals("Local name[" + i + "]", expectedAttrs.getLocalName(i), actualAttrs.getLocalName(i));
-			assertEquals("Qname[" + i + "]", expectedAttrs.getQName(i), actualAttrs.getQName(i));
-			assertEquals("URI[" + i + "]", expectedAttrs.getURI(i), actualAttrs.getURI(i));
-			assertEquals("Value[" + i + "]", expectedAttrs.getValue(i), actualAttrs.getValue(i));
+			int actualIndex = actualAttrs.getIndex(expectedAttrs.getQName(i));
+			assertTrue("Actual attribute not found for QName " + expectedAttrs.getQName(i), actualIndex > -1);
+			
+			assertEquals("Local name[" + i + "]", expectedAttrs.getLocalName(i), actualAttrs.getLocalName(actualIndex));
+			assertEquals("Qname[" + i + "]", expectedAttrs.getQName(i), actualAttrs.getQName(actualIndex));
+			assertEquals("URI[" + i + "]", expectedAttrs.getURI(i), actualAttrs.getURI(actualIndex));
+			assertEquals("Value[" + i + "]", expectedAttrs.getValue(i), actualAttrs.getValue(actualIndex));
 		}
 	}
 	
