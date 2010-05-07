@@ -68,12 +68,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.cyberneko.pull</groupId>
-      <artifactId>nekopull</artifactId>
-      <optional>true</optional>
-    </dependency>
-
-    <dependency>
       <groupId>javax.jcr</groupId>
       <artifactId>jcr</artifactId>
     </dependency>
