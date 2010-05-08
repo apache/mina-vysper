@@ -289,15 +289,6 @@
     </pluginManagement>
 
     <plugins>
-	  <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-		<configuration>
-          <excludes>
-            <exclude>**/*IntegrationTestCase*</exclude>
-      	  </excludes>
-        </configuration>
-      </plugin>
-	
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>apt-maven-plugin</artifactId>
