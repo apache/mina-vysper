@@ -55,15 +55,6 @@
       
     <!-- Test dependencies -->
     <dependency>
-      <groupId>org.apache.vysper</groupId>
-      <artifactId>vysper-core-inttest</artifactId>
-      <version>${pom.version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-      <optional>true</optional>
-    </dependency>
-    
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>

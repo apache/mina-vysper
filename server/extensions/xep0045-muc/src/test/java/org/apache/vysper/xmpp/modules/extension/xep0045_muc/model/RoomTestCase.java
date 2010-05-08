@@ -23,8 +23,8 @@ import java.util.EnumSet;
 
 import junit.framework.TestCase;
 
-import org.apache.vysper.TestUtil;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 
 /**
  * 
@@ -32,11 +32,11 @@ import org.apache.vysper.xmpp.addressing.Entity;
  */
 public class RoomTestCase extends TestCase {
     
-    private Entity roomJid1 = TestUtil.parseUnchecked("room1@vysper.org");
-    private Entity roomJid2 = TestUtil.parseUnchecked("room2@vysper.org");
+    private Entity roomJid1 = EntityImpl.parseUnchecked("room1@vysper.org");
+    private Entity roomJid2 = EntityImpl.parseUnchecked("room2@vysper.org");
 
-    private Entity occupantJid1 = TestUtil.parseUnchecked("user1@vysper.org");
-    private Entity occupantJid2 = TestUtil.parseUnchecked("user2@vysper.org");
+    private Entity occupantJid1 = EntityImpl.parseUnchecked("user1@vysper.org");
+    private Entity occupantJid2 = EntityImpl.parseUnchecked("user2@vysper.org");
 
     public void testConstructor() {
         Room room = new Room(roomJid1, "Room 1");
@@ -78,7 +78,7 @@ public class RoomTestCase extends TestCase {
     
     public void testConstructorWithFullJID() {
         try {
-            new Room(TestUtil.parseUnchecked("jid@vysper.org/incorrect"), "Room 1");
+            new Room(EntityImpl.parseUnchecked("jid@vysper.org/incorrect"), "Room 1");
             fail("Expects IllegalArgumentException");
         } catch(IllegalArgumentException e) {
             // ok
@@ -143,7 +143,7 @@ public class RoomTestCase extends TestCase {
         assertNotNull(occupant);
         assertEquals(occupantJid1, occupant.getJid());
         
-        assertNull(room.findOccupantByJID(TestUtil.parseUnchecked("dummy@vysper.org")));
+        assertNull(room.findOccupantByJID(EntityImpl.parseUnchecked("dummy@vysper.org")));
     }
 
     public void testFindOccupantByNick() {

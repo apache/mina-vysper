@@ -23,15 +23,15 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.vysper.TestUtil;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverQueue;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.TestSessionContext;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
-import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
@@ -44,16 +44,16 @@ public abstract class AbstractMUCHandlerTestCase extends TestCase {
     protected static final String SUBDOMAIN = "chat";
     protected static final String FULLDOMAIN = SUBDOMAIN + "." + SERVERDOMAIN;
     
-    protected static final Entity MODULE_JID = TestUtil.parseUnchecked(FULLDOMAIN);
+    protected static final Entity MODULE_JID = EntityImpl.parseUnchecked(FULLDOMAIN);
 
-    protected static final Entity ROOM1_JID = TestUtil.parseUnchecked("room1@" + FULLDOMAIN);
-    protected static final Entity ROOM2_JID = TestUtil.parseUnchecked("room2@" + FULLDOMAIN);
+    protected static final Entity ROOM1_JID = EntityImpl.parseUnchecked("room1@" + FULLDOMAIN);
+    protected static final Entity ROOM2_JID = EntityImpl.parseUnchecked("room2@" + FULLDOMAIN);
 
-    protected static final Entity ROOM1_JID_WITH_NICK = TestUtil.parseUnchecked("room1@" + FULLDOMAIN + "/nick");
-    protected static final Entity ROOM2_JID_WITH_NICK = TestUtil.parseUnchecked("room2@" + FULLDOMAIN + "/nick");
+    protected static final Entity ROOM1_JID_WITH_NICK = EntityImpl.parseUnchecked("room1@" + FULLDOMAIN + "/nick");
+    protected static final Entity ROOM2_JID_WITH_NICK = EntityImpl.parseUnchecked("room2@" + FULLDOMAIN + "/nick");
     
-    protected static final Entity OCCUPANT1_JID = TestUtil.parseUnchecked("user1@" + SERVERDOMAIN);
-    protected static final Entity OCCUPANT2_JID = TestUtil.parseUnchecked("user2@" + SERVERDOMAIN);
+    protected static final Entity OCCUPANT1_JID = EntityImpl.parseUnchecked("user1@" + SERVERDOMAIN);
+    protected static final Entity OCCUPANT2_JID = EntityImpl.parseUnchecked("user2@" + SERVERDOMAIN);
     protected StanzaHandler handler;
 
     protected Conference conference = new Conference("foo");

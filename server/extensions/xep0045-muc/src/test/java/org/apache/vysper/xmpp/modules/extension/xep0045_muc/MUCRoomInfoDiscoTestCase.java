@@ -22,8 +22,8 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.vysper.TestUtil;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
@@ -36,7 +36,7 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
  */
 public class MUCRoomInfoDiscoTestCase extends AbstractInfoDiscoTestCase {
     
-    private static final Entity ROOM_JID = TestUtil.parseUnchecked("jid1@" + MODULEDOMAIN);
+    private static final Entity ROOM_JID = EntityImpl.parseUnchecked("jid1@" + MODULEDOMAIN);
     
     private MUCModule module;
     

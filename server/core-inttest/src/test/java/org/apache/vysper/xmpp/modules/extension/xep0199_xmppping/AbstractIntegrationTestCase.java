@@ -25,7 +25,6 @@ import java.net.ServerSocket;
 
 import junit.framework.TestCase;
 
-import org.apache.vysper.mina.StanzaLoggingFilter;
 import org.apache.vysper.mina.TCPEndpoint;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;

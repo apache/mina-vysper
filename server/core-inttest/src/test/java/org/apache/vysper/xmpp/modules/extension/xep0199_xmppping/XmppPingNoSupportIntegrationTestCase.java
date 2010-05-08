@@ -21,6 +21,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0199_xmppping;
 
 import org.apache.vysper.xmpp.server.XMPPServer;
 import org.jivesoftware.smack.packet.IQ;
+import org.apache.vysper.xmpp.modules.extension.xep0199_xmppping.PingPacket;
 
 /**
  */

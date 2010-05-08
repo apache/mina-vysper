@@ -23,14 +23,11 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.vysper.TestUtil;
-import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.MUCModule;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
-import org.apache.vysper.xmpp.modules.extension.xep0199_xmppping.AbstractIntegrationTestCase;
 import org.apache.vysper.xmpp.server.XMPPServer;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.packet.Message;
@@ -69,7 +66,7 @@ public class MUCIntegrationTestCase extends AbstractIntegrationTestCase {
     public void testEnterRoom() throws Exception {
         chat.join("Nick");
 
-        Room room = conference.findRoom(TestUtil.parseUnchecked(ROOM_JID));
+        Room room = conference.findRoom(EntityImpl.parseUnchecked(ROOM_JID));
         assertEquals(1, room.getOccupantCount());
         Occupant occupant = room.getOccupants().iterator().next();
         assertEquals(TEST_USERNAME1, occupant.getJid().getBareJID().getFullQualifiedName());
@@ -95,7 +92,7 @@ public class MUCIntegrationTestCase extends AbstractIntegrationTestCase {
         chat.join("Nick");
         chat2.join("Nick2");
 
-        Room room = conference.findRoom(TestUtil.parseUnchecked(ROOM_JID));
+        Room room = conference.findRoom(EntityImpl.parseUnchecked(ROOM_JID));
         assertEquals(2, room.getOccupantCount());
         
         final BlockingQueue<String> leftQueue = new LinkedBlockingQueue<String>();

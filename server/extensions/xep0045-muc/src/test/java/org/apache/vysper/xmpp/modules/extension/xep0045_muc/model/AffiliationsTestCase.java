@@ -21,8 +21,8 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc.model;
 
 import junit.framework.TestCase;
 
-import org.apache.vysper.TestUtil;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 
 /**
  * 
@@ -30,9 +30,9 @@ import org.apache.vysper.xmpp.addressing.Entity;
  */
 public class AffiliationsTestCase extends TestCase {
     
-    private static final Entity JID1 = TestUtil.parseUnchecked("user1@vysper.org/res");
-    private static final Entity JID2 = TestUtil.parseUnchecked("user1@vysper.org/other");
-    private static final Entity JID3 = TestUtil.parseUnchecked("user2@vysper.org/res");
+    private static final Entity JID1 = EntityImpl.parseUnchecked("user1@vysper.org/res");
+    private static final Entity JID2 = EntityImpl.parseUnchecked("user1@vysper.org/other");
+    private static final Entity JID3 = EntityImpl.parseUnchecked("user2@vysper.org/res");
 
     public void testAddAndGet() {
         Affiliations affiliations = new Affiliations();

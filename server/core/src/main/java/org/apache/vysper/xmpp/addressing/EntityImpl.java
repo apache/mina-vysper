@@ -70,6 +70,20 @@ public class EntityImpl implements Entity {
         }
         return new EntityImpl(node, domain, resource);
     }
+    
+    /**
+     * Parse entities, throwing {@link IllegalArgumentException} on format errors
+     * @param entity
+     * @return
+     */
+    public static EntityImpl parseUnchecked(String entity) {
+        try {
+            return EntityImpl.parse(entity);
+        } catch (EntityFormatException e) {
+            throw new IllegalArgumentException(e);
+        }
+
+    }
 
     public EntityImpl(String node, String domain, String resource) {
         this.node = node;

@@ -162,6 +162,13 @@
         <version>${pom.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.apache.vysper</groupId>
+        <artifactId>vysper-core-inttest</artifactId>
+        <version>${pom.version}</version>
+      </dependency>
+
+
       <!-- Spec compliance -->
       <dependency>
         <groupId>org.apache.vysper</groupId>

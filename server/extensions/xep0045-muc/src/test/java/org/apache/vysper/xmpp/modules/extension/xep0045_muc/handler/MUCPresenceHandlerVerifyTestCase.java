@@ -21,8 +21,8 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 
 import junit.framework.TestCase;
 
-import org.apache.vysper.TestUtil;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -31,8 +31,8 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
  */
 public class MUCPresenceHandlerVerifyTestCase extends TestCase {
 
-    private static final Entity FROM = TestUtil.parseUnchecked("user@vysper.org");
-    private static final Entity TO = TestUtil.parseUnchecked("room@chat.vysper.org");
+    private static final Entity FROM = EntityImpl.parseUnchecked("user@vysper.org");
+    private static final Entity TO = EntityImpl.parseUnchecked("room@chat.vysper.org");
 
     private MUCPresenceHandler presenceHandler;
     

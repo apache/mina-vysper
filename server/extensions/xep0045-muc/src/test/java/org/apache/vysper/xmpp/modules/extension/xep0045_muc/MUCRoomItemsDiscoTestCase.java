@@ -22,7 +22,6 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.vysper.TestUtil;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -37,10 +36,10 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
  */
 public class MUCRoomItemsDiscoTestCase extends AbstractItemsDiscoTestCase {
     
-    private static final Entity ROOM_JID = TestUtil.parseUnchecked("jid1@" + MODULEDOMAIN);
+    private static final Entity ROOM_JID = EntityImpl.parseUnchecked("jid1@" + MODULEDOMAIN);
     
-    private static final Entity USER1_JID = TestUtil.parseUnchecked("user1@vysper.org");
-    private static final Entity USER2_JID = TestUtil.parseUnchecked("user2@vysper.org");
+    private static final Entity USER1_JID = EntityImpl.parseUnchecked("user1@vysper.org");
+    private static final Entity USER2_JID = EntityImpl.parseUnchecked("user2@vysper.org");
 
     private static final Entity OCCUPANT1_JID = new EntityImpl(ROOM_JID, "Nick 1");
     private static final Entity OCCUPANT2_JID = new EntityImpl(ROOM_JID, "Nick 2");

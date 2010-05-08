@@ -21,10 +21,10 @@ import java.util.ArrayList;
 
 import junit.framework.TestCase;
 
-import org.apache.vysper.TestUtil;
 import org.apache.vysper.xml.fragment.Attribute;
 import org.apache.vysper.xml.fragment.XMLFragment;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.core.base.BaseStreamStanzaDictionary;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.core.base.handler.MessageHandler;
@@ -37,8 +37,8 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
  */
 public class StanzaHandlerLookupTestCase extends TestCase {
 
-    private static final Entity SERVER_ENTITY = TestUtil.parseUnchecked("vysper.org");
-    private static final Entity SUBDOMAIN_ENTITY = TestUtil.parseUnchecked("sub.vysper.org");
+    private static final Entity SERVER_ENTITY = EntityImpl.parseUnchecked("vysper.org");
+    private static final Entity SUBDOMAIN_ENTITY = EntityImpl.parseUnchecked("sub.vysper.org");
     
     public void testDictionaryHierarchy() {
         NamespaceHandlerDictionary upperNamespaceHandlerDictionary = new NamespaceHandlerDictionary("testNSURI1");

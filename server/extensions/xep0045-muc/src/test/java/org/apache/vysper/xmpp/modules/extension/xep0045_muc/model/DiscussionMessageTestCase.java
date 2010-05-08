@@ -24,7 +24,6 @@ import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
-import org.apache.vysper.TestUtil;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -46,8 +45,8 @@ public class DiscussionMessageTestCase extends TestCase {
     private static final Calendar TIMESTAMP = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
     
-    private static final Entity FROM = TestUtil.parseUnchecked("user@vysper.org/res");
-    private static final Entity ROOM_JID = TestUtil.parseUnchecked("room@vysper.org");
+    private static final Entity FROM = EntityImpl.parseUnchecked("user@vysper.org/res");
+    private static final Entity ROOM_JID = EntityImpl.parseUnchecked("room@vysper.org");
 
     private static final Occupant FROM_OCCUPANT = new Occupant(FROM, NICK, Affiliation.None, Role.Visitor);
     
@@ -78,7 +77,7 @@ public class DiscussionMessageTestCase extends TestCase {
         Stanza inStanza = builder.build();
         DiscussionMessage item = new DiscussionMessage(inStanza, FROM_OCCUPANT, TIMESTAMP);
         
-        Entity to = TestUtil.parseUnchecked("user2@vysper.org/res");
+        Entity to = EntityImpl.parseUnchecked("user2@vysper.org/res");
         Occupant toOccupant = new Occupant(to, "nick 2", Affiliation.None, Role.Visitor);
         MessageStanza outStanza = (MessageStanza) MessageStanza.getWrapper(item.createStanza(toOccupant, true));
         

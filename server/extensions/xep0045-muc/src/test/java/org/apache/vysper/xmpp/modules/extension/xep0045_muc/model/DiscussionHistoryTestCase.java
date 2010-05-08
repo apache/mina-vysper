@@ -25,7 +25,6 @@ import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
-import org.apache.vysper.TestUtil;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.History;
@@ -44,9 +43,9 @@ public class DiscussionHistoryTestCase extends TestCase {
     private static final String BODY = "Body";
     private static final String SUBJECT = "Subject";
     
-    private static final Entity FROM = TestUtil.parseUnchecked("user@vysper.org/res");
-    private static final Entity RECEIVER = TestUtil.parseUnchecked("user2@vysper.org/res");
-    private static final Entity ROOM_JID = TestUtil.parseUnchecked("room@vysper.org");
+    private static final Entity FROM = EntityImpl.parseUnchecked("user@vysper.org/res");
+    private static final Entity RECEIVER = EntityImpl.parseUnchecked("user2@vysper.org/res");
+    private static final Entity ROOM_JID = EntityImpl.parseUnchecked("room@vysper.org");
 
     private static final Occupant FROM_OCCUPANT = new Occupant(FROM, NICK, Affiliation.None, Role.Visitor);
     private static final Occupant RECEIVER_OCCUPANT = new Occupant(RECEIVER, "nick2", Affiliation.None, Role.Visitor);

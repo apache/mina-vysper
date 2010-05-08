@@ -21,17 +21,15 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
 
 import junit.framework.TestCase;
 
-import org.apache.vysper.TestUtil;
-import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceCollector;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
-import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.server.components.Component;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -46,9 +44,9 @@ public abstract class AbstractDiscoTestCase extends TestCase {
     protected static final String SERVERDOMAIN = "vysper.org";
     protected static final String MODULEDOMAIN = SUBDOMAIN + "." + SERVERDOMAIN;
     
-    protected static final Entity SERVER_JID = TestUtil.parseUnchecked(SERVERDOMAIN);
-    protected static final Entity MODULE_JID = TestUtil.parseUnchecked(MODULEDOMAIN);
-    protected static final Entity USER_JID = TestUtil.parseUnchecked("user@" + SERVERDOMAIN);
+    protected static final Entity SERVER_JID = EntityImpl.parseUnchecked(SERVERDOMAIN);
+    protected static final Entity MODULE_JID = EntityImpl.parseUnchecked(MODULEDOMAIN);
+    protected static final Entity USER_JID = EntityImpl.parseUnchecked("user@" + SERVERDOMAIN);
     protected DefaultServerRuntimeContext serverRuntimeContext;
     private ServiceCollector serviceCollector;
 

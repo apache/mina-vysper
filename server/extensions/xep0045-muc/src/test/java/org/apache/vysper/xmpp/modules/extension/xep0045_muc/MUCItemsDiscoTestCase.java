@@ -22,9 +22,9 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.vysper.TestUtil;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
@@ -35,8 +35,8 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
  */
 public class MUCItemsDiscoTestCase extends AbstractItemsDiscoTestCase {
     
-    private static final Entity ROOM1_JID = TestUtil.parseUnchecked("jid1@" + MODULE_JID);
-    private static final Entity ROME2_JID = TestUtil.parseUnchecked("jid2@" + MODULE_JID);
+    private static final Entity ROOM1_JID = EntityImpl.parseUnchecked("jid1@" + MODULE_JID);
+    private static final Entity ROME2_JID = EntityImpl.parseUnchecked("jid2@" + MODULE_JID);
     
     private MUCModule module;
     

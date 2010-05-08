@@ -18,7 +18,7 @@
  *
  */
 
-package org.apache.vysper.xmpp.server;
+package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
 
 import java.util.Iterator;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -31,6 +31,10 @@ import org.apache.vysper.xmpp.delivery.RecordingStanzaRelay;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverQueue;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.server.AbstractSessionContext;
+import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.writer.StanzaWriter;
 
