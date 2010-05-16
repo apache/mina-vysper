@@ -114,7 +114,7 @@ public class ServerErrorResponses
         }
 
         // error element
-        responseBuilder.startInnerElement("error")
+        responseBuilder.startInnerElement("error", NamespaceURIs.JABBER_CLIENT)
                          .addAttribute("type", type.value());
 
         // insert defined error condition relating to the stanza error type
@@ -141,7 +141,7 @@ public class ServerErrorResponses
     public Stanza getSASLFailure(SASLFailureType failureType) {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("failure", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
         if (failureType != null) {
-            stanzaBuilder.startInnerElement(failureType.toString()).endInnerElement();
+            stanzaBuilder.startInnerElement(failureType.toString(), NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).endInnerElement();
         }
         return stanzaBuilder.build();
     }

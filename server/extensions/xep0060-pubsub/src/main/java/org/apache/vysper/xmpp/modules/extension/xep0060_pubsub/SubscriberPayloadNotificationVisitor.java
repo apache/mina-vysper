@@ -93,8 +93,8 @@ public class SubscriberPayloadNotificationVisitor implements SubscriberVisitor {
         stanzaBuilder.addAttribute("from", serverJID.getFullQualifiedName());
         stanzaBuilder.addAttribute("to", to.getFullQualifiedName());
         stanzaBuilder.addAttribute(NamespaceURIs.XML, "lang", lang);
-        stanzaBuilder.startInnerElement("event");
-        stanzaBuilder.startInnerElement("items");
+        stanzaBuilder.startInnerElement("event", NamespaceURIs.XEP0060_PUBSUB_EVENT);
+        stanzaBuilder.startInnerElement("items", NamespaceURIs.XEP0060_PUBSUB_EVENT);
         stanzaBuilder.addAttribute("node", nodeName);
         stanzaBuilder.addPreparedElement(item);
         stanzaBuilder.endInnerElement(); // items

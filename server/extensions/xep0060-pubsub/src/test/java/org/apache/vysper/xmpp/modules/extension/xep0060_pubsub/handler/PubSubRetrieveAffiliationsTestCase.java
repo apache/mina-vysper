@@ -102,7 +102,7 @@ public class PubSubRetrieveAffiliationsTestCase extends AbstractPublishSubscribe
     class DefaultRetrieveAffiliationsStanzaGenerator extends AbstractStanzaGenerator {
         @Override
         protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb, String node) {
-            sb.startInnerElement("affiliations");
+            sb.startInnerElement("affiliations", NamespaceURIs.XEP0060_PUBSUB);
             sb.endInnerElement();
             return sb;
         }

@@ -83,7 +83,7 @@ public class BindIQHandler extends DefaultIQHandler {
     private Stanza bindError(IQStanza stanza, SessionContext sessionContext) {
         StanzaBuilder stanzaBuilder =
             StanzaBuilder.createIQStanza(null, null, IQStanzaType.ERROR, stanza.getID()).
-            startInnerElement("error").
+            startInnerElement("error", NamespaceURIs.JABBER_CLIENT).
                     addAttribute("type", "cancel").
                     startInnerElement("not-allowed", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).
             endInnerElement();

@@ -35,7 +35,7 @@ public class PubSubConfigureNodeTestCase extends AbstractPublishSubscribeTestCas
     class DefaultConfigureNodeStanzaGenerator extends AbstractStanzaGenerator {
         @Override
         protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb, String node) {
-            sb.startInnerElement("configure");
+            sb.startInnerElement("configure", NamespaceURIs.XEP0060_PUBSUB);
             sb.addAttribute("node", node);
             sb.endInnerElement();
             return sb;

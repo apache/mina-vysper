@@ -34,7 +34,6 @@ import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultMessageHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
-import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;

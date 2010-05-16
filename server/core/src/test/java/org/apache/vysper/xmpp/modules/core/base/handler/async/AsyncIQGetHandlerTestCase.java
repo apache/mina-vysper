@@ -21,6 +21,7 @@ package org.apache.vysper.xmpp.modules.core.base.handler.async;
 
 import junit.framework.TestCase;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -120,7 +121,7 @@ public class AsyncIQGetHandlerTestCase extends TestCase {
                 }
                 try {
                     Stanza finalStanza = StanzaBuilder.createIQStanza(requestStanza.getTo(), requestStanza.getFrom(), IQStanzaType.RESULT, requestStanza.getID()).
-                            startInnerElement("success").endInnerElement().build();
+                            startInnerElement("success", NamespaceURIs.JABBER_CLIENT).endInnerElement().build();
                     response = XMPPCoreStanza.getWrapper(finalStanza);
                 } catch (Throwable e) {
                     e.printStackTrace();
@@ -141,7 +142,7 @@ public class AsyncIQGetHandlerTestCase extends TestCase {
         assertNull("future is create on execute", asyncIQGetHandler.getWaitingRunnableFuture());
 
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(new EntityImpl("test", "vysper.org", null), null, IQStanzaType.GET, "id1");
-        stanzaBuilder.startInnerElement("query").endInnerElement();
+        stanzaBuilder.startInnerElement("query", NamespaceURIs.JABBER_CLIENT).endInnerElement();
         Stanza iqStanza = stanzaBuilder.build();
 
         ResponseStanzaContainer container = asyncIQGetHandler.execute(iqStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, sessionStateHolder);

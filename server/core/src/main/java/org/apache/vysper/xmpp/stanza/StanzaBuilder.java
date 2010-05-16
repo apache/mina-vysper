@@ -55,7 +55,7 @@ public class StanzaBuilder extends AbstractXMLElementBuilder<StanzaBuilder, Stan
         stanzaBuilder.addAttribute("from", from.getFullQualifiedName());
         stanzaBuilder.addAttribute("to", to.getFullQualifiedName());
         if(lang != null) stanzaBuilder.addAttribute(NamespaceURIs.XML, "lang", lang);
-        if(body != null) stanzaBuilder.startInnerElement("body").addText(body).endInnerElement();
+        if(body != null) stanzaBuilder.startInnerElement("body", NamespaceURIs.JABBER_CLIENT).addText(body).endInnerElement();
         return stanzaBuilder;
     }
 
@@ -82,10 +82,10 @@ public class StanzaBuilder extends AbstractXMLElementBuilder<StanzaBuilder, Stan
         if (lang != null) stanzaBuilder.addAttribute(NamespaceURIs.XML, "lang", lang);
         if (type != null) stanzaBuilder.addAttribute("type", type.value());
         if (show != null) {
-            stanzaBuilder.startInnerElement("show").addText(show).endInnerElement();
+            stanzaBuilder.startInnerElement("show", NamespaceURIs.JABBER_CLIENT).addText(show).endInnerElement();
         }
         if (status != null) {
-            stanzaBuilder.startInnerElement("status").addText(status).endInnerElement();
+            stanzaBuilder.startInnerElement("status", NamespaceURIs.JABBER_CLIENT).addText(status).endInnerElement();
         }
         return stanzaBuilder;
     }

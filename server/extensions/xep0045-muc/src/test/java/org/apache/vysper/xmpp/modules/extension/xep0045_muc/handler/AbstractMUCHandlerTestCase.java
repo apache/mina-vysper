@@ -19,20 +19,34 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import junit.framework.TestCase;
 
 import org.apache.vysper.xml.fragment.XMLElement;
+import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverQueue;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.TestSessionContext;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.MucUserPresenceItem;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Status.StatusCode;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.ProtocolException;
+import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
+import org.apache.vysper.xmpp.stanza.IQStanza;
+import org.apache.vysper.xmpp.stanza.IQStanzaType;
+import org.apache.vysper.xmpp.stanza.MessageStanza;
+import org.apache.vysper.xmpp.stanza.PresenceStanza;
 import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
 /**
  */
@@ -106,4 +120,132 @@ public abstract class AbstractMUCHandlerTestCase extends TestCase {
         assertEquals(errorName, jidMalformedElement.getName());
         assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, jidMalformedElement.getNamespaceURI());
     }
+    
+    protected void assertMessageStanza(Entity from, Entity to, String type,
+            String body, Stanza stanza) throws XMLSemanticError {
+        assertMessageStanza(from, to, type, body, null, null, stanza);
+    }
+    
+    protected void assertMessageStanza(Entity from, Entity to, String type,
+            String expectedBody, String expectedSubject, X expectedX, Stanza stanza) throws XMLSemanticError {
+        assertNotNull(stanza);
+        MessageStanza msgStanza = (MessageStanza) MessageStanza.getWrapper(stanza);
+        
+        assertEquals(from, stanza.getFrom());
+        assertEquals(to, stanza.getTo());
+        if (type != null) {
+            assertEquals(type, msgStanza.getType());
+        }
+
+        assertEquals(expectedBody, msgStanza.getBody(null));
+        assertEquals(expectedSubject, msgStanza.getSubject(null));
+
+        if(expectedX != null) {
+            X actualX = X.fromStanza(stanza);
+            assertEquals(expectedX, actualX);
+        }
+    }
+
+    protected void assertIqResultStanza(Entity from, Entity to, String id, 
+            Stanza stanza) throws XMLSemanticError {
+        assertNotNull(stanza);
+        IQStanza iqStanza = (IQStanza) IQStanza.getWrapper(stanza);
+        
+        assertEquals(from, iqStanza.getFrom());
+        assertEquals(to, iqStanza.getTo());
+        assertEquals(id, iqStanza.getID());
+        assertEquals("result", iqStanza.getType());
+    }
+    
+    protected void assertPresenceStanza(Stanza stanza, Entity expectedFrom, Entity expectedTo, String expectedShow,
+            String expectedStatus,
+            MucUserPresenceItem expectedItem) throws XMLSemanticError, Exception {
+
+        PresenceStanza presenceStanza = (PresenceStanza) PresenceStanza.getWrapper(stanza);
+        assertNotNull("Stanza must not be null", stanza);
+        assertEquals(expectedFrom, stanza.getFrom());
+        assertEquals(expectedTo, stanza.getTo());
+        assertEquals(expectedShow, presenceStanza.getShow());
+        assertEquals(expectedStatus, presenceStanza.getStatus(null));
+        
+        XMLElement xElm = stanza.getSingleInnerElementsNamed("x");
+        assertEquals(NamespaceURIs.XEP0045_MUC_USER, xElm.getNamespaceURI());
+        
+        List<XMLElement> innerElements = xElm.getInnerElements();
+            
+        assertEquals(1, innerElements.size());
+        XMLElement itemElm = innerElements.get(0);
+        assertEquals("item", itemElm.getName());
+        assertEquals(expectedItem.getJid().getFullQualifiedName(), itemElm.getAttributeValue("jid"));
+        assertEquals(expectedItem.getNick(), itemElm.getAttributeValue("nick"));
+        assertEquals(expectedItem.getAffiliation().toString(), itemElm.getAttributeValue("affiliation"));
+        assertEquals(expectedItem.getRole().toString(), itemElm.getAttributeValue("role"));
+        
+    }
+
+    protected void assertPresenceStanza(Stanza stanza, Entity expectedFrom, Entity expectedTo, String expectedType,
+            MucUserPresenceItem expectedItem, StatusCode expectedStatus) throws Exception {
+    	List<MucUserPresenceItem> expectedItems = Arrays.asList(expectedItem);
+    	List<StatusCode> expectedStatuses = Arrays.asList(expectedStatus);
+    	assertPresenceStanza(stanza, expectedFrom, expectedTo, expectedType, expectedItems, expectedStatuses);
+    }
+    
+    protected void assertPresenceStanza(Stanza stanza, Entity expectedFrom, Entity expectedTo, String expectedType,
+            List<MucUserPresenceItem> expectedItems, List<StatusCode> expectedStatuses) throws Exception {
+
+        assertNotNull(stanza);
+        assertEquals(expectedFrom, stanza.getFrom());
+        assertEquals(expectedTo, stanza.getTo());
+        assertEquals(expectedType, stanza.getAttributeValue("type"));
+        
+        XMLElement xElm = stanza.getFirstInnerElement();
+        assertEquals(NamespaceURIs.XEP0045_MUC_USER, xElm.getNamespaceURI());
+        
+        Iterator<XMLElement> innerElements = xElm.getInnerElements().iterator();
+        for(MucUserPresenceItem expectedItem : expectedItems) {
+            XMLElement itemElm = innerElements.next();
+            
+            assertEquals("item", itemElm.getName());
+            if(expectedItem.getJid() != null) {
+            	assertEquals(expectedItem.getJid().getFullQualifiedName(), itemElm.getAttributeValue("jid"));
+            } else {
+            	assertNull(itemElm.getAttributeValue("jid"));
+            }
+            assertEquals(expectedItem.getNick(), itemElm.getAttributeValue("nick"));
+            assertEquals(expectedItem.getAffiliation().toString(), itemElm.getAttributeValue("affiliation"));
+            assertEquals(expectedItem.getRole().toString(), itemElm.getAttributeValue("role"));
+        }
+        
+        if(expectedStatuses != null) {
+            for(StatusCode status : expectedStatuses) {
+                XMLElement statusElm = innerElements.next();
+    
+                assertEquals("status", statusElm.getName());
+                assertEquals(status.code(), Integer.parseInt(statusElm.getAttributeValue("code")));
+    
+            }
+        }
+    }
+    
+    protected Stanza sendIq(Entity from, Entity to, IQStanzaType type, String id, String namespaceUri, 
+    		XMLElement item) throws ProtocolException {
+    	StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(from, to, type, id);
+
+    	stanzaBuilder.startInnerElement("query", namespaceUri);
+    	stanzaBuilder.addPreparedElement(item);
+    	stanzaBuilder.endInnerElement();
+    	
+        Stanza iqStanza = stanzaBuilder.build();
+        ResponseStanzaContainer container = handler.execute(iqStanza,
+                sessionContext.getServerRuntimeContext(), true, sessionContext,
+                null);
+        if (container != null) {
+            return container.getResponseStanza();
+        } else {
+            return null;
+        }
+    }
+
+
+
 }

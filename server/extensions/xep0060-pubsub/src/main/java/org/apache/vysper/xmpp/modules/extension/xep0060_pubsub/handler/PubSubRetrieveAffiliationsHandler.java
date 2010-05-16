@@ -103,10 +103,10 @@ public class PubSubRetrieveAffiliationsHandler extends AbstractPubSubGeneralHand
      * This method adds the "affiliations" and eventual "affiliation" elements to the given StanzaBuilder.
      */
     private void buildSuccessStanza(StanzaBuilder sb, List<AffiliationItem> affiliations) {
-        sb.startInnerElement("affiliations");
+        sb.startInnerElement("affiliations", NamespaceURIs.XEP0060_PUBSUB);
         
         for(AffiliationItem s : affiliations) {
-            sb.startInnerElement("affiliation");
+            sb.startInnerElement("affiliation", NamespaceURIs.XEP0060_PUBSUB);
             sb.addAttribute("node", s.getNodeName());
             sb.addAttribute("affiliation", s.getAffiliation().toString());
             sb.endInnerElement();

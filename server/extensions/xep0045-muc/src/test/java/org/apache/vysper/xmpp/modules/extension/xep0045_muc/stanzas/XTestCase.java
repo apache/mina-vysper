@@ -37,7 +37,7 @@ public class XTestCase extends TestCase {
     public void testFromStanza() {
         StanzaBuilder builder = StanzaBuilder.createMessageStanza(JID, JID, null, "Foo");
         builder.startInnerElement("x", NamespaceURIs.XEP0045_MUC);
-        builder.startInnerElement("password").addText("secret").endInnerElement();
+        builder.startInnerElement("password", NamespaceURIs.XEP0045_MUC).addText("secret").endInnerElement();
         builder.endInnerElement();
         
         X x = X.fromStanza(builder.build());

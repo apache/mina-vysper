@@ -28,6 +28,7 @@ import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.datetime.DateTimeProfile;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.MessageStanza;
 import org.apache.vysper.xmpp.stanza.MessageStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -52,7 +53,7 @@ public class DiscussionMessageTestCase extends TestCase {
     
     public void testSubjectMessage() {
         StanzaBuilder builder = StanzaBuilder.createMessageStanza(FROM, ROOM_JID, null, null);
-        builder.startInnerElement("subject").addText(SUBJECT).endInnerElement();
+        builder.startInnerElement("subject", NamespaceURIs.JABBER_CLIENT).addText(SUBJECT).endInnerElement();
         
         DiscussionMessage item = new DiscussionMessage(builder.build(), FROM_OCCUPANT, TIMESTAMP);
         assertEquals(NICK, item.getNick());

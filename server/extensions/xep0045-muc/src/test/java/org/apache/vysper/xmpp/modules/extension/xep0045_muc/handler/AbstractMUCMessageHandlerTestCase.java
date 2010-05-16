@@ -27,9 +27,12 @@ import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
+import org.apache.vysper.xmpp.stanza.IQStanza;
+import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.MessageStanza;
 import org.apache.vysper.xmpp.stanza.MessageStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -51,7 +54,7 @@ public abstract class AbstractMUCMessageHandlerTestCase extends AbstractMUCHandl
         StanzaBuilder stanzaBuilder = StanzaBuilder.createMessageStanza(from,
                 to, type, null, body);
         if(subject != null) {
-            stanzaBuilder.startInnerElement("subject").addText(subject).endInnerElement();
+            stanzaBuilder.startInnerElement("subject", NamespaceURIs.JABBER_CLIENT).addText(subject).endInnerElement();
         }
         if(x != null) {
             stanzaBuilder.addPreparedElement(x);
@@ -68,6 +71,8 @@ public abstract class AbstractMUCMessageHandlerTestCase extends AbstractMUCHandl
         }
     }
 
+
+    
     protected void assertMessageErrorStanza(Stanza response, Entity from,
             Entity to, String type, String errorName,
             XMLElement... expectedInnerElements) {
@@ -92,31 +97,9 @@ public abstract class AbstractMUCMessageHandlerTestCase extends AbstractMUCHandl
         assertNull(occupant2Queue.getNext());
     }
 
-    protected void assertMessageStanza(Entity from, Entity to, String type,
-            String body, Stanza stanza) throws XMLSemanticError {
-        assertMessageStanza(from, to, type, body, null, null, stanza);
-    }
+
+
     
-    protected void assertMessageStanza(Entity from, Entity to, String type,
-            String expectedBody, String expectedSubject, X expectedX, Stanza stanza) throws XMLSemanticError {
-        assertNotNull(stanza);
-        MessageStanza msgStanza = (MessageStanza) MessageStanza.getWrapper(stanza);
-        
-        assertEquals(from, stanza.getFrom());
-        assertEquals(to, stanza.getTo());
-        if (type != null) {
-            assertEquals(type, stanza.getAttributeValue("type"));
-        }
-
-        assertEquals(expectedBody, msgStanza.getBody(null));
-        assertEquals(expectedSubject, msgStanza.getSubject(null));
-
-        if(expectedX != null) {
-            X actualX = X.fromStanza(stanza);
-            assertEquals(expectedX, actualX);
-        }
-    }
-
     @Override
     protected StanzaHandler createHandler() {
         return new MUCMessageHandler(conference, MODULE_JID);

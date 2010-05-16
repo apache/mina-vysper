@@ -134,7 +134,7 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
      * @param subid the subscription id for the given JID.
      */
     private void buildSuccessStanza(StanzaBuilder sb, String nodeName, String jid, String subid) {
-        sb.startInnerElement("subscription");
+        sb.startInnerElement("subscription", NamespaceURIs.XEP0060_PUBSUB);
         sb.addAttribute("node", nodeName);
         sb.addAttribute("jid", jid);
         sb.addAttribute("subid", subid);

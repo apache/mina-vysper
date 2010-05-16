@@ -117,7 +117,7 @@ public class VcardTempIQHandler extends DefaultIQHandler {
                 // keep it like it is
             } else {
                 stanzaBuilder.
-                    startInnerElement("error").addAttribute("type", "cancel").
+                    startInnerElement("error", NamespaceURIs.JABBER_CLIENT).addAttribute("type", "cancel").
                         startInnerElement("item-not-found", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).
                         endInnerElement().
                     endInnerElement();

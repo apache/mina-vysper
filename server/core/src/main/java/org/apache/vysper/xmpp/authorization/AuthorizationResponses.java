@@ -42,7 +42,7 @@ public class AuthorizationResponses {
 
     public Stanza getFailure(SASLFailureType failureType) {
         return new StanzaBuilder("failure", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
-                .startInnerElement(failureType.value()).endInnerElement().build();
+                .startInnerElement(failureType.value(), NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).endInnerElement().build();
     }
     public Stanza getFailureMalformedRequest() {
         return getFailure(SASLFailureType.MALFORMED_REQUEST);

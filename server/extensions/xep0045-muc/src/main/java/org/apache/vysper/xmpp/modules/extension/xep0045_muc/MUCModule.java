@@ -28,6 +28,7 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler.MUCIqAdminHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler.MUCMessageHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler.MUCPresenceHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
@@ -100,6 +101,7 @@ public class MUCModule
         ComponentStanzaProcessor processor = new ComponentStanzaProcessor(serverRuntimeContext);
         processor.addHandler(new MUCPresenceHandler(conference));
         processor.addHandler(new MUCMessageHandler(conference, fullDomain));
+        processor.addHandler(new MUCIqAdminHandler(conference));
         stanzaProcessor = processor;
 
         RoomStorageProvider roomStorageProvider = (RoomStorageProvider) serverRuntimeContext.getStorageProvider(RoomStorageProvider.class);

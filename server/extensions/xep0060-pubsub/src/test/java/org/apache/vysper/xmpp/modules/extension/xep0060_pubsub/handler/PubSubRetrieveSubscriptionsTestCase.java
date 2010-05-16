@@ -119,7 +119,7 @@ public class PubSubRetrieveSubscriptionsTestCase extends AbstractPublishSubscrib
     class DefaultSubscribeStanzaGenerator extends AbstractStanzaGenerator {
         @Override
         protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb, String node) {
-            sb.startInnerElement("subscriptions");
+            sb.startInnerElement("subscriptions", NamespaceURIs.XEP0060_PUBSUB);
             if(node!=null) {
                 sb.addAttribute("node", node);
             }

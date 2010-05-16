@@ -131,7 +131,7 @@ public class PrivateDataIQHandler extends DefaultIQHandler {
 
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID());
         if (privateDataXML == null) {
-            stanzaBuilder.startInnerElement(x.getName());
+            stanzaBuilder.startInnerElement(x.getName(), x.getNamespaceURI());
             for (Attribute a : x.getAttributes()) {
                 stanzaBuilder.addAttribute(a);
             }

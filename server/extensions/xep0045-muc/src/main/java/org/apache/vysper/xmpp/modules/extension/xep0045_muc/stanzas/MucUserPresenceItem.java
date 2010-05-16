@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.apache.vysper.xml.fragment.Attribute;
 import org.apache.vysper.xml.fragment.XMLElement;
-import org.apache.vysper.xml.fragment.XMLFragment;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -37,16 +36,21 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class Item extends XMLElement {
+public class MucUserPresenceItem extends XMLElement {
 
-    public Item(Occupant occupant, boolean includeJid, boolean includeNick) {
-        super(NamespaceURIs.XEP0045_MUC, "item", null, 
+    public MucUserPresenceItem(Occupant occupant, boolean includeJid, boolean includeNick) {
+        super(NamespaceURIs.XEP0045_MUC_USER, "item", null, 
                 createAttributes(occupant, includeJid, includeNick), null);
     }
 
+    public MucUserPresenceItem(Affiliation affiliation, Role role) {
+        super(NamespaceURIs.XEP0045_MUC_USER, "item", null, 
+                createAttributes(null, null, affiliation, role), null);
+    }
+
     
-    public Item(Entity jid, String nick, Affiliation affiliation, Role role) {
-        super(NamespaceURIs.XEP0045_MUC, "item", null, 
+    public MucUserPresenceItem(Entity jid, String nick, Affiliation affiliation, Role role) {
+        super(NamespaceURIs.XEP0045_MUC_USER, "item", null, 
                 createAttributes(jid, nick, affiliation, role), null);
     }
 
@@ -87,7 +91,6 @@ public class Item extends XMLElement {
         } else {
             return null;
         }
-        
     }
 
     

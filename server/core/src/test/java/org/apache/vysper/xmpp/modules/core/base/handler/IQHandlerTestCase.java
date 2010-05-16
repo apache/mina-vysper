@@ -50,7 +50,7 @@ public class IQHandlerTestCase extends TestCase {
         stanzaBuilder.addAttribute("type", "get");
         // missing stanzaBuilder.addAttribute("to", "test@example.com");
         stanzaBuilder.addAttribute("id", "anyway");
-        stanzaBuilder.startInnerElement("inner").endInnerElement();
+        stanzaBuilder.startInnerElement("inner", NamespaceURIs.JABBER_SERVER).endInnerElement();
 
         TestSessionContext sessionContext = this.sessionContext;
         sessionContext.setServerToServer();
@@ -126,8 +126,8 @@ public class IQHandlerTestCase extends TestCase {
         StanzaBuilder stanzaTwoSubs = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT);
         stanzaTwoSubs.addAttribute("id", "1");
         stanzaTwoSubs.addAttribute("type", type);
-        stanzaTwoSubs.startInnerElement("firstSub").endInnerElement();
-        stanzaTwoSubs.startInnerElement("secondSub").endInnerElement();
+        stanzaTwoSubs.startInnerElement("firstSub", NamespaceURIs.JABBER_CLIENT).endInnerElement();
+        stanzaTwoSubs.startInnerElement("secondSub", NamespaceURIs.JABBER_CLIENT).endInnerElement();
         assertIQError(stanzaTwoSubs.build());
     }
 
@@ -142,7 +142,7 @@ public class IQHandlerTestCase extends TestCase {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT);
         stanzaBuilder.addAttribute("id", "1");
         stanzaBuilder.addAttribute("type", "get");
-        stanzaBuilder.startInnerElement("getRequest").endInnerElement();
+        stanzaBuilder.startInnerElement("getRequest", NamespaceURIs.JABBER_CLIENT).endInnerElement();
 
         TestIQHandler iqHandler = new TestIQHandler();
         ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanzaBuilder.build(), sessionContext.getServerRuntimeContext(), true, sessionContext, null);

@@ -176,9 +176,9 @@ public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
     class DefaultPublishStanzaGenerator extends AbstractStanzaGenerator {
         @Override
         protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb, String node) {
-            sb.startInnerElement("publish");
+            sb.startInnerElement("publish", NamespaceURIs.XEP0060_PUBSUB);
             sb.addAttribute("node", node);
-            sb.startInnerElement("item");
+            sb.startInnerElement("item", NamespaceURIs.XEP0060_PUBSUB);
             sb.addText("this is a test");
             sb.endInnerElement();
             sb.endInnerElement();

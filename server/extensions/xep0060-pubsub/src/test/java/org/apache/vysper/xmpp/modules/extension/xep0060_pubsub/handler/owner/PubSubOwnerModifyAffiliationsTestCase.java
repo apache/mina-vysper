@@ -195,9 +195,9 @@ public class PubSubOwnerModifyAffiliationsTestCase extends AbstractPublishSubscr
 
         @Override
         protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb, String node) {
-            sb.startInnerElement("affiliations");
+            sb.startInnerElement("affiliations", NamespaceURIs.XEP0060_PUBSUB);
             sb.addAttribute("node", this.node);
-            sb.startInnerElement("affiliation");
+            sb.startInnerElement("affiliation", NamespaceURIs.XEP0060_PUBSUB);
             sb.addAttribute("jid", this.jid.getFullQualifiedName());
             sb.addAttribute("affiliation", this.affiliation.toString());
             sb.endInnerElement();

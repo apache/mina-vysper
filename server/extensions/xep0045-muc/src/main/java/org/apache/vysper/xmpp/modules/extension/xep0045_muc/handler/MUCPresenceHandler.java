@@ -39,7 +39,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.History;
-import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Item;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.MucUserPresenceItem;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Status;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Status.StatusCode;
@@ -273,7 +273,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         StanzaBuilder builder = StanzaBuilder.createPresenceStanza(roomAndOccupantNick, newOccupant.getJid(), null, null, null, null);
         
         builder.addPreparedElement(new X(NamespaceURIs.XEP0045_MUC_USER, 
-                new Item(null, null, existingOccupant.getAffiliation(), existingOccupant.getRole())));
+                new MucUserPresenceItem(null, null, existingOccupant.getAffiliation(), existingOccupant.getRole())));
 
         
         logger.debug("Room presence from {} sent to {}", newOccupant, roomAndOccupantNick);
@@ -291,7 +291,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         // room is non-anonymous or semi-anonmoys and the occupant a moderator, send full user JID
         boolean includeJid = room.getRoomTypes().contains(RoomType.NonAnonymous) ||
             (room.getRoomTypes().contains(RoomType.SemiAnonymous) && existingOccupant.getRole() == Role.Moderator); 
-        inner.add(new Item(newOccupant, includeJid, false));
+        inner.add(new MucUserPresenceItem(newOccupant, includeJid, false));
         
         if(existingOccupant.getJid().equals(newOccupant.getJid())) {
             
@@ -318,7 +318,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         List<XMLElement> inner = new ArrayList<XMLElement>();
         
         boolean includeJid = includeJidInItem(room, receiver); 
-        inner.add(new Item(changer, includeJid, true));
+        inner.add(new MucUserPresenceItem(changer, includeJid, true));
         inner.add(new Status(StatusCode.NEW_NICK));
         
         if(receiver.getJid().equals(changer.getJid())) {
@@ -344,7 +344,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
 //            new Status(StatusCode.OWN_PRESENCE).insertElement(builder);
 //        }
 
-        builder.addPreparedElement(new X(NamespaceURIs.XEP0045_MUC_USER, new Item(changer, includeJid, true)));
+        builder.addPreparedElement(new X(NamespaceURIs.XEP0045_MUC_USER, new MucUserPresenceItem(changer, includeJid, true)));
 
         logger.debug("Room presence from {} sent to {}", roomAndNick, receiver);
         relayStanza(receiver.getJid(), builder.build(), serverRuntimeContext);
@@ -363,7 +363,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         
         List<XMLElement> inner = new ArrayList<XMLElement>();
         boolean includeJid = includeJidInItem(room, receiver);  
-        inner.add(new Item(changer, includeJid, false));
+        inner.add(new MucUserPresenceItem(changer, includeJid, false));
         
         if(receiver.getJid().equals(changer.getJid())) {
             // send status to indicate that this is the users own presence
@@ -383,7 +383,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
                 PresenceStanzaType.UNAVAILABLE, null, null);
 
         List<XMLElement> inner = new ArrayList<XMLElement>();
-        inner.add(new Item(null, null, existingOccupant.getAffiliation(), Role.None));
+        inner.add(new MucUserPresenceItem(null, null, existingOccupant.getAffiliation(), Role.None));
         
         // is this stanza to be sent to the exiting user himself?
         boolean ownStanza = existingOccupant.getJid().equals(exitingOccupant.getJid()); 

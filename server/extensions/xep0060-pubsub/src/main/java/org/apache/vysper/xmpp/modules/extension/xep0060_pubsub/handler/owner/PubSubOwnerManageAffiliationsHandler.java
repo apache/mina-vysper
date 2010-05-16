@@ -173,11 +173,11 @@ public class PubSubOwnerManageAffiliationsHandler extends AbstractPubSubOwnerHan
      * Creates the stanza to be sent for successful requests.
      */
     private void buildSuccessStanza(StanzaBuilder sb, LeafNode node, List<AffiliationItem> affiliations) {
-        sb.startInnerElement("affiliations");
+        sb.startInnerElement("affiliations", NamespaceURIs.XEP0060_PUBSUB);
         sb.addAttribute("node", node.getName());
 
         for(AffiliationItem i : affiliations) {
-            sb.startInnerElement("affiliation");
+            sb.startInnerElement("affiliation", NamespaceURIs.XEP0060_PUBSUB);
             sb.addAttribute("jid", i.getJID().getFullQualifiedName());
             sb.addAttribute("affiliation", i.getAffiliation().toString());
             sb.endInnerElement();

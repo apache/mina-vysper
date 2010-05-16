@@ -75,7 +75,7 @@ public class MessageHandlerRelayTestCase extends TestCase {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("message", NamespaceURIs.JABBER_SERVER);
         // receiver@vysper.org, NOT receiver@vysper.org/resourceID 
         stanzaBuilder.addAttribute("to", receiverUser.getEntity().getBareJID().getFullQualifiedName());
-        stanzaBuilder.startInnerElement("timestamp").addAttribute("value", timestamp).endInnerElement();
+        stanzaBuilder.startInnerElement("timestamp", NamespaceURIs.JABBER_SERVER).addAttribute("value", timestamp).endInnerElement();
 
         senderSessionContext.setClientToServer();
         

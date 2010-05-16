@@ -71,7 +71,7 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
 
         @Override
         protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb, String node) {
-            sb.startInnerElement("unsubscribe");
+            sb.startInnerElement("unsubscribe", NamespaceURIs.XEP0060_PUBSUB);
             sb.addAttribute("node", node);
             sb.addAttribute("jid", getSubscriberJID(client));
 

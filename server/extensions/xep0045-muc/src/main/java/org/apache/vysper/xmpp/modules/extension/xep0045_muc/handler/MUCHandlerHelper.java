@@ -82,7 +82,7 @@ public class MUCHandlerHelper {
             }
         }
         
-        builder.startInnerElement("error").addAttribute("type", type);
+        builder.startInnerElement("error",NamespaceURIs.JABBER_CLIENT).addAttribute("type", type);
         builder.startInnerElement(errorName, NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).endInnerElement();
         builder.endInnerElement();
         

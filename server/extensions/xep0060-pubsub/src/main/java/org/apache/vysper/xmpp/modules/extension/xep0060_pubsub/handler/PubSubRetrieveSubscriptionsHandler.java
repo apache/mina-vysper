@@ -119,10 +119,10 @@ public class PubSubRetrieveSubscriptionsHandler extends AbstractPubSubGeneralHan
      * This method adds the default "success" elements to the given StanzaBuilder.
      */
     private void buildSuccessStanza(StanzaBuilder sb, String nodeName, List<SubscriptionItem> subscriptions) {
-        sb.startInnerElement("subscriptions");
+        sb.startInnerElement("subscriptions", NamespaceURIs.XEP0060_PUBSUB);
         
         for(SubscriptionItem s : subscriptions) {
-            sb.startInnerElement("subscription");
+            sb.startInnerElement("subscription", NamespaceURIs.XEP0060_PUBSUB);
             sb.addAttribute("node", s.getNodeName());
             sb.addAttribute("jid", s.getSubscriberJID().getFullQualifiedName());
             sb.addAttribute("subscription", s.getSubscriptionState());

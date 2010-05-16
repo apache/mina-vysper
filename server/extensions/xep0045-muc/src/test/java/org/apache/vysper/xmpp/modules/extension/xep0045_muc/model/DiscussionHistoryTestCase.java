@@ -28,6 +28,7 @@ import junit.framework.TestCase;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.History;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.MessageStanza;
 import org.apache.vysper.xmpp.stanza.MessageStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -73,7 +74,7 @@ public class DiscussionHistoryTestCase extends TestCase {
         // add a subject message
         history.append(
                 StanzaBuilder.createMessageStanza(FROM, ROOM_JID, MessageStanzaType.GROUPCHAT, null, null).
-                startInnerElement("subject").addText(SUBJECT).endInnerElement().build(),
+                startInnerElement("subject", NamespaceURIs.JABBER_CLIENT).addText(SUBJECT).endInnerElement().build(),
                 FROM_OCCUPANT);
     }
 

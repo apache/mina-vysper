@@ -134,10 +134,10 @@ public class PubSubPublishHandler extends AbstractPubSubGeneralHandler {
      * @param id the id of the published message.
      */
     private void buildSuccessStanza(StanzaBuilder sb, String node, String id) {
-        sb.startInnerElement("publish");
+        sb.startInnerElement("publish", NamespaceURIs.XEP0060_PUBSUB);
         sb.addAttribute("node", node);
 
-        sb.startInnerElement("item");
+        sb.startInnerElement("item", NamespaceURIs.XEP0060_PUBSUB);
         sb.addAttribute("id", id);
         sb.endInnerElement();
 

@@ -80,7 +80,6 @@ public abstract class AbstractXMLElementBuilder<B extends AbstractXMLElementBuil
     
     private void startNewElement(String name, String namespaceURI, String namespacePrefix) {
         // TODO assert that name does not contain namespace (":")
-        // TODO handle the namespace, given by URI, currently always NULL in XMLElement constructors
         ElementStruct element = new ElementStruct();
         element.attributes = new ArrayList<Attribute>();
         element.namespaces = new HashMap<String, String>();
