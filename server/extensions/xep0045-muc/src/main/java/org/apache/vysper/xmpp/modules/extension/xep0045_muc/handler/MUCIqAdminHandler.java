@@ -27,6 +27,7 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.MUCStanzaBuilder;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Affiliation;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
@@ -35,7 +36,6 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.IqAdminItem;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.MucUserPresenceItem;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Status;
-import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Status.StatusCode;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -109,26 +109,26 @@ public class MUCIqAdminHandler extends DefaultIQHandler {
 					room.removeOccupant(kicked.getJid());
 					Entity kickedInRoom = roomAndNick(room, kicked);
 					
+					Status kickedStatus = new Status(StatusCode.BEEN_KICKED);
+					
 					// notify user he got kicked
-					StanzaBuilder presenceBuilder = StanzaBuilder.createPresenceStanza(kickedInRoom, kicked.getJid(), null, 
-							PresenceStanzaType.UNAVAILABLE, null, null);
-					presenceBuilder.addPreparedElement(new X(NamespaceURIs.XEP0045_MUC_USER, 
+					Stanza presenceToKicked = MUCStanzaBuilder.createPresenceStanza(kickedInRoom, kicked.getJid(),  
+							PresenceStanzaType.UNAVAILABLE, NamespaceURIs.XEP0045_MUC_USER, 
 							new MucUserPresenceItem(Affiliation.None, Role.None),
 							// TODO handle <actor>
 							// TODO handle <reason>
-							new Status(StatusCode.BEEN_KICKED)));
+							kickedStatus);
 
-					relayStanza(kicked.getJid(), presenceBuilder.build(), serverRuntimeContext);
+					relayStanza(kicked.getJid(), presenceToKicked, serverRuntimeContext);
 					
 					// notify remaining users that user got kicked
 					for(Occupant remaining : room.getOccupants()) {
-						StanzaBuilder presenceToRemainingBuilder = StanzaBuilder.createPresenceStanza(kickedInRoom, remaining.getJid(), null, 
-								PresenceStanzaType.UNAVAILABLE, null, null);
-						presenceToRemainingBuilder.addPreparedElement(new X(NamespaceURIs.XEP0045_MUC_USER, 
+						Stanza presenceToRemaining = MUCStanzaBuilder.createPresenceStanza(kickedInRoom, remaining.getJid(),  
+								PresenceStanzaType.UNAVAILABLE, NamespaceURIs.XEP0045_MUC_USER, 
 								new MucUserPresenceItem(Affiliation.None, Role.None),
-								new Status(StatusCode.BEEN_KICKED)));
+								kickedStatus);
 						
-						relayStanza(remaining.getJid(), presenceToRemainingBuilder.build(), serverRuntimeContext);
+						relayStanza(remaining.getJid(), presenceToRemaining, serverRuntimeContext);
 					}
 				}
 			}
