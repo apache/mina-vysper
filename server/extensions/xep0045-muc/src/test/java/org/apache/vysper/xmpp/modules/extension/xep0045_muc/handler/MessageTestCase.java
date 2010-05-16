@@ -36,7 +36,7 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
  */
-public class MUCMessageHandlerTestCase extends AbstractMUCMessageHandlerTestCase {
+public class MessageTestCase extends AbstractMUCMessageHandlerTestCase {
 
     public void testMessageWithNoVoice() throws Exception {
         Room room = conference.findOrCreateRoom(ROOM1_JID, "Room 1");

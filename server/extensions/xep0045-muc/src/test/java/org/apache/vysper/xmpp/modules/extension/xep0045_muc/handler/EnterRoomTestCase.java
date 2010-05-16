@@ -46,7 +46,7 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
 /**
  */
-public class MUCPresenceHandlerEnterRoomTestCase extends AbstractMUCHandlerTestCase {
+public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
 
     private Stanza enterRoom(Entity occupantJid, Entity roomJid) throws ProtocolException {
         return enterRoom(occupantJid, roomJid, null, null, false);

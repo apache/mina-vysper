@@ -32,7 +32,7 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
 /**
  */
-public class MUCPresenceHandlerChangeStatusTestCase extends AbstractMUCHandlerTestCase {
+public class ChangeStatusTestCase extends AbstractMUCHandlerTestCase {
 
     private Stanza changeStatus(Entity occupantJid, Entity roomWithNickJid, String show, String status) throws ProtocolException {
         StanzaBuilder stanzaBuilder = StanzaBuilder.createPresenceStanza(occupantJid, roomWithNickJid, null, null, show, status);

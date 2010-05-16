@@ -30,7 +30,7 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
  */
-public class MUCSubjectMessageHandlerTestCase extends AbstractMUCMessageHandlerTestCase {
+public class ChangeSubjectTestCase extends AbstractMUCMessageHandlerTestCase {
 
     private static final String SUBJECT = "Subject";
 

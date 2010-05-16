@@ -20,10 +20,7 @@
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
 
-import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Affiliation;
@@ -41,7 +38,7 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
 /**
  */
-public class MUCPresenceHandlerChangeNickTestCase extends AbstractMUCHandlerTestCase {
+public class ChangeNickTestCase extends AbstractMUCHandlerTestCase {
 
     private Stanza changeNick(Entity occupantJid, Entity roomWithNickJid) throws ProtocolException {
         StanzaBuilder stanzaBuilder = StanzaBuilder.createPresenceStanza(occupantJid, roomWithNickJid, null, null, null, null);
