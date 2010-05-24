@@ -42,6 +42,7 @@
 	    <module>xep0060-pubsub</module>
 	    <module>xep0045-muc</module>
 	    <module>xep0045-muc-inttest</module>
+	    <module>xep0124-xep0206-bosh</module>
       </modules>
     </profile>
   </profiles>
