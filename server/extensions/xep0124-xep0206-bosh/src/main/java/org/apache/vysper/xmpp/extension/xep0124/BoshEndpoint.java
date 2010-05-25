@@ -62,7 +62,8 @@ public class BoshEndpoint implements Endpoint {
     	try {
 			server.start();
 		} catch (Exception e) {
-			throw new IOException(e);
+			// TODO IOException(Exception) is only Java 1.6, so throwing a RuntimeException for now
+			throw new RuntimeException(e);
 		}
     }
 
