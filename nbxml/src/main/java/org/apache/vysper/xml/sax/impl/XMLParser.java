@@ -163,7 +163,7 @@ public class XMLParser implements TokenListener {
 					return;
 				}
 			} else {
-				if(isValidName(token)) {
+				if(token != null && isValidName(token)) {
 					qname = token;
 					state = State.AFTER_START_NAME;
 				} else {
