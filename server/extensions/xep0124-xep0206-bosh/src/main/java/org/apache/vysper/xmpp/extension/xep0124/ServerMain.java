@@ -85,9 +85,17 @@ public class ServerMain {
         }
 
         XMPPServer server = new XMPPServer("vysper.org");
+        
         server.addEndpoint(new TCPEndpoint());
+        
         BoshEndpoint boshEndpoint = new BoshEndpoint();
+        boshEndpoint.setFlashCrossDomainPolicy("src/main/resources/" +
+        		"crossdomain.xml");
+//        boshEndpoint.setSSLEnabled(true);
+//        boshEndpoint.setSSLCertificateInfo("src/main/resources/keystore",
+//                "password");
         server.addEndpoint(boshEndpoint);
+        
         //server.addEndpoint(new StanzaSessionFactory());
         server.setStorageProviderRegistry(providerRegistry);
 
