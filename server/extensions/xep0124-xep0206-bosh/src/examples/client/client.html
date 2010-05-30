@@ -1,0 +1,66 @@
+<!--
+	Licensed to the Apache Software Foundation (ASF) under one
+	or more contributor license agreements.  See the NOTICE file
+	distributed with this work for additional information
+	regarding copyright ownership.  The ASF licenses this file
+	to you under the Apache License, Version 2.0 (the
+	"License"); you may not use this file except in compliance
+	with the License.  You may obtain a copy of the License at
+	
+	  http://www.apache.org/licenses/LICENSE-2.0
+	
+	Unless required by applicable law or agreed to in writing,
+	software distributed under the License is distributed on an
+	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+	KIND, either express or implied.  See the License for the
+	specific language governing permissions and limitations
+	under the License.
+-->
+
+<html>
+<head>
+<title>BOSH client</title>
+</head>
+<body>
+
+<div id="connect-form" style="margin: auto; width: 300px;">
+<table>
+	<tr>
+		<td>Server</td>
+		<td><input type="text" id="server" value="vysper.org" /></td>
+	</tr>
+	<tr>
+		<td>Port</td>
+		<td><input type="text" id="port" value="8080" /></td>
+	</tr>
+	<tr>
+		<td>JID</td>
+		<td><input type="text" id="jid" value="user1@vysper.org" /></td>
+	</tr>
+	<tr>
+		<td style="padding-right: 10px;">Password</td>
+		<td><input type="password" id="password" value="password1" /></td>
+	</tr>
+	<tr>
+		<td />
+		<td><input type="button" id="connect" value="Connect"
+			style="float: right; margin-top: 5px;" /></td>
+	</tr>
+</table>
+</div>
+
+
+<div style="position: absolute; left: 0; width: 100%; bottom: 0px;">
+<div id="logger"
+	style="border: 1px solid; height: 300px; overflow: scroll; margin: 10px; font-family: arial; display: none;">
+</div>
+</div>
+
+<script src="../resources/jquery/jquery-1.4.2.min.js"></script>
+<script src="../resources/flXHR/flensed.js"></script>
+<script src="../resources/flXHR/flXHR.js"></script>
+<script src="../resources/strophe/strophe.min.js"></script>
+<script src="../resources/strophe/strophe.flxhr.min.js"></script>
+<script src="client.js"></script>
+</body>
+</html>
