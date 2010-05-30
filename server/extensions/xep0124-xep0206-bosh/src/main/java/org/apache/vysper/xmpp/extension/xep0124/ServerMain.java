@@ -1,4 +1,3 @@
-package org.apache.vysper.xmpp.extension.xep0124;
 /*
  *  Licensed to the Apache Software Foundation (ASF) under one
  *  or more contributor license agreements.  See the NOTICE file
@@ -18,7 +17,7 @@ package org.apache.vysper.xmpp.extension.xep0124;
  *  under the License.
  *
  */
-
+package org.apache.vysper.xmpp.extension.xep0124;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -55,7 +54,8 @@ public class ServerMain {
      * 
      * @param args
      */
-    public static void main(String[] args) throws AccountCreationException, EntityFormatException {
+    public static void main(String[] args) throws AccountCreationException,
+            EntityFormatException {
 
         String addedModuleProperty = System.getProperty("vysper.add.module");
         List<Module> listOfModules = null;
@@ -68,15 +68,19 @@ public class ServerMain {
         //StorageProviderRegistry providerRegistry = new JcrStorageProviderRegistry();
         StorageProviderRegistry providerRegistry = new MemoryStorageProviderRegistry();
 
-        final AccountManagement accountManagement = (AccountManagement)providerRegistry.retrieve(AccountManagement.class);
+        final AccountManagement accountManagement = (AccountManagement) providerRegistry
+                .retrieve(AccountManagement.class);
 
-        if (!accountManagement.verifyAccountExists(EntityImpl.parse("user1@vysper.org"))) {
+        if (!accountManagement.verifyAccountExists(EntityImpl
+                .parse("user1@vysper.org"))) {
             accountManagement.addUser("user1@vysper.org", "password1");
         }
-        if (!accountManagement.verifyAccountExists(EntityImpl.parse("user2@vysper.org"))) {
+        if (!accountManagement.verifyAccountExists(EntityImpl
+                .parse("user2@vysper.org"))) {
             accountManagement.addUser("user2@vysper.org", "password1");
         }
-        if (!accountManagement.verifyAccountExists(EntityImpl.parse("user3@vysper.org"))) {
+        if (!accountManagement.verifyAccountExists(EntityImpl
+                .parse("user3@vysper.org"))) {
             accountManagement.addUser("user3@vysper.org", "password1");
         }
 
@@ -87,7 +91,9 @@ public class ServerMain {
         //server.addEndpoint(new StanzaSessionFactory());
         server.setStorageProviderRegistry(providerRegistry);
 
-        server.setTLSCertificateInfo(new File("src/main/config/bogus_mina_tls.cert"), "boguspw");
+        server.setTLSCertificateInfo(new File(
+                "../vysper-core/src/main/config/bogus_mina_tls.cert"),
+                "boguspw");
 
         try {
             server.start();
@@ -111,23 +117,26 @@ public class ServerMain {
 
     private static List<Module> createModuleInstances(String[] moduleClassNames) {
         List<Module> modules = new ArrayList<Module>();
-        
+
         for (String moduleClassName : moduleClassNames) {
             Class<Module> moduleClass;
             try {
-                moduleClass = (Class<Module>)Class.forName(moduleClassName);
+                moduleClass = (Class<Module>) Class.forName(moduleClassName);
             } catch (ClassCastException e) {
-                System.err.println("not a Vysper module class: " + moduleClassName);
+                System.err.println("not a Vysper module class: "
+                        + moduleClassName);
                 continue;
             } catch (ClassNotFoundException e) {
-                System.err.println("could not load module class " + moduleClassName);
+                System.err.println("could not load module class "
+                        + moduleClassName);
                 continue;
             }
             try {
                 Module module = moduleClass.newInstance();
                 modules.add(module);
             } catch (Exception e) {
-                System.err.println("failed to instantiate module class " + moduleClassName);
+                System.err.println("failed to instantiate module class "
+                        + moduleClassName);
                 continue;
             }
         }

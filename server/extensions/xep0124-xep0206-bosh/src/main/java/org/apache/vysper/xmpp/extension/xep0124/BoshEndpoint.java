@@ -33,46 +33,47 @@ import org.slf4j.LoggerFactory;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class BoshEndpoint implements Endpoint {
-	
-	private final Logger logger = LoggerFactory.getLogger(BoshEndpoint.class);
+
+    private final Logger logger = LoggerFactory.getLogger(BoshEndpoint.class);
 
     private ServerRuntimeContext serverRuntimeContext;
 
     private int port = 8080;
 
     private Server server;
-    
-    public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
+
+    public void setServerRuntimeContext(
+            ServerRuntimeContext serverRuntimeContext) {
         this.serverRuntimeContext = serverRuntimeContext;
     }
 
     public void setPort(int port) {
         this.port = port;
     }
-    
+
     public void setSslEnabled(boolean value) {
-    	// TODO:
+        // TODO:
     }
-    
+
     public void start() throws IOException {
-    	server = new Server(port);
-    	BoshIoHandler boshIoHandler = new BoshIoHandler();
-    	boshIoHandler.setServerRuntimeContext(serverRuntimeContext);
-    	server.setHandler(boshIoHandler); 
-    	try {
-			server.start();
-		} catch (Exception e) {
-			// TODO IOException(Exception) is only Java 1.6, so throwing a RuntimeException for now
-			throw new RuntimeException(e);
-		}
+        server = new Server(port);
+        BoshIoHandler boshIoHandler = new BoshIoHandler();
+        boshIoHandler.setServerRuntimeContext(serverRuntimeContext);
+        server.setHandler(boshIoHandler);
+        try {
+            server.start();
+        } catch (Exception e) {
+            // TODO IOException(Exception) is only Java 1.6, so throwing a RuntimeException for now
+            throw new RuntimeException(e);
+        }
     }
 
     public void stop() {
-    	try {
-			server.stop();
-		} catch (Exception e) {
-			logger.warn("Could not stop the Jetty server", e);
-		}
+        try {
+            server.stop();
+        } catch (Exception e) {
+            logger.warn("Could not stop the Jetty server", e);
+        }
     }
 
 }

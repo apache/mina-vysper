@@ -33,24 +33,25 @@ import org.apache.vysper.xmpp.writer.StanzaWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * connects MINA 2 frontend to the vysper backend through the Bosh protocol
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class BoshBackedSessionContext extends AbstractSessionContext implements StanzaWriter, IoFutureListener {
+public class BoshBackedSessionContext extends AbstractSessionContext implements
+        StanzaWriter, IoFutureListener {
 
-    final Logger logger = LoggerFactory.getLogger(BoshBackedSessionContext.class);
+    final Logger logger = LoggerFactory
+            .getLogger(BoshBackedSessionContext.class);
 
     private IoSession minaSession;
+
     private boolean openingStanzaWritten = false;
+
     protected CloseFuture closeFuture;
 
-    public BoshBackedSessionContext(
-            ServerRuntimeContext serverRuntimeContext,
-            SessionStateHolder sessionStateHolder,
-            IoSession minaSession) {
+    public BoshBackedSessionContext(ServerRuntimeContext serverRuntimeContext,
+            SessionStateHolder sessionStateHolder, IoSession minaSession) {
         super(serverRuntimeContext, sessionStateHolder);
         this.minaSession = minaSession;
         closeFuture = minaSession.getCloseFuture();
@@ -82,8 +83,8 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         logger.info("close future called");
     }
 
-	public void switchToTLS() {
-		// Bosh cannot switch dynamically
-		// SSL can be enabled/disabled in BoshEndpoint#setSslEnabled()
-	}
+    public void switchToTLS() {
+        // Bosh cannot switch dynamically
+        // SSL can be enabled/disabled in BoshEndpoint#setSslEnabled()
+    }
 }
