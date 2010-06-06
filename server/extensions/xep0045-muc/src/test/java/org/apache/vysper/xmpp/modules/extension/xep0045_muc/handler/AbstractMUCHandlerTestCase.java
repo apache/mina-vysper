@@ -20,7 +20,6 @@
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
