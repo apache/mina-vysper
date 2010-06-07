@@ -63,7 +63,8 @@ public class IQHandler extends XMPPCoreStanzaHandler {
 
         List<XMLElement> innerElements = stanza.getInnerElements();
         XMLElement firstInnerElement = innerElements.get(0);
-        return firstInnerElement.getVerifier().namespacePresent(namespace);
+        
+        return firstInnerElement.getNamespaceURI().equals(namespace);
     }
 
     @SpecCompliance(compliant = {
