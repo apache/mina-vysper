@@ -21,7 +21,11 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
 import org.apache.vysper.compliance.SpecCompliance;
 import org.apache.vysper.compliance.SpecCompliant;
+import org.apache.vysper.xml.fragment.Attribute;
 import org.apache.vysper.xml.fragment.XMLElement;
+import org.apache.vysper.xml.fragment.XMLElementBuilder;
+import org.apache.vysper.xml.fragment.XMLFragment;
+import org.apache.vysper.xml.fragment.XMLText;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubPrivilege;
@@ -108,17 +112,25 @@ public class PubSubPublishHandler extends AbstractPubSubGeneralHandler {
             return errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, serverJID, stanza);
         }
 
+            
+        StanzaRelay relay = serverRuntimeContext.getStanzaRelay();
+        
+        XMLElementBuilder eventItemBuilder = new XMLElementBuilder("item", NamespaceURIs.XEP0060_PUBSUB_EVENT);
         if(strID == null) {
             strID = idGenerator.create();
-            // wrap a new item element with the id attribute
-            StanzaBuilder itemBuilder = new StanzaBuilder("item");
-            itemBuilder.addAttribute("id", strID);
-            itemBuilder.addPreparedElement(item.getFirstInnerElement());
-            item = itemBuilder.build();
         }
-
-        StanzaRelay relay = serverRuntimeContext.getStanzaRelay();
-        node.publish(sender, relay, strID, item);
+        eventItemBuilder.addAttribute("id", strID);
+        
+        for(XMLFragment fragment : item.getInnerFragments()) {
+            if(fragment instanceof XMLElement) {
+                eventItemBuilder.addPreparedElement((XMLElement) fragment);
+            } else {
+                // XMLText
+                eventItemBuilder.addText(((XMLText)fragment).getText());
+            }
+        }
+            
+        node.publish(sender, relay, strID, eventItemBuilder.build());
 
         buildSuccessStanza(sb, nodeName, strID);
 
