@@ -20,20 +20,20 @@
 package org.apache.vysper.xmpp.extension.xep0124;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Random;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 /**
  * Handles BOSH requests from HTTP clients.
@@ -51,8 +51,12 @@ public class BoshServlet extends HttpServlet {
     private static final String XML_CONTENT_TYPE = "text/xml; charset=UTF-8";
 
     private static final String INFO_GET = "This is an XMPP BOSH connection manager, you need to use a compatible BOSH client to use its services!";
+    
+    private static final String SESSION_CONTEXT_ATTRIBUTE = "SESSION_CONTEXT_ATTRIBUTE";
 
     private final Logger logger = LoggerFactory.getLogger(BoshServlet.class);
+    
+    private final BoshHandler boshHandler = new BoshHandler();
 
     private ServerRuntimeContext serverRuntimeContext;
 
@@ -103,39 +107,26 @@ public class BoshServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        BufferedReader reader = req.getReader();
-
-        char[] buf = new char[1024];
-        StringBuilder sb = new StringBuilder();
-
-        for (;;) {
-            int n = reader.read(buf);
-            if (n == -1) {
-                break;
-            }
-            sb.append(buf, 0, n);
+        HttpSession httpSession = req.getSession(true);
+        BoshBackedSessionContext sessionContext = (BoshBackedSessionContext) httpSession.getAttribute(SESSION_CONTEXT_ATTRIBUTE);
+        if (sessionContext == null) {
+            sessionContext = new BoshBackedSessionContext(serverRuntimeContext, boshHandler);
+            httpSession.setAttribute(SESSION_CONTEXT_ATTRIBUTE, sessionContext);
         }
-
-        String body = sb.toString();
-        logger.debug("BOSH CM received : {}", body);
-
-        // test if this is the first request (kind of a hack - should be parsing XML)
-        if (body.indexOf("sid=") == -1) {
-            // initial request
-            String sid = Long.toString(new Random().nextLong(), 16);
-            resp.setContentType(XML_CONTENT_TYPE);
-            resp.getWriter()
-                    .print("<body xmlns='http://jabber.org/protocol/httpbind' wait='60' inactivity='60' polling='5' requests='2' hold='1' maxpause='120' sid='");
-            resp.getWriter().print(sid);
-            resp.getWriter().print("' ver='1.6' from='vysper.org'/>");
-            resp.flushBuffer();
-            return;
+        
+        /*
+         * The following block is synchronized on the session context to prevent simultaneous
+         * access from a session (simultaneous access is possible in certain cases because of the 
+         * nature of HTTP sessions tracking mechanism - cookies, URL rewrites, etc).
+         */
+        synchronized (sessionContext) {
+            sessionContext.setHttpContext(req, resp);
+            try {
+                sessionContext.getDecoder().decode();
+            } catch (SAXException e) {
+                logger.error("Exception thrown while decoding XML", e);
+            }            
         }
-
-        // session exists
-        // not handled yet, TODO
-        resp.setContentType(XML_CONTENT_TYPE);
-        resp.flushBuffer();
     }
 
 }

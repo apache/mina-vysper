@@ -19,11 +19,9 @@
  */
 package org.apache.vysper.xmpp.extension.xep0124;
 
-import org.apache.mina.core.future.CloseFuture;
-import org.apache.mina.core.future.IoFuture;
-import org.apache.mina.core.future.IoFutureListener;
-import org.apache.mina.core.session.IoSession;
-import org.apache.vysper.mina.codec.StanzaWriteInfo;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.AbstractSessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -34,29 +32,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * connects MINA 2 frontend to the vysper backend through the Bosh protocol
+ * Keeps the session state
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class BoshBackedSessionContext extends AbstractSessionContext implements
-        StanzaWriter, IoFutureListener {
+        StanzaWriter {
 
-    final Logger logger = LoggerFactory
+    private final Logger logger = LoggerFactory
             .getLogger(BoshBackedSessionContext.class);
 
-    private IoSession minaSession;
+    private final BoshDecoder boshDecoder;
 
-    private boolean openingStanzaWritten = false;
+    private HttpServletRequest httpRequest;
 
-    protected CloseFuture closeFuture;
+    private HttpServletResponse httpRespone;
 
+    /**
+     * Creates a new context for a session
+     * @param serverRuntimeContext
+     * @param boshHandler
+     */
     public BoshBackedSessionContext(ServerRuntimeContext serverRuntimeContext,
-            SessionStateHolder sessionStateHolder, IoSession minaSession) {
-        super(serverRuntimeContext, sessionStateHolder);
-        this.minaSession = minaSession;
-        closeFuture = minaSession.getCloseFuture();
-        closeFuture.addListener(this);
-        sessionStateHolder.setState(SessionState.INITIATED); // connection established
+            BoshHandler boshHandler) {
+        super(serverRuntimeContext, new SessionStateHolder());
+        sessionStateHolder.setState(SessionState.INITIATED);
+        boshDecoder = new BoshDecoder(boshHandler, this);
     }
 
     public StanzaWriter getResponseWriter() {
@@ -64,27 +65,54 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements
     }
 
     public void setIsReopeningXMLStream() {
-        openingStanzaWritten = false;
     }
 
     public void write(Stanza stanza) {
-        minaSession.write(new StanzaWriteInfo(stanza, !openingStanzaWritten));
-        openingStanzaWritten = true;
+        //        minaSession.write(new StanzaWriteInfo(stanza, !openingStanzaWritten));
     }
 
     public void close() {
         logger.info("session will be closed now");
-        closeFuture.setClosed();
-        minaSession.close(true);
-    }
-
-    public void operationComplete(IoFuture ioFuture) {
-        // close future notification
-        logger.info("close future called");
     }
 
     public void switchToTLS() {
-        // Bosh cannot switch dynamically
-        // SSL can be enabled/disabled in BoshEndpoint#setSslEnabled()
+        // BOSH cannot switch dynamically,
+        // SSL can be enabled/disabled in BoshEndpoint#setSSLEnabled()
+    }
+
+    /**
+     * Updates the context with the session's {@link HttpServletRequest} and {@link HttpServletResponse}
+     * <p>
+     * The HTTP context is updated every time a new HTTP request is received.
+     * @param req
+     * @param resp
+     */
+    public void setHttpContext(HttpServletRequest req, HttpServletResponse resp) {
+        httpRequest = req;
+        httpRespone = resp;
+    }
+
+    /**
+     * Getter for the HTTP request
+     * @return
+     */
+    public HttpServletRequest getHttpRequest() {
+        return httpRequest;
+    }
+
+    /**
+     * Getter for the HTTP response
+     * @return
+     */
+    public HttpServletResponse getHttpResponse() {
+        return httpRespone;
+    }
+
+    /**
+     * Getter for the decoder
+     * @return
+     */
+    public BoshDecoder getDecoder() {
+        return boshDecoder;
     }
 }
