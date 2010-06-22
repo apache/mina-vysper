@@ -26,53 +26,40 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.vysper.charset.CharsetUtil;
-import org.apache.vysper.mina.codec.StanzaBuilderFactory;
-import org.apache.vysper.xml.decoder.XMPPContentHandler;
-import org.apache.vysper.xml.decoder.XMPPContentHandler.StanzaListener;
-import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.sax.NonBlockingXMLReader;
 import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
-import org.apache.vysper.xmpp.server.SessionContext;
-import org.apache.vysper.xmpp.stanza.Stanza;
+import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
 /**
  * Decodes bytes into BOSH stanzas
  * <p>
  * Uses nbxml for XML processing.
- * Every HTTP session has its own instance of BoshDecoder
- * (because decoding state is associated with the decoder, and to ensure that
- * the decoding errors of a session do not affect another session).
+ * For every HTTP request there is a BoshDecoder instance
+ * to ensure that parsing errors (e.g. malformed XML) do not affect other requests.
  * 
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class BoshDecoder implements StanzaListener {
-
-    private final BoshHandler boshHandler;
+public class BoshDecoder {
 
     private final NonBlockingXMLReader reader;
-
-    private final BoshBackedSessionContext sessionContext;
+    
+    private final BoshRequestContext boshRequestContext;
 
     /**
-     * Creates a new decoder associated with a {@link SessionContext}
+     * Creates a new decoder associated with a {@link BoshRequestContext}
      * @param boshHandler
-     * @param sessionContext
      */
-    public BoshDecoder(BoshHandler boshHandler,
-            BoshBackedSessionContext sessionContext) {
-        this.boshHandler = boshHandler;
-        this.sessionContext = sessionContext;
+    public BoshDecoder(BoshHandler boshHandler, BoshRequestContext boshRequestContext) {
+        this.boshRequestContext = boshRequestContext;
         reader = new DefaultNonBlockingXMLReader();
-        XMPPContentHandler contentHandler = new XMPPContentHandler(
-                new StanzaBuilderFactory());
-        contentHandler.setListener(this);
+        ContentHandler contentHandler = new BoshSaxContentHandler(boshHandler, boshRequestContext);
         reader.setContentHandler(contentHandler);
     }
 
     /**
      * Decodes the bytes from the {@link InputStream} provided by the current {@link HttpServletRequest} of
-     * the session context into BOSH stanzas.
+     * the request context into a BOSH stanza.
      * @throws IOException
      * @throws SAXException
      */
@@ -80,7 +67,7 @@ public class BoshDecoder implements StanzaListener {
         IoBuffer ioBuf = IoBuffer.allocate(1024);
         ioBuf.setAutoExpand(true);
         byte[] buf = new byte[1024];
-        InputStream in = sessionContext.getHttpRequest().getInputStream();
+        InputStream in = boshRequestContext.getRequest().getInputStream();
 
         for (;;) {
             int i = in.read(buf);
@@ -91,10 +78,6 @@ public class BoshDecoder implements StanzaListener {
         }
         ioBuf.flip();
         reader.parse(ioBuf, CharsetUtil.UTF8_DECODER);
-    }
-
-    public void stanza(XMLElement element) {
-        boshHandler.processStanza(sessionContext, (Stanza) element);
     }
 
 }

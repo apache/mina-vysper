@@ -123,6 +123,7 @@ public class ServerMain {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static List<Module> createModuleInstances(String[] moduleClassNames) {
         List<Module> modules = new ArrayList<Module>();
 

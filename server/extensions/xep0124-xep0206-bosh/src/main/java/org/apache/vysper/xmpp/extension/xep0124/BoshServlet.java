@@ -28,7 +28,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.slf4j.Logger;
@@ -36,7 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 /**
- * Handles BOSH requests from HTTP clients.
+ * Receives BOSH requests from HTTP clients.
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
@@ -46,19 +45,11 @@ public class BoshServlet extends HttpServlet {
 
     private static final String FLASH_CROSS_DOMAIN_POLICY_URI = "/crossdomain.xml";
 
-    private static final String HTML_CONTENT_TYPE = "text/html; charset=UTF-8";
-
-    private static final String XML_CONTENT_TYPE = "text/xml; charset=UTF-8";
-
     private static final String INFO_GET = "This is an XMPP BOSH connection manager, you need to use a compatible BOSH client to use its services!";
     
-    private static final String SESSION_CONTEXT_ATTRIBUTE = "SESSION_CONTEXT_ATTRIBUTE";
-
     private final Logger logger = LoggerFactory.getLogger(BoshServlet.class);
     
     private final BoshHandler boshHandler = new BoshHandler();
-
-    private ServerRuntimeContext serverRuntimeContext;
 
     private ByteArrayOutputStream flashCrossDomainPolicy;
 
@@ -68,7 +59,7 @@ public class BoshServlet extends HttpServlet {
      */
     public void setServerRuntimeContext(
             ServerRuntimeContext serverRuntimeContext) {
-        this.serverRuntimeContext = serverRuntimeContext;
+        boshHandler.setServerRuntimeContext(serverRuntimeContext);
     }
 
     /**
@@ -95,10 +86,10 @@ public class BoshServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         if (FLASH_CROSS_DOMAIN_POLICY_URI.equals(req.getRequestURI())) {
-            resp.setContentType(XML_CONTENT_TYPE);
+            resp.setContentType(ContentType.XML_CONTENT_TYPE);
             flashCrossDomainPolicy.writeTo(resp.getOutputStream());
         } else {
-            resp.setContentType(HTML_CONTENT_TYPE);
+            resp.setContentType(ContentType.HTML_CONTENT_TYPE);
             resp.getWriter().println(INFO_GET);
         }
         resp.flushBuffer();
@@ -107,25 +98,12 @@ public class BoshServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        HttpSession httpSession = req.getSession(true);
-        BoshBackedSessionContext sessionContext = (BoshBackedSessionContext) httpSession.getAttribute(SESSION_CONTEXT_ATTRIBUTE);
-        if (sessionContext == null) {
-            sessionContext = new BoshBackedSessionContext(serverRuntimeContext, boshHandler);
-            httpSession.setAttribute(SESSION_CONTEXT_ATTRIBUTE, sessionContext);
-        }
-        
-        /*
-         * The following block is synchronized on the session context to prevent simultaneous
-         * access from a session (simultaneous access is possible in certain cases because of the 
-         * nature of HTTP sessions tracking mechanism - cookies, URL rewrites, etc).
-         */
-        synchronized (sessionContext) {
-            sessionContext.setHttpContext(req, resp);
-            try {
-                sessionContext.getDecoder().decode();
-            } catch (SAXException e) {
-                logger.error("Exception thrown while decoding XML", e);
-            }            
+        BoshRequestContext boshRequestContext = new BoshRequestContext(req, resp);
+        BoshDecoder boshDecoder = new BoshDecoder(boshHandler, boshRequestContext);
+        try {
+            boshDecoder.decode();
+        } catch (SAXException e) {
+            logger.error("Exception thrown while decoding XML", e);
         }
     }
 
