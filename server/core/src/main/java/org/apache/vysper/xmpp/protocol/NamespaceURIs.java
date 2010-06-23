@@ -25,9 +25,10 @@ package org.apache.vysper.xmpp.protocol;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class NamespaceURIs {
-	public static final String XML = "http://www.w3.org/XML/1998/namespace";
+    
+    public static final String XML = "http://www.w3.org/XML/1998/namespace";
 
-	public static final String HTTP_ETHERX_JABBER_ORG_STREAMS = "http://etherx.jabber.org/streams";
+    public static final String HTTP_ETHERX_JABBER_ORG_STREAMS = "http://etherx.jabber.org/streams";
     public static final String URN_IETF_PARAMS_XML_NS_XMPP_BIND = "urn:ietf:params:xml:ns:xmpp-bind";
     public static final String URN_IETF_PARAMS_XML_NS_XMPP_TLS = "urn:ietf:params:xml:ns:xmpp-tls";
     public static final String URN_IETF_PARAMS_XML_NS_XMPP_SASL = "urn:ietf:params:xml:ns:xmpp-sasl";
@@ -50,6 +51,7 @@ public class NamespaceURIs {
     public static final String URN_XMPP_TIME = "urn:xmpp:time";
     public static final String URN_XMPP_PING = "urn:xmpp:ping";
     public static final String URN_XMPP_DELAY = "urn:xmpp:delay";
+    public static final String XEP_0124_BOSH = "http://jabber.org/protocol/httpbind";
     
     public static final String VCARD_TEMP  = "vcard-temp";
     public static final String XEP0030_SERVICE_DISCOVERY_ITEMS = "http://jabber.org/protocol/disco#items";
