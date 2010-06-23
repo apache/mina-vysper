@@ -23,9 +23,10 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
-import org.apache.vysper.xml.fragment.Renderer;
+import org.apache.vysper.xmpp.authorization.SASLMechanism;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -44,8 +45,6 @@ public class BoshHandler {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(BoshHandler.class);
     
-    private static final String BOSH_NS = "http://jabber.org/protocol/httpbind";
-    
     private ServerRuntimeContext serverRuntimeContext;
     
     private Map<String, BoshBackedSessionContext> sessions;
@@ -61,12 +60,12 @@ public class BoshHandler {
 
     /**
      * Processes BOSH stanzas concurrently
-     * @param boshRequestContext
+     * @param httpContext
      * @param stanza
      */
-    public void process(BoshRequestContext boshRequestContext, Stanza stanza) {
-        if (!stanza.getNamespaceURI().equalsIgnoreCase(BOSH_NS)) {
-            LOGGER.error("Invalid namespace for body wrapper '{}', should be '{}'!", stanza.getNamespaceURI(), BOSH_NS);
+    public void process(HttpServletRequest req, Stanza stanza) {
+        if (!stanza.getNamespaceURI().equalsIgnoreCase(NamespaceURIs.XEP0124_BOSH)) {
+            LOGGER.error("Invalid namespace for body wrapper '{}', must be '{}'!", stanza.getNamespaceURI(), NamespaceURIs.XEP0124_BOSH);
             return;
         }
         if (!stanza.getName().equalsIgnoreCase("body")) {
@@ -81,19 +80,18 @@ public class BoshHandler {
         if (stanza.getAttribute("sid") == null) {
             // the session creation request (first request) does not have a "sid" attribute
             try {
-                createSession(boshRequestContext, stanza);
+                createSession(req, stanza);
             } catch (IOException e) {
                 LOGGER.error("Exception thrown while processing the session creation request", e);
                 return;
             }
         } else {
-//            handleSession(boshRequestContext, stanza);
+//            handleSession(req, stanza);
         }
     }
 
-    private void createSession(BoshRequestContext boshRequestContext,
-            Stanza stanza) throws IOException {
-        BoshBackedSessionContext session = new BoshBackedSessionContext(serverRuntimeContext);
+    private void createSession(HttpServletRequest req, Stanza stanza) throws IOException {
+        BoshBackedSessionContext session = new BoshBackedSessionContext(this, serverRuntimeContext);
         if (stanza.getAttribute("content") != null) {
             session.setContentType(stanza.getAttributeValue("content"));
         }
@@ -107,30 +105,43 @@ public class BoshHandler {
         }
         if (stanza.getAttribute("ver") != null) {
             String ver = stanza.getAttributeValue("ver");
-            session.setVer(ver);
+            session.setBoshVersion(ver);
         }
+        session.addRequest(req);
         sessions.put(session.getSessionId(), session);
-        HttpServletResponse resp = boshRequestContext.getResponse();
-        resp.setContentType(session.getContentType());
-        String msg = new Renderer(getSessionCreationResponse(session)).getComplete();
-        resp.setContentLength(msg.length());
-        resp.addDateHeader("Date", System.currentTimeMillis());
-        resp.addHeader("Access-control-allow-origin", "*");
-        resp.addHeader("Access-control-allow-headers", "Content-Type");
-        resp.getWriter().print(msg);
-        resp.flushBuffer();
+        
+        session.write(getSessionCreationStanza(session));
     }
     
-    public Stanza getSessionCreationResponse(BoshBackedSessionContext session) {
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("body", BOSH_NS);
-        stanzaBuilder.addAttribute("wait", Integer.toString(session.getWait()));
-        stanzaBuilder.addAttribute("inactivity", Integer.toString(session.getInactivity()));
-        stanzaBuilder.addAttribute("polling", Integer.toString(session.getPolling()));
-        stanzaBuilder.addAttribute("requests", Integer.toString(session.getRequests()));
-        stanzaBuilder.addAttribute("hold", Integer.toString(session.getHold()));
-        stanzaBuilder.addAttribute("sid", session.getSessionId());
-        stanzaBuilder.addAttribute("ver", session.getVer());
-        stanzaBuilder.addAttribute("from", session.getServerJID().getFullQualifiedName());
+    public Stanza getSessionCreationStanza(BoshBackedSessionContext session) {
+        StanzaBuilder body = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH);
+        body.addAttribute("wait", Integer.toString(session.getWait()));
+        body.addAttribute("inactivity", Integer.toString(session.getInactivity()));
+        body.addAttribute("polling", Integer.toString(session.getPolling()));
+        body.addAttribute("requests", Integer.toString(session.getRequests()));
+        body.addAttribute("hold", Integer.toString(session.getHold()));
+        body.addAttribute("sid", session.getSessionId());
+        body.addAttribute("ver", session.getBoshVersion());
+        body.addAttribute("from", session.getServerJID().getFullQualifiedName());
+
+        StanzaBuilder features = new StanzaBuilder("features",
+                NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS, "stream");
+        features.startInnerElement("mechanisms",
+                NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
+        for (SASLMechanism authenticationMethod : serverRuntimeContext
+                .getServerFeatures().getAuthenticationMethods()) {
+            features.startInnerElement("mechanism",
+                    NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
+                    .addText(authenticationMethod.getName()).endInnerElement();
+        }
+        features.endInnerElement();
+
+        body.addPreparedElement(features.build());
+        return body.build();
+    }
+
+    public Stanza getEmptyStanza() {
+        StanzaBuilder stanzaBuilder = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH);
         return stanzaBuilder.build();
     }
 

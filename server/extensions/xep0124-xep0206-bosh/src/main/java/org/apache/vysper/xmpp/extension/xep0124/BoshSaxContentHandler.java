@@ -19,6 +19,8 @@
  */
 package org.apache.vysper.xmpp.extension.xep0124;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.vysper.mina.codec.StanzaBuilderFactory;
 import org.apache.vysper.xml.decoder.XMLElementBuilderFactory;
 import org.apache.vysper.xml.decoder.XMPPContentHandler;
@@ -47,7 +49,7 @@ public class BoshSaxContentHandler implements ContentHandler {
 
     private final BoshHandler boshHandler;
 
-    private final BoshRequestContext boshRequestContext;
+    private final HttpServletRequest request;
 
     private final XMLElementBuilderFactory builderFactory;
 
@@ -58,10 +60,9 @@ public class BoshSaxContentHandler implements ContentHandler {
     
     private boolean isBodyPayloadDecoded = false;
 
-    public BoshSaxContentHandler(BoshHandler boshHandler,
-            BoshRequestContext boshRequestContext) {
+    public BoshSaxContentHandler(BoshHandler boshHandler, HttpServletRequest req) {
         this.boshHandler = boshHandler;
-        this.boshRequestContext = boshRequestContext;
+        request = req;
         builderFactory = new StanzaBuilderFactory();
     }
 
@@ -91,7 +92,7 @@ public class BoshSaxContentHandler implements ContentHandler {
             LOGGER.debug("BOSH decoding stanza: {}",
                     new Renderer(element).getComplete());
         }
-        boshHandler.process(boshRequestContext, (Stanza) element);
+        boshHandler.process(request, (Stanza) element);
         builder = null;
     }
 

@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.eclipse.jetty.continuation.ContinuationSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -40,6 +41,12 @@ import org.xml.sax.SAXException;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class BoshServlet extends HttpServlet {
+    
+    public static final String TXT_CONTENT_TYPE = "text/plain";
+    
+    public static final String HTML_CONTENT_TYPE = "text/html; charset=UTF-8";
+    
+    public static final String XML_CONTENT_TYPE = "text/xml; charset=UTF-8";
 
     private static final long serialVersionUID = 1979722775762481476L;
 
@@ -47,12 +54,20 @@ public class BoshServlet extends HttpServlet {
 
     private static final String INFO_GET = "This is an XMPP BOSH connection manager, you need to use a compatible BOSH client to use its services!";
     
+    private static final String SERVER_IDENTIFICATION = "Vysper/0.5";
+    
     private final Logger logger = LoggerFactory.getLogger(BoshServlet.class);
     
     private final BoshHandler boshHandler = new BoshHandler();
 
-    private ByteArrayOutputStream flashCrossDomainPolicy;
-
+    private byte[] flashCrossDomainPolicy;
+    
+    private String accessControlAllowOrigin = "*";
+    
+    private String accessControlMaxAge = "86400"; // one day in seconds
+    
+    private String accessControlAllowMethods = "GET, POST, OPTIONS";
+    
     /**
      * Setter for the {@link ServerRuntimeContext}
      * @param serverRuntimeContext
@@ -70,41 +85,88 @@ public class BoshServlet extends HttpServlet {
     public void setFlashCrossDomainPolicy(String policyPath) throws IOException {
         BufferedInputStream bis = new BufferedInputStream(new FileInputStream(
                 policyPath));
-        flashCrossDomainPolicy = new ByteArrayOutputStream();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] buf = new byte[1024];
         for (;;) {
             int i = bis.read(buf);
             if (i == -1) {
                 break;
             }
-            flashCrossDomainPolicy.write(buf, 0, i);
+            baos.write(buf, 0, i);
         }
         bis.close();
+        flashCrossDomainPolicy = baos.toByteArray();
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
+        resp.addDateHeader("Date", System.currentTimeMillis());
+        resp.addHeader("Server", SERVER_IDENTIFICATION);
         if (FLASH_CROSS_DOMAIN_POLICY_URI.equals(req.getRequestURI())) {
-            resp.setContentType(ContentType.XML_CONTENT_TYPE);
-            flashCrossDomainPolicy.writeTo(resp.getOutputStream());
+            resp.setContentType(XML_CONTENT_TYPE);
+            resp.setContentLength(flashCrossDomainPolicy.length);
+            resp.getOutputStream().write(flashCrossDomainPolicy);
         } else {
-            resp.setContentType(ContentType.HTML_CONTENT_TYPE);
+            resp.setContentType(HTML_CONTENT_TYPE);
+            resp.setContentLength(INFO_GET.length());
             resp.getWriter().println(INFO_GET);
         }
+        resp.flushBuffer();
+    }
+    
+    @Override
+    protected void doOptions(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        // used for preflighted requests
+        resp.addDateHeader("Date", System.currentTimeMillis());
+        resp.addHeader("Server", SERVER_IDENTIFICATION);
+        resp.setContentType(TXT_CONTENT_TYPE);
+        resp.setContentLength(0);
+        resp.addHeader("Access-Control-Allow-Origin", accessControlAllowOrigin);
+        resp.addHeader("Access-Control-Allow-Methods", accessControlAllowMethods);
+        resp.addHeader("Access-Control-Max-Age", accessControlMaxAge);
         resp.flushBuffer();
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        BoshRequestContext boshRequestContext = new BoshRequestContext(req, resp);
-        BoshDecoder boshDecoder = new BoshDecoder(boshHandler, boshRequestContext);
+        BoshResponse boshResponse = (BoshResponse) req.getAttribute("response");
+        if (boshResponse != null) {
+            // if continuation is resumed
+            writeResponse(resp, boshResponse);
+            return;
+        }
+        
+        if (ContinuationSupport.getContinuation(req).isExpired()) {
+            // BOSH wait time is reached
+            BoshBackedSessionContext session = (BoshBackedSessionContext) req.getAttribute("session");
+            if (session == null) {
+                logger.error("Continuation expired without having a session associated!");
+                return;
+            }
+            session.requestExpired(req);
+//            writeResponse(resp, session.getResponse(boshHandler.getEmptyStanza()));
+            return;
+        }
+
+        BoshDecoder decoder = new BoshDecoder(boshHandler, req);
         try {
-            boshDecoder.decode();
+            decoder.decode();
         } catch (SAXException e) {
             logger.error("Exception thrown while decoding XML", e);
         }
+    }
+    
+    private void writeResponse(HttpServletResponse resp, BoshResponse respData) throws IOException {
+        resp.addDateHeader("Date", System.currentTimeMillis());
+        resp.addHeader("Server", SERVER_IDENTIFICATION);
+        resp.setContentType(respData.getContentType());
+        resp.setContentLength(respData.getContent().length);
+        resp.addHeader("Access-control-allow-origin", accessControlAllowOrigin);
+        resp.getOutputStream().write(respData.getContent());
+        resp.flushBuffer();
     }
 
 }

@@ -20,14 +20,27 @@
 package org.apache.vysper.xmpp.extension.xep0124;
 
 /**
- * Typical HTTP content-types
- *
+ * The response sent to BOSH clients
+ * 
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class ContentType {
-    
-    public static final String HTML_CONTENT_TYPE = "text/html; charset=UTF-8";
+public class BoshResponse {
 
-    public static final String XML_CONTENT_TYPE = "text/xml; charset=UTF-8";
+    private final String contentType;
+
+    private final byte[] content;
+
+    public BoshResponse(String contentType, byte[] content) {
+        this.contentType = contentType;
+        this.content = content;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public byte[] getContent() {
+        return content;
+    }
 
 }

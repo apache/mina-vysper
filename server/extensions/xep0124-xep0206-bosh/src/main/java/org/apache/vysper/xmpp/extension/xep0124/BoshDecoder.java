@@ -44,16 +44,12 @@ public class BoshDecoder {
 
     private final NonBlockingXMLReader reader;
     
-    private final BoshRequestContext boshRequestContext;
+    private final HttpServletRequest request;
 
-    /**
-     * Creates a new decoder associated with a {@link BoshRequestContext}
-     * @param boshHandler
-     */
-    public BoshDecoder(BoshHandler boshHandler, BoshRequestContext boshRequestContext) {
-        this.boshRequestContext = boshRequestContext;
+    public BoshDecoder(BoshHandler boshHandler, HttpServletRequest req) {
+        request = req;
         reader = new DefaultNonBlockingXMLReader();
-        ContentHandler contentHandler = new BoshSaxContentHandler(boshHandler, boshRequestContext);
+        ContentHandler contentHandler = new BoshSaxContentHandler(boshHandler, req);
         reader.setContentHandler(contentHandler);
     }
 
@@ -67,7 +63,7 @@ public class BoshDecoder {
         IoBuffer ioBuf = IoBuffer.allocate(1024);
         ioBuf.setAutoExpand(true);
         byte[] buf = new byte[1024];
-        InputStream in = boshRequestContext.getRequest().getInputStream();
+        InputStream in = request.getInputStream();
 
         for (;;) {
             int i = in.read(buf);
