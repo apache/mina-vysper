@@ -51,7 +51,6 @@ public class NamespaceURIs {
     public static final String URN_XMPP_TIME = "urn:xmpp:time";
     public static final String URN_XMPP_PING = "urn:xmpp:ping";
     public static final String URN_XMPP_DELAY = "urn:xmpp:delay";
-    public static final String XEP_0124_BOSH = "http://jabber.org/protocol/httpbind";
     
     public static final String VCARD_TEMP  = "vcard-temp";
     public static final String XEP0030_SERVICE_DISCOVERY_ITEMS = "http://jabber.org/protocol/disco#items";
@@ -65,5 +64,6 @@ public class NamespaceURIs {
     public static final String XEP0060_PUBSUB_EVENT = "http://jabber.org/protocol/pubsub#event";
     public static final String XEP0060_PUBSUB_OWNER = "http://jabber.org/protocol/pubsub#owner";
     public static final String XEP0060_PUBSUB_ERRORS = "http://jabber.org/protocol/pubsub#errors";
+    public static final String XEP0124_BOSH = "http://jabber.org/protocol/httpbind";
 
 }
