@@ -19,116 +19,104 @@
  */
 package org.apache.vysper.xml.fragment;
 
-import org.apache.vysper.xml.fragment.Attribute;
-import org.apache.vysper.xml.fragment.Namespaces;
-import org.apache.vysper.xml.fragment.ResolverNamespaceResolver;
-import org.apache.vysper.xml.fragment.XMLElement;
-import org.apache.vysper.xml.fragment.XMLElementBuilder;
-
 import junit.framework.TestCase;
 
 /**
  */
 public class StackNamespaceResolverTestCase extends TestCase {
 
-	private ResolverNamespaceResolver resolver = new ResolverNamespaceResolver();
+    private ResolverNamespaceResolver resolver = new ResolverNamespaceResolver();
 
-	public void testPushSingleElement() {
-		XMLElement elm = new XMLElementBuilder("foo")
-			.declareNamespace("pr1", "url1")
-			.declareNamespace("pr2", "url2").build();
-		
-		resolver.push(elm);
-		
-		assertEquals("url1", resolver.resolveUri("pr1"));
-		assertEquals("url2", resolver.resolveUri("pr2"));
-		assertNull(resolver.resolveUri("pr3"));
+    public void testPushSingleElement() {
+        XMLElement elm = new XMLElementBuilder("foo").declareNamespace("pr1", "url1").declareNamespace("pr2", "url2")
+                .build();
 
-		assertEquals("pr1", resolver.resolvePrefix("url1"));
-		assertEquals("pr2", resolver.resolvePrefix("url2"));
-	}
+        resolver.push(elm);
 
-	public void testImplicitNamespace() {
-		XMLElement elm = new XMLElement("url1", "foo", "pr1", (Attribute[])null, null);
-		
-		resolver.push(elm);
-		
-		assertEquals("url1", resolver.resolveUri("pr1"));
-		assertEquals("pr1", resolver.resolvePrefix("url1"));
-	}
+        assertEquals("url1", resolver.resolveUri("pr1"));
+        assertEquals("url2", resolver.resolveUri("pr2"));
+        assertNull(resolver.resolveUri("pr3"));
 
-	public void testDefaultImplicitNamespace() {
-		XMLElement elm = new XMLElement("url1", "foo", null, (Attribute[])null, null);
-		
-		resolver.push(elm);
-		
-		assertEquals("url1", resolver.resolveUri(""));
+        assertEquals("pr1", resolver.resolvePrefix("url1"));
+        assertEquals("pr2", resolver.resolvePrefix("url2"));
+    }
 
-		assertEquals("", resolver.resolvePrefix("url1"));
-	}
+    public void testImplicitNamespace() {
+        XMLElement elm = new XMLElement("url1", "foo", "pr1", (Attribute[]) null, null);
 
-	
-	public void testPushSingleNamespacedElement() {
-		XMLElement elm = new XMLElementBuilder("foo", "defaulturl")
-			.declareNamespace("pr1", "url1")
-			.declareNamespace("pr2", "url2").build();
-		
-		resolver.push(elm);
-		
-		assertEquals("defaulturl", resolver.resolveUri(""));
-		assertEquals("url1", resolver.resolveUri("pr1"));
-		assertEquals("url2", resolver.resolveUri("pr2"));
+        resolver.push(elm);
 
-		assertEquals("", resolver.resolvePrefix("defaulturl"));
-		assertEquals("pr1", resolver.resolvePrefix("url1"));
-		assertEquals("pr2", resolver.resolvePrefix("url2"));
-	}
-	
-	public void testSimpleInheritance() {
-		XMLElement elm = new XMLElementBuilder("foo", "defaulturl").build();
-		XMLElement innerElm = new XMLElementBuilder("inner", "innerdefaulturl").build(); 
-		
-		resolver.push(elm);
-		
-		assertEquals("defaulturl", resolver.resolveUri(""));
-		
-		resolver.push(innerElm);
-		
-		assertEquals("innerdefaulturl", resolver.resolveUri(""));
-		
-		resolver.pop();
-		
-		assertEquals("defaulturl", resolver.resolveUri(""));
-	}
+        assertEquals("url1", resolver.resolveUri("pr1"));
+        assertEquals("pr1", resolver.resolvePrefix("url1"));
+    }
 
-	public void testPrefixedInheritance() {
-		XMLElement elm = new XMLElementBuilder("foo", "url1")
-		.declareNamespace("pr1", "url1")
-		.build();
-		XMLElement innerElm = new XMLElementBuilder("inner", "url1").build(); 
-		
-		resolver.push(elm);
-		
-		assertEquals("url1", resolver.resolveUri("pr1"));
-		assertEquals("pr1", resolver.resolvePrefix("url1"));
-		assertNull(resolver.resolveUri(""));
-		
-		resolver.push(innerElm);
-		
-		assertEquals("url1", resolver.resolveUri("pr1"));
-		assertEquals("pr1", resolver.resolvePrefix("url1"));
-		assertNull(resolver.resolveUri(""));
-		
-		resolver.pop();
-		
-		assertEquals("url1", resolver.resolveUri("pr1"));
-		assertEquals("pr1", resolver.resolvePrefix("url1"));
-		assertNull(resolver.resolveUri(""));
-	}
+    public void testDefaultImplicitNamespace() {
+        XMLElement elm = new XMLElement("url1", "foo", null, (Attribute[]) null, null);
 
+        resolver.push(elm);
 
-	public void testPushXmlNamespace() {
-		assertEquals(Namespaces.XML, resolver.resolveUri("xml"));
-		assertEquals("xml", resolver.resolvePrefix(Namespaces.XML));
-	}
+        assertEquals("url1", resolver.resolveUri(""));
+
+        assertEquals("", resolver.resolvePrefix("url1"));
+    }
+
+    public void testPushSingleNamespacedElement() {
+        XMLElement elm = new XMLElementBuilder("foo", "defaulturl").declareNamespace("pr1", "url1").declareNamespace(
+                "pr2", "url2").build();
+
+        resolver.push(elm);
+
+        assertEquals("defaulturl", resolver.resolveUri(""));
+        assertEquals("url1", resolver.resolveUri("pr1"));
+        assertEquals("url2", resolver.resolveUri("pr2"));
+
+        assertEquals("", resolver.resolvePrefix("defaulturl"));
+        assertEquals("pr1", resolver.resolvePrefix("url1"));
+        assertEquals("pr2", resolver.resolvePrefix("url2"));
+    }
+
+    public void testSimpleInheritance() {
+        XMLElement elm = new XMLElementBuilder("foo", "defaulturl").build();
+        XMLElement innerElm = new XMLElementBuilder("inner", "innerdefaulturl").build();
+
+        resolver.push(elm);
+
+        assertEquals("defaulturl", resolver.resolveUri(""));
+
+        resolver.push(innerElm);
+
+        assertEquals("innerdefaulturl", resolver.resolveUri(""));
+
+        resolver.pop();
+
+        assertEquals("defaulturl", resolver.resolveUri(""));
+    }
+
+    public void testPrefixedInheritance() {
+        XMLElement elm = new XMLElementBuilder("foo", "url1").declareNamespace("pr1", "url1").build();
+        XMLElement innerElm = new XMLElementBuilder("inner", "url1").build();
+
+        resolver.push(elm);
+
+        assertEquals("url1", resolver.resolveUri("pr1"));
+        assertEquals("pr1", resolver.resolvePrefix("url1"));
+        assertNull(resolver.resolveUri(""));
+
+        resolver.push(innerElm);
+
+        assertEquals("url1", resolver.resolveUri("pr1"));
+        assertEquals("pr1", resolver.resolvePrefix("url1"));
+        assertNull(resolver.resolveUri(""));
+
+        resolver.pop();
+
+        assertEquals("url1", resolver.resolveUri("pr1"));
+        assertEquals("pr1", resolver.resolvePrefix("url1"));
+        assertNull(resolver.resolveUri(""));
+    }
+
+    public void testPushXmlNamespace() {
+        assertEquals(Namespaces.XML, resolver.resolveUri("xml"));
+        assertEquals("xml", resolver.resolvePrefix(Namespaces.XML));
+    }
 }

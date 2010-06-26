@@ -29,15 +29,17 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class AffiliationsTestCase extends TestCase {
-    
+
     private static final Entity JID1 = EntityImpl.parseUnchecked("user1@vysper.org/res");
+
     private static final Entity JID2 = EntityImpl.parseUnchecked("user1@vysper.org/other");
+
     private static final Entity JID3 = EntityImpl.parseUnchecked("user2@vysper.org/res");
 
     public void testAddAndGet() {
         Affiliations affiliations = new Affiliations();
         affiliations.add(JID1, Affiliation.Admin);
-        
+
         assertEquals(Affiliation.Admin, affiliations.getAffiliation(JID1));
         // get with different resource
         assertEquals(Affiliation.Admin, affiliations.getAffiliation(JID2));
@@ -48,20 +50,20 @@ public class AffiliationsTestCase extends TestCase {
     public void testUpdate() {
         Affiliations affiliations = new Affiliations();
         affiliations.add(JID1, Affiliation.Admin);
-        
+
         assertEquals(Affiliation.Admin, affiliations.getAffiliation(JID1));
         // add with different resource and affiliation
         affiliations.add(JID2, Affiliation.Member);
-        
+
         assertEquals(Affiliation.Member, affiliations.getAffiliation(JID1));
     }
 
     public void testRemove() {
         Affiliations affiliations = new Affiliations();
         affiliations.add(JID1, Affiliation.Admin);
-        
+
         assertEquals(Affiliation.Admin, affiliations.getAffiliation(JID1));
-        
+
         affiliations.remove(JID2);
 
         assertEquals(null, affiliations.getAffiliation(JID1));

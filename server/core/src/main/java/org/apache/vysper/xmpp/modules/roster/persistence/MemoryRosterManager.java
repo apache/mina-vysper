@@ -19,12 +19,12 @@
  */
 package org.apache.vysper.xmpp.modules.roster.persistence;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.roster.MutableRoster;
 import org.apache.vysper.xmpp.modules.roster.Roster;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * manages rosters in memory (and if the application ends, they are lost)
@@ -44,7 +44,8 @@ public class MemoryRosterManager extends AbstractRosterManager {
 
     @Override
     protected Roster retrieveRosterInternal(Entity bareJid) {
-        if (!rosterMap.containsKey(bareJid)) rosterMap.put(bareJid, new MutableRoster());
+        if (!rosterMap.containsKey(bareJid))
+            rosterMap.put(bareJid, new MutableRoster());
         return rosterMap.get(bareJid);
     }
 

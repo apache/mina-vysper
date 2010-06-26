@@ -28,8 +28,11 @@ import org.apache.vysper.xmpp.addressing.Entity;
 public class InfoRequest {
 
     private Entity from;
+
     private Entity to;
+
     private String node = null;
+
     private String id;
 
     public InfoRequest(Entity from, Entity to, String node, String id) {
@@ -50,7 +53,7 @@ public class InfoRequest {
     public String getNode() {
         return node;
     }
-    
+
     /**
      * The ID of the original request
      */

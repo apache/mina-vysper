@@ -39,26 +39,33 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceState;
 import org.apache.vysper.xmpp.writer.SystemOutStanzaWriter;
 
-
 /**
  * The abstract base class for all pubsub related tests.
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
 public abstract class AbstractPublishSubscribeTestCase extends TestCase {
-    protected TestSessionContext sessionContext  = null;
+    protected TestSessionContext sessionContext = null;
+
     protected Entity clientBare = null;
+
     protected Entity client = null;
+
     protected Entity pubsubService = null;
+
     protected IQHandler handler = null;
+
     protected PubSubServiceConfiguration serviceConfiguration = null;
+
     protected CollectionNode root = null;
+
     protected Entity serverEntity = null;
+
     protected StanzaReceiverRelay relay = null;
-    
+
     // for debugging
     private SystemOutStanzaWriter stanzaWriter = new SystemOutStanzaWriter();
-    
+
     protected void printStanza(Stanza stanza) {
         this.stanzaWriter.write(stanza);
         this.stanzaWriter.close();
@@ -86,7 +93,7 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
 
         handler = getHandler();
     }
-    
+
     protected TestSessionContext createTestSessionContext(Entity serverEntity) {
         SessionStateHolder sessionStateHolder = new SessionStateHolder();
         sessionStateHolder.setState(SessionState.AUTHENTICATED);
@@ -102,22 +109,26 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
 
     protected void configureServiceRegistry(TestSessionContext tsc) {
         ServiceCollector serviceCollector = new ServiceCollector();
-        ((DefaultServerRuntimeContext) tsc.getServerRuntimeContext()).registerServerRuntimeContextService(serviceCollector);
+        ((DefaultServerRuntimeContext) tsc.getServerRuntimeContext())
+                .registerServerRuntimeContextService(serviceCollector);
     }
 
     protected void configurePubsubModule(TestSessionContext tsc, PubSubServiceConfiguration serviceConfiguration) {
-        ((DefaultServerRuntimeContext) tsc.getServerRuntimeContext()).addModule(new PublishSubscribeModule(serviceConfiguration));
+        ((DefaultServerRuntimeContext) tsc.getServerRuntimeContext()).addModule(new PublishSubscribeModule(
+                serviceConfiguration));
     }
-    
+
     protected void configureStorageProvider(TestSessionContext tsc) {
         OpenStorageProviderRegistry storageProviderRegistry = new OpenStorageProviderRegistry();
         storageProviderRegistry.add(new CollectionNodeInMemoryStorageProvider());
         storageProviderRegistry.add(new LeafNodeInMemoryStorageProvider());
-        ((DefaultServerRuntimeContext) tsc.getServerRuntimeContext()).setStorageProviderRegistry(storageProviderRegistry);
+        ((DefaultServerRuntimeContext) tsc.getServerRuntimeContext())
+                .setStorageProviderRegistry(storageProviderRegistry);
     }
 
     private void setResourceConnected(String boundResourceId) {
-        sessionContext.getServerRuntimeContext().getResourceRegistry().setResourceState(boundResourceId, ResourceState.CONNECTED);
+        sessionContext.getServerRuntimeContext().getResourceRegistry().setResourceState(boundResourceId,
+                ResourceState.CONNECTED);
     }
 
     /**
@@ -138,7 +149,8 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
     protected abstract AbstractStanzaGenerator getDefaultStanzaGenerator();
 
     protected ResponseStanzaContainer sendStanza(Stanza toSend, boolean isOutboundStanza) {
-        return handler.execute(toSend, sessionContext.getServerRuntimeContext(), isOutboundStanza, sessionContext, null);
+        return handler
+                .execute(toSend, sessionContext.getServerRuntimeContext(), isOutboundStanza, sessionContext, null);
     }
 
     public void testSimpleStanza() {

@@ -31,12 +31,16 @@ public class Identity implements InfoElement {
     private static final Integer CLASS_ID = new Integer(1);
 
     protected String category; // required
+
     protected String type; // required
+
     protected String name; // optional
 
     public Identity(String category, String type, String name) {
-        if (category == null || category.length() == 0) throw new IllegalArgumentException("category may not be null");
-        if (type == null || type.length() == 0) throw new IllegalArgumentException("type may not be null");
+        if (category == null || category.length() == 0)
+            throw new IllegalArgumentException("category may not be null");
+        if (type == null || type.length() == 0)
+            throw new IllegalArgumentException("type may not be null");
         this.category = category;
         this.type = type;
         this.name = name;
@@ -63,12 +67,11 @@ public class Identity implements InfoElement {
     }
 
     public void insertElement(StanzaBuilder stanzaBuilder) {
-        stanzaBuilder.startInnerElement("identity", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO).
-                addAttribute("category", category).
-                addAttribute("type", type);
-                if (name != null) {
-                    stanzaBuilder.addAttribute("name", name);
-                }
+        stanzaBuilder.startInnerElement("identity", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO).addAttribute(
+                "category", category).addAttribute("type", type);
+        if (name != null) {
+            stanzaBuilder.addAttribute("name", name);
+        }
         stanzaBuilder.endInnerElement();
     }
 }

@@ -19,6 +19,9 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0092_software_version;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
@@ -27,9 +30,6 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequ
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *

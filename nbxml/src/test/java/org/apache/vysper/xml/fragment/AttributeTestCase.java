@@ -19,53 +19,49 @@
  */
 package org.apache.vysper.xml.fragment;
 
-import org.apache.vysper.xml.fragment.Attribute;
-
 import junit.framework.TestCase;
 
 /**
  */
 public class AttributeTestCase extends TestCase {
 
-	
-	
-	public void testEquals() {
-		Attribute att1 = new Attribute("foo", "bar");
-		Attribute att2 = new Attribute("foo", "bar");
-		
-		assertTrue(att1.equals(att2));
-		assertTrue(att2.equals(att1));
-	}
+    public void testEquals() {
+        Attribute att1 = new Attribute("foo", "bar");
+        Attribute att2 = new Attribute("foo", "bar");
 
-	public void testNotEquals() {
-		Attribute att1 = new Attribute("foo", "bar");
-		Attribute att2 = new Attribute("foo", "dummy");
-		
-		assertFalse(att1.equals(att2));
-		assertFalse(att2.equals(att1));
-	}
+        assertTrue(att1.equals(att2));
+        assertTrue(att2.equals(att1));
+    }
 
-	public void testEqualsNamespaceUri() {
-		Attribute att1 = new Attribute("http://example.com", "foo", "bar");
-		Attribute att2 = new Attribute("http://example.com", "foo", "bar");
-		
-		assertTrue(att1.equals(att2));
-		assertTrue(att2.equals(att1));
-	}
+    public void testNotEquals() {
+        Attribute att1 = new Attribute("foo", "bar");
+        Attribute att2 = new Attribute("foo", "dummy");
 
-	public void testEqualsDifferentNamespaceUri() {
-		Attribute att1 = new Attribute("http://example.com", "foo", "bar");
-		Attribute att2 = new Attribute("http://someother.com", "foo", "bar");
-		
-		assertFalse(att1.equals(att2));
-		assertFalse(att2.equals(att1));
-	}
+        assertFalse(att1.equals(att2));
+        assertFalse(att2.equals(att1));
+    }
 
-	public void testEqualsNullNamespaceUri() {
-		Attribute att1 = new Attribute("http://example.com", "foo", "bar");
-		Attribute att2 = new Attribute("foo", "bar");
-		
-		assertFalse(att1.equals(att2));
-		assertFalse(att2.equals(att1));
-	}
+    public void testEqualsNamespaceUri() {
+        Attribute att1 = new Attribute("http://example.com", "foo", "bar");
+        Attribute att2 = new Attribute("http://example.com", "foo", "bar");
+
+        assertTrue(att1.equals(att2));
+        assertTrue(att2.equals(att1));
+    }
+
+    public void testEqualsDifferentNamespaceUri() {
+        Attribute att1 = new Attribute("http://example.com", "foo", "bar");
+        Attribute att2 = new Attribute("http://someother.com", "foo", "bar");
+
+        assertFalse(att1.equals(att2));
+        assertFalse(att2.equals(att1));
+    }
+
+    public void testEqualsNullNamespaceUri() {
+        Attribute att1 = new Attribute("http://example.com", "foo", "bar");
+        Attribute att2 = new Attribute("foo", "bar");
+
+        assertFalse(att1.equals(att2));
+        assertFalse(att2.equals(att1));
+    }
 }

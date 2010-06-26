@@ -19,12 +19,12 @@
  */
 package org.apache.vysper.xmpp.modules.roster.persistence;
 
-import org.apache.vysper.xmpp.modules.ServerRuntimeContextService;
-import org.apache.vysper.xmpp.modules.roster.Roster;
-import org.apache.vysper.xmpp.modules.roster.RosterItem;
-import org.apache.vysper.xmpp.modules.roster.RosterException;
-import org.apache.vysper.xmpp.modules.roster.MutableRoster;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.modules.ServerRuntimeContextService;
+import org.apache.vysper.xmpp.modules.roster.MutableRoster;
+import org.apache.vysper.xmpp.modules.roster.Roster;
+import org.apache.vysper.xmpp.modules.roster.RosterException;
+import org.apache.vysper.xmpp.modules.roster.RosterItem;
 
 /**
  *
@@ -42,7 +42,8 @@ public abstract class AbstractRosterManager implements RosterManager, ServerRunt
     }
 
     public void addContact(Entity jid, RosterItem rosterItem) throws RosterException {
-        if (jid == null) throw new RosterException("jid not provided");
+        if (jid == null)
+            throw new RosterException("jid not provided");
         MutableRoster mutableRoster = (MutableRoster) retrieve(jid);
         if (mutableRoster == null) {
             mutableRoster = (MutableRoster) addNewRosterInternal(jid);
@@ -51,16 +52,20 @@ public abstract class AbstractRosterManager implements RosterManager, ServerRunt
     }
 
     public RosterItem getContact(Entity jidUser, Entity jidContact) throws RosterException {
-        if (jidUser == null) throw new RosterException("jid not provided");
+        if (jidUser == null)
+            throw new RosterException("jid not provided");
         Roster roster = retrieve(jidUser);
-        if (roster == null) throw new RosterException("roster not available for jid = " + jidUser.getFullQualifiedName());
+        if (roster == null)
+            throw new RosterException("roster not available for jid = " + jidUser.getFullQualifiedName());
         return roster.getEntry(jidContact);
     }
 
     public void removeContact(Entity jidUser, Entity jidContact) throws RosterException {
-        if (jidUser == null) throw new RosterException("jid not provided");
+        if (jidUser == null)
+            throw new RosterException("jid not provided");
         Roster roster = retrieve(jidUser);
-        if (roster == null) throw new RosterException("roster not available for jid = " + jidUser.getFullQualifiedName());
+        if (roster == null)
+            throw new RosterException("roster not available for jid = " + jidUser.getFullQualifiedName());
     }
 
     public String getServiceName() {

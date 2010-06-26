@@ -32,39 +32,39 @@ public class X extends XMLElement {
         List<XMLElement> xElms = stanza.getInnerElementsNamed("x");
         XMLElement xElm = null;
         // find an element with one of the MUC namespaces
-        for(XMLElement elm : xElms) {
-            if(elm.getNamespaceURI() != null && elm.getNamespaceURI().startsWith(NamespaceURIs.XEP0045_MUC)) {
+        for (XMLElement elm : xElms) {
+            if (elm.getNamespaceURI() != null && elm.getNamespaceURI().startsWith(NamespaceURIs.XEP0045_MUC)) {
                 xElm = elm;
                 break;
             }
         }
-        if(xElm != null) {
+        if (xElm != null) {
             return new X(xElm.getInnerElements());
         } else {
             return null;
         }
     }
-    
-    public X(XMLElement...elements) {
+
+    public X(XMLElement... elements) {
         this(NamespaceURIs.XEP0045_MUC, elements);
     }
 
-    public X(String ns, XMLElement...elements) {
+    public X(String ns, XMLElement... elements) {
         super(ns, "x", null, null, elements);
     }
-    
+
     public X(List<XMLElement> elements) {
         this(NamespaceURIs.XEP0045_MUC, elements);
     }
 
     public X(String ns, List<XMLElement> elements) {
-        super(ns, "x", null, null, elements.toArray(new XMLElement[]{}));
+        super(ns, "x", null, null, elements.toArray(new XMLElement[] {}));
     }
-    
+
     public Invite getInvite() {
         try {
             XMLElement inviteElm = getSingleInnerElementsNamed("invite");
-            if(inviteElm != null) {
+            if (inviteElm != null) {
                 return new Invite(inviteElm);
             } else {
                 return null;
@@ -77,7 +77,7 @@ public class X extends XMLElement {
     public Decline getDecline() {
         try {
             XMLElement inviteElm = getSingleInnerElementsNamed("decline");
-            if(inviteElm != null) {
+            if (inviteElm != null) {
                 return new Decline(inviteElm);
             } else {
                 return null;
@@ -87,11 +87,10 @@ public class X extends XMLElement {
         }
     }
 
-    
     public Password getPassword() {
         try {
             XMLElement passwordElm = getSingleInnerElementsNamed("password");
-            if(passwordElm != null && passwordElm.getInnerText() != null) {
+            if (passwordElm != null && passwordElm.getInnerText() != null) {
                 return new Password(passwordElm.getInnerText().getText());
             } else {
                 return null;
@@ -100,15 +99,14 @@ public class X extends XMLElement {
             throw new IllegalArgumentException("Invalid stanza", e);
         }
     }
-    
+
     public String getPasswordValue() {
         Password password = getPassword();
-        if(password != null && password.getInnerText() != null) {
+        if (password != null && password.getInnerText() != null) {
             return password.getInnerText().getText();
         } else {
             return null;
         }
     }
 
-    
 }

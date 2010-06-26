@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 
 @SuppressWarnings("deprecation")
 public class DateTimeProfileTestCase extends TestCase {
-    
+
     private DateTimeProfile dt = DateTimeProfile.getInstance();
 
     public void testFormatDateTime() throws Exception {
@@ -50,12 +50,11 @@ public class DateTimeProfileTestCase extends TestCase {
         cal.set(Calendar.HOUR_OF_DAY, 11);
         cal.set(Calendar.MINUTE, 12);
         cal.set(Calendar.SECOND, 13);
-        
+
         String actual = dt.getTimeInUTC(cal.getTime());
         assertEquals("11:12:13Z", actual);
     }
 
-    
     public void testParseDateTimeWithTz() throws Exception {
         Calendar actual = dt.fromDateTime("2009-09-11T11:12:13-01:30");
         Calendar expected = Calendar.getInstance(TimeZone.getTimeZone("GMT-01:30"));
@@ -76,7 +75,7 @@ public class DateTimeProfileTestCase extends TestCase {
         try {
             dt.fromDateTime("2009-09-11T11:12:13");
             fail("Must throw IllegalArgumentException");
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             // OK
         }
     }

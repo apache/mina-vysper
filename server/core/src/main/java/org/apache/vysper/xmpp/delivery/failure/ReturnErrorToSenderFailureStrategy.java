@@ -19,18 +19,33 @@
  */
 package org.apache.vysper.xmpp.delivery.failure;
 
-import org.apache.vysper.xmpp.delivery.*;
-import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
-import org.apache.vysper.xmpp.stanza.*;
-import static org.apache.vysper.xmpp.stanza.PresenceStanzaType.*;
-import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.compliance.SpecCompliance;
-import org.apache.vysper.compliance.SpecCompliant;
+import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.COMPLETE;
+import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.UNKNOWN;
+import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.FINISHED;
+import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.NOT_STARTED;
+import static org.apache.vysper.xmpp.stanza.PresenceStanzaType.ERROR;
+import static org.apache.vysper.xmpp.stanza.PresenceStanzaType.SUBSCRIBE;
+import static org.apache.vysper.xmpp.stanza.PresenceStanzaType.SUBSCRIBED;
+import static org.apache.vysper.xmpp.stanza.PresenceStanzaType.UNAVAILABLE;
+import static org.apache.vysper.xmpp.stanza.PresenceStanzaType.UNSUBSCRIBE;
+import static org.apache.vysper.xmpp.stanza.PresenceStanzaType.UNSUBSCRIBED;
 
 import java.util.List;
 
-import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.*;
-import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.*;
+import org.apache.vysper.compliance.SpecCompliance;
+import org.apache.vysper.compliance.SpecCompliant;
+import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.delivery.StanzaRelay;
+import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
+import org.apache.vysper.xmpp.stanza.IQStanza;
+import org.apache.vysper.xmpp.stanza.MessageStanza;
+import org.apache.vysper.xmpp.stanza.PresenceStanza;
+import org.apache.vysper.xmpp.stanza.PresenceStanzaType;
+import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
+import org.apache.vysper.xmpp.stanza.StanzaErrorType;
+import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 
 /**
  *
@@ -45,11 +60,11 @@ public class ReturnErrorToSenderFailureStrategy implements DeliveryFailureStrate
     }
 
     @SpecCompliance(compliant = {
-        @SpecCompliant(spec="rfc3921bis-08", section = "8.1", status = FINISHED, coverage = COMPLETE),
-        @SpecCompliant(spec="rfc3921bis-08", section = "8.3.2", status = NOT_STARTED, coverage = UNKNOWN),
-        @SpecCompliant(spec="rfc3921bis-08", section = "4.3", status = NOT_STARTED, coverage = UNKNOWN)
-    })
-    public void process(Stanza failedToDeliverStanza, List<DeliveryException> deliveryExceptions) throws DeliveryException {
+            @SpecCompliant(spec = "rfc3921bis-08", section = "8.1", status = FINISHED, coverage = COMPLETE),
+            @SpecCompliant(spec = "rfc3921bis-08", section = "8.3.2", status = NOT_STARTED, coverage = UNKNOWN),
+            @SpecCompliant(spec = "rfc3921bis-08", section = "4.3", status = NOT_STARTED, coverage = UNKNOWN) })
+    public void process(Stanza failedToDeliverStanza, List<DeliveryException> deliveryExceptions)
+            throws DeliveryException {
 
         StanzaErrorCondition stanzaErrorCondition = StanzaErrorCondition.SERVICE_UNAVAILABLE;
         StanzaErrorType errorType = StanzaErrorType.CANCEL;
@@ -63,7 +78,8 @@ public class ReturnErrorToSenderFailureStrategy implements DeliveryFailureStrate
         }
 
         if (deliveryExceptions == null) {
-            XMPPCoreStanza error = XMPPCoreStanza.getWrapper(ServerErrorResponses.getInstance().getStanzaError(stanzaErrorCondition, failedCoreStanza, errorType, "stanza could not be delivered", "en", null));
+            XMPPCoreStanza error = XMPPCoreStanza.getWrapper(ServerErrorResponses.getInstance().getStanzaError(
+                    stanzaErrorCondition, failedCoreStanza, errorType, "stanza could not be delivered", "en", null));
             stanzaRelay.relay(error.getTo(), error, IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY);
         } else if (deliveryExceptions.size() == 1) {
             DeliveryException deliveryException = deliveryExceptions.get(0);
@@ -79,12 +95,9 @@ public class ReturnErrorToSenderFailureStrategy implements DeliveryFailureStrate
                 stanzaErrorCondition = StanzaErrorCondition.SERVICE_UNAVAILABLE;
                 if (failedCoreStanza instanceof PresenceStanza) {
                     final PresenceStanzaType presenceStanzaType = ((PresenceStanza) failedCoreStanza).getPresenceType();
-                    if (presenceStanzaType == null ||
-                            presenceStanzaType == SUBSCRIBED ||
-                            presenceStanzaType == UNSUBSCRIBE ||
-                            presenceStanzaType == UNSUBSCRIBED ||
-                            presenceStanzaType == UNAVAILABLE ||
-                            presenceStanzaType == ERROR) {
+                    if (presenceStanzaType == null || presenceStanzaType == SUBSCRIBED
+                            || presenceStanzaType == UNSUBSCRIBE || presenceStanzaType == UNSUBSCRIBED
+                            || presenceStanzaType == UNAVAILABLE || presenceStanzaType == ERROR) {
                         return; // silently ignore
                     }
                     // TODO what happens with PROBE? 8.1 is silent here, but see 4.3
@@ -92,7 +105,8 @@ public class ReturnErrorToSenderFailureStrategy implements DeliveryFailureStrate
                         // return UNSUBSCRIBED
                         final Entity from = failedToDeliverStanza.getTo(); // reverse from/to
                         final Entity to = failedToDeliverStanza.getFrom(); // reverse from/to
-                        StanzaBuilder builder = StanzaBuilder.createPresenceStanza(from, to, null, UNSUBSCRIBED, null, null);
+                        StanzaBuilder builder = StanzaBuilder.createPresenceStanza(from, to, null, UNSUBSCRIBED, null,
+                                null);
                         final Stanza finalStanza = builder.build();
                         stanzaRelay.relay(to, finalStanza, IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY);
                         return;

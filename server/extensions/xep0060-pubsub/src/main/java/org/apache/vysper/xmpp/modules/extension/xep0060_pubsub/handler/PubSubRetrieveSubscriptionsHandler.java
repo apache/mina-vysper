@@ -37,13 +37,12 @@ import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
-
 /**
  * This class handles the "subscriptions" use cases for the "pubsub" namespace.
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-@SpecCompliant(spec="xep-0060", section="5.6", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
+@SpecCompliant(spec = "xep-0060", section = "5.6", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
 public class PubSubRetrieveSubscriptionsHandler extends AbstractPubSubGeneralHandler {
 
     /**
@@ -69,19 +68,17 @@ public class PubSubRetrieveSubscriptionsHandler extends AbstractPubSubGeneralHan
      * @return the appropriate response stanza
      */
     @Override
-    protected Stanza handleGet(IQStanza stanza,
-            ServerRuntimeContext serverRuntimeContext,
-            SessionContext sessionContext) {
+    protected Stanza handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         Entity serverJID = serviceConfiguration.getServerJID();
         CollectionNode root = serviceConfiguration.getRootNode();
-        
+
         Entity sender = extractSenderJID(stanza, sessionContext);
         String iqStanzaID = stanza.getAttributeValue("id");
 
         StanzaBuilder sb = StanzaBuilder.createDirectReply(stanza, false, IQStanzaType.RESULT);
         sb.startInnerElement("pubsub", NamespaceURIs.XEP0060_PUBSUB);
         String nodeName = extractNodeName(stanza);
-        
+
         List<SubscriptionItem> subscriptions = collectSubscriptions(root, sender, nodeName);
 
         buildSuccessStanza(sb, nodeName, subscriptions);
@@ -96,14 +93,14 @@ public class PubSubRetrieveSubscriptionsHandler extends AbstractPubSubGeneralHan
      */
     private List<SubscriptionItem> collectSubscriptions(CollectionNode root, Entity sender, String nodeName) {
         List<SubscriptionItem> subscriptions;
-        if(nodeName == null) { // all subscriptions for all nodes
+        if (nodeName == null) { // all subscriptions for all nodes
             NodeSubscriberVisitor nodeSubscriptionVisitor = new NodeSubscriberVisitor(sender);
             root.acceptNodes(nodeSubscriptionVisitor);
             subscriptions = nodeSubscriptionVisitor.getSubscriptions();
         } else { // only the subscriptions for the requested node
             LeafNode node = root.find(nodeName);
 
-            if(node == null) {
+            if (node == null) {
                 // done - this is only a filter - no error conditions are defined
                 subscriptions = Collections.emptyList();
             } else {
@@ -120,8 +117,8 @@ public class PubSubRetrieveSubscriptionsHandler extends AbstractPubSubGeneralHan
      */
     private void buildSuccessStanza(StanzaBuilder sb, String nodeName, List<SubscriptionItem> subscriptions) {
         sb.startInnerElement("subscriptions", NamespaceURIs.XEP0060_PUBSUB);
-        
-        for(SubscriptionItem s : subscriptions) {
+
+        for (SubscriptionItem s : subscriptions) {
             sb.startInnerElement("subscription", NamespaceURIs.XEP0060_PUBSUB);
             sb.addAttribute("node", s.getNodeName());
             sb.addAttribute("jid", s.getSubscriberJID().getFullQualifiedName());
@@ -129,7 +126,7 @@ public class PubSubRetrieveSubscriptionsHandler extends AbstractPubSubGeneralHan
             sb.addAttribute("subid", s.getSubscriptionID());
             sb.endInnerElement();
         }
-        
+
         sb.endInnerElement();
     }
 }

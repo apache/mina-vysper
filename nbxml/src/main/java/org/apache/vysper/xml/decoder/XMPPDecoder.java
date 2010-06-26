@@ -36,66 +36,66 @@ import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
  */
 public class XMPPDecoder extends CumulativeProtocolDecoder {
 
-	private static final String XML_DECL = "<?xml";
+    private static final String XML_DECL = "<?xml";
+
     private static final String STREAM_STREAM = "<stream:stream";
 
-	public static final String SESSION_ATTRIBUTE_NAME = "xmppParser";
+    public static final String SESSION_ATTRIBUTE_NAME = "xmppParser";
 
     private XMLElementBuilderFactory builderFactory = new XMLElementBuilderFactory();
-    
+
     public XMPPDecoder() {
-    	// default constructor
+        // default constructor
     }
 
     public XMPPDecoder(XMLElementBuilderFactory builderFactory) {
-    	this.builderFactory = builderFactory;
+        this.builderFactory = builderFactory;
     }
 
     public static class MinaStanzaListener implements StanzaListener {
-    	private ProtocolDecoderOutput protocolDecoder;
-    	
-		public MinaStanzaListener(ProtocolDecoderOutput protocolDecoder) {
-			this.protocolDecoder = protocolDecoder;
-		}
+        private ProtocolDecoderOutput protocolDecoder;
 
-		public void stanza(XMLElement element) {
-			if(element.getName().equals("stream")) {
-				// reset the reader 
-			}
-			
-			protocolDecoder.write(element);
-		}
+        public MinaStanzaListener(ProtocolDecoderOutput protocolDecoder) {
+            this.protocolDecoder = protocolDecoder;
+        }
+
+        public void stanza(XMLElement element) {
+            if (element.getName().equals("stream")) {
+                // reset the reader 
+            }
+
+            protocolDecoder.write(element);
+        }
     }
-    
+
     /**
      * {@inheritDoc}
      */
-	@Override
-	protected boolean doDecode(IoSession session,
-			IoBuffer in, ProtocolDecoderOutput out) throws Exception {
-    	NonBlockingXMLReader reader = (NonBlockingXMLReader) session.getAttribute(SESSION_ATTRIBUTE_NAME);
-    	
-    	if (reader == null) {
-        	reader = new DefaultNonBlockingXMLReader();
-        	
-        	// we need to check the jabber:client/jabber:server NS declarations
-        	reader.setFeature(DefaultNonBlockingXMLReader.FEATURE_NAMESPACE_PREFIXES, true);
-        	
-        	// allow parser to restart XML stream
-        	reader.setFeature(DefaultNonBlockingXMLReader.FEATURE_RESTART_ALLOWED, true);
-        	reader.setProperty(DefaultNonBlockingXMLReader.PROPERTY_RESTART_QNAME, "stream:stream");
-        	
-        	reader.setContentHandler(new XMPPContentHandler(builderFactory));
-        	
-        	session.setAttribute(SESSION_ATTRIBUTE_NAME, reader);
+    @Override
+    protected boolean doDecode(IoSession session, IoBuffer in, ProtocolDecoderOutput out) throws Exception {
+        NonBlockingXMLReader reader = (NonBlockingXMLReader) session.getAttribute(SESSION_ATTRIBUTE_NAME);
+
+        if (reader == null) {
+            reader = new DefaultNonBlockingXMLReader();
+
+            // we need to check the jabber:client/jabber:server NS declarations
+            reader.setFeature(DefaultNonBlockingXMLReader.FEATURE_NAMESPACE_PREFIXES, true);
+
+            // allow parser to restart XML stream
+            reader.setFeature(DefaultNonBlockingXMLReader.FEATURE_RESTART_ALLOWED, true);
+            reader.setProperty(DefaultNonBlockingXMLReader.PROPERTY_RESTART_QNAME, "stream:stream");
+
+            reader.setContentHandler(new XMPPContentHandler(builderFactory));
+
+            session.setAttribute(SESSION_ATTRIBUTE_NAME, reader);
         }
-        
+
         XMPPContentHandler contentHandler = (XMPPContentHandler) reader.getContentHandler();
         contentHandler.setListener(new MinaStanzaListener(out));
-    	
+
         reader.parse(in, CharsetUtil.UTF8_DECODER);
-    	
+
         // we have parsed what we got, invoke again when more data is available
         return false;
-	}
+    }
 }

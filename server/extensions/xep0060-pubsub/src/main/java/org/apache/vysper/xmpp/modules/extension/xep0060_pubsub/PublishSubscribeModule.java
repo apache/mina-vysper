@@ -40,8 +40,19 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionN
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.CollectionNodeStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeStorageProvider;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.*;
-import org.apache.vysper.xmpp.protocol.*;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.ComponentInfoRequestListener;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.Identity;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestListener;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequestListener;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
+import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.StanzaHandler;
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.components.Component;
 import org.apache.vysper.xmpp.server.components.ComponentStanzaProcessor;
@@ -53,17 +64,18 @@ import org.slf4j.LoggerFactory;
  *
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-@SpecCompliant(spec="xep-0060", comment="spec. version: 1.13rc", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
-public class PublishSubscribeModule
-        extends DefaultDiscoAwareModule
-        implements Component, ComponentInfoRequestListener, ItemRequestListener {
+@SpecCompliant(spec = "xep-0060", comment = "spec. version: 1.13rc", status = SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
+public class PublishSubscribeModule extends DefaultDiscoAwareModule implements Component, ComponentInfoRequestListener,
+        ItemRequestListener {
 
     // The configuration of the service
     private PubSubServiceConfiguration serviceConfiguration = null;
+
     // for debugging
     private final Logger logger = LoggerFactory.getLogger(PublishSubscribeModule.class);
 
     private ComponentStanzaProcessor stanzaProcessor;
+
     private ServerRuntimeContext serverRuntimeContext;
 
     /**
@@ -98,16 +110,18 @@ public class PublishSubscribeModule
         super.initialize(serverRuntimeContext);
 
         this.serverRuntimeContext = serverRuntimeContext;
-        
+
         try {
             fullDomain = EntityImpl.parse(subdomain + "." + serverRuntimeContext.getServerEnitity().getDomain());
         } catch (EntityFormatException e) {
             throw new RuntimeException("failed to initialize PubSub domain", e);
         }
 
-        CollectionNodeStorageProvider collectionNodeStorageProvider = (CollectionNodeStorageProvider) serverRuntimeContext.getStorageProvider(CollectionNodeStorageProvider.class);
-        LeafNodeStorageProvider leafNodeStorageProvider = (LeafNodeStorageProvider) serverRuntimeContext.getStorageProvider(LeafNodeStorageProvider.class);
-        
+        CollectionNodeStorageProvider collectionNodeStorageProvider = (CollectionNodeStorageProvider) serverRuntimeContext
+                .getStorageProvider(CollectionNodeStorageProvider.class);
+        LeafNodeStorageProvider leafNodeStorageProvider = (LeafNodeStorageProvider) serverRuntimeContext
+                .getStorageProvider(LeafNodeStorageProvider.class);
+
         if (collectionNodeStorageProvider == null) {
             logger.warn("No collection node storage provider found, using the default (in memory)");
         } else {
@@ -119,11 +133,12 @@ public class PublishSubscribeModule
         } else {
             serviceConfiguration.setLeafNodeStorageProvider(leafNodeStorageProvider);
         }
-        
+
         ComponentStanzaProcessor processor = new ComponentStanzaProcessor(serverRuntimeContext);
         addPubsubHandlers(processor);
         addPubsubOwnerHandlers(processor);
-        processor.addDictionary(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB_EVENT, new MessageHandler()));
+        processor
+                .addDictionary(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB_EVENT, new MessageHandler()));
         stanzaProcessor = processor;
 
         this.serviceConfiguration.setServerJID(serverRuntimeContext.getServerEnitity());
@@ -153,11 +168,12 @@ public class PublishSubscribeModule
      * @see ComponentInfoRequestListener#getComponentInfosFor(org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest) 
      */
     public List<InfoElement> getComponentInfosFor(InfoRequest request) throws ServiceDiscoveryRequestException {
-        if (!fullDomain.getDomain().equals(request.getTo().getDomain())) return null;
-        
+        if (!fullDomain.getDomain().equals(request.getTo().getDomain()))
+            return null;
+
         CollectionNode root = serviceConfiguration.getRootNode();
         List<InfoElement> infoElements = new ArrayList<InfoElement>();
-        if(request.getNode() == null || request.getNode().length() == 0) {
+        if (request.getNode() == null || request.getNode().length() == 0) {
             infoElements.add(new Identity("pubsub", "service", "Publish-Subscribe"));
             infoElements.add(new Feature(NamespaceURIs.XEP0060_PUBSUB));
         } else {
@@ -189,8 +205,8 @@ public class PublishSubscribeModule
     public List<Item> getItemsFor(InfoRequest request) throws ServiceDiscoveryRequestException {
         CollectionNode root = serviceConfiguration.getRootNode();
         List<Item> items = null;
-        
-        if(request.getNode() == null || request.getNode().length() == 0) {
+
+        if (request.getNode() == null || request.getNode().length() == 0) {
             if (serverRuntimeContext.getServerEnitity().equals(request.getTo())) {
                 // top level item request. for example return entry for "pubsub.vysper.org" on request for "vysper.org"
                 List<Item> componentItem = new ArrayList<Item>();
@@ -208,7 +224,7 @@ public class PublishSubscribeModule
             node.acceptItems(iv);
             items = iv.getItemList();
         }
-        
+
         return items;
     }
 
@@ -220,7 +236,8 @@ public class PublishSubscribeModule
         ArrayList<StanzaHandler> pubsubOwnerHandlers = new ArrayList<StanzaHandler>();
         pubsubOwnerHandlers.add(new PubSubOwnerConfigureNodeHandler(serviceConfiguration));
         pubsubOwnerHandlers.add(new PubSubOwnerDeleteNodeHandler(serviceConfiguration));
-        dictionary.addDictionary(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB_OWNER, pubsubOwnerHandlers));
+        dictionary
+                .addDictionary(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB_OWNER, pubsubOwnerHandlers));
     }
 
     /**

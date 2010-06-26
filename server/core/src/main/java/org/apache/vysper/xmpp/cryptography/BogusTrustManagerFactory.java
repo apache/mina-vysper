@@ -41,12 +41,10 @@ import javax.net.ssl.X509TrustManager;
 public class BogusTrustManagerFactory extends TrustManagerFactorySpi implements TrustManagerFactory {
 
     static final X509TrustManager X509 = new X509TrustManager() {
-        public void checkClientTrusted(X509Certificate[] x509Certificates,
-                String s) throws CertificateException {
+        public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
         }
 
-        public void checkServerTrusted(X509Certificate[] x509Certificates,
-                String s) throws CertificateException {
+        public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
         }
 
         public X509Certificate[] getAcceptedIssuers() {
@@ -74,7 +72,7 @@ public class BogusTrustManagerFactory extends TrustManagerFactorySpi implements 
             throws InvalidAlgorithmParameterException {
         // noop
     }
-    
+
     public TrustManager[] getTrustManagers() {
         return X509_MANAGERS;
     }

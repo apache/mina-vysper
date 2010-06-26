@@ -19,14 +19,14 @@
  */
 package org.apache.vysper.xmpp.modules.roster;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
-import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.Stanza;
-
-import java.util.List;
-import java.util.ArrayList;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
 /**
  * factory methods for roster related stanzas
@@ -39,13 +39,14 @@ public class RosterStanzaUtils {
      * creates IQ stanza containing the given roster items.
      * the server returns this stanza when the client requests or changes the roster
      */
-    public static StanzaBuilder createRosterItemsIQ(Entity to, String id, IQStanzaType type, Iterable<RosterItem> rosterItems) {
-        StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(null, to, type, id).
-            startInnerElement("query", NamespaceURIs.JABBER_IQ_ROSTER);
+    public static StanzaBuilder createRosterItemsIQ(Entity to, String id, IQStanzaType type,
+            Iterable<RosterItem> rosterItems) {
+        StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(null, to, type, id).startInnerElement("query",
+                NamespaceURIs.JABBER_IQ_ROSTER);
 
-            for (RosterItem rosterItem : rosterItems) {
-                createRosterItem(stanzaBuilder, rosterItem);
-            }
+        for (RosterItem rosterItem : rosterItems) {
+            createRosterItem(stanzaBuilder, rosterItem);
+        }
 
         stanzaBuilder.endInnerElement();
 
@@ -74,23 +75,22 @@ public class RosterStanzaUtils {
      * @param rosterItem the added roster item
      */
     public static void createRosterItem(StanzaBuilder stanzaBuilder, RosterItem rosterItem) {
-        stanzaBuilder.startInnerElement("item", NamespaceURIs.JABBER_IQ_ROSTER).
-                      addAttribute("jid", rosterItem.getJid().getFullQualifiedName());
-                      if (rosterItem.getName() != null) {
-                          stanzaBuilder.addAttribute("name", rosterItem.getName());
-                      }
-                      if (rosterItem.getSubscriptionType() != null) {
-                          stanzaBuilder.addAttribute("subscription", rosterItem.getSubscriptionType().value());
-                      }
-                      if (rosterItem.getAskSubscriptionType() != AskSubscriptionType.NOT_SET) {
-                          stanzaBuilder.addAttribute("ask", rosterItem.getAskSubscriptionType().value());
-                      }
+        stanzaBuilder.startInnerElement("item", NamespaceURIs.JABBER_IQ_ROSTER).addAttribute("jid",
+                rosterItem.getJid().getFullQualifiedName());
+        if (rosterItem.getName() != null) {
+            stanzaBuilder.addAttribute("name", rosterItem.getName());
+        }
+        if (rosterItem.getSubscriptionType() != null) {
+            stanzaBuilder.addAttribute("subscription", rosterItem.getSubscriptionType().value());
+        }
+        if (rosterItem.getAskSubscriptionType() != AskSubscriptionType.NOT_SET) {
+            stanzaBuilder.addAttribute("ask", rosterItem.getAskSubscriptionType().value());
+        }
         List<RosterGroup> groupList = rosterItem.getGroups();
         if (groupList != null) {
             for (RosterGroup rosterGroup : groupList) {
-                stanzaBuilder.startInnerElement("group", NamespaceURIs.JABBER_IQ_ROSTER).
-                              addText(rosterGroup.getName()).
-                              endInnerElement();
+                stanzaBuilder.startInnerElement("group", NamespaceURIs.JABBER_IQ_ROSTER).addText(rosterGroup.getName())
+                        .endInnerElement();
             }
         }
         stanzaBuilder.endInnerElement();

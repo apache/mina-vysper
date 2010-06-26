@@ -35,51 +35,51 @@ import org.apache.vysper.xmpp.stanza.IQStanza;
  */
 public class IqAdminItem extends XMLElement {
 
-	public static List<IqAdminItem> extractItems(IQStanza stanza) throws XMLSemanticError {
-		XMLElement query = stanza.getSingleInnerElementsNamed("query", NamespaceURIs.XEP0045_MUC_ADMIN);
-		List<XMLElement> itemElms = query.getInnerElementsNamed("item", NamespaceURIs.XEP0045_MUC_ADMIN);
-		
-		List<IqAdminItem> items = new ArrayList<IqAdminItem>();
-		for(XMLElement itemElm : itemElms) {
-			items.add(getWrapper(itemElm));
-		}
-		return items;
-	}
+    public static List<IqAdminItem> extractItems(IQStanza stanza) throws XMLSemanticError {
+        XMLElement query = stanza.getSingleInnerElementsNamed("query", NamespaceURIs.XEP0045_MUC_ADMIN);
+        List<XMLElement> itemElms = query.getInnerElementsNamed("item", NamespaceURIs.XEP0045_MUC_ADMIN);
 
-	public static IqAdminItem getWrapper(XMLElement itemElm) {
-		String nick = itemElm.getAttributeValue("nick");
-		String roleStr = itemElm.getAttributeValue("role");
-		Role role = null;
-		if(roleStr != null) {
-			role = Role.fromString(roleStr);
-		}
-		
-		return new IqAdminItem(nick, role);
-	}
-	
-    public IqAdminItem(String nick, Role role) {
-        super(NamespaceURIs.XEP0045_MUC_ADMIN, "item", null, 
-                createAttributes(nick, role), null);
+        List<IqAdminItem> items = new ArrayList<IqAdminItem>();
+        for (XMLElement itemElm : itemElms) {
+            items.add(getWrapper(itemElm));
+        }
+        return items;
     }
 
-    
+    public static IqAdminItem getWrapper(XMLElement itemElm) {
+        String nick = itemElm.getAttributeValue("nick");
+        String roleStr = itemElm.getAttributeValue("role");
+        Role role = null;
+        if (roleStr != null) {
+            role = Role.fromString(roleStr);
+        }
+
+        return new IqAdminItem(nick, role);
+    }
+
+    public IqAdminItem(String nick, Role role) {
+        super(NamespaceURIs.XEP0045_MUC_ADMIN, "item", null, createAttributes(nick, role), null);
+    }
+
     public String getNick() {
         return getAttributeValue("nick");
     }
-    
+
     public Role getRole() {
         String value = getAttributeValue("role");
-        if(value != null) {
+        if (value != null) {
             return Role.fromString(value);
         } else {
             return null;
         }
     }
-    
+
     private static List<Attribute> createAttributes(String nick, Role role) {
         List<Attribute> attributes = new ArrayList<Attribute>();
-        if(nick != null) attributes.add(new Attribute("nick", nick));
-        if(role != null) attributes.add(new Attribute("role", role.toString()));
+        if (nick != null)
+            attributes.add(new Attribute("nick", nick));
+        if (role != null)
+            attributes.add(new Attribute("role", role.toString()));
         return attributes;
     }
 

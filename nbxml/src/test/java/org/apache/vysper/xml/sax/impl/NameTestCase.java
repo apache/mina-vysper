@@ -21,28 +21,24 @@ package org.apache.vysper.xml.sax.impl;
 
 import junit.framework.TestCase;
 
-import org.apache.vysper.xml.sax.impl.XMLParser;
-
-
-
 /**
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class NameTestCase extends TestCase {
 
-	public void testValidName() {
-		assertTrue(XMLParser.NAME_PATTERN.matcher("abc").find());
-		assertTrue(XMLParser.NAME_PATTERN.matcher("_abc").find());
-		assertTrue(XMLParser.NAME_PATTERN.matcher(":abc").find());
-		assertTrue(XMLParser.NAME_PATTERN.matcher("Aabc").find());
-		assertTrue(XMLParser.NAME_PATTERN.matcher("\u00C8abc").find());
-		assertTrue(XMLParser.NAME_PATTERN.matcher("\u00C8abc").find());
-		assertFalse(XMLParser.NAME_PATTERN.matcher("3abc").find());
-		assertFalse(XMLParser.NAME_PATTERN.matcher("\u2001abc").find());
-		assertTrue(XMLParser.NAME_PATTERN.matcher("a3bc").find());
-		assertFalse(XMLParser.NAME_PATTERN.matcher("-abc").find());
-		assertTrue(XMLParser.NAME_PATTERN.matcher("ab-c").find());
-		
-	}
+    public void testValidName() {
+        assertTrue(XMLParser.NAME_PATTERN.matcher("abc").find());
+        assertTrue(XMLParser.NAME_PATTERN.matcher("_abc").find());
+        assertTrue(XMLParser.NAME_PATTERN.matcher(":abc").find());
+        assertTrue(XMLParser.NAME_PATTERN.matcher("Aabc").find());
+        assertTrue(XMLParser.NAME_PATTERN.matcher("\u00C8abc").find());
+        assertTrue(XMLParser.NAME_PATTERN.matcher("\u00C8abc").find());
+        assertFalse(XMLParser.NAME_PATTERN.matcher("3abc").find());
+        assertFalse(XMLParser.NAME_PATTERN.matcher("\u2001abc").find());
+        assertTrue(XMLParser.NAME_PATTERN.matcher("a3bc").find());
+        assertFalse(XMLParser.NAME_PATTERN.matcher("-abc").find());
+        assertTrue(XMLParser.NAME_PATTERN.matcher("ab-c").find());
+
+    }
 
 }

@@ -33,9 +33,13 @@ import org.jivesoftware.smackx.pubsub.SimplePayload;
 public class PubsubPublishButtonListener implements ActionListener {
 
     private String nodeID;
+
     private PubsubClientModel parent;
+
     private JTextField messageTxt;
+
     private static final String ELEMENT = "message";
+
     private static final String NAMESPACE = "http://mina.apache.org/vysper/demo";
 
     public PubsubPublishButtonListener(String nodeID, JTextField messageTxt, PubsubClientModel parent) {
@@ -43,17 +47,18 @@ public class PubsubPublishButtonListener implements ActionListener {
         this.parent = parent;
         this.messageTxt = messageTxt;
     }
-    
+
     public void actionPerformed(ActionEvent e) {
         PubSubManager pubsubMgr = parent.getPubsubMgr();
-        
+
         Node node = getNode(pubsubMgr);
-        if(node == null) return;
-        
+        if (node == null)
+            return;
+
         String message = getMessage();
 
         Item<SimplePayload> item = createItem(message);
-        
+
         sendItem(node, item);
     }
 
@@ -73,7 +78,7 @@ public class PubsubPublishButtonListener implements ActionListener {
     }
 
     private Item<SimplePayload> createItem(String message) {
-        String itemId = "demoID"+System.currentTimeMillis();
+        String itemId = "demoID" + System.currentTimeMillis();
         Item<SimplePayload> item = new Item<SimplePayload>(itemId, new SimplePayload(ELEMENT, NAMESPACE, message));
         return item;
     }

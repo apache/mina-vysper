@@ -39,67 +39,66 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 public class MucUserPresenceItem extends XMLElement {
 
     public MucUserPresenceItem(Occupant occupant, boolean includeJid, boolean includeNick) {
-        super(NamespaceURIs.XEP0045_MUC_USER, "item", null, 
-                createAttributes(occupant, includeJid, includeNick), null);
+        super(NamespaceURIs.XEP0045_MUC_USER, "item", null, createAttributes(occupant, includeJid, includeNick), null);
     }
 
     public MucUserPresenceItem(Affiliation affiliation, Role role) {
-        super(NamespaceURIs.XEP0045_MUC_USER, "item", null, 
-                createAttributes(null, null, affiliation, role), null);
+        super(NamespaceURIs.XEP0045_MUC_USER, "item", null, createAttributes(null, null, affiliation, role), null);
     }
 
-    
     public MucUserPresenceItem(Entity jid, String nick, Affiliation affiliation, Role role) {
-        super(NamespaceURIs.XEP0045_MUC_USER, "item", null, 
-                createAttributes(jid, nick, affiliation, role), null);
+        super(NamespaceURIs.XEP0045_MUC_USER, "item", null, createAttributes(jid, nick, affiliation, role), null);
     }
 
     private static List<Attribute> createAttributes(Occupant occupant, boolean includeJid, boolean includeNick) {
         Entity jid = includeJid ? occupant.getJid() : null;
         String nick = includeNick ? occupant.getName() : null;
-        
+
         return createAttributes(jid, nick, occupant.getAffiliation(), occupant.getRole());
     }
 
     public Entity getJid() throws EntityFormatException {
         String value = getAttributeValue("jid");
-        if(value != null) {
+        if (value != null) {
             return EntityImpl.parse(value);
         } else {
             return null;
         }
     }
-    
+
     public String getNick() {
         return getAttributeValue("nick");
     }
-    
+
     public Affiliation getAffiliation() {
         String value = getAttributeValue("affiliation");
-        if(value != null) {
+        if (value != null) {
             return Affiliation.fromString(value);
         } else {
             return null;
         }
-        
+
     }
 
     public Role getRole() {
         String value = getAttributeValue("role");
-        if(value != null) {
+        if (value != null) {
             return Role.fromString(value);
         } else {
             return null;
         }
     }
 
-    
     private static List<Attribute> createAttributes(Entity jid, String nick, Affiliation affiliation, Role role) {
         List<Attribute> attributes = new ArrayList<Attribute>();
-        if(jid != null) attributes.add(new Attribute("jid", jid.getFullQualifiedName()));
-        if(nick != null) attributes.add(new Attribute("nick", nick));
-        if(affiliation != null) attributes.add(new Attribute("affiliation", affiliation.toString()));
-        if(role != null) attributes.add(new Attribute("role", role.toString()));
+        if (jid != null)
+            attributes.add(new Attribute("jid", jid.getFullQualifiedName()));
+        if (nick != null)
+            attributes.add(new Attribute("nick", nick));
+        if (affiliation != null)
+            attributes.add(new Attribute("affiliation", affiliation.toString()));
+        if (role != null)
+            attributes.add(new Attribute("role", role.toString()));
         return attributes;
     }
 

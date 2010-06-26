@@ -40,9 +40,13 @@ import org.apache.vysper.xmpp.writer.StanzaWriter;
 public class TestSessionContext extends AbstractSessionContext implements StanzaWriter {
 
     private LinkedBlockingQueue<Stanza> recordedResponses = new LinkedBlockingQueue<Stanza>();
+
     private boolean closed = false;
+
     private boolean switchToTLSCalled;
+
     private boolean isReopeningXMLStream;
+
     private int recordedResponsesTotal = 0;
 
     /**
@@ -53,7 +57,8 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
     public static TestSessionContext createSessionContext(Entity entity) {
         SessionStateHolder sessionStateHolder = new SessionStateHolder();
         TestSessionContext sessionContext = new TestSessionContext(sessionStateHolder);
-        if (entity != null) sessionContext.setInitiatingEntity(entity.getBareJID());
+        if (entity != null)
+            sessionContext.setInitiatingEntity(entity.getBareJID());
         return sessionContext;
     }
 
@@ -74,7 +79,8 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
      */
     public static TestSessionContext createWithStanzaReceiverRelay(SessionStateHolder sessionStateHolder) {
         StanzaReceiverRelay relay = new org.apache.vysper.xmpp.delivery.StanzaReceiverRelay();
-        DefaultServerRuntimeContext serverContext = new DefaultServerRuntimeContext(new EntityImpl(null, "test", null), relay);
+        DefaultServerRuntimeContext serverContext = new DefaultServerRuntimeContext(new EntityImpl(null, "test", null),
+                relay);
         relay.setServerRuntimeContext(serverContext);
         return new TestSessionContext(serverContext, sessionStateHolder);
     }
@@ -85,18 +91,16 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
      * @param serverContext
      * @return
      */
-    public static TestSessionContext createWithStanzaReceiverRelay(SessionStateHolder sessionStateHolder, ServerRuntimeContext serverContext) {
-        StanzaReceiverRelay relay = (StanzaReceiverRelay)serverContext.getStanzaRelay();
+    public static TestSessionContext createWithStanzaReceiverRelay(SessionStateHolder sessionStateHolder,
+            ServerRuntimeContext serverContext) {
+        StanzaReceiverRelay relay = (StanzaReceiverRelay) serverContext.getStanzaRelay();
         relay.setServerRuntimeContext(serverContext);
         return new TestSessionContext(serverContext, sessionStateHolder);
     }
 
     public TestSessionContext(SessionStateHolder sessionStateHolder) {
-        this(new DefaultServerRuntimeContext(
-                new EntityImpl(null, "test", null), 
-                new RecordingStanzaRelay(), 
-                new MemoryStorageProviderRegistry()), 
-             sessionStateHolder);
+        this(new DefaultServerRuntimeContext(new EntityImpl(null, "test", null), new RecordingStanzaRelay(),
+                new MemoryStorageProviderRegistry()), sessionStateHolder);
     }
 
     public TestSessionContext(ServerRuntimeContext serverRuntimeContext, SessionStateHolder sessionStateHolder) {
@@ -142,10 +146,10 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
      * Resets all recorded stanzas and their count.
      */
     public void reset() {
-    	recordedResponses.clear();
+        recordedResponses.clear();
         recordedResponsesTotal = 0;
     }
-    
+
     /**
      * @param stanza records the stanza.
      */
@@ -179,7 +183,8 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
             throw new RuntimeException("cannot add receiver - the stanza relay is of a different kind");
         }
         StanzaReceiverQueue relay = new StanzaReceiverQueue();
-        if (resourceId != null) entity = new EntityImpl(entity.getNode(), entity.getDomain(), resourceId);
+        if (resourceId != null)
+            entity = new EntityImpl(entity.getNode(), entity.getDomain(), resourceId);
         ((StanzaReceiverRelay) getServerRuntimeContext().getStanzaRelay()).add(entity, relay);
         return relay;
     }

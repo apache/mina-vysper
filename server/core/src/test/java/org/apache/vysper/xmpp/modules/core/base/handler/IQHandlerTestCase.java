@@ -20,6 +20,8 @@
 
 package org.apache.vysper.xmpp.modules.core.base.handler;
 
+import junit.framework.TestCase;
+
 import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
@@ -30,7 +32,6 @@ import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanzaVerifier;
-import junit.framework.TestCase;
 
 /**
  */
@@ -56,7 +57,8 @@ public class IQHandlerTestCase extends TestCase {
         sessionContext.setServerToServer();
 
         TestIQHandler iqHandler = new TestIQHandler();
-        ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanzaBuilder.build(), sessionContext.getServerRuntimeContext(), true, sessionContext, null);
+        ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanzaBuilder.build(), sessionContext
+                .getServerRuntimeContext(), true, sessionContext, null);
         Stanza responseStanza = responseStanzaContainer.getResponseStanza();
         XMLElementVerifier verifier = responseStanza.getVerifier();
         assertTrue("error", verifier.nameEquals("error"));
@@ -74,7 +76,8 @@ public class IQHandlerTestCase extends TestCase {
         Stanza stanza = stanzaBuilder.build(); // this stanza has no ID
 
         IQHandler iqHandler = new IQHandler();
-        ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanza, sessionContext.getServerRuntimeContext(), true, sessionContext, null);
+        ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanza, sessionContext
+                .getServerRuntimeContext(), true, sessionContext, null);
         Stanza responseStanza = responseStanzaContainer.getResponseStanza();
         XMLElementVerifier verifier = responseStanza.getVerifier();
         assertTrue("error", verifier.nameEquals("error")); // response is _not_ IQ stanza
@@ -82,7 +85,8 @@ public class IQHandlerTestCase extends TestCase {
 
     private void assertIQError(Stanza stanza) {
         TestIQHandler iqHandler = new TestIQHandler();
-        ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanza, sessionContext.getServerRuntimeContext(), true, sessionContext, null);
+        ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanza, sessionContext
+                .getServerRuntimeContext(), true, sessionContext, null);
         Stanza responseStanza = responseStanzaContainer.getResponseStanza();
         XMLElementVerifier verifier = responseStanza.getVerifier();
         assertTrue("iq", verifier.nameEquals("iq"));
@@ -108,7 +112,7 @@ public class IQHandlerTestCase extends TestCase {
         // get and set must have exactly one subelement
 
         String type = "get";
-        assertAnySub(type);  // test with zero
+        assertAnySub(type); // test with zero
         assertNotTwoSubs(type); // test with 2
 
         type = "set";
@@ -145,7 +149,8 @@ public class IQHandlerTestCase extends TestCase {
         stanzaBuilder.startInnerElement("getRequest", NamespaceURIs.JABBER_CLIENT).endInnerElement();
 
         TestIQHandler iqHandler = new TestIQHandler();
-        ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanzaBuilder.build(), sessionContext.getServerRuntimeContext(), true, sessionContext, null);
+        ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanzaBuilder.build(), sessionContext
+                .getServerRuntimeContext(), true, sessionContext, null);
         IQStanza incomingStanza = iqHandler.getIncomingStanza();
 
         XMPPCoreStanzaVerifier verifier = incomingStanza.getCoreVerifier();
@@ -162,4 +167,3 @@ public class IQHandlerTestCase extends TestCase {
     }
 
 }
-

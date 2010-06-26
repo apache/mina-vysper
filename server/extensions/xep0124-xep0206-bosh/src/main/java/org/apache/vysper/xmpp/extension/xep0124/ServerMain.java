@@ -54,8 +54,7 @@ public class ServerMain {
      * 
      * @param args
      */
-    public static void main(String[] args) throws AccountCreationException,
-            EntityFormatException {
+    public static void main(String[] args) throws AccountCreationException, EntityFormatException {
 
         String addedModuleProperty = System.getProperty("vysper.add.module");
         List<Module> listOfModules = null;
@@ -71,37 +70,31 @@ public class ServerMain {
         final AccountManagement accountManagement = (AccountManagement) providerRegistry
                 .retrieve(AccountManagement.class);
 
-        if (!accountManagement.verifyAccountExists(EntityImpl
-                .parse("user1@vysper.org"))) {
+        if (!accountManagement.verifyAccountExists(EntityImpl.parse("user1@vysper.org"))) {
             accountManagement.addUser("user1@vysper.org", "password1");
         }
-        if (!accountManagement.verifyAccountExists(EntityImpl
-                .parse("user2@vysper.org"))) {
+        if (!accountManagement.verifyAccountExists(EntityImpl.parse("user2@vysper.org"))) {
             accountManagement.addUser("user2@vysper.org", "password1");
         }
-        if (!accountManagement.verifyAccountExists(EntityImpl
-                .parse("user3@vysper.org"))) {
+        if (!accountManagement.verifyAccountExists(EntityImpl.parse("user3@vysper.org"))) {
             accountManagement.addUser("user3@vysper.org", "password1");
         }
 
         XMPPServer server = new XMPPServer("vysper.org");
-        
+
         server.addEndpoint(new TCPEndpoint());
-        
+
         BoshEndpoint boshEndpoint = new BoshEndpoint();
-        boshEndpoint.setFlashCrossDomainPolicy("src/main/resources/" +
-        		"crossdomain.xml");
-//        boshEndpoint.setSSLEnabled(true);
-//        boshEndpoint.setSSLCertificateInfo("src/main/resources/keystore",
-//                "password");
+        boshEndpoint.setFlashCrossDomainPolicy("src/main/resources/" + "crossdomain.xml");
+        //        boshEndpoint.setSSLEnabled(true);
+        //        boshEndpoint.setSSLCertificateInfo("src/main/resources/keystore",
+        //                "password");
         server.addEndpoint(boshEndpoint);
-        
+
         //server.addEndpoint(new StanzaSessionFactory());
         server.setStorageProviderRegistry(providerRegistry);
 
-        server.setTLSCertificateInfo(new File(
-                "../vysper-core/src/main/config/bogus_mina_tls.cert"),
-                "boguspw");
+        server.setTLSCertificateInfo(new File("../vysper-core/src/main/config/bogus_mina_tls.cert"), "boguspw");
 
         try {
             server.start();
@@ -132,20 +125,17 @@ public class ServerMain {
             try {
                 moduleClass = (Class<Module>) Class.forName(moduleClassName);
             } catch (ClassCastException e) {
-                System.err.println("not a Vysper module class: "
-                        + moduleClassName);
+                System.err.println("not a Vysper module class: " + moduleClassName);
                 continue;
             } catch (ClassNotFoundException e) {
-                System.err.println("could not load module class "
-                        + moduleClassName);
+                System.err.println("could not load module class " + moduleClassName);
                 continue;
             }
             try {
                 Module module = moduleClass.newInstance();
                 modules.add(module);
             } catch (Exception e) {
-                System.err.println("failed to instantiate module class "
-                        + moduleClassName);
+                System.err.println("failed to instantiate module class " + moduleClassName);
                 continue;
             }
         }

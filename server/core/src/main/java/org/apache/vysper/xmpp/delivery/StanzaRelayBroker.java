@@ -20,10 +20,10 @@
 package org.apache.vysper.xmpp.delivery;
 
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
  * central component for delivering stanzas.
@@ -35,7 +35,9 @@ import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
 public class StanzaRelayBroker implements StanzaRelay {
 
     protected StanzaRelay internalRelay;
+
     protected StanzaRelay externalRelay;
+
     protected ServerRuntimeContext serverRuntimeContext;
 
     /**
@@ -56,10 +58,12 @@ public class StanzaRelayBroker implements StanzaRelay {
         this.serverRuntimeContext = serverRuntimeContext;
     }
 
-    public void relay(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy) throws DeliveryException {
+    public void relay(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy)
+            throws DeliveryException {
 
-        boolean toServerTLD = receiver == null ||
-                              (!receiver.isNodeSet() && serverRuntimeContext.getServerEnitity().getDomain().equals(receiver.getDomain()));
+        boolean toServerTLD = receiver == null
+                || (!receiver.isNodeSet() && serverRuntimeContext.getServerEnitity().getDomain().equals(
+                        receiver.getDomain()));
         boolean toComponent = !toServerTLD && !receiver.isNodeSet();
         if (toServerTLD) {
             // TODO handle by server
@@ -79,7 +83,8 @@ public class StanzaRelayBroker implements StanzaRelay {
         if (domain.endsWith(serverRuntimeContext.getServerEnitity().getDomain())) {
             internalRelay.relay(receiver, stanza, deliveryFailureStrategy);
         } else {
-            if (!relayToExternal) throw new IllegalStateException("this server is not relaying to external currently");
+            if (!relayToExternal)
+                throw new IllegalStateException("this server is not relaying to external currently");
             externalRelay.relay(receiver, stanza, deliveryFailureStrategy);
         }
     }

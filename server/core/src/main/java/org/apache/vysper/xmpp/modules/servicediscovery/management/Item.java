@@ -30,16 +30,19 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 public class Item {
 
     protected Entity jid; // required
+
     protected String name; // optional
+
     protected String node; // optional
 
     public Item(Entity jid, String name, String node) {
-        if (jid == null) throw new IllegalArgumentException("jid may not be null");
+        if (jid == null)
+            throw new IllegalArgumentException("jid may not be null");
         this.jid = jid;
         this.name = name;
         this.node = node;
     }
-    
+
     public Item(Entity jid, String name) {
         this(jid, name, null);
     }
@@ -62,9 +65,12 @@ public class Item {
 
     public void insertElement(StanzaBuilder stanzaBuilder) {
         stanzaBuilder.startInnerElement("item", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_ITEMS);
-            if (jid != null) stanzaBuilder.addAttribute("jid", jid.getFullQualifiedName());
-            if (name != null) stanzaBuilder.addAttribute("name", name);
-            if (node != null) stanzaBuilder.addAttribute("node", node);
+        if (jid != null)
+            stanzaBuilder.addAttribute("jid", jid.getFullQualifiedName());
+        if (name != null)
+            stanzaBuilder.addAttribute("name", name);
+        if (node != null)
+            stanzaBuilder.addAttribute("node", node);
         stanzaBuilder.endInnerElement();
     }
 }

@@ -47,10 +47,13 @@ public class StreamStartHandler implements StanzaHandler {
     }
 
     public boolean verify(Stanza stanza) {
-        if (stanza == null) return false;
-        if (!getName().equals(stanza.getName())) return false;
+        if (stanza == null)
+            return false;
+        if (!getName().equals(stanza.getName()))
+            return false;
         String namespaceURI = stanza.getNamespaceURI();
-        if (namespaceURI == null) return false;
+        if (namespaceURI == null)
+            return false;
         return namespaceURI.equals(NamespaceURIs.JABBER_CLIENT) || namespaceURI.equals(NamespaceURIs.JABBER_SERVER);
     }
 
@@ -58,25 +61,31 @@ public class StreamStartHandler implements StanzaHandler {
         return true;
     }
 
-    public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder) {
+    public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
+            boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder) {
         XMLElementVerifier xmlElementVerifier = stanza.getVerifier();
         boolean jabberNamespace = NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS.equals(stanza.getNamespaceURI());
-        
+
         boolean clientCall = xmlElementVerifier.namespacePresent(NamespaceURIs.JABBER_CLIENT);
         boolean serverCall = xmlElementVerifier.namespacePresent(NamespaceURIs.JABBER_SERVER);
 
-        if (clientCall && serverCall) serverCall = false; // silently ignore ambiguous attributes
-        if (serverCall) sessionContext.setServerToServer(); else sessionContext.setClientToServer();
+        if (clientCall && serverCall)
+            serverCall = false; // silently ignore ambiguous attributes
+        if (serverCall)
+            sessionContext.setServerToServer();
+        else
+            sessionContext.setClientToServer();
 
-        if (sessionStateHolder.getState() != SessionState.INITIATED &&
-            sessionStateHolder.getState() != SessionState.ENCRYPTED &&
-            sessionStateHolder.getState() != SessionState.AUTHENTICATED) {
+        if (sessionStateHolder.getState() != SessionState.INITIATED
+                && sessionStateHolder.getState() != SessionState.ENCRYPTED
+                && sessionStateHolder.getState() != SessionState.AUTHENTICATED) {
             return respondUnsupportedStanzaType("unexpected stream start");
         }
 
         // http://etherx.jabber.org/streams cannot be omitted
         if (!jabberNamespace) {
-            return respondIllegalNamespaceError("namespace is mandatory: " + NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS);
+            return respondIllegalNamespaceError("namespace is mandatory: "
+                    + NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS);
         }
 
         // processing xml:lang
@@ -102,7 +111,8 @@ public class StreamStartHandler implements StanzaHandler {
                     responseVersion = XMPPVersion.VERSION_1_0;
                 } else {
                     // we do not support major changes, as of RFC3920
-                    return respondUnsupportedVersionError(xmlLang, versionAttributeValue, "major version change not supported: ");
+                    return respondUnsupportedVersionError(xmlLang, versionAttributeValue,
+                            "major version change not supported: ");
                 }
             } else {
                 responseVersion = clientVersion;
@@ -122,11 +132,9 @@ public class StreamStartHandler implements StanzaHandler {
                 try {
                     toEntity = EntityImpl.parse(toValue);
                 } catch (EntityFormatException e) {
-                    return new ResponseStanzaContainerImpl(
-                            ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.IMPROPER_ADDRESSING,
-                                    sessionContext.getXMLLang(),
-                                    "could not parse incoming stanza's TO attribute",
-                                    null));
+                    return new ResponseStanzaContainerImpl(ServerErrorResponses.getInstance().getStreamError(
+                            StreamErrorCondition.IMPROPER_ADDRESSING, sessionContext.getXMLLang(),
+                            "could not parse incoming stanza's TO attribute", null));
 
                 }
                 // TODO check if toEntity is served by this server
@@ -135,10 +143,8 @@ public class StreamStartHandler implements StanzaHandler {
                 // TODO RFC3920: 'from' attribute SHOULD be silently ignored by the receiving entity
                 // TODO RFC3920bis: 'from' attribute SHOULD be not ignored by the receiving entity and used as 'to' in responses
             }
-            responseStanza = new ServerResponses().getStreamOpener(clientCall,
-                    sessionContext.getServerJID(),
-                    responseVersion,
-                    sessionContext);
+            responseStanza = new ServerResponses().getStreamOpener(clientCall, sessionContext.getServerJID(),
+                    responseVersion, sessionContext);
         } else if (serverCall) {
             // RFC3920: 'from' attribute SHOULD be used by the receiving entity
             String fromValue = stanza.getAttributeValue("from");
@@ -147,60 +153,52 @@ public class StreamStartHandler implements StanzaHandler {
                 try {
                     entity = EntityImpl.parse(fromValue);
                 } catch (EntityFormatException e) {
-                    return new ResponseStanzaContainerImpl(
-                                ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.INVALID_FROM,
-                                                                    sessionContext.getXMLLang(),
-                                                                    "could not parse incoming stanza's FROM attribute",
-                                                                    null));
+                    return new ResponseStanzaContainerImpl(ServerErrorResponses.getInstance().getStreamError(
+                            StreamErrorCondition.INVALID_FROM, sessionContext.getXMLLang(),
+                            "could not parse incoming stanza's FROM attribute", null));
 
                 }
             }
             throw new RuntimeException("server connection not yet supported");
         } else {
-            String descriptiveText = "one of the two namespaces must be present: " +
-                                     NamespaceURIs.JABBER_CLIENT +
-                                     " or " +
-                                     NamespaceURIs.JABBER_SERVER;
+            String descriptiveText = "one of the two namespaces must be present: " + NamespaceURIs.JABBER_CLIENT
+                    + " or " + NamespaceURIs.JABBER_SERVER;
             return respondIllegalNamespaceError(descriptiveText);
         }
-
 
         // if all is correct, go to next phase
         switch (sessionStateHolder.getState()) {
 
-            case AUTHENTICATED:
-            case ENCRYPTED:
-                // do not change state!
-                break;
-            default:
-                sessionStateHolder.setState(SessionState.STARTED);
+        case AUTHENTICATED:
+        case ENCRYPTED:
+            // do not change state!
+            break;
+        default:
+            sessionStateHolder.setState(SessionState.STARTED);
         }
 
-        if (responseStanza != null) return new ResponseStanzaContainerImpl(responseStanza);
+        if (responseStanza != null)
+            return new ResponseStanzaContainerImpl(responseStanza);
 
         return null;
     }
 
     private ResponseStanzaContainer respondIllegalNamespaceError(String descriptiveText) {
-        return new ResponseStanzaContainerImpl(
-                    ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.INVALID_NAMESPACE,
-                                                        null,
-                                                        descriptiveText,
-                                                        null));
+        return new ResponseStanzaContainerImpl(ServerErrorResponses.getInstance().getStreamError(
+                StreamErrorCondition.INVALID_NAMESPACE, null, descriptiveText, null));
     }
 
     private ResponseStanzaContainer respondUnsupportedStanzaType(String descriptiveText) {
-        return new ResponseStanzaContainerImpl(
-                    ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.UNSUPPORTED_STANZA_TYPE,
-                                                        null,
-                                                        descriptiveText,
-                                                        null));
+        return new ResponseStanzaContainerImpl(ServerErrorResponses.getInstance().getStreamError(
+                StreamErrorCondition.UNSUPPORTED_STANZA_TYPE, null, descriptiveText, null));
     }
 
-    private ResponseStanzaContainer respondUnsupportedVersionError(String xmlLang, String versionAttributeValue, String errorMessage) {
-        if (xmlLang == null) xmlLang = "en_US";
-        Stanza error = ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.UNSUPPORTED_VERSION, xmlLang,
-                errorMessage + versionAttributeValue, null);
+    private ResponseStanzaContainer respondUnsupportedVersionError(String xmlLang, String versionAttributeValue,
+            String errorMessage) {
+        if (xmlLang == null)
+            xmlLang = "en_US";
+        Stanza error = ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.UNSUPPORTED_VERSION,
+                xmlLang, errorMessage + versionAttributeValue, null);
         return new ResponseStanzaContainerImpl(error);
     }
 

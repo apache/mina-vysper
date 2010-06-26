@@ -23,22 +23,21 @@ import java.util.Iterator;
 
 import org.apache.vysper.xml.sax.impl.TestHandler.TestEvent;
 
-
 /**
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class ParseXmlDeclarationTestCase extends AbstractAsyncXMLReaderTestCase {
 
-	public void testEmptyElement() throws Exception {
-		Iterator<TestEvent> events = parse("<?xml version=\"1.0\"?>\n <root />").iterator();
+    public void testEmptyElement() throws Exception {
+        Iterator<TestEvent> events = parse("<?xml version=\"1.0\"?>\n <root />").iterator();
 
-		assertStartDocument(events.next());
-		// no event for the declaration
-		assertStartElement("", "root", "root", events.next());
-		assertEndElement("", "root", "root", events.next());
-		assertEndDocument(events.next());
-		
-		assertNoMoreevents(events);
-	}
+        assertStartDocument(events.next());
+        // no event for the declaration
+        assertStartElement("", "root", "root", events.next());
+        assertEndElement("", "root", "root", events.next());
+        assertEndDocument(events.next());
+
+        assertNoMoreevents(events);
+    }
 
 }

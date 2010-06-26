@@ -19,15 +19,15 @@
  */
 package org.apache.vysper.stanzasession;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.AbstractSessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.writer.StanzaWriter;
-
-import java.util.LinkedList;
-import java.util.Queue;
 
 /**
  * a session running in the server VM based on using Vysper's built-in {@link org.apache.vysper.xmpp.stanza.Stanza}
@@ -48,11 +48,13 @@ public class StanzaSessionContext extends AbstractSessionContext implements Stan
     }
 
     public void sendStanzaToServer(Stanza stanza) {
-        serverRuntimeContext.getStanzaProcessor().processStanza(getServerRuntimeContext(), this, stanza, sessionStateHolder);
+        serverRuntimeContext.getStanzaProcessor().processStanza(getServerRuntimeContext(), this, stanza,
+                sessionStateHolder);
     }
 
     public void switchToTLS() {
-        if (sessionStateHolder.getState() == SessionState.ENCRYPTION_STARTED) sessionStateHolder.setState(SessionState.ENCRYPTED);
+        if (sessionStateHolder.getState() == SessionState.ENCRYPTION_STARTED)
+            sessionStateHolder.setState(SessionState.ENCRYPTED);
     }
 
     public void setIsReopeningXMLStream() {

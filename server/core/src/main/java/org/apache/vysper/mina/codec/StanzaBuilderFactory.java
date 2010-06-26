@@ -29,14 +29,14 @@ import org.apache.vysper.xml.fragment.XMLFragment;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
-
 /**
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class StanzaBuilderFactory extends XMLElementBuilderFactory {
 
-	public AbstractXMLElementBuilder<StanzaBuilder, Stanza> createBuilder(String elementName, String namespaceURI, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments) {
-		return new StanzaBuilder(elementName, namespaceURI, namespacePrefix, attributes, innerFragments);
-	}
+    public AbstractXMLElementBuilder<StanzaBuilder, Stanza> createBuilder(String elementName, String namespaceURI,
+            String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments) {
+        return new StanzaBuilder(elementName, namespaceURI, namespacePrefix, attributes, innerFragments);
+    }
 }

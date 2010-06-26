@@ -28,19 +28,19 @@ import junit.framework.TestCase;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class RoomTypeTestCase extends TestCase {
-    
+
     public void testComplement() {
         EnumSet<RoomType> original = EnumSet.of(RoomType.FullyAnonymous, RoomType.Hidden);
-        
+
         EnumSet<RoomType> complemented = RoomType.complement(original);
-        
+
         assertTrue(complemented.contains(RoomType.FullyAnonymous));
         assertTrue(complemented.contains(RoomType.Hidden));
         assertTrue(complemented.contains(RoomType.Open));
         assertTrue(complemented.contains(RoomType.Unmoderated));
         assertTrue(complemented.contains(RoomType.Unsecured));
         assertTrue(complemented.contains(RoomType.Temporary));
-        
+
         assertFalse(complemented.contains(RoomType.SemiAnonymous));
         assertFalse(complemented.contains(RoomType.NonAnonymous));
         assertFalse(complemented.contains(RoomType.Public));
@@ -49,20 +49,20 @@ public class RoomTypeTestCase extends TestCase {
         assertFalse(complemented.contains(RoomType.PasswordProtected));
         assertFalse(complemented.contains(RoomType.Persistent));
     }
-    
+
     private void assertAntonyms(RoomType type1, RoomType type2) {
         try {
             RoomType.validateAntonyms(EnumSet.of(type1, type2));
             fail("Must throw IllegalArgumentException");
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             // ok
         }
     }
-    
+
     private void assertNonAntonyms(RoomType type1, RoomType type2) {
         RoomType.validateAntonyms(EnumSet.of(type1, type2));
     }
-    
+
     public void testValidateAntonyms() {
         assertAntonyms(RoomType.Public, RoomType.Hidden);
         assertAntonyms(RoomType.MembersOnly, RoomType.Open);
@@ -72,7 +72,7 @@ public class RoomTypeTestCase extends TestCase {
         assertAntonyms(RoomType.FullyAnonymous, RoomType.SemiAnonymous);
         assertAntonyms(RoomType.SemiAnonymous, RoomType.NonAnonymous);
         assertAntonyms(RoomType.FullyAnonymous, RoomType.NonAnonymous);
-        
+
         assertNonAntonyms(RoomType.Public, RoomType.Open);
         assertNonAntonyms(RoomType.Unsecured, RoomType.FullyAnonymous);
         assertNonAntonyms(RoomType.Persistent, RoomType.Public);

@@ -55,8 +55,7 @@ public class EntityImpl implements Entity {
         if (entity.contains(CHAR_AT)) {
             String[] parts = entity.split(CHAR_AT);
             if (parts.length != 2)
-                throw new EntityFormatException(
-                        "entity must be of format node@domain/resource");
+                throw new EntityFormatException("entity must be of format node@domain/resource");
             node = parts[0];
             node = NodePrep.prepare(node);
             entity = parts[1];
@@ -70,7 +69,7 @@ public class EntityImpl implements Entity {
         }
         return new EntityImpl(node, domain, resource);
     }
-    
+
     /**
      * Parse entities, throwing {@link IllegalArgumentException} on format errors
      * @param entity
@@ -154,21 +153,18 @@ public class EntityImpl implements Entity {
 
         final Entity that = (Entity) o;
 
-        if (domain != null ? !domain.equals(that.getDomain()) : that
-                .getDomain() != null)
+        if (domain != null ? !domain.equals(that.getDomain()) : that.getDomain() != null)
             return false;
         if (isNodeSet() != that.isNodeSet())
             return false;
         if (isNodeSet()) {
-            if (node != null ? !node.equals(that.getNode())
-                    : that.getNode() != null)
+            if (node != null ? !node.equals(that.getNode()) : that.getNode() != null)
                 return false;
         }
         if (isResourceSet() != that.isResourceSet())
             return false;
         if (isResourceSet()) {
-            if (resource != null ? !resource.equals(that.getResource()) : that
-                    .getResource() != null)
+            if (resource != null ? !resource.equals(that.getResource()) : that.getResource() != null)
                 return false;
         }
 

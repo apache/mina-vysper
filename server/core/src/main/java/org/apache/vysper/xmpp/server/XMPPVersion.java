@@ -29,9 +29,13 @@ public class XMPPVersion {
     public static final XMPPVersion VERSION_1_0 = new XMPPVersion(1, 0);
 
     private int major = 1;
+
     private int minor = 0;
+
     private static final String STRING_ZERO = "0";
+
     private static final String STRING_UNO = "1";
+
     private static final String STRING_DOT = ".";
 
     public XMPPVersion() {
@@ -39,9 +43,11 @@ public class XMPPVersion {
     }
 
     public XMPPVersion(int major, int minor) {
-        if (major < 0) throw new IllegalArgumentException("major must at least be 0");
+        if (major < 0)
+            throw new IllegalArgumentException("major must at least be 0");
         this.major = major;
-        if (minor < 0) throw new IllegalArgumentException("minor must at least be 0");
+        if (minor < 0)
+            throw new IllegalArgumentException("minor must at least be 0");
         this.minor = minor;
     }
 
@@ -51,19 +57,26 @@ public class XMPPVersion {
             throw new IllegalArgumentException("XMPP version must be of format 'x.y'");
         }
         major = convertToInt(parts[0]);
-        if (major < 0) throw new IllegalArgumentException("major must at least be 0");
+        if (major < 0)
+            throw new IllegalArgumentException("major must at least be 0");
         minor = convertToInt(parts[1]);
-        if (minor < 0) throw new IllegalArgumentException("minor must at least be 0");
+        if (minor < 0)
+            throw new IllegalArgumentException("minor must at least be 0");
     }
 
     private int convertToInt(String part) {
-        if (part == null || part.length() == 0) throw new IllegalArgumentException("version part is empty");
-        if (STRING_ZERO.equals(part)) return 0;
-        if (STRING_UNO.equals(part)) return 1;
+        if (part == null || part.length() == 0)
+            throw new IllegalArgumentException("version part is empty");
+        if (STRING_ZERO.equals(part))
+            return 0;
+        if (STRING_UNO.equals(part))
+            return 1;
 
         part = part.trim();
-        if (part.startsWith("+") || part.startsWith("-")) throw new IllegalArgumentException("version part must contain only numbers");
-        if (part.startsWith(STRING_ZERO)) return convertToInt(part.substring(1)); // ignore leading zeros
+        if (part.startsWith("+") || part.startsWith("-"))
+            throw new IllegalArgumentException("version part must contain only numbers");
+        if (part.startsWith(STRING_ZERO))
+            return convertToInt(part.substring(1)); // ignore leading zeros
         return Integer.parseInt(part);
     }
 
@@ -84,18 +97,23 @@ public class XMPPVersion {
     }
 
     public static XMPPVersion getCommonDenomitator(XMPPVersion v1, XMPPVersion v2) {
-        if (v1.getMajor() != v2.getMajor()) return v1.getMajor() < v2.getMajor() ? v1 : v2;
+        if (v1.getMajor() != v2.getMajor())
+            return v1.getMajor() < v2.getMajor() ? v1 : v2;
         return v1.getMinor() < v2.getMinor() ? v1 : v2;
     }
 
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         final XMPPVersion that = (XMPPVersion) o;
 
-        if (major != that.major) return false;
-        if (minor != that.minor) return false;
+        if (major != that.major)
+            return false;
+        if (minor != that.minor)
+            return false;
 
         return true;
     }

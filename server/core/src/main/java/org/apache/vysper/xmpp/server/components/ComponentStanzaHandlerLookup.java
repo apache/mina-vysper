@@ -38,11 +38,11 @@ public class ComponentStanzaHandlerLookup extends AbstractStanzaHandlerLookup {
     }
 
     protected ComponentHandlerDictionary defaultHandlers = new ComponentHandlerDictionary();
-    
+
     public void addDefaultHandler(StanzaHandler stanzaHandler) {
         defaultHandlers.register(stanzaHandler);
     }
-    
+
     @Override
     public StanzaHandler getHandler(Stanza stanza) {
 
@@ -53,7 +53,8 @@ public class ComponentStanzaHandlerLookup extends AbstractStanzaHandlerLookup {
 
         StanzaHandler stanzaHandler = getHandlerForElement(stanza, firstInnerElement);
 
-        if (stanzaHandler == null) stanzaHandler = defaultHandlers.get(stanza);
+        if (stanzaHandler == null)
+            stanzaHandler = defaultHandlers.get(stanza);
 
         return stanzaHandler;
     }

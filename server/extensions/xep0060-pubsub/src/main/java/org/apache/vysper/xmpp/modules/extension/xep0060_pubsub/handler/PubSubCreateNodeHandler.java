@@ -32,14 +32,13 @@ import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
-
 /**
  * This handler is responsible for dealing with the "create" requests (in the pubsub namespace).
  * Even though this sounds like a "owner" action, it actually lies within the general "pubsub" namespace.
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-@SpecCompliant(spec="xep-0060", section="8.1", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
+@SpecCompliant(spec = "xep-0060", section = "8.1", status = SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
 public class PubSubCreateNodeHandler extends AbstractPubSubGeneralHandler {
 
     /**
@@ -66,23 +65,20 @@ public class PubSubCreateNodeHandler extends AbstractPubSubGeneralHandler {
      */
     @Override
     @SpecCompliance(compliant = {
-            @SpecCompliant(spec="xep-0060", section="8.1.1", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
-            , @SpecCompliant(spec="xep-0060", section="8.1.2", status= SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
-            , @SpecCompliant(spec="xep-0060", section="8.1.3", status= SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
-        })
-    protected Stanza handleSet(IQStanza stanza,
-            ServerRuntimeContext serverRuntimeContext,
-            SessionContext sessionContext) {
+            @SpecCompliant(spec = "xep-0060", section = "8.1.1", status = SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.PARTIAL),
+            @SpecCompliant(spec = "xep-0060", section = "8.1.2", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED),
+            @SpecCompliant(spec = "xep-0060", section = "8.1.3", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED) })
+    protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         Entity serverJID = serviceConfiguration.getServerJID();
         CollectionNode root = serviceConfiguration.getRootNode();
-        
+
         Entity sender = extractSenderJID(stanza, sessionContext);
 
         StanzaBuilder sb = StanzaBuilder.createDirectReply(stanza, false, IQStanzaType.RESULT);
 
         String nodeName = extractNodeName(stanza);
 
-        if(root.find(nodeName) != null) {
+        if (root.find(nodeName) != null) {
             return errorStanzaGenerator.generateDuplicateNodeErrorStanza(sender, serverJID, stanza);
         }
 

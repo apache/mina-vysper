@@ -37,26 +37,29 @@ public class FragmentFactory {
         return new XMLElement(namespaceURI, name, null, null, asList(new XMLText(text)), null);
     }
 
-    
     public static List<XMLFragment> asList(XMLFragment xmlFragment) {
         List<XMLFragment> xmlFragments = new ArrayList<XMLFragment>();
-        if (xmlFragment != null) xmlFragments.add(xmlFragment);
+        if (xmlFragment != null)
+            xmlFragments.add(xmlFragment);
         return xmlFragments;
     }
 
     public static List<Attribute> asList(Attribute attribute) {
         List<Attribute> attributes = new ArrayList<Attribute>();
-        if (attribute != null) attributes.add(attribute);
+        if (attribute != null)
+            attributes.add(attribute);
         return attributes;
     }
 
     public static List<XMLFragment> asList(XMLFragment[] xmlFragmentArray) {
-        if (xmlFragmentArray == null) return new ArrayList<XMLFragment>();
+        if (xmlFragmentArray == null)
+            return new ArrayList<XMLFragment>();
         return Arrays.asList(xmlFragmentArray);
     }
 
     public static List<Attribute> asList(Attribute[] attributeArray) {
-        if (attributeArray == null) return new ArrayList<Attribute>();
+        if (attributeArray == null)
+            return new ArrayList<Attribute>();
         return Arrays.asList(attributeArray);
     }
 }

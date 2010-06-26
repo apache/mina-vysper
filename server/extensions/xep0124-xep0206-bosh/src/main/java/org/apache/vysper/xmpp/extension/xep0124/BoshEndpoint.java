@@ -51,15 +51,14 @@ public class BoshEndpoint implements Endpoint {
     private Server server;
 
     private boolean isSSLEnabled;
-    
+
     private String sslKeystorePath;
-    
+
     private String sslKeystorePassword;
-    
+
     private String flashCrossDomainPolicy;
 
-    public void setServerRuntimeContext(
-            ServerRuntimeContext serverRuntimeContext) {
+    public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
         this.serverRuntimeContext = serverRuntimeContext;
     }
 
@@ -70,7 +69,7 @@ public class BoshEndpoint implements Endpoint {
     public void setPort(int port) {
         this.port = port;
     }
-    
+
     /**
      * Configures the SSL keystore and the keystore password.
      * <p>
@@ -98,7 +97,7 @@ public class BoshEndpoint implements Endpoint {
     public void setSSLEnabled(boolean value) {
         isSSLEnabled = value;
     }
-    
+
     /**
      * Setter for the Flash cross-domain policy file location
      * @param policyPath
@@ -106,7 +105,7 @@ public class BoshEndpoint implements Endpoint {
     public void setFlashCrossDomainPolicy(String policyPath) {
         flashCrossDomainPolicy = policyPath;
     }
-    
+
     /**
      * @throws IOException 
      * @throws RuntimeException a wrapper of the possible
@@ -114,7 +113,7 @@ public class BoshEndpoint implements Endpoint {
      */
     public void start() throws IOException {
         server = new Server();
-        
+
         Connector connector;
         if (isSSLEnabled) {
             SslSelectChannelConnector sslConnector = new SslSelectChannelConnector();
@@ -127,17 +126,16 @@ public class BoshEndpoint implements Endpoint {
         }
         connector.setPort(port);
         server.setConnectors(new Connector[] { connector });
-        
-        ServletContextHandler context = new ServletContextHandler(
-                ServletContextHandler.SESSIONS);
+
+        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/");
         server.setHandler(context);
-        
+
         BoshServlet boshServlet = new BoshServlet();
         boshServlet.setServerRuntimeContext(serverRuntimeContext);
         boshServlet.setFlashCrossDomainPolicy(flashCrossDomainPolicy);
         context.addServlet(new ServletHolder(boshServlet), "/");
-        
+
         try {
             server.start();
         } catch (Exception e) {

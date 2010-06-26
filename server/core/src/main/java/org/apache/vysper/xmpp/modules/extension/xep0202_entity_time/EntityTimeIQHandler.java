@@ -19,7 +19,11 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0202_entity_time;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.apache.vysper.compliance.SpecCompliant;
+import org.apache.vysper.xmpp.datetime.DateTimeProfile;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -28,16 +32,12 @@ import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.datetime.DateTimeProfile;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-@SpecCompliant(spec="xep-0202", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+@SpecCompliant(spec = "xep-0202", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
 public class EntityTimeIQHandler extends DefaultIQHandler {
 
     public EntityTimeIQHandler() {
@@ -63,11 +63,11 @@ public class EntityTimeIQHandler extends DefaultIQHandler {
 
         String utcTime = DateTimeProfile.getInstance().getDateTimeInUTC(now);
 
-        StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID()).
-            startInnerElement("time", NamespaceURIs.URN_XMPP_TIME).
+        StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(),
+                IQStanzaType.RESULT, stanza.getID()).startInnerElement("time", NamespaceURIs.URN_XMPP_TIME).
 
-            startInnerElement("tzo", NamespaceURIs.URN_XMPP_TIME).addText(timeZone).endInnerElement().
-            startInnerElement("utc", NamespaceURIs.URN_XMPP_TIME).addText(utcTime).endInnerElement().
+        startInnerElement("tzo", NamespaceURIs.URN_XMPP_TIME).addText(timeZone).endInnerElement().startInnerElement(
+                "utc", NamespaceURIs.URN_XMPP_TIME).addText(utcTime).endInnerElement().
 
         endInnerElement();
 

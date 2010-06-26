@@ -26,13 +26,8 @@ package org.apache.vysper.xmpp.stanza;
  */
 public enum PresenceStanzaType {
 
-    UNAVAILABLE("unavailable"),
-    SUBSCRIBE("subscribe"),
-    SUBSCRIBED("subscribed"),
-    UNSUBSCRIBE("unsubscribe"),
-    UNSUBSCRIBED("unsubscribed"),
-    PROBE("probe"),
-    ERROR("error");
+    UNAVAILABLE("unavailable"), SUBSCRIBE("subscribe"), SUBSCRIBED("subscribed"), UNSUBSCRIBE("unsubscribe"), UNSUBSCRIBED(
+            "unsubscribed"), PROBE("probe"), ERROR("error");
 
     private final String value;
 
@@ -53,10 +48,9 @@ public enum PresenceStanzaType {
     }
 
     public static boolean isSubscriptionType(PresenceStanzaType presenceStanzaType) {
-        return presenceStanzaType != null && (
-               presenceStanzaType == SUBSCRIBE || presenceStanzaType == SUBSCRIBED ||
-               presenceStanzaType == UNSUBSCRIBE || presenceStanzaType == UNSUBSCRIBED
-               );
+        return presenceStanzaType != null
+                && (presenceStanzaType == SUBSCRIBE || presenceStanzaType == SUBSCRIBED
+                        || presenceStanzaType == UNSUBSCRIBE || presenceStanzaType == UNSUBSCRIBED);
     }
 
     /**

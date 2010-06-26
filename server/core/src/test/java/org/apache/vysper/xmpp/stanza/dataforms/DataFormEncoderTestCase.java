@@ -19,20 +19,18 @@
  */
 package org.apache.vysper.xmpp.stanza.dataforms;
 
+import static org.apache.vysper.xmpp.stanza.dataforms.Field.Type.HIDDEN;
 import junit.framework.TestCase;
-import static org.apache.vysper.xmpp.stanza.dataforms.DataForm.Type;
-import static org.apache.vysper.xmpp.stanza.dataforms.Field.Type.*;
 
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
+import org.apache.vysper.xmpp.stanza.dataforms.DataForm.Type;
 
 /**
  */
 public class DataFormEncoderTestCase extends TestCase {
-    
-    
-    
+
     public void testXDataForm() throws XMLSemanticError {
         DataForm form = new DataForm();
         form.setTitle("ftitle");
@@ -43,7 +41,7 @@ public class DataFormEncoderTestCase extends TestCase {
         field.addOption(new Option("1.", "uno"));
         field.addOption(new Option("2.", "due"));
         form.addField(field);
-        
+
         XMLElement formElement = new DataFormEncoder().getXML(form);
         XMLElementVerifier formElementVerifier = formElement.getVerifier();
         formElementVerifier.nameEquals("x");
@@ -58,10 +56,9 @@ public class DataFormEncoderTestCase extends TestCase {
         fieldElementVerifier.subElementsPresentExact(3);
         formElementVerifier.subElementPresent("value");
         formElementVerifier.subElementPresent("option");
-        
 
     }
-    
+
     public void testXDataCancel() {
         DataForm form = new DataForm();
         form.setType(Type.cancel);
@@ -70,8 +67,7 @@ public class DataFormEncoderTestCase extends TestCase {
         XMLElement formElement = new DataFormEncoder().getXML(form);
         assertTrue(formElement.getInnerElements().isEmpty());
 
-
     }
-    
+
     // TODO test 'item' subelements together with 'reported' 
 }

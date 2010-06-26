@@ -20,23 +20,22 @@
 package org.apache.vysper.xmpp.server;
 
 import java.io.File;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.vysper.mina.TCPEndpoint;
 import org.apache.vysper.storage.StorageProviderRegistry;
-import org.apache.vysper.storage.jcr.JcrStorageProviderRegistry;
 import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.AccountCreationException;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
+import org.apache.vysper.xmpp.modules.Module;
+import org.apache.vysper.xmpp.modules.extension.xep0049_privatedata.PrivateDataModule;
 import org.apache.vysper.xmpp.modules.extension.xep0054_vcardtemp.VcardTempModule;
 import org.apache.vysper.xmpp.modules.extension.xep0092_software_version.SoftwareVersionModule;
 import org.apache.vysper.xmpp.modules.extension.xep0119_xmppping.XmppPingModule;
 import org.apache.vysper.xmpp.modules.extension.xep0202_entity_time.EntityTimeModule;
-import org.apache.vysper.xmpp.modules.extension.xep0049_privatedata.PrivateDataModule;
-import org.apache.vysper.xmpp.modules.Module;
 
 /**
  * starts the server as a standalone application
@@ -67,7 +66,8 @@ public class ServerMain {
         //StorageProviderRegistry providerRegistry = new JcrStorageProviderRegistry();
         StorageProviderRegistry providerRegistry = new MemoryStorageProviderRegistry();
 
-        final AccountManagement accountManagement = (AccountManagement)providerRegistry.retrieve(AccountManagement.class);
+        final AccountManagement accountManagement = (AccountManagement) providerRegistry
+                .retrieve(AccountManagement.class);
 
         if (!accountManagement.verifyAccountExists(EntityImpl.parse("user1@vysper.org"))) {
             accountManagement.addUser("user1@vysper.org", "password1");
@@ -108,11 +108,11 @@ public class ServerMain {
 
     private static List<Module> createModuleInstances(String[] moduleClassNames) {
         List<Module> modules = new ArrayList<Module>();
-        
+
         for (String moduleClassName : moduleClassNames) {
             Class<Module> moduleClass;
             try {
-                moduleClass = (Class<Module>)Class.forName(moduleClassName);
+                moduleClass = (Class<Module>) Class.forName(moduleClassName);
             } catch (ClassCastException e) {
                 System.err.println("not a Vysper module class: " + moduleClassName);
                 continue;

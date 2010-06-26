@@ -37,26 +37,25 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
  */
 public class MUCStanzaBuilder extends StanzaBuilder {
 
-	public static Stanza createPresenceStanza(Entity from, Entity to, PresenceStanzaType type, String xNamespaceUri, List<XMLElement> innerElms) {
-		return createPresenceStanza(from, to, type, xNamespaceUri, innerElms.toArray(new XMLElement[0]));
-	}
-	
-	public static Stanza createPresenceStanza(Entity from, Entity to, PresenceStanzaType type, String xNamespaceUri, XMLElement... innerElms) {
-		StanzaBuilder builder = StanzaBuilder.createPresenceStanza(from, to, null, 
-				type, null, null);
-		builder.addPreparedElement(new X(xNamespaceUri, innerElms));
- 
-		return builder.build();
-	}
-	
-	
-	public MUCStanzaBuilder(String stanzaName, String namespaceURI,
-			List<Attribute> attributes,
-			List<XMLFragment> innerFragments) {
-		super(stanzaName, namespaceURI, null, attributes, innerFragments);
-	}
+    public static Stanza createPresenceStanza(Entity from, Entity to, PresenceStanzaType type, String xNamespaceUri,
+            List<XMLElement> innerElms) {
+        return createPresenceStanza(from, to, type, xNamespaceUri, innerElms.toArray(new XMLElement[0]));
+    }
 
-	public MUCStanzaBuilder(String stanzaName, String namespaceURI) {
-		super(stanzaName, namespaceURI);
-	}
+    public static Stanza createPresenceStanza(Entity from, Entity to, PresenceStanzaType type, String xNamespaceUri,
+            XMLElement... innerElms) {
+        StanzaBuilder builder = StanzaBuilder.createPresenceStanza(from, to, null, type, null, null);
+        builder.addPreparedElement(new X(xNamespaceUri, innerElms));
+
+        return builder.build();
+    }
+
+    public MUCStanzaBuilder(String stanzaName, String namespaceURI, List<Attribute> attributes,
+            List<XMLFragment> innerFragments) {
+        super(stanzaName, namespaceURI, null, attributes, innerFragments);
+    }
+
+    public MUCStanzaBuilder(String stanzaName, String namespaceURI) {
+        super(stanzaName, namespaceURI);
+    }
 }

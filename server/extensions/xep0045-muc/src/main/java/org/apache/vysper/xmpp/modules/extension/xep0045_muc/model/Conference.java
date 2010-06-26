@@ -47,57 +47,57 @@ public class Conference implements ServerInfoRequestListener, ItemRequestListene
     private String name;
 
     private RoomStorageProvider roomStorageProvider = new InMemoryRoomStorageProvider();
+
     private OccupantStorageProvider occupantStorageProvider = new InMemoryOccupantStorageProvider();
-    
+
     public Conference(String name) {
-        if(name == null || name.trim().length() == 0) {
+        if (name == null || name.trim().length() == 0) {
             throw new IllegalArgumentException("Name must not be null or empty");
         }
-        
+
         this.name = name;
     }
 
     public void initialize() {
         roomStorageProvider.initialize();
-        if (occupantStorageProvider != null) occupantStorageProvider.initialize();   
+        if (occupantStorageProvider != null)
+            occupantStorageProvider.initialize();
     }
-    
+
     public Collection<Room> getAllRooms() {
         return roomStorageProvider.getAllRooms();
     }
-    
+
     public Room createRoom(Entity jid, String name, RoomType... types) {
-        if(roomStorageProvider.roomExists(jid)) {
+        if (roomStorageProvider.roomExists(jid)) {
             throw new IllegalArgumentException("Room already exists with JID: " + jid);
         }
-        
+
         return roomStorageProvider.createRoom(jid, name, types);
     }
-    
 
     public void deleteRoom(Entity jid) {
         roomStorageProvider.deleteRoom(jid);
-        
+
     }
-    
+
     public Room findRoom(Entity jid) {
         return roomStorageProvider.findRoom(jid);
     }
-    
+
     public Room findOrCreateRoom(Entity jid, String name, RoomType... types) {
         Room room = findRoom(jid);
-        if(room == null) {
+        if (room == null) {
             room = createRoom(jid, name, types);
         }
         return room;
     }
-    
+
     public OccupantStorageProvider getOccupantStorageProvider() {
         return occupantStorageProvider;
     }
 
-    public void setOccupantStorageProvider(
-            OccupantStorageProvider occupantStorageProvider) {
+    public void setOccupantStorageProvider(OccupantStorageProvider occupantStorageProvider) {
         this.occupantStorageProvider = occupantStorageProvider;
     }
 
@@ -105,8 +105,7 @@ public class Conference implements ServerInfoRequestListener, ItemRequestListene
         return roomStorageProvider;
     }
 
-    public void setRoomStorageProvider(
-            RoomStorageProvider roomStorageProvider) {
+    public void setRoomStorageProvider(RoomStorageProvider roomStorageProvider) {
         this.roomStorageProvider = roomStorageProvider;
     }
 
@@ -124,11 +123,11 @@ public class Conference implements ServerInfoRequestListener, ItemRequestListene
     public List<Item> getItemsFor(InfoRequest request) {
         List<Item> items = new ArrayList<Item>();
         Collection<Room> rooms = getAllRooms();
-        
-        for(Room room : rooms) {
+
+        for (Room room : rooms) {
             items.add(new Item(room.getJID(), room.getName()));
         }
-        
+
         return items;
     }
 

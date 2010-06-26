@@ -19,39 +19,42 @@
  */
 package org.apache.vysper.xmpp.modules.core.im.handler;
 
-import org.apache.vysper.compliance.SpecCompliance;
-import org.apache.vysper.compliance.SpecCompliant;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.IN_PROGRESS;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.NOT_STARTED;
-import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
-import org.apache.vysper.xmpp.delivery.LocalDeliveryUtils;
-import org.apache.vysper.xmpp.delivery.StanzaRelay;
-import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import static org.apache.vysper.xmpp.modules.roster.AskSubscriptionType.ASK_SUBSCRIBE;
 import static org.apache.vysper.xmpp.modules.roster.AskSubscriptionType.ASK_SUBSCRIBED;
+import static org.apache.vysper.xmpp.modules.roster.RosterSubscriptionMutator.Result.ALREADY_SET;
+import static org.apache.vysper.xmpp.modules.roster.RosterSubscriptionMutator.Result.OK;
+import static org.apache.vysper.xmpp.modules.roster.SubscriptionType.FROM;
+import static org.apache.vysper.xmpp.modules.roster.SubscriptionType.NONE;
+import static org.apache.vysper.xmpp.modules.roster.SubscriptionType.TO;
+import static org.apache.vysper.xmpp.stanza.PresenceStanzaType.SUBSCRIBED;
+import static org.apache.vysper.xmpp.stanza.PresenceStanzaType.isSubscriptionType;
+
+import java.util.List;
+
+import org.apache.vysper.compliance.SpecCompliance;
+import org.apache.vysper.compliance.SpecCompliant;
+import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.delivery.LocalDeliveryUtils;
+import org.apache.vysper.xmpp.delivery.StanzaRelay;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
+import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.modules.roster.RosterException;
 import org.apache.vysper.xmpp.modules.roster.RosterItem;
 import org.apache.vysper.xmpp.modules.roster.RosterStanzaUtils;
 import org.apache.vysper.xmpp.modules.roster.RosterSubscriptionMutator;
-import static org.apache.vysper.xmpp.modules.roster.RosterSubscriptionMutator.Result.ALREADY_SET;
-import static org.apache.vysper.xmpp.modules.roster.RosterSubscriptionMutator.Result.OK;
-import static org.apache.vysper.xmpp.modules.roster.SubscriptionType.*;
 import org.apache.vysper.xmpp.modules.roster.persistence.RosterManager;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.PresenceStanza;
 import org.apache.vysper.xmpp.stanza.PresenceStanzaType;
-import static org.apache.vysper.xmpp.stanza.PresenceStanzaType.SUBSCRIBED;
-import static org.apache.vysper.xmpp.stanza.PresenceStanzaType.isSubscriptionType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanzaVerifier;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 /**
  * handling presence stanzas of type subscription
@@ -65,10 +68,12 @@ public class PresenceSubscriptionHandler extends AbstractPresenceSpecializedHand
     final Logger logger = LoggerFactory.getLogger(PresenceSubscriptionHandler.class);
 
     @Override
-    /*package*/ Stanza executeCorePresence(ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza, SessionContext sessionContext, PresenceStanza presenceStanza, RosterManager rosterManager) {
+    /*package*/Stanza executeCorePresence(ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza,
+            SessionContext sessionContext, PresenceStanza presenceStanza, RosterManager rosterManager) {
 
         if (!isSubscriptionType(presenceStanza.getPresenceType())) {
-            throw new RuntimeException("case not handled in availability handler" + presenceStanza.getPresenceType().value());
+            throw new RuntimeException("case not handled in availability handler"
+                    + presenceStanza.getPresenceType().value());
         }
 
         // TODO: either use the resource associated with the session
@@ -82,71 +87,79 @@ public class PresenceSubscriptionHandler extends AbstractPresenceSpecializedHand
         PresenceStanzaType type = presenceStanza.getPresenceType();
 
         if (isOutboundStanza) {
-			// this is an outbound subscription
-			// request/approval/cancellation/unsubscription
-			// stamp it with the bare JID of the user
-			Entity user = initiatingEntity;
-			PresenceStanza stampedStanza = buildPresenceStanza(user.getBareJID(),
-                    presenceStanza.getTo().getBareJID(), presenceStanza.getPresenceType(), null);
+            // this is an outbound subscription
+            // request/approval/cancellation/unsubscription
+            // stamp it with the bare JID of the user
+            Entity user = initiatingEntity;
+            PresenceStanza stampedStanza = buildPresenceStanza(user.getBareJID(), presenceStanza.getTo().getBareJID(),
+                    presenceStanza.getPresenceType(), null);
 
             switch (type) {
 
-                case SUBSCRIBE:
-                    // RFC3921bis-04#3.1.2
-                    // user requests subsription to contact
-                    handleOutboundSubscriptionRequest(stampedStanza, serverRuntimeContext, sessionContext, registry, rosterManager);
-                    break;
+            case SUBSCRIBE:
+                // RFC3921bis-04#3.1.2
+                // user requests subsription to contact
+                handleOutboundSubscriptionRequest(stampedStanza, serverRuntimeContext, sessionContext, registry,
+                        rosterManager);
+                break;
 
-                case SUBSCRIBED:
-                    // RFC3921bis-04#3.1.5
-                    // user approves subscription to requesting contact
-                    handleOutboundSubscriptionApproval(stampedStanza, serverRuntimeContext, sessionContext, registry, rosterManager);
-                    break;
+            case SUBSCRIBED:
+                // RFC3921bis-04#3.1.5
+                // user approves subscription to requesting contact
+                handleOutboundSubscriptionApproval(stampedStanza, serverRuntimeContext, sessionContext, registry,
+                        rosterManager);
+                break;
 
-                case UNSUBSCRIBE:
-                    // RFC3921bis-04#3.3.2
-                    // user removes subscription from contact
-                    handleOutboundUnsubscription(stampedStanza, serverRuntimeContext, sessionContext, registry, rosterManager);
-                    break;
+            case UNSUBSCRIBE:
+                // RFC3921bis-04#3.3.2
+                // user removes subscription from contact
+                handleOutboundUnsubscription(stampedStanza, serverRuntimeContext, sessionContext, registry,
+                        rosterManager);
+                break;
 
-                case UNSUBSCRIBED:
-                    // RFC3921bis-04#3.2.2
-                    // user approves unsubscription of contact
-                    handleOutboundSubscriptionCancellation(stampedStanza, serverRuntimeContext, sessionContext, registry, rosterManager);
-                    break;
+            case UNSUBSCRIBED:
+                // RFC3921bis-04#3.2.2
+                // user approves unsubscription of contact
+                handleOutboundSubscriptionCancellation(stampedStanza, serverRuntimeContext, sessionContext, registry,
+                        rosterManager);
+                break;
 
-                default:
-                    throw new RuntimeException("unhandled case " + type.value());
+            default:
+                throw new RuntimeException("unhandled case " + type.value());
             }
 
-        } else /* inbound */ {
+        } else /* inbound */{
 
             switch (type) {
 
-                case SUBSCRIBE:
-                    // RFC3921bis-04#3.1.3
-                    // contact requests subscription to user
-                    return handleInboundSubscriptionRequest(presenceStanza, serverRuntimeContext, sessionContext, registry, rosterManager);
+            case SUBSCRIBE:
+                // RFC3921bis-04#3.1.3
+                // contact requests subscription to user
+                return handleInboundSubscriptionRequest(presenceStanza, serverRuntimeContext, sessionContext, registry,
+                        rosterManager);
 
-                case SUBSCRIBED:
-                    // RFC3921bis-04#3.1.6
-                    // contact approves user's subsription request
-                    return handleInboundSubscriptionApproval(presenceStanza, serverRuntimeContext, sessionContext, registry, rosterManager);
+            case SUBSCRIBED:
+                // RFC3921bis-04#3.1.6
+                // contact approves user's subsription request
+                return handleInboundSubscriptionApproval(presenceStanza, serverRuntimeContext, sessionContext,
+                        registry, rosterManager);
 
-                case UNSUBSCRIBE:
-                    // RFC3921bis-04#3.3.3
-                    // contact unsubscribes
-                    handleInboundUnsubscription(presenceStanza, serverRuntimeContext, sessionContext, registry, rosterManager);
-                    return null;
+            case UNSUBSCRIBE:
+                // RFC3921bis-04#3.3.3
+                // contact unsubscribes
+                handleInboundUnsubscription(presenceStanza, serverRuntimeContext, sessionContext, registry,
+                        rosterManager);
+                return null;
 
-                case UNSUBSCRIBED:
-                    // RFC3921bis-04#3.2.3
-                    // contact denies subsription
-                    handleInboundSubscriptionCancellation(presenceStanza, serverRuntimeContext, sessionContext, registry, rosterManager);
-                    return null;
+            case UNSUBSCRIBED:
+                // RFC3921bis-04#3.2.3
+                // contact denies subsription
+                handleInboundSubscriptionCancellation(presenceStanza, serverRuntimeContext, sessionContext, registry,
+                        rosterManager);
+                return null;
 
-                default:
-                    throw new RuntimeException("unhandled case " + type.value());
+            default:
+                throw new RuntimeException("unhandled case " + type.value());
 
             }
         }
@@ -154,10 +167,10 @@ public class PresenceSubscriptionHandler extends AbstractPresenceSpecializedHand
     }
 
     @SpecCompliance(compliant = {
-        @SpecCompliant(spec = "RFC3921bis-05", section = "3.3.3", status = IN_PROGRESS, comment = "current impl based hereupon"),
-        @SpecCompliant(spec = "RFC3921bis-08", section = "3.3.3", status = NOT_STARTED, comment = "substantial additions from bis-05 not yet taken into account")
-    })
-	protected void handleInboundUnsubscription(PresenceStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, ResourceRegistry registry, RosterManager rosterManager) {
+            @SpecCompliant(spec = "RFC3921bis-05", section = "3.3.3", status = IN_PROGRESS, comment = "current impl based hereupon"),
+            @SpecCompliant(spec = "RFC3921bis-08", section = "3.3.3", status = NOT_STARTED, comment = "substantial additions from bis-05 not yet taken into account") })
+    protected void handleInboundUnsubscription(PresenceStanza stanza, ServerRuntimeContext serverRuntimeContext,
+            SessionContext sessionContext, ResourceRegistry registry, RosterManager rosterManager) {
         Entity contact = stanza.getFrom();
         Entity user = stanza.getTo();
 
@@ -172,7 +185,8 @@ public class PresenceSubscriptionHandler extends AbstractPresenceSpecializedHand
             throw new RuntimeException(e);
         }
 
-        if (rosterItem == null) return;
+        if (rosterItem == null)
+            return;
 
         RosterSubscriptionMutator.Result result = RosterSubscriptionMutator.getInstance().remove(rosterItem, FROM);
 
@@ -186,18 +200,18 @@ public class PresenceSubscriptionHandler extends AbstractPresenceSpecializedHand
         List<String> resources = registry.getInterestedResources(user);
         for (String resource : resources) {
             Entity userResource = new EntityImpl(user, resource);
-            Stanza push = RosterStanzaUtils.createRosterItemPushIQ(userResource, sessionContext.nextSequenceValue(), rosterItem);
+            Stanza push = RosterStanzaUtils.createRosterItemPushIQ(userResource, sessionContext.nextSequenceValue(),
+                    rosterItem);
             LocalDeliveryUtils.relayToResourceDirectly(registry, resource, push);
         }
 
-	}
+    }
 
     @SpecCompliance(compliant = {
-        @SpecCompliant(spec = "RFC3921bis-05", section = "3.3.2", status = IN_PROGRESS, comment = "current impl based hereupon"),
-        @SpecCompliant(spec = "RFC3921bis-08", section = "3.3.2", status = NOT_STARTED, comment = "rephrasing from bis-05 not yet taken into account")
-    })
-	protected void handleOutboundUnsubscription(PresenceStanza stanza,
-                                             ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, ResourceRegistry registry, RosterManager rosterManager) {
+            @SpecCompliant(spec = "RFC3921bis-05", section = "3.3.2", status = IN_PROGRESS, comment = "current impl based hereupon"),
+            @SpecCompliant(spec = "RFC3921bis-08", section = "3.3.2", status = NOT_STARTED, comment = "rephrasing from bis-05 not yet taken into account") })
+    protected void handleOutboundUnsubscription(PresenceStanza stanza, ServerRuntimeContext serverRuntimeContext,
+            SessionContext sessionContext, ResourceRegistry registry, RosterManager rosterManager) {
         Entity user = stanza.getFrom();
         Entity contact = stanza.getTo();
 
@@ -214,7 +228,8 @@ public class PresenceSubscriptionHandler extends AbstractPresenceSpecializedHand
             throw new RuntimeException(e);
         }
 
-        if (rosterItem == null) return;
+        if (rosterItem == null)
+            return;
 
         RosterSubscriptionMutator.Result result = RosterSubscriptionMutator.getInstance().remove(rosterItem, TO);
 
@@ -231,22 +246,24 @@ public class PresenceSubscriptionHandler extends AbstractPresenceSpecializedHand
     /**
      * send roster push to all of the user's interested resources
      */
-    protected void sendRosterUpdate(SessionContext sessionContext, ResourceRegistry registry, Entity user, RosterItem rosterItem) {
+    protected void sendRosterUpdate(SessionContext sessionContext, ResourceRegistry registry, Entity user,
+            RosterItem rosterItem) {
         List<String> resources = registry.getInterestedResources(user);
 
         for (String resource : resources) {
             Entity userResource = new EntityImpl(user, resource);
-            Stanza push = RosterStanzaUtils.createRosterItemPushIQ(userResource, sessionContext.nextSequenceValue(), rosterItem);
+            Stanza push = RosterStanzaUtils.createRosterItemPushIQ(userResource, sessionContext.nextSequenceValue(),
+                    rosterItem);
             LocalDeliveryUtils.relayToResourceDirectly(registry, resource, push);
         }
     }
 
     @SpecCompliance(compliant = {
-        @SpecCompliant(spec = "RFC3921bis-05", section = "3.2.3", status = IN_PROGRESS, comment = "current impl based hereupon"),
-        @SpecCompliant(spec = "RFC3921bis-08", section = "3.2.3", status = NOT_STARTED, comment = "additions from bis-05 not yet taken into account")
-    })
-	protected void handleInboundSubscriptionCancellation(PresenceStanza stanza,
-                                                      ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, ResourceRegistry registry, RosterManager rosterManager) {
+            @SpecCompliant(spec = "RFC3921bis-05", section = "3.2.3", status = IN_PROGRESS, comment = "current impl based hereupon"),
+            @SpecCompliant(spec = "RFC3921bis-08", section = "3.2.3", status = NOT_STARTED, comment = "additions from bis-05 not yet taken into account") })
+    protected void handleInboundSubscriptionCancellation(PresenceStanza stanza,
+            ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, ResourceRegistry registry,
+            RosterManager rosterManager) {
 
         Entity contact = stanza.getFrom();
         Entity user = stanza.getTo();
@@ -262,7 +279,8 @@ public class PresenceSubscriptionHandler extends AbstractPresenceSpecializedHand
             throw new RuntimeException(e);
         }
 
-        if (rosterItem == null) return;
+        if (rosterItem == null)
+            return;
 
         RosterSubscriptionMutator.Result result = RosterSubscriptionMutator.getInstance().remove(rosterItem, TO);
 
@@ -276,19 +294,20 @@ public class PresenceSubscriptionHandler extends AbstractPresenceSpecializedHand
         List<String> resources = registry.getInterestedResources(user);
         for (String resource : resources) {
             Entity userResource = new EntityImpl(user, resource);
-            Stanza push = RosterStanzaUtils.createRosterItemPushIQ(userResource, sessionContext.nextSequenceValue(), rosterItem);
+            Stanza push = RosterStanzaUtils.createRosterItemPushIQ(userResource, sessionContext.nextSequenceValue(),
+                    rosterItem);
             LocalDeliveryUtils.relayToResourceDirectly(registry, resource, push);
         }
-	}
+    }
 
     @SpecCompliance(compliant = {
-        @SpecCompliant(spec = "RFC3921bis-05", section = "3.2.2", status = IN_PROGRESS, comment = "current impl based hereupon"),
-        @SpecCompliant(spec = "RFC3921bis-08", section = "3.2.2", status = NOT_STARTED, comment = "rephrasing from bis-05 not yet taken into account")
-    })
-	protected void handleOutboundSubscriptionCancellation(PresenceStanza stanza,
-                                                       ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, ResourceRegistry registry, RosterManager rosterManager) {
-		Entity user = stanza.getFrom();
-		Entity contact = stanza.getTo();
+            @SpecCompliant(spec = "RFC3921bis-05", section = "3.2.2", status = IN_PROGRESS, comment = "current impl based hereupon"),
+            @SpecCompliant(spec = "RFC3921bis-08", section = "3.2.2", status = NOT_STARTED, comment = "rephrasing from bis-05 not yet taken into account") })
+    protected void handleOutboundSubscriptionCancellation(PresenceStanza stanza,
+            ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, ResourceRegistry registry,
+            RosterManager rosterManager) {
+        Entity user = stanza.getFrom();
+        Entity contact = stanza.getTo();
 
         Entity userBareJid = user.getBareJID();
         Entity contactBareJid = contact.getBareJID();
@@ -301,7 +320,8 @@ public class PresenceSubscriptionHandler extends AbstractPresenceSpecializedHand
             throw new RuntimeException(e);
         }
 
-        if (rosterItem == null) return;
+        if (rosterItem == null)
+            return;
 
         RosterSubscriptionMutator.Result result = RosterSubscriptionMutator.getInstance().remove(rosterItem, FROM);
 
@@ -314,18 +334,15 @@ public class PresenceSubscriptionHandler extends AbstractPresenceSpecializedHand
 
         // send roster push to all of the user's interested resources
         sendRosterUpdate(sessionContext, registry, user, rosterItem);
-	}
-
+    }
 
     @SpecCompliance(compliant = {
-        @SpecCompliant(spec = "RFC3921bis-05", section = "3.1.5", status = IN_PROGRESS, comment = "current impl based hereupon"),
-        @SpecCompliant(spec = "RFC3921bis-08", section = "3.1.5", status = NOT_STARTED, comment = "slight changes from bis-05 not yet taken into account")
-    })
-	protected void handleOutboundSubscriptionApproval(PresenceStanza stanza,
-                                                   ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, ResourceRegistry registry, RosterManager rosterManager)
-    {
-		Entity user = stanza.getFrom();
-		Entity contact = stanza.getTo();
+            @SpecCompliant(spec = "RFC3921bis-05", section = "3.1.5", status = IN_PROGRESS, comment = "current impl based hereupon"),
+            @SpecCompliant(spec = "RFC3921bis-08", section = "3.1.5", status = NOT_STARTED, comment = "slight changes from bis-05 not yet taken into account") })
+    protected void handleOutboundSubscriptionApproval(PresenceStanza stanza, ServerRuntimeContext serverRuntimeContext,
+            SessionContext sessionContext, ResourceRegistry registry, RosterManager rosterManager) {
+        Entity user = stanza.getFrom();
+        Entity contact = stanza.getTo();
 
         Entity userBareJid = user.getBareJID();
         Entity contactBareJid = contact.getBareJID();
@@ -351,21 +368,25 @@ public class PresenceSubscriptionHandler extends AbstractPresenceSpecializedHand
         // send roster push to all of the user's interested resources
         sendRosterUpdate(sessionContext, registry, user, rosterItem);
 
-		// send presence information from user's available resource to the
-		// contact
+        // send presence information from user's available resource to the
+        // contact
         List<String> resources = registry.getAvailableResources(user);
-		for (String resource : resources) {
-			Entity userResource = new EntityImpl(user, resource);
+        for (String resource : resources) {
+            Entity userResource = new EntityImpl(user, resource);
 
-            PresenceStanza cachedPresenceStanza = sessionContext.getServerRuntimeContext().getPresenceCache().get(userResource);
-            if (cachedPresenceStanza == null) continue;
+            PresenceStanza cachedPresenceStanza = sessionContext.getServerRuntimeContext().getPresenceCache().get(
+                    userResource);
+            if (cachedPresenceStanza == null)
+                continue;
 
-            PresenceStanza sendoutPresence = buildPresenceStanza(userResource, contactBareJid, null, cachedPresenceStanza.getInnerElements());
+            PresenceStanza sendoutPresence = buildPresenceStanza(userResource, contactBareJid, null,
+                    cachedPresenceStanza.getInnerElements());
             relayStanza(contact, sendoutPresence, sessionContext);
-		}
-	}
+        }
+    }
 
-    private RosterItem getExistingOrNewRosterItem(RosterManager rosterManager, Entity userJid, Entity contactJid) throws RosterException {
+    private RosterItem getExistingOrNewRosterItem(RosterManager rosterManager, Entity userJid, Entity contactJid)
+            throws RosterException {
         RosterItem rosterItem = rosterManager.getContact(userJid, contactJid);
         if (rosterItem == null) {
             rosterItem = new RosterItem(contactJid, NONE);
@@ -378,11 +399,11 @@ public class PresenceSubscriptionHandler extends AbstractPresenceSpecializedHand
      *      DeliveringInboundStanzaRelay call this for every resource separately
      */
     @SpecCompliance(compliant = {
-        @SpecCompliant(spec = "RFC3921bis-05", section = "3.1.6", status = IN_PROGRESS, comment = "current impl based hereupon"),
-        @SpecCompliant(spec = "RFC3921bis-08", section = "3.1.6", status = NOT_STARTED, comment = "minor rephrasing from bis-05 not yet taken into account")
-    })
-	protected Stanza handleInboundSubscriptionApproval(PresenceStanza stanza,
-                                                    ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, ResourceRegistry registry, RosterManager rosterManager) {
+            @SpecCompliant(spec = "RFC3921bis-05", section = "3.1.6", status = IN_PROGRESS, comment = "current impl based hereupon"),
+            @SpecCompliant(spec = "RFC3921bis-08", section = "3.1.6", status = NOT_STARTED, comment = "minor rephrasing from bis-05 not yet taken into account") })
+    protected Stanza handleInboundSubscriptionApproval(PresenceStanza stanza,
+            ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, ResourceRegistry registry,
+            RosterManager rosterManager) {
 
         Entity contact = stanza.getFrom();
         Entity user = stanza.getTo();
@@ -402,31 +423,31 @@ public class PresenceSubscriptionHandler extends AbstractPresenceSpecializedHand
             throw new RuntimeException(e);
         }
 
-		if (result == OK || result == ALREADY_SET) {
+        if (result == OK || result == ALREADY_SET) {
 
             // send roster push to all interested resources
             // TODO do this only once, since inbound is multiplexed on DeliveringInboundStanzaRelay level already
-			List<String> resources = registry.getInterestedResources(user);
-			for (String resource : resources) {
-				Entity userResource = new EntityImpl(user, resource);
-				Stanza push = RosterStanzaUtils.createRosterItemPushIQ(userResource, sessionContext.nextSequenceValue(), rosterItem);
+            List<String> resources = registry.getInterestedResources(user);
+            for (String resource : resources) {
+                Entity userResource = new EntityImpl(user, resource);
+                Stanza push = RosterStanzaUtils.createRosterItemPushIQ(userResource,
+                        sessionContext.nextSequenceValue(), rosterItem);
                 LocalDeliveryUtils.relayToResourceDirectly(registry, resource, push);
-			}
-		} else {
-			// silently drop the stanza
-		}
+            }
+        } else {
+            // silently drop the stanza
+        }
 
-		return null;
-	}
+        return null;
+    }
 
     @SpecCompliance(compliant = {
-        @SpecCompliant(spec = "RFC3921bis-05", section = "3.1.3", status = IN_PROGRESS, comment = "current impl based hereupon"),
-        @SpecCompliant(spec = "RFC3921bis-08", section = "3.1.3", status = NOT_STARTED, comment = "major rephrasing from bis-05 not yet taken into account")
-    })
-	protected Stanza handleInboundSubscriptionRequest(PresenceStanza stanza,
-                                                   ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, ResourceRegistry registry, RosterManager rosterManager) {
-		Entity contact = stanza.getFrom();
-		Entity user = stanza.getTo();
+            @SpecCompliant(spec = "RFC3921bis-05", section = "3.1.3", status = IN_PROGRESS, comment = "current impl based hereupon"),
+            @SpecCompliant(spec = "RFC3921bis-08", section = "3.1.3", status = NOT_STARTED, comment = "major rephrasing from bis-05 not yet taken into account") })
+    protected Stanza handleInboundSubscriptionRequest(PresenceStanza stanza, ServerRuntimeContext serverRuntimeContext,
+            SessionContext sessionContext, ResourceRegistry registry, RosterManager rosterManager) {
+        Entity contact = stanza.getFrom();
+        Entity user = stanza.getTo();
 
         Entity userBareJid = user.getBareJID();
 
@@ -458,19 +479,18 @@ public class PresenceSubscriptionHandler extends AbstractPresenceSpecializedHand
         // write inbound subscription request to the user
         sessionContext.getResponseWriter().write(stanza);
 
-		return null;
-	}
+        return null;
+    }
 
     @SpecCompliance(compliant = {
-        @SpecCompliant(spec = "RFC3921bis-05", section = "3.1.2", status = IN_PROGRESS, comment = "current impl based hereupon"),
-        @SpecCompliant(spec = "RFC3921bis-08", section = "3.1.2", status = NOT_STARTED, comment = "major rephrasing from bis-05 not yet taken into account")
-    })
-	protected void handleOutboundSubscriptionRequest(PresenceStanza stanza,
-                                                  ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, ResourceRegistry registry, RosterManager rosterManager) {
-		StanzaRelay stanzaRelay = serverRuntimeContext.getStanzaRelay();
+            @SpecCompliant(spec = "RFC3921bis-05", section = "3.1.2", status = IN_PROGRESS, comment = "current impl based hereupon"),
+            @SpecCompliant(spec = "RFC3921bis-08", section = "3.1.2", status = NOT_STARTED, comment = "major rephrasing from bis-05 not yet taken into account") })
+    protected void handleOutboundSubscriptionRequest(PresenceStanza stanza, ServerRuntimeContext serverRuntimeContext,
+            SessionContext sessionContext, ResourceRegistry registry, RosterManager rosterManager) {
+        StanzaRelay stanzaRelay = serverRuntimeContext.getStanzaRelay();
 
-		Entity user = stanza.getFrom();
-		Entity contact = stanza.getTo().getBareJID();
+        Entity user = stanza.getFrom();
+        Entity contact = stanza.getTo().getBareJID();
 
         // TODO schedule a observer which can re-send the request
 
@@ -478,7 +498,8 @@ public class PresenceSubscriptionHandler extends AbstractPresenceSpecializedHand
         try {
             rosterItem = getExistingOrNewRosterItem(rosterManager, user.getBareJID(), contact);
 
-            RosterSubscriptionMutator.Result result = RosterSubscriptionMutator.getInstance().add(rosterItem, ASK_SUBSCRIBE);
+            RosterSubscriptionMutator.Result result = RosterSubscriptionMutator.getInstance().add(rosterItem,
+                    ASK_SUBSCRIBE);
             if (result != OK) {
                 return;
             }
@@ -496,12 +517,13 @@ public class PresenceSubscriptionHandler extends AbstractPresenceSpecializedHand
         }
 
         // send roster push to all of the user's interested resources
-		List<String> resources = registry.getInterestedResources(user);
-		for (String resource : resources) {
-			Entity userResource = new EntityImpl(user, resource);
-			Stanza push = RosterStanzaUtils.createRosterItemPushIQ(userResource, sessionContext.nextSequenceValue(), rosterItem);
+        List<String> resources = registry.getInterestedResources(user);
+        for (String resource : resources) {
+            Entity userResource = new EntityImpl(user, resource);
+            Stanza push = RosterStanzaUtils.createRosterItemPushIQ(userResource, sessionContext.nextSequenceValue(),
+                    rosterItem);
             LocalDeliveryUtils.relayToResourceDirectly(registry, resource, push);
         }
-	}
+    }
 
 }

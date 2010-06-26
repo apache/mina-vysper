@@ -37,24 +37,25 @@ public abstract class AbstractInviteDecline extends XMLElement {
     public AbstractInviteDecline(String elmName, XMLElement elm) {
         super(NamespaceURIs.XEP0045_MUC, elmName, null, elm.getAttributes(), elm.getInnerFragments());
     }
-    
+
     public AbstractInviteDecline(String elmName, Entity from, Entity to, String reason) {
-        super(NamespaceURIs.XEP0045_MUC, elmName, null, 
-                createAttributes(from, to), 
-                createFragments(reason));
+        super(NamespaceURIs.XEP0045_MUC, elmName, null, createAttributes(from, to), createFragments(reason));
     }
-    
+
     private static List<Attribute> createAttributes(Entity from, Entity to) {
         List<Attribute> attributes = new ArrayList<Attribute>();
-        if(to != null) attributes.add(new Attribute("to", to.getFullQualifiedName()));
-        if(from != null) attributes.add(new Attribute("from", from.getFullQualifiedName()));
+        if (to != null)
+            attributes.add(new Attribute("to", to.getFullQualifiedName()));
+        if (from != null)
+            attributes.add(new Attribute("from", from.getFullQualifiedName()));
         return attributes;
     }
 
     private static List<XMLFragment> createFragments(String reason) {
         List<XMLFragment> fragments = new ArrayList<XMLFragment>();
-        if(reason != null) {
-            XMLElement reasonElm = new XMLElement(NamespaceURIs.XEP0045_MUC, "reason", null, null, new XMLFragment[]{new XMLText(reason)});
+        if (reason != null) {
+            XMLElement reasonElm = new XMLElement(NamespaceURIs.XEP0045_MUC, "reason", null, null,
+                    new XMLFragment[] { new XMLText(reason) });
             fragments.add(reasonElm);
         }
         return fragments;
@@ -62,7 +63,7 @@ public abstract class AbstractInviteDecline extends XMLElement {
 
     public Entity getFrom() throws EntityFormatException {
         String value = getAttributeValue("from");
-        if(value != null) {
+        if (value != null) {
             return EntityImpl.parse(value);
         } else {
             return null;
@@ -71,17 +72,17 @@ public abstract class AbstractInviteDecline extends XMLElement {
 
     public Entity getTo() throws EntityFormatException {
         String value = getAttributeValue("to");
-        if(value != null) {
+        if (value != null) {
             return EntityImpl.parse(value);
         } else {
             return null;
         }
     }
-    
+
     public String getReason() {
         try {
             XMLElement reasonElm = getSingleInnerElementsNamed("reason");
-            if(reasonElm != null && reasonElm.getInnerText() != null) {
+            if (reasonElm != null && reasonElm.getInnerText() != null) {
                 return reasonElm.getInnerText().getText();
             } else {
                 return null;

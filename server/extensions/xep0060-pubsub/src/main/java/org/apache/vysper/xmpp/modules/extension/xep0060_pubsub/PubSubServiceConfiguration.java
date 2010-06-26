@@ -33,8 +33,11 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.L
  */
 public class PubSubServiceConfiguration {
     private Entity serverJID;
+
     private CollectionNode rootNode;
+
     private CollectionNodeStorageProvider collectionNodeStorageProvider;
+
     private LeafNodeStorageProvider leafNodeStorageProvider;
 
     /**
@@ -110,5 +113,5 @@ public class PubSubServiceConfiguration {
     public void initialize() {
         rootNode.setCollectionNodeStorageProvider(this.collectionNodeStorageProvider);
     }
-    
+
 }

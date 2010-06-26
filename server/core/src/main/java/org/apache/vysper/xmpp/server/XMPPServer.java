@@ -30,9 +30,9 @@ import org.apache.vysper.xmpp.authorization.Plain;
 import org.apache.vysper.xmpp.authorization.SASLMechanism;
 import org.apache.vysper.xmpp.cryptography.BogusTrustManagerFactory;
 import org.apache.vysper.xmpp.cryptography.FileBasedTLSContextFactory;
-import org.apache.vysper.xmpp.delivery.inbound.DeliveringInboundStanzaRelay;
 import org.apache.vysper.xmpp.delivery.RecordingStanzaRelay;
 import org.apache.vysper.xmpp.delivery.StanzaRelayBroker;
+import org.apache.vysper.xmpp.delivery.inbound.DeliveringInboundStanzaRelay;
 import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.roster.RosterModule;
 import org.apache.vysper.xmpp.modules.servicediscovery.ServiceDiscoveryModule;
@@ -56,11 +56,17 @@ import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 public class XMPPServer {
 
     private final List<SASLMechanism> saslMechanisms = new ArrayList<SASLMechanism>();
+
     private String serverDomain;
+
     private DefaultServerRuntimeContext serverRuntimeContext;
+
     private StorageProviderRegistry storageProviderRegistry;
+
     private File tlsCertificateFile;
+
     private String tlsCertificatePassword;
+
     private final List<Endpoint> endpoints = new ArrayList<Endpoint>();
 
     public XMPPServer(String domain) {
@@ -101,8 +107,10 @@ public class XMPPServer {
 
         EntityImpl serverEntity = new EntityImpl(null, serverDomain, null);
 
-        AccountManagement accountManagement = (AccountManagement) storageProviderRegistry.retrieve(AccountManagement.class);
-        DeliveringInboundStanzaRelay internalStanzaRelay = new DeliveringInboundStanzaRelay(serverEntity, resourceRegistry, accountManagement);
+        AccountManagement accountManagement = (AccountManagement) storageProviderRegistry
+                .retrieve(AccountManagement.class);
+        DeliveringInboundStanzaRelay internalStanzaRelay = new DeliveringInboundStanzaRelay(serverEntity,
+                resourceRegistry, accountManagement);
         RecordingStanzaRelay externalStanzaRelay = new RecordingStanzaRelay();
 
         StanzaRelayBroker stanzaRelayBroker = new StanzaRelayBroker();
@@ -112,7 +120,8 @@ public class XMPPServer {
         ServerFeatures serverFeatures = new ServerFeatures();
         serverFeatures.setAuthenticationMethods(saslMechanisms);
 
-        serverRuntimeContext = new DefaultServerRuntimeContext(serverEntity, stanzaRelayBroker, serverFeatures, dictionaries, resourceRegistry);
+        serverRuntimeContext = new DefaultServerRuntimeContext(serverEntity, stanzaRelayBroker, serverFeatures,
+                dictionaries, resourceRegistry);
         serverRuntimeContext.setStorageProviderRegistry(storageProviderRegistry);
         serverRuntimeContext.setTlsContextFactory(tlsContextFactory);
 
@@ -122,7 +131,8 @@ public class XMPPServer {
         stanzaRelayBroker.setServerRuntimeContext(serverRuntimeContext);
         internalStanzaRelay.setServerRuntimeContext(serverRuntimeContext);
 
-        if (endpoints.size() == 0) throw new IllegalStateException("server must have at least one endpoint");
+        if (endpoints.size() == 0)
+            throw new IllegalStateException("server must have at least one endpoint");
         for (Endpoint endpoint : endpoints) {
             endpoint.setServerRuntimeContext(serverRuntimeContext);
             endpoint.start();
@@ -138,7 +148,7 @@ public class XMPPServer {
     public void addModule(Module module) {
         serverRuntimeContext.addModule(module);
     }
-    
+
     private void addCoreDictionaries(List<NamespaceHandlerDictionary> dictionaries) {
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.base.BaseStreamStanzaDictionary());
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.starttls.StartTLSStanzaDictionary());

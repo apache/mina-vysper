@@ -37,13 +37,12 @@ import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
-
 /**
  * This class is responsible for handling all "delete" stanzas within the pubsub#owner namespace.
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-@SpecCompliant(spec="xep-0060", section="8.4", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
+@SpecCompliant(spec = "xep-0060", section = "8.4", status = SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
 public class PubSubOwnerDeleteNodeHandler extends AbstractPubSubOwnerHandler {
 
     /**
@@ -60,7 +59,7 @@ public class PubSubOwnerDeleteNodeHandler extends AbstractPubSubOwnerHandler {
     protected String getWorkerElement() {
         return "delete";
     }
-    
+
     /**
      * This method takes care of handling the "delete" use-case including all (relevant) error conditions.
      * 
@@ -68,30 +67,27 @@ public class PubSubOwnerDeleteNodeHandler extends AbstractPubSubOwnerHandler {
      */
     @Override
     @SpecCompliance(compliant = {
-            @SpecCompliant(spec="xep-0060", section="8.4.2", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
-            , @SpecCompliant(spec="xep-0060", section="8.4.3.1", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
-            , @SpecCompliant(spec="xep-0060", section="8.4.3.2", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
-        })
-    protected Stanza handleSet(IQStanza stanza,
-            ServerRuntimeContext serverRuntimeContext,
-            SessionContext sessionContext) {
+            @SpecCompliant(spec = "xep-0060", section = "8.4.2", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE),
+            @SpecCompliant(spec = "xep-0060", section = "8.4.3.1", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE),
+            @SpecCompliant(spec = "xep-0060", section = "8.4.3.2", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE) })
+    protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         Entity serverJID = serviceConfiguration.getServerJID();
         CollectionNode root = serviceConfiguration.getRootNode();
-        
+
         Entity sender = extractSenderJID(stanza, sessionContext);
-        
+
         StanzaBuilder sb = StanzaBuilder.createDirectReply(stanza, false, IQStanzaType.RESULT);
         String nodeName = extractNodeName(stanza);
         LeafNode node = root.find(nodeName);
-        
-        if(node == null) {
+
+        if (node == null) {
             return errorStanzaGenerator.generateNoNodeErrorStanza(sender, serverJID, stanza);
         }
-        
-        if(!node.isAuthorized(sender, PubSubPrivilege.DELETE)) {
+
+        if (!node.isAuthorized(sender, PubSubPrivilege.DELETE)) {
             return errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, serverJID, stanza);
         }
-        
+
         sendDeleteNotifications(serverRuntimeContext, sender, nodeName, node);
         root.deleteNode(nodeName);
 
@@ -120,7 +116,8 @@ public class PubSubOwnerDeleteNodeHandler extends AbstractPubSubOwnerHandler {
      * @return the XMLElement for inclusion in the delete notification.
      */
     private XMLElement createDeleteElement(String nodeName) {
-        return new XMLElement(null, "delete", null, new Attribute[] {new Attribute("node", nodeName)}, (XMLFragment[])null);
+        return new XMLElement(null, "delete", null, new Attribute[] { new Attribute("node", nodeName) },
+                (XMLFragment[]) null);
     }
 
 }

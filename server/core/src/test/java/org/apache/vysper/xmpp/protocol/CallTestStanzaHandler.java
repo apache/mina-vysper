@@ -21,15 +21,19 @@
 package org.apache.vysper.xmpp.protocol;
 
 import org.apache.vysper.xml.fragment.XMLElement;
-import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 public class CallTestStanzaHandler implements StanzaHandler {
     private boolean handlerCalled = false;
+
     private String name;
+
     private String namespaceURI = null;
+
     private ProtocolException exception = null;
+
     private boolean verifyCalled = false;
 
     public CallTestStanzaHandler(String name, String namespaceURI) {
@@ -47,20 +51,24 @@ public class CallTestStanzaHandler implements StanzaHandler {
 
     public boolean verify(Stanza stanza) {
         verifyCalled = true;
-        if (name != null && !name.equals(stanza.getName())) return false;
-        if (namespaceURI == null) return true;
-        
+        if (name != null && !name.equals(stanza.getName()))
+            return false;
+        if (namespaceURI == null)
+            return true;
+
         //boolean elementNamespaceMatches = false;
         //if (namespaceURI != null && namespaceURI.equals(stanza.getNamespacePrefix())) elementNamespaceMatches = true;
-        
+
         boolean outerNamespaceMatches = false;
         boolean innerNamespaceMatches = false;
-        if (namespaceURI != null && namespaceURI.equals(stanza.getNamespaceURI())) outerNamespaceMatches = true;
+        if (namespaceURI != null && namespaceURI.equals(stanza.getNamespaceURI()))
+            outerNamespaceMatches = true;
         XMLElement firstInnerElement = stanza.getFirstInnerElement();
         if (firstInnerElement != null) {
-            if (namespaceURI != null && namespaceURI.equals(firstInnerElement.getNamespaceURI())) innerNamespaceMatches = true;
+            if (namespaceURI != null && namespaceURI.equals(firstInnerElement.getNamespaceURI()))
+                innerNamespaceMatches = true;
         }
-        return /*elementNamespaceMatches || */ outerNamespaceMatches || innerNamespaceMatches;
+        return /*elementNamespaceMatches || */outerNamespaceMatches || innerNamespaceMatches;
     }
 
     public boolean isSessionRequired() {
@@ -77,15 +85,20 @@ public class CallTestStanzaHandler implements StanzaHandler {
         this.exception = exception;
     }
 
-    public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder) throws ProtocolException {
-        if (stanza == null || !stanza.getName().equals(getName()) || sessionContext == null) throw new RuntimeException("test failed");
+    public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
+            boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder)
+            throws ProtocolException {
+        if (stanza == null || !stanza.getName().equals(getName()) || sessionContext == null)
+            throw new RuntimeException("test failed");
         handlerCalled = true;
-        if (exception != null) throw exception;
+        if (exception != null)
+            throw exception;
         return null;
     }
 
     public void assertHandlerCalled() {
-        if (!handlerCalled) throw new RuntimeException("handler not called");
+        if (!handlerCalled)
+            throw new RuntimeException("handler not called");
         handlerCalled = false;
     }
 }

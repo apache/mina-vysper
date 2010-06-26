@@ -56,7 +56,7 @@ public class StartTLSHandlerTestCase extends TestCase {
         XMLElementVerifier verifier = responseStanza.getVerifier();
         assertTrue("session state to low failure", verifier.nameEquals("failure"));
         assertFalse("tls init", sessionContext.isSwitchToTLSCalled());
-                  
+
         sessionContext.setSessionState(SessionState.ENCRYPTION_STARTED);
         responseStanza = executeStartTLSHandler(starttlsStanza, sessionContext);
         verifier = responseStanza.getVerifier();
@@ -67,20 +67,22 @@ public class StartTLSHandlerTestCase extends TestCase {
         responseStanza = executeStartTLSHandler(starttlsStanza, sessionContext);
         verifier = responseStanza.getVerifier();
         assertTrue("session state ready", verifier.nameEquals("proceed"));
-        assertEquals("session stat is encryption started", SessionState.ENCRYPTION_STARTED, sessionStateHolder.getState());
+        assertEquals("session stat is encryption started", SessionState.ENCRYPTION_STARTED, sessionStateHolder
+                .getState());
         assertTrue("tls init", sessionContext.isSwitchToTLSCalled());
     }
 
     private Stanza executeStartTLSHandler(Stanza starttlsStanza, TestSessionContext sessionContext) {
         StartTLSHandler startTLSHandler = new StartTLSHandler();
-        ResponseStanzaContainer responseStanzaContainer = startTLSHandler.execute(starttlsStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
+        ResponseStanzaContainer responseStanzaContainer = startTLSHandler.execute(starttlsStanza, sessionContext
+                .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
         Stanza responseStanza = responseStanzaContainer.getResponseStanza();
         return responseStanza;
     }
-    
+
     public void testNamespace() {
         sessionContext.setSessionState(SessionState.STARTED);
-        
+
         StanzaBuilder stanzaBuilder = new StanzaBuilder("starttls", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS);
         Stanza wrongNSStanza = stanzaBuilder.build();
 
@@ -99,5 +101,5 @@ public class StartTLSHandlerTestCase extends TestCase {
         assertTrue("namespace correct proceed", verifier.nameEquals("proceed"));
         assertTrue("tls init", sessionContext.isSwitchToTLSCalled());
     }
-    
+
 }

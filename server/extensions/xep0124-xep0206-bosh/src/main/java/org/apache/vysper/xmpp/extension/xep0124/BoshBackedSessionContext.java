@@ -41,11 +41,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class BoshBackedSessionContext extends AbstractSessionContext implements
-        StanzaWriter {
-    
+public class BoshBackedSessionContext extends AbstractSessionContext implements StanzaWriter {
+
     private final static Logger LOGGER = LoggerFactory.getLogger(BoshBackedSessionContext.class);
-    
+
     private final BoshHandler boshHandler;
 
     private final int inactivity = 60;
@@ -53,7 +52,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements
     private final int polling = 15;
 
     private final int requests = 2;
-    
+
     private String boshVersion = "1.9";
 
     private String contentType = BoshServlet.XML_CONTENT_TYPE;
@@ -61,11 +60,11 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements
     private int wait = 60;
 
     private int hold = 1;
-    
+
     private Queue<HttpServletRequest> requestQueue;
-    
+
     private Queue<BoshResponse> delayedResponseQueue;
-    
+
     /**
      * Creates a new context for a session
      * @param serverRuntimeContext
@@ -78,7 +77,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements
         requestQueue = new LinkedList<HttpServletRequest>();
         delayedResponseQueue = new LinkedList<BoshResponse>();
     }
-    
+
     public SessionStateHolder getStateHolder() {
         return sessionStateHolder;
     }
@@ -93,7 +92,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements
     public void write(Stanza stanza) {
         write(getResponse(stanza));
     }
-    
+
     public void write(BoshResponse resp) {
         HttpServletRequest req = requestQueue.poll();
         if (req == null) {
@@ -143,7 +142,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements
         int major = Integer.parseInt(v[0]);
         int minor = Integer.parseInt(v[1]);
         v = version.split("\\.");
-        
+
         if (v.length == 2) {
             int clientMajor = Integer.parseInt(v[0]);
             int clientMinor = Integer.parseInt(v[1]);
@@ -169,7 +168,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements
     public int getRequests() {
         return requests;
     }
-    
+
     synchronized public void requestExpired(HttpServletRequest req) {
         for (;;) {
             HttpServletRequest r = requestQueue.peek();
@@ -189,13 +188,13 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements
         continuation.suspend();
         continuation.setAttribute("session", this);
         requestQueue.offer(req);
-        
+
         BoshResponse resp = delayedResponseQueue.poll();
         if (resp != null) {
             write(resp);
             return;
         }
-        
+
         if (requestQueue.size() > hold) {
             write(boshHandler.getEmptyStanza());
         }

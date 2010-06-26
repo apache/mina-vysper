@@ -38,23 +38,28 @@ import org.apache.vysper.compliance.SpecCompliant;
 public class DateTimeProfile {
 
     protected static final TimeZone TIME_ZONE_UTC;
-    
+
     protected static final SimpleDateFormat utcDateFormatter;
+
     protected static final SimpleDateFormat utcDateTimeFormatter;
+
     protected static final SimpleDateFormat utcTimeFormatter;
 
-    private static final String DATE_PATTERN_VALUE = "(\\d\\d\\d\\d)-(\\d\\d)-(\\d\\d)"; 
-    private static final String TIME_PATTERN_VALUE = "(\\d\\d):(\\d\\d):(\\d\\d)"; 
-    private static final String TZ_PATTERN_VALUE   = "(([+-]\\d\\d:\\d\\d)|Z)"; 
-    
+    private static final String DATE_PATTERN_VALUE = "(\\d\\d\\d\\d)-(\\d\\d)-(\\d\\d)";
+
+    private static final String TIME_PATTERN_VALUE = "(\\d\\d):(\\d\\d):(\\d\\d)";
+
+    private static final String TZ_PATTERN_VALUE = "(([+-]\\d\\d:\\d\\d)|Z)";
+
     // time zone is required for date times
-    private static final Pattern DATE_TIME_PATTERN = Pattern.compile("^" + DATE_PATTERN_VALUE + "T" 
+    private static final Pattern DATE_TIME_PATTERN = Pattern.compile("^" + DATE_PATTERN_VALUE + "T"
             + TIME_PATTERN_VALUE + TZ_PATTERN_VALUE + "$");
-    private static final Pattern DATE_PATTERN      = Pattern.compile("^" + DATE_PATTERN_VALUE + "$");
-    
+
+    private static final Pattern DATE_PATTERN = Pattern.compile("^" + DATE_PATTERN_VALUE + "$");
+
     // time zone is optional for times
-    private static final Pattern TIME_PATTERN      = Pattern.compile("^" + TIME_PATTERN_VALUE + TZ_PATTERN_VALUE + "?$");
-    
+    private static final Pattern TIME_PATTERN = Pattern.compile("^" + TIME_PATTERN_VALUE + TZ_PATTERN_VALUE + "?$");
+
     static {
         TIME_ZONE_UTC = TimeZone.getTimeZone("UTC");
         utcDateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -64,13 +69,13 @@ public class DateTimeProfile {
         utcTimeFormatter = new SimpleDateFormat("HH:mm:ss'Z'");
         utcTimeFormatter.setTimeZone(TIME_ZONE_UTC); // convert to UTC
     }
-    
+
     private final static DateTimeProfile SINGLETON = new DateTimeProfile();
 
     public static DateTimeProfile getInstance() {
-        return SINGLETON;     
+        return SINGLETON;
     }
-    
+
     protected DateTimeProfile() {
         // empty
     }
@@ -98,7 +103,7 @@ public class DateTimeProfile {
     public Calendar fromDateTime(String time) {
         Matcher matcher = DATE_TIME_PATTERN.matcher(time);
 
-        if(matcher.find()) {
+        if (matcher.find()) {
             int year = Integer.valueOf(matcher.group(1));
             int month = Integer.valueOf(matcher.group(2));
             int day = Integer.valueOf(matcher.group(3));
@@ -107,7 +112,7 @@ public class DateTimeProfile {
             int second = Integer.valueOf(matcher.group(6));
             String tzValue = matcher.group(7);
             TimeZone tz;
-            if(tzValue.equals("Z")) {
+            if (tzValue.equals("Z")) {
                 tz = TIME_ZONE_UTC;
             } else {
                 tz = TimeZone.getTimeZone("GMT" + tzValue);
@@ -132,13 +137,13 @@ public class DateTimeProfile {
     public Calendar fromTime(String time) {
         Matcher matcher = TIME_PATTERN.matcher(time);
 
-        if(matcher.find()) {
+        if (matcher.find()) {
             int hour = Integer.valueOf(matcher.group(1));
             int minute = Integer.valueOf(matcher.group(2));
             int second = Integer.valueOf(matcher.group(3));
             String tzValue = matcher.group(4);
             TimeZone tz;
-            if(tzValue == null || tzValue.equals("Z")) {
+            if (tzValue == null || tzValue.equals("Z")) {
                 tz = TIME_ZONE_UTC;
             } else {
                 tz = TimeZone.getTimeZone("GMT" + tzValue);
@@ -163,14 +168,14 @@ public class DateTimeProfile {
     public Calendar fromDate(String time) {
         Matcher matcher = DATE_PATTERN.matcher(time);
 
-        if(matcher.find()) {
+        if (matcher.find()) {
             int year = Integer.valueOf(matcher.group(1));
             int month = Integer.valueOf(matcher.group(2));
             int day = Integer.valueOf(matcher.group(3));
 
             Calendar calendar = Calendar.getInstance(TIME_ZONE_UTC);
             calendar.clear();
-            calendar.set(year, month -1, day);
+            calendar.set(year, month - 1, day);
             return calendar;
         } else {
             throw new IllegalArgumentException("Invalid date time: " + time);

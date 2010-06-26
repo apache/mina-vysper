@@ -19,7 +19,11 @@
  */
 package org.apache.vysper.xmpp.modules.core.sasl.handler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.TestCase;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.vysper.storage.OpenStorageProviderRegistry;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
@@ -37,9 +41,6 @@ import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  */
 public class AuthHandlerPlainMechanismTestCase extends TestCase {
@@ -47,8 +48,6 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
 
     private SessionStateHolder sessionStateHolder = new SessionStateHolder();
 
-    
-    
     @Override
     protected void setUp() throws Exception {
         super.setUp();
@@ -57,13 +56,14 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
 
         List<SASLMechanism> methods = new ArrayList<SASLMechanism>();
         methods.add(new Plain());
-        
+
         sessionContext.getServerRuntimeContext().getServerFeatures().setAuthenticationMethods(methods);
         SimpleUserAuthorization users = new SimpleUserAuthorization();
         users.addUser("user007@test", "pass007");
         OpenStorageProviderRegistry providerRegistry = new OpenStorageProviderRegistry();
         providerRegistry.add(users);
-        ((DefaultServerRuntimeContext) sessionContext.getServerRuntimeContext()).setStorageProviderRegistry(providerRegistry);
+        ((DefaultServerRuntimeContext) sessionContext.getServerRuntimeContext())
+                .setStorageProviderRegistry(providerRegistry);
     }
 
     public void testAuthPlainNoInitialResponse() throws AuthorizationFailedException {
@@ -71,7 +71,8 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
         Stanza authPlainStanza = stanzaBuilder.build();
 
         AuthHandler authHandler = new AuthHandler();
-        ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
+        ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext
+                .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
 
         assertTrue(responseContainer.getResponseStanza().getVerifier().nameEquals("failure"));
         assertTrue(sessionStateHolder.getState() == SessionState.ENCRYPTED);
@@ -83,7 +84,8 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
         Stanza authPlainStanza = stanzaBuilder.build();
 
         AuthHandler authHandler = new AuthHandler();
-        ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
+        ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext
+                .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
 
         assertTrue(responseContainer.getResponseStanza().getVerifier().nameEquals("failure"));
         assertTrue(sessionStateHolder.getState() == SessionState.ENCRYPTED);
@@ -92,15 +94,16 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
     public void testAuthPlainAuthorizedCredentialsResponse() throws XMLSemanticError, AuthorizationFailedException {
         StanzaBuilder stanzaBuilder = createAuthPlain();
         stanzaBuilder.addText(new String(Base64.encodeBase64("dummy\0user007\0pass007".getBytes())));
-        
+
         Stanza authPlainStanza = stanzaBuilder.build();
 
         assertEquals(3, AuthorizationRetriesCounter.getFromSession(sessionContext).getTriesLeft());
 
         AuthHandler authHandler = new AuthHandler();
-        ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
+        ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext
+                .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
         Stanza responseStanza = responseContainer.getResponseStanza();
-        
+
         assertTrue(responseStanza.getVerifier().nameEquals("success"));
         assertTrue(sessionStateHolder.getState() == SessionState.AUTHENTICATED);
         assertNull(sessionContext.getAttribute(AuthorizationRetriesCounter.SESSION_ATTRIBUTE_ABORTION_COUNTER));
@@ -109,7 +112,7 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
     public void testAuthPlainWrongCredentialsResponse() throws XMLSemanticError, AuthorizationFailedException {
 
         executeWrongPlainAuthorization_3Times();
-        
+
         StanzaBuilder stanzaBuilder = createAuthPlain();
         stanzaBuilder.addText(new String(Base64.encodeBase64("dummy\0user007\0pass007".getBytes())));
         Stanza authPlainStanza = stanzaBuilder.build();
@@ -117,7 +120,8 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
         // correct credential no longer work - no retries left
         AuthHandler authHandler = new AuthHandler();
         try {
-            ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
+            ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext
+                    .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
             fail("should raise error - no tries left");
         } catch (AuthorizationFailedException e) {
             // test succeeded
@@ -149,7 +153,8 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
         Stanza authPlainStanza = stanzaBuilder.build();
 
         AuthHandler authHandler = new AuthHandler();
-        ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
+        ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext
+                .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
         Stanza responseStanza = responseContainer.getResponseStanza();
         return responseStanza;
     }

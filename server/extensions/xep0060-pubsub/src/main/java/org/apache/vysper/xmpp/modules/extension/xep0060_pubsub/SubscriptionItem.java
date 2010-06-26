@@ -27,9 +27,11 @@ import org.apache.vysper.xmpp.addressing.Entity;
 public class SubscriptionItem {
 
     protected String nodeName = null;
+
     protected String subscriptionID = null;
+
     protected Entity subscriberJID = null;
-    
+
     /**
      * Creates a new subscription item with teh supplied name, subscriptionID and subscriber JID.
      */
@@ -59,7 +61,7 @@ public class SubscriptionItem {
     public String getSubscriptionID() {
         return subscriptionID;
     }
-    
+
     /**
      * @return the state of the subscription. Currently fixed as "subscribed".
      */

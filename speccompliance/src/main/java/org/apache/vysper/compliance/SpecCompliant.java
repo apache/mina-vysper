@@ -38,38 +38,38 @@ import java.lang.annotation.Target;
 @Target( { ElementType.METHOD, ElementType.TYPE, ElementType.FIELD })
 @Retention(RetentionPolicy.SOURCE)
 public @interface SpecCompliant {
-	public enum ComplianceStatus {
-		NOT_STARTED, IN_PROGRESS, FINISHED
-	}
+    public enum ComplianceStatus {
+        NOT_STARTED, IN_PROGRESS, FINISHED
+    }
 
-	public enum ComplianceCoverage {
-		UNKNOWN,
-        UNSUPPORTED, // the spec is not supported
+    public enum ComplianceCoverage {
+        UNKNOWN, UNSUPPORTED, // the spec is not supported
         PARTIAL, // spec is partially covered 
-        COMPLETE // spec is completely covered
-	}
+        COMPLETE
+        // spec is completely covered
+    }
 
-	/**
-	 * References a RFC or XEP specification document.
-	 * 
-	 * @return the RFC or XEP 
-	 */
-	String spec();
-	
-	/**
-	 * References the section in the specificiation document the target implements.
-	 * 
-	 * @return the section/appendix number or an empty {@link String} in case
-	 *         the entire RFC is implemented by the target
-	 */
-	String section() default "";
+    /**
+     * References a RFC or XEP specification document.
+     * 
+     * @return the RFC or XEP 
+     */
+    String spec();
 
-	/**
-	 * Specifies the status of the RFC compliance.
-	 * 
-	 * @return the compliance status
-	 */
-	ComplianceStatus status() default ComplianceStatus.IN_PROGRESS;
+    /**
+     * References the section in the specificiation document the target implements.
+     * 
+     * @return the section/appendix number or an empty {@link String} in case
+     *         the entire RFC is implemented by the target
+     */
+    String section() default "";
+
+    /**
+     * Specifies the status of the RFC compliance.
+     * 
+     * @return the compliance status
+     */
+    ComplianceStatus status() default ComplianceStatus.IN_PROGRESS;
 
     /**
      * Specifies the level of coverage for the referenced spec/section. If known, the referenced spec extract
@@ -77,7 +77,7 @@ public @interface SpecCompliant {
      * same extract. 
      * @return coverage level
      */
-	ComplianceCoverage coverage() default ComplianceCoverage.UNKNOWN;
+    ComplianceCoverage coverage() default ComplianceCoverage.UNKNOWN;
 
     /**
      * short text being more specific on coverage and other implementational aspects 

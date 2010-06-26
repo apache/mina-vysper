@@ -26,17 +26,14 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
  * @author The Apache MINA Project (http://mina.apache.org)
  */
 public enum PubSubAffiliation {
-    OUTCAST ("outcast"),
-    NONE ("none"),
-    MEMBER ("member"),
-    PUBLISHER ("publisher"),
-    OWNER ("owner");
-    
+    OUTCAST("outcast"), NONE("none"), MEMBER("member"), PUBLISHER("publisher"), OWNER("owner");
+
     private final String xep0060Name;
+
     private PubSubAffiliation(String name) {
         this.xep0060Name = name;
     }
-    
+
     public String toString() {
         return xep0060Name;
     }
@@ -49,10 +46,14 @@ public enum PubSubAffiliation {
      * @return the affiliation object, NONE if not known.
      */
     public static PubSubAffiliation get(String name) {
-        if(name.equalsIgnoreCase(OUTCAST.toString())) return OUTCAST;
-        if(name.equalsIgnoreCase(MEMBER.toString())) return MEMBER;
-        if(name.equalsIgnoreCase(PUBLISHER.toString())) return PUBLISHER;
-        if(name.equalsIgnoreCase(OWNER.toString())) return OWNER;
+        if (name.equalsIgnoreCase(OUTCAST.toString()))
+            return OUTCAST;
+        if (name.equalsIgnoreCase(MEMBER.toString()))
+            return MEMBER;
+        if (name.equalsIgnoreCase(PUBLISHER.toString()))
+            return PUBLISHER;
+        if (name.equalsIgnoreCase(OWNER.toString()))
+            return OWNER;
         return NONE;
     }
 }

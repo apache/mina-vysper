@@ -57,15 +57,17 @@ import org.slf4j.LoggerFactory;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class MUCModule 
-        extends DefaultDiscoAwareModule 
-        implements Component, ComponentInfoRequestListener, ItemRequestListener {
+public class MUCModule extends DefaultDiscoAwareModule implements Component, ComponentInfoRequestListener,
+        ItemRequestListener {
 
     private String subdomain = "chat";
+
     private Conference conference;
+
     private Entity fullDomain;
-    
+
     private final Logger logger = LoggerFactory.getLogger(MUCModule.class);
+
     private ServerRuntimeContext serverRuntimeContext;
 
     private ComponentStanzaProcessor stanzaProcessor;
@@ -73,23 +75,23 @@ public class MUCModule
     public MUCModule(String subdomain) {
         this(subdomain, new Conference("Conference"));
     }
-    
+
     public MUCModule() {
         this.conference = new Conference("Conference");
     }
-    
+
     public MUCModule(String subdomain, Conference conference) {
         this.subdomain = subdomain;
         this.conference = conference;
     }
-        
+
     /**
      * Initializes the MUC module, configuring the storage providers.
      */
     @Override
     public void initialize(ServerRuntimeContext serverRuntimeContext) {
         super.initialize(serverRuntimeContext);
-        
+
         this.serverRuntimeContext = serverRuntimeContext;
 
         try {
@@ -104,8 +106,10 @@ public class MUCModule
         processor.addHandler(new MUCIqAdminHandler(conference));
         stanzaProcessor = processor;
 
-        RoomStorageProvider roomStorageProvider = (RoomStorageProvider) serverRuntimeContext.getStorageProvider(RoomStorageProvider.class);
-        OccupantStorageProvider occupantStorageProvider = (OccupantStorageProvider) serverRuntimeContext.getStorageProvider(OccupantStorageProvider.class);
+        RoomStorageProvider roomStorageProvider = (RoomStorageProvider) serverRuntimeContext
+                .getStorageProvider(RoomStorageProvider.class);
+        OccupantStorageProvider occupantStorageProvider = (OccupantStorageProvider) serverRuntimeContext
+                .getStorageProvider(OccupantStorageProvider.class);
 
         if (roomStorageProvider == null) {
             logger.warn("No room storage provider found, using the default (in memory)");
@@ -118,10 +122,10 @@ public class MUCModule
         } else {
             conference.setOccupantStorageProvider(occupantStorageProvider);
         }
-        
+
         this.conference.initialize();
     }
-    
+
     @Override
     public String getName() {
         return "XEP-0045 Multi-user chat";
@@ -139,19 +143,20 @@ public class MUCModule
     protected void addItemRequestListeners(List<ItemRequestListener> itemRequestListeners) {
         itemRequestListeners.add(this);
     }
-    
-    
+
     public List<InfoElement> getComponentInfosFor(InfoRequest request) throws ServiceDiscoveryRequestException {
-        if (!fullDomain.getDomain().equals(request.getTo().getDomain())) return null;
-        
+        if (!fullDomain.getDomain().equals(request.getTo().getDomain()))
+            return null;
+
         if (request.getTo().getNode() == null) {
             List<InfoElement> serverInfos = conference.getServerInfosFor(request);
             return serverInfos;
         } else {
             // might be an items request on a room
             Room room = conference.findRoom(request.getTo().getBareJID());
-            if (room == null) return null;
-            
+            if (room == null)
+                return null;
+
             if (request.getTo().getResource() != null) {
                 // request for an occupant
                 Occupant occupant = room.findOccupantByNick(request.getTo().getResource());
@@ -181,7 +186,7 @@ public class MUCModule
         Entity to = request.getTo();
         if (to.getNode() == null) {
             // react on request send to server domain or this subdomain, but not to others
-            if(fullDomain.equals(to)) {
+            if (fullDomain.equals(to)) {
                 List<Item> conferenceItems = conference.getItemsFor(request);
                 return conferenceItems;
             } else if (serverRuntimeContext.getServerEnitity().equals(to)) {
@@ -208,11 +213,12 @@ public class MUCModule
         }
         return null;
     }
-    
+
     private void relayDiscoStanza(Entity receiver, InfoRequest request, String ns) {
-        StanzaBuilder builder = StanzaBuilder.createIQStanza(request.getFrom(), receiver, IQStanzaType.GET, request.getID());
+        StanzaBuilder builder = StanzaBuilder.createIQStanza(request.getFrom(), receiver, IQStanzaType.GET, request
+                .getID());
         builder.startInnerElement("query", ns);
-        if(request.getNode() != null) {
+        if (request.getNode() != null) {
             builder.addAttribute("node", request.getNode());
         }
 
@@ -221,9 +227,8 @@ public class MUCModule
         } catch (DeliveryException e) {
             // ignore
         }
-        
-    }
 
+    }
 
     public String getSubdomain() {
         return subdomain;

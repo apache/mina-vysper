@@ -38,11 +38,7 @@ package org.apache.vysper.xmpp.modules.roster;
  */
 public enum SubscriptionType {
 
-    BOTH("both"),
-    FROM("from"),
-    NONE("none"),
-    REMOVE("remove"),
-    TO("to");
+    BOTH("both"), FROM("from"), NONE("none"), REMOVE("remove"), TO("to");
 
     private final String value;
 
@@ -73,32 +69,37 @@ public enum SubscriptionType {
     public static SubscriptionType addState(SubscriptionType old, SubscriptionType add) {
         switch (add) {
 
-            case BOTH:
-                throw new RuntimeException("add 'both' not valid");
+        case BOTH:
+            throw new RuntimeException("add 'both' not valid");
 
-            case FROM:
-                if (!old.acceptsFrom()) throw new RuntimeException("cannot add " + add.value() + " to " + old.value());
-                if (old == NONE) return FROM;
-                if (old == TO) return BOTH;
-                throw new RuntimeException("add FROM not supported for " + old.value());
+        case FROM:
+            if (!old.acceptsFrom())
+                throw new RuntimeException("cannot add " + add.value() + " to " + old.value());
+            if (old == NONE)
+                return FROM;
+            if (old == TO)
+                return BOTH;
+            throw new RuntimeException("add FROM not supported for " + old.value());
 
-            case NONE:
-                return add;
+        case NONE:
+            return add;
 
-            case REMOVE:
-                throw new RuntimeException("add 'remove' not valid");
+        case REMOVE:
+            throw new RuntimeException("add 'remove' not valid");
 
-            case TO:
-                if (!old.acceptsTo()) throw new RuntimeException("cannot add " + add.value() + " to " + old.value());
-                if (old == NONE) return TO;
-                if (old == FROM) return BOTH;
-                throw new RuntimeException("add TO not supported for " + old.value());
+        case TO:
+            if (!old.acceptsTo())
+                throw new RuntimeException("cannot add " + add.value() + " to " + old.value());
+            if (old == NONE)
+                return TO;
+            if (old == FROM)
+                return BOTH;
+            throw new RuntimeException("add TO not supported for " + old.value());
 
-            default:
-                throw new RuntimeException("not implemented: adding " + add.value());
+        default:
+            throw new RuntimeException("not implemented: adding " + add.value());
 
         }
     }
-
 
 }

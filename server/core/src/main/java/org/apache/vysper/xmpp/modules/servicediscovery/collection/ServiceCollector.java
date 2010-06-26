@@ -19,11 +19,22 @@
  */
 package org.apache.vysper.xmpp.modules.servicediscovery.collection;
 
-import org.apache.vysper.xmpp.modules.ServerRuntimeContextService;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.*;
-import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
-import java.util.*;
+import org.apache.vysper.xmpp.modules.ServerRuntimeContextService;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.ComponentInfoRequestListener;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequestListener;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestListener;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequestListener;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 
 /**
  * on an item or info requests, calls all related listeners and collects what they have to add to the
@@ -36,8 +47,11 @@ public class ServiceCollector implements ServerRuntimeContextService, ServiceDis
     private static final Feature DEFAULT_FEATURE = new Feature(NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO);
 
     protected final List<InfoRequestListener> infoRequestListeners = new ArrayList<InfoRequestListener>();
+
     protected final List<ServerInfoRequestListener> serverInfoRequestListeners = new ArrayList<ServerInfoRequestListener>();
+
     protected final List<ComponentInfoRequestListener> componentInfoRequestListeners = new ArrayList<ComponentInfoRequestListener>();
+
     protected final List<ItemRequestListener> itemRequestListeners = new ArrayList<ItemRequestListener>();
 
     public void addInfoRequestListener(InfoRequestListener infoRequestListener) {
@@ -72,13 +86,15 @@ public class ServiceCollector implements ServerRuntimeContextService, ServiceDis
             } catch (Throwable e) {
                 continue;
             }
-            if (elementList != null) elements.addAll(elementList);
+            if (elementList != null)
+                elements.addAll(elementList);
         }
         Collections.sort(elements, new ElementPartitioningComparator());
         return elements;
     }
 
-    public List<InfoElement> processComponentInfoRequest(InfoRequest infoRequest) throws ServiceDiscoveryRequestException {
+    public List<InfoElement> processComponentInfoRequest(InfoRequest infoRequest)
+            throws ServiceDiscoveryRequestException {
         // sorted structure, to place all <feature/> after <identity/>
         List<InfoElement> elements = new ArrayList<InfoElement>();
         for (ComponentInfoRequestListener componentInfoRequestListener : componentInfoRequestListeners) {
@@ -90,12 +106,13 @@ public class ServiceCollector implements ServerRuntimeContextService, ServiceDis
             } catch (Throwable e) {
                 continue;
             }
-            if (elementList != null) elements.addAll(elementList);
+            if (elementList != null)
+                elements.addAll(elementList);
         }
         Collections.sort(elements, new ElementPartitioningComparator());
         return elements;
     }
-    
+
     /**
      * collect all non-server feature and identity info from the listeners
      */
@@ -112,7 +129,8 @@ public class ServiceCollector implements ServerRuntimeContextService, ServiceDis
             } catch (Throwable e) {
                 continue;
             }
-            if (elementList != null) elements.addAll(elementList);
+            if (elementList != null)
+                elements.addAll(elementList);
         }
         Collections.sort(elements, new ElementPartitioningComparator());
         return elements;
@@ -132,7 +150,8 @@ public class ServiceCollector implements ServerRuntimeContextService, ServiceDis
             } catch (Throwable e) {
                 continue;
             }
-            if (elementList != null) elements.addAll(elementList);
+            if (elementList != null)
+                elements.addAll(elementList);
         }
         return elements;
     }

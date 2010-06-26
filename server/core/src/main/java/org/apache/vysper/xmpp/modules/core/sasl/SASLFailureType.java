@@ -29,12 +29,12 @@ public enum SASLFailureType {
     ABORTED("aborted"), // sent as ACK in reply to <abort/>
     INCORRECT_ENCODING("incorrect-encoding"), // BASE64 or other encoding is incorrect
     INVALID_AUTHZID("invalid-authzid"), // RFC 3920: "authzid provided by the initiating entity is invalid,
-                                        // either because it is incorrectly formatted or because the initiating
-                                        // entity does not have permissions to authorize that ID"
+    // either because it is incorrectly formatted or because the initiating
+    // entity does not have permissions to authorize that ID"
     INVALID_MECHANISM("invalid-mechanism"), // this mechanism is not supported by the server
     MALFORMED_REQUEST("malformed-request"), // request is malformed
     MECHANISMS_TOO_WEAK("mechanisms-too-weak"), // RFC 3920: "The mechanism requested by the initiating entity is
-                                                // weaker than server policy permits for that initiating entity"
+    // weaker than server policy permits for that initiating entity"
     NOT_AUTHORIZED("not-authorized"), // sent credentials could not be positively verified
     TEMPORARY_AUTH_FAILURE("temporary-auth-failure"); // try again later!
 

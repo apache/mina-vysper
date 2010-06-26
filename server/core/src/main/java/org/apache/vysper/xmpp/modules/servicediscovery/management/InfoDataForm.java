@@ -19,13 +19,14 @@
  */
 package org.apache.vysper.xmpp.modules.servicediscovery.management;
 
+import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.COMPLETE;
+import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.FINISHED;
+
+import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.dataforms.DataForm;
 import org.apache.vysper.xmpp.stanza.dataforms.DataFormEncoder;
-import org.apache.vysper.compliance.SpecCompliant;
-import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.COMPLETE;
-import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.FINISHED;
 
 /**
  * this adds support for Service Discovery Extensions, which allows adding x-DataForms to info responses 
@@ -34,6 +35,7 @@ import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.FINISH
 public class InfoDataForm implements InfoElement {
 
     private static final Integer CLASS_ID = new Integer(3);
+
     protected static final DataFormEncoder DATA_FORM_ENCODER = new DataFormEncoder();
 
     protected XMLElement dataFormXML;

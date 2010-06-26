@@ -36,13 +36,12 @@ import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
-
 /**
  * This class handles the "subscribe" use cases for the "pubsub" namespace.
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-@SpecCompliant(spec="xep-0060", section="6.1", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
+@SpecCompliant(spec = "xep-0060", section = "6.1", status = SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
 public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
 
     /**
@@ -69,25 +68,22 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
      */
     @Override
     @SpecCompliance(compliant = {
-            @SpecCompliant(spec="xep-0060", section="6.1.2", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
-            , @SpecCompliant(spec="xep-0060", section="6.1.3.1", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
-            , @SpecCompliant(spec="xep-0060", section="6.1.3.2", status= SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
-            , @SpecCompliant(spec="xep-0060", section="6.1.3.3", status= SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
-            , @SpecCompliant(spec="xep-0060", section="6.1.3.4", status= SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
-            , @SpecCompliant(spec="xep-0060", section="6.1.3.5", status= SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
-            , @SpecCompliant(spec="xep-0060", section="6.1.3.6", status= SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
-            , @SpecCompliant(spec="xep-0060", section="6.1.3.7", status= SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
-            , @SpecCompliant(spec="xep-0060", section="6.1.3.8", status= SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
-            , @SpecCompliant(spec="xep-0060", section="6.1.3.9", status= SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
-            , @SpecCompliant(spec="xep-0060", section="6.1.3.10", status= SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
-            , @SpecCompliant(spec="xep-0060", section="6.1.3.11", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
-        })
-    protected Stanza handleSet(IQStanza stanza,
-            ServerRuntimeContext serverRuntimeContext,
-            SessionContext sessionContext) {
+            @SpecCompliant(spec = "xep-0060", section = "6.1.2", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE),
+            @SpecCompliant(spec = "xep-0060", section = "6.1.3.1", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE),
+            @SpecCompliant(spec = "xep-0060", section = "6.1.3.2", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED),
+            @SpecCompliant(spec = "xep-0060", section = "6.1.3.3", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED),
+            @SpecCompliant(spec = "xep-0060", section = "6.1.3.4", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED),
+            @SpecCompliant(spec = "xep-0060", section = "6.1.3.5", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED),
+            @SpecCompliant(spec = "xep-0060", section = "6.1.3.6", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED),
+            @SpecCompliant(spec = "xep-0060", section = "6.1.3.7", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED),
+            @SpecCompliant(spec = "xep-0060", section = "6.1.3.8", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED),
+            @SpecCompliant(spec = "xep-0060", section = "6.1.3.9", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED),
+            @SpecCompliant(spec = "xep-0060", section = "6.1.3.10", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED),
+            @SpecCompliant(spec = "xep-0060", section = "6.1.3.11", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE) })
+    protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         Entity serverJID = serviceConfiguration.getServerJID();
         CollectionNode root = serviceConfiguration.getRootNode();
-        
+
         Entity sender = extractSenderJID(stanza, sessionContext);
         Entity subJID = null;
 
@@ -103,7 +99,7 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
             return errorStanzaGenerator.generateJIDMalformedErrorStanza(sender, serverJID, stanza);
         }
 
-        if(!sender.getBareJID().equals(subJID.getBareJID())) {
+        if (!sender.getBareJID().equals(subJID.getBareJID())) {
             // error condition 1 (6.1.3)
             return errorStanzaGenerator.generateJIDDontMatchErrorStanza(sender, serverJID, stanza);
         }
@@ -111,7 +107,7 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
         String nodeName = extractNodeName(stanza);
         LeafNode node = root.find(nodeName);
 
-        if(node == null) {
+        if (node == null) {
             // no such node (error condition 11 (6.1.3))
             return errorStanzaGenerator.generateNoNodeErrorStanza(sender, serverJID, stanza);
         }

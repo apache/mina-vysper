@@ -19,11 +19,11 @@
  */
 package org.apache.vysper.spring;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.apache.vysper.xmpp.cryptography.AbstractTLSContextFactory;
 import org.springframework.core.io.Resource;
-
-import java.io.InputStream;
-import java.io.IOException;
 
 /**
  * helper factory class to make certificates available to MINA with Spring
@@ -36,8 +36,8 @@ public class ResourceBasedTLSContextFactory extends AbstractTLSContextFactory {
     private Resource certificateResource = null;
 
     public ResourceBasedTLSContextFactory(Resource certificateResource) {
-    this.certificateResource = certificateResource;
-}
+        this.certificateResource = certificateResource;
+    }
 
     @Override
     protected InputStream getCertificateInputStream() throws IOException {

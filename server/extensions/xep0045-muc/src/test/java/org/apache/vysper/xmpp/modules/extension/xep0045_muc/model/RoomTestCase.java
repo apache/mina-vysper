@@ -31,18 +31,20 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class RoomTestCase extends TestCase {
-    
+
     private Entity roomJid1 = EntityImpl.parseUnchecked("room1@vysper.org");
+
     private Entity roomJid2 = EntityImpl.parseUnchecked("room2@vysper.org");
 
     private Entity occupantJid1 = EntityImpl.parseUnchecked("user1@vysper.org");
+
     private Entity occupantJid2 = EntityImpl.parseUnchecked("user2@vysper.org");
 
     public void testConstructor() {
         Room room = new Room(roomJid1, "Room 1");
         assertEquals(roomJid1, room.getJID());
         assertEquals("Room 1", room.getName());
-        
+
         EnumSet<RoomType> types = room.getRoomTypes();
         assertTrue(types.contains(RoomType.NonAnonymous));
         assertTrue(types.contains(RoomType.Open));
@@ -56,7 +58,7 @@ public class RoomTestCase extends TestCase {
         Room room = new Room(roomJid1, "Room 1", RoomType.Hidden, RoomType.Open);
         assertEquals(roomJid1, room.getJID());
         assertEquals("Room 1", room.getName());
-        
+
         EnumSet<RoomType> types = room.getRoomTypes();
         assertTrue(types.contains(RoomType.NonAnonymous));
         assertTrue(types.contains(RoomType.Open));
@@ -71,78 +73,77 @@ public class RoomTestCase extends TestCase {
         try {
             new Room(roomJid1, "Room 1", RoomType.Hidden, RoomType.Public);
             fail("Expects IllegalArgumentException");
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             // ok
         }
     }
-    
+
     public void testConstructorWithFullJID() {
         try {
             new Room(EntityImpl.parseUnchecked("jid@vysper.org/incorrect"), "Room 1");
             fail("Expects IllegalArgumentException");
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             // ok
         }
     }
-    
+
     public void testConstructorWithNullJID() {
         try {
             new Room(null, "Room 1");
             fail("Expects IllegalArgumentException");
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             // ok
         }
     }
-    
-    
+
     public void testConstructorWithNullName() {
         try {
             new Room(roomJid1, null);
             fail("Expects IllegalArgumentException");
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             // ok
         }
     }
-    
+
     public void testConstructorWithWhitespaceName() {
         try {
             new Room(roomJid1, " \t ");
             fail("Expects IllegalArgumentException");
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             // ok
         }
     }
-    
+
     public void testAddRemoveGetOccupant() {
         Room room = new Room(roomJid1, "Room 1");
         room.addOccupant(occupantJid1, "Nick 1");
-        
+
         assertEquals(1, room.getOccupants().size());
-        
+
         Occupant occupant = room.getOccupants().iterator().next();
         assertEquals(occupantJid1, occupant.getJid());
         assertEquals("Nick 1", occupant.getName());
-        
+
         room.addOccupant(occupantJid2, "Nick 2");
         assertEquals(2, room.getOccupants().size());
-        
+
         room.removeOccupant(occupantJid1);
 
         assertEquals(1, room.getOccupants().size());
-        
+
         occupant = room.getOccupants().iterator().next();
         assertEquals(occupantJid2, occupant.getJid());
     }
-    
+
     public void testFindOccupantByJID() {
         Room room = new Room(roomJid1, "Room 1");
         room.addOccupant(occupantJid1, "Nick 1");
         room.addOccupant(occupantJid2, "Nick 2");
-        
+
         Occupant occupant = room.findOccupantByJID(occupantJid1);
         assertNotNull(occupant);
         assertEquals(occupantJid1, occupant.getJid());
-        
+
         assertNull(room.findOccupantByJID(EntityImpl.parseUnchecked("dummy@vysper.org")));
     }
 
@@ -150,11 +151,11 @@ public class RoomTestCase extends TestCase {
         Room room = new Room(roomJid1, "Room 1");
         room.addOccupant(occupantJid1, "Nick 1");
         room.addOccupant(occupantJid2, "Nick 2");
-        
+
         Occupant occupant = room.findOccupantByNick("Nick 2");
         assertNotNull(occupant);
         assertEquals(occupantJid2, occupant.getJid());
-        
+
         assertNull(room.findOccupantByNick("Dummy"));
     }
 }

@@ -39,9 +39,9 @@ public class XTestCase extends TestCase {
         builder.startInnerElement("x", NamespaceURIs.XEP0045_MUC);
         builder.startInnerElement("password", NamespaceURIs.XEP0045_MUC).addText("secret").endInnerElement();
         builder.endInnerElement();
-        
+
         X x = X.fromStanza(builder.build());
-        
+
         assertNotNull(x);
         assertEquals("secret", x.getPasswordValue());
     }

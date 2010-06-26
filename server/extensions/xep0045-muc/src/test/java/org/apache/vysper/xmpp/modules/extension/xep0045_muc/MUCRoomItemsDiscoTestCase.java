@@ -35,21 +35,23 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class MUCRoomItemsDiscoTestCase extends AbstractItemsDiscoTestCase {
-    
+
     private static final Entity ROOM_JID = EntityImpl.parseUnchecked("jid1@" + MODULEDOMAIN);
-    
+
     private static final Entity USER1_JID = EntityImpl.parseUnchecked("user1@vysper.org");
+
     private static final Entity USER2_JID = EntityImpl.parseUnchecked("user2@vysper.org");
 
     private static final Entity OCCUPANT1_JID = new EntityImpl(ROOM_JID, "Nick 1");
+
     private static final Entity OCCUPANT2_JID = new EntityImpl(ROOM_JID, "Nick 2");
 
     private MUCModule module;
-    
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        
+
         Conference conference = new Conference("Foo");
         Room room = conference.createRoom(ROOM_JID, "room1");
         room.addOccupant(USER1_JID, "Nick 1");
@@ -66,10 +68,7 @@ public class MUCRoomItemsDiscoTestCase extends AbstractItemsDiscoTestCase {
 
     @Override
     protected List<Item> getExpectedItems() throws EntityFormatException {
-        return Arrays.asList(
-                new Item(OCCUPANT1_JID),
-                new Item(OCCUPANT2_JID)
-        );
+        return Arrays.asList(new Item(OCCUPANT1_JID), new Item(OCCUPANT2_JID));
     }
 
     @Override

@@ -19,6 +19,8 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner;
 
+import java.util.List;
+
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -34,14 +36,14 @@ import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
-import java.util.List;
-
 /**
  * @author The Apache MINA Project (http://mina.apache.org)
  */
 public class PubSubOwnerModifyAffiliationsTestCase extends AbstractPublishSubscribeTestCase {
     protected LeafNode n1 = null;
+
     protected Entity client2 = null;
+
     protected Entity client3 = null;
 
     @Override
@@ -52,7 +54,7 @@ public class PubSubOwnerModifyAffiliationsTestCase extends AbstractPublishSubscr
 
         n1 = new LeafNode(serviceConfiguration, "Node1", "Node 1 used for testing purposes", client);
         n1.setAffiliation(client2, PubSubAffiliation.MEMBER);
-        
+
         root.add(n1);
     }
 
@@ -69,14 +71,15 @@ public class PubSubOwnerModifyAffiliationsTestCase extends AbstractPublishSubscr
     public void testModifyAffiliationsNoAuth() {
         Entity client2 = new EntityImpl("yoda", "starwars.com", null);
 
-        AbstractStanzaGenerator sg = new DefaultModifyAffiliationsStanzaGenerator("Node1", client, PubSubAffiliation.MEMBER);
+        AbstractStanzaGenerator sg = new DefaultModifyAffiliationsStanzaGenerator("Node1", client,
+                PubSubAffiliation.MEMBER);
         Stanza stanza = sg.getStanza(client2, pubsubService, "id123", null);
         ResponseStanzaContainer result = sendStanza(stanza, true);
 
         assertTrue(result.hasResponse());
 
         IQStanza response = new IQStanza(result.getResponseStanza());
-        assertEquals(IQStanzaType.ERROR.value(),response.getType());
+        assertEquals(IQStanzaType.ERROR.value(), response.getType());
 
         assertEquals("id123", response.getAttributeValue("id")); // IDs must match
 
@@ -94,12 +97,13 @@ public class PubSubOwnerModifyAffiliationsTestCase extends AbstractPublishSubscr
         String testNode = "test";
         assertNull(root.find(testNode));
 
-        AbstractStanzaGenerator sg = new DefaultModifyAffiliationsStanzaGenerator("test", client, PubSubAffiliation.MEMBER);
+        AbstractStanzaGenerator sg = new DefaultModifyAffiliationsStanzaGenerator("test", client,
+                PubSubAffiliation.MEMBER);
         Stanza stanza = sg.getStanza(client, pubsubService, "id123", testNode);
         ResponseStanzaContainer result = sendStanza(stanza, true);
         assertTrue(result.hasResponse());
         IQStanza response = new IQStanza(result.getResponseStanza());
-        assertEquals(IQStanzaType.ERROR.value(),response.getType());
+        assertEquals(IQStanzaType.ERROR.value(), response.getType());
 
         assertEquals("id123", response.getAttributeValue("id")); // IDs must match
 
@@ -126,7 +130,7 @@ public class PubSubOwnerModifyAffiliationsTestCase extends AbstractPublishSubscr
         assertTrue(result.hasResponse());
 
         IQStanza response = new IQStanza(result.getResponseStanza());
-        assertEquals(IQStanzaType.RESULT.value(),response.getType());
+        assertEquals(IQStanzaType.RESULT.value(), response.getType());
         assertEquals("4711", response.getAttributeValue("id")); // IDs must match
 
         assertEquals(PubSubAffiliation.OWNER, n1.getAffiliation(client));
@@ -139,7 +143,8 @@ public class PubSubOwnerModifyAffiliationsTestCase extends AbstractPublishSubscr
         assertEquals(PubSubAffiliation.MEMBER, n1.getAffiliation(client2));
         assertEquals(PubSubAffiliation.NONE, n1.getAffiliation(client3));
 
-        DefaultModifyAffiliationsStanzaGenerator sg = new DefaultModifyAffiliationsStanzaGenerator(n1.getName(), client2, PubSubAffiliation.NONE);
+        DefaultModifyAffiliationsStanzaGenerator sg = new DefaultModifyAffiliationsStanzaGenerator(n1.getName(),
+                client2, PubSubAffiliation.NONE);
 
         Stanza stanza = sg.getStanza(client, pubsubService, "4711", null);
         ResponseStanzaContainer result = sendStanza(stanza, true);
@@ -147,7 +152,7 @@ public class PubSubOwnerModifyAffiliationsTestCase extends AbstractPublishSubscr
         assertTrue(result.hasResponse());
 
         IQStanza response = new IQStanza(result.getResponseStanza());
-        assertEquals(IQStanzaType.RESULT.value(),response.getType());
+        assertEquals(IQStanzaType.RESULT.value(), response.getType());
         assertEquals("4711", response.getAttributeValue("id")); // IDs must match
 
         assertEquals(PubSubAffiliation.OWNER, n1.getAffiliation(client));
@@ -160,7 +165,8 @@ public class PubSubOwnerModifyAffiliationsTestCase extends AbstractPublishSubscr
         assertEquals(PubSubAffiliation.MEMBER, n1.getAffiliation(client2));
         assertEquals(PubSubAffiliation.NONE, n1.getAffiliation(client3));
 
-        DefaultModifyAffiliationsStanzaGenerator sg = new DefaultModifyAffiliationsStanzaGenerator(n1.getName(), client, PubSubAffiliation.NONE);
+        DefaultModifyAffiliationsStanzaGenerator sg = new DefaultModifyAffiliationsStanzaGenerator(n1.getName(),
+                client, PubSubAffiliation.NONE);
 
         Stanza stanza = sg.getStanza(client, pubsubService, "4711", null);
         ResponseStanzaContainer result = sendStanza(stanza, true);
@@ -168,7 +174,7 @@ public class PubSubOwnerModifyAffiliationsTestCase extends AbstractPublishSubscr
         assertTrue(result.hasResponse());
 
         IQStanza response = new IQStanza(result.getResponseStanza());
-        assertEquals(IQStanzaType.ERROR.value(),response.getType());
+        assertEquals(IQStanzaType.ERROR.value(), response.getType());
 
         assertEquals("4711", response.getAttributeValue("id")); // IDs must match
 
@@ -184,7 +190,9 @@ public class PubSubOwnerModifyAffiliationsTestCase extends AbstractPublishSubscr
 
     class DefaultModifyAffiliationsStanzaGenerator extends AbstractStanzaGenerator {
         private String node;
+
         private Entity jid;
+
         private PubSubAffiliation affiliation;
 
         public DefaultModifyAffiliationsStanzaGenerator(String nodeName, Entity jid, PubSubAffiliation affiliation) {

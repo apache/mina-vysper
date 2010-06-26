@@ -34,21 +34,20 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class MUCItemsDiscoTestCase extends AbstractItemsDiscoTestCase {
-    
+
     private static final Entity ROOM1_JID = EntityImpl.parseUnchecked("jid1@" + MODULE_JID);
+
     private static final Entity ROME2_JID = EntityImpl.parseUnchecked("jid2@" + MODULE_JID);
-    
+
     private MUCModule module;
-    
-    
-    
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         Conference conference = new Conference("Foo");
         conference.createRoom(ROOM1_JID, "room1");
         conference.createRoom(ROME2_JID, "room2");
-        
+
         module = new MUCModule(SUBDOMAIN, conference);
         module.initialize(serverRuntimeContext);
     }
@@ -60,10 +59,7 @@ public class MUCItemsDiscoTestCase extends AbstractItemsDiscoTestCase {
 
     @Override
     protected List<Item> getExpectedItems() throws EntityFormatException {
-        return Arrays.asList(
-                new Item(ROOM1_JID, "room1"),
-                new Item(ROME2_JID, "room2")
-        );
+        return Arrays.asList(new Item(ROOM1_JID, "room1"), new Item(ROME2_JID, "room2"));
     }
 
     @Override

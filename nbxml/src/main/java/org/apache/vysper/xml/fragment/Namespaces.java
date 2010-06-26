@@ -25,9 +25,13 @@ package org.apache.vysper.xml.fragment;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class Namespaces {
-	public static final String XML = "http://www.w3.org/XML/1998/namespace";
-	public static final String DEFAULT_NAMESPACE_PREFIX = "";
-	public static final String DEFAULT_NAMESPACE_URI = "";
-	public static final String XMLNS = "xmlns";
-	public static final String XMLNS_AND_COLON = "xmlns:";
+    public static final String XML = "http://www.w3.org/XML/1998/namespace";
+
+    public static final String DEFAULT_NAMESPACE_PREFIX = "";
+
+    public static final String DEFAULT_NAMESPACE_URI = "";
+
+    public static final String XMLNS = "xmlns";
+
+    public static final String XMLNS_AND_COLON = "xmlns:";
 }

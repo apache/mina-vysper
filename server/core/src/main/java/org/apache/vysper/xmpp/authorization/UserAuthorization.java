@@ -20,8 +20,8 @@
 
 package org.apache.vysper.xmpp.authorization;
 
-import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.storage.StorageProvider;
+import org.apache.vysper.xmpp.addressing.Entity;
 
 /**
  * interface describing a service for authorizing users

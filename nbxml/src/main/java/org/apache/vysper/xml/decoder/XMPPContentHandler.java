@@ -29,7 +29,6 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
-
 /**
  * SAX content handler for the purpose of parsing an incoming XMPP XML stream.
  *
@@ -37,158 +36,157 @@ import org.xml.sax.SAXException;
  */
 public class XMPPContentHandler implements ContentHandler {
 
-	private Logger log = LoggerFactory.getLogger(XMPPContentHandler.class);
-	
-	private XMLElementBuilderFactory builderFactory = new XMLElementBuilderFactory();
-	
-	// TODO change into StanzaBuilder when moved into core
-	@SuppressWarnings("unchecked")
-	private AbstractXMLElementBuilder builder;
-	private int depth = 0;
-	
-	private StanzaListener listener;
-	
-	public StanzaListener getListener() {
-		return listener;
-	}
+    private Logger log = LoggerFactory.getLogger(XMPPContentHandler.class);
 
+    private XMLElementBuilderFactory builderFactory = new XMLElementBuilderFactory();
 
-	public void setListener(StanzaListener listener) {
-		this.listener = listener;
-	}
+    // TODO change into StanzaBuilder when moved into core
+    @SuppressWarnings("unchecked")
+    private AbstractXMLElementBuilder builder;
 
-	public static interface StanzaListener {
-		void stanza(XMLElement element);
-	}
-	
+    private int depth = 0;
+
+    private StanzaListener listener;
+
+    public StanzaListener getListener() {
+        return listener;
+    }
+
+    public void setListener(StanzaListener listener) {
+        this.listener = listener;
+    }
+
+    public static interface StanzaListener {
+        void stanza(XMLElement element);
+    }
+
     public XMPPContentHandler() {
     }
-	
-	
+
     public XMPPContentHandler(XMLElementBuilderFactory builderFactory) {
-    	this.builderFactory = builderFactory;
+        this.builderFactory = builderFactory;
     }
 
-	
     /**
      * {@inheritDoc}
      */
-	public void characters(char[] ch, int start, int length)
-			throws SAXException {
-		// TODO handle start and length
-		if(builder != null) {
-			builder.addText(new String(ch));
-		}
-		
-	}
+    public void characters(char[] ch, int start, int length) throws SAXException {
+        // TODO handle start and length
+        if (builder != null) {
+            builder.addText(new String(ch));
+        }
+
+    }
 
     /**
      * {@inheritDoc}
      */
-	public void endElement(String uri, String localName, String qName)
-			throws SAXException {
-		depth--;
-		if(depth == 1) {
-			// complete stanza, emit
-			emitStanza();
-		} else if(depth == 0) {
-			// end stream:stream element
-			// TODO handle
-		} else {
-			builder.endInnerElement();
-		}
-		
-	}
+    public void endElement(String uri, String localName, String qName) throws SAXException {
+        depth--;
+        if (depth == 1) {
+            // complete stanza, emit
+            emitStanza();
+        } else if (depth == 0) {
+            // end stream:stream element
+            // TODO handle
+        } else {
+            builder.endInnerElement();
+        }
+
+    }
 
     /**
      * {@inheritDoc}
      */
-	public void startElement(String uri, String localName, String qName,
-			Attributes atts) throws SAXException {
-		// increase element depth
-		depth++;
-		if(builder == null) {
-			builder = builderFactory.createBuilder(localName, uri, extractPrefix(qName), null, null);
-		} else {
-			builder.startInnerElement(localName, uri);
-		}
-		
-		for(int i = 0; i<atts.getLength(); i++) {
-			builder.addAttribute(atts.getURI(i), atts.getLocalName(i), atts.getValue(i));
-		}
+    public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
+        // increase element depth
+        depth++;
+        if (builder == null) {
+            builder = builderFactory.createBuilder(localName, uri, extractPrefix(qName), null, null);
+        } else {
+            builder.startInnerElement(localName, uri);
+        }
 
-		if(depth == 1) {
-			// outer stream:stream element, needs to be dispatched right away
-			emitStanza();
-		}
-	}
-	
-	private void emitStanza() {
-		XMLElement element = builder.build();
-		
-		if(log.isDebugEnabled()) {
-			log.debug("Decoder writing stanza: {}", new Renderer(element).getComplete());
-		}
-		
-		if(listener != null) {
-			listener.stanza(element);
-		}
-		
-		builder = null;
-	}
-	
-	private String extractPrefix(String qname) {
-		int index = qname.indexOf(':'); 
-		if(index > -1) {
-			return qname.substring(0, index);
-		} else {
-			return "";
-		}
-	}
+        for (int i = 0; i < atts.getLength(); i++) {
+            builder.addAttribute(atts.getURI(i), atts.getLocalName(i), atts.getValue(i));
+        }
 
-    /**
-     * {@inheritDoc}
-     */
-	public void endDocument() throws SAXException { /* ignore */ }
-	
-    /**
-     * {@inheritDoc}
-     */
-	public void startPrefixMapping(String prefix, String uri)
-			throws SAXException { /* ignore */ }
+        if (depth == 1) {
+            // outer stream:stream element, needs to be dispatched right away
+            emitStanza();
+        }
+    }
+
+    private void emitStanza() {
+        XMLElement element = builder.build();
+
+        if (log.isDebugEnabled()) {
+            log.debug("Decoder writing stanza: {}", new Renderer(element).getComplete());
+        }
+
+        if (listener != null) {
+            listener.stanza(element);
+        }
+
+        builder = null;
+    }
+
+    private String extractPrefix(String qname) {
+        int index = qname.indexOf(':');
+        if (index > -1) {
+            return qname.substring(0, index);
+        } else {
+            return "";
+        }
+    }
 
     /**
      * {@inheritDoc}
      */
-	public void endPrefixMapping(String prefix) throws SAXException { /* ignore */ }
+    public void endDocument() throws SAXException { /* ignore */
+    }
 
     /**
      * {@inheritDoc}
      */
-	public void ignorableWhitespace(char[] ch, int start, int length)
-			throws SAXException { /* ignore */ }
+    public void startPrefixMapping(String prefix, String uri) throws SAXException { /* ignore */
+    }
 
     /**
      * {@inheritDoc}
      */
-	public void processingInstruction(String target, String data)
-			throws SAXException { /* ignore */ }
+    public void endPrefixMapping(String prefix) throws SAXException { /* ignore */
+    }
 
     /**
      * {@inheritDoc}
      */
-	public void setDocumentLocator(Locator locator) { /* ignore */ }
+    public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException { /* ignore */
+    }
 
     /**
      * {@inheritDoc}
      */
-	public void skippedEntity(String name) throws SAXException { /* ignore */ }
+    public void processingInstruction(String target, String data) throws SAXException { /* ignore */
+    }
 
     /**
      * {@inheritDoc}
      */
-	public void startDocument() throws SAXException { 
-		depth = 0;
-		builder = null;
-	}
+    public void setDocumentLocator(Locator locator) { /* ignore */
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void skippedEntity(String name) throws SAXException { /* ignore */
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void startDocument() throws SAXException {
+        depth = 0;
+        builder = null;
+    }
 }

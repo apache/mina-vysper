@@ -27,15 +27,13 @@ import org.apache.vysper.xmpp.addressing.EntityFormatException;
  */
 public class StringPrepViolationException extends EntityFormatException {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public StringPrepViolationException() {
-	}
-	
-	public StringPrepViolationException(String message) {
-		super(message);
-	}
-	
-	
-	
+    public StringPrepViolationException() {
+    }
+
+    public StringPrepViolationException(String message) {
+        super(message);
+    }
+
 }

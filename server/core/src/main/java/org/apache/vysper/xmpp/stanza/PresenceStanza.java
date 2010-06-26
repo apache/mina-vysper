@@ -20,10 +20,10 @@
 
 package org.apache.vysper.xmpp.stanza;
 
+import java.util.Map;
+
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
-
-import java.util.Map;
 
 /**
  * presence stanza (publish/subscribe [aka "pub/sub"] or broadcast)
@@ -39,7 +39,8 @@ public class PresenceStanza extends XMPPCoreStanza {
 
     public PresenceStanza(Stanza stanza) {
         super(stanza);
-        if (!PresenceStanza.isOfType(stanza)) throw new IllegalArgumentException("only 'presence' stanza is allowed here");
+        if (!PresenceStanza.isOfType(stanza))
+            throw new IllegalArgumentException("only 'presence' stanza is allowed here");
     }
 
     @Override
@@ -49,7 +50,8 @@ public class PresenceStanza extends XMPPCoreStanza {
 
     public PresenceStanzaType getPresenceType() {
         String type = getType();
-        if (type == null) return null;
+        if (type == null)
+            return null;
         return PresenceStanzaType.valueOfOrNull(type);
     }
 
@@ -60,7 +62,8 @@ public class PresenceStanza extends XMPPCoreStanza {
      */
     public String getShow() throws XMLSemanticError {
         XMLElement element = getSingleInnerElementsNamed("show");
-        if (element == null) return null; // show is optional, see RFC3921/2.2.2.1
+        if (element == null)
+            return null; // show is optional, see RFC3921/2.2.2.1
         return element.getSingleInnerText().getText();
     }
 
@@ -72,7 +75,8 @@ public class PresenceStanza extends XMPPCoreStanza {
      */
     public String getStatus(String lang) throws XMLSemanticError {
         XMLElement element = getStatusMap().get(lang);
-        if (element == null) return null;
+        if (element == null)
+            return null;
         return element.getSingleInnerText().getText();
     }
 

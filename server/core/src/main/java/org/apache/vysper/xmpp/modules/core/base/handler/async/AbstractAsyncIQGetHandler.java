@@ -19,14 +19,14 @@
  */
 package org.apache.vysper.xmpp.modules.core.base.handler.async;
 
+import java.util.concurrent.Executor;
+
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
-
-import java.util.concurrent.Executor;
 
 /**
  * info/query (IQ) stanzas might better be process asynchronously, for example if a remote system is creating the
@@ -46,25 +46,28 @@ abstract public class AbstractAsyncIQGetHandler extends IQHandler {
      */
     protected Executor serviceExecutor;
 
-    abstract protected RunnableFuture<XMPPCoreStanza> createGetTask(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext);
+    abstract protected RunnableFuture<XMPPCoreStanza> createGetTask(IQStanza stanza,
+            ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext);
 
     @Override
-    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza, SessionContext sessionContext) {
+    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza,
+            SessionContext sessionContext) {
         switch (stanza.getIQType()) {
-            case GET:
-                executeGetIQLogicAsync(stanza, serverRuntimeContext, sessionContext);
-                return null; // IQ response is sent later
-            
+        case GET:
+            executeGetIQLogicAsync(stanza, serverRuntimeContext, sessionContext);
+            return null; // IQ response is sent later
+
             // all non-GET requests are handled synchronously, regardless of  
-            case ERROR:
-            case RESULT:
-            case SET: // TODO make 'set'-IQs async'able, too.
-            default:
-                return executeNonGetIQLogic(stanza, serverRuntimeContext, sessionContext);
+        case ERROR:
+        case RESULT:
+        case SET: // TODO make 'set'-IQs async'able, too.
+        default:
+            return executeNonGetIQLogic(stanza, serverRuntimeContext, sessionContext);
         }
     }
 
-    protected void executeGetIQLogicAsync(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected void executeGetIQLogicAsync(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
+            SessionContext sessionContext) {
         // create the object which handles building and sending out the response as
         // soon as the serices makes the result available
         RunnableFuture<XMPPCoreStanza> task = createGetTask(stanza, serverRuntimeContext, sessionContext);
@@ -76,7 +79,8 @@ abstract public class AbstractAsyncIQGetHandler extends IQHandler {
      * override this method, if you want to handle other types than get.
      * @return error stanza
      */
-    protected Stanza executeNonGetIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected Stanza executeNonGetIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
+            SessionContext sessionContext) {
         throw new RuntimeException("iq stanza type not supported: " + stanza.getIQType().value());
     }
 }

@@ -20,13 +20,14 @@
 
 package org.apache.vysper.xmpp.stanza;
 
-import org.apache.vysper.xml.fragment.XMLElement;
-import org.apache.vysper.xml.fragment.XMLSemanticError;
-import org.apache.vysper.compliance.SpecCompliant;
-import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.FINISHED;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.COMPLETE;
+import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.FINISHED;
 
 import java.util.Map;
+
+import org.apache.vysper.compliance.SpecCompliant;
+import org.apache.vysper.xml.fragment.XMLElement;
+import org.apache.vysper.xml.fragment.XMLSemanticError;
 
 /**
  * message stanza (push)
@@ -44,7 +45,8 @@ public class MessageStanza extends XMPPCoreStanza {
 
     public MessageStanza(Stanza stanza) {
         super(stanza);
-        if (!MessageStanza.isOfType(stanza)) throw new IllegalArgumentException("only 'message' stanza is allowed here");
+        if (!MessageStanza.isOfType(stanza))
+            throw new IllegalArgumentException("only 'message' stanza is allowed here");
     }
 
     @Override
@@ -65,7 +67,8 @@ public class MessageStanza extends XMPPCoreStanza {
      */
     public String getSubject(String lang) throws XMLSemanticError {
         XMLElement element = getSubjects().get(lang);
-        if (element == null) return null;
+        if (element == null)
+            return null;
         return element.getSingleInnerText().getText();
     }
 
@@ -85,7 +88,8 @@ public class MessageStanza extends XMPPCoreStanza {
      */
     public String getBody(String lang) throws XMLSemanticError {
         XMLElement element = getBodies().get(lang);
-        if (element == null) return null;
+        if (element == null)
+            return null;
         return element.getSingleInnerText().getText();
     }
 
@@ -105,9 +109,9 @@ public class MessageStanza extends XMPPCoreStanza {
      */
     public String getThread() throws XMLSemanticError {
         XMLElement element = getSingleInnerElementsNamed("thread");
-        if (element == null) return null; // thread is optional, see RFC3921/2.1.2.3
+        if (element == null)
+            return null; // thread is optional, see RFC3921/2.1.2.3
         return element.getSingleInnerText().getText();
     }
-
 
 }

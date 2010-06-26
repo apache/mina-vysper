@@ -20,8 +20,8 @@
 package org.apache.vysper.xml.fragment;
 
 import java.util.Comparator;
-import java.util.TreeSet;
 import java.util.List;
+import java.util.TreeSet;
 
 /**
  *
@@ -36,11 +36,15 @@ public class EqualityVerifier {
      * but not inner elements
      */
     public boolean equalsElements_Shallow(XMLElement first, XMLElement second) {
-        if (first == null) return second == null;
-        if (second == null) return false;
+        if (first == null)
+            return second == null;
+        if (second == null)
+            return false;
 
-        if (!first.getName().equals(second.getName())) return false;
-        if (!first.getNamespacePrefix().equals(second.getNamespacePrefix())) return false;
+        if (!first.getName().equals(second.getName()))
+            return false;
+        if (!first.getNamespacePrefix().equals(second.getNamespacePrefix()))
+            return false;
 
         return equalsAttributes(first.getAttributes(), second.getAttributes());
     }
@@ -51,21 +55,28 @@ public class EqualityVerifier {
      * are the same for some proper mutation.
      */
     public boolean equalsElements_DeepSameOrder(XMLElement first, XMLElement second) {
-        if (first == null) return second == null;
-        if (second == null) return false;
+        if (first == null)
+            return second == null;
+        if (second == null)
+            return false;
 
-        if (!first.getName().equals(second.getName())) return false;
-        if (!first.getNamespacePrefix().equals(second.getNamespacePrefix())) return false;
+        if (!first.getName().equals(second.getName()))
+            return false;
+        if (!first.getNamespacePrefix().equals(second.getNamespacePrefix()))
+            return false;
 
         boolean attrEquals = equalsAttributes(first.getAttributes(), second.getAttributes());
-        if (!attrEquals) return false;
+        if (!attrEquals)
+            return false;
 
         List<XMLElement> firstInnerElements = first.getInnerElements();
         List<XMLElement> secondInnerElements = second.getInnerElements();
 
-        if (firstInnerElements.size() != secondInnerElements.size()) return false;
+        if (firstInnerElements.size() != secondInnerElements.size())
+            return false;
         for (int i = 0; i < firstInnerElements.size(); i++) {
-            if (!equalsElements_DeepSameOrder(firstInnerElements.get(0), secondInnerElements.get(0))) return false;
+            if (!equalsElements_DeepSameOrder(firstInnerElements.get(0), secondInnerElements.get(0)))
+                return false;
         }
         return true;
     }

@@ -32,15 +32,16 @@ import javax.swing.table.AbstractTableModel;
 public class PubsubTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = -3788690749950634883L;
-    
-    private final String[] columnNames = new String[] {"Node", "Subscribed", "Owner"}; 
+
+    private final String[] columnNames = new String[] { "Node", "Subscribed", "Owner" };
+
     private List<PubsubNode> nodes = new ArrayList<PubsubNode>();
-    
+
     @Override
     public String getColumnName(int col) {
         return columnNames[col];
     }
-    
+
     public int getColumnCount() {
         return columnNames.length;
     }
@@ -51,23 +52,28 @@ public class PubsubTableModel extends AbstractTableModel {
 
     public Object getValueAt(int rowIndex, int columnIndex) {
         PubsubNode n = nodes.get(rowIndex);
-        
-        if(n == null) return null;
-        
-        if(columnIndex == 0) return n.getNode();
-        if(columnIndex == 1) return n.getSubscribed();
-        if(columnIndex == 2) return n.getOwnership();
-        
+
+        if (n == null)
+            return null;
+
+        if (columnIndex == 0)
+            return n.getNode();
+        if (columnIndex == 1)
+            return n.getSubscribed();
+        if (columnIndex == 2)
+            return n.getOwnership();
+
         return null;
     }
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public Class getColumnClass(int c) {
-        if(c == 0) return String.class;
+        if (c == 0)
+            return String.class;
         return Boolean.class;
     }
-    
+
     @Override
     public boolean isCellEditable(int row, int col) {
         if (col == 1) {
@@ -75,26 +81,27 @@ public class PubsubTableModel extends AbstractTableModel {
         }
         return false;
     }
-    
+
     public void addRow(PubsubNode node) {
         this.nodes.add(node);
         Collections.sort(this.nodes);
-        fireTableRowsInserted(getRowCount()-1, getColumnCount()-1);
+        fireTableRowsInserted(getRowCount() - 1, getColumnCount() - 1);
     }
 
     public void bulkAddRow(PubsubNode node) {
         this.nodes.add(node);
     }
-    
+
     public void deleteRow(int rowIndex) {
         this.nodes.remove(rowIndex);
         fireTableRowsDeleted(rowIndex, rowIndex);
     }
-    
+
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         PubsubNode n = this.nodes.get(rowIndex);
-        if(columnIndex == 1) n.setSubscribed((Boolean)aValue);
+        if (columnIndex == 1)
+            n.setSubscribed((Boolean) aValue);
         fireTableCellUpdated(rowIndex, columnIndex);
     }
 
@@ -110,12 +117,12 @@ public class PubsubTableModel extends AbstractTableModel {
 
     public void endBulkAdd() {
         Collections.sort(this.nodes);
-        fireTableRowsInserted(0, this.getRowCount()-1);
+        fireTableRowsInserted(0, this.getRowCount() - 1);
     }
 
     public boolean isOwner(String nodeID) {
-        for(PubsubNode n : nodes) {
-            if(n.getNode().equals(nodeID)) {
+        for (PubsubNode n : nodes) {
+            if (n.getNode().equals(nodeID)) {
                 return n.getOwnership();
             }
         }

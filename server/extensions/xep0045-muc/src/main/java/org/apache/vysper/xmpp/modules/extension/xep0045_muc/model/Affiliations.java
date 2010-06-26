@@ -24,7 +24,6 @@ import java.util.Map;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 
-
 /**
  * Describes the persistent affiliations for a room
  *
@@ -35,15 +34,15 @@ public class Affiliations {
     // TODO should be loaded from the storage provider
     // keyed by bare JIDs
     private Map<Entity, Affiliation> affiliations = new HashMap<Entity, Affiliation>();
-    
+
     public void add(Entity user, Affiliation affiliation) {
         affiliations.put(user.getBareJID(), affiliation);
     }
-    
+
     public void remove(Entity user) {
         affiliations.remove(user.getBareJID());
     }
-    
+
     public Affiliation getAffiliation(Entity user) {
         return affiliations.get(user.getBareJID());
     }

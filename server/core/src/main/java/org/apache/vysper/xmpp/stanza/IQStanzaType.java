@@ -26,10 +26,7 @@ package org.apache.vysper.xmpp.stanza;
  */
 public enum IQStanzaType {
 
-    GET ("get"),
-    SET ("set"),
-    RESULT ("result"),
-    ERROR ("error");
+    GET("get"), SET("set"), RESULT("result"), ERROR("error");
 
     private final String value;
 
@@ -40,7 +37,6 @@ public enum IQStanzaType {
             return null;
         }
     }
-
 
     IQStanzaType(String value) {
         this.value = value;

@@ -19,15 +19,17 @@
  */
 package org.apache.vysper.xmpp.writer;
 
-import org.apache.vysper.xml.fragment.*;
-import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.vysper.xml.fragment.XMLElement;
+import org.apache.vysper.xml.fragment.XMLSemanticError;
+import org.apache.vysper.xml.fragment.XMLText;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Iterator;
 
 /**
  * renders only reduced digest stanza information for logging output
@@ -39,13 +41,16 @@ public class DenseStanzaLogRenderer {
     final static Logger logger = LoggerFactory.getLogger(DenseStanzaLogRenderer.class);
 
     private static final String ELEMENT_SEPARATOR = ".";
+
     private static final String ATTR_QUOTE = "'";
+
     private static final String EQUALS = "=";
 
     public static String render(XMLElement stanza) {
         try {
             StringBuilder stringBuilder = new StringBuilder();
-            if (stanza == null) return stringBuilder.append("NULL_STANZA").toString();
+            if (stanza == null)
+                return stringBuilder.append("NULL_STANZA").toString();
             String outerName = stanza.getName();
             stringBuilder.append(outerName);
             XMLElement firstInnerElement = stanza.getFirstInnerElement();
@@ -82,7 +87,7 @@ public class DenseStanzaLogRenderer {
             if ("query".equals(firstInnerElement.getName())) {
                 renderIQQuery(stringBuilder, firstInnerElement);
             } else {
-            	renderNamespace(stringBuilder, firstInnerElement);
+                renderNamespace(stringBuilder, firstInnerElement);
             }
         }
     }
@@ -103,11 +108,13 @@ public class DenseStanzaLogRenderer {
         } else if (nsUri.equals("http://jabber.org/protocol/disco#info")) {
             stringBuilder.append(ELEMENT_SEPARATOR).append("info");
             List<XMLElement> features = queryElement.getInnerElementsNamed("feature");
-            if (features != null) for (XMLElement feature : features) {
-                String varAttrValue = feature.getAttributeValue("var");
-                if (varAttrValue == null) varAttrValue = "NOT_GIVEN";
-                renderAttributeForm(stringBuilder, "feature", varAttrValue);
-            }
+            if (features != null)
+                for (XMLElement feature : features) {
+                    String varAttrValue = feature.getAttributeValue("var");
+                    if (varAttrValue == null)
+                        varAttrValue = "NOT_GIVEN";
+                    renderAttributeForm(stringBuilder, "feature", varAttrValue);
+                }
         } else {
             stringBuilder.append(ELEMENT_SEPARATOR).append("????");
         }
@@ -127,7 +134,8 @@ public class DenseStanzaLogRenderer {
                     stringBuilder.append(ELEMENT_SEPARATOR);
                     stringBuilder.append("starttls");
                     XMLElement required = starttls.getSingleInnerElementsNamed("required");
-                    if (required != null) stringBuilder.append("[required]");
+                    if (required != null)
+                        stringBuilder.append("[required]");
                 }
                 XMLElement mechanisms = features.getSingleInnerElementsNamed("mechanisms");
                 if (mechanisms != null) {
@@ -138,7 +146,8 @@ public class DenseStanzaLogRenderer {
                         for (Iterator<XMLElement> it = list.iterator(); it.hasNext();) {
                             XMLElement element = it.next();
                             stringBuilder.append(element.getSingleInnerText().getText());
-                            if (it.hasNext()) stringBuilder.append(",");
+                            if (it.hasNext())
+                                stringBuilder.append(",");
                         }
                     }
                     stringBuilder.append("]");
@@ -204,7 +213,6 @@ public class DenseStanzaLogRenderer {
         }
     }
 
-    
     private static void renderAttribute(StringBuilder stringBuilder, XMLElement element, String attributeName) {
         String attributeValue = element.getAttributeValue(attributeName);
         if (attributeValue != null) {
@@ -229,7 +237,8 @@ public class DenseStanzaLogRenderer {
                 XMLText xmlText = null;
                 try {
                     xmlText = firstInnerElement.getSingleInnerText();
-                    if (xmlText != null) stringBuilder.append(xmlText.getText());
+                    if (xmlText != null)
+                        stringBuilder.append(xmlText.getText());
                 } catch (XMLSemanticError xmlSemanticError) {
                     stringBuilder.append("???");
                 }

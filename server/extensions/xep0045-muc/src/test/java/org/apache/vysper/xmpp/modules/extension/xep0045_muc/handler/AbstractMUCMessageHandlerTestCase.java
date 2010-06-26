@@ -40,26 +40,23 @@ public abstract class AbstractMUCMessageHandlerTestCase extends AbstractMUCHandl
 
     protected static final String BODY = "Body";
 
-    protected Stanza sendMessage(Entity from, Entity to, MessageStanzaType type,
-            String body) throws ProtocolException {
+    protected Stanza sendMessage(Entity from, Entity to, MessageStanzaType type, String body) throws ProtocolException {
         return sendMessage(from, to, type, body, null, null);
     }
-    
-    protected Stanza sendMessage(Entity from, Entity to, MessageStanzaType type,
-            String body, X x, String subject) throws ProtocolException {
-        StanzaBuilder stanzaBuilder = StanzaBuilder.createMessageStanza(from,
-                to, type, null, body);
-        if(subject != null) {
+
+    protected Stanza sendMessage(Entity from, Entity to, MessageStanzaType type, String body, X x, String subject)
+            throws ProtocolException {
+        StanzaBuilder stanzaBuilder = StanzaBuilder.createMessageStanza(from, to, type, null, body);
+        if (subject != null) {
             stanzaBuilder.startInnerElement("subject", NamespaceURIs.JABBER_CLIENT).addText(subject).endInnerElement();
         }
-        if(x != null) {
+        if (x != null) {
             stanzaBuilder.addPreparedElement(x);
         }
 
         Stanza messageStanza = stanzaBuilder.build();
-        ResponseStanzaContainer container = handler.execute(messageStanza,
-                sessionContext.getServerRuntimeContext(), true, sessionContext,
-                null);
+        ResponseStanzaContainer container = handler.execute(messageStanza, sessionContext.getServerRuntimeContext(),
+                true, sessionContext, null);
         if (container != null) {
             return container.getResponseStanza();
         } else {
@@ -67,35 +64,25 @@ public abstract class AbstractMUCMessageHandlerTestCase extends AbstractMUCHandl
         }
     }
 
-
-    
-    protected void assertMessageErrorStanza(Stanza response, Entity from,
-            Entity to, String type, String errorName,
+    protected void assertMessageErrorStanza(Stanza response, Entity from, Entity to, String type, String errorName,
             XMLElement... expectedInnerElements) {
-        assertErrorStanza(response, "message", from, to, type, errorName,
-                expectedInnerElements);
+        assertErrorStanza(response, "message", from, to, type, errorName, expectedInnerElements);
     }
 
-    protected void testNotAllowedMessage(Room room, String expectedErrorName)
-            throws Exception {
+    protected void testNotAllowedMessage(Room room, String expectedErrorName) throws Exception {
         String body = "Message body";
 
         // now, let user 2 exit room
-        Stanza errorStanza = sendMessage(OCCUPANT1_JID, ROOM1_JID,
-                GROUPCHAT, body);
+        Stanza errorStanza = sendMessage(OCCUPANT1_JID, ROOM1_JID, GROUPCHAT, body);
 
         XMLElement expectedBody = new XMLElementBuilder("body").addText(body).build();
-        assertMessageErrorStanza(errorStanza, ROOM1_JID, OCCUPANT1_JID, "modify",
-                expectedErrorName,expectedBody);
+        assertMessageErrorStanza(errorStanza, ROOM1_JID, OCCUPANT1_JID, "modify", expectedErrorName, expectedBody);
 
         // no message should be relayed
         assertNull(occupant1Queue.getNext());
         assertNull(occupant2Queue.getNext());
     }
 
-
-
-    
     @Override
     protected StanzaHandler createHandler() {
         return new MUCMessageHandler(conference, MODULE_JID);

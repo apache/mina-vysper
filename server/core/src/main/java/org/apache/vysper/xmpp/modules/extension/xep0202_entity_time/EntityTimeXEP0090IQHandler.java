@@ -19,6 +19,11 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0202_entity_time;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
@@ -29,22 +34,18 @@ import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
-import java.util.TimeZone;
-import java.util.Date;
-import java.util.Locale;
-import java.text.SimpleDateFormat;
-
 /**
  * implements deprecated XEP0090 Entity Time
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-@SpecCompliant(spec="xep-0090", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+@SpecCompliant(spec = "xep-0090", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
 public class EntityTimeXEP0090IQHandler extends DefaultIQHandler {
 
     private static final TimeZone TIME_ZONE_UTC = TimeZone.getTimeZone("UTC");
-    
+
     protected SimpleDateFormat utcDateFormatter;
+
     protected SimpleDateFormat localDateFormatter;
 
     public EntityTimeXEP0090IQHandler() {
@@ -69,16 +70,17 @@ public class EntityTimeXEP0090IQHandler extends DefaultIQHandler {
 
         Date now = new Date();
 
-        String timeZone = TimeZone.getDefault().getDisplayName(TimeZone.getDefault().inDaylightTime(now), TimeZone.SHORT);
+        String timeZone = TimeZone.getDefault().getDisplayName(TimeZone.getDefault().inDaylightTime(now),
+                TimeZone.SHORT);
         String utcTime = utcDateFormatter.format(now);
         String displayTime = localDateFormatter.format(now);
 
-        StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID()).
-            startInnerElement("query", NamespaceURIs.JABBER_IQ_TIME).
+        StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(),
+                IQStanzaType.RESULT, stanza.getID()).startInnerElement("query", NamespaceURIs.JABBER_IQ_TIME).
 
-            startInnerElement("utc", NamespaceURIs.JABBER_IQ_TIME).addText(utcTime).endInnerElement().
-            startInnerElement("tz", NamespaceURIs.JABBER_IQ_TIME).addText(timeZone).endInnerElement().
-            startInnerElement("display", NamespaceURIs.JABBER_IQ_TIME).addText(displayTime).endInnerElement().
+        startInnerElement("utc", NamespaceURIs.JABBER_IQ_TIME).addText(utcTime).endInnerElement().startInnerElement(
+                "tz", NamespaceURIs.JABBER_IQ_TIME).addText(timeZone).endInnerElement().startInnerElement("display",
+                NamespaceURIs.JABBER_IQ_TIME).addText(displayTime).endInnerElement().
 
         endInnerElement();
 

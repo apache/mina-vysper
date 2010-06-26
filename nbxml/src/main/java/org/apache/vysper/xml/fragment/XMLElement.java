@@ -43,33 +43,44 @@ public class XMLElement implements XMLFragment {
      * NOTE: the namespace value must NOT be "b"!
      */
     private String namespaceURI;
+
     private String namespacePrefix;
 
     private List<Attribute> attributes;
+
     private Map<String, String> namespaces;
+
     private List<XMLFragment> innerFragments;
+
     protected XMLElementVerifier xmlElementVerifier;
 
-    public XMLElement(String namespaceURI, String name, String namespacePrefix, Attribute[] attributes, XMLFragment[] innerFragments) {
+    public XMLElement(String namespaceURI, String name, String namespacePrefix, Attribute[] attributes,
+            XMLFragment[] innerFragments) {
         this(namespaceURI, name, namespacePrefix, attributes, innerFragments, null);
     }
-    
-    public XMLElement(String namespaceURI, String name, String namespacePrefix, Attribute[] attributes, XMLFragment[] innerFragments, Map<String, String> namespaces) {
-        this(namespaceURI, name, namespacePrefix, FragmentFactory.asList(attributes), FragmentFactory.asList(innerFragments), namespaces);
+
+    public XMLElement(String namespaceURI, String name, String namespacePrefix, Attribute[] attributes,
+            XMLFragment[] innerFragments, Map<String, String> namespaces) {
+        this(namespaceURI, name, namespacePrefix, FragmentFactory.asList(attributes), FragmentFactory
+                .asList(innerFragments), namespaces);
     }
 
-    public XMLElement(String namespaceURI, String name, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments) {
-    	this(namespaceURI, name, namespacePrefix, attributes, innerFragments, null);
+    public XMLElement(String namespaceURI, String name, String namespacePrefix, List<Attribute> attributes,
+            List<XMLFragment> innerFragments) {
+        this(namespaceURI, name, namespacePrefix, attributes, innerFragments, null);
     }
-    
-    public XMLElement(String namespaceURI, String name, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments, Map<String, String> namespaces) {
+
+    public XMLElement(String namespaceURI, String name, String namespacePrefix, List<Attribute> attributes,
+            List<XMLFragment> innerFragments, Map<String, String> namespaces) {
         this.namespaceURI = namespaceURI == null ? Namespaces.DEFAULT_NAMESPACE_URI : namespaceURI;
-    	this.namespacePrefix = namespacePrefix == null ? Namespaces.DEFAULT_NAMESPACE_PREFIX : namespacePrefix;
+        this.namespacePrefix = namespacePrefix == null ? Namespaces.DEFAULT_NAMESPACE_PREFIX : namespacePrefix;
         this.name = name;
         this.attributes = (attributes == null) ? Collections.EMPTY_LIST : Collections.unmodifiableList(attributes);
         this.namespaces = (namespaces == null) ? Collections.EMPTY_MAP : Collections.unmodifiableMap(namespaces);
-        this.innerFragments = (innerFragments == null) ? Collections.EMPTY_LIST : Collections.unmodifiableList(innerFragments);
-        if (name == null) throw new IllegalArgumentException("XMLElement name cannot be null");
+        this.innerFragments = (innerFragments == null) ? Collections.EMPTY_LIST : Collections
+                .unmodifiableList(innerFragments);
+        if (name == null)
+            throw new IllegalArgumentException("XMLElement name cannot be null");
     }
 
     public String getName() {
@@ -85,13 +96,13 @@ public class XMLElement implements XMLFragment {
     public String getNamespacePrefix() {
         return namespacePrefix;
     }
-    
+
     /**
      * Return the namespace URI.
      * @return The namespace URI for the element. 
      */
     public String getNamespaceURI() {
-		return namespaceURI;
+        return namespaceURI;
     }
 
     public List<Attribute> getAttributes() {
@@ -99,32 +110,34 @@ public class XMLElement implements XMLFragment {
     }
 
     public Attribute getAttribute(String name) {
-    	return getAttribute("", name);
+        return getAttribute("", name);
     }
 
     public Attribute getAttribute(String namespaceUri, String name) {
         for (Attribute attribute : attributes) {
-        	// name must match and must be in empty namespace
-            if (attribute.getName().equals(name) && attribute.getNamespaceUri().equals(namespaceUri)) return attribute;
+            // name must match and must be in empty namespace
+            if (attribute.getName().equals(name) && attribute.getNamespaceUri().equals(namespaceUri))
+                return attribute;
         }
         return null;
     }
 
-    
     public String getAttributeValue(String name) {
-    	return getAttributeValue("", name);
+        return getAttributeValue("", name);
     }
-    
+
     public String getAttributeValue(String namespaceUri, String name) {
         Attribute attribute = getAttribute(namespaceUri, name);
-        if (attribute == null) return null;
-        else return attribute.getValue();
+        if (attribute == null)
+            return null;
+        else
+            return attribute.getValue();
     }
 
     public Map<String, String> getDeclaredNamespaces() {
-    	return namespaces;
+        return namespaces;
     }
-    
+
     public String getXMLLang() {
         return getAttributeValue(Namespaces.XML, "lang");
     }
@@ -134,46 +147,56 @@ public class XMLElement implements XMLFragment {
     }
 
     public XMLElement getFirstInnerElement() {
-        if (innerFragments == null || innerFragments.size() < 1) return null;
+        if (innerFragments == null || innerFragments.size() < 1)
+            return null;
         for (XMLFragment xmlFragment : innerFragments) {
-            if (xmlFragment instanceof XMLElement) return (XMLElement)xmlFragment;
+            if (xmlFragment instanceof XMLElement)
+                return (XMLElement) xmlFragment;
         }
         return null;
     }
 
     public List<XMLElement> getInnerElements() {
-        if (innerFragments == null || innerFragments.size() < 1) return Collections.emptyList();
+        if (innerFragments == null || innerFragments.size() < 1)
+            return Collections.emptyList();
         List<XMLElement> innerElements = new ArrayList<XMLElement>();
         for (XMLFragment xmlFragment : innerFragments) {
-            if (xmlFragment instanceof XMLElement) innerElements.add((XMLElement) xmlFragment);
+            if (xmlFragment instanceof XMLElement)
+                innerElements.add((XMLElement) xmlFragment);
         }
         return innerElements;
     }
 
     public List<XMLText> getInnerTexts() {
-        if (innerFragments == null || innerFragments.size() < 1) return Collections.emptyList();
+        if (innerFragments == null || innerFragments.size() < 1)
+            return Collections.emptyList();
         List<XMLText> innerTexts = new ArrayList<XMLText>();
         for (XMLFragment xmlFragment : innerFragments) {
-            if (xmlFragment instanceof XMLText) innerTexts.add((XMLText) xmlFragment);
+            if (xmlFragment instanceof XMLText)
+                innerTexts.add((XMLText) xmlFragment);
         }
         return innerTexts;
     }
 
     public XMLText getFirstInnerText() {
-        if (innerFragments == null || innerFragments.size() < 1) return null;
+        if (innerFragments == null || innerFragments.size() < 1)
+            return null;
         for (XMLFragment xmlFragment : innerFragments) {
-            if (xmlFragment instanceof XMLText) return (XMLText) xmlFragment;
+            if (xmlFragment instanceof XMLText)
+                return (XMLText) xmlFragment;
         }
         return null;
     }
 
     public XMLText getSingleInnerText() throws XMLSemanticError {
         List<XMLText> innerTexts = getInnerTexts();
-        if (innerTexts == null || innerTexts.isEmpty()) return null;
-        if (innerTexts.size() > 1) throw new XMLSemanticError("element has more than one inner text fragment");
+        if (innerTexts == null || innerTexts.isEmpty())
+            return null;
+        if (innerTexts.size() > 1)
+            throw new XMLSemanticError("element has more than one inner text fragment");
         return innerTexts.get(0);
     }
-    
+
     /**
      * Get the complete inner text
      * @return The concatenated inner text or null if no text fragments exist
@@ -181,16 +204,16 @@ public class XMLElement implements XMLFragment {
     public XMLText getInnerText() {
         boolean hadText = false;
         StringBuffer sb = new StringBuffer();
-        for(XMLText text : getInnerTexts()) {
+        for (XMLText text : getInnerTexts()) {
             sb.append(text.getText());
             hadText = true;
         }
-        if(hadText) {
+        if (hadText) {
             return new XMLText(sb.toString());
         } else {
             return null;
         }
-            
+
     }
 
     /**
@@ -207,14 +230,17 @@ public class XMLElement implements XMLFragment {
      * @param namespaceUri The namespace URI used for matching. Null if namespace URIs should not be considered
      */
     public List<XMLElement> getInnerElementsNamed(String name, String namespaceUri) {
-        if (name == null) return null;
+        if (name == null)
+            return null;
         List<XMLElement> innerElements = getInnerElements();
-        if (innerElements == null) return null;
-        if (innerElements.size() == 0) return innerElements;
+        if (innerElements == null)
+            return null;
+        if (innerElements.size() == 0)
+            return innerElements;
         Iterator<XMLElement> elementIterator = innerElements.iterator(); // this List will be modified now!
         while (elementIterator.hasNext()) {
-            XMLElement xmlElement =  elementIterator.next();
-            if (!name.equals(xmlElement.getName()) 
+            XMLElement xmlElement = elementIterator.next();
+            if (!name.equals(xmlElement.getName())
                     || (namespaceUri != null && !namespaceUri.equals(xmlElement.getNamespaceURI()))) {
                 elementIterator.remove();
             }
@@ -222,20 +248,21 @@ public class XMLElement implements XMLFragment {
         return innerElements;
     }
 
-    
     public XMLElement getSingleInnerElementsNamed(String name) throws XMLSemanticError {
         return getSingleInnerElementsNamed(name, null);
     }
 
     public XMLElement getSingleInnerElementsNamed(String name, String namespaceUri) throws XMLSemanticError {
         List<XMLElement> innerElements = getInnerElementsNamed(name, namespaceUri);
-        if (innerElements == null) return null;
-        if (innerElements.isEmpty()) return null;
-        if (innerElements.size() > 1) throw new XMLSemanticError("element has more than one inner element named: " + name);
+        if (innerElements == null)
+            return null;
+        if (innerElements.isEmpty())
+            return null;
+        if (innerElements.size() > 1)
+            throw new XMLSemanticError("element has more than one inner element named: " + name);
         return innerElements.get(0);
     }
 
-    
     /**
      * collects all inner elements with given name and puts them in a map indexed by
      * @param name
@@ -243,14 +270,15 @@ public class XMLElement implements XMLFragment {
      * @exception no language attribute may occur more than once for the same element
      */
     public Map<String, XMLElement> getInnerElementsByXMLLangNamed(String name) throws XMLSemanticError {
-        if (name == null) return null;
+        if (name == null)
+            return null;
 
         List<XMLElement> innerElements = getInnerElementsNamed(name);
         Map<String, XMLElement> langMap = new HashMap<String, XMLElement>();
 
         Iterator<XMLElement> elementIterator = innerElements.iterator(); // this List will be modified now!
         while (elementIterator.hasNext()) {
-            XMLElement xmlElement =  elementIterator.next();
+            XMLElement xmlElement = elementIterator.next();
             String xmlLang = xmlElement.getXMLLang();
             if (langMap.containsKey(xmlLang)) {
                 throw new XMLSemanticError("two inner elements '" + name + "' with same language attribute " + xmlLang);
@@ -262,19 +290,24 @@ public class XMLElement implements XMLFragment {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || !(o instanceof XMLElement)) return false;
+        if (this == o)
+            return true;
+        if (o == null || !(o instanceof XMLElement))
+            return false;
 
         final XMLElement that = (XMLElement) o;
 
-        if (attributes != null ? !attributes.equals(that.attributes) : that.attributes != null) return false;
+        if (attributes != null ? !attributes.equals(that.attributes) : that.attributes != null)
+            return false;
         if (innerFragments != null ? !innerFragments.equals(that.innerFragments) : that.innerFragments != null) {
             return false;
         }
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        
+        if (name != null ? !name.equals(that.name) : that.name != null)
+            return false;
+
         // TODO the namespace prefix should not matter for equality, only the URI
-        if (namespacePrefix != null ? !namespacePrefix.equals(that.namespacePrefix) : that.namespacePrefix != null) return false;
+        if (namespacePrefix != null ? !namespacePrefix.equals(that.namespacePrefix) : that.namespacePrefix != null)
+            return false;
 
         return true;
     }
@@ -290,7 +323,8 @@ public class XMLElement implements XMLFragment {
     }
 
     public XMLElementVerifier getVerifier() {
-        if (xmlElementVerifier == null) xmlElementVerifier = new XMLElementVerifier(this);
+        if (xmlElementVerifier == null)
+            xmlElementVerifier = new XMLElementVerifier(this);
         return xmlElementVerifier;
     }
 }

@@ -19,6 +19,9 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0054_vcardtemp;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
@@ -31,9 +34,6 @@ import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
@@ -41,14 +41,15 @@ import java.util.List;
 public class VcardTempModule extends DefaultDiscoAwareModule implements ServerInfoRequestListener {
 
     final Logger logger = LoggerFactory.getLogger(VcardTempModule.class);
-    
+
     protected VcardTempIQHandler iqHandler = new VcardTempIQHandler();
 
     @Override
     public void initialize(ServerRuntimeContext serverRuntimeContext) {
         super.initialize(serverRuntimeContext);
 
-        VcardTempPersistenceManager persistenceManager = (VcardTempPersistenceManager) serverRuntimeContext.getStorageProvider(VcardTempPersistenceManager.class);
+        VcardTempPersistenceManager persistenceManager = (VcardTempPersistenceManager) serverRuntimeContext
+                .getStorageProvider(VcardTempPersistenceManager.class);
         if (persistenceManager == null) {
             logger.error("no VcardTempPersistenceManager found");
         } else if (!persistenceManager.isAvailable()) {

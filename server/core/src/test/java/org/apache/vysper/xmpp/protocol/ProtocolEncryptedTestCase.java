@@ -37,5 +37,4 @@ public class ProtocolEncryptedTestCase extends AbstractProtocolStateTestCase {
         skeleton_testDontAcceptArbitraryStanzaWhileNotAuthenticated();
     }
 
-
 }

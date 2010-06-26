@@ -37,13 +37,12 @@ import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
-
 /**
  * This class handles the "unsubscribe" use cases for the "pubsub" namespace.
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-@SpecCompliant(spec="xep-0060", section="6.2", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+@SpecCompliant(spec = "xep-0060", section = "6.2", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
 public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
 
     /**
@@ -70,19 +69,16 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
      */
     @Override
     @SpecCompliance(compliant = {
-            @SpecCompliant(spec="xep-0060", section="6.2.1", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
-            , @SpecCompliant(spec="xep-0060", section="6.2.3.1", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
-            , @SpecCompliant(spec="xep-0060", section="6.2.3.2", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
-            , @SpecCompliant(spec="xep-0060", section="6.2.3.3", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
-            , @SpecCompliant(spec="xep-0060", section="6.2.3.4", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
-            , @SpecCompliant(spec="xep-0060", section="6.2.3.5", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
-        })
-    protected Stanza handleSet(IQStanza stanza,
-            ServerRuntimeContext serverRuntimeContext,
-            SessionContext sessionContext) {
+            @SpecCompliant(spec = "xep-0060", section = "6.2.1", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE),
+            @SpecCompliant(spec = "xep-0060", section = "6.2.3.1", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE),
+            @SpecCompliant(spec = "xep-0060", section = "6.2.3.2", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE),
+            @SpecCompliant(spec = "xep-0060", section = "6.2.3.3", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE),
+            @SpecCompliant(spec = "xep-0060", section = "6.2.3.4", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE),
+            @SpecCompliant(spec = "xep-0060", section = "6.2.3.5", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE) })
+    protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         Entity serverJID = serviceConfiguration.getServerJID();
         CollectionNode root = serviceConfiguration.getRootNode();
-        
+
         Entity sender = extractSenderJID(stanza, sessionContext);
         Entity subJID = null;
 
@@ -100,7 +96,7 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
             return errorStanzaGenerator.generateJIDMalformedErrorStanza(sender, serverJID, stanza);
         }
 
-        if(!sender.getBareJID().equals(subJID.getBareJID())) {
+        if (!sender.getBareJID().equals(subJID.getBareJID())) {
             // insufficient privileges (error condition 3 (6.2.3))
             return errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, serverJID, stanza);
         }
@@ -108,23 +104,23 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
         String nodeName = extractNodeName(stanza);
         LeafNode node = root.find(nodeName);
 
-        if(node == null) {
+        if (node == null) {
             // no such node (error condition 4 (6.2.3))
             return errorStanzaGenerator.generateNoNodeErrorStanza(sender, serverJID, stanza);
         }
 
-        if(strSubID == null) {
+        if (strSubID == null) {
             try {
-                if(!node.unsubscribe(subJID)) {
+                if (!node.unsubscribe(subJID)) {
                     // has no subscription (6.2.3.2)
                     return errorStanzaGenerator.generateNoSuchSubscriberErrorStanza(sender, serverJID, stanza);
                 }
-            } catch(MultipleSubscriptionException e) {
+            } catch (MultipleSubscriptionException e) {
                 // error case 6.2.3.1
                 return errorStanzaGenerator.generateSubIDRequiredErrorStanza(sender, serverJID, stanza);
             }
         } else {
-            if(!node.unsubscribe(strSubID, subJID)) {
+            if (!node.unsubscribe(strSubID, subJID)) {
                 // subID not valid (6.2.3.5)
                 return errorStanzaGenerator.generateSubIDNotValidErrorStanza(sender, serverJID, stanza);
             }

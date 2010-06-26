@@ -19,8 +19,8 @@
  */
 package org.apache.vysper.xmpp.protocol;
 
-import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
@@ -61,5 +61,7 @@ public interface StanzaHandler {
      * @param sessionStateHolder 
      * @return optionally returns a response which is passed to the session's client
      */
-    public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder) throws ProtocolException;
+    public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
+            boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder)
+            throws ProtocolException;
 }

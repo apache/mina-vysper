@@ -26,36 +26,42 @@ package org.apache.vysper.demo.pubsub.client;
  */
 public class PubsubNode implements Comparable<PubsubNode> {
     private String node;
+
     private Boolean subscribed;
+
     private Boolean ownership;
-    
+
     public PubsubNode(String node) {
         this.node = node;
         this.subscribed = false;
         this.ownership = false;
     }
-    
+
     public String getNode() {
         return node;
     }
+
     public Boolean getSubscribed() {
         return subscribed;
     }
+
     public void setSubscribed(boolean subscribed) {
         this.subscribed = subscribed;
     }
+
     public boolean getOwnership() {
         return ownership;
     }
+
     public void setOwnership(boolean owner) {
         this.ownership = owner;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
-        return ((PubsubNode)obj).getNode().equals(getNode());
+        return ((PubsubNode) obj).getNode().equals(getNode());
     }
-    
+
     @Override
     public int hashCode() {
         return getNode().hashCode();

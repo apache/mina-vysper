@@ -19,6 +19,9 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0049_privatedata;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
@@ -31,9 +34,6 @@ import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
@@ -41,14 +41,15 @@ import java.util.List;
 public class PrivateDataModule extends DefaultDiscoAwareModule implements ServerInfoRequestListener {
 
     final Logger logger = LoggerFactory.getLogger(PrivateDataModule.class);
-    
+
     protected PrivateDataIQHandler iqHandler = new PrivateDataIQHandler();
 
     @Override
     public void initialize(ServerRuntimeContext serverRuntimeContext) {
         super.initialize(serverRuntimeContext);
 
-        PrivateDataPersistenceManager persistenceManager = (PrivateDataPersistenceManager) serverRuntimeContext.getStorageProvider(PrivateDataPersistenceManager.class);
+        PrivateDataPersistenceManager persistenceManager = (PrivateDataPersistenceManager) serverRuntimeContext
+                .getStorageProvider(PrivateDataPersistenceManager.class);
         if (persistenceManager == null) {
             logger.error("no PrivateDataPersistenceManager found");
         } else if (!persistenceManager.isAvailable()) {
@@ -72,13 +73,13 @@ public class PrivateDataModule extends DefaultDiscoAwareModule implements Server
     protected void addServerInfoRequestListeners(List<ServerInfoRequestListener> serverInfoRequestListeners) {
         serverInfoRequestListeners.add(this);
     }
-    
+
     public List<InfoElement> getServerInfosFor(InfoRequest request) {
         List<InfoElement> infoElements = new ArrayList<InfoElement>();
         infoElements.add(new Feature(NamespaceURIs.PRIVATE_DATA));
         return infoElements;
     }
-    
+
     @Override
     protected void addHandlerDictionaries(List<HandlerDictionary> dictionary) {
         iqHandler = new PrivateDataIQHandler();

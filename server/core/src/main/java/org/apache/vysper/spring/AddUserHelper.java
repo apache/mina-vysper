@@ -19,14 +19,14 @@
  */
 package org.apache.vysper.spring;
 
-import org.apache.vysper.storage.StorageProviderRegistry;
-import org.apache.vysper.xmpp.authorization.AccountManagement;
-import org.apache.vysper.xmpp.authorization.AccountCreationException;
-import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.addressing.EntityFormatException;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.vysper.storage.StorageProviderRegistry;
+import org.apache.vysper.xmpp.addressing.EntityFormatException;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.authorization.AccountCreationException;
+import org.apache.vysper.xmpp.authorization.AccountManagement;
 
 /**
  * helper to inject user accounts on spring context creation
@@ -39,14 +39,17 @@ public class AddUserHelper {
         this.userPasswordMap.putAll(userPasswordMap);
     }
 
-    public void setStorageProviderRegistry(StorageProviderRegistry storageProviderRegistry) throws AccountCreationException, EntityFormatException {
-        AccountManagement accountManagement = (AccountManagement)storageProviderRegistry.retrieve(AccountManagement.class);
-        if (accountManagement == null) throw new IllegalStateException("no account manager accessible.");
+    public void setStorageProviderRegistry(StorageProviderRegistry storageProviderRegistry)
+            throws AccountCreationException, EntityFormatException {
+        AccountManagement accountManagement = (AccountManagement) storageProviderRegistry
+                .retrieve(AccountManagement.class);
+        if (accountManagement == null)
+            throw new IllegalStateException("no account manager accessible.");
 
         for (String user : userPasswordMap.keySet()) {
             if (!accountManagement.verifyAccountExists(EntityImpl.parse(user))) {
                 accountManagement.addUser(user, userPasswordMap.get(user));
             }
         }
-    } 
+    }
 }

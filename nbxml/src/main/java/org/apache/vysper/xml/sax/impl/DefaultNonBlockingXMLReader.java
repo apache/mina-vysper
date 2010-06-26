@@ -35,157 +35,154 @@ import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.helpers.DefaultHandler;
 
-
 /**
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class DefaultNonBlockingXMLReader implements NonBlockingXMLReader {
 
-	public static final String FEATURE_NAMESPACES = "http://xml.org/sax/features/namespaces";
-	public static final String FEATURE_NAMESPACE_PREFIXES = "http://xml.org/sax/features/namespace-prefixes";
-	public static final String FEATURE_COMMENTS_ALLOWED = "http://mina.apache.org/vysper/features/comments-allowed";
-	public static final String FEATURE_RESTART_ALLOWED = "http://mina.apache.org/vysper/features/restart-allowed";
-	public static final String PROPERTY_RESTART_QNAME = "http://mina.apache.org/vysper/properties/restart-qname";
-	
-	private ErrorHandler errorHandler = new DefaultHandler();
-	private ContentHandler contentHandler = new DefaultHandler();
+    public static final String FEATURE_NAMESPACES = "http://xml.org/sax/features/namespaces";
 
-	private XMLParser parser;
-	
-	private Map<String, Boolean> features = new HashMap<String, Boolean>();
-	private Map<String, Object> properties = new HashMap<String, Object>();
-	
-	public DefaultNonBlockingXMLReader() {
-		// set default features
-		features.put(FEATURE_NAMESPACES, true);
-		features.put(FEATURE_NAMESPACE_PREFIXES, false);
-		features.put(FEATURE_COMMENTS_ALLOWED, true);
-		features.put(FEATURE_RESTART_ALLOWED, false);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-    public boolean getFeature (String name)
-        throws SAXNotRecognizedException, SAXNotSupportedException {
-    	if(features.containsKey(name)) {
-    		return features.get(name);
-    	} else {
-    		throw new SAXNotRecognizedException("Unknown feature");
-    	}
-    }
+    public static final String FEATURE_NAMESPACE_PREFIXES = "http://xml.org/sax/features/namespace-prefixes";
 
+    public static final String FEATURE_COMMENTS_ALLOWED = "http://mina.apache.org/vysper/features/comments-allowed";
 
-	/**
-	 * {@inheritDoc}
-	 */
-    public void setFeature (String name, boolean value)
-		throws SAXNotRecognizedException, SAXNotSupportedException {
-    	
-    	// features must be set before parsing starts
-    	if(parser != null) {
-    		throw new SAXNotSupportedException("Feature can not be set during parsing");
-    	}
-    	
-    	if(features.containsKey(name)) {
-    		// TODO make configurable features and values easier to manage
-    		if(name.equals(FEATURE_NAMESPACES) && value) {
-    			// ok
-    		} else if(name.equals(FEATURE_NAMESPACE_PREFIXES)) {
-    			features.put(FEATURE_NAMESPACE_PREFIXES, value);
-    		} else if(name.equals(FEATURE_COMMENTS_ALLOWED)) {
-    			features.put(FEATURE_COMMENTS_ALLOWED, value);
-    		} else if(name.equals(FEATURE_RESTART_ALLOWED)) {
-    			features.put(FEATURE_RESTART_ALLOWED, value);
-    		} else {
-    			throw new SAXNotSupportedException("Not supported");
-    		}
-    	} else {
-    		throw new SAXNotRecognizedException("Unknown feature");
-    	}
-    }
+    public static final String FEATURE_RESTART_ALLOWED = "http://mina.apache.org/vysper/features/restart-allowed";
 
+    public static final String PROPERTY_RESTART_QNAME = "http://mina.apache.org/vysper/properties/restart-qname";
 
-	/**
-	 * {@inheritDoc}
-	 */
-    public Object getProperty (String name)
-	throws SAXNotRecognizedException, SAXNotSupportedException {
-    	return properties.get(name);
-    }
+    private ErrorHandler errorHandler = new DefaultHandler();
 
-	/**
-	 * {@inheritDoc}
-	 */
-    public void setProperty (String name, Object value)
-    	throws SAXNotRecognizedException, SAXNotSupportedException {
-    	properties.put(name, value);
-    }
+    private ContentHandler contentHandler = new DefaultHandler();
 
-	/**
-	 * {@inheritDoc}
-	 */
-    public void setEntityResolver (EntityResolver resolver) {
-    	throw new RuntimeException("Entity resolver not supported");
-    }
+    private XMLParser parser;
 
-	/**
-	 * {@inheritDoc}
-	 */
-    public EntityResolver getEntityResolver () {
-    	throw new RuntimeException("Entity resolver not supported");
-    }
+    private Map<String, Boolean> features = new HashMap<String, Boolean>();
 
-	/**
-	 * {@inheritDoc}
-	 */
-    public void setDTDHandler (DTDHandler handler) {
-    	throw new RuntimeException("DTD handler not supported");
-    }
+    private Map<String, Object> properties = new HashMap<String, Object>();
 
-    public DTDHandler getDTDHandler () {
-    	throw new RuntimeException("DTD handler not supported");
-    }
-
-	/**
-	 * {@inheritDoc}
-	 */
-    public void setContentHandler (ContentHandler handler) {
-    	this.contentHandler = handler;
-    }
-
-	/**
-	 * {@inheritDoc}
-	 */
-    public ContentHandler getContentHandler () {
-    	return contentHandler;
-    }
-
-	/**
-	 * {@inheritDoc}
-	 */
-    public void setErrorHandler (ErrorHandler handler) {
-    	this.errorHandler = handler;
+    public DefaultNonBlockingXMLReader() {
+        // set default features
+        features.put(FEATURE_NAMESPACES, true);
+        features.put(FEATURE_NAMESPACE_PREFIXES, false);
+        features.put(FEATURE_COMMENTS_ALLOWED, true);
+        features.put(FEATURE_RESTART_ALLOWED, false);
     }
 
     /**
-	 * {@inheritDoc}
-	 */
-    public ErrorHandler getErrorHandler () {
-    	return errorHandler;
+     * {@inheritDoc}
+     */
+    public boolean getFeature(String name) throws SAXNotRecognizedException, SAXNotSupportedException {
+        if (features.containsKey(name)) {
+            return features.get(name);
+        } else {
+            throw new SAXNotRecognizedException("Unknown feature");
+        }
     }
 
-	/**
-	 * {@inheritDoc}
-	 */
-    public void parse (IoBuffer buffer, CharsetDecoder decoder) throws IOException, SAXException {
-    	if(parser == null) {
-    		parser = new XMLParser(contentHandler, errorHandler, features, properties);
-    	}
-    	
-		parser.parse(buffer, decoder);
+    /**
+     * {@inheritDoc}
+     */
+    public void setFeature(String name, boolean value) throws SAXNotRecognizedException, SAXNotSupportedException {
+
+        // features must be set before parsing starts
+        if (parser != null) {
+            throw new SAXNotSupportedException("Feature can not be set during parsing");
+        }
+
+        if (features.containsKey(name)) {
+            // TODO make configurable features and values easier to manage
+            if (name.equals(FEATURE_NAMESPACES) && value) {
+                // ok
+            } else if (name.equals(FEATURE_NAMESPACE_PREFIXES)) {
+                features.put(FEATURE_NAMESPACE_PREFIXES, value);
+            } else if (name.equals(FEATURE_COMMENTS_ALLOWED)) {
+                features.put(FEATURE_COMMENTS_ALLOWED, value);
+            } else if (name.equals(FEATURE_RESTART_ALLOWED)) {
+                features.put(FEATURE_RESTART_ALLOWED, value);
+            } else {
+                throw new SAXNotSupportedException("Not supported");
+            }
+        } else {
+            throw new SAXNotRecognizedException("Unknown feature");
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public Object getProperty(String name) throws SAXNotRecognizedException, SAXNotSupportedException {
+        return properties.get(name);
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    public void setProperty(String name, Object value) throws SAXNotRecognizedException, SAXNotSupportedException {
+        properties.put(name, value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setEntityResolver(EntityResolver resolver) {
+        throw new RuntimeException("Entity resolver not supported");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public EntityResolver getEntityResolver() {
+        throw new RuntimeException("Entity resolver not supported");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setDTDHandler(DTDHandler handler) {
+        throw new RuntimeException("DTD handler not supported");
+    }
+
+    public DTDHandler getDTDHandler() {
+        throw new RuntimeException("DTD handler not supported");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setContentHandler(ContentHandler handler) {
+        this.contentHandler = handler;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public ContentHandler getContentHandler() {
+        return contentHandler;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setErrorHandler(ErrorHandler handler) {
+        this.errorHandler = handler;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public ErrorHandler getErrorHandler() {
+        return errorHandler;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void parse(IoBuffer buffer, CharsetDecoder decoder) throws IOException, SAXException {
+        if (parser == null) {
+            parser = new XMLParser(contentHandler, errorHandler, features, properties);
+        }
+
+        parser.parse(buffer, decoder);
+    }
 
 }

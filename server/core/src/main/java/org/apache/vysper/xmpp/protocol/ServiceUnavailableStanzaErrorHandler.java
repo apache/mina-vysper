@@ -19,8 +19,8 @@
  */
 package org.apache.vysper.xmpp.protocol;
 
-import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
@@ -45,14 +45,19 @@ public class ServiceUnavailableStanzaErrorHandler implements StanzaHandler {
         return true;
     }
 
-    public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder) throws ProtocolException {
+    public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
+            boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder)
+            throws ProtocolException {
         if (!(stanza instanceof XMPPCoreStanza)) {
             stanza = XMPPCoreStanza.getWrapper(stanza);
         }
-        if (stanza == null) throw new IllegalArgumentException("cannot coerce into a message, iq or presence stanza");
+        if (stanza == null)
+            throw new IllegalArgumentException("cannot coerce into a message, iq or presence stanza");
 
         XMPPCoreStanza coreStanza = (XMPPCoreStanza) stanza;
-        Stanza errorStanza = ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE, coreStanza, StanzaErrorType.CANCEL, "namespace not supported", null, null);
+        Stanza errorStanza = ServerErrorResponses.getInstance().getStanzaError(
+                StanzaErrorCondition.SERVICE_UNAVAILABLE, coreStanza, StanzaErrorType.CANCEL,
+                "namespace not supported", null, null);
         return new ResponseStanzaContainerImpl(errorStanza);
     }
 }

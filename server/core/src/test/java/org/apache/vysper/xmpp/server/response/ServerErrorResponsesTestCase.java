@@ -24,7 +24,6 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.parser.ParsingException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
@@ -39,39 +38,40 @@ import org.apache.vysper.xmpp.stanza.StanzaErrorType;
 public class ServerErrorResponsesTestCase extends TestCase {
 
     private static final String SERVER_JID = "vysper.org";
+
     private static final String CLIENT_JID = "test@vysper.org/test";
-    
+
     public void testStanzaError() throws ParsingException {
         StanzaBuilder builder = new StanzaBuilder("iq");
         builder.addAttribute("to", SERVER_JID);
         builder.addAttribute("from", CLIENT_JID);
         builder.startInnerElement("ping", NamespaceURIs.URN_XMPP_PING);
         builder.endInnerElement();
-        
+
         Stanza request = builder.build();
         IQStanza requestIq = new IQStanza(request);
 
         ServerErrorResponses serverErrorResponses = ServerErrorResponses.getInstance();
-        
-        Stanza errorReply = serverErrorResponses.getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE, 
-                requestIq, StanzaErrorType.CANCEL, "Test", "en", null);
+
+        Stanza errorReply = serverErrorResponses.getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE, requestIq,
+                StanzaErrorType.CANCEL, "Test", "en", null);
         assertEquals("error", errorReply.getAttributeValue("type"));
         assertEquals(SERVER_JID, errorReply.getAttributeValue("from"));
         assertEquals(CLIENT_JID, errorReply.getAttributeValue("to"));
-        
+
         List<XMLElement> children = errorReply.getInnerElements();
-        
+
         XMLElement pingElm = children.get(0);
         assertEquals("ping", pingElm.getName());
         assertEquals(NamespaceURIs.URN_XMPP_PING, pingElm.getNamespaceURI());
-        
+
         XMLElement errorElm = children.get(1);
         assertEquals("error", errorElm.getName());
         assertEquals(StanzaErrorType.CANCEL.value(), errorElm.getAttributeValue("type"));
-        
+
         XMLElement errorTypeElm = errorElm.getInnerElements().get(0);
         assertEquals(StanzaErrorCondition.SERVICE_UNAVAILABLE.value(), errorTypeElm.getName());
-        
+
         XMLElement textElm = errorElm.getInnerElements().get(1);
         assertEquals("text", textElm.getName());
         assertEquals("en", textElm.getXMLLang());

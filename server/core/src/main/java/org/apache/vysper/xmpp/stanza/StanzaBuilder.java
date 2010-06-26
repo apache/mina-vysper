@@ -43,8 +43,10 @@ public class StanzaBuilder extends AbstractXMLElementBuilder<StanzaBuilder, Stan
 
     public static StanzaBuilder createIQStanza(Entity from, Entity to, IQStanzaType type, String id) {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT);
-        if (from != null) stanzaBuilder.addAttribute("from", from.getFullQualifiedName());
-        if (to != null) stanzaBuilder.addAttribute("to", to.getFullQualifiedName());
+        if (from != null)
+            stanzaBuilder.addAttribute("from", from.getFullQualifiedName());
+        if (to != null)
+            stanzaBuilder.addAttribute("to", to.getFullQualifiedName());
         stanzaBuilder.addAttribute("type", type.value());
         stanzaBuilder.addAttribute("id", id);
         return stanzaBuilder;
@@ -54,33 +56,43 @@ public class StanzaBuilder extends AbstractXMLElementBuilder<StanzaBuilder, Stan
         StanzaBuilder stanzaBuilder = new StanzaBuilder("message", NamespaceURIs.JABBER_CLIENT);
         stanzaBuilder.addAttribute("from", from.getFullQualifiedName());
         stanzaBuilder.addAttribute("to", to.getFullQualifiedName());
-        if(lang != null) stanzaBuilder.addAttribute(NamespaceURIs.XML, "lang", lang);
-        if(body != null) stanzaBuilder.startInnerElement("body", NamespaceURIs.JABBER_CLIENT).addText(body).endInnerElement();
+        if (lang != null)
+            stanzaBuilder.addAttribute(NamespaceURIs.XML, "lang", lang);
+        if (body != null)
+            stanzaBuilder.startInnerElement("body", NamespaceURIs.JABBER_CLIENT).addText(body).endInnerElement();
         return stanzaBuilder;
     }
 
-    public static StanzaBuilder createMessageStanza(Entity from, Entity to, MessageStanzaType type, String lang, String body) {
+    public static StanzaBuilder createMessageStanza(Entity from, Entity to, MessageStanzaType type, String lang,
+            String body) {
         StanzaBuilder stanzaBuilder = createMessageStanza(from, to, lang, body);
-        if (type != null) stanzaBuilder.addAttribute("type", type.value());
+        if (type != null)
+            stanzaBuilder.addAttribute("type", type.value());
         return stanzaBuilder;
     }
 
-    public static Stanza createUnavailablePresenceStanza(String status, SessionContext.SessionTerminationCause terminationCause) {
-        StanzaBuilder presenceUnavailBuilder = createPresenceStanza(null, null, null, PresenceStanzaType.UNAVAILABLE, null, status);
+    public static Stanza createUnavailablePresenceStanza(String status,
+            SessionContext.SessionTerminationCause terminationCause) {
+        StanzaBuilder presenceUnavailBuilder = createPresenceStanza(null, null, null, PresenceStanzaType.UNAVAILABLE,
+                null, status);
         if (terminationCause == null) {
             return presenceUnavailBuilder.build();
-        }
-        else {
+        } else {
             return new EndOfSessionCommandStanza(presenceUnavailBuilder.build(), terminationCause);
         }
     }
 
-    public static StanzaBuilder createPresenceStanza(Entity from, Entity to, String lang, PresenceStanzaType type, String show, String status) {
+    public static StanzaBuilder createPresenceStanza(Entity from, Entity to, String lang, PresenceStanzaType type,
+            String show, String status) {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("presence", NamespaceURIs.JABBER_CLIENT);
-        if (from != null) stanzaBuilder.addAttribute("from", from.getFullQualifiedName());
-        if (to != null) stanzaBuilder.addAttribute("to", to.getFullQualifiedName());
-        if (lang != null) stanzaBuilder.addAttribute(NamespaceURIs.XML, "lang", lang);
-        if (type != null) stanzaBuilder.addAttribute("type", type.value());
+        if (from != null)
+            stanzaBuilder.addAttribute("from", from.getFullQualifiedName());
+        if (to != null)
+            stanzaBuilder.addAttribute("to", to.getFullQualifiedName());
+        if (lang != null)
+            stanzaBuilder.addAttribute(NamespaceURIs.XML, "lang", lang);
+        if (type != null)
+            stanzaBuilder.addAttribute("type", type.value());
         if (show != null) {
             stanzaBuilder.startInnerElement("show", NamespaceURIs.JABBER_CLIENT).addText(show).endInnerElement();
         }
@@ -95,9 +107,11 @@ public class StanzaBuilder extends AbstractXMLElementBuilder<StanzaBuilder, Stan
     }
 
     public static StanzaBuilder createDirectReply(XMPPCoreStanza original, boolean fromIsServerOnly, String type) {
-        if (original == null) throw new IllegalArgumentException();
+        if (original == null)
+            throw new IllegalArgumentException();
 
-        StanzaBuilder stanzaBuilder = new StanzaBuilder(original.getName(), original.getNamespaceURI(), original.getNamespacePrefix());
+        StanzaBuilder stanzaBuilder = new StanzaBuilder(original.getName(), original.getNamespaceURI(), original
+                .getNamespacePrefix());
         // reverse to and from
         Entity newTo = original.getFrom();
         if (newTo != null) {
@@ -105,11 +119,13 @@ public class StanzaBuilder extends AbstractXMLElementBuilder<StanzaBuilder, Stan
         }
         Entity newFrom = original.getTo();
         if (newFrom != null) {
-            if (fromIsServerOnly) newFrom = new EntityImpl(null, newFrom.getDomain(), null);
+            if (fromIsServerOnly)
+                newFrom = new EntityImpl(null, newFrom.getDomain(), null);
             stanzaBuilder.addAttribute("from", newFrom.getFullQualifiedName());
         }
         stanzaBuilder.addAttribute("type", type);
-        if (original.getID() != null) stanzaBuilder.addAttribute("id", original.getID());
+        if (original.getID() != null)
+            stanzaBuilder.addAttribute("id", original.getID());
 
         return stanzaBuilder;
     }
@@ -125,17 +141,20 @@ public class StanzaBuilder extends AbstractXMLElementBuilder<StanzaBuilder, Stan
      * @return
      */
     public static StanzaBuilder createClone(XMLElement original, boolean deep, List<Attribute> replacingAttributes) {
-        StanzaBuilder stanzaBuilder = new StanzaBuilder(original.getName(), original.getNamespaceURI(), original.getNamespacePrefix());
+        StanzaBuilder stanzaBuilder = new StanzaBuilder(original.getName(), original.getNamespaceURI(), original
+                .getNamespacePrefix());
 
         List<Attribute> replacingAttributesCopy = new ArrayList<Attribute>();
-        if (replacingAttributes != null) replacingAttributesCopy.addAll(replacingAttributes);
+        if (replacingAttributes != null)
+            replacingAttributesCopy.addAll(replacingAttributes);
 
         List<Attribute> originalAttributes = original.getAttributes();
         for (Attribute originalAttribute : originalAttributes) {
             boolean wasReplaced = false;
             for (Iterator<Attribute> it = replacingAttributesCopy.iterator(); it.hasNext();) {
                 Attribute replacingAttribute = it.next();
-                if (replacingAttribute == null) continue;
+                if (replacingAttribute == null)
+                    continue;
                 if (replacingAttribute.getName().equals(originalAttribute.getName())) {
                     stanzaBuilder.addAttribute(replacingAttribute);
                     it.remove(); // this has been processed
@@ -143,7 +162,8 @@ public class StanzaBuilder extends AbstractXMLElementBuilder<StanzaBuilder, Stan
                     break;
                 }
             }
-            if (!wasReplaced) stanzaBuilder.addAttribute(originalAttribute);
+            if (!wasReplaced)
+                stanzaBuilder.addAttribute(originalAttribute);
         }
 
         // add remaining replacements, which are actually additions
@@ -161,7 +181,7 @@ public class StanzaBuilder extends AbstractXMLElementBuilder<StanzaBuilder, Stan
 
         return stanzaBuilder;
     }
-    
+
     /**
      * creates a new stanza which only differs from the given original by 'from' and 'to' attributes. 
      * 
@@ -172,8 +192,10 @@ public class StanzaBuilder extends AbstractXMLElementBuilder<StanzaBuilder, Stan
      */
     public static StanzaBuilder createForward(Stanza original, Entity from, Entity to) {
         List<Attribute> toFromReplacements = new ArrayList<Attribute>(2);
-        if (to != null) toFromReplacements.add(new Attribute("to", to.getFullQualifiedName()));
-        if (from != null) toFromReplacements.add(new Attribute("from", from.getFullQualifiedName()));
+        if (to != null)
+            toFromReplacements.add(new Attribute("to", to.getFullQualifiedName()));
+        if (from != null)
+            toFromReplacements.add(new Attribute("from", from.getFullQualifiedName()));
 
         return createClone(original, true, toFromReplacements);
     }
@@ -192,8 +214,11 @@ public class StanzaBuilder extends AbstractXMLElementBuilder<StanzaBuilder, Stan
 
     class ElementStruct {
         public ElementStruct parentElement = null;
+
         public XMLElement element = null;
+
         public List<Attribute> attributes = null;
+
         public List<XMLFragment> innerFragments = null;
     }
 
@@ -206,23 +231,21 @@ public class StanzaBuilder extends AbstractXMLElementBuilder<StanzaBuilder, Stan
     }
 
     public StanzaBuilder(String stanzaName, String namespaceURI, String namespacePrefix) {
-    	super(stanzaName, namespaceURI, namespacePrefix);
+        super(stanzaName, namespaceURI, namespacePrefix);
     }
 
-    public StanzaBuilder(String stanzaName, String namespaceURI,
-			String namespacePrefix, List<Attribute> attributes,
-			List<XMLFragment> innerFragments) {
-    	super(stanzaName, namespaceURI, namespacePrefix, attributes, null, innerFragments);
-	}
+    public StanzaBuilder(String stanzaName, String namespaceURI, String namespacePrefix, List<Attribute> attributes,
+            List<XMLFragment> innerFragments) {
+        super(stanzaName, namespaceURI, namespacePrefix, attributes, null, innerFragments);
+    }
 
-    public StanzaBuilder(String stanzaName, String namespaceURI,
-			String namespacePrefix, List<Attribute> attributes,
-			Map<String, String> namespaces, 
-			List<XMLFragment> innerFragments) {
-    	super(stanzaName, namespaceURI, namespacePrefix, attributes, namespaces, innerFragments);
-	}
+    public StanzaBuilder(String stanzaName, String namespaceURI, String namespacePrefix, List<Attribute> attributes,
+            Map<String, String> namespaces, List<XMLFragment> innerFragments) {
+        super(stanzaName, namespaceURI, namespacePrefix, attributes, namespaces, innerFragments);
+    }
 
-	protected XMLElement createElement(String namespaceURI, String name, String namespacePrefix, List<Attribute> attributes, Map<String, String> namespaces, List<XMLFragment> innerFragments) {
+    protected XMLElement createElement(String namespaceURI, String name, String namespacePrefix,
+            List<Attribute> attributes, Map<String, String> namespaces, List<XMLFragment> innerFragments) {
         // when creating the first element, make it a stanza
         if (currentElement == null) {
             return new Stanza(namespaceURI, name, namespacePrefix, attributes, innerFragments, namespaces);

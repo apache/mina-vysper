@@ -19,6 +19,8 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner;
 
+import java.util.List;
+
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -33,8 +35,6 @@ import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-
-import java.util.List;
 
 /**
  * @author The Apache MINA Project (http://mina.apache.org)
@@ -75,7 +75,7 @@ public class PubSubOwnerRetrieveAffiliationsTestCase extends AbstractPublishSubs
         assertTrue(result.hasResponse());
 
         IQStanza response = new IQStanza(result.getResponseStanza());
-        assertEquals(IQStanzaType.ERROR.value(),response.getType());
+        assertEquals(IQStanzaType.ERROR.value(), response.getType());
 
         assertEquals("id123", response.getAttributeValue("id")); // IDs must match
 
@@ -98,7 +98,7 @@ public class PubSubOwnerRetrieveAffiliationsTestCase extends AbstractPublishSubs
         ResponseStanzaContainer result = sendStanza(stanza, true);
         assertTrue(result.hasResponse());
         IQStanza response = new IQStanza(result.getResponseStanza());
-        assertEquals(IQStanzaType.ERROR.value(),response.getType());
+        assertEquals(IQStanzaType.ERROR.value(), response.getType());
 
         assertEquals("id123", response.getAttributeValue("id")); // IDs must match
 
@@ -121,12 +121,12 @@ public class PubSubOwnerRetrieveAffiliationsTestCase extends AbstractPublishSubs
         assertTrue(result.hasResponse());
 
         IQStanza response = new IQStanza(result.getResponseStanza());
-        assertEquals(IQStanzaType.RESULT.value(),response.getType());
+        assertEquals(IQStanzaType.RESULT.value(), response.getType());
         XMLElement sub = response.getFirstInnerElement().getFirstInnerElement();
         assertEquals("affiliations", sub.getName());
         assertEquals(3, sub.getInnerElements().size());
 
-        for(XMLElement e : sub.getInnerElements()) {
+        for (XMLElement e : sub.getInnerElements()) {
             assertEquals("owner", e.getAttributeValue("affiliation"));
         }
     }

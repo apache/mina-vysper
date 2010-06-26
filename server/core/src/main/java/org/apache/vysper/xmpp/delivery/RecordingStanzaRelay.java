@@ -19,13 +19,13 @@
  */
 package org.apache.vysper.xmpp.delivery;
 
-import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
-import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
-
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
+import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
  * a relay which does not relay anything but simply records the sequence of entity/stanza pairs received
@@ -37,10 +37,13 @@ import java.util.Iterator;
 public class RecordingStanzaRelay implements StanzaRelay {
 
     private final ArrayList<Triple> entityStanzaPairs = new ArrayList<Triple>();
+
     private boolean acceptingMode = true;
 
-    public void relay(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy) throws DeliveryException {
-        if (!acceptingMode) return;
+    public void relay(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy)
+            throws DeliveryException {
+        if (!acceptingMode)
+            return;
         entityStanzaPairs.add(new Triple(receiver, stanza, deliveryFailureStrategy));
     }
 
@@ -62,7 +65,9 @@ public class RecordingStanzaRelay implements StanzaRelay {
 
     public class Triple {
         private Entity entity;
+
         private Stanza stanza;
+
         private DeliveryFailureStrategy deliveryFailureStrategy;
 
         Triple(Entity entity, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy) {

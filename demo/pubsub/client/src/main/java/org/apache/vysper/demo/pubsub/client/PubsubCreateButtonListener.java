@@ -34,50 +34,46 @@ import org.jivesoftware.smack.XMPPException;
 public class PubsubCreateButtonListener implements ActionListener {
 
     private String nodeID;
+
     private PubsubClientModel parent;
+
     private JFrame frame;
-    
+
     public PubsubCreateButtonListener(JFrame frame, PubsubClientModel parent) {
         this.parent = parent;
         this.frame = frame;
     }
-    
+
     public void actionPerformed(ActionEvent e) {
-        if(askForNodeName()) {
+        if (askForNodeName()) {
             try {
                 parent.getPubsubMgr().createNode(nodeID);
                 System.out.println("Node created " + nodeID);
                 parent.refresh();
             } catch (XMPPException e1) {
-                System.err.println("Couldn't create node "+nodeID);
+                System.err.println("Couldn't create node " + nodeID);
                 e1.printStackTrace();
             }
         }
     }
-    
+
     private boolean askForNodeName() {
         JLabel nodeLab = new JLabel("Node ID");
         JTextField nodeTxt = new JTextField();
         nodeLab.setLabelFor(nodeTxt);
-                
+
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(2,1));
+        panel.setLayout(new GridLayout(2, 1));
         panel.add(nodeLab);
         panel.add(nodeTxt);
-        
-        int answer = JOptionPane.showOptionDialog(frame,
-                panel,
-                "Create new node",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                new String[] {"OK", "Cancel"},
-                null);
 
-        if(answer != 0) {
+        int answer = JOptionPane.showOptionDialog(frame, panel, "Create new node", JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE, null, new String[] { "OK", "Cancel" }, null);
+
+        if (answer != 0) {
             return false;
         }
-        
+
         this.nodeID = nodeTxt.getText();
         return true;
     }

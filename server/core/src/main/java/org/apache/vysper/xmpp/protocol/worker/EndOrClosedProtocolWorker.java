@@ -37,7 +37,8 @@ public class EndOrClosedProtocolWorker extends AbstractStateAwareProtocolWorker 
     }
 
     @Override
-    protected boolean checkState(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza, StanzaHandler stanzaHandler) {
+    protected boolean checkState(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
+            StanzaHandler stanzaHandler) {
         throw new RuntimeException("session was terminated");
     }
 }

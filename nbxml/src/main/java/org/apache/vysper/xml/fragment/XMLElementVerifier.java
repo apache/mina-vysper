@@ -32,188 +32,186 @@ import java.util.List;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class XMLElementVerifier {
-	protected XMLElement element;
+    protected XMLElement element;
 
-	protected XMLElementVerifier(XMLElement element) {
-		if (element == null)
-			throw new IllegalArgumentException("null not allowed for element");
-		this.element = element;
-	}
+    protected XMLElementVerifier(XMLElement element) {
+        if (element == null)
+            throw new IllegalArgumentException("null not allowed for element");
+        this.element = element;
+    }
 
-	public boolean nameEquals(String name) {
-		return element.getName().equals(name);
-	}
+    public boolean nameEquals(String name) {
+        return element.getName().equals(name);
+    }
 
-	public boolean attributePresent(String name) {
-		return attributePresent("", name);
-	}
+    public boolean attributePresent(String name) {
+        return attributePresent("", name);
+    }
 
-	public boolean attributePresent(String namespaceUri, String name) {
-		return null != element.getAttribute(namespaceUri, name);
-	}
+    public boolean attributePresent(String namespaceUri, String name) {
+        return null != element.getAttribute(namespaceUri, name);
+    }
 
-	/**
-	 * Checks whether all given attributes are present on the element.
-	 *
-	 * @param names
-	 *            the attributes to check
-	 * @return true iff all attributes are present, false otherwise
-	 */
-	public boolean allAttributesPresent(String... names) {
-		if (names == null) {
-			return false;
-		}
-		for (String name : names) {
-			if (!attributePresent(name)) {
-				return false;
-			}
-		}
-		return true;
-	}
+    /**
+     * Checks whether all given attributes are present on the element.
+     *
+     * @param names
+     *            the attributes to check
+     * @return true iff all attributes are present, false otherwise
+     */
+    public boolean allAttributesPresent(String... names) {
+        if (names == null) {
+            return false;
+        }
+        for (String name : names) {
+            if (!attributePresent(name)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-	/**
-	 * Checks whether only the given attributes are present on the element.
-	 *
-	 * @param names
-	 *            the attributes to check
-	 * @return true iff only the given attributes are present, false otherwise
-	 */
-	public boolean onlyAttributesPresent(String... names) {
-		if (names == null) {
-			return false;
-		}
-		return element.getAttributes().size() == names.length
-				&& allAttributesPresent(names);
-	}
+    /**
+     * Checks whether only the given attributes are present on the element.
+     *
+     * @param names
+     *            the attributes to check
+     * @return true iff only the given attributes are present, false otherwise
+     */
+    public boolean onlyAttributesPresent(String... names) {
+        if (names == null) {
+            return false;
+        }
+        return element.getAttributes().size() == names.length && allAttributesPresent(names);
+    }
 
-	/**
-	 * Checks whether any of the given attributes are present on the element.
-	 *
-	 * @param names
-	 *            the attributes to check
-	 * @return true iff at least one of the given attributes is present, false
-	 *         otherwise
-	 */
-	public boolean anyAttributePresent(String... names) {
-		if (names == null) {
-			return false;
-		}
-		for (String name : names) {
-			if (attributePresent(name)) {
-				return true;
-			}
-		}
-		return false;
-	}
+    /**
+     * Checks whether any of the given attributes are present on the element.
+     *
+     * @param names
+     *            the attributes to check
+     * @return true iff at least one of the given attributes is present, false
+     *         otherwise
+     */
+    public boolean anyAttributePresent(String... names) {
+        if (names == null) {
+            return false;
+        }
+        for (String name : names) {
+            if (attributePresent(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-	public boolean attributeEquals(String name, String value) {
-		return attributeEquals("", name, value);
-	}
-	
-	public boolean attributeEquals(String namespaceUri, String name, String value) {
-		return attributePresent(namespaceUri, name)
-				&& element.getAttributeValue(namespaceUri, name).equals(value);
-	}
+    public boolean attributeEquals(String name, String value) {
+        return attributeEquals("", name, value);
+    }
 
-	
-	public boolean subElementPresent(String name) {
-		for (XMLFragment xmlFragment : element.getInnerFragments()) {
-			if (xmlFragment instanceof XMLElement) {
-				XMLElement xmlElement = (XMLElement) xmlFragment;
-				if (xmlElement.getName().equals(name))
-					return true;
-			}
-		}
-		return false;
-	}
+    public boolean attributeEquals(String namespaceUri, String name, String value) {
+        return attributePresent(namespaceUri, name) && element.getAttributeValue(namespaceUri, name).equals(value);
+    }
 
-	public boolean subElementsPresentExact(int numberOfSubelements) {
-		return element.getInnerElements().size() == numberOfSubelements;
-	}
+    public boolean subElementPresent(String name) {
+        for (XMLFragment xmlFragment : element.getInnerFragments()) {
+            if (xmlFragment instanceof XMLElement) {
+                XMLElement xmlElement = (XMLElement) xmlFragment;
+                if (xmlElement.getName().equals(name))
+                    return true;
+            }
+        }
+        return false;
+    }
 
-	public boolean subElementsPresentAtLeast(int numberOfSubelements) {
-		return element.getInnerElements().size() >= numberOfSubelements;
-	}
+    public boolean subElementsPresentExact(int numberOfSubelements) {
+        return element.getInnerElements().size() == numberOfSubelements;
+    }
 
-	public boolean subElementsPresentAtMost(int numberOfSubelements) {
-		return element.getInnerElements().size() <= numberOfSubelements;
-	}
+    public boolean subElementsPresentAtLeast(int numberOfSubelements) {
+        return element.getInnerElements().size() >= numberOfSubelements;
+    }
 
-	public boolean namespacePresent(String namespaceURI) {
-		Collection<String> nsUris = element.getDeclaredNamespaces().values();
-		if(nsUris.contains(namespaceURI)) {
-			return true;
-		}
-		
-		for(Attribute attribute : element.getAttributes()) {
-			if(attribute.getName().startsWith("xmlns") && attribute.getValue().equals(namespaceURI)) {
-				return true;
-			}
-		}
-		
-		if(namespaceURI.equals(element.getNamespaceURI())) return true;
-		
-		return false; // not present
-	}
+    public boolean subElementsPresentAtMost(int numberOfSubelements) {
+        return element.getInnerElements().size() <= numberOfSubelements;
+    }
 
-	/**
-	 * example for "http://myNS.org/anything", this method returns "myNS" for
-	 * element <test xmlns:myNS="http://myNS.org/anything" />
-	 *
-	 * @return the identifier for the given namespace definition
-	 */
-	public String getNamespaceIdentifier(String namespace) {
-		for (Attribute attribute : element.getAttributes()) {
-			if (attribute.getValue().equals(namespace)
-					&& attribute.getName().startsWith(
-							Namespaces.XMLNS_AND_COLON)) {
-				return attribute.getName().substring(
-						Namespaces.XMLNS_AND_COLON.length());
-			}
-		}
-		return null;
-	}
+    public boolean namespacePresent(String namespaceURI) {
+        Collection<String> nsUris = element.getDeclaredNamespaces().values();
+        if (nsUris.contains(namespaceURI)) {
+            return true;
+        }
 
-	private boolean isNamespaceAttribute(Attribute attribute) {
-		return (attribute.getName().equalsIgnoreCase(Namespaces.XMLNS) || attribute
-				.getName().startsWith(Namespaces.XMLNS_AND_COLON));
-	}
+        for (Attribute attribute : element.getAttributes()) {
+            if (attribute.getName().startsWith("xmlns") && attribute.getValue().equals(namespaceURI)) {
+                return true;
+            }
+        }
 
-	public String getUniqueXMLNSValue() {
-		Attribute found = null;
-		for (Attribute attribute : element.getAttributes()) {
-			if (isNamespaceAttribute(attribute)) {
-				if (found != null)
-					return null; // not unique
-				else {
-					found = attribute;
-				}
-			}
-		}
-		if (found == null)
-			return null;
-		return found.getValue();
-	}
+        if (namespaceURI.equals(element.getNamespaceURI()))
+            return true;
 
-	public boolean toAttributeEquals(String toValue) {
-		return attributeEquals("to", toValue);
-	}
+        return false; // not present
+    }
 
-	public boolean fromAttributeEquals(String fromValue) {
-		return attributeEquals("from", fromValue);
-	}
+    /**
+     * example for "http://myNS.org/anything", this method returns "myNS" for
+     * element <test xmlns:myNS="http://myNS.org/anything" />
+     *
+     * @return the identifier for the given namespace definition
+     */
+    public String getNamespaceIdentifier(String namespace) {
+        for (Attribute attribute : element.getAttributes()) {
+            if (attribute.getValue().equals(namespace) && attribute.getName().startsWith(Namespaces.XMLNS_AND_COLON)) {
+                return attribute.getName().substring(Namespaces.XMLNS_AND_COLON.length());
+            }
+        }
+        return null;
+    }
 
-	public boolean onlySubelementEquals(String name, String namespaceURI) {
-		List<XMLFragment> innerFragments = element.getInnerFragments();
+    private boolean isNamespaceAttribute(Attribute attribute) {
+        return (attribute.getName().equalsIgnoreCase(Namespaces.XMLNS) || attribute.getName().startsWith(
+                Namespaces.XMLNS_AND_COLON));
+    }
 
-		// really is only subelement
-		if (innerFragments == null || innerFragments.size() != 1) return false;
-		XMLFragment onlySubelement = innerFragments.get(0);
-		if (!(onlySubelement instanceof XMLElement)) return false;
+    public String getUniqueXMLNSValue() {
+        Attribute found = null;
+        for (Attribute attribute : element.getAttributes()) {
+            if (isNamespaceAttribute(attribute)) {
+                if (found != null)
+                    return null; // not unique
+                else {
+                    found = attribute;
+                }
+            }
+        }
+        if (found == null)
+            return null;
+        return found.getValue();
+    }
 
-		XMLElement xmlElement = ((XMLElement) onlySubelement);
+    public boolean toAttributeEquals(String toValue) {
+        return attributeEquals("to", toValue);
+    }
+
+    public boolean fromAttributeEquals(String fromValue) {
+        return attributeEquals("from", fromValue);
+    }
+
+    public boolean onlySubelementEquals(String name, String namespaceURI) {
+        List<XMLFragment> innerFragments = element.getInnerFragments();
+
+        // really is only subelement
+        if (innerFragments == null || innerFragments.size() != 1)
+            return false;
+        XMLFragment onlySubelement = innerFragments.get(0);
+        if (!(onlySubelement instanceof XMLElement))
+            return false;
+
+        XMLElement xmlElement = ((XMLElement) onlySubelement);
         boolean nameEquals = name == null ? xmlElement.getName() == null : name.equals(xmlElement.getName());
-        if (namespaceURI == null) namespaceURI = Namespaces.DEFAULT_NAMESPACE_URI;
+        if (namespaceURI == null)
+            namespaceURI = Namespaces.DEFAULT_NAMESPACE_URI;
         return nameEquals && namespaceURI.equals(xmlElement.getNamespaceURI());
-	}
+    }
 }

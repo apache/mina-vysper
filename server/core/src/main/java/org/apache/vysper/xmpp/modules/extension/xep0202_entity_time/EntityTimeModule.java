@@ -19,6 +19,9 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0202_entity_time;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
@@ -27,9 +30,6 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequ
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
@@ -57,7 +57,8 @@ public class EntityTimeModule extends DefaultDiscoAwareModule implements ServerI
     public List<InfoElement> getServerInfosFor(InfoRequest request) {
         List<InfoElement> infoElements = new ArrayList<InfoElement>();
         infoElements.add(new Feature(NamespaceURIs.URN_XMPP_TIME));
-        if (supportXEP0090) infoElements.add(new Feature(NamespaceURIs.JABBER_IQ_TIME));
+        if (supportXEP0090)
+            infoElements.add(new Feature(NamespaceURIs.JABBER_IQ_TIME));
         return infoElements;
     }
 
@@ -65,6 +66,8 @@ public class EntityTimeModule extends DefaultDiscoAwareModule implements ServerI
     protected void addHandlerDictionaries(List<HandlerDictionary> dictionary) {
         dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.URN_XMPP_TIME, new EntityTimeIQHandler()));
         // backward compatibility to XEP-0090
-        if (supportXEP0090) dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.JABBER_IQ_TIME, new EntityTimeXEP0090IQHandler()));
+        if (supportXEP0090)
+            dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.JABBER_IQ_TIME,
+                    new EntityTimeXEP0090IQHandler()));
     }
 }

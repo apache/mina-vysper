@@ -44,8 +44,7 @@ import org.xml.sax.SAXException;
  */
 public class BoshSaxContentHandler implements ContentHandler {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(BoshSaxContentHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BoshSaxContentHandler.class);
 
     private final BoshHandler boshHandler;
 
@@ -57,7 +56,7 @@ public class BoshSaxContentHandler implements ContentHandler {
     private AbstractXMLElementBuilder builder;
 
     private int depth = 0;
-    
+
     private boolean isBodyPayloadDecoded = false;
 
     public BoshSaxContentHandler(BoshHandler boshHandler, HttpServletRequest req) {
@@ -66,16 +65,14 @@ public class BoshSaxContentHandler implements ContentHandler {
         builderFactory = new StanzaBuilderFactory();
     }
 
-    public void characters(char[] ch, int start, int length)
-            throws SAXException {
+    public void characters(char[] ch, int start, int length) throws SAXException {
         // TODO handle start and length
         if (builder != null) {
             builder.addText(new String(ch));
         }
     }
 
-    public void endElement(String uri, String localName, String qName)
-            throws SAXException {
+    public void endElement(String uri, String localName, String qName) throws SAXException {
         depth--;
         if (depth == 0 && !isBodyPayloadDecoded) {
             // complete body, emit
@@ -89,26 +86,22 @@ public class BoshSaxContentHandler implements ContentHandler {
         isBodyPayloadDecoded = true;
         XMLElement element = builder.build();
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("BOSH decoding stanza: {}",
-                    new Renderer(element).getComplete());
+            LOGGER.debug("BOSH decoding stanza: {}", new Renderer(element).getComplete());
         }
         boshHandler.process(request, (Stanza) element);
         builder = null;
     }
 
-    public void startElement(String uri, String localName, String qName,
-            Attributes atts) throws SAXException {
+    public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
         depth++;
         if (builder == null) {
-            builder = builderFactory.createBuilder(localName, uri,
-                    extractPrefix(qName), null, null);
+            builder = builderFactory.createBuilder(localName, uri, extractPrefix(qName), null, null);
         } else {
             builder.startInnerElement(localName, uri);
         }
 
         for (int i = 0; i < atts.getLength(); i++) {
-            builder.addAttribute(atts.getURI(i), atts.getLocalName(i),
-                    atts.getValue(i));
+            builder.addAttribute(atts.getURI(i), atts.getLocalName(i), atts.getValue(i));
         }
     }
 
@@ -133,8 +126,7 @@ public class BoshSaxContentHandler implements ContentHandler {
         // ignore
     }
 
-    public void startPrefixMapping(String prefix, String uri)
-            throws SAXException {
+    public void startPrefixMapping(String prefix, String uri) throws SAXException {
         // ignore
     }
 
@@ -142,13 +134,11 @@ public class BoshSaxContentHandler implements ContentHandler {
         // ignore
     }
 
-    public void ignorableWhitespace(char[] ch, int start, int length)
-            throws SAXException {
+    public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
         // ignore
     }
 
-    public void processingInstruction(String target, String data)
-            throws SAXException {
+    public void processingInstruction(String target, String data) throws SAXException {
         // ignore
     }
 

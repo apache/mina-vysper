@@ -41,10 +41,14 @@ public class EncryptedProtocolWorker extends AbstractStateAwareProtocolWorker {
     }
 
     @Override
-    protected boolean checkState(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza, StanzaHandler stanzaHandler) {
-        if (stanzaHandler instanceof StreamStartHandler) return true;
-        if (stanzaHandler instanceof AbstractSASLHandler) return true;
-        if (stanzaHandler instanceof XMLPrologHandler) return true; // PSI client sends that. 
+    protected boolean checkState(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
+            StanzaHandler stanzaHandler) {
+        if (stanzaHandler instanceof StreamStartHandler)
+            return true;
+        if (stanzaHandler instanceof AbstractSASLHandler)
+            return true;
+        if (stanzaHandler instanceof XMLPrologHandler)
+            return true; // PSI client sends that. 
         ResponseWriter.writeUnsupportedStanzaError(sessionContext);
         return false;
     }

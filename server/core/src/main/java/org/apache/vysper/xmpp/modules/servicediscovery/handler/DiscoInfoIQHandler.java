@@ -19,6 +19,10 @@
  */
 package org.apache.vysper.xmpp.modules.servicediscovery.handler;
 
+import java.util.List;
+
+import org.apache.vysper.compliance.SpecCompliance;
+import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
@@ -37,12 +41,8 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
 import org.apache.vysper.xmpp.stanza.StanzaErrorType;
-import org.apache.vysper.compliance.SpecCompliant;
-import org.apache.vysper.compliance.SpecCompliance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 /**
  * handles IQ info queries
@@ -50,11 +50,8 @@ import java.util.List;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 @SpecCompliance(compliant = {
-@SpecCompliant(spec="xep-0030", status= SpecCompliant.ComplianceStatus.IN_PROGRESS,
-               coverage = SpecCompliant.ComplianceCoverage.PARTIAL, comment = "handles disco info queries"),
-@SpecCompliant(spec="xep-0128", status= SpecCompliant.ComplianceStatus.FINISHED,
-               coverage = SpecCompliant.ComplianceCoverage.COMPLETE, comment = "allows InfoDataForm elements")
-})
+        @SpecCompliant(spec = "xep-0030", status = SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.PARTIAL, comment = "handles disco info queries"),
+        @SpecCompliant(spec = "xep-0128", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE, comment = "allows InfoDataForm elements") })
 public class DiscoInfoIQHandler extends DefaultIQHandler {
 
     final Logger logger = LoggerFactory.getLogger(DiscoInfoIQHandler.class);
@@ -78,16 +75,16 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
 
         // retrieve the service collector
         try {
-            serviceCollector = (ServiceCollector)serverRuntimeContext.getServerRuntimeContextService(ServiceDiscoveryRequestListenerRegistry.SERVICE_DISCOVERY_REQUEST_LISTENER_REGISTRY);
+            serviceCollector = (ServiceCollector) serverRuntimeContext
+                    .getServerRuntimeContextService(ServiceDiscoveryRequestListenerRegistry.SERVICE_DISCOVERY_REQUEST_LISTENER_REGISTRY);
         } catch (Exception e) {
             logger.error("error retrieving ServiceCollector service {}", e);
             serviceCollector = null;
         }
 
         if (serviceCollector == null) {
-            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR, stanza,
-                    StanzaErrorType.CANCEL,
-                    "cannot retrieve IQ-get-info result from internal components",
+            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR,
+                    stanza, StanzaErrorType.CANCEL, "cannot retrieve IQ-get-info result from internal components",
                     getErrorLanguage(serverRuntimeContext, sessionContext), null);
         }
 
@@ -117,33 +114,36 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
         List<InfoElement> elements = null;
         try {
             if (isServerInfoRequest) {
-                elements = serviceCollector.processServerInfoRequest(new InfoRequest(stanza.getFrom(), to, node, stanza.getID()));
+                elements = serviceCollector.processServerInfoRequest(new InfoRequest(stanza.getFrom(), to, node, stanza
+                        .getID()));
             } else if (isComponentInfoRequest) {
-                elements = serviceCollector.processComponentInfoRequest(new InfoRequest(stanza.getFrom(), to, node, stanza.getID()));
+                elements = serviceCollector.processComponentInfoRequest(new InfoRequest(stanza.getFrom(), to, node,
+                        stanza.getID()));
             } else {
-                elements = serviceCollector.processInfoRequest(new InfoRequest(stanza.getFrom(), to, node, stanza.getID()));
+                elements = serviceCollector.processInfoRequest(new InfoRequest(stanza.getFrom(), to, node, stanza
+                        .getID()));
             }
         } catch (ServiceDiscoveryRequestException e) {
             // the request yields an error
             StanzaErrorCondition stanzaErrorCondition = e.getErrorCondition();
-            if (stanzaErrorCondition == null) stanzaErrorCondition = StanzaErrorCondition.INTERNAL_SERVER_ERROR;
+            if (stanzaErrorCondition == null)
+                stanzaErrorCondition = StanzaErrorCondition.INTERNAL_SERVER_ERROR;
             return ServerErrorResponses.getInstance().getStanzaError(stanzaErrorCondition, stanza,
-                    StanzaErrorType.CANCEL,
-                    "disco info request failed.",
+                    StanzaErrorType.CANCEL, "disco info request failed.",
                     getErrorLanguage(serverRuntimeContext, sessionContext), null);
         }
 
         //TODO check that elementSet contains at least one identity element and on feature element!
 
         // render the stanza with information collected
-        StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(to, stanza.getFrom(), IQStanzaType.RESULT, stanza.getID()).
-            startInnerElement("query", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO);
-            if (node != null) {
-                stanzaBuilder.addAttribute("node", node);
-            }
-            for (InfoElement infoElement : elements) {
-                infoElement.insertElement(stanzaBuilder);
-            }
+        StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(to, stanza.getFrom(), IQStanzaType.RESULT,
+                stanza.getID()).startInnerElement("query", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO);
+        if (node != null) {
+            stanzaBuilder.addAttribute("node", node);
+        }
+        for (InfoElement infoElement : elements) {
+            infoElement.insertElement(stanzaBuilder);
+        }
 
         stanzaBuilder.endInnerElement();
 

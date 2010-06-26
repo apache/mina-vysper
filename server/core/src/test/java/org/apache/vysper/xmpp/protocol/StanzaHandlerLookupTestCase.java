@@ -38,8 +38,9 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 public class StanzaHandlerLookupTestCase extends TestCase {
 
     private static final Entity SERVER_ENTITY = EntityImpl.parseUnchecked("vysper.org");
+
     private static final Entity SUBDOMAIN_ENTITY = EntityImpl.parseUnchecked("sub.vysper.org");
-    
+
     public void testDictionaryHierarchy() {
         NamespaceHandlerDictionary upperNamespaceHandlerDictionary = new NamespaceHandlerDictionary("testNSURI1");
         CallTestStanzaHandler upperStanzaHandler = new CallTestStanzaHandler("testDictionaryHierarchy", "testNSURI1");
@@ -49,25 +50,27 @@ public class StanzaHandlerLookupTestCase extends TestCase {
         CallTestStanzaHandler lowerStanzaHandler = new CallTestStanzaHandler("testDictionaryHierarchy", "testNSURI2");
         lowerNamespaceHandlerDictionary.register(lowerStanzaHandler);
 
-
         StanzaHandlerLookup stanzaHandlerLookup = initStanzaHandlerLookup();
         stanzaHandlerLookup.addDictionary(upperNamespaceHandlerDictionary);
         stanzaHandlerLookup.addDictionary(lowerNamespaceHandlerDictionary);
 
-        Stanza nonExistingStanza = new Stanza("testNSURI", "testDictionaryHierarchyNotExist", null, new ArrayList<Attribute>(), new ArrayList<XMLFragment>());
+        Stanza nonExistingStanza = new Stanza("testNSURI", "testDictionaryHierarchyNotExist", null,
+                new ArrayList<Attribute>(), new ArrayList<XMLFragment>());
         StanzaHandler handler = stanzaHandlerLookup.getHandler(nonExistingStanza);
         assertNull("handler not found", handler);
 
-        Stanza existingStanzaNS1 = new Stanza("testNSURI1", "testDictionaryHierarchy", null, new ArrayList<Attribute>(), new ArrayList<XMLFragment>());
+        Stanza existingStanzaNS1 = new Stanza("testNSURI1", "testDictionaryHierarchy", null,
+                new ArrayList<Attribute>(), new ArrayList<XMLFragment>());
         handler = stanzaHandlerLookup.getHandler(existingStanzaNS1);
         assertNotNull("handler found in dict1", handler);
-        assertTrue("verify got called", ((CallTestStanzaHandler)handler).isVerifyCalled());
+        assertTrue("verify got called", ((CallTestStanzaHandler) handler).isVerifyCalled());
         assertNotSame("lower not found", lowerStanzaHandler, handler);
         assertSame("upper found", upperStanzaHandler, handler);
 
-        Stanza existingStanzaNS2 = new Stanza("testNSURI2", "testDictionaryHierarchy", null, new ArrayList<Attribute>(), new ArrayList<XMLFragment>());
+        Stanza existingStanzaNS2 = new Stanza("testNSURI2", "testDictionaryHierarchy", null,
+                new ArrayList<Attribute>(), new ArrayList<XMLFragment>());
         handler = stanzaHandlerLookup.getHandler(existingStanzaNS2);
-        assertTrue("verify got called", ((CallTestStanzaHandler)handler).isVerifyCalled());
+        assertTrue("verify got called", ((CallTestStanzaHandler) handler).isVerifyCalled());
         assertNotNull("handler found in dict2", handler);
         assertSame("lower found", lowerStanzaHandler, handler);
         assertNotSame("upper not found", upperStanzaHandler, handler);
@@ -155,16 +158,16 @@ public class StanzaHandlerLookupTestCase extends TestCase {
         assertNotNull("handler found", handler);
         assertTrue("test handler", TestIQHandler.class.equals(handler.getClass()));
     }
-    
+
     private Stanza buildStanza(String name, String namespaceURI) {
         return buildStanza(name, namespaceURI, null);
     }
-    
+
     private Stanza buildStanza(String name, String namespaceURI, String to) {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT);
         stanzaBuilder.addAttribute("id", "1");
         stanzaBuilder.addAttribute("type", "get");
-        if(to != null) {
+        if (to != null) {
             stanzaBuilder.addAttribute("to", to);
         }
         stanzaBuilder.startInnerElement(name, namespaceURI).endInnerElement();

@@ -29,10 +29,10 @@ package org.apache.vysper.xmpp.state.resourcebinding;
  *
  */
 public enum ResourceState {
-	/**
-	 * A resource is connected if resource binding was successful.
-	 */
-	CONNECTED,
+    /**
+     * A resource is connected if resource binding was successful.
+     */
+    CONNECTED,
     /**
      * A conntected resource has requested the
      * entity's roster without sending initial presence first
@@ -67,12 +67,14 @@ public enum ResourceState {
      * @return new state
      */
     public static ResourceState makeAvailable(ResourceState inState) {
-        if (inState == null || !isInterested(inState)) return AVAILABLE;
+        if (inState == null || !isInterested(inState))
+            return AVAILABLE;
         return AVAILABLE_INTERESTED;
     }
 
     public static ResourceState makeInterested(ResourceState inState) {
-        if (inState == AVAILABLE) return AVAILABLE_INTERESTED;
+        if (inState == AVAILABLE)
+            return AVAILABLE_INTERESTED;
         return CONNECTED_INTERESTED;
     }
 }

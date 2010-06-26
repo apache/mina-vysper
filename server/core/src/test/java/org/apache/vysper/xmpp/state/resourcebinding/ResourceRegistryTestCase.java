@@ -19,18 +19,19 @@
  */
 package org.apache.vysper.xmpp.state.resourcebinding;
 
-import junit.framework.TestCase;
-import org.apache.vysper.xmpp.server.TestSessionContext;
-import org.apache.vysper.xmpp.server.SessionContext;
-import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.addressing.EntityFormatException;
-
 import java.util.List;
+
+import junit.framework.TestCase;
+
+import org.apache.vysper.xmpp.addressing.EntityFormatException;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.TestSessionContext;
 
 /**
  */
 public class ResourceRegistryTestCase extends TestCase {
-    
+
     protected ResourceRegistry resourceRegistry = new ResourceRegistry();
 
     public void testSessionNotWellDefinedForResourceBinding() {
@@ -43,7 +44,7 @@ public class ResourceRegistryTestCase extends TestCase {
             // test succeeded
         }
     }
-    
+
     public void testAddSession() throws EntityFormatException {
         TestSessionContext sessionContext = TestSessionContext.createSessionContext(EntityImpl.parse("me@test"));
         String resourceId = resourceRegistry.bindSession(sessionContext);
@@ -65,25 +66,25 @@ public class ResourceRegistryTestCase extends TestCase {
         resourceList = resourceRegistry.getResourcesForSessionInternal(sessionContext2);
         assertEquals(1, resourceList.size());
         assertTrue(resourceList.contains(resourceId2));
-        
+
         assertEquals(resourceRegistry.getSessionContext(resourceId1), sessionContext1);
         assertEquals(resourceRegistry.getSessionContext(resourceId2), sessionContext2);
     }
-    
+
     public void testAddOneEntityMultipleResources() throws EntityFormatException {
         EntityImpl entity = EntityImpl.parse("me@test");
-        
+
         TestSessionContext sessionContext1 = TestSessionContext.createSessionContext(entity);
         String resourceId1 = resourceRegistry.bindSession(sessionContext1);
         resourceRegistry.setResourcePriority(resourceId1, -1);
-        
+
         TestSessionContext sessionContext2 = TestSessionContext.createSessionContext(entity);
         String resourceId2 = resourceRegistry.bindSession(sessionContext2);
         resourceRegistry.setResourcePriority(resourceId2, 1);
-        
+
         assertNotNull(resourceId1);
         assertNotNull(resourceId2);
-        
+
         List<String> resourceList = resourceRegistry.getBoundResources(entity);
         assertEquals(2, resourceList.size());
         assertTrue(resourceList.contains(resourceId1));
@@ -109,7 +110,7 @@ public class ResourceRegistryTestCase extends TestCase {
         assertEquals(1, highestPrioSessions.size());
         highestPrioSession = highestPrioSessions.get(0);
         assertSame(resourceRegistry.getSessionContext(resourceId1), highestPrioSession);
-        
+
         highestPrioSessions = resourceRegistry.getHighestPrioSessions(entity, 3); // now, all prios are below threshold
         assertEquals(0, highestPrioSessions.size());
 
@@ -122,22 +123,23 @@ public class ResourceRegistryTestCase extends TestCase {
         highestPrioSessions = resourceRegistry.getHighestPrioSessions(entity, 5);
         assertEquals(0, highestPrioSessions.size());
 
-        sessionContext1.getServerRuntimeContext().getServerFeatures().setDeliverMessageToHighestPriorityResourcesOnly(false);
+        sessionContext1.getServerRuntimeContext().getServerFeatures().setDeliverMessageToHighestPriorityResourcesOnly(
+                false);
 
     }
 
     public void testAddOneEntityMultipleResources_TolerateResourceIds() throws EntityFormatException {
         EntityImpl entity = EntityImpl.parse("me@test");
-        
+
         TestSessionContext sessionContext1 = TestSessionContext.createSessionContext(EntityImpl.parse("me@test/xy"));
         String resourceId1 = resourceRegistry.bindSession(sessionContext1);
-        
+
         TestSessionContext sessionContext2 = TestSessionContext.createSessionContext(EntityImpl.parse("me@test/ab"));
         String resourceId2 = resourceRegistry.bindSession(sessionContext2);
-        
+
         assertNotNull(resourceId1);
         assertNotNull(resourceId2);
-        
+
         List<String> resourceList = resourceRegistry.getBoundResources(entity);
         assertEquals(2, resourceList.size());
         assertTrue(resourceList.contains(resourceId1));
@@ -151,40 +153,40 @@ public class ResourceRegistryTestCase extends TestCase {
 
     public void testSameEntityMultipleResources() throws EntityFormatException {
         EntityImpl entity = EntityImpl.parse("me@test");
-        
+
         TestSessionContext sessionContext1 = TestSessionContext.createSessionContext(entity);
         String resourceId1 = resourceRegistry.bindSession(sessionContext1);
-        
+
         TestSessionContext sessionContext2 = TestSessionContext.createSessionContext(entity);
         String resourceId2 = resourceRegistry.bindSession(sessionContext2);
-        
+
         // resource ids are different
         assertFalse(resourceId1.equals(resourceId2));
     }
-    
+
     public void testUnbindResourceSimple() throws EntityFormatException {
         EntityImpl entity = EntityImpl.parse("me@test");
-        
+
         TestSessionContext sessionContext1 = TestSessionContext.createSessionContext(entity);
         String resourceId1 = resourceRegistry.bindSession(sessionContext1);
         assertEquals(sessionContext1, resourceRegistry.getSessionContext(resourceId1));
-        
+
         boolean noResourceRemains = resourceRegistry.unbindResource(resourceId1);
 
         assertTrue(noResourceRemains);
         assertNull(resourceRegistry.getSessionContext(resourceId1));
         assertEquals(0, resourceRegistry.getBoundResources(entity).size());
     }
-    
+
     public void testUnbindSessionSimple() throws EntityFormatException {
         EntityImpl entity = EntityImpl.parse("me@test");
-        
+
         TestSessionContext sessionContext1 = TestSessionContext.createSessionContext(entity);
         String resourceId1 = resourceRegistry.bindSession(sessionContext1);
         assertEquals(sessionContext1, resourceRegistry.getSessionContext(resourceId1));
-        
+
         resourceRegistry.unbindSession(sessionContext1);
-        
+
         assertNull(resourceRegistry.getSessionContext(resourceId1));
         assertEquals(0, resourceRegistry.getBoundResources(entity).size());
     }
@@ -196,9 +198,9 @@ public class ResourceRegistryTestCase extends TestCase {
 
         String first1 = resourceRegistry.getUniqueResourceForSession(sessionContext);
         assertEquals(resourceId1, first1);
-        
+
         String resourceId2 = resourceRegistry.bindSession(sessionContext);
         assertFalse("resource ids actually differ", resourceId1.equals(resourceId2));
         assertNull("resource id no longer unique", resourceRegistry.getUniqueResourceForSession(sessionContext));
-    } 
+    }
 }

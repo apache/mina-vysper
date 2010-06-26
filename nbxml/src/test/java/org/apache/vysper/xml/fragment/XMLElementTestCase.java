@@ -19,54 +19,36 @@
  */
 package org.apache.vysper.xml.fragment;
 
-import junit.framework.TestCase;
-
-
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Collections;
 
-import org.apache.vysper.xml.fragment.Attribute;
-import org.apache.vysper.xml.fragment.Namespaces;
-import org.apache.vysper.xml.fragment.XMLElement;
-import org.apache.vysper.xml.fragment.XMLElementBuilder;
-import org.apache.vysper.xml.fragment.XMLSemanticError;
-import org.apache.vysper.xml.fragment.XMLText;
+import junit.framework.TestCase;
 
 /**
  */
 public class XMLElementTestCase extends TestCase {
 
     public void testBasicGetters() {
-        XMLElement xmlElement = new XMLElementBuilder("message", "urn:test").
-                addAttribute("lang", "de").
-                addAttribute(Namespaces.XML, "lang", "cn").
-                addAttribute("xmllang", "en").
-        build();
-        
+        XMLElement xmlElement = new XMLElementBuilder("message", "urn:test").addAttribute("lang", "de").addAttribute(
+                Namespaces.XML, "lang", "cn").addAttribute("xmllang", "en").build();
+
         assertEquals("message", xmlElement.getName());
         assertEquals("urn:test", xmlElement.getNamespaceURI());
         assertEquals("cn", xmlElement.getXMLLang());
-        
+
         assertSame(Collections.emptyList(), xmlElement.getInnerElements());
         List<Attribute> list = xmlElement.getAttributes();
         assertNotNull(list);
-        
+
         assertEquals(3, list.size());
     }
 
     public void testInnerTextGetters() {
-        
-        XMLElement xmlElement = new XMLElementBuilder("message", "jabber:test").
-                addText("t1").
-                startInnerElement("i1").
-                endInnerElement().
-                addText("t2").
-                addText("t3").
-                startInnerElement("i2").
-                endInnerElement().
-                addText("t4").
-        build();
+
+        XMLElement xmlElement = new XMLElementBuilder("message", "jabber:test").addText("t1").startInnerElement("i1")
+                .endInnerElement().addText("t2").addText("t3").startInnerElement("i2").endInnerElement().addText("t4")
+                .build();
 
         List<XMLText> list = xmlElement.getInnerTexts();
         assertEquals(4, list.size());
@@ -83,10 +65,7 @@ public class XMLElementTestCase extends TestCase {
             // test succeeded
         }
 
-        xmlElement = new XMLElementBuilder("message", "jabber:test").
-                startInnerElement("i1").
-                endInnerElement().
-        build();
+        xmlElement = new XMLElementBuilder("message", "jabber:test").startInnerElement("i1").endInnerElement().build();
         try {
             assertNull(xmlElement.getSingleInnerText());
         } catch (XMLSemanticError xmlSemanticError) {
@@ -95,23 +74,11 @@ public class XMLElementTestCase extends TestCase {
     }
 
     public void testInnerElementGetters() {
-        
-        XMLElement xmlElement = new XMLElementBuilder("message", "jabber:test").
-                addText("t1").
-                startInnerElement("i1").
-                endInnerElement().
-                startInnerElement("i2").
-                    addAttribute("order", "1").
-                endInnerElement().
-                startInnerElement("i2").
-                    addAttribute("order", "2").
-                endInnerElement().
-                addText("t2").
-                addText("t3").
-                startInnerElement("i3").
-                endInnerElement().
-                addText("t4").
-        build();
+
+        XMLElement xmlElement = new XMLElementBuilder("message", "jabber:test").addText("t1").startInnerElement("i1")
+                .endInnerElement().startInnerElement("i2").addAttribute("order", "1").endInnerElement()
+                .startInnerElement("i2").addAttribute("order", "2").endInnerElement().addText("t2").addText("t3")
+                .startInnerElement("i3").endInnerElement().addText("t4").build();
 
         List<XMLElement> list = xmlElement.getInnerElements();
         assertEquals(4, list.size());
@@ -131,22 +98,15 @@ public class XMLElementTestCase extends TestCase {
             fail("must not raise exception");
         }
 
-        xmlElement = new XMLElementBuilder("message", "jabber:test").
-                addText("t1").
-        build();
+        xmlElement = new XMLElementBuilder("message", "jabber:test").addText("t1").build();
         try {
             assertNull(xmlElement.getSingleInnerElementsNamed("none"));
         } catch (XMLSemanticError xmlSemanticError) {
             fail("must not raise error");
         }
 
-        xmlElement = new XMLElementBuilder("message", "jabber:test").
-                startInnerElement("i").
-                    addAttribute("order", "1").
-                endInnerElement().
-                startInnerElement("another").
-                endInnerElement().
-        build();
+        xmlElement = new XMLElementBuilder("message", "jabber:test").startInnerElement("i").addAttribute("order", "1")
+                .endInnerElement().startInnerElement("another").endInnerElement().build();
         try {
             XMLElement singleXmlElement = xmlElement.getSingleInnerElementsNamed("i");
             assertEquals("i", singleXmlElement.getName());
@@ -154,14 +114,8 @@ public class XMLElementTestCase extends TestCase {
             fail("must not raise error");
         }
 
-        xmlElement = new XMLElementBuilder("message", "jabber:test").
-                startInnerElement("i").
-                    addAttribute("order", "1").
-                endInnerElement().
-                startInnerElement("i").
-                    addAttribute("order", "2").
-                endInnerElement().
-        build();
+        xmlElement = new XMLElementBuilder("message", "jabber:test").startInnerElement("i").addAttribute("order", "1")
+                .endInnerElement().startInnerElement("i").addAttribute("order", "2").endInnerElement().build();
         try {
             xmlElement.getSingleInnerElementsNamed("i");
             fail("must raise error, more than one i-element");
@@ -169,25 +123,13 @@ public class XMLElementTestCase extends TestCase {
             // test succeeded
         }
     }
-    
+
     public void testInnerElementsNamed() {
-        
-        XMLElement xmlElement = new XMLElementBuilder("message", "jabber:test").
-                addText("t1").
-                startInnerElement("body").
-                endInnerElement().
-                startInnerElement("body").
-                    addAttribute("order", "1").
-                endInnerElement().
-                startInnerElement("body").
-                    addAttribute("order", "2").
-                endInnerElement().
-                addText("body").
-                addText("t3").
-                startInnerElement("single").
-                endInnerElement().
-                addText("t4").
-        build();
+
+        XMLElement xmlElement = new XMLElementBuilder("message", "jabber:test").addText("t1").startInnerElement("body")
+                .endInnerElement().startInnerElement("body").addAttribute("order", "1").endInnerElement()
+                .startInnerElement("body").addAttribute("order", "2").endInnerElement().addText("body").addText("t3")
+                .startInnerElement("single").endInnerElement().addText("t4").build();
 
         List<XMLElement> list = xmlElement.getInnerElementsNamed("no-exist");
         assertEquals(0, list.size());
@@ -204,7 +146,7 @@ public class XMLElementTestCase extends TestCase {
 
         List<XMLElement> named = xmlElement.getInnerElementsNamed("body");
         assertEquals(3, named.size());
-        
+
         try {
             xmlElement.getSingleInnerElementsNamed("body");
             fail("no single element");
@@ -212,41 +154,21 @@ public class XMLElementTestCase extends TestCase {
             // success
         }
     }
-    
+
     public void testLanguageMapping() {
-        
-        XMLElement xmlElement = new XMLElementBuilder("message", "jabber:test").
-                addText("t1").
-                startInnerElement("body").
-                endInnerElement().
-                startInnerElement("body").
-                    addAttribute(Namespaces.XML, "lang", "en").
-                endInnerElement().
-                startInnerElement("body").
-                    addAttribute(Namespaces.XML, "lang", "de").
-                endInnerElement().
-                addText("body").
-                addText("t3").
-                startInnerElement("single").
-                    addAttribute(Namespaces.XML, "lang", "ru").
-                endInnerElement().
-                startInnerElement("body_inconsistent").
-                    addAttribute(Namespaces.XML, "lang", "ru").
-                endInnerElement().
-                startInnerElement("body_inconsistent").
-                    addAttribute(Namespaces.XML, "lang", "ru").
-                endInnerElement().
-                startInnerElement("body_lang_null").
-                    addAttribute("order", "1").
-                endInnerElement().
-                startInnerElement("body_lang_null").
-                    addAttribute("order", "2").
-                endInnerElement().
-                addText("t4").
-        build();
+
+        XMLElement xmlElement = new XMLElementBuilder("message", "jabber:test").addText("t1").startInnerElement("body")
+                .endInnerElement().startInnerElement("body").addAttribute(Namespaces.XML, "lang", "en")
+                .endInnerElement().startInnerElement("body").addAttribute(Namespaces.XML, "lang", "de")
+                .endInnerElement().addText("body").addText("t3").startInnerElement("single").addAttribute(
+                        Namespaces.XML, "lang", "ru").endInnerElement().startInnerElement("body_inconsistent")
+                .addAttribute(Namespaces.XML, "lang", "ru").endInnerElement().startInnerElement("body_inconsistent")
+                .addAttribute(Namespaces.XML, "lang", "ru").endInnerElement().startInnerElement("body_lang_null")
+                .addAttribute("order", "1").endInnerElement().startInnerElement("body_lang_null").addAttribute("order",
+                        "2").endInnerElement().addText("t4").build();
 
         try {
-            Map<String,XMLElement> map = xmlElement.getInnerElementsByXMLLangNamed("body");
+            Map<String, XMLElement> map = xmlElement.getInnerElementsByXMLLangNamed("body");
             assertEquals(3, map.size());
             XMLElement element = map.get("en");
             assertEquals("en", element.getXMLLang());
@@ -254,19 +176,19 @@ public class XMLElementTestCase extends TestCase {
             assertEquals("de", element.getXMLLang());
             element = map.get(null);
             assertEquals(null, element.getXMLLang());
-            
+
         } catch (XMLSemanticError xmlSemanticError) {
             fail("no error expected");
         }
-        
+
         try {
-            Map<String,XMLElement> map = xmlElement.getInnerElementsByXMLLangNamed("body_lang_null");
+            Map<String, XMLElement> map = xmlElement.getInnerElementsByXMLLangNamed("body_lang_null");
             fail("semantic error expected, same language occurs 2 times");
         } catch (XMLSemanticError xmlSemanticError) {
             // success
         }
         try {
-            Map<String,XMLElement> map = xmlElement.getInnerElementsByXMLLangNamed("body_lang_null");
+            Map<String, XMLElement> map = xmlElement.getInnerElementsByXMLLangNamed("body_lang_null");
             fail("semantic error expected, language does not occur 2 times");
         } catch (XMLSemanticError xmlSemanticError) {
             // success
@@ -274,11 +196,9 @@ public class XMLElementTestCase extends TestCase {
     }
 
     public void testGetAttribute() {
-        XMLElement xmlElement = new XMLElementBuilder("test").
-                addAttribute("foo", "bar").
-                addAttribute(Namespaces.XML, "lang", "cn").
-        build();
-        
+        XMLElement xmlElement = new XMLElementBuilder("test").addAttribute("foo", "bar").addAttribute(Namespaces.XML,
+                "lang", "cn").build();
+
         assertEquals("bar", xmlElement.getAttribute("foo").getValue());
         assertNull(xmlElement.getAttribute("http://example.com", "foo"));
         assertNull(xmlElement.getAttribute("lang"));

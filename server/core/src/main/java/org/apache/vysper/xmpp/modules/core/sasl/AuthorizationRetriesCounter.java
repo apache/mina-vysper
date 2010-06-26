@@ -19,9 +19,9 @@
  */
 package org.apache.vysper.xmpp.modules.core.sasl;
 
-import org.apache.vysper.xmpp.server.SessionContext;
-
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.vysper.xmpp.server.SessionContext;
 
 /**
  * used to count authentication retries.
@@ -34,7 +34,8 @@ public class AuthorizationRetriesCounter {
     public static final String SESSION_ATTRIBUTE_ABORTION_COUNTER = "authorizationRetriesCounter";
 
     public static AuthorizationRetriesCounter getFromSession(SessionContext sessionContext) {
-        AuthorizationRetriesCounter counter = (AuthorizationRetriesCounter) sessionContext.getAttribute(SESSION_ATTRIBUTE_ABORTION_COUNTER);
+        AuthorizationRetriesCounter counter = (AuthorizationRetriesCounter) sessionContext
+                .getAttribute(SESSION_ATTRIBUTE_ABORTION_COUNTER);
 
         synchronized (sessionContext) {
             if (counter == null) {
@@ -53,7 +54,8 @@ public class AuthorizationRetriesCounter {
     AtomicInteger counter;
 
     public AuthorizationRetriesCounter(int counter) {
-        if (counter <= 0) throw new IllegalArgumentException("counter must be positive");
+        if (counter <= 0)
+            throw new IllegalArgumentException("counter must be positive");
         this.counter = new AtomicInteger(counter);
     }
 
@@ -66,7 +68,8 @@ public class AuthorizationRetriesCounter {
      * @return TRUE has tries left, FALSE has no tries left, should lead to session termination
      */
     public boolean countFailedTry() {
-        if (!hasTriesLeft()) return false;
+        if (!hasTriesLeft())
+            return false;
         return counter.decrementAndGet() > 0;
     }
 

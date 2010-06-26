@@ -19,13 +19,13 @@
  */
 package org.apache.vysper.xmpp.stanza.dataforms;
 
-import org.apache.vysper.compliance.SpecCompliant;
-import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage;
-import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import org.apache.vysper.compliance.SpecCompliant;
+import org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage;
+import org.apache.vysper.compliance.SpecCompliant.ComplianceStatus;
 
 /**
  * object model for data forms, according to XEP-0004, as used by many XMPP extensions (and the core).
@@ -34,21 +34,25 @@ import java.util.List;
  */
 @SpecCompliant(spec = "XEP-0004", status = ComplianceStatus.IN_PROGRESS, coverage = ComplianceCoverage.PARTIAL)
 public class DataForm {
-    
-    public static enum Type { 
-        
-        cancel, form, result, submit; 
-        
+
+    public static enum Type {
+
+        cancel, form, result, submit;
+
         public String value() {
             return name();
         }
-    
+
     }
-    
+
     protected Type type;
+
     protected List<String> instructions = new ArrayList<String>();
+
     protected String title;
+
     protected final List<Field> fields = new ArrayList<Field>();
+
     protected final List<List<Field>> items = new ArrayList<List<Field>>();
 
     public Type getType() {
@@ -74,27 +78,28 @@ public class DataForm {
     public void setTitle(String title) {
         this.title = title;
     }
-    
+
     public Iterator<Field> getFieldIterator() {
         return fields.iterator();
     }
-    
+
     public void addField(Field field) {
         fields.add(field);
-    } 
-    
+    }
+
     public Iterator<List<Field>> getItemIterator() {
         return items.iterator();
     }
-    
+
     public void addItem(List<Field> item) {
         items.add(item);
     }
 
     public Iterator<Field> getReportedIterator() {
         List<Field> reportedFields = new ArrayList<Field>();
-        
-        if (items.size() == 0) return reportedFields.iterator();
+
+        if (items.size() == 0)
+            return reportedFields.iterator();
 
         // reported fields are implicitly defined by item fields
         // here, reported fields are only taken from the first item.
@@ -108,5 +113,5 @@ public class DataForm {
 
         return reportedFields.iterator();
     }
-    
+
 }

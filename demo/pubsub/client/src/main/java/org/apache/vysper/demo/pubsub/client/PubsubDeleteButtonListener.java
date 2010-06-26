@@ -32,39 +32,37 @@ import org.jivesoftware.smack.XMPPException;
 public class PubsubDeleteButtonListener implements ActionListener {
 
     private PubsubClientModel parent;
+
     private JFrame frame;
-    
+
     public PubsubDeleteButtonListener(JFrame frame, PubsubClientModel parent) {
         this.parent = parent;
         this.frame = frame;
     }
-    
+
     public void actionPerformed(ActionEvent e) {
         String nodeID = parent.getSelectedNode();
-        if(nodeID != null && askForSure()) {
+        if (nodeID != null && askForSure()) {
             try {
                 parent.getPubsubMgr().deleteNode(nodeID);
                 System.out.println("Node deleted: " + nodeID);
                 parent.refresh();
             } catch (XMPPException e1) {
-                System.err.println("Couldn't delete node "+nodeID);
+                System.err.println("Couldn't delete node " + nodeID);
                 e1.printStackTrace();
             }
         }
     }
-    
+
     private boolean askForSure() {
         JLabel nodeLab = new JLabel("Node ID");
         JTextField nodeTxt = new JTextField();
         nodeLab.setLabelFor(nodeTxt);
-        
-        int answer = JOptionPane.showConfirmDialog(frame,
-                "The node and all associated data will be lost!",
-                "Delete node?",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.WARNING_MESSAGE);
 
-        if(answer != JOptionPane.OK_OPTION) {
+        int answer = JOptionPane.showConfirmDialog(frame, "The node and all associated data will be lost!",
+                "Delete node?", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+
+        if (answer != JOptionPane.OK_OPTION) {
             return false;
         }
         return true;

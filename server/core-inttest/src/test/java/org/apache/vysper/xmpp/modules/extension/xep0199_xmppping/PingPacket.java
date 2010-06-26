@@ -26,5 +26,5 @@ public class PingPacket extends IQ {
     public String getChildElementXML() {
         return "<ping xmlns='urn:xmpp:ping'/>";
     }
-    
+
 }

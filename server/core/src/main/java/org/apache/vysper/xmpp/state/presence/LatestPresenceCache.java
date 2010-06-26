@@ -24,7 +24,7 @@ import org.apache.vysper.xmpp.stanza.PresenceStanza;
 
 /**
  * Keeps the latest presence for a resource
- */                                 
+ */
 public interface LatestPresenceCache {
 
     /**

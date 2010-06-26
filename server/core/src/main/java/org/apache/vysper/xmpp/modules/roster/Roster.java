@@ -19,9 +19,9 @@
  */
 package org.apache.vysper.xmpp.modules.roster;
 
-import org.apache.vysper.xmpp.addressing.Entity;
-
 import java.util.Iterator;
+
+import org.apache.vysper.xmpp.addressing.Entity;
 
 /**
  * the whole roster for a user. contains all the user's contacts, with both pending and established subscriptions.

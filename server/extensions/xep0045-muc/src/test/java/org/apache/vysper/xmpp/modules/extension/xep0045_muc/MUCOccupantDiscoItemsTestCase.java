@@ -30,7 +30,7 @@ public class MUCOccupantDiscoItemsTestCase extends AbstractMUCOccupantDiscoTestC
     protected String getNamespace() {
         return NamespaceURIs.XEP0030_SERVICE_DISCOVERY_ITEMS;
     }
-    
+
     @Override
     protected StanzaHandler createHandler() {
         return new DiscoItemIQHandler();

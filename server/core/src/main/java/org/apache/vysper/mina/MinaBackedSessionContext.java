@@ -34,7 +34,6 @@ import org.apache.vysper.xmpp.writer.StanzaWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * connects MINA 2 frontend to the vysper backend
  *
@@ -45,13 +44,14 @@ public class MinaBackedSessionContext extends AbstractSessionContext implements 
     final Logger logger = LoggerFactory.getLogger(MinaBackedSessionContext.class);
 
     private IoSession minaSession;
+
     private boolean openingStanzaWritten = false;
+
     private boolean switchToTLS = false;
+
     protected CloseFuture closeFuture;
 
-    public MinaBackedSessionContext(
-            ServerRuntimeContext serverRuntimeContext,
-            SessionStateHolder sessionStateHolder,
+    public MinaBackedSessionContext(ServerRuntimeContext serverRuntimeContext, SessionStateHolder sessionStateHolder,
             IoSession minaSession) {
         super(serverRuntimeContext, sessionStateHolder);
         this.minaSession = minaSession;

@@ -19,11 +19,11 @@
  */
 package org.apache.vysper.xmpp.server;
 
-import org.apache.vysper.xmpp.authorization.SASLMechanism;
-
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Collections;
+import java.util.List;
+
+import org.apache.vysper.xmpp.authorization.SASLMechanism;
 
 /**
  * switch configuration of optional server features
@@ -64,7 +64,7 @@ public class ServerFeatures {
      * see http://xmpp.org/internet-drafts/draft-ietf-xmpp-3921bis-05.html#rules-barejid-resource-message
      *
      */
-    private boolean deliverMessageToHighestPriorityResourcesOnly = false; 
+    private boolean deliverMessageToHighestPriorityResourcesOnly = false;
 
     public ServerFeatures() {
         // default constructor

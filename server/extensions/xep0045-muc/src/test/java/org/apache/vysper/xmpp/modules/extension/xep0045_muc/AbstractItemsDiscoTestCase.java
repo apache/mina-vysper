@@ -44,7 +44,7 @@ public abstract class AbstractItemsDiscoTestCase extends AbstractDiscoTestCase {
     protected IQHandler createDiscoIQHandler() {
         return new DiscoItemIQHandler();
     }
-    
+
     /**
      * Default, expect no features
      * @throws EntityFormatException 
@@ -52,7 +52,7 @@ public abstract class AbstractItemsDiscoTestCase extends AbstractDiscoTestCase {
     protected List<Item> getExpectedItems() throws Exception {
         return Collections.emptyList();
     }
-    
+
     @Override
     protected StanzaBuilder buildRequest() {
         StanzaBuilder request = StanzaBuilder.createIQStanza(USER_JID, getTo(), IQStanzaType.GET, "1");
@@ -61,55 +61,53 @@ public abstract class AbstractItemsDiscoTestCase extends AbstractDiscoTestCase {
     }
 
     @Override
-    protected void assertResponse(XMLElement queryElement)
-            throws Exception {
+    protected void assertResponse(XMLElement queryElement) throws Exception {
         assertItems(queryElement);
     }
-
 
     private void assertItems(XMLElement queryElement) throws Exception {
         List<XMLElement> itemElements = queryElement.getInnerElementsNamed("item");
         List<Item> expectedItems = new ArrayList<Item>(getExpectedItems());
         // order is random, check that all namespaces are present
-        for(Item item : expectedItems) {
+        for (Item item : expectedItems) {
             String expectedJID = item.getJid().getFullQualifiedName();
 
             boolean found = false;
-            for(XMLElement element : itemElements) {
+            for (XMLElement element : itemElements) {
                 String actualJID = element.getAttributeValue("jid");
-                
-                if(expectedJID.equals(actualJID)) {
+
+                if (expectedJID.equals(actualJID)) {
                     assertItem(item, element);
                     found = true;
                     break;
                 }
             }
-            if(!found) {
+            if (!found) {
                 throw new AssertionFailedError("Item missing from response: " + item.getJid().getFullQualifiedName());
             }
         }
     }
-    
+
     private void assertItem(Item expected, XMLElement actual) {
         // we already know the JID is equal
         String expectedJID = expected.getJid().getFullQualifiedName();
 
         String expectedName = expected.getName();
         String expectedNode = expected.getNode();
-        
+
         String actualName = actual.getAttributeValue("name");
         String actualNode = actual.getAttributeValue("node");
-        
-        if(expectedName != null) {
+
+        if (expectedName != null) {
             assertEquals("Name for item with JID: " + expectedJID, expectedName, actualName);
         } else {
-            assertNull("Name must be null in item with JID: " + expectedJID, actualName);            
+            assertNull("Name must be null in item with JID: " + expectedJID, actualName);
         }
 
-        if(expectedNode != null) {
+        if (expectedNode != null) {
             assertEquals("Node for item with JID: " + expectedJID, expectedNode, actualNode);
         } else {
-            assertNull("Node must be null in item with JID: " + expectedJID, actualNode);            
+            assertNull("Node must be null in item with JID: " + expectedJID, actualNode);
         }
     }
 }

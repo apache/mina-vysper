@@ -39,32 +39,39 @@ public abstract class AbstractStateAwareProtocolWorker implements StateAwareProt
 
     abstract public SessionState getHandledState();
 
-    public void processStanza(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza, StanzaHandler stanzaHandler) {
+    public void processStanza(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
+            StanzaHandler stanzaHandler) {
         boolean proceed = checkState(sessionContext, sessionStateHolder, stanza, stanzaHandler);
-        if (!proceed) return; // TODO close stream?
+        if (!proceed)
+            return; // TODO close stream?
 
-        ResponseStanzaContainer responseStanzaContainer = executeHandler(sessionContext, sessionStateHolder, stanza, stanzaHandler);
+        ResponseStanzaContainer responseStanzaContainer = executeHandler(sessionContext, sessionStateHolder, stanza,
+                stanzaHandler);
 
         writeResponse(sessionContext, responseStanzaContainer);
     }
 
-    protected boolean checkState(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza, StanzaHandler stanzaHandler) {
+    protected boolean checkState(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
+            StanzaHandler stanzaHandler) {
         return 0 == getHandledState().compareTo(sessionContext.getState());
     }
 
     protected void writeResponse(SessionContext sessionContext, ResponseStanzaContainer responseStanzaContainer) {
         if (responseStanzaContainer != null && responseStanzaContainer.getResponseStanza() != null) {
             if (sessionContext == null) {
-                throw new IllegalStateException("no session context to write stanza to: " + responseStanzaContainer.getResponseStanza());
+                throw new IllegalStateException("no session context to write stanza to: "
+                        + responseStanzaContainer.getResponseStanza());
             }
             ResponseWriter.writeResponse(sessionContext, responseStanzaContainer);
         }
     }
 
-    protected ResponseStanzaContainer executeHandler(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza, StanzaHandler stanzaHandler) {
+    protected ResponseStanzaContainer executeHandler(SessionContext sessionContext,
+            SessionStateHolder sessionStateHolder, Stanza stanza, StanzaHandler stanzaHandler) {
         ResponseStanzaContainer responseStanzaContainer = null;
         try {
-            responseStanzaContainer = stanzaHandler.execute(stanza, sessionContext.getServerRuntimeContext(), isProcessingOutboundStanzas(), sessionContext, sessionStateHolder);
+            responseStanzaContainer = stanzaHandler.execute(stanza, sessionContext.getServerRuntimeContext(),
+                    isProcessingOutboundStanzas(), sessionContext, sessionStateHolder);
         } catch (ProtocolException e) {
             ResponseWriter.handleProtocolError(e, sessionContext, stanza);
             return null;

@@ -20,21 +20,22 @@
 package org.apache.vysper.xmpp.modules.core.im.handler;
 
 import junit.framework.TestCase;
+
 import org.apache.vysper.storage.OpenStorageProviderRegistry;
 import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
+import org.apache.vysper.xmpp.modules.core.TestUser;
 import org.apache.vysper.xmpp.modules.roster.AskSubscriptionType;
 import org.apache.vysper.xmpp.modules.roster.RosterException;
 import org.apache.vysper.xmpp.modules.roster.RosterItem;
 import org.apache.vysper.xmpp.modules.roster.RosterUtils;
 import org.apache.vysper.xmpp.modules.roster.SubscriptionType;
 import org.apache.vysper.xmpp.modules.roster.persistence.MemoryRosterManager;
-import org.apache.vysper.xmpp.modules.core.TestUser;
-import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
+import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.PresenceStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -46,17 +47,24 @@ import org.apache.vysper.xmpp.state.resourcebinding.ResourceState;
  */
 abstract public class PresenceHandlerBaseTestCase extends TestCase {
 
-
     protected TestSessionContext sessionContext;
+
     protected MemoryRosterManager rosterManager;
 
     protected TestUser initiatingUser;
+
     protected TestUser anotherInterestedNotAvailUser;
+
     protected TestUser anotherInterestedUser;
+
     protected TestUser anotherAvailableUser;
+
     protected TestUser unrelatedUser;
+
     protected TestUser subscribed_TO;
+
     protected TestUser subscribed_BOTH;
+
     protected TestUser subscribed_FROM;
 
     @Override
@@ -66,7 +74,8 @@ abstract public class PresenceHandlerBaseTestCase extends TestCase {
         rosterManager = new MemoryRosterManager();
         OpenStorageProviderRegistry storageProviderRegistry = new OpenStorageProviderRegistry();
         storageProviderRegistry.add(rosterManager);
-        ((DefaultServerRuntimeContext) sessionContext.getServerRuntimeContext()).setStorageProviderRegistry(storageProviderRegistry);
+        ((DefaultServerRuntimeContext) sessionContext.getServerRuntimeContext())
+                .setStorageProviderRegistry(storageProviderRegistry);
 
         Entity client = EntityImpl.parse("tester@vysper.org");
         sessionContext.setInitiatingEntity(client);
@@ -89,9 +98,12 @@ abstract public class PresenceHandlerBaseTestCase extends TestCase {
         // 4 resources for the same entity: one initiating, one interested (not yet avail), one interested (implicitly avail), one available
         // and another unrelated resource
 
-        subscribed_TO = TestUser.createContact(sessionContext, rosterManager, "subscribed_to@vysper.org", SubscriptionType.TO);
-        subscribed_BOTH = TestUser.createContact(sessionContext, rosterManager, "subscribed_both@vysper.org", SubscriptionType.BOTH);
-        subscribed_FROM = TestUser.createContact(sessionContext, rosterManager, "subscribed_from@vysper.org", SubscriptionType.FROM);
+        subscribed_TO = TestUser.createContact(sessionContext, rosterManager, "subscribed_to@vysper.org",
+                SubscriptionType.TO);
+        subscribed_BOTH = TestUser.createContact(sessionContext, rosterManager, "subscribed_both@vysper.org",
+                SubscriptionType.BOTH);
+        subscribed_FROM = TestUser.createContact(sessionContext, rosterManager, "subscribed_from@vysper.org",
+                SubscriptionType.FROM);
     }
 
     protected void setResourceState(String resourceId, ResourceState state) {
@@ -103,16 +115,22 @@ abstract public class PresenceHandlerBaseTestCase extends TestCase {
     }
 
     protected boolean checkPresence(Stanza stanza, PresenceStanzaType presenceType, Entity from, String show) {
-        if (stanza == null) return false;
+        if (stanza == null)
+            return false;
         XMLElementVerifier xmlElementVerifier = stanza.getVerifier();
         if (from == null) {
-            if (stanza.getFrom() != null) return false;
+            if (stanza.getFrom() != null)
+                return false;
         } else {
-            if (!stanza.getFrom().equals(from)) return false;
+            if (!stanza.getFrom().equals(from))
+                return false;
         }
-        if (!xmlElementVerifier.nameEquals("presence")) return false;
-        if (presenceType == null && xmlElementVerifier.attributePresent("type")) return false;
-        if (presenceType != null && !xmlElementVerifier.attributeEquals("type", presenceType.value())) return false;
+        if (!xmlElementVerifier.nameEquals("presence"))
+            return false;
+        if (presenceType == null && xmlElementVerifier.attributePresent("type"))
+            return false;
+        if (presenceType != null && !xmlElementVerifier.attributeEquals("type", presenceType.value()))
+            return false;
         try {
             if (show != null && !xmlElementVerifier.subElementPresent("show")
                     && !stanza.getSingleInnerElementsNamed("show").getSingleInnerText().getText().equals(show)) {
@@ -125,7 +143,8 @@ abstract public class PresenceHandlerBaseTestCase extends TestCase {
     }
 
     protected ResourceState getResourceState() {
-        return sessionContext.getServerRuntimeContext().getResourceRegistry().getResourceState(initiatingUser.getBoundResourceId());
+        return sessionContext.getServerRuntimeContext().getResourceRegistry().getResourceState(
+                initiatingUser.getBoundResourceId());
     }
 
     protected void assertStanzasDeliveredAndRelayed(int expectedRelayedAndDelivered) {
@@ -137,11 +156,14 @@ abstract public class PresenceHandlerBaseTestCase extends TestCase {
     }
 
     protected void assertStanzasRelayed(int expectedRelayed, int expectedDelivered) {
-        assertEquals(expectedRelayed, ((StanzaReceiverRelay) sessionContext.getServerRuntimeContext().getStanzaRelay()).getCountRelayed());
-        assertEquals(expectedDelivered, ((StanzaReceiverRelay) sessionContext.getServerRuntimeContext().getStanzaRelay()).getCountDelivered());
+        assertEquals(expectedRelayed, ((StanzaReceiverRelay) sessionContext.getServerRuntimeContext().getStanzaRelay())
+                .getCountRelayed());
+        assertEquals(expectedDelivered, ((StanzaReceiverRelay) sessionContext.getServerRuntimeContext()
+                .getStanzaRelay()).getCountDelivered());
     }
 
-    protected boolean checkRosterItem(Entity contactEntity, SubscriptionType expectedSubscriptionType, AskSubscriptionType expectedAskSubscriptionType) {
+    protected boolean checkRosterItem(Entity contactEntity, SubscriptionType expectedSubscriptionType,
+            AskSubscriptionType expectedAskSubscriptionType) {
         try {
             RosterItem contact = rosterManager.getContact(initiatingUser.getEntity(), contactEntity);
             assertNotNull(contact);
@@ -153,8 +175,10 @@ abstract public class PresenceHandlerBaseTestCase extends TestCase {
         return true;
     }
 
-    protected boolean checkRosterPush(Stanza stanza, Entity entity, Entity contact, SubscriptionType subscriptionType, AskSubscriptionType askSubscriptionType) {
-        if (stanza == null) return false;
+    protected boolean checkRosterPush(Stanza stanza, Entity entity, Entity contact, SubscriptionType subscriptionType,
+            AskSubscriptionType askSubscriptionType) {
+        if (stanza == null)
+            return false;
         IQStanza rosterPush = (IQStanza) XMPPCoreStanza.getWrapper(stanza);
         rosterPush.getInnerElementsNamed("query");
 
@@ -174,7 +198,8 @@ abstract public class PresenceHandlerBaseTestCase extends TestCase {
     }
 
     protected void resetRecordedStanzas() {
-        StanzaReceiverRelay receiverRelay = (StanzaReceiverRelay) sessionContext.getServerRuntimeContext().getStanzaRelay();
+        StanzaReceiverRelay receiverRelay = (StanzaReceiverRelay) sessionContext.getServerRuntimeContext()
+                .getStanzaRelay();
         receiverRelay.resetAll();
     }
 
@@ -187,4 +212,3 @@ abstract public class PresenceHandlerBaseTestCase extends TestCase {
         return sessionContext.getNextRecordedResponseForResource(testUser.getBoundResourceId());
     }
 }
-

@@ -19,15 +19,15 @@
  */
 package org.apache.vysper.xmpp.state.presence;
 
-import org.apache.vysper.xmpp.modules.core.im.handler.PresenceHandlerBaseTestCase;
-import org.apache.vysper.xmpp.modules.core.im.handler.PresenceHandler;
 import org.apache.vysper.xmpp.modules.core.TestUser;
-import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
-import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.stanza.PresenceStanza;
+import org.apache.vysper.xmpp.modules.core.im.handler.PresenceHandler;
+import org.apache.vysper.xmpp.modules.core.im.handler.PresenceHandlerBaseTestCase;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
-import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionState;
+import org.apache.vysper.xmpp.stanza.PresenceStanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 
 /**
  * abstract test case which re-usable for all LatestPresenceCache implementations 
@@ -35,18 +35,18 @@ import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
 abstract public class LatestPresenceCacheTestCase extends PresenceHandlerBaseTestCase {
 
     protected PresenceHandler handler = new PresenceHandler();
-    
+
     abstract protected LatestPresenceCache getCache();
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
 
-        ((DefaultServerRuntimeContext)sessionContext.getServerRuntimeContext()).setPresenceCache(getCache());
+        ((DefaultServerRuntimeContext) sessionContext.getServerRuntimeContext()).setPresenceCache(getCache());
     }
 
     public void testGet() {
-        
+
         SessionStateHolder sessionStateHolder = new SessionStateHolder();
         sessionStateHolder.setState(SessionState.AUTHENTICATED);
 
@@ -72,12 +72,14 @@ abstract public class LatestPresenceCacheTestCase extends PresenceHandlerBaseTes
         PresenceStanza presenceStanza1_1 = getCache().get(initiatingUser.getEntityFQ());
         assertSame(initialPresence1_1, presenceStanza1_1);
         assertSame(initialPresence1_1, getCache().getForBareJID(initiatingUser.getEntity().getBareJID()));
-        
+
     }
 
     public XMPPCoreStanza sendInitialPresence(SessionStateHolder sessionStateHolder, TestUser user) {
-        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(user.getEntityFQ(), null, null, null, null, null).build());
-        handler.execute(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
+        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(
+                user.getEntityFQ(), null, null, null, null, null).build());
+        handler.execute(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext,
+                sessionStateHolder);
         return initialPresence;
     }
 }

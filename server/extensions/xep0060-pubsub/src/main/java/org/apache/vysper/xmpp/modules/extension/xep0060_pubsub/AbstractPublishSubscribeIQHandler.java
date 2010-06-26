@@ -37,8 +37,10 @@ public abstract class AbstractPublishSubscribeIQHandler extends DefaultIQHandler
 
     // one ErrorStanzaGenerator available for all subclasses
     protected ErrorStanzaGenerator errorStanzaGenerator = null;
+
     // the pubsub service configuration
     protected PubSubServiceConfiguration serviceConfiguration = null;
+
     // we need to generate some IDs
     protected UUIDGenerator idGenerator;
 
@@ -74,7 +76,7 @@ public abstract class AbstractPublishSubscribeIQHandler extends DefaultIQHandler
     @Override
     protected boolean verifyInnerElement(Stanza stanza) {
         return verifyInnerElementWorker(stanza, "pubsub")
-        && verifySingleElementParameter(stanza.getFirstInnerElement(), getWorkerElement());
+                && verifySingleElementParameter(stanza.getFirstInnerElement(), getWorkerElement());
     }
 
     /**
@@ -84,8 +86,7 @@ public abstract class AbstractPublishSubscribeIQHandler extends DefaultIQHandler
      * @return true if the name matches the only available inner element.
      */
     protected boolean verifySingleElementParameter(XMLElement pubsub, String element) {
-        return pubsub.getVerifier().subElementsPresentExact(1)
-        && pubsub.getVerifier().subElementPresent(element);
+        return pubsub.getVerifier().subElementPresent(element);
     }
 
     /**
@@ -93,7 +94,7 @@ public abstract class AbstractPublishSubscribeIQHandler extends DefaultIQHandler
      * @return the namespace this class is expecting.
      */
     protected abstract String getNamespace();
-    
+
     /**
      * Implement this method to specify which inner element of pubsub element this class expects.
      * @return the name of the inner element this class is expecting.

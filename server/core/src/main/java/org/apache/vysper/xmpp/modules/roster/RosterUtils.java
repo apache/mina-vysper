@@ -19,11 +19,17 @@
  */
 package org.apache.vysper.xmpp.modules.roster;
 
-import org.apache.vysper.compliance.SpecCompliance;
-import org.apache.vysper.compliance.SpecCompliant;
-import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.*;
+import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.COMPLETE;
+import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.PARTIAL;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.FINISHED;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.vysper.compliance.SpecCompliance;
+import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xml.fragment.Attribute;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLElementVerifier;
@@ -33,11 +39,6 @@ import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.roster.persistence.RosterManager;
 import org.apache.vysper.xmpp.stanza.IQStanza;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * some roster logic
@@ -77,14 +78,16 @@ public class RosterUtils {
     /**
      * extracts a roster item from the given stanza
      */
-    public static RosterItem parseRosterItem(IQStanza stanza) throws RosterBadRequestException, RosterNotAcceptableException {
+    public static RosterItem parseRosterItem(IQStanza stanza) throws RosterBadRequestException,
+            RosterNotAcceptableException {
         return parseRosterItem(stanza, false); // do not read subscription types (except 'remove')
     }
 
     /**
      * extracts a roster item from the given stanza, with relaxed semantical checks for testing
      */
-    public static RosterItem parseRosterItemForTesting(IQStanza stanza) throws RosterBadRequestException, RosterNotAcceptableException {
+    public static RosterItem parseRosterItemForTesting(IQStanza stanza) throws RosterBadRequestException,
+            RosterNotAcceptableException {
         return parseRosterItem(stanza, true); // do also parse subscription types
     }
 
@@ -92,15 +95,15 @@ public class RosterUtils {
      * extracts a roster item from the stanza and checks for integrity according to the XMPP spec
      */
     @SpecCompliance(compliant = {
-        @SpecCompliant(spec="rfc3921bis-08", section = "2.1.1", status = FINISHED, coverage = COMPLETE),
-        @SpecCompliant(spec="rfc3921bis-08", section = "2.1.3", status = FINISHED,
-                       coverage = PARTIAL, comment = "handles the conformance rules 1-3 when parseSubscriptionTypes is set to false")
-    })
-    private static RosterItem parseRosterItem(IQStanza stanza, boolean parseSubscriptionTypes) throws RosterBadRequestException, RosterNotAcceptableException {
+            @SpecCompliant(spec = "rfc3921bis-08", section = "2.1.1", status = FINISHED, coverage = COMPLETE),
+            @SpecCompliant(spec = "rfc3921bis-08", section = "2.1.3", status = FINISHED, coverage = PARTIAL, comment = "handles the conformance rules 1-3 when parseSubscriptionTypes is set to false") })
+    private static RosterItem parseRosterItem(IQStanza stanza, boolean parseSubscriptionTypes)
+            throws RosterBadRequestException, RosterNotAcceptableException {
         XMLElement queryElement;
         try {
             queryElement = stanza.getSingleInnerElementsNamed("query");
-            if (queryElement == null) throw new XMLSemanticError("missing query node");
+            if (queryElement == null)
+                throw new XMLSemanticError("missing query node");
         } catch (XMLSemanticError xmlSemanticError) {
             throw new RosterBadRequestException("roster set needs a single query node.");
         }
@@ -108,13 +111,15 @@ public class RosterUtils {
         XMLElement itemElement;
         try {
             itemElement = queryElement.getSingleInnerElementsNamed("item");
-            if (itemElement == null) throw new XMLSemanticError("missing item node");
+            if (itemElement == null)
+                throw new XMLSemanticError("missing item node");
         } catch (XMLSemanticError xmlSemanticError) {
             throw new RosterBadRequestException("roster set needs a single item node.");
         }
 
         Attribute attributeJID = itemElement.getAttribute("jid");
-        if (attributeJID == null || attributeJID.getValue() == null) throw new RosterBadRequestException("missing 'jid' attribute on item node");
+        if (attributeJID == null || attributeJID.getValue() == null)
+            throw new RosterBadRequestException("missing 'jid' attribute on item node");
 
         XMLElementVerifier verifier = itemElement.getVerifier();
         String name = verifier.attributePresent("name") ? itemElement.getAttribute("name").getValue() : null;
@@ -122,12 +127,15 @@ public class RosterUtils {
             throw new RosterNotAcceptableException("roster name too long: " + name.length());
         }
 
-        SubscriptionType subscription = verifier.attributePresent("subscription") ? SubscriptionType.valueOf(itemElement.getAttribute("subscription").getValue().toUpperCase()) : SubscriptionType.NONE;
-        if (!parseSubscriptionTypes && subscription != SubscriptionType.REMOVE) subscription = SubscriptionType.NONE; // roster remove is always tolerated
+        SubscriptionType subscription = verifier.attributePresent("subscription") ? SubscriptionType
+                .valueOf(itemElement.getAttribute("subscription").getValue().toUpperCase()) : SubscriptionType.NONE;
+        if (!parseSubscriptionTypes && subscription != SubscriptionType.REMOVE)
+            subscription = SubscriptionType.NONE; // roster remove is always tolerated
 
         AskSubscriptionType askSubscriptionType = AskSubscriptionType.NOT_SET;
         if (parseSubscriptionTypes) {
-            askSubscriptionType = verifier.attributePresent("ask") ? AskSubscriptionType.valueOf("ASK_" + itemElement.getAttribute("ask").getValue().toUpperCase()) : AskSubscriptionType.NOT_SET;
+            askSubscriptionType = verifier.attributePresent("ask") ? AskSubscriptionType.valueOf("ASK_"
+                    + itemElement.getAttribute("ask").getValue().toUpperCase()) : AskSubscriptionType.NOT_SET;
         }
 
         String contactJid = attributeJID.getValue();

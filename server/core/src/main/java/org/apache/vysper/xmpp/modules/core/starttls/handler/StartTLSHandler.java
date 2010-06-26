@@ -25,9 +25,9 @@ import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
-import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
 import org.apache.vysper.xmpp.server.response.ServerResponses;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -42,8 +42,10 @@ public class StartTLSHandler implements StanzaHandler {
     }
 
     public boolean verify(Stanza stanza) {
-        if (stanza == null) return false;
-        if (!getName().equals(stanza.getName())) return false;
+        if (stanza == null)
+            return false;
+        if (!getName().equals(stanza.getName()))
+            return false;
         return true;
     }
 
@@ -51,7 +53,8 @@ public class StartTLSHandler implements StanzaHandler {
         return true;
     }
 
-    public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder) {
+    public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
+            boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder) {
         XMLElementVerifier xmlElementVerifier = stanza.getVerifier();
         boolean tlsNamespace = xmlElementVerifier.namespacePresent(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS);
 

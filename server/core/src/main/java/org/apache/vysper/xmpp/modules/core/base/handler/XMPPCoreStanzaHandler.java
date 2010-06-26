@@ -61,16 +61,16 @@ public abstract class XMPPCoreStanzaHandler implements StanzaHandler {
         return true;
     }
 
-
-    public ResponseStanzaContainer execute(Stanza anyStanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder) {
+    public ResponseStanzaContainer execute(Stanza anyStanza, ServerRuntimeContext serverRuntimeContext,
+            boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder) {
         XMPPCoreStanza stanza = XMPPCoreStanza.getWrapper(anyStanza);
-        if (stanza == null) throw new IllegalArgumentException("can only handle core XMPP stanzas (iq, message, presence)");
+        if (stanza == null)
+            throw new IllegalArgumentException("can only handle core XMPP stanzas (iq, message, presence)");
 
         // type="error" is common to all stanza, check here some prerequisites
         Attribute typeAttribute = stanza.getAttribute("type");
         XMPPCoreStanza xmppCoreStanza = XMPPCoreStanza.getWrapper(stanza);
-        if (xmppCoreStanza != null && typeAttribute != null)
-        {
+        if (xmppCoreStanza != null && typeAttribute != null) {
             String errorDescription = null;
             String type = typeAttribute.getValue();
             if (IQStanzaType.ERROR.value().equals(type)) {
@@ -102,7 +102,8 @@ public abstract class XMPPCoreStanzaHandler implements StanzaHandler {
         Entity to = stanza.getTo();
         if (sessionContext != null && sessionContext.isServerToServer() && to == null) {
             // "to" MUST be present for jabber:server
-            return new ResponseStanzaContainerImpl(ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.IMPROPER_ADDRESSING, stanza.getXMLLang(), "missing to attribute", null));
+            return new ResponseStanzaContainerImpl(ServerErrorResponses.getInstance().getStreamError(
+                    StreamErrorCondition.IMPROPER_ADDRESSING, stanza.getXMLLang(), "missing to attribute", null));
         }
 
         if (to != null) {
@@ -111,12 +112,14 @@ public abstract class XMPPCoreStanzaHandler implements StanzaHandler {
 
         Stanza responseStanza = executeCore(stanza, serverRuntimeContext, isOutboundStanza, sessionContext);
 
-        if (responseStanza != null) return new ResponseStanzaContainerImpl(responseStanza);
+        if (responseStanza != null)
+            return new ResponseStanzaContainerImpl(responseStanza);
 
         return null;
     }
 
-    protected abstract Stanza executeCore(XMPPCoreStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza, SessionContext sessionContext);
+    protected abstract Stanza executeCore(XMPPCoreStanza stanza, ServerRuntimeContext serverRuntimeContext,
+            boolean isOutboundStanza, SessionContext sessionContext);
 
     /**
      * Extracts the from address either from the "from" attribute of the stanza, if this isn't given
@@ -133,12 +136,12 @@ public abstract class XMPPCoreStanzaHandler implements StanzaHandler {
     public static Entity extractSenderJID(XMPPCoreStanza stanza, SessionContext sessionContext) {
         Entity from = stanza.getFrom();
         if (from == null) {
-            from = new EntityImpl(sessionContext.getInitiatingEntity(),
-                    sessionContext.getServerRuntimeContext().getResourceRegistry().getUniqueResourceForSession(sessionContext));
+            from = new EntityImpl(sessionContext.getInitiatingEntity(), sessionContext.getServerRuntimeContext()
+                    .getResourceRegistry().getUniqueResourceForSession(sessionContext));
         }
         return from;
     }
-    
+
     /**
      * Extracts the from address either from the "from" attribute of the stanza, if this isn't given
      * retracts to using the address of the initiating entity plus the resource of the sessionContext.
@@ -163,12 +166,16 @@ public abstract class XMPPCoreStanzaHandler implements StanzaHandler {
             throw new RuntimeException("no 'from' attribute, and initiating entity not set");
         }
 
-        String resourceId = sessionContext.getServerRuntimeContext().getResourceRegistry().getUniqueResourceForSession(sessionContext);
+        String resourceId = sessionContext.getServerRuntimeContext().getResourceRegistry().getUniqueResourceForSession(
+                sessionContext);
         if (resourceId == null) {
-            logger.warn("no 'from' attribute, and cannot uniquely determine sending resource for initiating entity {} in session {}", initiatingEntity.getFullQualifiedName(), sessionContext.getSessionId());
+            logger
+                    .warn(
+                            "no 'from' attribute, and cannot uniquely determine sending resource for initiating entity {} in session {}",
+                            initiatingEntity.getFullQualifiedName(), sessionContext.getSessionId());
             return null;
         }
-        
+
         return new EntityImpl(initiatingEntity, resourceId);
     }
 }

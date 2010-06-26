@@ -29,5 +29,5 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 public interface OfflineStanzaReceiver {
 
     public void receive(Stanza stanza);
-    
+
 }

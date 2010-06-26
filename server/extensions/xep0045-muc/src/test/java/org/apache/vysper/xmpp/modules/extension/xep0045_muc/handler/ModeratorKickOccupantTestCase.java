@@ -108,7 +108,6 @@ public class ModeratorKickOccupantTestCase extends AbstractMUCHandlerTestCase {
         testKickNotAllowed(room, "nick", "conflict");
     }
 
-    
     private void testKickNotAllowed(Room room, String nickToKick, String expectedError) throws ProtocolException {
         // send message to room
         IQStanza result = (IQStanza) IQStanza.getWrapper(sendIq(OCCUPANT1_JID, ROOM2_JID, SET, "id1",

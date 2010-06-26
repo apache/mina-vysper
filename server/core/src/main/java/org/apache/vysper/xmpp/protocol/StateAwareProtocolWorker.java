@@ -32,6 +32,6 @@ import org.apache.vysper.xmpp.stanza.Stanza;
  */
 public interface StateAwareProtocolWorker {
 
-    public void processStanza(SessionContext sessionContext, SessionStateHolder sessionStateHolder,
-                              Stanza stanza, StanzaHandler stanzaHandler);
+    public void processStanza(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
+            StanzaHandler stanzaHandler);
 }

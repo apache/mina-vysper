@@ -36,22 +36,22 @@ public class PubsubTableModelListener implements TableModelListener {
         PubsubTableModel dtm = parent.getTableModel();
         PubSubManager pubsubMgr = parent.getPubsubMgr();
         String jid = parent.getJID();
-        
-        if(event.getType() == TableModelEvent.UPDATE) {
+
+        if (event.getType() == TableModelEvent.UPDATE) {
             try {
-                Boolean sub = (Boolean)dtm.getValueAt(event.getFirstRow(), event.getColumn());
-                String nodeName = (String)dtm.getValueAt(event.getFirstRow(), 0);
-    
+                Boolean sub = (Boolean) dtm.getValueAt(event.getFirstRow(), event.getColumn());
+                String nodeName = (String) dtm.getValueAt(event.getFirstRow(), 0);
+
                 Node node = pubsubMgr.getNode(nodeName);
-    
-                if(sub.booleanValue()) { // contains the new value (soll)
+
+                if (sub.booleanValue()) { // contains the new value (soll)
                     node.subscribe(jid);
                     System.out.println(jid + " subscribed to " + node.getId());
                 } else {
                     node.unsubscribe(jid);
                     System.out.println(jid + " unsubscribed from " + node.getId());
                 }
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }

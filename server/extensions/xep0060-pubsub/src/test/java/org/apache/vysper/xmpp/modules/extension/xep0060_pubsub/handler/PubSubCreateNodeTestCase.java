@@ -69,39 +69,39 @@ public class PubSubCreateNodeTestCase extends AbstractPublishSubscribeTestCase {
     public void testCreate() throws Exception {
         String testNode = "test";
         assertNull(root.find(testNode)); // shouldn't be there
-        
+
         AbstractStanzaGenerator sg = getDefaultStanzaGenerator();
         Stanza stanza = sg.getStanza(client, pubsubService, "id123", testNode);
         ResponseStanzaContainer result = sendStanza(stanza, true);
         assertTrue(result.hasResponse());
         IQStanza response = new IQStanza(result.getResponseStanza());
-        assertEquals(IQStanzaType.RESULT.value(),response.getType());
+        assertEquals(IQStanzaType.RESULT.value(), response.getType());
 
         assertEquals("id123", response.getAttributeValue("id")); // IDs must match
-        
+
         LeafNode n = root.find(testNode);
         assertEquals(testNode, n.getName());
     }
-    
+
     public void testCreateDuplicate() throws Exception {
         String testNode = "test";
         root.add(new LeafNode(serviceConfiguration, testNode, client));
         assertNotNull(root.find(testNode)); // should be there
-        
+
         AbstractStanzaGenerator sg = getDefaultStanzaGenerator();
         Stanza stanza = sg.getStanza(client, pubsubService, "id123", testNode);
         ResponseStanzaContainer result = sendStanza(stanza, true);
         assertTrue(result.hasResponse());
         IQStanza response = new IQStanza(result.getResponseStanza());
-        assertEquals(IQStanzaType.ERROR.value(),response.getType());
+        assertEquals(IQStanzaType.ERROR.value(), response.getType());
         assertEquals("id123", response.getAttributeValue("id")); // IDs must match
-        
+
         XMLElement error = response.getInnerElements().get(1); // jump over the original request
         XMLElement conflict = error.getFirstInnerElement();
-        
+
         assertEquals("error", error.getName());
         assertEquals("cancel", error.getAttributeValue("type"));
-        
+
         assertEquals("conflict", conflict.getName());
         assertEquals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS, conflict.getNamespaceURI());
     }

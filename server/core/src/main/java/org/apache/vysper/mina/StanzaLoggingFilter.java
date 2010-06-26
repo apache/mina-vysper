@@ -39,8 +39,7 @@ public class StanzaLoggingFilter extends IoFilterAdapter {
 
     final Logger clientLogger = LoggerFactory.getLogger("stanza.client");
 
-    public void messageReceived(NextFilter nextFilter, IoSession session,
-            Object message) throws Exception {
+    public void messageReceived(NextFilter nextFilter, IoSession session, Object message) throws Exception {
         if (message instanceof XMLElement) {
             XMLElement element = (XMLElement) message;
 
@@ -70,20 +69,17 @@ public class StanzaLoggingFilter extends IoFilterAdapter {
         nextFilter.messageReceived(session, message);
     }
 
-    public void messageSent(NextFilter nextFilter, IoSession session,
-            WriteRequest request) throws Exception {
-    	Object message = request.getMessage();
+    public void messageSent(NextFilter nextFilter, IoSession session, WriteRequest request) throws Exception {
+        Object message = request.getMessage();
         if (message instanceof StanzaWriteInfo) {
             StanzaWriteInfo stanzaWriteInfo = (StanzaWriteInfo) message;
 
             if (serverLogger.isInfoEnabled()) {
-                serverLogger.info(DenseStanzaLogRenderer.render(stanzaWriteInfo
-                        .getStanza()));
+                serverLogger.info(DenseStanzaLogRenderer.render(stanzaWriteInfo.getStanza()));
             }
             if (serverLogger.isDebugEnabled()) {
-                String xml = toXml(stanzaWriteInfo.getStanza(), stanzaWriteInfo
-                        .isWriteOpeningElement(), stanzaWriteInfo
-                        .isWriteClosingElement());
+                String xml = toXml(stanzaWriteInfo.getStanza(), stanzaWriteInfo.isWriteOpeningElement(),
+                        stanzaWriteInfo.isWriteClosingElement());
 
                 serverLogger.info("Sent stanza: " + xml);
             }
@@ -92,8 +88,7 @@ public class StanzaLoggingFilter extends IoFilterAdapter {
         nextFilter.messageSent(session, request);
     }
 
-    private String toXml(XMLElement element, boolean openElement,
-            boolean closeElement) {
+    private String toXml(XMLElement element, boolean openElement, boolean closeElement) {
         Renderer renderer = new Renderer(element);
 
         StringBuffer xml = new StringBuffer();

@@ -19,23 +19,23 @@
  */
 package org.apache.vysper.xmpp.modules.core.compatibility.jabber_iq_auth.handler;
 
+import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.stanza.StanzaErrorType;
 import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
-import org.apache.vysper.compliance.SpecCompliant;
+import org.apache.vysper.xmpp.stanza.StanzaErrorType;
 
 /**
  * handles jabber:iq:auth request - by returning "service unavailable"
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-@SpecCompliant(spec="xep-0078", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
+@SpecCompliant(spec = "xep-0078", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public class AuthCompatibilityIQHandler extends IQHandler {
 
     @Override
@@ -44,7 +44,8 @@ public class AuthCompatibilityIQHandler extends IQHandler {
     }
 
     @Override
-    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza, SessionContext sessionContext) {
+    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza,
+            SessionContext sessionContext) {
 
         // from XEP 78 - http://www.xmpp.org/extensions/xep-0078.html:
         // If the server does not support non-SASL authentication (e.g., because it supports only SASL authentication
@@ -54,17 +55,15 @@ public class AuthCompatibilityIQHandler extends IQHandler {
 
         switch (stanza.getIQType()) {
 
-            case GET:
-            case SET:
-                return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE, stanza,
-                StanzaErrorType.CANCEL,
-                        "jabber:iq:auth not supported", "en",
-                null);
+        case GET:
+        case SET:
+            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE, stanza,
+                    StanzaErrorType.CANCEL, "jabber:iq:auth not supported", "en", null);
 
-            case ERROR:
-                break; // ignore errors in compatibility only namespace
-            default:
-                throw new RuntimeException("iq stanza type not supported: " + stanza.getIQType());
+        case ERROR:
+            break; // ignore errors in compatibility only namespace
+        default:
+            throw new RuntimeException("iq stanza type not supported: " + stanza.getIQType());
         }
 
         return null;

@@ -21,18 +21,19 @@
 package org.apache.vysper.xmpp.modules.core.base.handler;
 
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
+import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.stanza.IQStanzaType;
 
 public class TestIQHandler extends IQHandler {
 
     String name = null;
 
     private IQStanza incomingStanza;
+
     private String namespaceURI;
 
     public TestIQHandler() {
@@ -46,21 +47,26 @@ public class TestIQHandler extends IQHandler {
 
     @Override
     public boolean verify(Stanza stanza) {
-        if (!super.verify(stanza)) return false;
-        if (name == null) return true;
+        if (!super.verify(stanza))
+            return false;
+        if (name == null)
+            return true;
         return stanza.getVerifier().onlySubelementEquals(name, namespaceURI);
     }
 
     @Override
-    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza, SessionContext sessionContext) {
+    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza,
+            SessionContext sessionContext) {
         incomingStanza = stanza;
 
-        StanzaBuilder responseBuilder = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT, stanza.getNamespacePrefix());
-        if (stanza.getID() != null) responseBuilder.addAttribute("id", stanza.getID());
+        StanzaBuilder responseBuilder = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT, stanza
+                .getNamespacePrefix());
+        if (stanza.getID() != null)
+            responseBuilder.addAttribute("id", stanza.getID());
 
         responseBuilder.addAttribute("type", IQStanzaType.RESULT.value());
 
-         return responseBuilder.build();
+        return responseBuilder.build();
     }
 
     public IQStanza getIncomingStanza() {

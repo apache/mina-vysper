@@ -19,13 +19,16 @@
  */
 package org.apache.vysper.xmpp.modules.roster;
 
-import org.apache.vysper.xmpp.addressing.Entity;
-import static org.apache.vysper.xmpp.modules.roster.SubscriptionType.*;
-import static org.apache.vysper.xmpp.modules.roster.AskSubscriptionType.*;
+import static org.apache.vysper.xmpp.modules.roster.AskSubscriptionType.NOT_SET;
+import static org.apache.vysper.xmpp.modules.roster.SubscriptionType.BOTH;
+import static org.apache.vysper.xmpp.modules.roster.SubscriptionType.FROM;
+import static org.apache.vysper.xmpp.modules.roster.SubscriptionType.TO;
 
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+
+import org.apache.vysper.xmpp.addressing.Entity;
 
 /**
  * one contact in the roster of a user, the subscription can either be pending, or established, depending on the values
@@ -69,14 +72,16 @@ public class RosterItem {
         this(jid, null, subscriptionType, askSubscriptionType);
     }
 
-    public RosterItem(Entity jid, String name, SubscriptionType subscriptionType, AskSubscriptionType askSubscriptionType) {
+    public RosterItem(Entity jid, String name, SubscriptionType subscriptionType,
+            AskSubscriptionType askSubscriptionType) {
         this.jid = jid;
         this.name = name;
         this.subscriptionType = subscriptionType;
         this.askSubscriptionType = askSubscriptionType == null ? NOT_SET : askSubscriptionType;
     }
 
-    public RosterItem(Entity jid, String name, SubscriptionType subscriptionType, AskSubscriptionType askSubscriptionType, List<RosterGroup> groups) {
+    public RosterItem(Entity jid, String name, SubscriptionType subscriptionType,
+            AskSubscriptionType askSubscriptionType, List<RosterGroup> groups) {
         this(jid, name, subscriptionType, askSubscriptionType);
         this.groups.addAll(groups);
     }
@@ -111,7 +116,8 @@ public class RosterItem {
      */
     public void setGroups(List<RosterGroup> newGroups) {
         this.groups.clear();
-        if (newGroups != null) this.groups.addAll(newGroups);
+        if (newGroups != null)
+            this.groups.addAll(newGroups);
     }
 
     public SubscriptionType getSubscriptionType() {
@@ -121,8 +127,8 @@ public class RosterItem {
     /**
      * should be set using the RosterSubscriptionMutator
      */
-     /*package*/ void setSubscriptionType(SubscriptionType subscriptionType) {
-         this.subscriptionType = subscriptionType;
+    /*package*/void setSubscriptionType(SubscriptionType subscriptionType) {
+        this.subscriptionType = subscriptionType;
     }
 
     public AskSubscriptionType getAskSubscriptionType() {
@@ -132,7 +138,7 @@ public class RosterItem {
     /**
      * should be set using the RosterSubscriptionMutator
      */
-    /*package*/ void setAskSubscriptionType(AskSubscriptionType askSubscribe) {
+    /*package*/void setAskSubscriptionType(AskSubscriptionType askSubscribe) {
         this.askSubscriptionType = askSubscribe;
     }
 
@@ -159,12 +165,8 @@ public class RosterItem {
 
     @Override
     public String toString() {
-        return "RosterItem{" +
-                "jid=" + (jid == null ? "NULL" : jid.getFullQualifiedName()) +
-                ", name='" + name + '\'' +
-                ", groups=" + groups +
-                ", subscriptionType=" + subscriptionType +
-                ", askSubscriptionType=" + askSubscriptionType +
-                '}';
+        return "RosterItem{" + "jid=" + (jid == null ? "NULL" : jid.getFullQualifiedName()) + ", name='" + name + '\''
+                + ", groups=" + groups + ", subscriptionType=" + subscriptionType + ", askSubscriptionType="
+                + askSubscriptionType + '}';
     }
 }

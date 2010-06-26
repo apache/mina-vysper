@@ -15,10 +15,11 @@ public class RosterManagerUtils {
      * @return roster manager - will not be NULL
      * @throws RuntimeException iff roster manager cannot be retrieved
      */
-    public static RosterManager getRosterInstance(ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    public static RosterManager getRosterInstance(ServerRuntimeContext serverRuntimeContext,
+            SessionContext sessionContext) {
         RosterManager rosterManager;
         try {
-            rosterManager = (RosterManager)serverRuntimeContext.getStorageProvider(RosterManager.class);
+            rosterManager = (RosterManager) serverRuntimeContext.getStorageProvider(RosterManager.class);
         } catch (Exception e) {
             // System.err.println("failed to retrieve roster manager for session id = " + sessionContext.getSessionId());
             String sessionId = sessionContext == null ? "NO_SESSION" : sessionContext.getSessionId();

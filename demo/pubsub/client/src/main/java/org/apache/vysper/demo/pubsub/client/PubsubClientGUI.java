@@ -46,15 +46,18 @@ import javax.swing.event.ListSelectionListener;
  */
 public class PubsubClientGUI implements Runnable, ListSelectionListener {
     private JFrame frame;
+
     private JButton delete;
+
     private JButton open;
+
     private PubsubClientModel pcm = new PubsubClientModel();
 
     private void createAndShowGUI() {
         setUpLookAndFeel();
 
         PubsubTableModel tableModel = pcm.getTableModel();
-        
+
         frame = new JFrame("Vysper Publish/Subscribe Client");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -77,16 +80,16 @@ public class PubsubClientGUI implements Runnable, ListSelectionListener {
         open.setActionCommand("open");
         open.addActionListener(new PubsubOpenButtonListener(pcm));
         disableOpenButton();
-        
+
         delete = new JButton("Delete node");
         delete.setActionCommand("delete");
         delete.addActionListener(new PubsubDeleteButtonListener(frame, pcm));
         delete.setEnabled(false);
-        
+
         JButton refresh = new JButton("Refresh");
         refresh.setActionCommand("refresh");
         refresh.addActionListener(new PubsubRefreshButtonListener(pcm));
-        
+
         JPanel buttons = new JPanel();
         buttons.add(create);
         buttons.add(open);
@@ -105,7 +108,7 @@ public class PubsubClientGUI implements Runnable, ListSelectionListener {
     private void setUpLookAndFeel() {
         try {
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
-        } catch(Exception e) {
+        } catch (Exception e) {
             // well then... no change
         }
     }
@@ -122,11 +125,11 @@ public class PubsubClientGUI implements Runnable, ListSelectionListener {
         login();
         pcm.refresh();
     }
-    
+
     public void login() {
         do {
             askForCredentials();
-        } while(pcm.login() == false);
+        } while (pcm.login() == false);
     }
 
     private void registerShutDownHook() {
@@ -142,21 +145,21 @@ public class PubsubClientGUI implements Runnable, ListSelectionListener {
         JLabel jidLab = new JLabel("JID");
         JTextField jidTxt = new JTextField("user1@vysper.org");
         jidLab.setLabelFor(jidTxt);
-        
+
         JLabel usernameLab = new JLabel("Username");
         JTextField usernameTxt = new JTextField("user1");
         usernameLab.setLabelFor(usernameTxt);
-        
+
         JLabel hostLab = new JLabel("Host");
         JTextField hostTxt = new JTextField("localhost");
         hostLab.setLabelFor(hostTxt);
-        
+
         JLabel passwordLab = new JLabel("Password");
         JTextField passwordTxt = new JPasswordField("password1");
         passwordLab.setLabelFor(passwordTxt);
-        
+
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(4,2));
+        panel.setLayout(new GridLayout(4, 2));
         panel.add(jidLab);
         panel.add(jidTxt);
         panel.add(usernameLab);
@@ -165,20 +168,14 @@ public class PubsubClientGUI implements Runnable, ListSelectionListener {
         panel.add(hostTxt);
         panel.add(passwordLab);
         panel.add(passwordTxt);
-        
-        int answer = JOptionPane.showOptionDialog(frame,
-                panel,
-                "Login",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                new String[] {"Login", "Exit"},
-                "Login");
 
-        if(answer != 0) {
+        int answer = JOptionPane.showOptionDialog(frame, panel, "Login", JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE, null, new String[] { "Login", "Exit" }, "Login");
+
+        if (answer != 0) {
             System.exit(0);
         }
-        
+
         pcm.setUsername(usernameTxt.getText());
         pcm.setHostname(hostTxt.getText());
         pcm.setPassword(passwordTxt.getText());
@@ -186,9 +183,9 @@ public class PubsubClientGUI implements Runnable, ListSelectionListener {
     }
 
     public void valueChanged(ListSelectionEvent e) {
-        ListSelectionModel lsm = (ListSelectionModel)e.getSource();
-        if(e.getValueIsAdjusting()) {
-            if(lsm.isSelectionEmpty()) {
+        ListSelectionModel lsm = (ListSelectionModel) e.getSource();
+        if (e.getValueIsAdjusting()) {
+            if (lsm.isSelectionEmpty()) {
                 disableOpenButton();
                 disableDeleteButton();
             } else {
@@ -216,13 +213,13 @@ public class PubsubClientGUI implements Runnable, ListSelectionListener {
     private void changeDeleteButton(ListSelectionEvent e) {
         // store the node and enable delete button
         PubsubTableModel tableModel = pcm.getTableModel();
-        
+
         int idx = getNewSelectionIndex(e, tableModel);
-        
-        String selectedNode = (String)tableModel.getValueAt(idx, 0);
+
+        String selectedNode = (String) tableModel.getValueAt(idx, 0);
         pcm.selectNode(selectedNode);
-        Boolean owner = (Boolean)tableModel.getValueAt(idx, 2);
-        if(owner !=null && owner == Boolean.TRUE ) { //owner
+        Boolean owner = (Boolean) tableModel.getValueAt(idx, 2);
+        if (owner != null && owner == Boolean.TRUE) { //owner
             delete.setEnabled(true);
         } else {
             delete.setEnabled(false);
@@ -231,10 +228,10 @@ public class PubsubClientGUI implements Runnable, ListSelectionListener {
 
     private int getNewSelectionIndex(ListSelectionEvent e, PubsubTableModel tableModel) {
         int idx = e.getFirstIndex(); // check which one is the right index (the new one)
-        String selectedNode = (String)tableModel.getValueAt(idx, 0);
-        if(pcm.getSelectedNode() != null && pcm.getSelectedNode().equals(selectedNode)) {
+        String selectedNode = (String) tableModel.getValueAt(idx, 0);
+        if (pcm.getSelectedNode() != null && pcm.getSelectedNode().equals(selectedNode)) {
             idx = e.getLastIndex();
-            
+
         }
         return idx;
     }

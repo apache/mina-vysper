@@ -19,43 +19,45 @@
  */
 package org.apache.vysper.xml.sax.perf;
 
-
-
-
 /**
  * 
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class StopWatch  {
+public class StopWatch {
 
-	private long startTime = System.nanoTime();
-	private long stopTime  = -1;
-	
-	public void start() {
-		startTime = System.nanoTime();
-	}
+    private long startTime = System.nanoTime();
 
-	public void stop() {
-		stopTime = System.nanoTime();
-	}
-	
-	public String toString() {
-		long endTime;
-		if(stopTime == -1) {
-			endTime = System.nanoTime();
-		} else {
-			endTime = stopTime;
-		}
-		
-		double time = endTime - startTime;
-		
-		String s;
-		if(time < 1000) s = time + " ns";
-		else if(time < 1000000) s = (time/1000) + " us";
-		else if(time < 1000000000) s = (time/1000000) + " ms";
-		else s = (time/1000000000) + " s";
+    private long stopTime = -1;
 
-		return s;
-	}
+    public void start() {
+        startTime = System.nanoTime();
+    }
+
+    public void stop() {
+        stopTime = System.nanoTime();
+    }
+
+    public String toString() {
+        long endTime;
+        if (stopTime == -1) {
+            endTime = System.nanoTime();
+        } else {
+            endTime = stopTime;
+        }
+
+        double time = endTime - startTime;
+
+        String s;
+        if (time < 1000)
+            s = time + " ns";
+        else if (time < 1000000)
+            s = (time / 1000) + " us";
+        else if (time < 1000000000)
+            s = (time / 1000000) + " ms";
+        else
+            s = (time / 1000000000) + " s";
+
+        return s;
+    }
 
 }

@@ -25,7 +25,12 @@ import java.util.List;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.*;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.MemberAffiliationVisitor;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubAffiliation;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubServiceConfiguration;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberPayloadNotificationVisitor;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.feature.PubsubFeatures;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeStorageProvider;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
@@ -41,13 +46,16 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
  * @author The Apache MINA Project (http://mina.apache.org)
  */
 public class LeafNode {
-    
+
     // the name of the node (free text)
     protected String title;
+
     // the unique name (per server) of the node
     protected String name;
+
     // the storage provider for storing and retrieving node information.
     protected LeafNodeStorageProvider storage = null;
+
     // the service configuration
     protected PubSubServiceConfiguration serviceConfiguration = null;
 
@@ -117,7 +125,7 @@ public class LeafNode {
      * @param subscriptionID the ID to check for.
      * @return true if a subscription with this ID is present.
      */
-    
+
     public boolean isSubscribed(String subscriptionID) {
         return storage.containsSubscriber(name, subscriptionID);
     }
@@ -131,7 +139,7 @@ public class LeafNode {
     public boolean unsubscribe(String subscriptionID, Entity subscriber) {
         Entity sub = storage.getSubscriber(name, subscriptionID);
 
-        if(sub != null && sub.equals(subscriber)) {
+        if (sub != null && sub.equals(subscriber)) {
             return storage.removeSubscription(name, subscriptionID);
         }
         return false;
@@ -146,7 +154,7 @@ public class LeafNode {
      * @throws MultipleSubscriptionException if more than one subscription with this JID is present.
      */
     public boolean unsubscribe(Entity subscriber) throws MultipleSubscriptionException {
-        if(countSubscriptions(subscriber) > 1) {
+        if (countSubscriptions(subscriber) > 1) {
             throw new MultipleSubscriptionException("Ambigous unsubscription request");
         }
         return storage.removeSubscriber(name, subscriber);
@@ -188,7 +196,8 @@ public class LeafNode {
      * @param item the payload of the message.
      */
     protected void sendMessageToSubscriber(StanzaRelay stanzaRelay, XMLElement item) {
-        storage.acceptForEachSubscriber(name, new SubscriberPayloadNotificationVisitor(serviceConfiguration.getServerJID(), stanzaRelay, item));
+        storage.acceptForEachSubscriber(name, new SubscriberPayloadNotificationVisitor(serviceConfiguration
+                .getServerJID(), stanzaRelay, item));
     }
 
     /**
@@ -198,14 +207,14 @@ public class LeafNode {
     public void acceptSubscribers(SubscriberVisitor sv) {
         storage.acceptForEachSubscriber(name, sv);
     }
-    
+
     /**
      * @return the name of the node.
      */
     public String getName() {
         return name;
     }
-    
+
     /**
      * @return the free-text title of the node
      */

@@ -20,13 +20,14 @@
 
 package org.apache.vysper.xmpp.state.presence;
 
+import java.net.URL;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.stanza.PresenceStanza;
-
-import java.net.URL;
 
 /**
  * EhCache based cache Presence cache implementation. The imlpementation stores
@@ -51,7 +52,7 @@ public class EhCachePresenceCacheImpl extends AbstractBaseCache {
 
     // Cache instance to store the presence information against Entity
     private Cache presenceCache = null;
-    
+
     // Cache instance to store presence information against JID
     private Cache jidPresenceCache = null;
 
@@ -75,25 +76,24 @@ public class EhCachePresenceCacheImpl extends AbstractBaseCache {
      * @param configFile    ehcache configuration file
      */
     protected void createCache(String configFile) {
-        if(configFile == null) {
-            configFile = DEFAULT_EHCACHE_CONFIG_FILE;            
+        if (configFile == null) {
+            configFile = DEFAULT_EHCACHE_CONFIG_FILE;
         }
         URL configFileURL = getClass().getResource(configFile);
-        if(configFileURL == null) {
+        if (configFileURL == null) {
             throw new RuntimeException("ehcache configuration file ehcache.xml not found on classpath");
         }
         CacheManager.create();
 
         presenceCache = CacheManager.getInstance().getCache(PRESENCE_CACHE);
-        jidPresenceCache = CacheManager.getInstance().getCache(JID_PRESENCE_CACHE); 
+        jidPresenceCache = CacheManager.getInstance().getCache(JID_PRESENCE_CACHE);
     }
 
     /**
      * @inheritDoc
      */
     @Override
-    protected void put0(Entity entity, PresenceStanza presenceStanza)
-                                    throws PresenceCachingException {
+    protected void put0(Entity entity, PresenceStanza presenceStanza) throws PresenceCachingException {
         // Create EhCache elements to be stored
         Element cacheElement = new Element(entity, presenceStanza);
         Element jidElement = new Element(entity.getBareJID(), presenceStanza);
@@ -111,8 +111,8 @@ public class EhCachePresenceCacheImpl extends AbstractBaseCache {
         Element cacheElement = presenceCache.get(entity);
 
         // return the value from presence cache
-        if(cacheElement != null) {
-            return (PresenceStanza)cacheElement.getObjectValue();
+        if (cacheElement != null) {
+            return (PresenceStanza) cacheElement.getObjectValue();
         }
         return null;
     }
@@ -122,15 +122,15 @@ public class EhCachePresenceCacheImpl extends AbstractBaseCache {
      */
     public PresenceStanza getForBareJID(Entity entity) throws PresenceCachingException {
         // return null for null entries
-        if(entity == null) {
-            return null;           
+        if (entity == null) {
+            return null;
         }
 
         Element cacheElement = jidPresenceCache.get(entity);
 
         // return the value from presence cache
-        if(cacheElement != null) {
-            return (PresenceStanza)cacheElement.getObjectValue();
+        if (cacheElement != null) {
+            return (PresenceStanza) cacheElement.getObjectValue();
         }
         return null;
     }
@@ -140,8 +140,8 @@ public class EhCachePresenceCacheImpl extends AbstractBaseCache {
      */
     public void remove(Entity entity) {
         // if entity is null, keep silent
-        if(entity == null) {
-            return;            
+        if (entity == null) {
+            return;
         }
 
         // Remove the cache from presence and jid presence cache

@@ -17,33 +17,38 @@
 
 package org.apache.vysper.xmpp.protocol;
 
+import junit.framework.TestCase;
+
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
-import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
-import org.apache.vysper.xmpp.server.SessionState;
-import org.apache.vysper.xmpp.server.TestSessionContext;
-import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.stanza.IQStanzaType;
-import org.apache.vysper.xmpp.stanza.IQStanza;
-import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
+import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionState;
+import org.apache.vysper.xmpp.server.TestSessionContext;
+import org.apache.vysper.xmpp.stanza.IQStanza;
+import org.apache.vysper.xmpp.stanza.IQStanzaType;
+import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 import org.apache.vysper.xmpp.state.resourcebinding.BindException;
-import junit.framework.TestCase;
 
 /**
  * test basic behavior of ProtocolWorker.processStanza()
  */
 public class ProtocolWorkerProcessTestCase extends TestCase {
     private ProtocolWorker protocolWorker;
+
     private NamespaceHandlerDictionary namespaceHandlerDictionary;
+
     private DefaultServerRuntimeContext serverRuntimeContext;
+
     private TestSessionContext sessionContext;
 
     private static Entity serverEnitity = new EntityImpl(null, "test", null);
+
     private SessionStateHolder sessionStateHolder;
 
     @Override
@@ -65,12 +70,14 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
         sessionContext.setSessionState(SessionState.AUTHENTICATED);
 
         Stanza stanza = new StanzaBuilder("ProtocolWorkerProcessTestCase", "testNSURI").build();
-        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza, sessionStateHolder);
+        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza,
+                sessionStateHolder);
 
         Stanza recordedResponse = sessionContext.getNextRecordedResponse();
         XMLElementVerifier verifier = recordedResponse.getVerifier();
         assertTrue("error", verifier.nameEquals("error"));
-        assertTrue("unsupported stanza type", verifier.subElementPresent(StreamErrorCondition.UNSUPPORTED_STANZA_TYPE.value()));
+        assertTrue("unsupported stanza type", verifier.subElementPresent(StreamErrorCondition.UNSUPPORTED_STANZA_TYPE
+                .value()));
     }
 
     public void testProcessStanzaNoResponse() {
@@ -82,7 +89,8 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
 
         Stanza stanza = new StanzaBuilder("ProtocolWorkerProcessTestCase", "testNSURI").build();
 
-        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza, sessionStateHolder);
+        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza,
+                sessionStateHolder);
 
         stanzaHandler.assertHandlerCalled();
         Stanza recordedResponse = sessionContext.getNextRecordedResponse();
@@ -101,14 +109,16 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
 
         stanzaHandler.setResponseStanza(responseStanza);
 
-        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza, sessionStateHolder);
+        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza,
+                sessionStateHolder);
 
         stanzaHandler.assertHandlerCalled();
         Stanza recordedResponse = sessionContext.getNextRecordedResponse();
         assertEquals("response handled", responseStanza, recordedResponse);
 
         stanzaHandler.setResponseStanza(null);
-        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza, sessionStateHolder);
+        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza,
+                sessionStateHolder);
         assertNull("handler emmitted null as response", stanzaHandler.getResponseStanza());
 
     }
@@ -123,7 +133,8 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
 
         Stanza stanza = new StanzaBuilder("ProtocolWorkerProcessTestCase", "testNSURI").build();
 
-        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza, sessionStateHolder);
+        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza,
+                sessionStateHolder);
 
         Stanza recordedResponse = sessionContext.getNextRecordedResponse();
         assertEquals("bad format", "error", recordedResponse.getName());
@@ -139,7 +150,8 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
 
         Stanza stanza = new StanzaBuilder("ProtocolWorkerProcessTestCase", "testNSURI").build();
 
-        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza, sessionStateHolder);
+        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza,
+                sessionStateHolder);
 
         try {
             stanzaHandler.assertHandlerCalled();
@@ -170,8 +182,9 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
         // we set a different from user name 'ernest'!
         stanzaBuilder.addAttribute("from", new EntityImpl("ernest", server.getDomain(), null).getFullQualifiedName());
         stanzaBuilder.startInnerElement("query", "jabber:iq:roster").endInnerElement();
-        
-        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(), sessionStateHolder);
+
+        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(),
+                sessionStateHolder);
 
         try {
             stanzaHandler.assertHandlerCalled();
@@ -196,10 +209,12 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
         String onlyBoundResource = sessionContext.bindResource();
 
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(null, null, IQStanzaType.GET, "test");
-        stanzaBuilder.addAttribute("from", new EntityImpl("charlotte", server.getDomain(), onlyBoundResource).getFullQualifiedName());
+        stanzaBuilder.addAttribute("from", new EntityImpl("charlotte", server.getDomain(), onlyBoundResource)
+                .getFullQualifiedName());
         stanzaBuilder.startInnerElement("query", "testNSURI").endInnerElement();
-        
-        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(), sessionStateHolder);
+
+        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(),
+                sessionStateHolder);
 
         stanzaHandler.assertHandlerCalled();
     }
@@ -216,13 +231,15 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
 
         String onlyBoundResource = sessionContext.bindResource();
         String arbitraryUnboundResource = "unboundResourceID";
-        
+
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(null, null, IQStanzaType.GET, "test");
-        
-        stanzaBuilder.addAttribute("from", new EntityImpl("charlotte", server.getDomain(), arbitraryUnboundResource).getFullQualifiedName());
+
+        stanzaBuilder.addAttribute("from", new EntityImpl("charlotte", server.getDomain(), arbitraryUnboundResource)
+                .getFullQualifiedName());
         stanzaBuilder.startInnerElement("query", "testNSURI").endInnerElement();
-        
-        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(), sessionStateHolder);
+
+        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(),
+                sessionStateHolder);
 
         try {
             stanzaHandler.assertHandlerCalled();
@@ -238,7 +255,7 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
         // from="client@vysper.org" is only allowed when a single resource is bound
         // if there is more than one resource bound in the same session, from must come 
         // fully qualified, e.g. from="client@vysper.org/resourceId"
-        
+
         Entity server = sessionContext.getServerRuntimeContext().getServerEnitity();
         sessionContext.setSessionState(SessionState.AUTHENTICATED);
         // the session is running for 'lea'
@@ -253,32 +270,37 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(null, null, IQStanzaType.GET, "test");
         stanzaBuilder.addAttribute("from", new EntityImpl("lea", server.getDomain(), null).getFullQualifiedName());
         stanzaBuilder.startInnerElement("query", "testNSURI").endInnerElement();
-        
-        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(), sessionStateHolder);
+
+        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(),
+                sessionStateHolder);
         Stanza recordedResponse = sessionContext.getNextRecordedResponse();
         assertUnknownSenderError(recordedResponse); // not allowed, bare id without resource and two resources bound
         sessionContext.reset();
-        
+
         // unbind second resource, leaving only one
-        boolean noResourceRemains = sessionContext.getServerRuntimeContext().getResourceRegistry().unbindResource(secondBoundResource);
+        boolean noResourceRemains = sessionContext.getServerRuntimeContext().getResourceRegistry().unbindResource(
+                secondBoundResource);
         assertFalse(noResourceRemains);
 
         // bare id allowed, only one resource is bound
         stanzaBuilder = StanzaBuilder.createIQStanza(null, null, IQStanzaType.GET, "test");
         stanzaBuilder.addAttribute("from", new EntityImpl("lea", server.getDomain(), null).getFullQualifiedName());
         stanzaBuilder.startInnerElement("query", "testNSURI").endInnerElement();
-        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(), sessionStateHolder);
+        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(),
+                sessionStateHolder);
         stanzaHandler.assertHandlerCalled();
         sessionContext.reset();
 
         // second resource is now invalid and cannot be used anymore in a full qualified entity
         stanzaBuilder = StanzaBuilder.createIQStanza(null, null, IQStanzaType.GET, "test");
-        stanzaBuilder.addAttribute("from", new EntityImpl("lea", server.getDomain(), secondBoundResource).getFullQualifiedName());
+        stanzaBuilder.addAttribute("from", new EntityImpl("lea", server.getDomain(), secondBoundResource)
+                .getFullQualifiedName());
         stanzaBuilder.startInnerElement("query", "testNSURI").endInnerElement();
-        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(), sessionStateHolder);
+        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(),
+                sessionStateHolder);
         recordedResponse = sessionContext.getNextRecordedResponse();
         assertUnknownSenderError(recordedResponse);
-        
+
     }
 
     private void assertUnknownSenderError(Stanza recordedResponse) throws XMLSemanticError {

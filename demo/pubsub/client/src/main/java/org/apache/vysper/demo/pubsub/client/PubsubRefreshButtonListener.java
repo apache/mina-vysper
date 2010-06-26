@@ -25,11 +25,11 @@ import java.awt.event.ActionListener;
 public class PubsubRefreshButtonListener implements ActionListener {
 
     private PubsubClientModel parent;
-    
+
     public PubsubRefreshButtonListener(PubsubClientModel parent) {
         this.parent = parent;
     }
-    
+
     public void actionPerformed(ActionEvent e) {
         parent.refresh();
     }

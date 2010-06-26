@@ -19,19 +19,22 @@
  */
 package org.apache.vysper.xmpp.state.resourcebinding;
 
+import static org.apache.vysper.xmpp.state.resourcebinding.ResourceState.AVAILABLE;
+import static org.apache.vysper.xmpp.state.resourcebinding.ResourceState.AVAILABLE_INTERESTED;
+import static org.apache.vysper.xmpp.state.resourcebinding.ResourceState.CONNECTED;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.uuid.JVMBuiltinUUIDGenerator;
 import org.apache.vysper.xmpp.uuid.UUIDGenerator;
-import org.apache.vysper.xmpp.addressing.Entity;
-import static org.apache.vysper.xmpp.state.resourcebinding.ResourceState.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Map;
-import java.util.HashMap;
 
 /**
  * assigns and holds resource ids and their related session
@@ -51,8 +54,8 @@ public class ResourceRegistry {
         private Integer priority;
 
         SessionData(SessionContext context, ResourceState status, Integer priority) {
-			this.context = context;
-			this.state = status;
+            this.context = context;
+            this.state = status;
             this.priority = priority == null ? 0 : priority;
         }
 
@@ -85,32 +88,29 @@ public class ResourceRegistry {
      * @return newly allocated resource id
      */
     public String bindSession(SessionContext sessionContext) {
-		if (sessionContext == null) {
-			throw new IllegalArgumentException("session context cannot be NULL");
-		}
-		if (sessionContext.getInitiatingEntity() == null) {
-			throw new IllegalStateException(
-					"session context must have a initiating entity set");
-		}
-		String resourceId = resourceIdGenerator.create();
+        if (sessionContext == null) {
+            throw new IllegalArgumentException("session context cannot be NULL");
+        }
+        if (sessionContext.getInitiatingEntity() == null) {
+            throw new IllegalStateException("session context must have a initiating entity set");
+        }
+        String resourceId = resourceIdGenerator.create();
 
-		synchronized (boundResources) {
-			synchronized (entityResources) {
+        synchronized (boundResources) {
+            synchronized (entityResources) {
                 synchronized (sessionResources) {
                     // record session for the resource id
-                    boundResources.put(resourceId, new SessionData(sessionContext,
-                            CONNECTED, 0));
+                    boundResources.put(resourceId, new SessionData(sessionContext, CONNECTED, 0));
 
                     Entity initiatingEntity = sessionContext.getInitiatingEntity();
                     List<String> resourceForEntityList = getResourceList(initiatingEntity);
                     if (resourceForEntityList == null) {
                         resourceForEntityList = new ArrayList<String>(1);
-                        entityResources.put(getBareEntity(initiatingEntity),
-                                resourceForEntityList);
+                        entityResources.put(getBareEntity(initiatingEntity), resourceForEntityList);
                     }
                     resourceForEntityList.add(resourceId);
-                    logger.info("added resource no. " + resourceForEntityList.size() + " to entity {} <- {}", 
-                                initiatingEntity.getFullQualifiedName(), resourceId);
+                    logger.info("added resource no. " + resourceForEntityList.size() + " to entity {} <- {}",
+                            initiatingEntity.getFullQualifiedName(), resourceId);
 
                     List<String> resourcesForSessionList = sessionResources.get(sessionContext);
                     if (resourcesForSessionList == null) {
@@ -118,14 +118,14 @@ public class ResourceRegistry {
                         sessionResources.put(sessionContext, resourcesForSessionList);
                     }
                     resourcesForSessionList.add(resourceId);
-                    logger.info("added resource no. " + resourcesForSessionList.size() + " to session {} <- {}", 
-                                sessionContext.getSessionId(), resourceId);
+                    logger.info("added resource no. " + resourcesForSessionList.size() + " to session {} <- {}",
+                            sessionContext.getSessionId(), resourceId);
                 }
-			}
-		}
+            }
+        }
 
-		return resourceId;
-	}
+        return resourceId;
+    }
 
     /**
      * not as commonly used as #unbindSession, this method unbinds only one of multiple resource ids for the _same_
@@ -137,29 +137,31 @@ public class ResourceRegistry {
      */
     public boolean unbindResource(String resourceId) {
         boolean noResourceRemainsForSession = false;
-		synchronized (boundResources) {
-			synchronized (entityResources) {
-    			synchronized (sessionResources) {
+        synchronized (boundResources) {
+            synchronized (entityResources) {
+                synchronized (sessionResources) {
                     SessionContext sessionContext = getSessionContext(resourceId);
 
                     // remove from entity's list of resources
                     List<String> resourceListForEntity = getResourceList(sessionContext.getInitiatingEntity());
                     resourceListForEntity.remove(resourceId);
-                    if (resourceListForEntity.isEmpty()) entityResources.remove(sessionContext.getInitiatingEntity());
+                    if (resourceListForEntity.isEmpty())
+                        entityResources.remove(sessionContext.getInitiatingEntity());
 
                     // remove from session's list of resources
                     List<String> resourceListForSession = sessionResources.get(sessionContext);
                     resourceListForSession.remove(resourceId);
                     noResourceRemainsForSession = resourceListForSession.isEmpty();
-                    if (noResourceRemainsForSession) sessionResources.remove(sessionContext);
+                    if (noResourceRemainsForSession)
+                        sessionResources.remove(sessionContext);
 
                     // remove from overall list of bound resource
                     boundResources.remove(resourceId);
-    			}
-			}
-		}
+                }
+            }
+        }
         return noResourceRemainsForSession;
-	}
+    }
 
     /**
      * unbinds a complete session, together with all its bound resources. this is typically done when a XMPP session
@@ -167,11 +169,12 @@ public class ResourceRegistry {
      * @param unbindingSessionContext sessionContext to be unbound
      */
     public void unbindSession(SessionContext unbindingSessionContext) {
-		if (unbindingSessionContext == null) return;
+        if (unbindingSessionContext == null)
+            return;
 
-		synchronized (boundResources) {
-			synchronized (entityResources) {
-			    synchronized (sessionResources) {
+        synchronized (boundResources) {
+            synchronized (entityResources) {
+                synchronized (sessionResources) {
                     // collect all remove candidates
                     List<String> removeResourceIds = getResourcesForSessionInternal(unbindingSessionContext);
 
@@ -181,8 +184,7 @@ public class ResourceRegistry {
                     }
 
                     // actually remove from entity map
-                    List<String> resourceList = getResourceList(unbindingSessionContext
-                            .getInitiatingEntity());
+                    List<String> resourceList = getResourceList(unbindingSessionContext.getInitiatingEntity());
                     if (resourceList != null) {
                         resourceList.removeAll(removeResourceIds);
                     }
@@ -190,9 +192,9 @@ public class ResourceRegistry {
                     // actually remove from session map
                     sessionResources.remove(unbindingSessionContext);
                 }
-			}
-		}
-	}
+            }
+        }
+    }
 
     /**
      * retrieves the one and only bound resource for a given session.
@@ -201,7 +203,8 @@ public class ResourceRegistry {
      */
     public String getUniqueResourceForSession(SessionContext sessionContext) {
         List<String> list = getResourcesForSessionInternal(sessionContext);
-        if (list != null && list.size() == 1) return list.get(0);
+        if (list != null && list.size() == 1)
+            return list.get(0);
         return null;
     }
 
@@ -209,58 +212,62 @@ public class ResourceRegistry {
         return Collections.unmodifiableList(getResourcesForSessionInternal(sessionContext));
     }
 
-    /*package*/ List<String> getResourcesForSessionInternal(SessionContext sessionContext) {
-		if (sessionContext == null) return null;
+    /*package*/List<String> getResourcesForSessionInternal(SessionContext sessionContext) {
+        if (sessionContext == null)
+            return null;
 
         List<String> resourceList = sessionResources.get(sessionContext);
-        if (resourceList == null) resourceList = Collections.emptyList();
+        if (resourceList == null)
+            resourceList = Collections.emptyList();
         return resourceList;
     }
 
     public SessionContext getSessionContext(String resourceId) {
-		SessionData data = boundResources.get(resourceId);
-		if (data == null) return null;
-		return data.context;
-	}
+        SessionData data = boundResources.get(resourceId);
+        if (data == null)
+            return null;
+        return data.context;
+    }
 
     private Entity getBareEntity(Entity entity) {
         return entity == null ? null : entity.getBareJID();
-	}
+    }
 
     /**
-	 * @param entity
-	 * @return all resources bound to this entity modulo the entity's resource
-	 *         (if given)
-	 */
-	private List<String> getResourceList(Entity entity) {
-		return entityResources.get(getBareEntity(entity));
-	}
+     * @param entity
+     * @return all resources bound to this entity modulo the entity's resource
+     *         (if given)
+     */
+    private List<String> getResourceList(Entity entity) {
+        return entityResources.get(getBareEntity(entity));
+    }
 
     /**
-	 * retrieve IDs of all bound resources for this entity
-	 */
-	protected List<String> getBoundResources(Entity entity) {
-		return getBoundResources(entity, true);
-	}
+     * retrieve IDs of all bound resources for this entity
+     */
+    protected List<String> getBoundResources(Entity entity) {
+        return getBoundResources(entity, true);
+    }
 
     /**
-	 * retrieve IDs of all bound resources for this entity
-	 */
-	public List<String> getBoundResources(Entity entity, boolean considerBareID) {
-		// all resources for the entity
-		List<String> resourceList = getResourceList(entity);
-        if (resourceList == null) return Collections.emptyList();
+     * retrieve IDs of all bound resources for this entity
+     */
+    public List<String> getBoundResources(Entity entity, boolean considerBareID) {
+        // all resources for the entity
+        List<String> resourceList = getResourceList(entity);
+        if (resourceList == null)
+            return Collections.emptyList();
 
         // if resource should not be considered, return all resources
-		if (considerBareID || entity.getResource() == null)
-			return Collections.unmodifiableList(resourceList);
-		// resource not contained, result is empty
-		if (!resourceList.contains(entity.getResource())) {
-			return Collections.emptyList();
-		}
-		// do we have a bound entity and want only their resource returned?
-		return Collections.singletonList(entity.getResource());
-	}
+        if (considerBareID || entity.getResource() == null)
+            return Collections.unmodifiableList(resourceList);
+        // resource not contained, result is empty
+        if (!resourceList.contains(entity.getResource())) {
+            return Collections.emptyList();
+        }
+        // do we have a bound entity and want only their resource returned?
+        return Collections.singletonList(entity.getResource());
+    }
 
     /**
      * retrieves all sessions handling this entity. note: if given entity is not a bare JID, it will return only the
@@ -268,15 +275,15 @@ public class ResourceRegistry {
      * @param entity
      */
     public List<SessionContext> getSessions(Entity entity) {
-		List<SessionContext> sessionContexts = new ArrayList<SessionContext>();
+        List<SessionContext> sessionContexts = new ArrayList<SessionContext>();
 
-		List<String> boundResources = getBoundResources(entity, false);
-		for (String resourceId : boundResources) {
-			sessionContexts.add(getSessionContext(resourceId));
-		}
+        List<String> boundResources = getBoundResources(entity, false);
+        for (String resourceId : boundResources) {
+            sessionContexts.add(getSessionContext(resourceId));
+        }
 
-		return sessionContexts;
-	}
+        return sessionContexts;
+    }
 
     /**
      * retrieves sessions with same or above threshold
@@ -287,21 +294,23 @@ public class ResourceRegistry {
      * @return returns the sessions matching the given JID (bare) with same or higher priority
      */
     public List<SessionContext> getSessions(Entity entity, Integer prioThreshold) {
-        if (prioThreshold == null) prioThreshold = 0;
+        if (prioThreshold == null)
+            prioThreshold = 0;
         List<SessionContext> results = new ArrayList<SessionContext>();
 
         List<String> boundResourceIds = getBoundResources(entity, true);
-		for (String resourceId : boundResourceIds) {
+        for (String resourceId : boundResourceIds) {
             SessionData sessionData = boundResources.get(resourceId);
-            if (sessionData == null) continue;
+            if (sessionData == null)
+                continue;
 
             if (sessionData.priority >= prioThreshold) {
                 results.add(sessionData.context);
             }
         }
         return results;
-	}
-    
+    }
+
     /**
      * retrieves the highest prioritized session(s) for this entity.
      * 
@@ -320,10 +329,11 @@ public class ResourceRegistry {
         boolean isResourceSet = entity.isResourceSet();
 
         List<String> boundResourceIds = getBoundResources(entity, false);
-		for (String resourceId : boundResourceIds) {
+        for (String resourceId : boundResourceIds) {
             SessionData sessionData = boundResources.get(resourceId);
-            if (sessionData == null) continue;
-            
+            if (sessionData == null)
+                continue;
+
             if (isResourceSet) {
                 // if resource id matches, there can only be one result
                 // this overrides even parameter prio threshold
@@ -331,76 +341,81 @@ public class ResourceRegistry {
                 results.add(sessionData.context);
                 return results;
             }
-            
+
             if (sessionData.priority > currentPrio) {
                 results.clear(); // discard all accumulated lower prio sessions
                 currentPrio = sessionData.priority;
                 results.add(sessionData.context);
-            } else if(sessionData.priority.intValue() == currentPrio.intValue()) {
+            } else if (sessionData.priority.intValue() == currentPrio.intValue()) {
                 results.add(sessionData.context);
             }
         }
 
         return results;
-	}
+    }
 
     /**
-	 * Sets the {@link ResourceState} for the given resource.
-	 *
-	 * @param resourceId
-	 *            the resource identifier
-	 * @param state
-	 *            the {@link ResourceState} to set
+     * Sets the {@link ResourceState} for the given resource.
+     *
+     * @param resourceId
+     *            the resource identifier
+     * @param state
+     *            the {@link ResourceState} to set
      * @return true iff the state has effectively changed
-	 */
-	public boolean setResourceState(String resourceId, ResourceState state) {
-		SessionData data = boundResources.get(resourceId);
+     */
+    public boolean setResourceState(String resourceId, ResourceState state) {
+        SessionData data = boundResources.get(resourceId);
         if (data == null) {
             throw new IllegalArgumentException("resource not registered: " + resourceId);
         }
         synchronized (data) {
-            boolean result =  data.state != state;
+            boolean result = data.state != state;
             data.state = state;
             return result;
         }
-	}
-
-    /**
-	 * Gets the {@link ResourceState} of the given resource.
-	 *
-	 * @param resourceId
-	 *            the resource identifier
-	 * @return the {@link ResourceState}
-	 */
-	public ResourceState getResourceState(String resourceId) {
-        if (resourceId == null) return null;
-        SessionData data = boundResources.get(resourceId);
-		if (data == null) return null;
-		return data.state;
-	}
-
-    public void setResourcePriority(String resourceId, int priority) {
-        if (resourceId == null) return;
-        SessionData data = boundResources.get(resourceId);
-		if (data == null) return;
-		data.priority = priority;
     }
 
-	public List<String> getInterestedResources(Entity entity) {
+    /**
+     * Gets the {@link ResourceState} of the given resource.
+     *
+     * @param resourceId
+     *            the resource identifier
+     * @return the {@link ResourceState}
+     */
+    public ResourceState getResourceState(String resourceId) {
+        if (resourceId == null)
+            return null;
+        SessionData data = boundResources.get(resourceId);
+        if (data == null)
+            return null;
+        return data.state;
+    }
+
+    public void setResourcePriority(String resourceId, int priority) {
+        if (resourceId == null)
+            return;
+        SessionData data = boundResources.get(resourceId);
+        if (data == null)
+            return;
+        data.priority = priority;
+    }
+
+    public List<String> getInterestedResources(Entity entity) {
         List<String> resources = getResourceList(entity);
         List<String> result = new ArrayList<String>();
         for (String resource : resources) {
             ResourceState resourceState = getResourceState(resource);
-            if (ResourceState.isInterested(resourceState)) result.add(resource);
+            if (ResourceState.isInterested(resourceState))
+                result.add(resource);
         }
         return result;
-	}
+    }
 
     /**
      * resources which are available or even interested - an higher form of available.
      * @see org.apache.vysper.xmpp.state.resourcebinding.ResourceState
      */
-	public List<String> getAvailableResources(Entity entity) {
+    public List<String> getAvailableResources(Entity entity) {
         List<String> resources = getResourceList(entity);
         List<String> result = new ArrayList<String>();
         for (String resource : resources) {
@@ -410,5 +425,5 @@ public class ResourceRegistry {
             }
         }
         return result;
-	}
+    }
 }

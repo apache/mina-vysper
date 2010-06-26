@@ -30,6 +30,7 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 public class SystemOutStanzaWriter implements StanzaWriter {
 
     boolean isFirst = true;
+
     private String closingElement;
 
     public void writeXMLProlog() {
@@ -40,8 +41,10 @@ public class SystemOutStanzaWriter implements StanzaWriter {
         Renderer renderer = new Renderer(stanza);
         System.out.print(renderer.getOpeningElement() + renderer.getElementContent());
 
-        if (isFirst) closingElement = renderer.getClosingElement();
-        else System.out.print(closingElement);
+        if (isFirst)
+            closingElement = renderer.getClosingElement();
+        else
+            System.out.print(closingElement);
 
         isFirst = false;
     }

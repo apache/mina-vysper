@@ -22,26 +22,31 @@ package org.apache.vysper.xmpp.protocol;
 import junit.framework.TestCase;
 
 import org.apache.vysper.xml.fragment.XMLElementVerifier;
-import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
-import org.apache.vysper.xmpp.server.TestSessionContext;
-import org.apache.vysper.xmpp.server.XMPPVersion;
-import org.apache.vysper.xmpp.server.SessionState;
-import org.apache.vysper.xmpp.server.response.ServerResponses;
-import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
-import org.apache.vysper.xmpp.modules.core.base.BaseStreamStanzaDictionary;
-import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
+import org.apache.vysper.xmpp.modules.core.base.BaseStreamStanzaDictionary;
+import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionState;
+import org.apache.vysper.xmpp.server.TestSessionContext;
+import org.apache.vysper.xmpp.server.XMPPVersion;
+import org.apache.vysper.xmpp.server.response.ServerResponses;
+import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
 /**
  */
 public abstract class AbstractProtocolStateTestCase extends TestCase {
     protected ProtocolWorker protocolWorker;
+
     protected DefaultServerRuntimeContext serverRuntimeContext;
+
     protected TestSessionContext sessionContext;
+
     protected static Entity serverEnitity = new EntityImpl(null, "vysper-server.org", null);
-    protected EntityImpl testFrom  = new EntityImpl("testuser", "vysper.org", null);
+
+    protected EntityImpl testFrom = new EntityImpl("testuser", "vysper.org", null);
+
     protected SessionStateHolder sessionStateHolder;
 
     @Override
@@ -63,7 +68,8 @@ public abstract class AbstractProtocolStateTestCase extends TestCase {
         Stanza recordedResponse;
         XMLElementVerifier responseVerifier;
         stanza = new ServerResponses().getStreamOpener(true, testFrom, xmlLang, XMPPVersion.VERSION_1_0, null).build();
-        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza, sessionStateHolder);
+        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza,
+                sessionStateHolder);
 
         recordedResponse = sessionContext.getNextRecordedResponse();
         responseVerifier = recordedResponse.getVerifier();
@@ -84,7 +90,8 @@ public abstract class AbstractProtocolStateTestCase extends TestCase {
         stanzaBuilder.addAttribute("id", "1");
         stanzaBuilder.addAttribute("type", "get");
 
-        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(), sessionStateHolder);
+        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(),
+                sessionStateHolder);
 
         Stanza response = sessionContext.getNextRecordedResponse();
         XMLElementVerifier responseVerifier = response.getVerifier();
@@ -92,7 +99,6 @@ public abstract class AbstractProtocolStateTestCase extends TestCase {
         assertTrue("error", responseVerifier.subElementPresent(StreamErrorCondition.NOT_AUTHORIZED.value()));
         assertTrue(sessionContext.isClosed());
     }
-
 
     /**
      * call from a test method in subclass
@@ -102,16 +108,17 @@ public abstract class AbstractProtocolStateTestCase extends TestCase {
         stanzaBuilder.addAttribute("id", "1");
         stanzaBuilder.addAttribute("type", "get");
 
-        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(), sessionStateHolder);
+        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(),
+                sessionStateHolder);
 
         Stanza response = sessionContext.getNextRecordedResponse();
-        
+
         XMLElementVerifier responseVerifier = response.getVerifier();
         // error might be wrapped within a stream opener
         if (responseVerifier.nameEquals("stream")) {
             responseVerifier = response.getFirstInnerElement().getVerifier();
         }
-        
+
         assertTrue(responseVerifier.nameEquals("error"));
         assertTrue("error", responseVerifier.subElementPresent(StreamErrorCondition.UNSUPPORTED_STANZA_TYPE.value()));
         assertTrue(sessionContext.isClosed());

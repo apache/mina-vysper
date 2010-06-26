@@ -26,59 +26,57 @@ import java.util.Map.Entry;
 
 import org.apache.vysper.xml.fragment.Namespaces;
 
-
 /**
  * Naive implementation, will be replaced in later stages of this change
  */
 public class ParserNamespaceResolver {
-	
-	private Stack<Map<String, String>> elements = new Stack<Map<String, String>>();
-	
-	public ParserNamespaceResolver() {
-	}
 
-	public void push(Map<String, String> elmXmlns) {
-		elements.push(elmXmlns);
-	}
+    private Stack<Map<String, String>> elements = new Stack<Map<String, String>>();
 
-	public void pop() {
-		elements.pop();
-	}
-	
-	public String resolveUri(String prefix) {
-		// check for the reserved xml namespace
-		if(prefix.equals("xml")) {
-			return Namespaces.XML;
-		} else {
-			// walk over the stack backwards
-			for(int i = elements.size() - 1; i>=0; i--) {
-				Map<String, String> ns = elements.get(i);
-				if(ns.containsKey(prefix)) {
-					return ns.get(prefix);
-				}
-			}
-		}
-		
-		
-		// could not resolve URI
-		return null;
-	}
-	
-	public String resolvePrefix(String uri) {
-		if(uri.equals(Namespaces.XML)) {
-			return "xml";
-		} else {
-			// walk over the stack backwards
-			for(int i = elements.size() - 1; i>=0; i--) {
-				Map<String, String> ns = elements.get(i);
-				for(Entry<String, String> entry : ns.entrySet()) {
-					if(entry.getValue().equals(uri)) {
-						return entry.getKey();
-					}
-				}
-			}
-		}
+    public ParserNamespaceResolver() {
+    }
 
-		return null;
-	}
+    public void push(Map<String, String> elmXmlns) {
+        elements.push(elmXmlns);
+    }
+
+    public void pop() {
+        elements.pop();
+    }
+
+    public String resolveUri(String prefix) {
+        // check for the reserved xml namespace
+        if (prefix.equals("xml")) {
+            return Namespaces.XML;
+        } else {
+            // walk over the stack backwards
+            for (int i = elements.size() - 1; i >= 0; i--) {
+                Map<String, String> ns = elements.get(i);
+                if (ns.containsKey(prefix)) {
+                    return ns.get(prefix);
+                }
+            }
+        }
+
+        // could not resolve URI
+        return null;
+    }
+
+    public String resolvePrefix(String uri) {
+        if (uri.equals(Namespaces.XML)) {
+            return "xml";
+        } else {
+            // walk over the stack backwards
+            for (int i = elements.size() - 1; i >= 0; i--) {
+                Map<String, String> ns = elements.get(i);
+                for (Entry<String, String> entry : ns.entrySet()) {
+                    if (entry.getValue().equals(uri)) {
+                        return entry.getKey();
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
 }

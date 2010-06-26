@@ -19,17 +19,17 @@
  */
 package org.apache.vysper.storage.jcr.vcardtemp;
 
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+
 import org.apache.vysper.storage.jcr.JcrStorage;
 import org.apache.vysper.storage.jcr.JcrStorageException;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.modules.extension.xep0054_vcardtemp.VcardTempPersistenceManager;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.jcr.Session;
-import javax.jcr.Node;
-import javax.jcr.RepositoryException;
 
 /**
  *
@@ -57,7 +57,8 @@ public class JcrVcardTempPersistenceManager implements VcardTempPersistenceManag
 
     public String getVcard(Entity entity) {
         Node entityNode = getEntityNodeSave(entity, false);
-        if (entityNode == null) return null;
+        if (entityNode == null)
+            return null;
         try {
             return entityNode.getProperty("content").getString();
         } catch (RepositoryException e) {
@@ -72,7 +73,8 @@ public class JcrVcardTempPersistenceManager implements VcardTempPersistenceManag
         } catch (JcrStorageException e) {
             return null;
         }
-        if (entityNode == null) return null;
+        if (entityNode == null)
+            return null;
         return entityNode;
     }
 

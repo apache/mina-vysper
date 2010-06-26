@@ -26,9 +26,7 @@ import org.apache.vysper.compliance.SpecCompliant;
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-@SpecCompliant(spec="xep-0060", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+@SpecCompliant(spec = "xep-0060", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
 public enum PubsubFeatureLevel {
-    REQUIRED,
-    RECOMMENDED,
-    OPTIONAL
+    REQUIRED, RECOMMENDED, OPTIONAL
 }

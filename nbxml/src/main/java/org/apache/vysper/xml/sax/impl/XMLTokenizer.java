@@ -33,30 +33,25 @@ import org.xml.sax.SAXException;
 public class XMLTokenizer {
 
     private static final char NO_CHAR = (char) -1;
-	
-	private enum State { 
-		START, 
-		IN_TAG,
-		IN_STRING,
-		IN_DOUBLE_ATTRIBUTE_VALUE,
-		IN_SINGLE_ATTRIBUTE_VALUE,
-		IN_TEXT,
-		CLOSED
-	}
-	
-	private int lastPosition = 0;
-	private State state = State.START;
-	
-	public static interface TokenListener {
-		void token(char c, String token) throws SAXException;
-	}
-	
-	private TokenListener listener;
-	
-	public XMLTokenizer(TokenListener listeners) {
-		this.listener = listeners;
-	}
-	
+
+    private enum State {
+        START, IN_TAG, IN_STRING, IN_DOUBLE_ATTRIBUTE_VALUE, IN_SINGLE_ATTRIBUTE_VALUE, IN_TEXT, CLOSED
+    }
+
+    private int lastPosition = 0;
+
+    private State state = State.START;
+
+    public static interface TokenListener {
+        void token(char c, String token) throws SAXException;
+    }
+
+    private TokenListener listener;
+
+    public XMLTokenizer(TokenListener listeners) {
+        this.listener = listeners;
+    }
+
     /**
      * @param byteBuffer
      * @param charsetDecoder
@@ -67,100 +62,99 @@ public class XMLTokenizer {
         lastPosition = byteBuffer.position();
 
         while (byteBuffer.hasRemaining() && state != State.CLOSED) {
-            char c = (char)byteBuffer.get();
+            char c = (char) byteBuffer.get();
 
-            if(state == State.START) {
-            	if(c == '<') {
-            		emit(c, byteBuffer);
-            		state = State.IN_TAG;
-            	} else {
-            		state = State.IN_TEXT;
-            	}
-            } else if(state == State.IN_TEXT) {
-            	if(c == '<') {
-            		emit(byteBuffer, decoder);
-            		emit(c, byteBuffer);
-            		state = State.IN_TAG;
-            	}
-            } else if(state == State.IN_TAG) {
-            	if(c == '>') {
-            		emit(c, byteBuffer);
-            		state = State.START;
-            	} else if(c == '"') {
-                		emit(c, byteBuffer);
-                		state = State.IN_DOUBLE_ATTRIBUTE_VALUE;
-            	} else if(c == '\'') {
-            		emit(c, byteBuffer);
-            		state = State.IN_SINGLE_ATTRIBUTE_VALUE;
-            	} else if(isControlChar(c)) {
-            		emit(c, byteBuffer);
-            	} else if(Character.isWhitespace(c)) {
-            		lastPosition = byteBuffer.position();
-            	} else {
-            		state = State.IN_STRING;
-            	}
-            } else if(state == State.IN_STRING) {
-            	if(c == '>') {
-            		emit(byteBuffer, CharsetUtil.UTF8_DECODER);
-            		emit(c, byteBuffer);
-            		state = State.START;
-            	} else if(isControlChar(c)) {
-            		emit(byteBuffer, CharsetUtil.UTF8_DECODER);
-            		emit(c, byteBuffer);
-            		state = State.IN_TAG;
-            	} else if(Character.isWhitespace(c)) {
-            		emit(byteBuffer, CharsetUtil.UTF8_DECODER);
-            		state = State.IN_TAG;
-            	} else {
-            		// do nothing
-            	}
-            } else if(state == State.IN_DOUBLE_ATTRIBUTE_VALUE) {
-            	if(c == '"') {
-            		emit(byteBuffer, decoder);
-            		emit(c, byteBuffer);
-            		state = State.IN_TAG;
-            	}
-            } else if(state == State.IN_SINGLE_ATTRIBUTE_VALUE) {
-            	if(c == '\'') {
-            		emit(byteBuffer, decoder);
-            		emit(c, byteBuffer);
-            		state = State.IN_TAG;
-            	}
-            } 
+            if (state == State.START) {
+                if (c == '<') {
+                    emit(c, byteBuffer);
+                    state = State.IN_TAG;
+                } else {
+                    state = State.IN_TEXT;
+                }
+            } else if (state == State.IN_TEXT) {
+                if (c == '<') {
+                    emit(byteBuffer, decoder);
+                    emit(c, byteBuffer);
+                    state = State.IN_TAG;
+                }
+            } else if (state == State.IN_TAG) {
+                if (c == '>') {
+                    emit(c, byteBuffer);
+                    state = State.START;
+                } else if (c == '"') {
+                    emit(c, byteBuffer);
+                    state = State.IN_DOUBLE_ATTRIBUTE_VALUE;
+                } else if (c == '\'') {
+                    emit(c, byteBuffer);
+                    state = State.IN_SINGLE_ATTRIBUTE_VALUE;
+                } else if (isControlChar(c)) {
+                    emit(c, byteBuffer);
+                } else if (Character.isWhitespace(c)) {
+                    lastPosition = byteBuffer.position();
+                } else {
+                    state = State.IN_STRING;
+                }
+            } else if (state == State.IN_STRING) {
+                if (c == '>') {
+                    emit(byteBuffer, CharsetUtil.UTF8_DECODER);
+                    emit(c, byteBuffer);
+                    state = State.START;
+                } else if (isControlChar(c)) {
+                    emit(byteBuffer, CharsetUtil.UTF8_DECODER);
+                    emit(c, byteBuffer);
+                    state = State.IN_TAG;
+                } else if (Character.isWhitespace(c)) {
+                    emit(byteBuffer, CharsetUtil.UTF8_DECODER);
+                    state = State.IN_TAG;
+                } else {
+                    // do nothing
+                }
+            } else if (state == State.IN_DOUBLE_ATTRIBUTE_VALUE) {
+                if (c == '"') {
+                    emit(byteBuffer, decoder);
+                    emit(c, byteBuffer);
+                    state = State.IN_TAG;
+                }
+            } else if (state == State.IN_SINGLE_ATTRIBUTE_VALUE) {
+                if (c == '\'') {
+                    emit(byteBuffer, decoder);
+                    emit(c, byteBuffer);
+                    state = State.IN_TAG;
+                }
+            }
         }
 
         byteBuffer.position(lastPosition);
     }
-    
+
     public void close() {
-    	state = State.CLOSED;
+        state = State.CLOSED;
     }
-    
+
     private boolean isControlChar(char c) {
-    	return c == '<' || c == '>' || c == '-' || c == '!' || c == '/' || c == '?' || c == '='; 
+        return c == '<' || c == '>' || c == '-' || c == '!' || c == '/' || c == '?' || c == '=';
     }
 
     private void emit(char token, IoBuffer byteBuffer) throws SAXException {
-    	listener.token(token, null);
-    	
-    	lastPosition = byteBuffer.position();
+        listener.token(token, null);
+
+        lastPosition = byteBuffer.position();
     }
-    
+
     private void emit(IoBuffer byteBuffer, CharsetDecoder decoder) throws SAXException {
-    	int endPosition = byteBuffer.position();
-    	int oldLimit = byteBuffer.limit();
-    	byteBuffer.position(lastPosition);
-    	byteBuffer.limit(endPosition - 1);
-		
-    	try {
-			listener.token(NO_CHAR, byteBuffer.getString(decoder));
-		} catch (CharacterCodingException e) {
-			throw new SAXException(e);
-		}
-		byteBuffer.limit(oldLimit);
-		byteBuffer.position(endPosition);
-		lastPosition = byteBuffer.position();
-		
-		
+        int endPosition = byteBuffer.position();
+        int oldLimit = byteBuffer.limit();
+        byteBuffer.position(lastPosition);
+        byteBuffer.limit(endPosition - 1);
+
+        try {
+            listener.token(NO_CHAR, byteBuffer.getString(decoder));
+        } catch (CharacterCodingException e) {
+            throw new SAXException(e);
+        }
+        byteBuffer.limit(oldLimit);
+        byteBuffer.position(endPosition);
+        lastPosition = byteBuffer.position();
+
     }
 }

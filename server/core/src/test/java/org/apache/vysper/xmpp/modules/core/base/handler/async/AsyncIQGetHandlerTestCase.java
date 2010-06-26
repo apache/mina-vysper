@@ -19,7 +19,13 @@
  */
 package org.apache.vysper.xmpp.modules.core.base.handler.async;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import junit.framework.TestCase;
+
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
@@ -33,17 +39,12 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
 /**
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class AsyncIQGetHandlerTestCase extends TestCase {
-    
+
     private TestSessionContext sessionContext;
 
     private SessionStateHolder sessionStateHolder = new SessionStateHolder();
@@ -55,7 +56,7 @@ public class AsyncIQGetHandlerTestCase extends TestCase {
     }
 
     protected static final int SLEEP_INTERVAL = 50;
-    
+
     private static class AsyncIQGetHandler extends AbstractAsyncIQGetHandler implements Executor {
         protected TriggeredRunnableFuture triggeredRunnableFuture;
 
@@ -65,11 +66,12 @@ public class AsyncIQGetHandlerTestCase extends TestCase {
         }
 
         @Override
-        protected RunnableFuture<XMPPCoreStanza> createGetTask(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+        protected RunnableFuture<XMPPCoreStanza> createGetTask(IQStanza stanza,
+                ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
             triggeredRunnableFuture = new TriggeredRunnableFuture(stanza, serverRuntimeContext, sessionContext);
             return triggeredRunnableFuture;
         }
-        
+
         public TriggeredRunnableFuture getWaitingRunnableFuture() {
             return triggeredRunnableFuture;
         }
@@ -78,15 +80,17 @@ public class AsyncIQGetHandlerTestCase extends TestCase {
             new Thread(runnable).start();
         }
     }
-    
+
     private static class TriggeredRunnableFuture extends ResponseFuture<XMPPCoreStanza> {
-        
+
         protected boolean done = false;
-        
+
         private boolean triggerDelivery = false; // to signal from test when to proceed
+
         protected XMPPCoreStanza response = null;
 
-        protected TriggeredRunnableFuture(XMPPCoreStanza requestStanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+        protected TriggeredRunnableFuture(XMPPCoreStanza requestStanza, ServerRuntimeContext serverRuntimeContext,
+                SessionContext sessionContext) {
             super(requestStanza, serverRuntimeContext, sessionContext);
         }
 
@@ -106,7 +110,8 @@ public class AsyncIQGetHandlerTestCase extends TestCase {
             return response;
         }
 
-        public XMPPCoreStanza get(long l, TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException {
+        public XMPPCoreStanza get(long l, TimeUnit timeUnit) throws InterruptedException, ExecutionException,
+                TimeoutException {
             return response;
         }
 
@@ -120,8 +125,9 @@ public class AsyncIQGetHandlerTestCase extends TestCase {
                     }
                 }
                 try {
-                    Stanza finalStanza = StanzaBuilder.createIQStanza(requestStanza.getTo(), requestStanza.getFrom(), IQStanzaType.RESULT, requestStanza.getID()).
-                            startInnerElement("success", NamespaceURIs.JABBER_CLIENT).endInnerElement().build();
+                    Stanza finalStanza = StanzaBuilder.createIQStanza(requestStanza.getTo(), requestStanza.getFrom(),
+                            IQStanzaType.RESULT, requestStanza.getID()).startInnerElement("success",
+                            NamespaceURIs.JABBER_CLIENT).endInnerElement().build();
                     response = XMPPCoreStanza.getWrapper(finalStanza);
                 } catch (Throwable e) {
                     e.printStackTrace();
@@ -130,37 +136,42 @@ public class AsyncIQGetHandlerTestCase extends TestCase {
                 done = true;
             }
         }
-        
+
         public void triggerDelivery() {
             triggerDelivery = true;
         }
     }
-    
+
     public void testAsyncGet() throws ExecutionException, InterruptedException {
         AsyncIQGetHandler asyncIQGetHandler = new AsyncIQGetHandler();
-        
+
         assertNull("future is create on execute", asyncIQGetHandler.getWaitingRunnableFuture());
 
-        StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(new EntityImpl("test", "vysper.org", null), null, IQStanzaType.GET, "id1");
+        StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(new EntityImpl("test", "vysper.org", null), null,
+                IQStanzaType.GET, "id1");
         stanzaBuilder.startInnerElement("query", NamespaceURIs.JABBER_CLIENT).endInnerElement();
         Stanza iqStanza = stanzaBuilder.build();
 
-        ResponseStanzaContainer container = asyncIQGetHandler.execute(iqStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
+        ResponseStanzaContainer container = asyncIQGetHandler.execute(iqStanza, sessionContext
+                .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
         assertTrue(container == null || container.hasNoResponse());
 
         TriggeredRunnableFuture runnableFuture = asyncIQGetHandler.getWaitingRunnableFuture();
         assertNotNull("future has been created", runnableFuture);
         assertFalse("not done", runnableFuture.isDone());
-        
+
         runnableFuture.triggerDelivery();
 
         while (!runnableFuture.isDone()) {
-            try { Thread.sleep(SLEEP_INTERVAL); } catch (InterruptedException e) { ; }
+            try {
+                Thread.sleep(SLEEP_INTERVAL);
+            } catch (InterruptedException e) {
+                ;
+            }
         }
 
         XMPPCoreStanza coreStanza = runnableFuture.get();
         assertNotNull(coreStanza);
-        
 
-    }    
+    }
 }

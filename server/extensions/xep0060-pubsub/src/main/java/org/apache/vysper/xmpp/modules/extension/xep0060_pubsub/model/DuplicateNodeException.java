@@ -19,7 +19,6 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model;
 
-
 /**
  * This exception is used to deal with the case that a new node should
  * be created with a JID already taken by some other node.

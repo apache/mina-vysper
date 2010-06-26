@@ -28,10 +28,9 @@ import org.apache.vysper.compliance.SpecCompliant;
  * @author The Apache MINA Project (dev@mina.apache.org)
  *
  */
-@SpecCompliant(spec="xep-0045", section="4.2", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+@SpecCompliant(spec = "xep-0045", section = "4.2", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
 public enum RoomType {
 
-    
     /**
      * A room in which the full JIDs or bare JIDs of occupants cannot be discovered by anyone, including room admins and room owners; such rooms are NOT RECOMMENDED or explicitly supported by MUC, but are possible using this protocol if a service implementation offers the appropriate configuration options; contrast with Non-Anonymous Room and Semi-Anonymous Room.
      */
@@ -96,30 +95,29 @@ public enum RoomType {
      * A room that anyone is allowed to enter without first providing the correct password; antonym: Password-Protected Room.
      */
     Unsecured("muc_unsecured"),
-    
+
     // extra features, not covered by room types as defined in the XEP
     /**
      * Any visitor can change the room subject, not only a moderator
      */
     OpenSubject(null);
-    
+
     private String discoName;
 
     private RoomType(String mucName) {
         this.discoName = mucName;
     }
-    
-    
+
     public String getDiscoName() {
-        return discoName; 
+        return discoName;
     }
-    
+
     private static void complement(EnumSet<RoomType> types, RoomType defaultType, RoomType... antonyms) {
-        if(types.contains(defaultType)) {
+        if (types.contains(defaultType)) {
             return;
-        } 
-        for(RoomType type : antonyms) {
-            if(types.contains(type)) {
+        }
+        for (RoomType type : antonyms) {
+            if (types.contains(type)) {
                 // found, return
                 return;
             }
@@ -127,7 +125,7 @@ public enum RoomType {
         // non found, add default type
         types.add(defaultType);
     }
-    
+
     public static EnumSet<RoomType> complement(EnumSet<RoomType> in) {
         EnumSet<RoomType> result = EnumSet.copyOf(in);
         complement(result, RoomType.Public, RoomType.Hidden);
@@ -136,37 +134,36 @@ public enum RoomType {
         complement(result, RoomType.Unmoderated, RoomType.Moderated);
         complement(result, RoomType.Unsecured, RoomType.PasswordProtected);
         complement(result, RoomType.NonAnonymous, RoomType.SemiAnonymous, RoomType.FullyAnonymous);
-        
+
         return result;
     }
-    
+
     public static void validateAntonyms(EnumSet<RoomType> types) {
-        if(types.contains(RoomType.Hidden) && types.contains(RoomType.Public)) {
+        if (types.contains(RoomType.Hidden) && types.contains(RoomType.Public)) {
             throw new IllegalArgumentException("Room can not be both Hidden and Public");
         }
-        if(types.contains(RoomType.MembersOnly) && types.contains(RoomType.Open)) {
+        if (types.contains(RoomType.MembersOnly) && types.contains(RoomType.Open)) {
             throw new IllegalArgumentException("Room can not be both MembersOnly and Open");
         }
-        if(types.contains(RoomType.Temporary) && types.contains(RoomType.Persistent)) {
+        if (types.contains(RoomType.Temporary) && types.contains(RoomType.Persistent)) {
             throw new IllegalArgumentException("Room can not be both Temporary and Persistent");
         }
-        if(types.contains(RoomType.Unmoderated) && types.contains(RoomType.Moderated)) {
+        if (types.contains(RoomType.Unmoderated) && types.contains(RoomType.Moderated)) {
             throw new IllegalArgumentException("Room can not be both Unmoderated and Moderated");
         }
-        if(types.contains(RoomType.Unsecured) && types.contains(RoomType.PasswordProtected)) {
+        if (types.contains(RoomType.Unsecured) && types.contains(RoomType.PasswordProtected)) {
             throw new IllegalArgumentException("Room can not be both Unsecured and PasswordProtected");
         }
-        if(types.contains(RoomType.NonAnonymous) && types.contains(RoomType.SemiAnonymous)) {
+        if (types.contains(RoomType.NonAnonymous) && types.contains(RoomType.SemiAnonymous)) {
             throw new IllegalArgumentException("Room can not be both NonAnonymous and SemiAnonymous");
         }
-        if(types.contains(RoomType.SemiAnonymous) && types.contains(RoomType.FullyAnonymous)) {
+        if (types.contains(RoomType.SemiAnonymous) && types.contains(RoomType.FullyAnonymous)) {
             throw new IllegalArgumentException("Room can not be both FullyAnonymous and SemiAnonymous");
         }
-        if(types.contains(RoomType.NonAnonymous) && types.contains(RoomType.FullyAnonymous)) {
+        if (types.contains(RoomType.NonAnonymous) && types.contains(RoomType.FullyAnonymous)) {
             throw new IllegalArgumentException("Room can not be both NonAnonymous and FullyAnonymous");
         }
     }
-
 
     public boolean includeInDisco() {
         return discoName != null;

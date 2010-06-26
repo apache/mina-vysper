@@ -32,10 +32,11 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 public class MUCPresenceHandlerVerifyTestCase extends TestCase {
 
     private static final Entity FROM = EntityImpl.parseUnchecked("user@vysper.org");
+
     private static final Entity TO = EntityImpl.parseUnchecked("room@chat.vysper.org");
 
     private MUCPresenceHandler presenceHandler;
-    
+
     @Override
     protected void setUp() throws Exception {
         Conference conference = new Conference("foo");
@@ -46,30 +47,28 @@ public class MUCPresenceHandlerVerifyTestCase extends TestCase {
         StanzaBuilder builder = StanzaBuilder.createMessageStanza(FROM, TO, "en", "foo");
         builder.startInnerElement("x", NamespaceURIs.XEP0045_MUC);
         builder.endInnerElement();
-        
+
         assertFalse(presenceHandler.verify(builder.build()));
     }
-
 
     public void testVerifyWithMUCNamespace() {
         StanzaBuilder builder = StanzaBuilder.createPresenceStanza(FROM, TO, null, null, null, null);
         builder.startInnerElement("x", NamespaceURIs.XEP0045_MUC);
         builder.endInnerElement();
-        
+
         assertTrue(presenceHandler.verify(builder.build()));
     }
 
     public void testVerifyWithoutMUCNamespace() {
         StanzaBuilder builder = StanzaBuilder.createPresenceStanza(FROM, TO, null, null, null, null);
-        
+
         assertTrue(presenceHandler.verify(builder.build()));
     }
-    
-    
+
     public void testVerifyWithoutMUCNamespaceInnerElement() {
         StanzaBuilder builder = StanzaBuilder.createPresenceStanza(FROM, TO, null, null, null, null);
         builder.startInnerElement("foo").endInnerElement();
-        
+
         assertTrue(presenceHandler.verify(builder.build()));
     }
 }

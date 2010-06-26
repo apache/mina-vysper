@@ -42,19 +42,18 @@ import org.slf4j.LoggerFactory;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class BoshHandler {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BoshHandler.class);
-    
+
     private ServerRuntimeContext serverRuntimeContext;
-    
+
     private Map<String, BoshBackedSessionContext> sessions;
-    
+
     public BoshHandler() {
         sessions = new ConcurrentHashMap<String, BoshBackedSessionContext>();
     }
 
-    public void setServerRuntimeContext(
-            ServerRuntimeContext serverRuntimeContext) {
+    public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
         this.serverRuntimeContext = serverRuntimeContext;
     }
 
@@ -65,7 +64,8 @@ public class BoshHandler {
      */
     public void process(HttpServletRequest req, Stanza stanza) {
         if (!stanza.getNamespaceURI().equalsIgnoreCase(NamespaceURIs.XEP0124_BOSH)) {
-            LOGGER.error("Invalid namespace for body wrapper '{}', must be '{}'!", stanza.getNamespaceURI(), NamespaceURIs.XEP0124_BOSH);
+            LOGGER.error("Invalid namespace for body wrapper '{}', must be '{}'!", stanza.getNamespaceURI(),
+                    NamespaceURIs.XEP0124_BOSH);
             return;
         }
         if (!stanza.getName().equalsIgnoreCase("body")) {
@@ -76,7 +76,7 @@ public class BoshHandler {
             LOGGER.error("Invalid request that does not have a request identifier (rid) attribute!");
             return;
         }
-        
+
         if (stanza.getAttribute("sid") == null) {
             // the session creation request (first request) does not have a "sid" attribute
             try {
@@ -86,7 +86,7 @@ public class BoshHandler {
                 return;
             }
         } else {
-//            handleSession(req, stanza);
+            //            handleSession(req, stanza);
         }
     }
 
@@ -109,10 +109,10 @@ public class BoshHandler {
         }
         session.addRequest(req);
         sessions.put(session.getSessionId(), session);
-        
+
         session.write(getSessionCreationStanza(session));
     }
-    
+
     public Stanza getSessionCreationStanza(BoshBackedSessionContext session) {
         StanzaBuilder body = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH);
         body.addAttribute("wait", Integer.toString(session.getWait()));
@@ -124,15 +124,11 @@ public class BoshHandler {
         body.addAttribute("ver", session.getBoshVersion());
         body.addAttribute("from", session.getServerJID().getFullQualifiedName());
 
-        StanzaBuilder features = new StanzaBuilder("features",
-                NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS, "stream");
-        features.startInnerElement("mechanisms",
-                NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
-        for (SASLMechanism authenticationMethod : serverRuntimeContext
-                .getServerFeatures().getAuthenticationMethods()) {
-            features.startInnerElement("mechanism",
-                    NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
-                    .addText(authenticationMethod.getName()).endInnerElement();
+        StanzaBuilder features = new StanzaBuilder("features", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS, "stream");
+        features.startInnerElement("mechanisms", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
+        for (SASLMechanism authenticationMethod : serverRuntimeContext.getServerFeatures().getAuthenticationMethods()) {
+            features.startInnerElement("mechanism", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).addText(
+                    authenticationMethod.getName()).endInnerElement();
         }
         features.endInnerElement();
 

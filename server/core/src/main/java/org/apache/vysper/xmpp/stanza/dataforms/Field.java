@@ -19,27 +19,20 @@
  */
 package org.apache.vysper.xmpp.stanza.dataforms;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
 
 /**
  */
 public class Field {
-    
+
     public static enum Type {
-        
-        BOOLEAN("boolean"), 
-        FIXED("fixed"), 
-        HIDDEN("hidden"),
-        JID_MULTI("jid-multi"),
-        JID_SINGLE("jid-single"),
-        LIST_MULTI("list-multi"),
-        LIST_SINGLE("list-single"),
-        TEXT_MULTI("text-multi"),
-        TEXT_PRIVATE("text-private"), 
-        TEXT_SINGLE("text-single");
-        
+
+        BOOLEAN("boolean"), FIXED("fixed"), HIDDEN("hidden"), JID_MULTI("jid-multi"), JID_SINGLE("jid-single"), LIST_MULTI(
+                "list-multi"), LIST_SINGLE("list-single"), TEXT_MULTI("text-multi"), TEXT_PRIVATE("text-private"), TEXT_SINGLE(
+                "text-single");
+
         private final String value;
 
         Type(String value) {
@@ -52,11 +45,17 @@ public class Field {
     }
 
     protected String label;
+
     protected Type type;
+
     protected String var;
+
     protected String desc;
+
     protected boolean required = false;
+
     protected final List<Option> options = new ArrayList<Option>();
+
     protected final List<String> values = new ArrayList<String>();
 
     public Field(String label, Type type, String var) {

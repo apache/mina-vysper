@@ -34,18 +34,19 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
  * @author The Apache MINA Project (http://mina.apache.org)
  *
  */
-@SpecCompliant(spec="xep-0060", section="5.5", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+@SpecCompliant(spec = "xep-0060", section = "5.5", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
 public class NodeDiscoItemsVisitor implements ItemVisitor {
 
     // list to hold the items (ordered)
     List<PayloadItem> itemList = new ArrayList<PayloadItem>();
+
     // The JID of the pubsub service
     Entity serviceJID;
-    
+
     public NodeDiscoItemsVisitor(Entity serviceJID) {
         this.serviceJID = serviceJID;
     }
-    
+
     /**
      * Gets called with each itemID and payload of a node. Builds the answer
      * for disco#items requests to a node.
@@ -55,14 +56,14 @@ public class NodeDiscoItemsVisitor implements ItemVisitor {
     public void visit(String itemID, PayloadItem payload) {
         itemList.add(payload);
     }
-    
+
     /**
      * @return the ordered list of items.
      */
     public List<Item> getItemList() {
         List<Item> discoItems = new ArrayList<Item>();
         Collections.sort(itemList);
-        for(PayloadItem pi : itemList) {
+        for (PayloadItem pi : itemList) {
             discoItems.add(new Item(serviceJID, pi.getItemID(), null));
         }
         return discoItems;

@@ -32,8 +32,9 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
 public class ServiceDiscoItemsVisitor implements NodeVisitor {
 
     private List<Item> itemList = new ArrayList<Item>();
+
     private PubSubServiceConfiguration serviceConfiguration;
-    
+
     public ServiceDiscoItemsVisitor(PubSubServiceConfiguration serviceConfiguration) {
         this.serviceConfiguration = serviceConfiguration;
     }

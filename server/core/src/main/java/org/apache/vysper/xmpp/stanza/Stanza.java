@@ -30,7 +30,6 @@ import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.core.base.handler.XMPPCoreStanzaHandler;
-import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.writer.DenseStanzaLogRenderer;
 
 /**
@@ -41,23 +40,26 @@ import org.apache.vysper.xmpp.writer.DenseStanzaLogRenderer;
  */
 public class Stanza extends XMLElement {
 
-    public Stanza(String namespaceURI, String name, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments) {
+    public Stanza(String namespaceURI, String name, String namespacePrefix, List<Attribute> attributes,
+            List<XMLFragment> innerFragments) {
         this(namespaceURI, name, namespacePrefix, attributes, innerFragments, null);
     }
 
-    public Stanza(String namespaceURI, String name, String namespacePrefix, List<Attribute> attributes, List<XMLFragment> innerFragments, Map<String, String> namespaces) {
-    	super(namespaceURI, name, namespacePrefix, attributes, innerFragments, namespaces);
-    }
-    
-    public Stanza(String namespaceURI, String name, String namespacePrefix, Attribute[] attributes, XMLFragment[] innerFragments) {
-        this(namespaceURI, name, namespacePrefix, attributes, innerFragments, null);
-    }
-
-    public Stanza(String namespaceURI, String name, String namespacePrefix, Attribute[] attributes, XMLFragment[] innerFragments, Map<String, String> namespaces) {
+    public Stanza(String namespaceURI, String name, String namespacePrefix, List<Attribute> attributes,
+            List<XMLFragment> innerFragments, Map<String, String> namespaces) {
         super(namespaceURI, name, namespacePrefix, attributes, innerFragments, namespaces);
     }
 
-    
+    public Stanza(String namespaceURI, String name, String namespacePrefix, Attribute[] attributes,
+            XMLFragment[] innerFragments) {
+        this(namespaceURI, name, namespacePrefix, attributes, innerFragments, null);
+    }
+
+    public Stanza(String namespaceURI, String name, String namespacePrefix, Attribute[] attributes,
+            XMLFragment[] innerFragments, Map<String, String> namespaces) {
+        super(namespaceURI, name, namespacePrefix, attributes, innerFragments, namespaces);
+    }
+
     public Entity getTo() {
         return parseEntityAttribute("to");
     }
@@ -76,7 +78,7 @@ public class Stanza extends XMLElement {
     public Entity parseEntityAttribute(String attributeName) {
         EntityImpl entity = null;
         String attributeValue = getAttributeValue(attributeName);
-        if(attributeValue != null) {
+        if (attributeValue != null) {
             try {
                 entity = EntityImpl.parse(attributeValue);
             } catch (EntityFormatException e) {

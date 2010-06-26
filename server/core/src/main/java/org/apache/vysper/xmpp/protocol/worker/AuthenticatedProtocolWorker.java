@@ -34,9 +34,12 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 public class AuthenticatedProtocolWorker extends AbstractStateAwareProtocolWorker {
 
     @Override
-    protected boolean checkState(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza, StanzaHandler stanzaHandler) {
-        if (stanzaHandler instanceof StreamStartHandler) return true;
-        if (stanzaHandler.verify(stanza)) return true;
+    protected boolean checkState(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
+            StanzaHandler stanzaHandler) {
+        if (stanzaHandler instanceof StreamStartHandler)
+            return true;
+        if (stanzaHandler.verify(stanza))
+            return true;
         ResponseWriter.writeUnsupportedStanzaError(sessionContext);
         return false;
     }

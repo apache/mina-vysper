@@ -19,11 +19,11 @@
  */
 package org.apache.vysper.xmpp.modules;
 
-import org.apache.vysper.xmpp.protocol.HandlerDictionary;
-import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.vysper.xmpp.protocol.HandlerDictionary;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 
 /**
  *

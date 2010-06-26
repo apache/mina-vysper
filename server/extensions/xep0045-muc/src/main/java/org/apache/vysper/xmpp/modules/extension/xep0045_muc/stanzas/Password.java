@@ -27,8 +27,7 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 public class Password extends XMLElement {
 
     public Password(String password) {
-        super(NamespaceURIs.XEP0045_MUC, "password", null, null, new XMLFragment[]{new XMLText(password)});
+        super(NamespaceURIs.XEP0045_MUC, "password", null, null, new XMLFragment[] { new XMLText(password) });
     }
 
-    
 }

@@ -24,8 +24,8 @@ import java.util.List;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AffiliationItem;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubServiceConfiguration;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.NodeAffiliationVisitor;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubServiceConfiguration;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -35,13 +35,12 @@ import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
-
 /**
  * This class handles the "affiliations" use cases for the "pubsub" namespace.
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-@SpecCompliant(spec="xep-0060", section="5.7", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
+@SpecCompliant(spec = "xep-0060", section = "5.7", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
 public class PubSubRetrieveAffiliationsHandler extends AbstractPubSubGeneralHandler {
 
     /**
@@ -67,18 +66,16 @@ public class PubSubRetrieveAffiliationsHandler extends AbstractPubSubGeneralHand
      * @return the appropriate response stanza
      */
     @Override
-    protected Stanza handleGet(IQStanza stanza,
-            ServerRuntimeContext serverRuntimeContext,
-            SessionContext sessionContext) {
+    protected Stanza handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         Entity serverJID = serviceConfiguration.getServerJID();
         CollectionNode root = serviceConfiguration.getRootNode();
-        
+
         Entity sender = extractSenderJID(stanza, sessionContext);
         String iqStanzaID = stanza.getAttributeValue("id");
 
         StanzaBuilder sb = StanzaBuilder.createDirectReply(stanza, false, IQStanzaType.RESULT);
         sb.startInnerElement("pubsub", NamespaceURIs.XEP0060_PUBSUB);
-        
+
         List<AffiliationItem> subscriptions = collectAffiliations(root, sender);
 
         buildSuccessStanza(sb, subscriptions);
@@ -104,14 +101,14 @@ public class PubSubRetrieveAffiliationsHandler extends AbstractPubSubGeneralHand
      */
     private void buildSuccessStanza(StanzaBuilder sb, List<AffiliationItem> affiliations) {
         sb.startInnerElement("affiliations", NamespaceURIs.XEP0060_PUBSUB);
-        
-        for(AffiliationItem s : affiliations) {
+
+        for (AffiliationItem s : affiliations) {
             sb.startInnerElement("affiliation", NamespaceURIs.XEP0060_PUBSUB);
             sb.addAttribute("node", s.getNodeName());
             sb.addAttribute("affiliation", s.getAffiliation().toString());
             sb.endInnerElement();
         }
-        
+
         sb.endInnerElement();
     }
 }

@@ -32,7 +32,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 
-
 /**
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
@@ -41,7 +40,6 @@ public interface NonBlockingXMLReader {
     ////////////////////////////////////////////////////////////////////
     // Configuration.
     ////////////////////////////////////////////////////////////////////
-
 
     /**
      * Look up the value of a feature flag.
@@ -99,9 +97,7 @@ public interface NonBlockingXMLReader {
      *            cannot determine its value at this time.
      * @see #setFeature
      */
-    public boolean getFeature (String name)
-        throws SAXNotRecognizedException, SAXNotSupportedException;
-
+    public boolean getFeature(String name) throws SAXNotRecognizedException, SAXNotSupportedException;
 
     /**
      * Set the value of a feature flag.
@@ -126,9 +122,7 @@ public interface NonBlockingXMLReader {
      *            cannot set the requested value.
      * @see #getFeature
      */
-    public void setFeature (String name, boolean value)
-	throws SAXNotRecognizedException, SAXNotSupportedException;
-
+    public void setFeature(String name, boolean value) throws SAXNotRecognizedException, SAXNotSupportedException;
 
     /**
      * Look up the value of a property.
@@ -155,9 +149,7 @@ public interface NonBlockingXMLReader {
      *            cannot determine its value at this time.
      * @see #setProperty
      */
-    public Object getProperty (String name)
-	throws SAXNotRecognizedException, SAXNotSupportedException;
-
+    public Object getProperty(String name) throws SAXNotRecognizedException, SAXNotSupportedException;
 
     /**
      * Set the value of a property.
@@ -184,15 +176,11 @@ public interface NonBlockingXMLReader {
      *            XMLReader recognizes the property name but 
      *            cannot set the requested value.
      */
-    public void setProperty (String name, Object value)
-	throws SAXNotRecognizedException, SAXNotSupportedException;
+    public void setProperty(String name, Object value) throws SAXNotRecognizedException, SAXNotSupportedException;
 
-
-
     ////////////////////////////////////////////////////////////////////
     // Event handlers.
     ////////////////////////////////////////////////////////////////////
-
 
     /**
      * Allow an application to register an entity resolver.
@@ -207,8 +195,7 @@ public interface NonBlockingXMLReader {
      * @param resolver The entity resolver.
      * @see #getEntityResolver
      */
-    public void setEntityResolver (EntityResolver resolver);
-
+    public void setEntityResolver(EntityResolver resolver);
 
     /**
      * Return the current entity resolver.
@@ -217,8 +204,7 @@ public interface NonBlockingXMLReader {
      *         has been registered.
      * @see #setEntityResolver
      */
-    public EntityResolver getEntityResolver ();
-
+    public EntityResolver getEntityResolver();
 
     /**
      * Allow an application to register a DTD event handler.
@@ -233,8 +219,7 @@ public interface NonBlockingXMLReader {
      * @param handler The DTD handler.
      * @see #getDTDHandler
      */
-    public void setDTDHandler (DTDHandler handler);
-
+    public void setDTDHandler(DTDHandler handler);
 
     /**
      * Return the current DTD handler.
@@ -243,8 +228,7 @@ public interface NonBlockingXMLReader {
      *         has been registered.
      * @see #setDTDHandler
      */
-    public DTDHandler getDTDHandler ();
-
+    public DTDHandler getDTDHandler();
 
     /**
      * Allow an application to register a content event handler.
@@ -260,8 +244,7 @@ public interface NonBlockingXMLReader {
      * @param handler The content handler.
      * @see #getContentHandler
      */
-    public void setContentHandler (ContentHandler handler);
-
+    public void setContentHandler(ContentHandler handler);
 
     /**
      * Return the current content handler.
@@ -270,8 +253,7 @@ public interface NonBlockingXMLReader {
      *         has been registered.
      * @see #setContentHandler
      */
-    public ContentHandler getContentHandler ();
-
+    public ContentHandler getContentHandler();
 
     /**
      * Allow an application to register an error event handler.
@@ -289,8 +271,7 @@ public interface NonBlockingXMLReader {
      * @param handler The error handler.
      * @see #getErrorHandler
      */
-    public void setErrorHandler (ErrorHandler handler);
-
+    public void setErrorHandler(ErrorHandler handler);
 
     /**
      * Return the current error handler.
@@ -299,7 +280,7 @@ public interface NonBlockingXMLReader {
      *         has been registered.
      * @see #setErrorHandler
      */
-    public ErrorHandler getErrorHandler ();
+    public ErrorHandler getErrorHandler();
 
     /**
      * Parse XML in non-blocking mode. Issues events to the registered {@link ContentHandler} and {@link ErrorHandler}
@@ -308,8 +289,6 @@ public interface NonBlockingXMLReader {
      * @throws IOException
      * @throws SAXException
      */
-    public void parse (IoBuffer buffer, CharsetDecoder decoder) throws IOException, SAXException;
-
-
+    public void parse(IoBuffer buffer, CharsetDecoder decoder) throws IOException, SAXException;
 
 }

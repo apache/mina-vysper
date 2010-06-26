@@ -19,10 +19,10 @@
  */
 package org.apache.vysper.xmpp.modules;
 
+import java.util.List;
+
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-
-import java.util.List;
 
 /**
  * a module plugs new functionality into the server, most probably an implementation for a XEP.

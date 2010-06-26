@@ -41,101 +41,102 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 public class DiscussionHistoryTestCase extends TestCase {
 
     private static final String NICK = "nick";
+
     private static final String BODY = "Body";
+
     private static final String SUBJECT = "Subject";
-    
+
     private static final Entity FROM = EntityImpl.parseUnchecked("user@vysper.org/res");
+
     private static final Entity RECEIVER = EntityImpl.parseUnchecked("user2@vysper.org/res");
+
     private static final Entity ROOM_JID = EntityImpl.parseUnchecked("room@vysper.org");
 
     private static final Occupant FROM_OCCUPANT = new Occupant(FROM, NICK, Affiliation.None, Role.Visitor);
+
     private static final Occupant RECEIVER_OCCUPANT = new Occupant(RECEIVER, "nick2", Affiliation.None, Role.Visitor);
+
     private DiscussionHistory history;
 
-    
     private Calendar createTimestamp(int minutesAgo) {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         cal.add(Calendar.MINUTE, -minutesAgo);
         return cal;
     }
-    
+
     @Override
     protected void setUp() throws Exception {
         history = new DiscussionHistory();
-        
+
         // add some messages to the history, one more than is handled
         int maxStanzas = DiscussionHistory.DEFAULT_HISTORY_SIZE + 1;
-        for(int i = 0; i<maxStanzas; i++) {
-            history.append(
-                    StanzaBuilder.createMessageStanza(FROM, ROOM_JID, MessageStanzaType.GROUPCHAT, null, BODY + i).build(),
-                    FROM_OCCUPANT, createTimestamp(maxStanzas - i));
+        for (int i = 0; i < maxStanzas; i++) {
+            history.append(StanzaBuilder.createMessageStanza(FROM, ROOM_JID, MessageStanzaType.GROUPCHAT, null,
+                    BODY + i).build(), FROM_OCCUPANT, createTimestamp(maxStanzas - i));
         }
-        
+
         // add a subject message
-        history.append(
-                StanzaBuilder.createMessageStanza(FROM, ROOM_JID, MessageStanzaType.GROUPCHAT, null, null).
-                startInnerElement("subject", NamespaceURIs.JABBER_CLIENT).addText(SUBJECT).endInnerElement().build(),
+        history.append(StanzaBuilder.createMessageStanza(FROM, ROOM_JID, MessageStanzaType.GROUPCHAT, null, null)
+                .startInnerElement("subject", NamespaceURIs.JABBER_CLIENT).addText(SUBJECT).endInnerElement().build(),
                 FROM_OCCUPANT);
     }
 
     public void testGetAllStanzas() throws Exception {
         List<Stanza> stanzas = history.createStanzas(RECEIVER_OCCUPANT, true, new History(null, null, null, null));
-        
+
         assertStanzas(stanzas, DiscussionHistory.DEFAULT_HISTORY_SIZE);
     }
 
     public void testGetAllStanzasNullHistory() throws Exception {
         List<Stanza> stanzas = history.createStanzas(RECEIVER_OCCUPANT, true, null);
-        
+
         assertStanzas(stanzas, DiscussionHistory.DEFAULT_HISTORY_SIZE);
     }
 
-    
     public void testThreeStanzas() throws Exception {
         List<Stanza> stanzas = history.createStanzas(RECEIVER_OCCUPANT, true, new History(3, null, null, null));
         assertStanzas(stanzas, 3);
     }
-    
+
     public void testZeroStanzas() throws Exception {
         List<Stanza> stanzas = history.createStanzas(RECEIVER_OCCUPANT, true, new History(0, null, null, null));
-        
+
         assertStanzas(stanzas, 0);
     }
 
     public void test500CharStanzas() throws Exception {
         List<Stanza> stanzas = history.createStanzas(RECEIVER_OCCUPANT, true, new History(null, 500, null, null));
-        
+
         // 2 stanzas should fit in 500 chars
         assertStanzas(stanzas, 2);
     }
 
     public void test0CharStanzas() throws Exception {
         List<Stanza> stanzas = history.createStanzas(RECEIVER_OCCUPANT, true, new History(null, 0, null, null));
-        
+
         assertStanzas(stanzas, 0);
     }
 
     public void test150SecondsStanzas() throws Exception {
         List<Stanza> stanzas = history.createStanzas(RECEIVER_OCCUPANT, true, new History(null, null, 150, null));
-        
+
         // 2 stanzas + subject should fit in 150 seconds
         assertStanzas(stanzas, 3);
     }
 
-    
     public void testSince5minutesStanzas() throws Exception {
-        List<Stanza> stanzas = history.createStanzas(RECEIVER_OCCUPANT, true, new History(null, null, null, createTimestamp(5)));
-        
+        List<Stanza> stanzas = history.createStanzas(RECEIVER_OCCUPANT, true, new History(null, null, null,
+                createTimestamp(5)));
+
         // 2 stanzas + subject should fit in 150 seconds
         assertStanzas(stanzas, 6);
     }
 
-    
     private void assertStanzas(List<Stanza> stanzas, int expectedSize) throws Exception {
         assertEquals(expectedSize, stanzas.size());
 
-        if(expectedSize > 0) {
-            for(int i = 0; i<expectedSize - 1; i++) {
+        if (expectedSize > 0) {
+            for (int i = 0; i < expectedSize - 1; i++) {
                 Stanza stanza = stanzas.get(i);
                 assertStanza(stanza, BODY + (DiscussionHistory.DEFAULT_HISTORY_SIZE - expectedSize + 2 + i), null);
             }
@@ -144,11 +145,11 @@ public class DiscussionHistoryTestCase extends TestCase {
             assertStanza(stanzas.get(expectedSize - 1), null, SUBJECT);
         }
     }
-    
+
     private void assertStanza(Stanza stanza, String expectedBody, String expectedSubject) throws Exception {
         assertNotNull(stanza);
         MessageStanza msgStanza = (MessageStanza) MessageStanza.getWrapper(stanza);
-        
+
         assertEquals(new EntityImpl(ROOM_JID, NICK), msgStanza.getFrom());
         assertEquals(RECEIVER, msgStanza.getTo());
         assertEquals("groupchat", msgStanza.getType());

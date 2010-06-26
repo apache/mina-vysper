@@ -19,13 +19,14 @@
  */
 package org.apache.vysper.xmpp.cryptography;
 
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.Security;
+
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
 
 /**
  * derived from MINA's BogusSSLContextFactory.
@@ -36,11 +37,13 @@ import java.security.Security;
 public abstract class AbstractTLSContextFactory implements TLSContextFactory {
 
     private static final String PROTOCOL = "TLS";
+
     private static final String KEY_MANAGER_FACTORY_ALGORITHM;
 
     static {
-        String algorithm = Security.getProperty( "ssl.KeyManagerFactory.algorithm" );
-        if( algorithm == null ) algorithm = "SunX509";
+        String algorithm = Security.getProperty("ssl.KeyManagerFactory.algorithm");
+        if (algorithm == null)
+            algorithm = "SunX509";
         KEY_MANAGER_FACTORY_ALGORITHM = algorithm;
     }
 
@@ -67,35 +70,37 @@ public abstract class AbstractTLSContextFactory implements TLSContextFactory {
     }
 
     public SSLContext getSSLContext() throws GeneralSecurityException, IOException {
-        if (sslContext == null) sslContext = createSSLContext();
+        if (sslContext == null)
+            sslContext = createSSLContext();
         return sslContext;
     }
 
-     private SSLContext createSSLContext() throws GeneralSecurityException, IOException {
-         // Create keystore
-         KeyStore ks = KeyStore.getInstance("JKS");
-         InputStream in = null;
-         try {
-             in = getCertificateInputStream();
-             ks.load( in, password.toCharArray() );
-         } finally {
-             if( in != null ) {
-                 try {
-                     in.close();
-                 }
-                 catch( IOException ignored ) { ; }
-             }
-         }
+    private SSLContext createSSLContext() throws GeneralSecurityException, IOException {
+        // Create keystore
+        KeyStore ks = KeyStore.getInstance("JKS");
+        InputStream in = null;
+        try {
+            in = getCertificateInputStream();
+            ks.load(in, password.toCharArray());
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ignored) {
+                    ;
+                }
+            }
+        }
 
-         // Set up key manager factory to use our key store
-         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KEY_MANAGER_FACTORY_ALGORITHM );
-         kmf.init(ks, password.toCharArray());
+        // Set up key manager factory to use our key store
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KEY_MANAGER_FACTORY_ALGORITHM);
+        kmf.init(ks, password.toCharArray());
 
-         // Initialize the SSLContext to work with our key managers.
-         SSLContext sslContext = SSLContext.getInstance(PROTOCOL);
-         sslContext.init(kmf.getKeyManagers(), trustManagerFactory.getTrustManagers(), null);
+        // Initialize the SSLContext to work with our key managers.
+        SSLContext sslContext = SSLContext.getInstance(PROTOCOL);
+        sslContext.init(kmf.getKeyManagers(), trustManagerFactory.getTrustManagers(), null);
 
-         return sslContext;
-     }
+        return sslContext;
+    }
 
 }

@@ -24,7 +24,6 @@ import java.net.InetSocketAddress;
 
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
-import org.apache.mina.filter.logging.LoggingFilter;
 import org.apache.mina.transport.socket.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.apache.vysper.mina.codec.XMPPProtocolCodecFactory;
@@ -46,7 +45,7 @@ public class TCPEndpoint implements Endpoint {
     private DefaultIoFilterChainBuilder filterChainBuilder;
 
     public DefaultIoFilterChainBuilder getFilterChainBuilder() {
-      return filterChainBuilder;
+        return filterChainBuilder;
     }
 
     public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
@@ -58,18 +57,18 @@ public class TCPEndpoint implements Endpoint {
     }
 
     public void start() throws IOException {
-    	NioSocketAcceptor acceptor = new NioSocketAcceptor();
-    	 
-    	DefaultIoFilterChainBuilder filterChainBuilder = new DefaultIoFilterChainBuilder();
-    	//filterChainBuilder.addLast("executorFilter", new OrderedThreadPoolExecutor());
-    	filterChainBuilder.addLast("xmppCodec", new ProtocolCodecFilter(new XMPPProtocolCodecFactory()));
-    	filterChainBuilder.addLast("loggingFilter", new StanzaLoggingFilter());
-    	acceptor.setFilterChainBuilder(filterChainBuilder);
-    	
+        NioSocketAcceptor acceptor = new NioSocketAcceptor();
+
+        DefaultIoFilterChainBuilder filterChainBuilder = new DefaultIoFilterChainBuilder();
+        //filterChainBuilder.addLast("executorFilter", new OrderedThreadPoolExecutor());
+        filterChainBuilder.addLast("xmppCodec", new ProtocolCodecFilter(new XMPPProtocolCodecFactory()));
+        filterChainBuilder.addLast("loggingFilter", new StanzaLoggingFilter());
+        acceptor.setFilterChainBuilder(filterChainBuilder);
+
         XmppIoHandlerAdapter adapter = new XmppIoHandlerAdapter();
         adapter.setServerRuntimeContext(serverRuntimeContext);
         acceptor.setHandler(adapter);
-         
+
         acceptor.setReuseAddress(true);
         acceptor.bind(new InetSocketAddress(port));
 

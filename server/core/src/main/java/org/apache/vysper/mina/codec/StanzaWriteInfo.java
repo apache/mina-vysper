@@ -30,9 +30,13 @@ import org.apache.vysper.xmpp.writer.DenseStanzaLogRenderer;
  */
 public class StanzaWriteInfo {
     private Stanza stanza = null;
+
     private boolean writeProlog = true;
+
     private boolean writeOpeningElement = true;
+
     private boolean writeContent = true;
+
     private boolean writeClosingElement = true;
 
     public StanzaWriteInfo(Stanza stanza) {

@@ -19,11 +19,11 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
-import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 
 /**
  * @author The Apache MINA Project (http://mina.apache.org)
@@ -32,9 +32,10 @@ public class NodeAffiliationVisitor implements NodeVisitor {
 
     // bare jid to compare with
     protected Entity bareJID = null;
+
     // the list of user <-> node affiliation
     protected List<AffiliationItem> affiliations = null;
-    
+
     /**
      * Creates a new node visitor to fetch all affiliations for the given user.
      */
@@ -48,7 +49,7 @@ public class NodeAffiliationVisitor implements NodeVisitor {
      */
     public void visit(LeafNode ln) {
         PubSubAffiliation affil = ln.getAffiliation(bareJID);
-        if(!affil.equals(PubSubAffiliation.NONE)) {
+        if (!affil.equals(PubSubAffiliation.NONE)) {
             AffiliationItem ai = new AffiliationItem(ln.getName(), bareJID, affil);
             affiliations.add(ai);
         }

@@ -35,9 +35,10 @@ public class SubscriberSubscriptionVisitor implements SubscriberVisitor {
 
     // the collected subscriptions
     protected List<SubscriptionItem> subscriptions = null;
+
     // the user to filter
     protected Entity bareJID = null;
-    
+
     /**
      * Create a new visitor with the user as filter.
      */
@@ -45,13 +46,13 @@ public class SubscriberSubscriptionVisitor implements SubscriberVisitor {
         this.bareJID = userJID.getBareJID();
         subscriptions = new ArrayList<SubscriptionItem>();
     }
-    
+
     /**
      * Traverses all subscriptions and collects the subscriptions of the
      * user (matching bareJID).
      */
     public void visit(String nodeName, String subID, Entity sub) {
-        if(sub.getBareJID().equals(bareJID)) {
+        if (sub.getBareJID().equals(bareJID)) {
             SubscriptionItem si = new SubscriptionItem(nodeName, subID, sub);
             subscriptions.add(si);
         }

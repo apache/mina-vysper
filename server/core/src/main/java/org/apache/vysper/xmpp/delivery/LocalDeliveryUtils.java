@@ -19,9 +19,9 @@
  */
 package org.apache.vysper.xmpp.delivery;
 
-import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
-import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,8 @@ public class LocalDeliveryUtils {
     public static void relayToResourceDirectly(ResourceRegistry registry, String resource, Stanza push) {
         try {
             SessionContext targetContext = registry.getSessionContext(resource);
-            if (targetContext == null) return;
+            if (targetContext == null)
+                return;
             targetContext.getResponseWriter().write(push);
         } catch (RuntimeException e) {
             logger.warn("failed to directly relay stanza to resource " + resource, e);

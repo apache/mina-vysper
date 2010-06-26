@@ -34,28 +34,31 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 /**
  */
 public class XmppPingIQHandlerTestCase extends TestCase {
-    
+
     private static final String IQ_ID = "id1";
 
     private TestSessionContext sessionContext;
 
     protected Entity client;
+
     protected Entity boundClient;
+
     protected Entity server;
+
     protected XmppPingIQHandler handler;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        
+
         client = EntityImpl.parse("tester@vysper.org");
-        
+
         sessionContext = TestSessionContext.createWithStanzaReceiverRelayAuthenticated();
         sessionContext.setInitiatingEntity(client);
-        
+
         boundClient = new EntityImpl(client, sessionContext.bindResource());
         server = sessionContext.getServerJID();
-        
+
         handler = new XmppPingIQHandler();
     }
 
@@ -66,16 +69,16 @@ public class XmppPingIQHandlerTestCase extends TestCase {
         //
         // S: <iq from='capulet.lit' to='juliet@capulet.lit/balcony' id='c2s1' type='result'/>
 
-        
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(boundClient, server, IQStanzaType.GET, IQ_ID);
         stanzaBuilder.startInnerElement("ping", NamespaceURIs.URN_XMPP_PING).endInnerElement();
 
         Stanza requestStanza = stanzaBuilder.build();
-        ResponseStanzaContainer resp = handler.execute(requestStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, null);
+        ResponseStanzaContainer resp = handler.execute(requestStanza, sessionContext.getServerRuntimeContext(), true,
+                sessionContext, null);
 
         // we should always get a response
         assertTrue(resp.hasResponse());
-        
+
         Stanza respStanza = resp.getResponseStanza();
 
         assertEquals("iq", respStanza.getName());

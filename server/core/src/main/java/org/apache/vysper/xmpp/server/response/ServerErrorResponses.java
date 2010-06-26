@@ -34,8 +34,7 @@ import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class ServerErrorResponses
-{
+public class ServerErrorResponses {
     private static ServerErrorResponses serverErrorResponsesInstance = null;
 
     public static ServerErrorResponses getInstance() {
@@ -49,7 +48,8 @@ public class ServerErrorResponses
         // empty
     }
 
-    public Stanza getStreamError(StreamErrorCondition definedErrorCondition, String languageCode, String descriptiveText, XMLElement applicationSpecificError) {
+    public Stanza getStreamError(StreamErrorCondition definedErrorCondition, String languageCode,
+            String descriptiveText, XMLElement applicationSpecificError) {
 
         /*
            <stream:jabber>
@@ -62,16 +62,16 @@ public class ServerErrorResponses
            </stream:jabber>
         */
 
-        if (languageCode == null) languageCode = "en_US";
+        if (languageCode == null)
+            languageCode = "en_US";
         StanzaBuilder stanzaBuilder = new StanzaBuilder("error");
 
-        stanzaBuilder.startInnerElement(definedErrorCondition.value(), NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STREAMS).endInnerElement();
+        stanzaBuilder.startInnerElement(definedErrorCondition.value(),
+                NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STREAMS).endInnerElement();
 
         if (descriptiveText != null) {
-            stanzaBuilder.startInnerElement("text", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STREAMS)
-                .addAttribute(NamespaceURIs.XML, "lang", languageCode)
-                .addText(descriptiveText)
-                .endInnerElement();
+            stanzaBuilder.startInnerElement("text", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STREAMS).addAttribute(
+                    NamespaceURIs.XML, "lang", languageCode).addText(descriptiveText).endInnerElement();
         }
 
         if (applicationSpecificError != null) {
@@ -92,12 +92,11 @@ public class ServerErrorResponses
      * @return error response stanza
      */
     public Stanza getStanzaError(StanzaErrorCondition errorCondition, XMPPCoreStanza stanza, StanzaErrorType type,
-                                 String errorText, String errorLang,
-                                 XMLElement errorConditionElement) {
+            String errorText, String errorLang, XMLElement errorConditionElement) {
 
         if (stanza != null && "error".equals(stanza.getType())) {
-            return ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.UNSUPPORTED_STANZA_TYPE, errorLang,
-                                                               "cannot respond to IQ stanza of type error with the same", null);
+            return ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.UNSUPPORTED_STANZA_TYPE,
+                    errorLang, "cannot respond to IQ stanza of type error with the same", null);
         }
 
         StanzaBuilder responseBuilder = StanzaBuilder.createDirectReply(stanza, true, "error");
@@ -107,15 +106,15 @@ public class ServerErrorResponses
         return responseBuilder.build();
     }
 
-    private void fillErrorStanza(XMPPCoreStanza stanza, StanzaErrorType type, StanzaErrorCondition errorCondition, String errorText, String errorLang, XMLElement errorConditionElement, StanzaBuilder responseBuilder) {
+    private void fillErrorStanza(XMPPCoreStanza stanza, StanzaErrorType type, StanzaErrorCondition errorCondition,
+            String errorText, String errorLang, XMLElement errorConditionElement, StanzaBuilder responseBuilder) {
         // inline incoming stanza as of RFC 3920 9.3.1
-        for(XMLElement innerElement : stanza.getInnerElements()) {
+        for (XMLElement innerElement : stanza.getInnerElements()) {
             responseBuilder.addPreparedElement(innerElement);
         }
 
         // error element
-        responseBuilder.startInnerElement("error", NamespaceURIs.JABBER_CLIENT)
-                         .addAttribute("type", type.value());
+        responseBuilder.startInnerElement("error", NamespaceURIs.JABBER_CLIENT).addAttribute("type", type.value());
 
         // insert defined error condition relating to the stanza error type
         responseBuilder.startInnerElement(errorCondition.value(), NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
@@ -123,12 +122,12 @@ public class ServerErrorResponses
 
         // optional error text
         if (errorText != null && errorLang != null) {
-            responseBuilder.startInnerElement("text", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS)
-                             .addAttribute(NamespaceURIs.XML, "lang", errorLang)
-                             .addText(errorText);
+            responseBuilder.startInnerElement("text", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).addAttribute(
+                    NamespaceURIs.XML, "lang", errorLang).addText(errorText);
         }
         // optional application specific error condition element
-        if (errorConditionElement != null) responseBuilder.addPreparedElement(errorConditionElement);
+        if (errorConditionElement != null)
+            responseBuilder.addPreparedElement(errorConditionElement);
 
         responseBuilder.endInnerElement();
     }
@@ -141,7 +140,8 @@ public class ServerErrorResponses
     public Stanza getSASLFailure(SASLFailureType failureType) {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("failure", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
         if (failureType != null) {
-            stanzaBuilder.startInnerElement(failureType.toString(), NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).endInnerElement();
+            stanzaBuilder.startInnerElement(failureType.toString(), NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
+                    .endInnerElement();
         }
         return stanzaBuilder.build();
     }

@@ -19,23 +19,24 @@
  */
 package org.apache.vysper.xmpp.authorization;
 
-import org.apache.vysper.xmpp.server.SessionContext;
-import org.apache.vysper.xmpp.protocol.SessionStateHolder;
-import org.apache.vysper.xmpp.stanza.Stanza;
+import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.PARTIAL;
+import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.IN_PROGRESS;
+import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.NOT_STARTED;
+
 import org.apache.vysper.compliance.SpecCompliance;
 import org.apache.vysper.compliance.SpecCompliant;
-import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.*;
-import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.*;
+import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
  * handles SASL EXTERNAL mechanism
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-@SpecCompliance( compliant = {
-    @SpecCompliant(spec="rfc4422", section = "A.", status = NOT_STARTED, coverage = PARTIAL, comment = "only Appendix A. is relevant here"),
-    @SpecCompliant(spec="rfc3920bis-09", section = "15.6.", status = IN_PROGRESS, coverage = PARTIAL, comment = "EXTERNAL is mandatory")
-})
+@SpecCompliance(compliant = {
+        @SpecCompliant(spec = "rfc4422", section = "A.", status = NOT_STARTED, coverage = PARTIAL, comment = "only Appendix A. is relevant here"),
+        @SpecCompliant(spec = "rfc3920bis-09", section = "15.6.", status = IN_PROGRESS, coverage = PARTIAL, comment = "EXTERNAL is mandatory") })
 public class External implements SASLMechanism {
     public String getName() {
         return "EXTERNAL";

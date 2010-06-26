@@ -22,8 +22,9 @@ package org.apache.vysper.xmpp.stanza.dataforms;
 /**
  */
 public class Option {
-    
+
     protected String label;
+
     protected String value;
 
     public Option(String label, String value) {

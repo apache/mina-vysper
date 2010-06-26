@@ -36,20 +36,26 @@ abstract public class XMPPCoreStanza extends Stanza {
     }
 
     public static XMPPCoreStanza getWrapper(Stanza stanza) {
-        if (stanza instanceof XMPPCoreStanza) return (XMPPCoreStanza)stanza;
-        if (IQStanza.isOfType(stanza)) return new IQStanza(stanza);
-        if (MessageStanza.isOfType(stanza)) return new MessageStanza(stanza);
-        if (PresenceStanza.isOfType(stanza)) return new PresenceStanza(stanza);
+        if (stanza instanceof XMPPCoreStanza)
+            return (XMPPCoreStanza) stanza;
+        if (IQStanza.isOfType(stanza))
+            return new IQStanza(stanza);
+        if (MessageStanza.isOfType(stanza))
+            return new MessageStanza(stanza);
+        if (PresenceStanza.isOfType(stanza))
+            return new PresenceStanza(stanza);
         return null;
     }
 
     public XMPPCoreStanza(Stanza stanza) {
-        super(stanza.getNamespaceURI(), stanza.getName(), stanza.getNamespacePrefix(), stanza.getAttributes(), stanza.getInnerFragments());
+        super(stanza.getNamespaceURI(), stanza.getName(), stanza.getNamespacePrefix(), stanza.getAttributes(), stanza
+                .getInnerFragments());
     }
 
     @Override
     public XMLElementVerifier getVerifier() {
-        if (xmlElementVerifier == null) xmlElementVerifier = new XMPPCoreStanzaVerifier(this);
+        if (xmlElementVerifier == null)
+            xmlElementVerifier = new XMPPCoreStanzaVerifier(this);
         return xmlElementVerifier;
     }
 
@@ -75,6 +81,5 @@ abstract public class XMPPCoreStanza extends Stanza {
     public boolean isServerCall() {
         return getNamespaceURI().equals(NamespaceURIs.JABBER_SERVER);
     }
-
 
 }

@@ -39,39 +39,41 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public abstract class AbstractDiscoTestCase extends TestCase {
-    
+
     protected static final String SUBDOMAIN = "chat";
+
     protected static final String SERVERDOMAIN = "vysper.org";
+
     protected static final String MODULEDOMAIN = SUBDOMAIN + "." + SERVERDOMAIN;
-    
+
     protected static final Entity SERVER_JID = EntityImpl.parseUnchecked(SERVERDOMAIN);
+
     protected static final Entity MODULE_JID = EntityImpl.parseUnchecked(MODULEDOMAIN);
+
     protected static final Entity USER_JID = EntityImpl.parseUnchecked("user@" + SERVERDOMAIN);
+
     protected DefaultServerRuntimeContext serverRuntimeContext;
+
     private ServiceCollector serviceCollector;
 
     protected abstract Module getModule();
 
-    protected abstract void assertResponse(XMLElement queryElement)
-            throws Exception;
+    protected abstract void assertResponse(XMLElement queryElement) throws Exception;
 
     protected abstract StanzaBuilder buildRequest();
 
     protected abstract IQHandler createDiscoIQHandler();
-    
+
     protected abstract Entity getTo();
 
-    
-    
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        
+
         serviceCollector = new ServiceCollector();
         serverRuntimeContext = new DefaultServerRuntimeContext(SERVER_JID, null);
         serverRuntimeContext.registerServerRuntimeContextService(serviceCollector);
 
-        
     }
 
     public void testDisco() throws Exception {
@@ -80,13 +82,14 @@ public abstract class AbstractDiscoTestCase extends TestCase {
         IQHandler infoIQHandler = createDiscoIQHandler();
 
         StanzaBuilder request = buildRequest();
-        
-        ResponseStanzaContainer resultStanzaContainer = infoIQHandler.execute(request.build(), serverRuntimeContext, false, new TestSessionContext(serverRuntimeContext, new SessionStateHolder()), null);
+
+        ResponseStanzaContainer resultStanzaContainer = infoIQHandler.execute(request.build(), serverRuntimeContext,
+                false, new TestSessionContext(serverRuntimeContext, new SessionStateHolder()), null);
         Stanza resultStanza = resultStanzaContainer.getResponseStanza();
 
         assertEquals("Disco request must not return error", "result", resultStanza.getAttributeValue("type"));
         XMLElement queryElement = resultStanza.getFirstInnerElement();
-        
+
         assertResponse(queryElement);
     }
 }

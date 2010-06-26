@@ -44,7 +44,7 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
  *  
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-@SpecCompliant(spec="xep-0199", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
+@SpecCompliant(spec = "xep-0199", status = SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
 public class XmppPingIQHandler extends DefaultIQHandler {
 
     public XmppPingIQHandler() {
@@ -63,7 +63,8 @@ public class XmppPingIQHandler extends DefaultIQHandler {
     @Override
     protected Stanza handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
 
-        StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID());
+        StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(),
+                IQStanzaType.RESULT, stanza.getID());
 
         return stanzaBuilder.build();
     }

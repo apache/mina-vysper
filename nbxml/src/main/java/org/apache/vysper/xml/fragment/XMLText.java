@@ -37,12 +37,15 @@ public class XMLText implements XMLFragment {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         final XMLText xmlText = (XMLText) o;
 
-        if (text != null ? !text.equals(xmlText.text) : xmlText.text != null) return false;
+        if (text != null ? !text.equals(xmlText.text) : xmlText.text != null)
+            return false;
 
         return true;
     }

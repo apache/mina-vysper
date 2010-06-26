@@ -37,22 +37,24 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
  */
 public class PubSubRetrieveAffiliationsTestCase extends AbstractPublishSubscribeTestCase {
     protected LeafNode n1 = null;
+
     protected LeafNode n2 = null;
+
     protected LeafNode n3 = null;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        
+
         n1 = new LeafNode(serviceConfiguration, "Node1", "Node 1 used for testing purposes", client);
         n2 = new LeafNode(serviceConfiguration, "Node2", "Node 2 used for testing purposes", client);
         n3 = new LeafNode(serviceConfiguration, "Node3", "Node 3 used for testing purposes", client);
-        
+
         root.add(n1);
         root.add(n2);
         root.add(n3);
     }
-    
+
     @Override
     protected IQHandler getHandler() {
         return new PubSubRetrieveAffiliationsHandler(serviceConfiguration);
@@ -65,38 +67,38 @@ public class PubSubRetrieveAffiliationsTestCase extends AbstractPublishSubscribe
 
     public void testNoAffiliations() {
         Entity client2 = new EntityImpl("yoda", "starwars.com", null);
-        
+
         AbstractStanzaGenerator sg = getDefaultStanzaGenerator();
         Stanza stanza = sg.getStanza(client2, pubsubService, "id123", null);
         ResponseStanzaContainer result = sendStanza(stanza, true);
-        
+
         assertTrue(result.hasResponse());
-        
+
         IQStanza response = new IQStanza(result.getResponseStanza());
-        assertEquals(IQStanzaType.RESULT.value(),response.getType());
+        assertEquals(IQStanzaType.RESULT.value(), response.getType());
         XMLElement sub = response.getFirstInnerElement().getFirstInnerElement();
         assertEquals("affiliations", sub.getName());
         assertEquals(0, sub.getInnerElements().size()); // there should be no affiliations
     }
-    
+
     public void testSomeAffiliations() {
         AbstractStanzaGenerator sg = getDefaultStanzaGenerator();
-        
+
         Stanza stanza = sg.getStanza(client, pubsubService, "4711", null);
         ResponseStanzaContainer result = sendStanza(stanza, true);
-        
+
         assertTrue(result.hasResponse());
-        
+
         IQStanza response = new IQStanza(result.getResponseStanza());
-        assertEquals(IQStanzaType.RESULT.value(),response.getType());
+        assertEquals(IQStanzaType.RESULT.value(), response.getType());
         XMLElement sub = response.getFirstInnerElement().getFirstInnerElement();
         assertEquals("affiliations", sub.getName());
         assertEquals(3, sub.getInnerElements().size());
-        
-        for(XMLElement e : sub.getInnerElements()) {
+
+        for (XMLElement e : sub.getInnerElements()) {
             assertEquals("owner", e.getAttributeValue("affiliation"));
         }
-        
+
     }
 
     class DefaultRetrieveAffiliationsStanzaGenerator extends AbstractStanzaGenerator {

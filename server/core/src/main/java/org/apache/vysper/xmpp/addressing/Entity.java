@@ -48,7 +48,9 @@ package org.apache.vysper.xmpp.addressing;
 public interface Entity {
 
     String getNode();
+
     String getDomain();
+
     String getResource();
 
     /**
@@ -64,6 +66,7 @@ public interface Entity {
     String getCanonicalizedName();
 
     boolean isNodeSet();
+
     boolean isResourceSet();
 
 }

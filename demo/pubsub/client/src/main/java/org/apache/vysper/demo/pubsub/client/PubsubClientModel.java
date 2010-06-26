@@ -32,25 +32,30 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smackx.packet.DiscoverItems;
 import org.jivesoftware.smackx.packet.DiscoverItems.Item;
 import org.jivesoftware.smackx.pubsub.Affiliation;
+import org.jivesoftware.smackx.pubsub.Node;
 import org.jivesoftware.smackx.pubsub.PubSubManager;
 import org.jivesoftware.smackx.pubsub.Subscription;
-import org.jivesoftware.smackx.pubsub.Node;
 
 public class PubsubClientModel {
     private Map<String, DefaultListModel> nodeMessages = new TreeMap<String, DefaultListModel>();
+
     private PubsubTableModel tableModel = new PubsubTableModel();
+
     private PubsubEventListener pel = new PubsubEventListener(this);
-    
+
     private XMPPConnection connection;
+
     private PubSubManager pubsubMgr;
-    
+
     private String username;
+
     private String hostname;
+
     private String password;
+
     private String jid;
-    
+
     private String selectedNode;
-    
 
     public PubSubManager getPubsubMgr() {
         return pubsubMgr;
@@ -66,7 +71,7 @@ public class PubsubClientModel {
 
     private void discoverAffiliations(Map<String, PubsubNode> lookup) throws XMPPException {
         List<Affiliation> lAffiliations = pubsubMgr.getAffiliations();
-        for(Affiliation affiliation : lAffiliations) {
+        for (Affiliation affiliation : lAffiliations) {
             System.out.print(affiliation.getType());
             System.out.print(" of ");
             System.out.println(affiliation.getNodeId());
@@ -78,13 +83,13 @@ public class PubsubClientModel {
 
     private void discoverSubscriptions(Map<String, PubsubNode> lookup) throws XMPPException {
         List<Subscription> lSubscriptions = pubsubMgr.getSubscriptions();
-        for(Subscription subscription : lSubscriptions) {
+        for (Subscription subscription : lSubscriptions) {
             System.out.print(subscription.getState());
             System.out.print(" at ");
             System.out.println(subscription.getNode());
 
             PubsubNode n = lookup.get(subscription.getNode());
-            if(n != null) {
+            if (n != null) {
                 n.setSubscribed(subscription.getState().toString().equals("subscribed"));
             }
         }
@@ -93,12 +98,12 @@ public class PubsubClientModel {
     private void discoverNodes(Map<String, PubsubNode> lookup) throws XMPPException {
         DiscoverItems di = pubsubMgr.discoverNodes();
         Iterator<Item> iIt = di.getItems();
-        while(iIt.hasNext()) {
+        while (iIt.hasNext()) {
             Item i = iIt.next();
             System.out.println("Adding " + i.getNode());
 
             PubsubNode n = new PubsubNode(i.getNode());
-            if(n != null) {
+            if (n != null) {
                 lookup.put(i.getNode(), n);
             }
         }
@@ -109,11 +114,11 @@ public class PubsubClientModel {
         try {
             connection = connect(username, password, hostname);
         } catch (XMPPException e) {
-            System.err.println("Login failed for user "+username);
+            System.err.println("Login failed for user " + username);
             e.printStackTrace();
             return false;
         }
-        
+
         pubsubMgr = new PubSubManager(connection, "pubsub.vysper.org");
         return true;
     }
@@ -148,9 +153,9 @@ public class PubsubClientModel {
 
         tableModel.clear();
         tableModel.startBulkAdd();
-        for(PubsubNode n : lookup.values()) {
+        for (PubsubNode n : lookup.values()) {
             tableModel.bulkAddRow(n);
-            
+
             try {
                 Node node = pubsubMgr.getNode(n.getNode());
                 node.removeItemEventListener(pel); // remove the listener in cases we already know the node
@@ -163,7 +168,7 @@ public class PubsubClientModel {
     }
 
     public void logout() {
-        if(connection != null && connection.isConnected()) {
+        if (connection != null && connection.isConnected()) {
             connection.disconnect();
         }
     }
@@ -191,13 +196,13 @@ public class PubsubClientModel {
     public void selectNode(String selectedNode) {
         this.selectedNode = selectedNode;
     }
-    
+
     public String getSelectedNode() {
         return this.selectedNode;
     }
 
     public DefaultListModel getListModel(String nodeID) {
-        if(!nodeMessages.containsKey(nodeID)) {
+        if (!nodeMessages.containsKey(nodeID)) {
             DefaultListModel dlm = new DefaultListModel();
             nodeMessages.put(nodeID, dlm);
         }

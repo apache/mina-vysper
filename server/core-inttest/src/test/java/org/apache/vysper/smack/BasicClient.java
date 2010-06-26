@@ -19,13 +19,24 @@
  */
 package org.apache.vysper.smack;
 
-import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.filter.PacketFilter;
-import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smackx.packet.Version;
-import org.jivesoftware.smackx.packet.Time;
-
 import java.util.Random;
+
+import org.jivesoftware.smack.Chat;
+import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.MessageListener;
+import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.Roster;
+import org.jivesoftware.smack.SASLAuthentication;
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.filter.PacketFilter;
+import org.jivesoftware.smack.packet.IQ;
+import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.packet.PacketExtension;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smackx.packet.Time;
+import org.jivesoftware.smackx.packet.Version;
 
 /**
  */
@@ -46,7 +57,8 @@ public class BasicClient {
             Presence presence = (Presence) packet;
             String iqString = presence.toString();
             final PacketExtension extension = presence.getExtension("http://jabber.org/protocol/caps");
-            if (extension != null) System.out.println("T" + System.currentTimeMillis() + " Pres: " + iqString + ": " + presence.toXML());
+            if (extension != null)
+                System.out.println("T" + System.currentTimeMillis() + " Pres: " + iqString + ": " + presence.toXML());
         }
     }
 
@@ -54,10 +66,10 @@ public class BasicClient {
 
         String me = args.length > 0 ? args[0] : "user1";
         String to = args.length < 2 ? null : args[1];
-        
+
         try {
             ConnectionConfiguration connectionConfiguration = new ConnectionConfiguration("localhost");
-//            ConnectionConfiguration connectionConfiguration = new ConnectionConfiguration("xmpp.eu");
+            //            ConnectionConfiguration connectionConfiguration = new ConnectionConfiguration("xmpp.eu");
             connectionConfiguration.setCompressionEnabled(false);
             connectionConfiguration.setSelfSignedCertificateEnabled(true);
             connectionConfiguration.setExpiredCertificatesCheckEnabled(false);
@@ -69,23 +81,22 @@ public class BasicClient {
             connection.connect();
 
             SASLAuthentication saslAuthentication = connection.getSASLAuthentication();
-//            saslAuthentication.authenticateAnonymously();
-//            saslAuthentication.authenticate("user1@vysper.org", "password1", "test");
+            //            saslAuthentication.authenticateAnonymously();
+            //            saslAuthentication.authenticate("user1@vysper.org", "password1", "test");
 
-//            if (!saslAuthentication.isAuthenticated()) return;
-
+            //            if (!saslAuthentication.isAuthenticated()) return;
 
             connection.login(me + "@vysper.org", "password1");
 
             connection.getRoster().setSubscriptionMode(Roster.SubscriptionMode.accept_all);
 
-            connection.addPacketListener(new IQListener() , new PacketFilter() {
+            connection.addPacketListener(new IQListener(), new PacketFilter() {
                 public boolean accept(Packet packet) {
                     return packet instanceof IQ;
                 }
             });
 
-            connection.addPacketListener(new PresenceListener() , new PacketFilter() {
+            connection.addPacketListener(new PresenceListener(), new PacketFilter() {
                 public boolean accept(Packet packet) {
                     return packet instanceof Presence;
                 }
@@ -98,44 +109,60 @@ public class BasicClient {
                 String toEntity = to + "@vysper.org";
                 presence.setTo(toEntity);
                 connection.sendPacket(presence);
-    
-                    chat = connection.getChatManager().createChat(toEntity, new MessageListener() {
+
+                chat = connection.getChatManager().createChat(toEntity, new MessageListener() {
                     public void processMessage(Chat inchat, Message message) {
                         System.out.println("log received message: " + message.getBody());
-                       }
-                     });
+                    }
+                });
             }
-            
+
             connection.sendPacket(new Presence(Presence.Type.available, "pommes", 1, Presence.Mode.available));
 
             Thread.sleep(1000);
-            
+
             // query server version
             sendIQGetWithTimestamp(connection, new Version());
 
             // query server time
             sendIQGetWithTimestamp(connection, new Time());
 
-/*            while (to != null) {
-//                chat.sendMessage("Hello " + to + " at " + new Date());
-                try { Thread.sleep((new Random().nextInt(15)+1)*1000 ); } catch (InterruptedException e) { ; }
-            }*/
+            /*            while (to != null) {
+            //                chat.sendMessage("Hello " + to + " at " + new Date());
+                            try { Thread.sleep((new Random().nextInt(15)+1)*1000 ); } catch (InterruptedException e) { ; }
+                        }*/
 
             for (int i = 0; i < 10; i++) {
                 connection.sendPacket(new Presence(Presence.Type.available, "pommes", 1, Presence.Mode.available));
-                try { Thread.sleep((new Random().nextInt(15)+10)*1000 ); } catch (InterruptedException e) { ; }
+                try {
+                    Thread.sleep((new Random().nextInt(15) + 10) * 1000);
+                } catch (InterruptedException e) {
+                    ;
+                }
                 connection.sendPacket(new Presence(Presence.Type.available, "nickes", 1, Presence.Mode.away));
-                try { Thread.sleep((new Random().nextInt(15)+10)*1000 ); } catch (InterruptedException e) { ; }
+                try {
+                    Thread.sleep((new Random().nextInt(15) + 10) * 1000);
+                } catch (InterruptedException e) {
+                    ;
+                }
             }
 
             for (int i = 0; i < 2000; i++) {
-                try { Thread.sleep(500); } catch (InterruptedException e) { ; }
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    ;
+                }
             }
-            
-            connection.disconnect(); 
+
+            connection.disconnect();
         } catch (Throwable e) {
-            try { Thread.sleep(120*1000 ); } catch (InterruptedException ie) { ; }
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            try {
+                Thread.sleep(120 * 1000);
+            } catch (InterruptedException ie) {
+                ;
+            }
+            e.printStackTrace(); //To change body of catch statement use File | Settings | File Templates.
         }
         System.exit(0);
     }

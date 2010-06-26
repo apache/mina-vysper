@@ -30,5 +30,6 @@ public interface ResponseStanzaContainer {
     Stanza getResponseStanza();
 
     boolean hasResponse();
+
     boolean hasNoResponse();
 }

@@ -26,12 +26,12 @@ import java.util.TreeMap;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.MemberAffiliationVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubAffiliation;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.SubscriberVisitor;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.MemberAffiliationVisitor;
+import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LastOwnerResignedException;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.PayloadItem;
-import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LastOwnerResignedException;
 
 /**
  * This storage provider keeps all objects in memory and looses its content when
@@ -42,11 +42,13 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LastOwnerRe
 public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider {
 
     // The node owners
-    protected Map<String,Map<Entity, PubSubAffiliation>> nodeAffiliations;
+    protected Map<String, Map<Entity, PubSubAffiliation>> nodeAffiliations;
+
     // stores subscribers to a node, access via subid
-    protected Map<String,Map<String, Entity>> nodeSubscribers;
+    protected Map<String, Map<String, Entity>> nodeSubscribers;
+
     // stores messages to a node, access via itemid
-    protected Map<String,Map<String, PayloadItem>> nodeMessages;
+    protected Map<String, Map<String, PayloadItem>> nodeMessages;
 
     /**
      * Initialize the storage maps.
@@ -111,8 +113,8 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
     public int countSubscriptions(String nodeName, Entity subscriber) {
         Map<String, Entity> subscribers = nodeSubscribers.get(nodeName);
         int count = 0;
-        for(Entity sub : subscribers.values()) {
-            if(subscriber.equals(sub)) {
+        for (Entity sub : subscribers.values()) {
+            if (subscriber.equals(sub)) {
                 ++count;
             }
         }
@@ -140,7 +142,7 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
      */
     public void acceptForEachSubscriber(String nodeName, SubscriberVisitor subscriberVisitor) {
         Map<String, Entity> subscribers = nodeSubscribers.get(nodeName);
-        for(String subID : subscribers.keySet()) {
+        for (String subID : subscribers.keySet()) {
             subscriberVisitor.visit(nodeName, subID, subscribers.get(subID));
         }
     }
@@ -157,7 +159,7 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
      */
     public void acceptForEachItem(String nodeName, ItemVisitor iv) {
         Map<String, PayloadItem> messages = nodeMessages.get(nodeName);
-        for(String itemID : messages.keySet()) {
+        for (String itemID : messages.keySet()) {
             iv.visit(itemID, messages.get(itemID));
         }
     }
@@ -184,17 +186,18 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
      * Add the entity to the owner list of the given node.
      * The owner is stored as bare JID.
      */
-    public void setAffiliation(String nodeName, Entity entity, PubSubAffiliation affiliation) throws LastOwnerResignedException {
+    public void setAffiliation(String nodeName, Entity entity, PubSubAffiliation affiliation)
+            throws LastOwnerResignedException {
         Map<Entity, PubSubAffiliation> affils = this.nodeAffiliations.get(nodeName);
         Entity bareJID = entity.getBareJID();
 
-        if(getAffiliation(nodeName, bareJID).equals(PubSubAffiliation.OWNER)
+        if (getAffiliation(nodeName, bareJID).equals(PubSubAffiliation.OWNER)
                 && !affiliation.equals(PubSubAffiliation.OWNER)
                 && countAffiliations(nodeName, PubSubAffiliation.OWNER) == 1) {
             throw new LastOwnerResignedException(bareJID.getFullQualifiedName() + " tried to resign from " + nodeName);
         }
 
-        if(affiliation.equals(PubSubAffiliation.NONE)) {
+        if (affiliation.equals(PubSubAffiliation.NONE)) {
             affils.remove(bareJID); // NONE affiliations are not stored.
         } else {
             affils.put(bareJID, affiliation);
@@ -210,8 +213,8 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
     private int countAffiliations(String nodeName, PubSubAffiliation affiliation) {
         Map<Entity, PubSubAffiliation> affils = this.nodeAffiliations.get(nodeName);
         int i = 0;
-        for(PubSubAffiliation a : affils.values()) {
-            if(a.equals(affiliation))
+        for (PubSubAffiliation a : affils.values()) {
+            if (a.equals(affiliation))
                 ++i;
         }
         return i;
@@ -221,8 +224,7 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
      * Returns the affiliation of the entity to the node. Only the bare JID will be compared.
      */
     public PubSubAffiliation getAffiliation(String nodeName, Entity entity) {
-        PubSubAffiliation psa = this.nodeAffiliations.get(nodeName)
-                                                     .get(entity.getBareJID());
+        PubSubAffiliation psa = this.nodeAffiliations.get(nodeName).get(entity.getBareJID());
         return psa != null ? psa : PubSubAffiliation.NONE; // NONE if there is no affiliation known.
     }
 
@@ -231,7 +233,7 @@ public class LeafNodeInMemoryStorageProvider implements LeafNodeStorageProvider 
      */
     public void acceptForEachMemberAffiliation(String name, MemberAffiliationVisitor mav) {
         Map<Entity, PubSubAffiliation> affils = this.nodeAffiliations.get(name);
-        for(Entity jid : affils.keySet()) {
+        for (Entity jid : affils.keySet()) {
             PubSubAffiliation affil = affils.get(jid);
             mav.visit(jid, affil);
         }

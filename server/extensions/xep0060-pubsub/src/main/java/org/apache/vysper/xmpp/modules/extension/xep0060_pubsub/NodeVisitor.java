@@ -36,5 +36,4 @@ public interface NodeVisitor {
      */
     public void visit(LeafNode ln);
 
-
 }

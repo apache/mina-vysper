@@ -19,17 +19,27 @@
  */
 package org.apache.vysper.xmpp.modules.roster;
 
+import static org.apache.vysper.xmpp.modules.roster.AskSubscriptionType.ASK_SUBSCRIBE;
+import static org.apache.vysper.xmpp.modules.roster.AskSubscriptionType.ASK_SUBSCRIBED;
+import static org.apache.vysper.xmpp.modules.roster.AskSubscriptionType.NOT_SET;
+import static org.apache.vysper.xmpp.modules.roster.RosterSubscriptionMutator.Result.ALREADY_SET;
+import static org.apache.vysper.xmpp.modules.roster.RosterSubscriptionMutator.Result.FAILED;
+import static org.apache.vysper.xmpp.modules.roster.RosterSubscriptionMutator.Result.ILLEGAL_ARGUMENT;
+import static org.apache.vysper.xmpp.modules.roster.RosterSubscriptionMutator.Result.OK;
+import static org.apache.vysper.xmpp.modules.roster.SubscriptionType.BOTH;
+import static org.apache.vysper.xmpp.modules.roster.SubscriptionType.FROM;
+import static org.apache.vysper.xmpp.modules.roster.SubscriptionType.NONE;
+import static org.apache.vysper.xmpp.modules.roster.SubscriptionType.REMOVE;
+import static org.apache.vysper.xmpp.modules.roster.SubscriptionType.TO;
 import junit.framework.TestCase;
-import org.apache.vysper.xmpp.addressing.EntityImpl;
+
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
-import static org.apache.vysper.xmpp.modules.roster.AskSubscriptionType.*;
-import static org.apache.vysper.xmpp.modules.roster.SubscriptionType.*;
-import static org.apache.vysper.xmpp.modules.roster.RosterSubscriptionMutator.Result.*;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 
 /**
  */
 public class RosterSubscriptionMutatorTestCase extends TestCase {
-    
+
     @Override
     public void setUp() {
         // Add your code here
@@ -37,7 +47,7 @@ public class RosterSubscriptionMutatorTestCase extends TestCase {
 
     public void testAddSubscriptionRequest() {
         checkAdd(NONE, NOT_SET, NOT_SET, ILLEGAL_ARGUMENT, null, null);
-        
+
         // most simple cases
         checkAdd(NONE, NOT_SET, ASK_SUBSCRIBE, OK, NONE, ASK_SUBSCRIBE);
         checkAdd(NONE, NOT_SET, ASK_SUBSCRIBED, OK, NONE, ASK_SUBSCRIBED);
@@ -95,32 +105,37 @@ public class RosterSubscriptionMutatorTestCase extends TestCase {
     }
 
     private void checkAdd(SubscriptionType initialSubscriptionType, AskSubscriptionType initialAskSubscriptionType,
-                       SubscriptionType parameterSubscriptionType, 
-                       RosterSubscriptionMutator.Result expectedResult,
-                       SubscriptionType expectedSubscriptionType, AskSubscriptionType expectedAskSubscriptionType) {
+            SubscriptionType parameterSubscriptionType, RosterSubscriptionMutator.Result expectedResult,
+            SubscriptionType expectedSubscriptionType, AskSubscriptionType expectedAskSubscriptionType) {
 
         RosterItem item = prepareItem(initialSubscriptionType, initialAskSubscriptionType);
-        
-        // add parameterSubscriptionType 
-        RosterSubscriptionMutator.Result subscriptionMutatorResult = new RosterSubscriptionMutator().add(item, parameterSubscriptionType);
 
-        checkResult(initialSubscriptionType, initialAskSubscriptionType, expectedResult, expectedSubscriptionType, expectedAskSubscriptionType, item, subscriptionMutatorResult);
+        // add parameterSubscriptionType 
+        RosterSubscriptionMutator.Result subscriptionMutatorResult = new RosterSubscriptionMutator().add(item,
+                parameterSubscriptionType);
+
+        checkResult(initialSubscriptionType, initialAskSubscriptionType, expectedResult, expectedSubscriptionType,
+                expectedAskSubscriptionType, item, subscriptionMutatorResult);
     }
 
     private void checkAdd(SubscriptionType initialSubscriptionType, AskSubscriptionType initialAskSubscriptionType,
-                       AskSubscriptionType parameterAskSubscriptionType, 
-                       RosterSubscriptionMutator.Result expectedResult,
-                       SubscriptionType expectedSubscriptionType, AskSubscriptionType expectedAskSubscriptionType) {
+            AskSubscriptionType parameterAskSubscriptionType, RosterSubscriptionMutator.Result expectedResult,
+            SubscriptionType expectedSubscriptionType, AskSubscriptionType expectedAskSubscriptionType) {
 
         RosterItem item = prepareItem(initialSubscriptionType, initialAskSubscriptionType);
-        
-        // add parameterSubscriptionType 
-        RosterSubscriptionMutator.Result subscriptionMutatorResult = new RosterSubscriptionMutator().add(item, parameterAskSubscriptionType);
 
-        checkResult(initialSubscriptionType, initialAskSubscriptionType, expectedResult, expectedSubscriptionType, expectedAskSubscriptionType, item, subscriptionMutatorResult);
+        // add parameterSubscriptionType 
+        RosterSubscriptionMutator.Result subscriptionMutatorResult = new RosterSubscriptionMutator().add(item,
+                parameterAskSubscriptionType);
+
+        checkResult(initialSubscriptionType, initialAskSubscriptionType, expectedResult, expectedSubscriptionType,
+                expectedAskSubscriptionType, item, subscriptionMutatorResult);
     }
 
-    private void checkResult(SubscriptionType initialSubscriptionType, AskSubscriptionType initialAskSubscriptionType, RosterSubscriptionMutator.Result expectedResult, SubscriptionType expectedSubscriptionType, AskSubscriptionType expectedAskSubscriptionType, RosterItem item, RosterSubscriptionMutator.Result subscriptionMutatorResult) {
+    private void checkResult(SubscriptionType initialSubscriptionType, AskSubscriptionType initialAskSubscriptionType,
+            RosterSubscriptionMutator.Result expectedResult, SubscriptionType expectedSubscriptionType,
+            AskSubscriptionType expectedAskSubscriptionType, RosterItem item,
+            RosterSubscriptionMutator.Result subscriptionMutatorResult) {
         assertEquals(expectedResult, subscriptionMutatorResult);
 
         if (expectedSubscriptionType == null && expectedAskSubscriptionType == null) {
@@ -132,12 +147,13 @@ public class RosterSubscriptionMutatorTestCase extends TestCase {
         }
     }
 
-    private RosterItem prepareItem(SubscriptionType initialSubscriptionType, AskSubscriptionType initialAskSubscriptionType) {
+    private RosterItem prepareItem(SubscriptionType initialSubscriptionType,
+            AskSubscriptionType initialAskSubscriptionType) {
         EntityImpl jid = null;
         try {
             jid = EntityImpl.parse("test@test.org");
         } catch (EntityFormatException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace(); //To change body of catch statement use File | Settings | File Templates.
         }
         RosterItem item = new RosterItem(jid, "group", initialSubscriptionType, initialAskSubscriptionType);
         return item;

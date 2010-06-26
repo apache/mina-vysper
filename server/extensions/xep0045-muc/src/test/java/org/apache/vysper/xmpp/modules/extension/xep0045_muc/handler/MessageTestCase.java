@@ -66,10 +66,8 @@ public class MessageTestCase extends AbstractMUCMessageHandlerTestCase {
         sendMessage(OCCUPANT1_JID, ROOM1_JID, GROUPCHAT, body);
 
         // verify stanzas to existing occupants on the exiting user
-        assertMessageStanza(ROOM1_JID_WITH_NICK, OCCUPANT1_JID, "groupchat", body,
-                occupant1Queue.getNext());
-        assertMessageStanza(ROOM1_JID_WITH_NICK, OCCUPANT2_JID, "groupchat", body,
-                occupant2Queue.getNext());
+        assertMessageStanza(ROOM1_JID_WITH_NICK, OCCUPANT1_JID, "groupchat", body, occupant1Queue.getNext());
+        assertMessageStanza(ROOM1_JID_WITH_NICK, OCCUPANT2_JID, "groupchat", body, occupant2Queue.getNext());
     }
 
     public void testMessageToOccupant() throws Exception {
@@ -84,12 +82,10 @@ public class MessageTestCase extends AbstractMUCMessageHandlerTestCase {
         sendMessage(OCCUPANT1_JID, new EntityImpl(ROOM1_JID, "Nick 2"), MessageStanzaType.CHAT, body);
 
         // verify stanzas to existing occupants on the exiting user
-        assertMessageStanza(ROOM1_JID_WITH_NICK, OCCUPANT2_JID, "chat", body,
-                occupant2Queue.getNext());
+        assertMessageStanza(ROOM1_JID_WITH_NICK, OCCUPANT2_JID, "chat", body, occupant2Queue.getNext());
         assertNull(occupant1Queue.getNext());
     }
 
-    
     public void testGroupChatMessageToOccupant() throws Exception {
         // add occupants to the room
         Room room = conference.findOrCreateRoom(ROOM1_JID, "Room 1");
@@ -97,11 +93,11 @@ public class MessageTestCase extends AbstractMUCMessageHandlerTestCase {
         room.addOccupant(OCCUPANT2_JID, "Nick 2");
 
         // send message to occupant 1 with type groupchat
-        Stanza errorStanza = sendMessage(OCCUPANT1_JID, new EntityImpl(ROOM1_JID, "Nick 2"), MessageStanzaType.GROUPCHAT, BODY);
+        Stanza errorStanza = sendMessage(OCCUPANT1_JID, new EntityImpl(ROOM1_JID, "Nick 2"),
+                MessageStanzaType.GROUPCHAT, BODY);
 
         XMLElement expectedBody = new XMLElementBuilder("body").addText(BODY).build();
-        assertMessageErrorStanza(errorStanza, ROOM1_JID, OCCUPANT1_JID, "modify",
-                "bad-request", expectedBody);
+        assertMessageErrorStanza(errorStanza, ROOM1_JID, OCCUPANT1_JID, "modify", "bad-request", expectedBody);
 
         // no message should be relayed
         assertNull(occupant1Queue.getNext());
@@ -123,8 +119,7 @@ public class MessageTestCase extends AbstractMUCMessageHandlerTestCase {
 
         X expectedX = new X(new Invite(OCCUPANT1_JID, null, reason), new Password("secret"));
         // verify stanzas to existing occupants on the exiting user
-        assertMessageStanza(ROOM1_JID, OCCUPANT2_JID, null, null, null, expectedX,
-                occupant2Queue.getNext());
+        assertMessageStanza(ROOM1_JID, OCCUPANT2_JID, null, null, null, expectedX, occupant2Queue.getNext());
         assertNull(occupant1Queue.getNext());
     }
 
@@ -142,8 +137,7 @@ public class MessageTestCase extends AbstractMUCMessageHandlerTestCase {
 
         X expectedX = new X(new Decline(OCCUPANT1_JID, null, reason));
         // verify stanzas to existing occupants on the exiting user
-        assertMessageStanza(ROOM1_JID, OCCUPANT2_JID, null, null, null, expectedX,
-                occupant2Queue.getNext());
+        assertMessageStanza(ROOM1_JID, OCCUPANT2_JID, null, null, null, expectedX, occupant2Queue.getNext());
         assertNull(occupant1Queue.getNext());
     }
 }

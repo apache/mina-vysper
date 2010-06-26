@@ -19,15 +19,15 @@
  */
 package org.apache.vysper.xmpp.stanza.dataforms;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.apache.vysper.xml.fragment.Attribute;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLFragment;
 import org.apache.vysper.xml.fragment.XMLText;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * makes XMPP out of a Data Form as provided by the model contained in a {@link org.apache.vysper.xmpp.stanza.dataforms.DataForm}
@@ -42,7 +42,8 @@ public class DataFormEncoder {
         Iterator<String> instructionIterator = dataForm.getInstructionIterator();
         while (instructionIterator.hasNext()) {
             String instruction = instructionIterator.next();
-            if (instruction == null) continue;
+            if (instruction == null)
+                continue;
             childElements.add(createTextOnlyElement(NamespaceURIs.JABBER_X_DATA, "instructions", instruction));
         }
 
@@ -58,7 +59,8 @@ public class DataFormEncoder {
                 Field field = reportedIterator.next();
                 reportedFields.add(encodeField(field));
             }
-            XMLElement reportedElement = new XMLElement(NamespaceURIs.JABBER_X_DATA, "reported", null, null, reportedFields);
+            XMLElement reportedElement = new XMLElement(NamespaceURIs.JABBER_X_DATA, "reported", null, null,
+                    reportedFields);
             childElements.add(reportedElement);
 
             // all item elements with their values
@@ -72,7 +74,7 @@ public class DataFormEncoder {
                 XMLElement itemElement = new XMLElement(NamespaceURIs.JABBER_X_DATA, "item", null, null, itemFields);
                 childElements.add(itemElement);
             }
-        } 
+        }
 
         if (dataForm.getType() != DataForm.Type.cancel) {
             // all fields
@@ -85,14 +87,14 @@ public class DataFormEncoder {
 
         List<Attribute> attributes = new ArrayList<Attribute>();
         attributes.add(new Attribute("type", dataForm.getType().value()));
-        
+
         return new XMLElement(NamespaceURIs.JABBER_X_DATA, "x", NamespaceURIs.JABBER_X_DATA, attributes, childElements);
     }
-    
+
     protected XMLElement encodeField(Field field) {
-        
+
         ArrayList<XMLFragment> fieldElements = new ArrayList<XMLFragment>();
-        
+
         List<Attribute> fieldAttributes = new ArrayList<Attribute>();
         if (field.getVar() != null) {
             fieldAttributes.add(new Attribute("var", field.getVar()));
@@ -106,14 +108,14 @@ public class DataFormEncoder {
 
         ArrayList<XMLFragment> descFragment = new ArrayList<XMLFragment>();
         if (field.getDesc() != null) {
-            descFragment.add(new XMLText(field.getDesc()));     
+            descFragment.add(new XMLText(field.getDesc()));
         }
         fieldElements.add(new XMLElement(NamespaceURIs.JABBER_X_DATA, "desc", null, null, descFragment));
 
         if (field.isRequired()) {
             fieldElements.add(createEmptyElement(NamespaceURIs.JABBER_X_DATA, "required"));
         }
-        
+
         Iterator<String> valueIterator = field.getValueIterator();
         while (valueIterator.hasNext()) {
             String value = valueIterator.next();
@@ -125,22 +127,24 @@ public class DataFormEncoder {
         while (optionIterator.hasNext()) {
             Option option = optionIterator.next();
 
-            Attribute[] attributes = option.getLabel() == null ? null : new Attribute[]{new Attribute("label", option.getLabel())};
-            XMLFragment[] elements = option.getValue() == null ? null : new XMLFragment[]{new XMLText(option.getValue())};
+            Attribute[] attributes = option.getLabel() == null ? null : new Attribute[] { new Attribute("label", option
+                    .getLabel()) };
+            XMLFragment[] elements = option.getValue() == null ? null : new XMLFragment[] { new XMLText(option
+                    .getValue()) };
 
             XMLElement optionElement = new XMLElement(NamespaceURIs.JABBER_X_DATA, "option", null, attributes, elements);
             fieldElements.add(optionElement);
         }
 
         return new XMLElement(NamespaceURIs.JABBER_X_DATA, "field", null, fieldAttributes, fieldElements);
-        
+
     }
 
     protected XMLElement createEmptyElement(String namespaceURI, String elementName) {
-        return new XMLElement(namespaceURI, elementName, null, (Attribute[])null, (XMLFragment[])null);
+        return new XMLElement(namespaceURI, elementName, null, (Attribute[]) null, (XMLFragment[]) null);
     }
-    
+
     protected XMLElement createTextOnlyElement(String namespaceURI, String elementName, String text) {
-        return new XMLElement(namespaceURI, elementName, null, null, new XMLFragment[]{new XMLText(text)});
+        return new XMLElement(namespaceURI, elementName, null, null, new XMLFragment[] { new XMLText(text) });
     }
 }

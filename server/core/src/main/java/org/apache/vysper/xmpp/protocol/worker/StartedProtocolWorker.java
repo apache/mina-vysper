@@ -39,8 +39,10 @@ public class StartedProtocolWorker extends AbstractStateAwareProtocolWorker {
     }
 
     @Override
-    protected boolean checkState(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza, StanzaHandler stanzaHandler) {
-        if (stanzaHandler instanceof StartTLSHandler) return true;
+    protected boolean checkState(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
+            StanzaHandler stanzaHandler) {
+        if (stanzaHandler instanceof StartTLSHandler)
+            return true;
         ResponseWriter.writeUnsupportedStanzaError(sessionContext);
         return false;
     }

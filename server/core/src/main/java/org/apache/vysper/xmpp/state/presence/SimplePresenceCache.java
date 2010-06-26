@@ -19,11 +19,11 @@
  */
 package org.apache.vysper.xmpp.state.presence;
 
-import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.stanza.PresenceStanza;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.stanza.PresenceStanza;
 
 /**
  * unbounded in-memory-only cache, but entries are timestamped and oldest entry is the first in list
@@ -36,7 +36,7 @@ public class SimplePresenceCache extends AbstractBaseCache {
     protected void put0(Entity entity, PresenceStanza presenceStanza) {
         checkEntry(entity);
         // force adding at the end, this guarantees that the entry is the latest in getForBareJID()
-        presenceMap.remove(entity);  
+        presenceMap.remove(entity);
         presenceMap.put(entity, new Entry(presenceStanza));
     }
 
@@ -44,7 +44,8 @@ public class SimplePresenceCache extends AbstractBaseCache {
     protected PresenceStanza get0(Entity entity) throws PresenceCachingException {
         checkEntry(entity);
         Entry entry = presenceMap.get(entity);
-        if (entry == null) return null;
+        if (entry == null)
+            return null;
         return entry.getPresenceStanza();
     }
 
@@ -65,6 +66,7 @@ public class SimplePresenceCache extends AbstractBaseCache {
 
     static class Entry {
         protected long timestamp = System.currentTimeMillis();
+
         protected PresenceStanza presenceStanza;
 
         Entry(PresenceStanza presenceStanza) {

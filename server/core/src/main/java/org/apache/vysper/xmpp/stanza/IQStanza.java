@@ -35,7 +35,8 @@ public class IQStanza extends XMPPCoreStanza {
 
     public IQStanza(Stanza stanza) {
         super(stanza);
-        if (!isOfType(stanza)) throw new IllegalArgumentException("only IQ stanza is allowed here");
+        if (!isOfType(stanza))
+            throw new IllegalArgumentException("only IQ stanza is allowed here");
     }
 
     @Override
@@ -45,7 +46,8 @@ public class IQStanza extends XMPPCoreStanza {
 
     public IQStanzaType getIQType() {
         String type = getType();
-        if (type == null) return null;
+        if (type == null)
+            return null;
         return IQStanzaType.valueOfOrNull(type);
     }
 

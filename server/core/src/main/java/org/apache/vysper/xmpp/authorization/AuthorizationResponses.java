@@ -19,10 +19,10 @@
  */
 package org.apache.vysper.xmpp.authorization;
 
+import org.apache.vysper.xmpp.modules.core.sasl.SASLFailureType;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.modules.core.sasl.SASLFailureType;
 
 /**
  * responses used during SASL authorization
@@ -41,9 +41,10 @@ public class AuthorizationResponses {
     }
 
     public Stanza getFailure(SASLFailureType failureType) {
-        return new StanzaBuilder("failure", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
-                .startInnerElement(failureType.value(), NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).endInnerElement().build();
+        return new StanzaBuilder("failure", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).startInnerElement(
+                failureType.value(), NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).endInnerElement().build();
     }
+
     public Stanza getFailureMalformedRequest() {
         return getFailure(SASLFailureType.MALFORMED_REQUEST);
     }

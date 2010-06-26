@@ -37,36 +37,36 @@ import org.apache.vysper.xml.sax.NonBlockingXMLReader;
  */
 public class XMPPContentHandlerTestCase extends TestCase {
 
-	private static class TestListener implements StanzaListener {
-		public List<XMLElement> elements = new ArrayList<XMLElement>();
-		
-		public void stanza(XMLElement element) {
-			elements.add(element);
-		}
-	}
-	
-	public void test() throws Exception {
-		NonBlockingXMLReader reader = new DefaultNonBlockingXMLReader();
-		XMPPContentHandler handler = new XMPPContentHandler();
-		TestListener listener = new TestListener();
-		handler.setListener(listener);
-		
-		reader.setContentHandler(handler);
-	
-		parse(reader, "<stanza:stanza xmlns:stanza='http://etherx.jabber.org/streams'>");
-		parse(reader, "<message></message>");
-		parse(reader, "<iq>");
-		parse(reader, "</iq>");
-		parse(reader, "</stanza:stanza>");
-		
-		Iterator<XMLElement> actual = listener.elements.iterator();
-		assertEquals("stanza", actual.next().getName());
-		assertEquals("message", actual.next().getName());
-		assertEquals("iq", actual.next().getName());
-	}
-	
-	private void parse(NonBlockingXMLReader reader, String xml) throws Exception {
-		reader.parse(IoBuffer.wrap(xml.getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);	
-	}
+    private static class TestListener implements StanzaListener {
+        public List<XMLElement> elements = new ArrayList<XMLElement>();
+
+        public void stanza(XMLElement element) {
+            elements.add(element);
+        }
+    }
+
+    public void test() throws Exception {
+        NonBlockingXMLReader reader = new DefaultNonBlockingXMLReader();
+        XMPPContentHandler handler = new XMPPContentHandler();
+        TestListener listener = new TestListener();
+        handler.setListener(listener);
+
+        reader.setContentHandler(handler);
+
+        parse(reader, "<stanza:stanza xmlns:stanza='http://etherx.jabber.org/streams'>");
+        parse(reader, "<message></message>");
+        parse(reader, "<iq>");
+        parse(reader, "</iq>");
+        parse(reader, "</stanza:stanza>");
+
+        Iterator<XMLElement> actual = listener.elements.iterator();
+        assertEquals("stanza", actual.next().getName());
+        assertEquals("message", actual.next().getName());
+        assertEquals("iq", actual.next().getName());
+    }
+
+    private void parse(NonBlockingXMLReader reader, String xml) throws Exception {
+        reader.parse(IoBuffer.wrap(xml.getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
+    }
 
 }

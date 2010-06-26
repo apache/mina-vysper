@@ -19,7 +19,15 @@
  */
 package org.apache.vysper.xmpp.authorization;
 
+import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.PARTIAL;
+import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.IN_PROGRESS;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.codec.binary.Base64;
+import org.apache.vysper.compliance.SpecCompliance;
+import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xml.fragment.XMLText;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -28,23 +36,15 @@ import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.compliance.SpecCompliant;
-import org.apache.vysper.compliance.SpecCompliance;
-import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.*;
-import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * handles SASL PLAIN mechanism. this mechanism is standardized in RFC4616
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-@SpecCompliance( compliant = {
-    @SpecCompliant(spec="rfc4616", status= IN_PROGRESS, coverage = PARTIAL),
-    @SpecCompliant(spec="rfc3920bis-09", section = "15.6.", status= IN_PROGRESS, coverage = PARTIAL, comment = "PLAIN is mandatory now")
-})
+@SpecCompliance(compliant = {
+        @SpecCompliant(spec = "rfc4616", status = IN_PROGRESS, coverage = PARTIAL),
+        @SpecCompliant(spec = "rfc3920bis-09", section = "15.6.", status = IN_PROGRESS, coverage = PARTIAL, comment = "PLAIN is mandatory now") })
 public class Plain implements SASLMechanism {
 
     private static final AuthorizationResponses AUTHORIZATION_RESPONSES = new AuthorizationResponses();
@@ -57,7 +57,8 @@ public class Plain implements SASLMechanism {
         // TODO assure, that connection is secured via TLS. if not, reject SASL PLAIN
 
         List<XMLText> innerTexts = authStanza.getInnerTexts();
-        if (innerTexts == null || innerTexts.isEmpty()) return AUTHORIZATION_RESPONSES.getFailureMalformedRequest();
+        if (innerTexts == null || innerTexts.isEmpty())
+            return AUTHORIZATION_RESPONSES.getFailureMalformedRequest();
 
         // retrieve credential payload and decode from BASE64
         XMLText base64Encoded = innerTexts.get(0);
@@ -90,7 +91,8 @@ public class Plain implements SASLMechanism {
         String username = decodedParts.get(1); // "authentication identity (identity whose password will be used)"
         String password = decodedParts.get(2);
 
-        if (!username.contains("@")) username = username + "@" + sessionContext.getServerJID().getDomain();
+        if (!username.contains("@"))
+            username = username + "@" + sessionContext.getServerJID().getDomain();
         EntityImpl initiatingEntity;
         try {
             initiatingEntity = EntityImpl.parse(username);
@@ -98,7 +100,8 @@ public class Plain implements SASLMechanism {
             return AUTHORIZATION_RESPONSES.getFailureNotAuthorized();
         }
 
-        boolean authorized = sessionContext.getServerRuntimeContext().getUserAuthorization().verifyCredentials(username, password, null);
+        boolean authorized = sessionContext.getServerRuntimeContext().getUserAuthorization().verifyCredentials(
+                username, password, null);
 
         if (authorized) {
             sessionContext.setInitiatingEntity(initiatingEntity);

@@ -20,12 +20,13 @@
 package org.apache.vysper.xmpp.stanza;
 
 import junit.framework.TestCase;
+
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 
 /**
  */
 public class XMPPCoreStanzaTestCase extends TestCase {
-    
+
     public void testGetVerifier() {
         StanzaBuilder responseBuilder = new StanzaBuilder("iq", NamespaceURIs.JABBER_SERVER);
         responseBuilder.addAttribute("id", "xzy");
@@ -34,6 +35,6 @@ public class XMPPCoreStanzaTestCase extends TestCase {
         // do not invoke some other getVerifier()s until getCoreVerifier() 
         XMPPCoreStanza coreStanza = new IQStanza(stanza);
         assertNotNull(coreStanza.getCoreVerifier());
-        
+
     }
 }

@@ -21,8 +21,8 @@ package org.apache.vysper.xmpp.modules.core.session.handler;
 
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -41,18 +41,19 @@ public class SessionIQHandler extends IQHandler {
     }
 
     @Override
-    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza, SessionContext sessionContext) {
+    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza,
+            SessionContext sessionContext) {
 
         switch (stanza.getIQType()) {
 
-            case SET:
-                return StanzaBuilder.createIQStanza(null, null, IQStanzaType.RESULT, stanza.getID())
-                                    .addAttribute("from", sessionContext.getServerJID().getFullQualifiedName()).build();
+        case SET:
+            return StanzaBuilder.createIQStanza(null, null, IQStanzaType.RESULT, stanza.getID()).addAttribute("from",
+                    sessionContext.getServerJID().getFullQualifiedName()).build();
 
-            case GET:
-            case ERROR:
-            default:
-                new RuntimeException("iq stanza type not supported: " + stanza.getIQType());
+        case GET:
+        case ERROR:
+        default:
+            new RuntimeException("iq stanza type not supported: " + stanza.getIQType());
         }
 
         return null;

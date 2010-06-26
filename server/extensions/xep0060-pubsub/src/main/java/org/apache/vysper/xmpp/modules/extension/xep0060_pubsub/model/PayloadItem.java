@@ -31,16 +31,19 @@ import org.apache.vysper.xmpp.addressing.Entity;
  * @author The Apache MINA Project (http://mina.apache.org)
  */
 public class PayloadItem implements Comparable<PayloadItem> {
-    
+
     // publisher of the item
     protected Entity publisher;
+
     // the id of the item
     protected String itemID;
+
     // tha payload
     protected XMLElement payload;
+
     // the date-time we received the payload
     protected Date publishedDate;
-    
+
     /**
      * Create new PayloadItem with the XML encoded payload and its itemID.
      * @param publisher

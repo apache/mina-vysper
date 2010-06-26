@@ -19,7 +19,6 @@
  */
 package org.apache.vysper.xmpp.delivery.failure;
 
-import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 
 /**
  * this class is thrown if message has not been delivered and was haned over for offline storage

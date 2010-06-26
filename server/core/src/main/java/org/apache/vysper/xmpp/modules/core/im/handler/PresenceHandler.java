@@ -19,13 +19,14 @@
  */
 package org.apache.vysper.xmpp.modules.core.im.handler;
 
+import static org.apache.vysper.xmpp.stanza.PresenceStanzaType.isSubscriptionType;
+
 import org.apache.vysper.xmpp.modules.core.base.handler.XMPPCoreStanzaHandler;
 import org.apache.vysper.xmpp.modules.roster.persistence.RosterManager;
 import org.apache.vysper.xmpp.modules.roster.persistence.RosterManagerUtils;
-import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.PresenceStanza;
-import static org.apache.vysper.xmpp.stanza.PresenceStanzaType.isSubscriptionType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 
@@ -37,28 +38,33 @@ import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 public class PresenceHandler extends XMPPCoreStanzaHandler {
 
     private final static PresenceAvailabilityHandler AVAILABILITY_HANDLER = new PresenceAvailabilityHandler();
+
     private final static PresenceSubscriptionHandler SUBSCRIPTION_HANDLER = new PresenceSubscriptionHandler();
 
     public String getName() {
-		return "presence";
-	}
+        return "presence";
+    }
 
-	@Override
+    @Override
     protected boolean verifyType(Stanza stanza) {
-		return PresenceStanza.isOfType(stanza);
-	}
+        return PresenceStanza.isOfType(stanza);
+    }
 
-	@Override
+    @Override
     protected Stanza executeCore(XMPPCoreStanza stanza, ServerRuntimeContext serverRuntimeContext,
-                                 boolean isOutboundStanza, SessionContext sessionContext) {
-        PresenceStanza presenceStanza = (PresenceStanza)stanza;
+            boolean isOutboundStanza, SessionContext sessionContext) {
+        PresenceStanza presenceStanza = (PresenceStanza) stanza;
 
         boolean subscriptionRelated = isSubscriptionType(presenceStanza.getPresenceType());
 
         RosterManager rosterManager = RosterManagerUtils.getRosterInstance(serverRuntimeContext, sessionContext);
-        
-        if (!subscriptionRelated) return AVAILABILITY_HANDLER.executeCorePresence(serverRuntimeContext, isOutboundStanza, sessionContext, presenceStanza, rosterManager);
-        else return SUBSCRIPTION_HANDLER.executeCorePresence(serverRuntimeContext, isOutboundStanza, sessionContext, presenceStanza, rosterManager);
+
+        if (!subscriptionRelated)
+            return AVAILABILITY_HANDLER.executeCorePresence(serverRuntimeContext, isOutboundStanza, sessionContext,
+                    presenceStanza, rosterManager);
+        else
+            return SUBSCRIPTION_HANDLER.executeCorePresence(serverRuntimeContext, isOutboundStanza, sessionContext,
+                    presenceStanza, rosterManager);
     }
 
 }

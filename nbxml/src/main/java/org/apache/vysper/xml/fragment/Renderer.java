@@ -29,14 +29,18 @@ import java.util.Map.Entry;
 public class Renderer {
 
     private XMLElement topElement;
+
     private StringBuilder openElementBuffer = new StringBuilder();
+
     private StringBuilder elementContentBuffer = new StringBuilder();
+
     private StringBuilder closeElementBuffer = new StringBuilder();
+
     private static final String COLON = ":";
 
     public Renderer(XMLElement element) {
         this.topElement = element;
-        
+
         ResolverNamespaceResolver nsResolver = new ResolverNamespaceResolver();
         renderXMLElement(topElement, nsResolver, openElementBuffer, elementContentBuffer, closeElementBuffer);
     }
@@ -57,97 +61,101 @@ public class Renderer {
         return openElementBuffer.toString() + elementContentBuffer.toString() + closeElementBuffer.toString();
     }
 
-    private void renderXMLElement(XMLElement element, ResolverNamespaceResolver nsResolver, StringBuilder openElementBuffer, StringBuilder elementContentBuffer, StringBuilder closeElementBuffer) {
+    private void renderXMLElement(XMLElement element, ResolverNamespaceResolver nsResolver,
+            StringBuilder openElementBuffer, StringBuilder elementContentBuffer, StringBuilder closeElementBuffer) {
         nsResolver.push(element);
-    	
-    	openElementBuffer.append("<");
+
+        openElementBuffer.append("<");
         renderElementName(openElementBuffer, element, nsResolver);
-        
+
         // render namespace declarations
         Map<String, String> nsAttrs = nsResolver.getNamespaceDeclarations();
-        for(Entry<String, String> nsAttr : nsAttrs.entrySet()) {
-    		openElementBuffer.append(" ");
-    		String name;
-    		if(nsAttr.getKey().length() == 0) {
-    			name = "xmlns";
-    		} else {
-    			name = "xmlns:" + nsAttr.getKey();
-    		}
-    		renderAttribute(openElementBuffer, name, nsAttr.getValue());
+        for (Entry<String, String> nsAttr : nsAttrs.entrySet()) {
+            openElementBuffer.append(" ");
+            String name;
+            if (nsAttr.getKey().length() == 0) {
+                name = "xmlns";
+            } else {
+                name = "xmlns:" + nsAttr.getKey();
+            }
+            renderAttribute(openElementBuffer, name, nsAttr.getValue());
         }
-        
+
         for (Attribute attribute : element.getAttributes()) {
-        	// make sure we do not render namespace attributes,
-        	// nor normal attributes containing namespace declarations (probably due to
-        	// the parser not correctly creating namespace attributes for these which are then 
-        	// copied into for example error responses)
-        	
-        	if(!attribute.getName().startsWith("xmlns")) {
-        		openElementBuffer.append(" ");
-        		renderAttribute(openElementBuffer, attribute, nsResolver);        		
-        	}
+            // make sure we do not render namespace attributes,
+            // nor normal attributes containing namespace declarations (probably due to
+            // the parser not correctly creating namespace attributes for these which are then 
+            // copied into for example error responses)
+
+            if (!attribute.getName().startsWith("xmlns")) {
+                openElementBuffer.append(" ");
+                renderAttribute(openElementBuffer, attribute, nsResolver);
+            }
         }
         openElementBuffer.append(">");
 
         for (XMLFragment xmlFragment : element.getInnerFragments()) {
-            if (xmlFragment instanceof XMLElement) renderXMLElement((XMLElement) xmlFragment, nsResolver, elementContentBuffer, elementContentBuffer, elementContentBuffer);
+            if (xmlFragment instanceof XMLElement)
+                renderXMLElement((XMLElement) xmlFragment, nsResolver, elementContentBuffer, elementContentBuffer,
+                        elementContentBuffer);
             else if (xmlFragment instanceof XMLText) {
                 elementContentBuffer.append(escapeTextValue(((XMLText) xmlFragment).getText()));
             } else {
-                throw new UnsupportedOperationException("cannot render XML fragment of type " + xmlFragment.getClass().getName());
+                throw new UnsupportedOperationException("cannot render XML fragment of type "
+                        + xmlFragment.getClass().getName());
             }
         }
 
         closeElementBuffer.append("</");
         renderElementName(closeElementBuffer, element, nsResolver);
         closeElementBuffer.append(">");
-        
+
         // remove this element from the NS resolver stack
         nsResolver.pop();
     }
 
     private boolean hasXmlnsReservedName(Attribute attribute) {
-    	String name = attribute.getName();
-    	return name.equals("xmlns") || name.startsWith("xmlns:");
+        String name = attribute.getName();
+        return name.equals("xmlns") || name.startsWith("xmlns:");
     }
-    
+
     private void renderElementName(StringBuilder buffer, XMLElement element, ResolverNamespaceResolver nsResolver) {
         // if the element has a namespace prefix, retrieves the prefix from the defining attribute
         if (element.getNamespacePrefix().length() > 0) {
             buffer.append(element.getNamespacePrefix()).append(COLON);
-        } else if(element.getNamespaceURI().length() > 0) {
-        	// element is in a namespace, but without a declared prefix, we need to resolve the prefix
-        	String prefix = nsResolver.resolvePrefix(element.getNamespaceURI());
-        	if(prefix != null && prefix.length() > 0) {
-        		buffer.append(prefix).append(COLON);
-        	}
+        } else if (element.getNamespaceURI().length() > 0) {
+            // element is in a namespace, but without a declared prefix, we need to resolve the prefix
+            String prefix = nsResolver.resolvePrefix(element.getNamespaceURI());
+            if (prefix != null && prefix.length() > 0) {
+                buffer.append(prefix).append(COLON);
+            }
         }
 
         buffer.append(element.getName());
     }
 
     private void renderAttribute(StringBuilder buffer, Attribute attribute, ResolverNamespaceResolver nsResolver) {
-    	String qname;
-    	if(!attribute.getNamespaceUri().equals("")) {
-    		// attribute is in a namespace, resolve prefix
-    		qname = nsResolver.resolvePrefix(attribute.getNamespaceUri()) + ":" + attribute.getName();
-    	} else {
-    		qname = attribute.getName();
-    	}
-    	
-    	renderAttribute(buffer, qname, attribute.getValue());
+        String qname;
+        if (!attribute.getNamespaceUri().equals("")) {
+            // attribute is in a namespace, resolve prefix
+            qname = nsResolver.resolvePrefix(attribute.getNamespaceUri()) + ":" + attribute.getName();
+        } else {
+            qname = attribute.getName();
+        }
+
+        renderAttribute(buffer, qname, attribute.getValue());
     }
-    
+
     private void renderAttribute(StringBuilder buffer, String qname, String value) {
         buffer.append(qname).append("=\"").append(escapeAttributeValue(value)).append("\"");
     }
-    
+
     private String escapeAttributeValue(String value) {
-    	return value.replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;").replace(">", "&gt;");
+        return value.replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
     private String escapeTextValue(String value) {
-    	return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+        return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
 }

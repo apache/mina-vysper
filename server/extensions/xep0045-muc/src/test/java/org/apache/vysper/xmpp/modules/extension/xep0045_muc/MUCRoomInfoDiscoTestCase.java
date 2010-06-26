@@ -35,15 +35,15 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class MUCRoomInfoDiscoTestCase extends AbstractInfoDiscoTestCase {
-    
+
     private static final Entity ROOM_JID = EntityImpl.parseUnchecked("jid1@" + MODULEDOMAIN);
-    
+
     private MUCModule module;
-    
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        
+
         Conference conference = new Conference("Foo");
         conference.createRoom(ROOM_JID, "Room1", RoomType.Hidden, RoomType.PasswordProtected);
         module = new MUCModule(SUBDOMAIN, conference);
@@ -54,7 +54,7 @@ public class MUCRoomInfoDiscoTestCase extends AbstractInfoDiscoTestCase {
     protected Module getModule() {
         return module;
     }
-    
+
     @Override
     protected Identity getExpectedIdentity() {
         return new Identity("conference", "text", "Room1");
@@ -62,11 +62,7 @@ public class MUCRoomInfoDiscoTestCase extends AbstractInfoDiscoTestCase {
 
     @Override
     protected List<String> getExpectedFeatures() {
-        return Arrays.asList(
-                NamespaceURIs.XEP0045_MUC,
-                "muc_passwordprotected",
-                "muc_hidden"
-                );
+        return Arrays.asList(NamespaceURIs.XEP0045_MUC, "muc_passwordprotected", "muc_hidden");
     }
 
     @Override

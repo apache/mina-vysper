@@ -19,11 +19,11 @@
  */
 package org.apache.vysper.xmpp.modules.roster;
 
-import org.apache.vysper.xmpp.addressing.Entity;
-
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.apache.vysper.xmpp.addressing.Entity;
 
 /**
  * a mutable roster implementation
@@ -42,7 +42,8 @@ public class MutableRoster implements Roster {
     }
 
     public void addItem(RosterItem rosterItem) {
-        if (rosterItem == null || rosterItem.getJid() == null) throw new RuntimeException("roster item and item's jid must not be null.");
+        if (rosterItem == null || rosterItem.getJid() == null)
+            throw new RuntimeException("roster item and item's jid must not be null.");
         items.put(rosterItem.getJid().getBareJID(), rosterItem);
     }
 }

@@ -19,11 +19,14 @@
  */
 package org.apache.vysper.xmpp.protocol;
 
-import org.apache.vysper.xmpp.server.SessionContext;
-import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-import org.apache.vysper.xmpp.stanza.Stanza;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
-import java.util.concurrent.*;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
  * stanza processor, acts as a 'stage' by using a ThreadPoolExecutor
@@ -44,11 +47,13 @@ public class QueuedStanzaProcessor implements StanzaProcessor {
         int coreThreadCount = 10;
         int maxThreadCount = 20;
         int threadTimeoutSeconds = 2 * 60 * 1000;
-        this.executor = new ThreadPoolExecutor(coreThreadCount, maxThreadCount, threadTimeoutSeconds, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+        this.executor = new ThreadPoolExecutor(coreThreadCount, maxThreadCount, threadTimeoutSeconds, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<Runnable>());
         this.stanzaProcessor = stanzaProcessor;
     }
 
-    public void processStanza(ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, Stanza stanza, SessionStateHolder sessionStateHolder) {
+    public void processStanza(ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, Stanza stanza,
+            SessionStateHolder sessionStateHolder) {
         executor.submit(new StanzaProcessorUnitOfWork(sessionContext, stanza, sessionStateHolder));
     }
 
@@ -59,17 +64,21 @@ public class QueuedStanzaProcessor implements StanzaProcessor {
     private class StanzaProcessorUnitOfWork implements Runnable {
 
         private SessionContext sessionContext;
+
         private Stanza stanza;
+
         private SessionStateHolder sessionStateHolder;
 
-        private StanzaProcessorUnitOfWork(SessionContext sessionContext, Stanza stanza, SessionStateHolder sessionStateHolder) {
+        private StanzaProcessorUnitOfWork(SessionContext sessionContext, Stanza stanza,
+                SessionStateHolder sessionStateHolder) {
             this.sessionContext = sessionContext;
             this.stanza = stanza;
             this.sessionStateHolder = sessionStateHolder;
         }
 
         public void run() {
-            stanzaProcessor.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza, sessionStateHolder);
+            stanzaProcessor.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza,
+                    sessionStateHolder);
         }
     }
 

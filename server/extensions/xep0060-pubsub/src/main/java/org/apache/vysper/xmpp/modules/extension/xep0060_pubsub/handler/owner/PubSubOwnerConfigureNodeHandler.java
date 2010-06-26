@@ -22,14 +22,13 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubServiceConfiguration;
 
-
 /**
  * This class handles the configure node part of the XEP-0060 specification. This means
  * all stanzas with "configure" within the pubsub#owner namespace.
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-@SpecCompliant(spec="xep-0060", section="8.2", status= SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
+@SpecCompliant(spec = "xep-0060", section = "8.2", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public class PubSubOwnerConfigureNodeHandler extends AbstractPubSubOwnerHandler {
 
     /**

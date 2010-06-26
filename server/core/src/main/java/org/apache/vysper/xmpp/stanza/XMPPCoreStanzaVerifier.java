@@ -37,7 +37,8 @@ public class XMPPCoreStanzaVerifier extends XMLElementVerifier {
         boolean clientCall = namespacePresent(NamespaceURIs.JABBER_CLIENT);
         boolean serverCall = namespacePresent(NamespaceURIs.JABBER_SERVER);
 
-        if (clientCall && serverCall) serverCall = false; // silently ignore ambiguous attributes
+        if (clientCall && serverCall)
+            serverCall = false; // silently ignore ambiguous attributes
         return serverCall;
     }
 

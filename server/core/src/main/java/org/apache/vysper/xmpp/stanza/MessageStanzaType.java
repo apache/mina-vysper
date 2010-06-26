@@ -26,11 +26,7 @@ package org.apache.vysper.xmpp.stanza;
  */
 public enum MessageStanzaType {
 
-    CHAT ("chat"),
-    ERROR ("error"),
-    GROUPCHAT ("groupchat"),
-    HEADLINE ("headline"),
-    NORMAL ("normal");
+    CHAT("chat"), ERROR("error"), GROUPCHAT("groupchat"), HEADLINE("headline"), NORMAL("normal");
 
     private final String value;
 
@@ -39,7 +35,8 @@ public enum MessageStanzaType {
      * given
      */
     public static MessageStanzaType valueOfWithDefault(String value) {
-        if (value == null) return NORMAL;
+        if (value == null)
+            return NORMAL;
         try {
             return MessageStanzaType.valueOf(value.toUpperCase());
         } catch (IllegalArgumentException e) {

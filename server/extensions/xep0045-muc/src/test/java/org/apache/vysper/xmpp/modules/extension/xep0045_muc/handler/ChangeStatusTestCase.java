@@ -34,67 +34,60 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
  */
 public class ChangeStatusTestCase extends AbstractMUCHandlerTestCase {
 
-    private Stanza changeStatus(Entity occupantJid, Entity roomWithNickJid, String show, String status) throws ProtocolException {
-        StanzaBuilder stanzaBuilder = StanzaBuilder.createPresenceStanza(occupantJid, roomWithNickJid, null, null, show, status);
-        
+    private Stanza changeStatus(Entity occupantJid, Entity roomWithNickJid, String show, String status)
+            throws ProtocolException {
+        StanzaBuilder stanzaBuilder = StanzaBuilder.createPresenceStanza(occupantJid, roomWithNickJid, null, null,
+                show, status);
+
         Stanza presenceStanza = stanzaBuilder.build();
-        ResponseStanzaContainer container = handler.execute(presenceStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, null);
-        if(container != null) {
+        ResponseStanzaContainer container = handler.execute(presenceStanza, sessionContext.getServerRuntimeContext(),
+                true, sessionContext, null);
+        if (container != null) {
             return container.getResponseStanza();
         } else {
             return null;
         }
     }
-    
 
     @Override
     protected StanzaHandler createHandler() {
         return new MUCPresenceHandler(conference);
     }
-    
+
     public void testChangeShowStatus() throws Exception {
         Room room = conference.findRoom(ROOM1_JID);
         room.addOccupant(OCCUPANT1_JID, "nick");
         room.addOccupant(OCCUPANT2_JID, "nick 2");
 
         assertNull(changeStatus(OCCUPANT1_JID, ROOM1_JID_WITH_NICK, "xa", "Gone"));
-        
+
         MucUserPresenceItem item = new MucUserPresenceItem(OCCUPANT1_JID, "nick", Affiliation.None, Role.Participant);
-        assertPresenceStanza(occupant1Queue.getNext(), ROOM1_JID_WITH_NICK, OCCUPANT1_JID, "xa", "Gone",
-                item);
-        assertPresenceStanza(occupant2Queue.getNext(), ROOM1_JID_WITH_NICK, OCCUPANT2_JID, "xa", "Gone", 
-                item);
+        assertPresenceStanza(occupant1Queue.getNext(), ROOM1_JID_WITH_NICK, OCCUPANT1_JID, "xa", "Gone", item);
+        assertPresenceStanza(occupant2Queue.getNext(), ROOM1_JID_WITH_NICK, OCCUPANT2_JID, "xa", "Gone", item);
     }
-    
-    
+
     public void testChangeShow() throws Exception {
         Room room = conference.findRoom(ROOM1_JID);
         room.addOccupant(OCCUPANT1_JID, "nick");
         room.addOccupant(OCCUPANT2_JID, "nick 2");
 
         assertNull(changeStatus(OCCUPANT1_JID, ROOM1_JID_WITH_NICK, "xa", null));
-        
+
         MucUserPresenceItem item = new MucUserPresenceItem(OCCUPANT1_JID, "nick", Affiliation.None, Role.Participant);
-        assertPresenceStanza(occupant1Queue.getNext(), ROOM1_JID_WITH_NICK, OCCUPANT1_JID, "xa", null,
-                item);
-        assertPresenceStanza(occupant2Queue.getNext(), ROOM1_JID_WITH_NICK, OCCUPANT2_JID, "xa", null, 
-                item);
+        assertPresenceStanza(occupant1Queue.getNext(), ROOM1_JID_WITH_NICK, OCCUPANT1_JID, "xa", null, item);
+        assertPresenceStanza(occupant2Queue.getNext(), ROOM1_JID_WITH_NICK, OCCUPANT2_JID, "xa", null, item);
     }
-    
-    
+
     public void testChangeStatus() throws Exception {
         Room room = conference.findRoom(ROOM1_JID);
         room.addOccupant(OCCUPANT1_JID, "nick");
         room.addOccupant(OCCUPANT2_JID, "nick 2");
 
         assertNull(changeStatus(OCCUPANT1_JID, ROOM1_JID_WITH_NICK, null, "Gone"));
-        
+
         MucUserPresenceItem item = new MucUserPresenceItem(OCCUPANT1_JID, "nick", Affiliation.None, Role.Participant);
-        assertPresenceStanza(occupant1Queue.getNext(), ROOM1_JID_WITH_NICK, OCCUPANT1_JID, null, "Gone",
-                item);
-        assertPresenceStanza(occupant2Queue.getNext(), ROOM1_JID_WITH_NICK, OCCUPANT2_JID, null, "Gone", 
-                item);
+        assertPresenceStanza(occupant1Queue.getNext(), ROOM1_JID_WITH_NICK, OCCUPANT1_JID, null, "Gone", item);
+        assertPresenceStanza(occupant2Queue.getNext(), ROOM1_JID_WITH_NICK, OCCUPANT2_JID, null, "Gone", item);
     }
-    
-    
+
 }

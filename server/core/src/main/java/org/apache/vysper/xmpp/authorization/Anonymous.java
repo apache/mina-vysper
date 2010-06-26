@@ -19,6 +19,10 @@
  */
 package org.apache.vysper.xmpp.authorization;
 
+import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.COMPLETE;
+import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.FINISHED;
+
+import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.SessionContext;
@@ -26,16 +30,13 @@ import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.uuid.JVMBuiltinUUIDGenerator;
 import org.apache.vysper.xmpp.uuid.UUIDGenerator;
-import org.apache.vysper.compliance.SpecCompliant;
-import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.*;
-import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.*;
 
 /**
  * handles SASL ANONYMOUS mechanism, where no credentials are required
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-@SpecCompliant(spec="rfc4505", status= FINISHED, coverage = COMPLETE)
+@SpecCompliant(spec = "rfc4505", status = FINISHED, coverage = COMPLETE)
 public class Anonymous implements SASLMechanism {
 
     UUIDGenerator uuidGenerator = new JVMBuiltinUUIDGenerator();
@@ -47,7 +48,8 @@ public class Anonymous implements SASLMechanism {
     public Stanza started(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza authStanza) {
 
         // assign a self-created node name
-        EntityImpl initiatingEntity = new EntityImpl(uuidGenerator.create(), sessionContext.getServerJID().getDomain(), null);
+        EntityImpl initiatingEntity = new EntityImpl(uuidGenerator.create(), sessionContext.getServerJID().getDomain(),
+                null);
         sessionContext.setInitiatingEntity(initiatingEntity);
 
         sessionStateHolder.setState(SessionState.AUTHENTICATED);

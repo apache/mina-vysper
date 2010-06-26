@@ -26,15 +26,19 @@ import org.apache.vysper.compliance.SpecCompliant;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-@SpecCompliant(spec="RFC3920", section="3.1")
+@SpecCompliant(spec = "RFC3920", section = "3.1")
 public class EntityConformance {
 
     public static boolean checkRFC3920Conformance(Entity entity) {
-        if (!checkPartConformity(entity.getDomain())) return false;
-        if (!checkPartConformity(entity.getNode())) return false;
-        if (!checkPartConformity(entity.getResource())) return false;
+        if (!checkPartConformity(entity.getDomain()))
+            return false;
+        if (!checkPartConformity(entity.getNode()))
+            return false;
+        if (!checkPartConformity(entity.getResource()))
+            return false;
 
-        if (checkPartIsEmpty(entity.getDomain())) return false;
+        if (checkPartIsEmpty(entity.getDomain()))
+            return false;
         return true;
     }
 

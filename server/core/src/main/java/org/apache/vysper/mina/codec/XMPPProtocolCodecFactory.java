@@ -32,11 +32,11 @@ import org.apache.vysper.xml.decoder.XMPPDecoder;
  */
 public class XMPPProtocolCodecFactory implements ProtocolCodecFactory {
 
-	public ProtocolEncoder getEncoder(IoSession s) throws Exception {
+    public ProtocolEncoder getEncoder(IoSession s) throws Exception {
         return new StanzaWriterProtocolEncoder();
     }
 
-	public ProtocolDecoder getDecoder(IoSession s) throws Exception {
+    public ProtocolDecoder getDecoder(IoSession s) throws Exception {
         return new XMPPDecoder(new StanzaBuilderFactory());
     }
 }

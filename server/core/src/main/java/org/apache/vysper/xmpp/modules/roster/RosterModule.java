@@ -19,6 +19,8 @@
  */
 package org.apache.vysper.xmpp.modules.roster;
 
+import java.util.List;
+
 import org.apache.vysper.storage.StorageProvider;
 import org.apache.vysper.xmpp.modules.DefaultModule;
 import org.apache.vysper.xmpp.modules.roster.persistence.RosterManager;
@@ -26,8 +28,6 @@ import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 /**
  * all the roster stuff assembled in a module
@@ -37,7 +37,7 @@ import java.util.List;
 public class RosterModule extends DefaultModule {
 
     final Logger logger = LoggerFactory.getLogger(RosterModule.class);
-    
+
     @Override
     public String getName() {
         return "roster";

@@ -38,18 +38,18 @@ import org.apache.vysper.xmpp.modules.ModuleRegistry;
 import org.apache.vysper.xmpp.modules.ServerRuntimeContextService;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
+import org.apache.vysper.xmpp.protocol.ProtocolWorker;
 import org.apache.vysper.xmpp.protocol.QueuedStanzaProcessor;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaHandlerLookup;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
-import org.apache.vysper.xmpp.protocol.ProtocolWorker;
+import org.apache.vysper.xmpp.server.components.Component;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.state.presence.LatestPresenceCache;
 import org.apache.vysper.xmpp.state.presence.SimplePresenceCache;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 import org.apache.vysper.xmpp.uuid.JVMBuiltinUUIDGenerator;
 import org.apache.vysper.xmpp.uuid.UUIDGenerator;
-import org.apache.vysper.xmpp.server.components.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,7 +114,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
      * holds the storage services
      */
     private StorageProviderRegistry storageProviderRegistry = new OpenStorageProviderRegistry();
-    
+
     /**
      * collection of all other services, which are mostly add-ons to the minimal setup
      */
@@ -132,16 +132,14 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         this.stanzaHandlerLookup = new StanzaHandlerLookup(this);
     }
 
-    public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay, StorageProviderRegistry storageProviderRegistry) {
+    public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay,
+            StorageProviderRegistry storageProviderRegistry) {
         this(serverEntity, stanzaRelay);
-        this.storageProviderRegistry = storageProviderRegistry; 
+        this.storageProviderRegistry = storageProviderRegistry;
     }
 
-    public DefaultServerRuntimeContext(Entity serverEntity,
-                                       StanzaRelay stanzaRelay,
-                                       ServerFeatures serverFeatures,
-                                       List<NamespaceHandlerDictionary> dictionaries,
-                                       ResourceRegistry resourceRegistry) {
+    public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay, ServerFeatures serverFeatures,
+            List<NamespaceHandlerDictionary> dictionaries, ResourceRegistry resourceRegistry) {
         this(serverEntity, stanzaRelay);
         this.serverFeatures = serverFeatures;
         this.resourceRegistry = resourceRegistry;
@@ -229,7 +227,8 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
      * @param service
      */
     public void registerServerRuntimeContextService(ServerRuntimeContextService service) {
-        if (service == null) throw new IllegalStateException("service must not be null");
+        if (service == null)
+            throw new IllegalStateException("service must not be null");
         if (serverRuntimeContextServiceMap.get(service.getServiceName()) != null) {
             throw new IllegalStateException("service already registered: " + service.getServiceName());
         }
@@ -253,7 +252,8 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
      * @param storageProviderRegistry
      */
     public void setStorageProviderRegistry(StorageProviderRegistry storageProviderRegistry) {
-        logger.info("replacing the storage provider registry with " + storageProviderRegistry.getClass().getCanonicalName());
+        logger.info("replacing the storage provider registry with "
+                + storageProviderRegistry.getClass().getCanonicalName());
         this.storageProviderRegistry = storageProviderRegistry;
     }
 
@@ -298,7 +298,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         addModuleInternal(module);
         module.initialize(this);
     }
-    
+
     protected void addModuleInternal(Module module) {
 
         logger.info("adding module... {} ({})", module.getName(), module.getVersion());
@@ -307,7 +307,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         if (serviceList != null) {
             for (ServerRuntimeContextService serverRuntimeContextService : serviceList) {
                 registerServerRuntimeContextService(serverRuntimeContextService);
-                
+
                 // if a storage service, also register there 
                 if (serverRuntimeContextService instanceof StorageProvider) {
                     StorageProvider storageProvider = (StorageProvider) serverRuntimeContextService;
@@ -323,21 +323,21 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
                 if (handlerDictionary instanceof NamespaceHandlerDictionary) {
                     addDictionary((NamespaceHandlerDictionary) handlerDictionary);
                 } else {
-                    throw new RuntimeException("arbitrary HandlerDictionary implementations not supported yet, " +
-                    		"only NamespaceHandlerDictionary.");
+                    throw new RuntimeException("arbitrary HandlerDictionary implementations not supported yet, "
+                            + "only NamespaceHandlerDictionary.");
                 }
             }
-            
+
         }
 
         if (module instanceof Component) {
-            registerComponent((Component)module);
+            registerComponent((Component) module);
         }
     }
-    
+
     public void registerComponent(Component component) {
         componentMap.put(component.getSubdomain(), component);
-    }                          
+    }
 
     public StanzaProcessor getComponentStanzaProcessor(String domain) {
         String serverDomain = getServerEnitity().getDomain();
@@ -346,7 +346,8 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         }
         String subdomain = domain.replace("." + serverDomain, "");
         Component component = componentMap.get(subdomain);
-        if (component == null) return null;
+        if (component == null)
+            return null;
         return component.getStanzaProcessor();
     }
 

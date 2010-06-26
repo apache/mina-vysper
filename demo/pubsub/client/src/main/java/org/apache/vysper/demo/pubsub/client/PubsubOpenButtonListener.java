@@ -34,22 +34,22 @@ import javax.swing.ListModel;
 public class PubsubOpenButtonListener implements ActionListener {
 
     private PubsubClientModel parent;
-    
+
     public PubsubOpenButtonListener(PubsubClientModel parent) {
         this.parent = parent;
     }
-    
+
     public void actionPerformed(ActionEvent e) {
         String nodeID = parent.getSelectedNode();
-        if(nodeID != null) {
+        if (nodeID != null) {
             createAndShowGUI(nodeID);
         }
     }
-    
+
     private void createAndShowGUI(String nodeID) {
         ListModel lm = parent.getListModel(nodeID);
-        
-        JFrame frame = new JFrame("Events from "+nodeID);
+
+        JFrame frame = new JFrame("Events from " + nodeID);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         JPanel panel = new JPanel();
@@ -65,12 +65,12 @@ public class PubsubOpenButtonListener implements ActionListener {
 
         frame.pack();
         frame.setVisible(true);
-        
+
         setFocus(messageTxt);
     }
 
     private void setFocus(JTextField messageTxt) {
-        if(messageTxt != null) {
+        if (messageTxt != null) {
             messageTxt.requestFocusInWindow();
         }
     }
@@ -78,17 +78,17 @@ public class PubsubOpenButtonListener implements ActionListener {
     private JTextField createOwnerControls(String nodeID, JPanel panel) {
         boolean owner = parent.isOwner(nodeID);
         JTextField messageTxt = null;
-        if(owner) {
+        if (owner) {
             messageTxt = new JTextField(20);
-            
+
             JButton publish = new JButton("Publish");
             publish.setActionCommand("publish");
             publish.addActionListener(new PubsubPublishButtonListener(nodeID, messageTxt, parent));
-            
+
             JPanel buttons = new JPanel();
             buttons.add(messageTxt);
             buttons.add(publish);
-            
+
             panel.add(buttons, BorderLayout.SOUTH);
         }
         return messageTxt;

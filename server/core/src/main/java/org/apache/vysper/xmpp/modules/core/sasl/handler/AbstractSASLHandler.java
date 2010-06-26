@@ -20,20 +20,20 @@
 package org.apache.vysper.xmpp.modules.core.sasl.handler;
 
 import org.apache.vysper.xml.fragment.XMLElementVerifier;
-import org.apache.vysper.xmpp.protocol.StanzaHandler;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
-import org.apache.vysper.xmpp.protocol.SessionStateHolder;
-import org.apache.vysper.xmpp.protocol.StreamErrorCondition;
-import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
-import org.apache.vysper.xmpp.protocol.exception.AuthorizationFailedException;
-import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.server.SessionContext;
-import org.apache.vysper.xmpp.server.SessionState;
-import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
 import org.apache.vysper.xmpp.modules.core.sasl.AuthorizationRetriesCounter;
 import org.apache.vysper.xmpp.modules.core.sasl.SASLFailureType;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
+import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.protocol.StanzaHandler;
+import org.apache.vysper.xmpp.protocol.StreamErrorCondition;
+import org.apache.vysper.xmpp.protocol.exception.AuthorizationFailedException;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.SessionState;
+import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
+import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
  *
@@ -41,15 +41,20 @@ import org.apache.vysper.xmpp.modules.core.sasl.SASLFailureType;
  */
 public abstract class AbstractSASLHandler implements StanzaHandler {
     public boolean verify(Stanza stanza) {
-        if (stanza == null) return false;
-        if (!getName().equals(stanza.getName())) return false;
+        if (stanza == null)
+            return false;
+        if (!getName().equals(stanza.getName()))
+            return false;
         return true;
     }
 
-    public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder) throws AuthorizationFailedException {
+    public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
+            boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder)
+            throws AuthorizationFailedException {
         if (!AuthorizationRetriesCounter.getFromSession(sessionContext).hasTriesLeft()) {
             AuthorizationFailedException failedException = new AuthorizationFailedException("too many retries");
-            failedException.setErrorStanza(ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.POLICY_VIOLATION, null, null, null));
+            failedException.setErrorStanza(ServerErrorResponses.getInstance().getStreamError(
+                    StreamErrorCondition.POLICY_VIOLATION, null, null, null));
             throw failedException;
         }
 
@@ -67,8 +72,10 @@ public abstract class AbstractSASLHandler implements StanzaHandler {
     }
 
     protected ResponseStanzaContainer respondSASLFailure() {
-        return new ResponseStanzaContainerImpl(ServerErrorResponses.getInstance().getSASLFailure(SASLFailureType.MALFORMED_REQUEST));
+        return new ResponseStanzaContainerImpl(ServerErrorResponses.getInstance().getSASLFailure(
+                SASLFailureType.MALFORMED_REQUEST));
     }
 
-    protected abstract ResponseStanzaContainer executeWorker(Stanza stanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder);
+    protected abstract ResponseStanzaContainer executeWorker(Stanza stanza, SessionContext sessionContext,
+            SessionStateHolder sessionStateHolder);
 }

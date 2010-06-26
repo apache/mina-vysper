@@ -19,6 +19,9 @@
  */
 package org.apache.vysper.storage.jcr.user;
 
+import javax.jcr.Node;
+import javax.jcr.Property;
+
 import org.apache.vysper.storage.jcr.JcrStorage;
 import org.apache.vysper.storage.jcr.JcrStorageException;
 import org.apache.vysper.xmpp.addressing.Entity;
@@ -30,9 +33,6 @@ import org.apache.vysper.xmpp.authorization.UserAuthorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jcr.Node;
-import javax.jcr.Property;
-
 /**
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
@@ -42,6 +42,7 @@ public class JcrUserManagement implements UserAuthorization, AccountManagement {
     final Logger logger = LoggerFactory.getLogger(JcrUserManagement.class);
 
     protected JcrStorage jcrStorage;
+
     private static final String CREDENTIALS_NAMESPACE = "vysper_internal_credentials";
 
     public JcrUserManagement(JcrStorage jcrStorage) {
@@ -49,12 +50,15 @@ public class JcrUserManagement implements UserAuthorization, AccountManagement {
     }
 
     public boolean verifyCredentials(Entity jid, String passwordCleartext, Object credentials) {
-        if (passwordCleartext == null) return false;
+        if (passwordCleartext == null)
+            return false;
         try {
             final Node credentialsNode = jcrStorage.getEntityNode(jid, CREDENTIALS_NAMESPACE, false);
-            if (credentialsNode == null) return false;
+            if (credentialsNode == null)
+                return false;
             final Property property = credentialsNode.getProperty("password");
-            if (property == null) return false;
+            if (property == null)
+                return false;
             final String password = property.getValue().getString();
             return passwordCleartext.equals(password);
         } catch (Exception e) {

@@ -25,52 +25,52 @@ import java.util.Map;
 
 import org.apache.vysper.xml.sax.impl.TestHandler.TestEvent;
 
-
 /**
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class StreamRestartTestCase extends AbstractAsyncXMLReaderTestCase {
 
-	public void testRestartByXmlDeclaration() throws Exception {
-		Map<String, Boolean> features = new HashMap<String, Boolean>();
-		features.put(DefaultNonBlockingXMLReader.FEATURE_RESTART_ALLOWED, true);
+    public void testRestartByXmlDeclaration() throws Exception {
+        Map<String, Boolean> features = new HashMap<String, Boolean>();
+        features.put(DefaultNonBlockingXMLReader.FEATURE_RESTART_ALLOWED, true);
 
-		Iterator<TestEvent> events = parse("<?xml version=\"1.0\"?>\n <root><?xml version=\"1.0\"?><root />", features, null).iterator();
+        Iterator<TestEvent> events = parse("<?xml version=\"1.0\"?>\n <root><?xml version=\"1.0\"?><root />", features,
+                null).iterator();
 
-		assertStartDocument(events.next());
-		// no event for the declaration
-		assertStartElement("", "root", "root", events.next());
-		
-		// parser gets restarted
-		assertStartDocument(events.next());
-		assertStartElement("", "root", "root", events.next());
-		assertEndElement("", "root", "root", events.next());
-		assertEndDocument(events.next());
-		
-		assertNoMoreevents(events);
-	}
+        assertStartDocument(events.next());
+        // no event for the declaration
+        assertStartElement("", "root", "root", events.next());
 
-	public void testRestartByQName() throws Exception {
-		Map<String, Boolean> features = new HashMap<String, Boolean>();
-		features.put(DefaultNonBlockingXMLReader.FEATURE_RESTART_ALLOWED, true);
+        // parser gets restarted
+        assertStartDocument(events.next());
+        assertStartElement("", "root", "root", events.next());
+        assertEndElement("", "root", "root", events.next());
+        assertEndDocument(events.next());
 
-		Map<String, Object> properties = new HashMap<String, Object>();
-		properties.put(DefaultNonBlockingXMLReader.PROPERTY_RESTART_QNAME, "root");
+        assertNoMoreevents(events);
+    }
 
-		Iterator<TestEvent> events = parse("<root><foo><root />", features, properties).iterator();
+    public void testRestartByQName() throws Exception {
+        Map<String, Boolean> features = new HashMap<String, Boolean>();
+        features.put(DefaultNonBlockingXMLReader.FEATURE_RESTART_ALLOWED, true);
 
-		assertStartDocument(events.next());
-		// no event for the declaration
-		assertStartElement("", "root", "root", events.next());
-		assertStartElement("", "foo", "foo", events.next());
-		
-		// parser gets restarted
-		assertStartDocument(events.next());
-		assertStartElement("", "root", "root", events.next());
-		assertEndElement("", "root", "root", events.next());
-		assertEndDocument(events.next());
-		
-		assertNoMoreevents(events);
-	}
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put(DefaultNonBlockingXMLReader.PROPERTY_RESTART_QNAME, "root");
+
+        Iterator<TestEvent> events = parse("<root><foo><root />", features, properties).iterator();
+
+        assertStartDocument(events.next());
+        // no event for the declaration
+        assertStartElement("", "root", "root", events.next());
+        assertStartElement("", "foo", "foo", events.next());
+
+        // parser gets restarted
+        assertStartDocument(events.next());
+        assertStartElement("", "root", "root", events.next());
+        assertEndElement("", "root", "root", events.next());
+        assertEndDocument(events.next());
+
+        assertNoMoreevents(events);
+    }
 
 }

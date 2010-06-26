@@ -20,7 +20,6 @@
 
 package org.apache.vysper.xmpp.protocol;
 
-import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.server.XMPPVersion;
@@ -40,7 +39,7 @@ public class ProtocolInitiatedTestCase extends AbstractProtocolStateTestCase {
 
         Stanza recordedResponse = sessionContext.getNextRecordedResponse();
         XMLElementVerifier responseVerifier = recordedResponse.getVerifier();
-        
+
         assertTrue(responseVerifier.nameEquals("stream"));
 
         assertTrue(responseVerifier.attributeEquals(NamespaceURIs.XML, "lang", "fr"));
@@ -79,11 +78,10 @@ public class ProtocolInitiatedTestCase extends AbstractProtocolStateTestCase {
 
     protected void openClientSession() {
         sessionContext.setSessionState(getDefaultState());
-        Stanza stanza = new ServerResponses().getStreamOpener(true,
-                                                              testFrom,
-                                                              sessionContext.getXMLLang(),
-                                                              XMPPVersion.VERSION_1_0, null).build();
-        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza, sessionStateHolder);
+        Stanza stanza = new ServerResponses().getStreamOpener(true, testFrom, sessionContext.getXMLLang(),
+                XMPPVersion.VERSION_1_0, null).build();
+        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza,
+                sessionStateHolder);
     }
 
     public void testProcessClientStreamOpeningResponse_Version_1_0() {
@@ -157,18 +155,19 @@ public class ProtocolInitiatedTestCase extends AbstractProtocolStateTestCase {
 
     protected Stanza getVersionResponse(XMPPVersion versionSent) {
         Stanza stanza = new ServerResponses().getStreamOpener(true, testFrom, null, versionSent, null).build();
-        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza, sessionStateHolder);
+        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza,
+                sessionStateHolder);
 
         return sessionContext.getNextRecordedResponse();
     }
 
     public void testProcessClientStreamOpeningResponse_MissingMainNamespace() {
         // we do not supply "http://etherx.jabber.org/streams"
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("stream")
-        	.declareNamespace("", NamespaceURIs.JABBER_CLIENT)
-            .addAttribute(NamespaceURIs.XML, "lang", "en_UK")
-            .addAttribute("version", XMPPVersion.VERSION_1_0.toString());
-        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(), sessionStateHolder);
+        StanzaBuilder stanzaBuilder = new StanzaBuilder("stream").declareNamespace("", NamespaceURIs.JABBER_CLIENT)
+                .addAttribute(NamespaceURIs.XML, "lang", "en_UK").addAttribute("version",
+                        XMPPVersion.VERSION_1_0.toString());
+        protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanzaBuilder.build(),
+                sessionStateHolder);
 
         Stanza response = sessionContext.getNextRecordedResponse();
         XMLElementVerifier responseVerifier = response.getVerifier();
@@ -176,7 +175,7 @@ public class ProtocolInitiatedTestCase extends AbstractProtocolStateTestCase {
         assertTrue("error", responseVerifier.subElementPresent(StreamErrorCondition.INVALID_NAMESPACE.value()));
 
     }
-    
+
     public void testDontAcceptIQStanzaWhileNotAuthenticated() {
         skeleton_testDontAcceptIQStanzaWhileNotAuthenticated();
     }
@@ -184,6 +183,5 @@ public class ProtocolInitiatedTestCase extends AbstractProtocolStateTestCase {
     public void testDontAcceptArbitraryStanzaWhileNotAuthenticated() {
         skeleton_testDontAcceptArbitraryStanzaWhileNotAuthenticated();
     }
-
 
 }

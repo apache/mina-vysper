@@ -41,7 +41,6 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestLis
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 
-
 /**
  * A chat room
  *
@@ -52,29 +51,33 @@ public class Room implements InfoRequestListener, ItemRequestListener {
     private EnumSet<RoomType> roomTypes;
 
     private Entity jid;
+
     private String name;
+
     private String password;
+
     private DiscussionHistory history = new DiscussionHistory();
+
     private Affiliations affiliations = new Affiliations();
-    
+
     // keep in a map to allow for quick access
     private Map<Entity, Occupant> occupants = new ConcurrentHashMap<Entity, Occupant>();
-    
+
     public Room(Entity jid, String name, RoomType... types) {
-        if(jid == null) {
+        if (jid == null) {
             throw new IllegalArgumentException("JID can not be null");
-        } else if(jid.getResource() != null) {
+        } else if (jid.getResource() != null) {
             throw new IllegalArgumentException("JID must be bare");
         }
-        if(name == null || name.trim().length() == 0) {
+        if (name == null || name.trim().length() == 0) {
             throw new IllegalArgumentException("Name can not be null or empty");
         }
-        
+
         this.jid = jid;
         this.name = name;
-        
+
         EnumSet<RoomType> potentialTypes;
-        if(types != null && types.length > 0) {
+        if (types != null && types.length > 0) {
             potentialTypes = EnumSet.copyOf(Arrays.asList(types));
 
             // make sure the list does not contain antonyms
@@ -82,40 +85,41 @@ public class Room implements InfoRequestListener, ItemRequestListener {
         } else {
             potentialTypes = EnumSet.noneOf(RoomType.class);
         }
-        
+
         // complement with default types
-        this.roomTypes = RoomType.complement(potentialTypes);            
+        this.roomTypes = RoomType.complement(potentialTypes);
     }
 
     public Entity getJID() {
         return jid;
     }
-    
+
     public String getName() {
         return name;
     }
-    
+
     public EnumSet<RoomType> getRoomTypes() {
         return roomTypes.clone();
     }
-    
+
     public boolean isRoomType(RoomType type) {
         return roomTypes.contains(type);
     }
 
     public Occupant addOccupant(Entity occupantJid, String name) {
         Affiliation affiliation = affiliations.getAffiliation(occupantJid);
-        
-        if(affiliation == Affiliation.Outcast) {
+
+        if (affiliation == Affiliation.Outcast) {
             return null;
         }
-        
+
         // default to none
-        if(affiliation == null) affiliation = Affiliation.None;
-        
+        if (affiliation == null)
+            affiliation = Affiliation.None;
+
         Role role = Role.getRole(affiliation, roomTypes);
-        Occupant occupant = new Occupant(occupantJid, name, affiliation, role); 
-        if(isRoomType(RoomType.MembersOnly) && affiliation == Affiliation.None) {
+        Occupant occupant = new Occupant(occupantJid, name, affiliation, role);
+        if (isRoomType(RoomType.MembersOnly) && affiliation == Affiliation.None) {
             // don't add non member to room
         } else {
             occupants.put(occupantJid, occupant);
@@ -128,10 +132,11 @@ public class Room implements InfoRequestListener, ItemRequestListener {
     }
 
     public Occupant findOccupantByNick(String nick) {
-        for(Occupant occupant : getOccupants()) {
-            if(occupant.getName().equals(nick)) return occupant;
+        for (Occupant occupant : getOccupants()) {
+            if (occupant.getName().equals(nick))
+                return occupant;
         }
-         
+
         return null;
     }
 
@@ -142,67 +147,65 @@ public class Room implements InfoRequestListener, ItemRequestListener {
     public boolean isInRoom(String nick) {
         return findOccupantByNick(nick) != null;
     }
-    
+
     public void removeOccupant(Entity occupantJid) {
         occupants.remove(occupantJid);
     }
-    
+
     public int getOccupantCount() {
         return occupants.size();
     }
-    
+
     public boolean isEmpty() {
         return occupants.isEmpty();
     }
-    
+
     public Set<Occupant> getOccupants() {
         Set<Occupant> set = new HashSet<Occupant>();
-        for(Occupant occupant : occupants.values()) {
+        for (Occupant occupant : occupants.values()) {
             set.add(occupant);
         }
-        
+
         return Collections.unmodifiableSet(set);
     }
-    
-    public List<InfoElement> getInfosFor(InfoRequest request)
-            throws ServiceDiscoveryRequestException {
+
+    public List<InfoElement> getInfosFor(InfoRequest request) throws ServiceDiscoveryRequestException {
         List<InfoElement> infoElements = new ArrayList<InfoElement>();
         infoElements.add(new Identity("conference", "text", getName()));
         infoElements.add(new Feature(NamespaceURIs.XEP0045_MUC));
-        
-        for(RoomType type : roomTypes) {
-            if(type.includeInDisco()) {
+
+        for (RoomType type : roomTypes) {
+            if (type.includeInDisco()) {
                 infoElements.add(new Feature(type.getDiscoName()));
             }
         }
-        
+
         return infoElements;
     }
 
-    public List<Item> getItemsFor(InfoRequest request)
-            throws ServiceDiscoveryRequestException {
+    public List<Item> getItemsFor(InfoRequest request) throws ServiceDiscoveryRequestException {
         // List of users
         List<Item> items = new ArrayList<Item>();
-        
+
         // TODO is this the right way to determine if the room is private?
-        if(isRoomType(RoomType.FullyAnonymous) || isRoomType(RoomType.SemiAnonymous)) {
+        if (isRoomType(RoomType.FullyAnonymous) || isRoomType(RoomType.SemiAnonymous)) {
             // private room, return empty list
         } else {
-            for(Occupant occupant : getOccupants()) {
+            for (Occupant occupant : getOccupants()) {
                 items.add(new Item(new EntityImpl(getJID(), occupant.getName())));
             }
-        } 
+        }
         return items;
     }
 
     public String getPassword() {
         return password;
     }
-    
+
     public void setPassword(String password) {
         this.password = password;
     }
-    
+
     public DiscussionHistory getHistory() {
         return history;
     }

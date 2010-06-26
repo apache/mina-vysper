@@ -19,19 +19,20 @@
  */
 package org.apache.vysper.stanzasession;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.TestCase;
+
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.StanzaRelayBroker;
+import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
 import org.apache.vysper.xmpp.server.ServerFeatures;
-import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.writer.DenseStanzaLogRenderer;
-import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
-
-import java.util.List;
-import java.util.ArrayList;
+import org.apache.vysper.xmpp.writer.DenseStanzaLogRenderer;
 
 /**
  */
@@ -42,7 +43,7 @@ public class StanzaSessionTestCase extends TestCase {
     @Override
     protected void setUp() throws Exception {
         StanzaRelayBroker relay = new StanzaRelayBroker();
-        
+
         List<NamespaceHandlerDictionary> dictionaries = new ArrayList<NamespaceHandlerDictionary>();
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.base.BaseStreamStanzaDictionary());
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.starttls.StartTLSStanzaDictionary());
@@ -51,48 +52,31 @@ public class StanzaSessionTestCase extends TestCase {
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.session.SessionStanzaDictionary());
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.compatibility.jabber_iq_auth.JabberIQAuthDictionary());
         dictionaries.add(new org.apache.vysper.xmpp.modules.roster.RosterDictionary());
-        
-        DefaultServerRuntimeContext serverContext = new DefaultServerRuntimeContext(
-                new EntityImpl(null, "test", null), 
-                relay, 
-                new ServerFeatures(),
-                dictionaries,
-                new ResourceRegistry());
+
+        DefaultServerRuntimeContext serverContext = new DefaultServerRuntimeContext(new EntityImpl(null, "test", null),
+                relay, new ServerFeatures(), dictionaries, new ResourceRegistry());
 
         relay.setServerRuntimeContext(serverContext);
 
         sessionFactory = new StanzaSessionFactory();
         sessionFactory.setServerRuntimeContext(serverContext);
     }
-    
+
     public void testHandshake() {
         StanzaSession session = sessionFactory.createNewSession();
-        session.send(
-                new StanzaBuilder("stream", "http://etherx.jabber.org/streams", "stream")
-                    .addAttribute("from", "me@vysper.org")
-                    .addAttribute("to", "vysper.org")
-                    .declareNamespace("", "jabber:client")
-                .build()
-        );
+        session.send(new StanzaBuilder("stream", "http://etherx.jabber.org/streams", "stream").addAttribute("from",
+                "me@vysper.org").addAttribute("to", "vysper.org").declareNamespace("", "jabber:client").build());
         Stanza stanza = waitForStanza(session);
         assertNotNull(stanza);
         System.out.println(DenseStanzaLogRenderer.render(stanza));
-        session.send(
-                new StanzaBuilder("starttls", "urn:ietf:params:xml:ns:xmpp-tls")
-                    .addAttribute("from", "me@vysper.org")
-                .build()
-        );
+        session.send(new StanzaBuilder("starttls", "urn:ietf:params:xml:ns:xmpp-tls").addAttribute("from",
+                "me@vysper.org").build());
         stanza = waitForStanza(session);
         assertNotNull(stanza);
         System.out.println(DenseStanzaLogRenderer.render(stanza));
         session.setIsSecure();
-        session.send(
-                new StanzaBuilder("stream", "http://etherx.jabber.org/streams", "stream")
-                    .addAttribute("from", "me@vysper.org")
-                    .addAttribute("to", "vysper.org")
-                    .declareNamespace("", "jabber:client")
-                .build()
-        );
+        session.send(new StanzaBuilder("stream", "http://etherx.jabber.org/streams", "stream").addAttribute("from",
+                "me@vysper.org").addAttribute("to", "vysper.org").declareNamespace("", "jabber:client").build());
         stanza = waitForStanza(session);
         assertNotNull(stanza);
         System.out.println(DenseStanzaLogRenderer.render(stanza));
@@ -102,8 +86,13 @@ public class StanzaSessionTestCase extends TestCase {
         long inTime = System.currentTimeMillis();
         while (System.currentTimeMillis() < inTime + 10000) {
             Stanza stanza = session.poll();
-            if (stanza != null) return stanza;
-            try { Thread.sleep(10); } catch (InterruptedException e) { e.printStackTrace(); }
+            if (stanza != null)
+                return stanza;
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         return null;

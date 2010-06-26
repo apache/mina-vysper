@@ -19,10 +19,10 @@
  */
 package org.apache.vysper.xmpp.delivery;
 
-import org.apache.vysper.xmpp.stanza.Stanza;
-
-import java.util.Queue;
 import java.util.LinkedList;
+import java.util.Queue;
+
+import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
  * records stanzas as they come in, holds them (as a 'stage') until they are processed 

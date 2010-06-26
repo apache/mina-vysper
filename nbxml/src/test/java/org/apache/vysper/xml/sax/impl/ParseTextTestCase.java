@@ -23,82 +23,78 @@ import java.util.Iterator;
 
 import org.apache.vysper.xml.sax.impl.TestHandler.TestEvent;
 
-
-
 /**
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class ParseTextTestCase extends AbstractAsyncXMLReaderTestCase {
 
-	public void testSimpleText() throws Exception {
-		Iterator<TestEvent> events = parse("<root>text</root>").iterator();
+    public void testSimpleText() throws Exception {
+        Iterator<TestEvent> events = parse("<root>text</root>").iterator();
 
-		assertStartDocument(events.next());
-		assertStartElement("", "root", "root", events.next());
-		assertText("text", events.next());
-		assertEndElement("", "root", "root", events.next());
-		assertEndDocument(events.next());
-		
-		assertFalse(events.hasNext());
-	}
+        assertStartDocument(events.next());
+        assertStartElement("", "root", "root", events.next());
+        assertText("text", events.next());
+        assertEndElement("", "root", "root", events.next());
+        assertEndDocument(events.next());
 
-	public void testEscapedAmp() throws Exception {
-		Iterator<TestEvent> events = parse("<root>t&amp;ext</root>").iterator();
+        assertFalse(events.hasNext());
+    }
 
-		assertStartDocument(events.next());
-		assertStartElement("", "root", "root", events.next());
-		assertText("t&ext", events.next());
-		assertEndElement("", "root", "root", events.next());
-		assertEndDocument(events.next());
-		
-		assertFalse(events.hasNext());
-	}
+    public void testEscapedAmp() throws Exception {
+        Iterator<TestEvent> events = parse("<root>t&amp;ext</root>").iterator();
 
-	public void testDoubleEscapedAmp() throws Exception {
-		Iterator<TestEvent> events = parse("<root>t&amp;amp;ext</root>").iterator();
+        assertStartDocument(events.next());
+        assertStartElement("", "root", "root", events.next());
+        assertText("t&ext", events.next());
+        assertEndElement("", "root", "root", events.next());
+        assertEndDocument(events.next());
 
-		assertStartDocument(events.next());
-		assertStartElement("", "root", "root", events.next());
-		assertText("t&amp;ext", events.next());
-		assertEndElement("", "root", "root", events.next());
-		assertEndDocument(events.next());
-		
-		assertFalse(events.hasNext());
-	}
+        assertFalse(events.hasNext());
+    }
 
-	
-	public void testUnicodeEscape() throws Exception {
-		Iterator<TestEvent> events = parse("<root>t&#251;ext</root>").iterator();
+    public void testDoubleEscapedAmp() throws Exception {
+        Iterator<TestEvent> events = parse("<root>t&amp;amp;ext</root>").iterator();
 
-		assertStartDocument(events.next());
-		assertStartElement("", "root", "root", events.next());
-		assertText("tûext", events.next());
-		assertEndElement("", "root", "root", events.next());
-		assertEndDocument(events.next());
-		
-		assertFalse(events.hasNext());
-	}
-	
-	public void testUnicodeHexEscape() throws Exception {
-		Iterator<TestEvent> events = parse("<root>t&#xFB;ext</root>").iterator();
+        assertStartDocument(events.next());
+        assertStartElement("", "root", "root", events.next());
+        assertText("t&amp;ext", events.next());
+        assertEndElement("", "root", "root", events.next());
+        assertEndDocument(events.next());
 
-		assertStartDocument(events.next());
-		assertStartElement("", "root", "root", events.next());
-		assertText("tûext", events.next());
-		assertEndElement("", "root", "root", events.next());
-		assertEndDocument(events.next());
-		
-		assertFalse(events.hasNext());
-	}
-	
-	public void testTextOnly() throws Exception {
-		Iterator<TestEvent> events = parse("text</root>").iterator();
+        assertFalse(events.hasNext());
+    }
 
-		assertStartDocument(events.next());
-		assertFatalError(events.next());
-		
-		assertNoMoreevents(events);
-	}
+    public void testUnicodeEscape() throws Exception {
+        Iterator<TestEvent> events = parse("<root>t&#251;ext</root>").iterator();
 
+        assertStartDocument(events.next());
+        assertStartElement("", "root", "root", events.next());
+        assertText("tûext", events.next());
+        assertEndElement("", "root", "root", events.next());
+        assertEndDocument(events.next());
+
+        assertFalse(events.hasNext());
+    }
+
+    public void testUnicodeHexEscape() throws Exception {
+        Iterator<TestEvent> events = parse("<root>t&#xFB;ext</root>").iterator();
+
+        assertStartDocument(events.next());
+        assertStartElement("", "root", "root", events.next());
+        assertText("tûext", events.next());
+        assertEndElement("", "root", "root", events.next());
+        assertEndDocument(events.next());
+
+        assertFalse(events.hasNext());
+    }
+
+    public void testTextOnly() throws Exception {
+        Iterator<TestEvent> events = parse("text</root>").iterator();
+
+        assertStartDocument(events.next());
+        assertFatalError(events.next());
+
+        assertNoMoreevents(events);
+    }
 
 }

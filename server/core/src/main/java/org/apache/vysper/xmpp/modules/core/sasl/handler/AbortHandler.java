@@ -41,7 +41,8 @@ public class AbortHandler extends AbstractSASLHandler {
     }
 
     @Override
-    public ResponseStanzaContainer executeWorker(Stanza stanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder) {
+    public ResponseStanzaContainer executeWorker(Stanza stanza, SessionContext sessionContext,
+            SessionStateHolder sessionStateHolder) {
 
         AuthorizationRetriesCounter counter = AuthorizationRetriesCounter.getFromSession(sessionContext);
         boolean moreTriesLeft = counter.countFailedTry(); // record that client aborted

@@ -51,7 +51,7 @@ public class CollectionNode {
     public void add(LeafNode node) {
         collectionNodeStorage.storeNode(node);
     }
-    
+
     /**
      * Visit all nodes.
      *
@@ -76,6 +76,6 @@ public class CollectionNode {
      * @param collectionNodeStorageProvider
      */
     public void setCollectionNodeStorageProvider(CollectionNodeStorageProvider collectionNodeStorageProvider) {
-        this.collectionNodeStorage = collectionNodeStorageProvider;        
+        this.collectionNodeStorage = collectionNodeStorageProvider;
     }
 }

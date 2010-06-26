@@ -20,9 +20,13 @@
 
 package org.apache.vysper.xmpp.modules.core.sasl.handler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.TestCase;
-import org.apache.vysper.xmpp.authorization.SASLMechanism;
+
 import org.apache.vysper.xmpp.authorization.Plain;
+import org.apache.vysper.xmpp.authorization.SASLMechanism;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
@@ -31,9 +35,6 @@ import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  */
@@ -50,7 +51,7 @@ public class AuthHandlerUnavailableMechanismTestCase extends TestCase {
 
         List<SASLMechanism> methods = new ArrayList<SASLMechanism>();
         methods.add(new Plain());
-        
+
         sessionContext.getServerRuntimeContext().getServerFeatures().setAuthenticationMethods(methods);
     }
 
@@ -61,22 +62,24 @@ public class AuthHandlerUnavailableMechanismTestCase extends TestCase {
 
         AuthHandler authHandler = new AuthHandler();
         try {
-            ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
+            ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext
+                    .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
 
             fail("should raise exception");
         } catch (RuntimeException e) {
             // test succeeded
         }
     }
-    
+
     public void testAuthPlainUnavailableMechanism() throws AuthorizationFailedException {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("auth", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
-        stanzaBuilder.addAttribute("mechanism", "EXTERNAL"); 
+        stanzaBuilder.addAttribute("mechanism", "EXTERNAL");
         Stanza authPlainStanza = stanzaBuilder.build();
 
         AuthHandler authHandler = new AuthHandler();
         try {
-            ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
+            ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext
+                    .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
 
             fail("should raise exception");
         } catch (RuntimeException e) {

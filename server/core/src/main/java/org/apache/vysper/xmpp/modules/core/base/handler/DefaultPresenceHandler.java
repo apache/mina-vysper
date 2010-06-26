@@ -40,7 +40,6 @@ import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
  */
 public class DefaultPresenceHandler extends XMPPCoreStanzaHandler {
 
-
     public String getName() {
         return "presence";
     }
@@ -52,7 +51,8 @@ public class DefaultPresenceHandler extends XMPPCoreStanzaHandler {
 
     protected boolean verifyInnerNamespace(Stanza stanza, String namespace) {
         XMLElementVerifier xmlElementVerifier = stanza.getVerifier();
-        if (!xmlElementVerifier.subElementsPresentAtLeast(1)) return false;
+        if (!xmlElementVerifier.subElementsPresentAtLeast(1))
+            return false;
 
         List<XMLElement> innerElements = stanza.getInnerElements();
         XMLElement firstInnerElement = innerElements.get(0);
@@ -60,8 +60,9 @@ public class DefaultPresenceHandler extends XMPPCoreStanzaHandler {
     }
 
     @Override
-    protected Stanza executeCore(XMPPCoreStanza coreStanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza, SessionContext sessionContext) {
-        PresenceStanza stanza = (PresenceStanza)coreStanza;
+    protected Stanza executeCore(XMPPCoreStanza coreStanza, ServerRuntimeContext serverRuntimeContext,
+            boolean isOutboundStanza, SessionContext sessionContext) {
+        PresenceStanza stanza = (PresenceStanza) coreStanza;
 
         return executePresenceLogic(stanza, serverRuntimeContext, sessionContext);
     }
@@ -69,11 +70,11 @@ public class DefaultPresenceHandler extends XMPPCoreStanzaHandler {
     /**
      * must be overridden by specialized presence handlers
      */
-    protected Stanza executePresenceLogic(PresenceStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected Stanza executePresenceLogic(PresenceStanza stanza, ServerRuntimeContext serverRuntimeContext,
+            SessionContext sessionContext) {
         // this is default behavior and must be replaced by overrider
         return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
-                StanzaErrorType.CANCEL,
-                null, null, null);
+                StanzaErrorType.CANCEL, null, null, null);
     }
 
 }

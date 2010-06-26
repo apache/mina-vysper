@@ -30,7 +30,7 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-@SpecCompliant(spec="xep-0060", status= SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
+@SpecCompliant(spec = "xep-0060", status = SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED)
 public abstract class AbstractPubSubOwnerHandler extends AbstractPublishSubscribeIQHandler {
 
     /**

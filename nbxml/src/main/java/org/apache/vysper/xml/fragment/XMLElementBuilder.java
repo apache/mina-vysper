@@ -23,7 +23,6 @@ package org.apache.vysper.xml.fragment;
 import java.util.List;
 import java.util.Map;
 
-
 /**
  * TODO For now, this is mostly a copy of StanzaBuilder. Both classes needs to be refactored.
  *
@@ -40,18 +39,16 @@ public class XMLElementBuilder extends AbstractXMLElementBuilder<XMLElementBuild
     }
 
     public XMLElementBuilder(String elementName, String namespaceURI, String namespacePrefix) {
-    	super(elementName, namespaceURI, namespacePrefix);
+        super(elementName, namespaceURI, namespacePrefix);
     }
 
-	public XMLElementBuilder(String elementName, String namespaceURI,
-			String namespacePrefix, List<Attribute> attributes, 
-			List<XMLFragment> innerFragments) {
-		super(elementName, namespaceURI, namespacePrefix, attributes, null, innerFragments);
-	}
-    
-	public XMLElementBuilder(String elementName, String namespaceURI,
-			String namespacePrefix, List<Attribute> attributes, Map<String, String> namespaces,
-			List<XMLFragment> innerFragments) {
-		super(elementName, namespaceURI, namespacePrefix, attributes, namespaces, innerFragments);
-	}
+    public XMLElementBuilder(String elementName, String namespaceURI, String namespacePrefix,
+            List<Attribute> attributes, List<XMLFragment> innerFragments) {
+        super(elementName, namespaceURI, namespacePrefix, attributes, null, innerFragments);
+    }
+
+    public XMLElementBuilder(String elementName, String namespaceURI, String namespacePrefix,
+            List<Attribute> attributes, Map<String, String> namespaces, List<XMLFragment> innerFragments) {
+        super(elementName, namespaceURI, namespacePrefix, attributes, namespaces, innerFragments);
+    }
 }

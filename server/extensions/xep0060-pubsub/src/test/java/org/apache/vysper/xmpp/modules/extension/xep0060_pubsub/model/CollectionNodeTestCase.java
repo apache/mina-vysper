@@ -29,20 +29,22 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubServiceConf
  * @author The Apache MINA Project (http://mina.apache.org)
  *
  */
-public class CollectionNodeTestCase extends TestCase  {
+public class CollectionNodeTestCase extends TestCase {
 
     protected CollectionNode collection;
+
     protected Entity owner;
+
     protected PubSubServiceConfiguration serviceConfig;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        
+
         collection = new CollectionNode();
         serviceConfig = new PubSubServiceConfiguration(collection);
 
-        owner = new EntityImpl("owner","vysper.org", null);
+        owner = new EntityImpl("owner", "vysper.org", null);
         Entity jid = new EntityImpl(null, "pubsub.vysper.org", null);
         serviceConfig.setServerJID(jid);
     }

@@ -19,17 +19,17 @@
  */
 package org.apache.vysper.xmpp.modules.core.bind.handler;
 
-import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.server.SessionContext;
-import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-import org.apache.vysper.xmpp.stanza.IQStanza;
-import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.stanza.IQStanzaType;
-import org.apache.vysper.xmpp.state.resourcebinding.BindException;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.stanza.IQStanza;
+import org.apache.vysper.xmpp.stanza.IQStanzaType;
+import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.state.resourcebinding.BindException;
 
 /**
  * handles bind requests
@@ -70,23 +70,18 @@ public class BindIQHandler extends DefaultIQHandler {
 
         Entity entity = new EntityImpl(sessionContext.getInitiatingEntity(), resourceId);
 
-        StanzaBuilder stanzaBuilder =
-            StanzaBuilder.createIQStanza(null, null, IQStanzaType.RESULT, stanza.getID()).
-            startInnerElement("bind", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND).
-                    startInnerElement("jid", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND).
-                    addText(entity.getFullQualifiedName()).endInnerElement().
-            endInnerElement();
+        StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(null, null, IQStanzaType.RESULT, stanza.getID())
+                .startInnerElement("bind", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND).startInnerElement("jid",
+                        NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND).addText(entity.getFullQualifiedName())
+                .endInnerElement().endInnerElement();
 
         return stanzaBuilder.build();
     }
 
     private Stanza bindError(IQStanza stanza, SessionContext sessionContext) {
-        StanzaBuilder stanzaBuilder =
-            StanzaBuilder.createIQStanza(null, null, IQStanzaType.ERROR, stanza.getID()).
-            startInnerElement("error", NamespaceURIs.JABBER_CLIENT).
-                    addAttribute("type", "cancel").
-                    startInnerElement("not-allowed", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).
-            endInnerElement();
+        StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(null, null, IQStanzaType.ERROR, stanza.getID())
+                .startInnerElement("error", NamespaceURIs.JABBER_CLIENT).addAttribute("type", "cancel")
+                .startInnerElement("not-allowed", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).endInnerElement();
 
         return stanzaBuilder.build();
     }

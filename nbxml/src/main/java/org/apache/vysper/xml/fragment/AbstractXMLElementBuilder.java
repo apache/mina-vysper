@@ -36,9 +36,13 @@ public abstract class AbstractXMLElementBuilder<B extends AbstractXMLElementBuil
 
     class ElementStruct {
         public ElementStruct parentElement = null;
+
         public XMLElement element = null;
+
         public List<Attribute> attributes = null;
+
         public Map<String, String> namespaces = null;
+
         public List<XMLFragment> innerFragments = null;
     }
 
@@ -46,10 +50,12 @@ public abstract class AbstractXMLElementBuilder<B extends AbstractXMLElementBuil
      * parent hierarchy for current element
      */
     private Stack<ElementStruct> stack = new Stack<ElementStruct>();
-    protected ElementStruct currentElement = null;
-    private XMLElement resultingElement = null;
-    private boolean isReset = false;
 
+    protected ElementStruct currentElement = null;
+
+    private XMLElement resultingElement = null;
+
+    private boolean isReset = false;
 
     public AbstractXMLElementBuilder(String elementName) {
         this(elementName, null);
@@ -65,46 +71,51 @@ public abstract class AbstractXMLElementBuilder<B extends AbstractXMLElementBuil
         stack.push(currentElement);
     }
 
-    public AbstractXMLElementBuilder(String elementName, String namespaceURI, String namespacePrefix, List<Attribute> attributes, Map<String, String> namespaces, List<XMLFragment> innerFragments) {
+    public AbstractXMLElementBuilder(String elementName, String namespaceURI, String namespacePrefix,
+            List<Attribute> attributes, Map<String, String> namespaces, List<XMLFragment> innerFragments) {
         startNewElement(elementName, namespaceURI, namespacePrefix);
         resultingElement = currentElement.element;
-        if(attributes != null) currentElement.attributes.addAll(attributes);
-        if(namespaces != null) currentElement.namespaces.putAll(namespaces);
-        if(innerFragments != null) currentElement.innerFragments.addAll(innerFragments);
+        if (attributes != null)
+            currentElement.attributes.addAll(attributes);
+        if (namespaces != null)
+            currentElement.namespaces.putAll(namespaces);
+        if (innerFragments != null)
+            currentElement.innerFragments.addAll(innerFragments);
         stack.push(currentElement);
     }
-    
-    protected XMLElement createElement(String namespaceURI, String name, String namespacePrefix, List<Attribute> attributes, Map<String, String> namespaces, List<XMLFragment> innerFragments) {
-    	return new XMLElement(namespaceURI, name, namespacePrefix, attributes, innerFragments, namespaces);
+
+    protected XMLElement createElement(String namespaceURI, String name, String namespacePrefix,
+            List<Attribute> attributes, Map<String, String> namespaces, List<XMLFragment> innerFragments) {
+        return new XMLElement(namespaceURI, name, namespacePrefix, attributes, innerFragments, namespaces);
     }
-    
+
     private void startNewElement(String name, String namespaceURI, String namespacePrefix) {
         // TODO assert that name does not contain namespace (":")
         ElementStruct element = new ElementStruct();
         element.attributes = new ArrayList<Attribute>();
         element.namespaces = new HashMap<String, String>();
         element.innerFragments = new ArrayList<XMLFragment>();
-        element.element = createElement(namespaceURI, name, namespacePrefix, element.attributes, element.namespaces, element.innerFragments);
+        element.element = createElement(namespaceURI, name, namespacePrefix, element.attributes, element.namespaces,
+                element.innerFragments);
 
         currentElement = element;
     }
-    
+
     public B declareNamespace(String namespacePrefix, String value) {
         currentElement.namespaces.put(namespacePrefix, value);
         return (B) this;
     }
 
     public B addAttribute(String name, String value) {
-    	addAttribute(new Attribute(name, value));
-    	return (B) this;
+        addAttribute(new Attribute(name, value));
+        return (B) this;
     }
 
     public B addAttribute(String namespaceUris, String name, String value) {
-    	addAttribute(new Attribute(namespaceUris, name, value));
-    	return (B) this;
+        addAttribute(new Attribute(namespaceUris, name, value));
+        return (B) this;
     }
 
-    
     public B addAttribute(Attribute attribute) {
         checkReset();
         currentElement.attributes.add(attribute);
@@ -135,7 +146,8 @@ public abstract class AbstractXMLElementBuilder<B extends AbstractXMLElementBuil
 
     public B endInnerElement() {
         checkReset();
-        if (stack.isEmpty()) throw new IllegalStateException("cannot end beyond top element");
+        if (stack.isEmpty())
+            throw new IllegalStateException("cannot end beyond top element");
 
         stack.pop(); // take current off stack and forget (it was added to its parent before)
         currentElement = stack.peek(); // we again deal with parent, which can be receive additions
@@ -165,6 +177,7 @@ public abstract class AbstractXMLElementBuilder<B extends AbstractXMLElementBuil
      * assure that the immutable XML element object is not changed after it was retrieved
      */
     private void checkReset() {
-        if (isReset) throw new IllegalStateException("XML element builder was reset after retrieving stanza");
+        if (isReset)
+            throw new IllegalStateException("XML element builder was reset after retrieving stanza");
     }
 }

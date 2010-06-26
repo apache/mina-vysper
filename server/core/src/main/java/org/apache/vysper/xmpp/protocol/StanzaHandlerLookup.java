@@ -22,8 +22,8 @@ package org.apache.vysper.xmpp.protocol;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
-import org.apache.vysper.xmpp.modules.core.base.handler.RelayingIQHandler;
 import org.apache.vysper.xmpp.modules.core.base.handler.MessageHandler;
+import org.apache.vysper.xmpp.modules.core.base.handler.RelayingIQHandler;
 import org.apache.vysper.xmpp.modules.core.base.handler.StreamStartHandler;
 import org.apache.vysper.xmpp.modules.core.base.handler.XMLPrologHandler;
 import org.apache.vysper.xmpp.modules.core.im.handler.PresenceHandler;
@@ -43,9 +43,13 @@ import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 public class StanzaHandlerLookup extends AbstractStanzaHandlerLookup {
 
     private IQHandler iqHandler = new RelayingIQHandler();
+
     private MessageHandler messageHandler = new MessageHandler();
+
     private PresenceHandler presenceHandler = new PresenceHandler();
+
     private static final ServiceUnavailableStanzaErrorHandler SERVICE_UNAVAILABLE_STANZA_ERROR_HANDLER = new ServiceUnavailableStanzaErrorHandler();
+
     protected ServerRuntimeContext serverRuntimeContext;
 
     public StanzaHandlerLookup(ServerRuntimeContext serverRuntimeContext) {
@@ -59,14 +63,20 @@ public class StanzaHandlerLookup extends AbstractStanzaHandlerLookup {
      */
     @Override
     public StanzaHandler getHandler(Stanza stanza) {
-        if (stanza == null) return null;
+        if (stanza == null)
+            return null;
 
         String name = stanza.getName();
-        if      ("xml".equals(name)) return new XMLPrologHandler();
-        else if ("stream".equals(name)) return new StreamStartHandler();
-        else if (iqHandler.verify(stanza)) return getIQHandler(stanza);
-        else if (messageHandler.verify(stanza)) return getMessageHandler(stanza);
-        else if (presenceHandler.verify(stanza)) return getPresenceHandler(stanza);
+        if ("xml".equals(name))
+            return new XMLPrologHandler();
+        else if ("stream".equals(name))
+            return new StreamStartHandler();
+        else if (iqHandler.verify(stanza))
+            return getIQHandler(stanza);
+        else if (messageHandler.verify(stanza))
+            return getMessageHandler(stanza);
+        else if (presenceHandler.verify(stanza))
+            return getPresenceHandler(stanza);
         else {
             // this is not a core stanza (RFC3920), but something like the following
             // (in descending-probability order):
@@ -78,7 +88,8 @@ public class StanzaHandlerLookup extends AbstractStanzaHandlerLookup {
             // ...so we delegate:
             StanzaHandler stanzaHandler = getHandlerForElement(stanza, stanza);
             // ... and if we could not resolve and it's a core stanza, we can safely return an error
-            if (stanzaHandler == null && XMPPCoreStanza.getWrapper(stanza) != null) return SERVICE_UNAVAILABLE_STANZA_ERROR_HANDLER;
+            if (stanzaHandler == null && XMPPCoreStanza.getWrapper(stanza) != null)
+                return SERVICE_UNAVAILABLE_STANZA_ERROR_HANDLER;
             return stanzaHandler;
         }
     }
@@ -97,7 +108,8 @@ public class StanzaHandlerLookup extends AbstractStanzaHandlerLookup {
         Entity to = stanza.getTo();
         Entity serverEntity = (serverRuntimeContext == null) ? null : serverRuntimeContext.getServerEnitity();
         boolean isAddressedToServerOrComponent = (to == null || (!to.isNodeSet() && !to.isResourceSet()));
-        boolean isAddressedToComponent = (to != null) && isAddressedToServerOrComponent && serverEntity != null && (!serverEntity.equals(to));
+        boolean isAddressedToComponent = (to != null) && isAddressedToServerOrComponent && serverEntity != null
+                && (!serverEntity.equals(to));
         boolean isAddressedToServer = (to == null) || (isAddressedToServerOrComponent && !isAddressedToComponent);
 
         // The following cases must be properly handled:
@@ -112,10 +124,13 @@ public class StanzaHandlerLookup extends AbstractStanzaHandlerLookup {
         if (stanza.getVerifier().subElementsPresentExact(1)) {
             XMLElement firstInnerElement = stanza.getFirstInnerElement();
             handlerForElement = getHandlerForElement(stanza, firstInnerElement);
-            if (handlerForElement != null) resolvedHandler = handlerForElement;
-            if (resolvedHandler == null && isAddressedToServer && XMPPCoreStanza.getWrapper(stanza) != null) resolvedHandler = SERVICE_UNAVAILABLE_STANZA_ERROR_HANDLER;
+            if (handlerForElement != null)
+                resolvedHandler = handlerForElement;
+            if (resolvedHandler == null && isAddressedToServer && XMPPCoreStanza.getWrapper(stanza) != null)
+                resolvedHandler = SERVICE_UNAVAILABLE_STANZA_ERROR_HANDLER;
         }
-        if (resolvedHandler == null) resolvedHandler = iqHandler;
+        if (resolvedHandler == null)
+            resolvedHandler = iqHandler;
         return resolvedHandler;
     }
 }

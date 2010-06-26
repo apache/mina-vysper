@@ -20,9 +20,9 @@
 
 package org.apache.vysper.xmpp.protocol;
 
-import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
  */
@@ -34,7 +34,9 @@ public class CallTestStanzaHandlerResponse extends CallTestStanzaHandler impleme
     }
 
     @Override
-    public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder) throws ProtocolException {
+    public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
+            boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder)
+            throws ProtocolException {
         super.execute(stanza, serverRuntimeContext, true, sessionContext, null);
         return new ResponseStanzaContainerImpl(getResponseStanza());
     }

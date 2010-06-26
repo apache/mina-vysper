@@ -19,15 +19,15 @@
  */
 package org.apache.vysper.xmpp.delivery;
 
-import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
-import org.apache.vysper.xmpp.delivery.failure.LocalRecipientOfflineException;
-import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
-
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
+import org.apache.vysper.xmpp.delivery.failure.LocalRecipientOfflineException;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
  * relays stanzas to a StanzaReceiver identified by an Entity
@@ -36,10 +36,15 @@ import java.util.HashMap;
 public class StanzaReceiverRelay implements StanzaRelay {
 
     private final Map<Entity, StanzaReceiver> receiverMap = new HashMap<Entity, StanzaReceiver>();
+
     private boolean exploitFailureStrategy = true;
+
     private ServerRuntimeContext serverRuntimeContext = null;
+
     private int countRelayed = 0;
+
     private int countFailed = 0;
+
     private int countDelivered = 0;
 
     public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
@@ -53,9 +58,11 @@ public class StanzaReceiverRelay implements StanzaRelay {
         receiverMap.put(receiverID, receiver);
     }
 
-    public void relay(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy) throws DeliveryException {
+    public void relay(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy)
+            throws DeliveryException {
         countRelayed++;
-        if (receiver == null) throw new DeliveryException("receiver cannot be NULL");
+        if (receiver == null)
+            throw new DeliveryException("receiver cannot be NULL");
         if (receiverMap.get(receiver) == null) {
 
             if (deliveryFailureStrategy != null && exploitFailureStrategy) {

@@ -41,57 +41,59 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 public class ChangeNickTestCase extends AbstractMUCHandlerTestCase {
 
     private Stanza changeNick(Entity occupantJid, Entity roomWithNickJid) throws ProtocolException {
-        StanzaBuilder stanzaBuilder = StanzaBuilder.createPresenceStanza(occupantJid, roomWithNickJid, null, null, null, null);
+        StanzaBuilder stanzaBuilder = StanzaBuilder.createPresenceStanza(occupantJid, roomWithNickJid, null, null,
+                null, null);
         stanzaBuilder.startInnerElement("x", NamespaceURIs.XEP0045_MUC);
-        
+
         stanzaBuilder.endInnerElement();
         Stanza presenceStanza = stanzaBuilder.build();
-        ResponseStanzaContainer container = handler.execute(presenceStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, null);
-        if(container != null) {
+        ResponseStanzaContainer container = handler.execute(presenceStanza, sessionContext.getServerRuntimeContext(),
+                true, sessionContext, null);
+        if (container != null) {
             return container.getResponseStanza();
         } else {
             return null;
         }
     }
-    
 
     @Override
     protected StanzaHandler createHandler() {
         return new MUCPresenceHandler(conference);
     }
-    
+
     public void testChangeNick() throws Exception {
         Room room = conference.findRoom(ROOM1_JID);
         room.addOccupant(OCCUPANT1_JID, "nick");
         room.addOccupant(OCCUPANT2_JID, "nick 2");
 
         changeNick(OCCUPANT1_JID, new EntityImpl(ROOM1_JID, "new nick"));
-        
+
         Occupant occupant = room.findOccupantByJID(OCCUPANT1_JID);
         assertEquals("new nick", occupant.getName());
 
-        MucUserPresenceItem unavailbleItem = new MucUserPresenceItem(OCCUPANT1_JID, "new nick", Affiliation.None, Role.Participant);
-        assertPresenceStanza(occupant1Queue.getNext(), new EntityImpl(ROOM1_JID, "nick"), OCCUPANT1_JID, "unavailable", 
+        MucUserPresenceItem unavailbleItem = new MucUserPresenceItem(OCCUPANT1_JID, "new nick", Affiliation.None,
+                Role.Participant);
+        assertPresenceStanza(occupant1Queue.getNext(), new EntityImpl(ROOM1_JID, "nick"), OCCUPANT1_JID, "unavailable",
                 Arrays.asList(unavailbleItem), Arrays.asList(StatusCode.NEW_NICK, StatusCode.OWN_PRESENCE));
-        assertPresenceStanza(occupant2Queue.getNext(), new EntityImpl(ROOM1_JID, "nick"), OCCUPANT2_JID, "unavailable", 
+        assertPresenceStanza(occupant2Queue.getNext(), new EntityImpl(ROOM1_JID, "nick"), OCCUPANT2_JID, "unavailable",
                 Arrays.asList(unavailbleItem), Arrays.asList(StatusCode.NEW_NICK));
 
-        MucUserPresenceItem availbleItem = new MucUserPresenceItem(OCCUPANT1_JID, null, Affiliation.None, Role.Participant);
-        assertPresenceStanza(occupant1Queue.getNext(), new EntityImpl(ROOM1_JID, "new nick"), OCCUPANT1_JID, null, 
+        MucUserPresenceItem availbleItem = new MucUserPresenceItem(OCCUPANT1_JID, null, Affiliation.None,
+                Role.Participant);
+        assertPresenceStanza(occupant1Queue.getNext(), new EntityImpl(ROOM1_JID, "new nick"), OCCUPANT1_JID, null,
                 Arrays.asList(availbleItem), Arrays.asList(StatusCode.OWN_PRESENCE));
-        assertPresenceStanza(occupant2Queue.getNext(), new EntityImpl(ROOM1_JID, "new nick"), OCCUPANT2_JID, null, 
+        assertPresenceStanza(occupant2Queue.getNext(), new EntityImpl(ROOM1_JID, "new nick"), OCCUPANT2_JID, null,
                 Arrays.asList(availbleItem), null);
     }
-    
+
     public void testChangeNickWithDuplicateNick() throws Exception {
         Room room = conference.findRoom(ROOM1_JID);
         room.addOccupant(OCCUPANT1_JID, "nick");
         room.addOccupant(OCCUPANT2_JID, "nick 2");
-        
-        Stanza error = changeNick(OCCUPANT1_JID, new EntityImpl(ROOM1_JID,"nick 2"));
-        
+
+        Stanza error = changeNick(OCCUPANT1_JID, new EntityImpl(ROOM1_JID, "nick 2"));
+
         assertNotNull(error);
     }
 
-    
 }

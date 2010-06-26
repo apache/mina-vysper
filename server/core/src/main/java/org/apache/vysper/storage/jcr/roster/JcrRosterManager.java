@@ -19,6 +19,14 @@
  */
 package org.apache.vysper.storage.jcr.roster;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.Property;
+import javax.jcr.RepositoryException;
+
 import org.apache.vysper.storage.jcr.JcrStorage;
 import org.apache.vysper.storage.jcr.JcrStorageException;
 import org.apache.vysper.xmpp.addressing.Entity;
@@ -35,13 +43,6 @@ import org.apache.vysper.xmpp.modules.roster.persistence.AbstractRosterManager;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.Property;
-import javax.jcr.RepositoryException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * roster items are stored for contacts in the following path:
@@ -61,9 +62,10 @@ public class JcrRosterManager extends AbstractRosterManager {
         this.jcrStorage = jcrStorage;
     }
 
-    /*package*/ static Node retrieveRosterNode(JcrStorage jcrStorage, Entity bareJid) {
+    /*package*/static Node retrieveRosterNode(JcrStorage jcrStorage, Entity bareJid) {
         try {
-            if (jcrStorage.getEntityNode(bareJid, null, false) == null) return null;
+            if (jcrStorage.getEntityNode(bareJid, null, false) == null)
+                return null;
             return jcrStorage.getEntityNode(bareJid, NamespaceURIs.JABBER_IQ_ROSTER, true);
         } catch (JcrStorageException e) {
             return null;
@@ -101,7 +103,8 @@ public class JcrRosterManager extends AbstractRosterManager {
                 }
             }
             if (contactJid == null) {
-                logger.warn("when loading roster for user {}, skipping a contact due to missing or unparsable jid", bareJid);
+                logger.warn("when loading roster for user {}, skipping a contact due to missing or unparsable jid",
+                        bareJid);
                 continue;
             }
 
@@ -111,14 +114,17 @@ public class JcrRosterManager extends AbstractRosterManager {
             try {
                 subscriptionType = SubscriptionType.valueOf(typeString == null ? "NONE" : typeString.toUpperCase());
             } catch (IllegalArgumentException e) {
-                logger.warn("when loading roster for user " + bareJid + ", contact " + contactJid + " misses a subscription type", bareJid, contactJid);
+                logger.warn("when loading roster for user " + bareJid + ", contact " + contactJid
+                        + " misses a subscription type", bareJid, contactJid);
             }
             String askTypeString = readAttribute(node, "askType");
             AskSubscriptionType askSubscriptionType = AskSubscriptionType.NOT_SET;
             try {
-                if (askTypeString != null) askSubscriptionType = AskSubscriptionType.valueOf(askTypeString);
+                if (askTypeString != null)
+                    askSubscriptionType = AskSubscriptionType.valueOf(askTypeString);
             } catch (IllegalArgumentException e) {
-                logger.warn("when loading roster for user " + bareJid.getFullQualifiedName() + ", contact " + contactJid.getFullQualifiedName() + ", the ask subscription type is unparsable. skipping!");
+                logger.warn("when loading roster for user " + bareJid.getFullQualifiedName() + ", contact "
+                        + contactJid.getFullQualifiedName() + ", the ask subscription type is unparsable. skipping!");
                 continue; // don't return it, don't set a default!
             }
 
@@ -135,7 +141,8 @@ public class JcrRosterManager extends AbstractRosterManager {
     private String readAttribute(Node node, String propertyName) {
         try {
             Property property = node.getProperty(propertyName);
-            if (property == null) return null;
+            if (property == null)
+                return null;
             return property.getString();
         } catch (RepositoryException e) {
             return null;
@@ -149,8 +156,10 @@ public class JcrRosterManager extends AbstractRosterManager {
 
     @Override
     public void addContact(Entity jid, RosterItem rosterItem) throws RosterException {
-        if (jid == null) throw new RosterException("jid not provided");
-        if (rosterItem.getJid() == null) throw new RosterException("contact jid not provided");
+        if (jid == null)
+            throw new RosterException("jid not provided");
+        if (rosterItem.getJid() == null)
+            throw new RosterException("contact jid not provided");
 
         // TODO think about concurrent updates
 
@@ -158,24 +167,29 @@ public class JcrRosterManager extends AbstractRosterManager {
         Node contactNode = getOrCreateContactNode(jid, contactJid);
         try {
             setOrRemoveAttribute(contactNode, "name", rosterItem.getName());
-            String subscriptionTypeValue = rosterItem.getSubscriptionType() == null ? null : rosterItem.getSubscriptionType().value();
+            String subscriptionTypeValue = rosterItem.getSubscriptionType() == null ? null : rosterItem
+                    .getSubscriptionType().value();
             setOrRemoveAttribute(contactNode, "type", subscriptionTypeValue);
             String askSubscriptionTypeValue = null;
-            if (rosterItem.getAskSubscriptionType() != null &&
-                rosterItem.getAskSubscriptionType() != AskSubscriptionType.NOT_SET) {
+            if (rosterItem.getAskSubscriptionType() != null
+                    && rosterItem.getAskSubscriptionType() != AskSubscriptionType.NOT_SET) {
                 askSubscriptionTypeValue = rosterItem.getAskSubscriptionType().value();
             }
             setOrRemoveAttribute(contactNode, "askType", askSubscriptionTypeValue);
             contactNode.save();
             logger.info("JCR node created/updated: " + contactNode);
         } catch (RepositoryException e) {
-            throw new RosterException("failed to add contact node to roster for user = " + jid.getFullQualifiedName() + " and contact jid = " + rosterItem.getJid().getFullQualifiedName(), e);
+            throw new RosterException("failed to add contact node to roster for user = " + jid.getFullQualifiedName()
+                    + " and contact jid = " + rosterItem.getJid().getFullQualifiedName(), e);
         }
     }
 
-    private void setOrRemoveAttribute(Node contactNode, String attributeName, String attributeValue) throws RepositoryException {
-        if (attributeValue != null) contactNode.setProperty(attributeName, attributeValue);
-        else if (contactNode.hasProperty(attributeName)) contactNode.setProperty(attributeName, (String)null);
+    private void setOrRemoveAttribute(Node contactNode, String attributeName, String attributeValue)
+            throws RepositoryException {
+        if (attributeValue != null)
+            contactNode.setProperty(attributeName, attributeValue);
+        else if (contactNode.hasProperty(attributeName))
+            contactNode.setProperty(attributeName, (String) null);
     }
 
     private Node getOrCreateContactNode(Entity jid, Entity contactJid) throws RosterException {
@@ -194,7 +208,9 @@ public class JcrRosterManager extends AbstractRosterManager {
                 contactNode = entityNode.addNode(contactJid.getFullQualifiedName());
                 entityNode.save();
             } catch (RepositoryException addNodeEx) {
-                throw new RosterException("failed to add contact node to roster for user = " + jid.getFullQualifiedName() + " and contact jid = " + contactJid.getFullQualifiedName(), addNodeEx);
+                throw new RosterException("failed to add contact node to roster for user = "
+                        + jid.getFullQualifiedName() + " and contact jid = " + contactJid.getFullQualifiedName(),
+                        addNodeEx);
             }
 
         }
@@ -203,15 +219,18 @@ public class JcrRosterManager extends AbstractRosterManager {
 
     @Override
     public void removeContact(Entity jidUser, Entity jidContact) throws RosterException {
-        if (jidUser == null) throw new RosterException("jid not provided");
-        if (jidContact == null) throw new RosterException("contact jid not provided");
+        if (jidUser == null)
+            throw new RosterException("jid not provided");
+        if (jidContact == null)
+            throw new RosterException("contact jid not provided");
         Node rosterNode = null;
         try {
             rosterNode = jcrStorage.getEntityNode(jidUser, NamespaceURIs.JABBER_IQ_ROSTER, false);
         } catch (JcrStorageException e) {
             throw new RosterException("failed to retrieve roster store for " + jidUser.getFullQualifiedName(), e);
         }
-        if (rosterNode == null) return; // done, no contacts anyway. oops
+        if (rosterNode == null)
+            return; // done, no contacts anyway. oops
 
         NodeIterator nodes = null;
         try {
@@ -232,6 +251,7 @@ public class JcrRosterManager extends AbstractRosterManager {
                 }
             }
         }
-        if (!foundOne) logger.warn("failed to remove from roster for user " + jidUser + " the contact jid " + jidContact);
+        if (!foundOne)
+            logger.warn("failed to remove from roster for user " + jidUser + " the contact jid " + jidContact);
     }
 }

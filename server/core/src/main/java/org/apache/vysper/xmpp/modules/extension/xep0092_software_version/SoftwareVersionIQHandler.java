@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0092_software_version;
 
+import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -27,21 +28,18 @@ import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.compliance.SpecCompliant;
 
 /**
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-@SpecCompliant(spec="xep-0092", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+@SpecCompliant(spec = "xep-0092", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
 public class SoftwareVersionIQHandler extends DefaultIQHandler {
 
     public static final String VYSPER_RELEASE = "0.6-SNAPSHOT";
-    
-    public static final String OS_VERSION =
-            System.getProperty("os.name", "undetermined") + " " +
-            System.getProperty("os.arch", "") + " " +
-            System.getProperty("os.version", "");
+
+    public static final String OS_VERSION = System.getProperty("os.name", "undetermined") + " "
+            + System.getProperty("os.arch", "") + " " + System.getProperty("os.version", "");
 
     @Override
     protected boolean verifyNamespace(Stanza stanza) {
@@ -56,14 +54,15 @@ public class SoftwareVersionIQHandler extends DefaultIQHandler {
     @Override
     protected Stanza handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
 
-        StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID()).
-            startInnerElement("query", NamespaceURIs.JABBER_IQ_VERSION).
+        StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(),
+                IQStanzaType.RESULT, stanza.getID()).startInnerElement("query", NamespaceURIs.JABBER_IQ_VERSION).
 
-            startInnerElement("name", NamespaceURIs.JABBER_IQ_VERSION).addText("Apache Vysper XMPP Server").endInnerElement().
-            startInnerElement("version", NamespaceURIs.JABBER_IQ_VERSION).addText(VYSPER_RELEASE).endInnerElement().
-            startInnerElement("os", NamespaceURIs.JABBER_IQ_VERSION).addText(OS_VERSION).endInnerElement().
+        startInnerElement("name", NamespaceURIs.JABBER_IQ_VERSION).addText("Apache Vysper XMPP Server")
+                .endInnerElement().startInnerElement("version", NamespaceURIs.JABBER_IQ_VERSION)
+                .addText(VYSPER_RELEASE).endInnerElement().startInnerElement("os", NamespaceURIs.JABBER_IQ_VERSION)
+                .addText(OS_VERSION).endInnerElement().
 
-        endInnerElement();
+                endInnerElement();
 
         return stanzaBuilder.build();
     }

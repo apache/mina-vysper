@@ -32,13 +32,13 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class MUCComponentInfoDiscoTestCase extends AbstractComponentInfoDiscoTestCase {
-    
+
     private MUCModule module;
-    
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        
+
         Conference conference = new Conference("Foo");
         module = new MUCModule(SUBDOMAIN, conference);
         module.initialize(serverRuntimeContext);
@@ -53,7 +53,7 @@ public class MUCComponentInfoDiscoTestCase extends AbstractComponentInfoDiscoTes
     protected List<String> getExpectedFeatures() {
         return Arrays.asList(NamespaceURIs.XEP0045_MUC);
     }
-    
+
     @Override
     protected Identity getExpectedIdentity() {
         return new Identity("conference", "text", "Foo");

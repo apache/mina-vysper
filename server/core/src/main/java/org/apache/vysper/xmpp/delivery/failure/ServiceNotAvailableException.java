@@ -19,7 +19,6 @@
  */
 package org.apache.vysper.xmpp.delivery.failure;
 
-import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 
 /**
  */

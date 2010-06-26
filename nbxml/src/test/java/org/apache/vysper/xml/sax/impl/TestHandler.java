@@ -29,212 +29,206 @@ import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-
 /**
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class TestHandler implements ContentHandler, ErrorHandler {
 
-	public static interface TestEvent {
-		
-	}
+    public static interface TestEvent {
 
-	public static class StartDocumentEvent implements TestEvent {
-		
-	}
+    }
 
-	public static class EndDocumentEvent implements TestEvent {
-		
-	}
+    public static class StartDocumentEvent implements TestEvent {
 
-	public static class StartElementEvent implements TestEvent {
-		private String uri;
-		private String localName;
-		private String qName;
-		private Attributes atts;
-		
-		public StartElementEvent(String uri, String localName, String qName,
-				Attributes atts) {
-			this.uri = uri;
-			this.localName = localName;
-			this.qName = qName;
-			this.atts = atts;
-		}
+    }
 
-		public String getURI() {
-			return uri;
-		}
+    public static class EndDocumentEvent implements TestEvent {
 
-		public String getLocalName() {
-			return localName;
-		}
+    }
 
-		public String getQName() {
-			return qName;
-		}
+    public static class StartElementEvent implements TestEvent {
+        private String uri;
 
-		public Attributes getAtts() {
-			return atts;
-		}
-	}
+        private String localName;
 
-	public static class EndElementEvent implements TestEvent {
-		private String uri;
-		private String localName;
-		private String qName;
-		
-		public EndElementEvent(String uri, String localName, String qName) {
-			this.uri = uri;
-			this.localName = localName;
-			this.qName = qName;
-		}
+        private String qName;
 
-		public String getURI() {
-			return uri;
-		}
+        private Attributes atts;
 
-		public String getLocalName() {
-			return localName;
-		}
+        public StartElementEvent(String uri, String localName, String qName, Attributes atts) {
+            this.uri = uri;
+            this.localName = localName;
+            this.qName = qName;
+            this.atts = atts;
+        }
 
-		public String getQName() {
-			return qName;
-		}
-	}
+        public String getURI() {
+            return uri;
+        }
 
-	
-	public static class CharacterEvent implements TestEvent {
-		private String characters;
-		
-		public CharacterEvent(char[] ch, int start, int length) {
-			char[] trimmed = new char[length];
-			System.arraycopy(ch, start, trimmed, 0, length);
-			this.characters = new String(trimmed);
-		}
+        public String getLocalName() {
+            return localName;
+        }
 
-		public String getCharacters() {
-			return characters;
-		}
-	}
-	
-	public static class FatalErrorEvent implements TestEvent {
-		private Exception exception;
+        public String getQName() {
+            return qName;
+        }
 
-		public FatalErrorEvent(Exception exception) {
-			this.exception = exception;
-		}
+        public Attributes getAtts() {
+            return atts;
+        }
+    }
 
-		public Exception getException() {
-			return exception;
-		}
-	}
+    public static class EndElementEvent implements TestEvent {
+        private String uri;
 
-	public static class ErrorEvent implements TestEvent {
-		private Exception exception;
+        private String localName;
 
-		public ErrorEvent(Exception exception) {
-			this.exception = exception;
-		}
+        private String qName;
 
-		public Exception getException() {
-			return exception;
-		}
-	}
+        public EndElementEvent(String uri, String localName, String qName) {
+            this.uri = uri;
+            this.localName = localName;
+            this.qName = qName;
+        }
 
-	public static class WarningEvent implements TestEvent {
-		private Exception exception;
+        public String getURI() {
+            return uri;
+        }
 
-		public WarningEvent(Exception exception) {
-			this.exception = exception;
-		}
+        public String getLocalName() {
+            return localName;
+        }
 
-		public Exception getException() {
-			return exception;
-		}
-	}
+        public String getQName() {
+            return qName;
+        }
+    }
 
-	
-	private List<TestEvent> events = new ArrayList<TestEvent>();
-	
-	public List<TestEvent> getEvents() {
-		return events;
-	}
-	
-	public void characters(char[] ch, int start, int length)
-			throws SAXException {
-		System.out.println("sax characters: " + new String(ch));
-		events.add(new CharacterEvent(ch, start, length));
-		
-	}
+    public static class CharacterEvent implements TestEvent {
+        private String characters;
 
-	public void endDocument() throws SAXException {
-		System.out.println("sax end document");
-		events.add(new EndDocumentEvent());
-	}
+        public CharacterEvent(char[] ch, int start, int length) {
+            char[] trimmed = new char[length];
+            System.arraycopy(ch, start, trimmed, 0, length);
+            this.characters = new String(trimmed);
+        }
 
-	public void endElement(String uri, String localName, String qName)
-			throws SAXException {
-		System.out.println("sax end element: "+ qName);
-		events.add(new EndElementEvent(uri, localName, qName));
-		
-	}
+        public String getCharacters() {
+            return characters;
+        }
+    }
 
-	public void endPrefixMapping(String prefix) throws SAXException {
-		// TODO Auto-generated method stub
-		
-	}
+    public static class FatalErrorEvent implements TestEvent {
+        private Exception exception;
 
-	public void ignorableWhitespace(char[] ch, int start, int length)
-			throws SAXException {
-		// TODO Auto-generated method stub
-		
-	}
+        public FatalErrorEvent(Exception exception) {
+            this.exception = exception;
+        }
 
-	public void processingInstruction(String target, String data)
-			throws SAXException {
-		// TODO Auto-generated method stub
-		
-	}
+        public Exception getException() {
+            return exception;
+        }
+    }
 
-	public void setDocumentLocator(Locator locator) {
-		// TODO Auto-generated method stub
-		
-	}
+    public static class ErrorEvent implements TestEvent {
+        private Exception exception;
 
-	public void skippedEntity(String name) throws SAXException {
-		// TODO Auto-generated method stub
-		
-	}
+        public ErrorEvent(Exception exception) {
+            this.exception = exception;
+        }
 
-	public void startDocument() throws SAXException {
-		System.out.println("sax start document");
-		events.add(new StartDocumentEvent());		
-	}
+        public Exception getException() {
+            return exception;
+        }
+    }
 
-	public void startElement(String uri, String localName, String qName,
-			Attributes atts) throws SAXException {
-		System.out.println("sax start element " + qName);
-		events.add(new StartElementEvent(uri, localName, qName, atts));
-		
-	}
+    public static class WarningEvent implements TestEvent {
+        private Exception exception;
 
-	public void startPrefixMapping(String prefix, String uri)
-			throws SAXException {
-		// TODO Auto-generated method stub
-		
-	}
+        public WarningEvent(Exception exception) {
+            this.exception = exception;
+        }
 
-	public void error(SAXParseException exception) throws SAXException {
-		events.add(new ErrorEvent(exception));
-	}
+        public Exception getException() {
+            return exception;
+        }
+    }
 
-	public void fatalError(SAXParseException exception) throws SAXException {
-		events.add(new FatalErrorEvent(exception));		
-	}
+    private List<TestEvent> events = new ArrayList<TestEvent>();
 
-	public void warning(SAXParseException exception) throws SAXException {
-		events.add(new WarningEvent(exception));		
-	}
+    public List<TestEvent> getEvents() {
+        return events;
+    }
 
+    public void characters(char[] ch, int start, int length) throws SAXException {
+        System.out.println("sax characters: " + new String(ch));
+        events.add(new CharacterEvent(ch, start, length));
+
+    }
+
+    public void endDocument() throws SAXException {
+        System.out.println("sax end document");
+        events.add(new EndDocumentEvent());
+    }
+
+    public void endElement(String uri, String localName, String qName) throws SAXException {
+        System.out.println("sax end element: " + qName);
+        events.add(new EndElementEvent(uri, localName, qName));
+
+    }
+
+    public void endPrefixMapping(String prefix) throws SAXException {
+        // TODO Auto-generated method stub
+
+    }
+
+    public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
+        // TODO Auto-generated method stub
+
+    }
+
+    public void processingInstruction(String target, String data) throws SAXException {
+        // TODO Auto-generated method stub
+
+    }
+
+    public void setDocumentLocator(Locator locator) {
+        // TODO Auto-generated method stub
+
+    }
+
+    public void skippedEntity(String name) throws SAXException {
+        // TODO Auto-generated method stub
+
+    }
+
+    public void startDocument() throws SAXException {
+        System.out.println("sax start document");
+        events.add(new StartDocumentEvent());
+    }
+
+    public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
+        System.out.println("sax start element " + qName);
+        events.add(new StartElementEvent(uri, localName, qName, atts));
+
+    }
+
+    public void startPrefixMapping(String prefix, String uri) throws SAXException {
+        // TODO Auto-generated method stub
+
+    }
+
+    public void error(SAXParseException exception) throws SAXException {
+        events.add(new ErrorEvent(exception));
+    }
+
+    public void fatalError(SAXParseException exception) throws SAXException {
+        events.add(new FatalErrorEvent(exception));
+    }
+
+    public void warning(SAXParseException exception) throws SAXException {
+        events.add(new WarningEvent(exception));
+    }
 
 }

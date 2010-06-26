@@ -19,12 +19,16 @@
  */
 package org.apache.vysper.storage.jcr;
 
+import javax.jcr.Node;
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.SimpleCredentials;
+
 import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.jcr.*;
 
 /**
  * back-end stuff for JCR, used by the semantic specific adapters
@@ -43,7 +47,8 @@ public class JcrStorage {
 
     public static JcrStorage getInstance() {
         synchronized (JcrStorage.class) {
-            if (jcrStorageSingleton == null) jcrStorageSingleton = new JcrStorage();
+            if (jcrStorageSingleton == null)
+                jcrStorageSingleton = new JcrStorage();
             return jcrStorageSingleton;
         }
     }
@@ -51,7 +56,8 @@ public class JcrStorage {
     protected Session session = null;
 
     public Session getRepositorySession() throws JcrStorageException {
-        if (session != null) return session;
+        if (session != null)
+            return session;
         try {
             Repository repository = new TransientRepository();
             session = repository.login(new SimpleCredentials("xmpp-admin", "adminpassword".toCharArray()));
@@ -71,17 +77,21 @@ public class JcrStorage {
 
     public Node getEntityNode(Entity bareEntity, String namespace, boolean createIfMissing) throws JcrStorageException {
         bareEntity = bareEntity.getBareJID(); // make it really sure
-        if (namespace != null) namespace = namespace.replace(':', '_');
-        final String path = "/accountentity/" + bareEntity.getFullQualifiedName() + (namespace != null ? "/" + namespace : "");
+        if (namespace != null)
+            namespace = namespace.replace(':', '_');
+        final String path = "/accountentity/" + bareEntity.getFullQualifiedName()
+                + (namespace != null ? "/" + namespace : "");
         if (!itemExists(path)) {
-            if (!createIfMissing) return null;
+            if (!createIfMissing)
+                return null;
             Node accountEntityNode = getOrCreate(getRootNode(), "accountentity");
             Node entityNode = getOrCreate(accountEntityNode, bareEntity.getFullQualifiedName());
-            if (namespace != null) entityNode = getOrCreate(entityNode, namespace);
+            if (namespace != null)
+                entityNode = getOrCreate(entityNode, namespace);
             return entityNode;
         } else {
             try {
-                return (Node)getRepositorySession().getItem(path);
+                return (Node) getRepositorySession().getItem(path);
             } catch (RepositoryException e) {
                 throw new JcrStorageException(e);
             }

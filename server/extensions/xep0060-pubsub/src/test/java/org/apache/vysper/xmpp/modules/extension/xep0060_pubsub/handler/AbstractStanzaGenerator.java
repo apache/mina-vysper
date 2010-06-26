@@ -46,7 +46,8 @@ public abstract class AbstractStanzaGenerator {
      * @param node the name of the pubsub node
      * @return the (modified) StanzaBuilder
      */
-    protected abstract StanzaBuilder buildInnerElement(Entity client, Entity pubsubService, StanzaBuilder sb, String node);
+    protected abstract StanzaBuilder buildInnerElement(Entity client, Entity pubsubService, StanzaBuilder sb,
+            String node);
 
     /**
      * Override and define the IQ stanza's type (get or set)

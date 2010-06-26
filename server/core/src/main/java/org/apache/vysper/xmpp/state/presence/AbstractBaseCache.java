@@ -45,20 +45,19 @@ public abstract class AbstractBaseCache implements LatestPresenceCache {
 
         if (entity.getResource() == null) {
             throw new PresenceCachingException("presense stanzas are cached per resource, failure for "
-                                                + entity.getFullQualifiedName());
+                    + entity.getFullQualifiedName());
         }
     }
 
     /**
      * @inheritDoc
      */
-    public void put(Entity entity, PresenceStanza presenceStanza)
-                                    throws PresenceCachingException {
+    public void put(Entity entity, PresenceStanza presenceStanza) throws PresenceCachingException {
         checkEntry(entity);
 
         // Can't store null entity
-        if(presenceStanza == null) {
-            throw new PresenceCachingException("Presence Stanza cannot be null");            
+        if (presenceStanza == null) {
+            throw new PresenceCachingException("Presence Stanza cannot be null");
         }
 
         put0(entity, presenceStanza);
@@ -72,8 +71,7 @@ public abstract class AbstractBaseCache implements LatestPresenceCache {
      * @param presenceStanza    PresenceStanza to be stored
      * @throws PresenceCachingException
      */
-    protected abstract void put0(Entity entity, PresenceStanza presenceStanza)
-                                    throws PresenceCachingException;
+    protected abstract void put0(Entity entity, PresenceStanza presenceStanza) throws PresenceCachingException;
 
     public PresenceStanza get(Entity entity) throws PresenceCachingException {
         checkEntry(entity);
@@ -87,6 +85,5 @@ public abstract class AbstractBaseCache implements LatestPresenceCache {
      * @return              PresenceStanza related with the key
      * @throws PresenceCachingException
      */
-    protected abstract PresenceStanza get0(Entity entity)
-                                            throws PresenceCachingException;
+    protected abstract PresenceStanza get0(Entity entity) throws PresenceCachingException;
 }

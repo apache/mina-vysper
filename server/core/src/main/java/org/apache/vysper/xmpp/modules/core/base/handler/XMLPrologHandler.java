@@ -23,8 +23,8 @@ import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
-import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
@@ -37,8 +37,10 @@ public class XMLPrologHandler implements StanzaHandler {
     }
 
     public boolean verify(Stanza stanza) {
-        if (stanza == null) return false;
-        if (!getName().equals(stanza.getName())) return false;
+        if (stanza == null)
+            return false;
+        if (!getName().equals(stanza.getName()))
+            return false;
         return true;
     }
 
@@ -46,12 +48,13 @@ public class XMLPrologHandler implements StanzaHandler {
         return true;
     }
 
-    public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder) {
+    public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
+            boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder) {
         XMLElementVerifier xmlElementVerifier = stanza.getVerifier();
 
         String version = stanza.getAttributeValue("version");
         // TODO check version attribute and other attributes
-//        String encoding = stanza.getAttribute("encoding").getValue();
+        //        String encoding = stanza.getAttribute("encoding").getValue();
 
         return null;
     }

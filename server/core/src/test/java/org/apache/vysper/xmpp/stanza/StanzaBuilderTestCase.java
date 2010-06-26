@@ -26,19 +26,19 @@ import org.apache.vysper.xml.fragment.XMLElement;
 /**
  */
 public class StanzaBuilderTestCase extends TestCase {
-    
+
     public void testInnerElementNamespace() {
 
         StanzaBuilder builder = new StanzaBuilder("iq");
         builder.startInnerElement("foo", "urn:bar");
         builder.endInnerElement();
-        
+
         Stanza stanza = builder.build();
-        
+
         XMLElement innerElm = stanza.getFirstInnerElement();
-        
+
         assertEquals("foo", innerElm.getName());
         assertEquals("urn:bar", innerElm.getNamespaceURI());
-        
+
     }
 }

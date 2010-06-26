@@ -27,19 +27,25 @@ import org.apache.vysper.xmpp.addressing.Entity;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class Occupant {
-    
+
     private Affiliation affiliation;
+
     private Role role;
-    
+
     private Entity jid;
+
     private String name;
-    
+
     public Occupant(Entity jid, String name, Affiliation affiliation, Role role) {
-        if(jid == null) throw new IllegalArgumentException("JID can not be null");
-        if(name == null) throw new IllegalArgumentException("Name can not be null");
-        if(affiliation == null) throw new IllegalArgumentException("Affiliation can not be null");
-        if(role == null) throw new IllegalArgumentException("Role can not be null");
-        
+        if (jid == null)
+            throw new IllegalArgumentException("JID can not be null");
+        if (name == null)
+            throw new IllegalArgumentException("Name can not be null");
+        if (affiliation == null)
+            throw new IllegalArgumentException("Affiliation can not be null");
+        if (role == null)
+            throw new IllegalArgumentException("Role can not be null");
+
         this.jid = jid;
         this.name = name;
         this.affiliation = affiliation;
@@ -73,18 +79,18 @@ public class Occupant {
     public Entity getJid() {
         return jid;
     }
-    
+
     public boolean hasVoice() {
         return role == Role.Moderator || role == Role.Participant;
     }
-    
+
     @Override
     public String toString() {
         return jid.getFullQualifiedName();
     }
-    
+
     public boolean isModerator() {
         return role == Role.Moderator;
     }
-    
+
 }

@@ -31,12 +31,12 @@ public interface RoomStorageProvider extends StorageProvider {
     void initialize();
 
     Room createRoom(Entity jid, String name, RoomType... roomTypes);
-    
+
     Collection<Room> getAllRooms();
-    
+
     boolean roomExists(Entity jid);
-    
+
     Room findRoom(Entity jid);
-    
+
     void deleteRoom(Entity jid);
 }

@@ -27,7 +27,9 @@ import org.apache.vysper.xmpp.addressing.Entity;
 public class AffiliationItem {
 
     protected String nodeName = null;
+
     protected Entity jid = null;
+
     protected PubSubAffiliation affiliation = null;
 
     /**

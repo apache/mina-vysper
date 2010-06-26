@@ -22,9 +22,9 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
-import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -37,16 +37,19 @@ import org.slf4j.LoggerFactory;
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
-@SpecCompliant(spec="xep-0060", section="7.1.2.1", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+@SpecCompliant(spec = "xep-0060", section = "7.1.2.1", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
 public class SubscriberPayloadNotificationVisitor implements SubscriberVisitor {
     final Logger logger = LoggerFactory.getLogger(SubscriberPayloadNotificationVisitor.class);
 
     // Ignore all failures during the delivery (fire and forget)
     private DeliveryFailureStrategy dfs = new IgnoreFailureStrategy();
+
     // The StanzaRelay we use to send the messages
     private StanzaRelay stanzaRelay;
+
     // The payload.
     private XMLElement item;
+
     // The server JID
     private Entity serverJID;
 
@@ -74,7 +77,8 @@ public class SubscriberPayloadNotificationVisitor implements SubscriberVisitor {
         try {
             stanzaRelay.relay(subscriber, event, dfs);
         } catch (DeliveryException e1) {
-            if(logger.isTraceEnabled()) logger.trace("Couldn't deliver message to " + subscriber.getFullQualifiedName(), e1);
+            if (logger.isTraceEnabled())
+                logger.trace("Couldn't deliver message to " + subscriber.getFullQualifiedName(), e1);
             // TODO we don't care - do we?
         }
     }

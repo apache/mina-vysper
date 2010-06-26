@@ -70,7 +70,8 @@ public class PrivateDataIQHandler extends DefaultIQHandler {
 
         // Not null, and not addressed to itself
         if (to != null && !to.getBareJID().equals(sessionContext.getInitiatingEntity().getBareJID())) {
-            return ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.BAD_FORMAT, null, "Private data only modifiable by the owner", null);
+            return ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.BAD_FORMAT, null,
+                    "Private data only modifiable by the owner", null);
         }
 
         XMLElement queryElement = stanza.getFirstInnerElement();
@@ -78,17 +79,20 @@ public class PrivateDataIQHandler extends DefaultIQHandler {
         // Example 4: http://xmpp.org/extensions/xep-0049.html
         // Query element must have a child element with a non-null namespace
         if (queryElement.getInnerElements().size() != 1) {
-            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.NOT_ACCEPTABLE, stanza, StanzaErrorType.MODIFY, "query's child element is missing", null, null);
+            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.NOT_ACCEPTABLE, stanza,
+                    StanzaErrorType.MODIFY, "query's child element is missing", null, null);
         }
         XMLElement x = queryElement.getFirstInnerElement();
         String ns = x.getAttribute("xmlns").getValue();
         if (ns == null) {
-            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.NOT_ACCEPTABLE, stanza, StanzaErrorType.MODIFY, "no namespace", null, null);
+            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.NOT_ACCEPTABLE, stanza,
+                    StanzaErrorType.MODIFY, "no namespace", null, null);
         }
 
         // No persistancy Manager
         if (persistenceManager == null) {
-            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR, stanza, StanzaErrorType.WAIT, "internal storage inaccessible", null, null);
+            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR,
+                    stanza, StanzaErrorType.WAIT, "internal storage inaccessible", null, null);
         }
 
         String queryKey = getKey(x);
@@ -112,24 +116,28 @@ public class PrivateDataIQHandler extends DefaultIQHandler {
 
         // Not null, and not addressed to itself
         if (to != null && !to.getBareJID().equals(sessionContext.getInitiatingEntity().getBareJID())) {
-            return ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.BAD_FORMAT, null, "can only view your data", null);
+            return ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.BAD_FORMAT, null,
+                    "can only view your data", null);
         }
 
         XMLElement queryElement = stanza.getFirstInnerElement();
         XMLElement x = queryElement.getFirstInnerElement();
         if (x == null) {
-            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.NOT_ACCEPTABLE, stanza, StanzaErrorType.MODIFY, "query's child element missing", null, null);
+            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.NOT_ACCEPTABLE, stanza,
+                    StanzaErrorType.MODIFY, "query's child element missing", null, null);
         }
 
         // No persistancy Manager
         if (persistenceManager == null) {
-            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR, stanza, StanzaErrorType.WAIT, "internal storage inaccessible", null, null);
+            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR,
+                    stanza, StanzaErrorType.WAIT, "internal storage inaccessible", null, null);
         }
 
         String queryKey = getKey(x);
         String privateDataXML = persistenceManager.getPrivateData(from, queryKey);
 
-        StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID());
+        StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(),
+                IQStanzaType.RESULT, stanza.getID());
         if (privateDataXML == null) {
             stanzaBuilder.startInnerElement(x.getName(), x.getNamespaceURI());
             for (Attribute a : x.getAttributes()) {

@@ -20,10 +20,12 @@
 
 package org.apache.vysper.xmpp.modules.core.im.handler;
 
+import static org.apache.vysper.xmpp.modules.roster.AskSubscriptionType.ASK_SUBSCRIBE;
+import static org.apache.vysper.xmpp.modules.roster.SubscriptionType.FROM;
+import static org.apache.vysper.xmpp.modules.roster.SubscriptionType.NONE;
+
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
-import static org.apache.vysper.xmpp.modules.roster.AskSubscriptionType.*;
-import static org.apache.vysper.xmpp.modules.roster.SubscriptionType.*;
 import org.apache.vysper.xmpp.stanza.PresenceStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -44,7 +46,9 @@ public class PresenceSubRequestOutHandlerTestCase extends PresenceHandlerBaseTes
 
         // now entity 'unrelated' approves the subscription
 
-        XMPPCoreStanza requestApproval = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(unrelatedUser.getEntityFQ(), initiatingUser.getEntity(), null, PresenceStanzaType.SUBSCRIBED, null, null).build());
+        XMPPCoreStanza requestApproval = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(
+                unrelatedUser.getEntityFQ(), initiatingUser.getEntity(), null, PresenceStanzaType.SUBSCRIBED, null,
+                null).build());
         handler.executeCore(requestApproval, sessionContext.getServerRuntimeContext(), false, sessionContext);
 
         // 3 roster pushes but...
@@ -62,7 +66,9 @@ public class PresenceSubRequestOutHandlerTestCase extends PresenceHandlerBaseTes
         setResourceState(initiatingUser.getBoundResourceId(), ResourceState.AVAILABLE_INTERESTED);
 
         // SUBSCRIBE FROM
-        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), unrelatedUser.getEntity(), null, PresenceStanzaType.SUBSCRIBE, null, null).build());
+        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder
+                .createPresenceStanza(initiatingUser.getEntityFQ(), unrelatedUser.getEntity(), null,
+                        PresenceStanzaType.SUBSCRIBE, null, null).build());
 
         handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext);
         assertEquals(ResourceState.AVAILABLE_INTERESTED, getResourceState());
@@ -73,25 +79,30 @@ public class PresenceSubRequestOutHandlerTestCase extends PresenceHandlerBaseTes
 
         // roster push for 1 interested initiator of _same_ session
         Stanza initiatorNotification = getNextDirectResponseFor(initiatingUser);
-        assertTrue(checkRosterPush(initiatorNotification, initiatingUser.getEntityFQ(), unrelatedUser.getEntity(), NONE, ASK_SUBSCRIBE));
+        assertTrue(checkRosterPush(initiatorNotification, initiatingUser.getEntityFQ(), unrelatedUser.getEntity(),
+                NONE, ASK_SUBSCRIBE));
 
         // no stanzas for not interested
         assertNull(getNextDirectResponseFor(anotherAvailableUser));
 
         // roster 2 interested resources of _same_ session...
-        
+
         // roster push for interested
         Stanza interestedResourceNotification = getNextDirectResponseFor(anotherInterestedUser);
-        assertTrue(checkRosterPush(interestedResourceNotification, new EntityImpl(initiatingUser.getEntity(), anotherInterestedUser.getBoundResourceId()), unrelatedUser.getEntity(), NONE, ASK_SUBSCRIBE));
+        assertTrue(checkRosterPush(interestedResourceNotification, new EntityImpl(initiatingUser.getEntity(),
+                anotherInterestedUser.getBoundResourceId()), unrelatedUser.getEntity(), NONE, ASK_SUBSCRIBE));
         assertNull(getNextDirectResponseFor(anotherInterestedUser)); // no more stanzas;
 
         // roster push for interested but not avail
         Stanza interestedNotYetAvailResourceNotification = getNextDirectResponseFor(anotherInterestedNotAvailUser);
-        assertTrue(checkRosterPush(interestedNotYetAvailResourceNotification, new EntityImpl(initiatingUser.getEntity(), anotherInterestedNotAvailUser.getBoundResourceId()), unrelatedUser.getEntity(), NONE, ASK_SUBSCRIBE));
+        assertTrue(checkRosterPush(interestedNotYetAvailResourceNotification, new EntityImpl(
+                initiatingUser.getEntity(), anotherInterestedNotAvailUser.getBoundResourceId()), unrelatedUser
+                .getEntity(), NONE, ASK_SUBSCRIBE));
         assertNull(getNextDirectResponseFor(anotherInterestedNotAvailUser)); // no more stanzas;
 
         // sub request sent to contact
-        assertTrue(checkPresence(unrelatedUser.getNextStanza(), PresenceStanzaType.SUBSCRIBE, initiatingUser.getEntity(), null));
+        assertTrue(checkPresence(unrelatedUser.getNextStanza(), PresenceStanzaType.SUBSCRIBE, initiatingUser
+                .getEntity(), null));
         assertNull(unrelatedUser.getNextStanza()); // no other stanza
 
         assertTrue(checkRosterItem(unrelatedUser.getEntity(), NONE, ASK_SUBSCRIBE));
@@ -104,7 +115,9 @@ public class PresenceSubRequestOutHandlerTestCase extends PresenceHandlerBaseTes
         setResourceState(initiatingUser.getBoundResourceId(), ResourceState.AVAILABLE_INTERESTED);
 
         // SUBSCRIBE FROM
-        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), subscribed_FROM.getEntity(), null, PresenceStanzaType.SUBSCRIBE, null, null).build());
+        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(
+                initiatingUser.getEntityFQ(), subscribed_FROM.getEntity(), null, PresenceStanzaType.SUBSCRIBE, null,
+                null).build());
 
         handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext);
         assertEquals(ResourceState.AVAILABLE_INTERESTED, getResourceState());
@@ -115,18 +128,22 @@ public class PresenceSubRequestOutHandlerTestCase extends PresenceHandlerBaseTes
 
         // roster push for 1 interested initiator...
         Stanza initiatorNotification = getNextDirectResponseFor(initiatingUser);
-        assertTrue(checkRosterPush(initiatorNotification, initiatingUser.getEntityFQ(), subscribed_FROM.getEntity(), FROM, ASK_SUBSCRIBE));
+        assertTrue(checkRosterPush(initiatorNotification, initiatingUser.getEntityFQ(), subscribed_FROM.getEntity(),
+                FROM, ASK_SUBSCRIBE));
 
         // .. and 2 interested resources of _same_ session
         Stanza anotherInterestedUserNotification = getNextDirectResponseFor(anotherInterestedUser);
-        assertTrue(checkRosterPush(anotherInterestedUserNotification, anotherInterestedUser.getEntityFQ(), subscribed_FROM.getEntity(), FROM, ASK_SUBSCRIBE));
+        assertTrue(checkRosterPush(anotherInterestedUserNotification, anotherInterestedUser.getEntityFQ(),
+                subscribed_FROM.getEntity(), FROM, ASK_SUBSCRIBE));
         Stanza anotherInterestedNotAvailUserNotification = getNextDirectResponseFor(anotherInterestedNotAvailUser);
-        assertTrue(checkRosterPush(anotherInterestedNotAvailUserNotification, anotherInterestedNotAvailUser.getEntityFQ(), subscribed_FROM.getEntity(), FROM, ASK_SUBSCRIBE));
+        assertTrue(checkRosterPush(anotherInterestedNotAvailUserNotification, anotherInterestedNotAvailUser
+                .getEntityFQ(), subscribed_FROM.getEntity(), FROM, ASK_SUBSCRIBE));
 
         assertNull(sessionContext.getNextRecordedResponse()); // no more stanzas
 
         // sub request sent to contact
-        assertTrue(checkPresence(subscribed_FROM.getNextStanza(), PresenceStanzaType.SUBSCRIBE, initiatingUser.getEntity(), null)); 
+        assertTrue(checkPresence(subscribed_FROM.getNextStanza(), PresenceStanzaType.SUBSCRIBE, initiatingUser
+                .getEntity(), null));
         assertNull(subscribed_FROM.getNextStanza()); // no other stanza
 
         assertTrue(checkRosterItem(subscribed_FROM.getEntity(), FROM, ASK_SUBSCRIBE));
@@ -136,7 +153,9 @@ public class PresenceSubRequestOutHandlerTestCase extends PresenceHandlerBaseTes
 
         setResourceState(initiatingUser.getBoundResourceId(), ResourceState.AVAILABLE_INTERESTED);
 
-        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), subscribed_TO.getEntity(), null, PresenceStanzaType.SUBSCRIBE, null, null).build());
+        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder
+                .createPresenceStanza(initiatingUser.getEntityFQ(), subscribed_TO.getEntity(), null,
+                        PresenceStanzaType.SUBSCRIBE, null, null).build());
 
         handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext);
         assertEquals(ResourceState.AVAILABLE_INTERESTED, getResourceState());
@@ -148,7 +167,9 @@ public class PresenceSubRequestOutHandlerTestCase extends PresenceHandlerBaseTes
 
         setResourceState(initiatingUser.getBoundResourceId(), ResourceState.AVAILABLE_INTERESTED);
 
-        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), subscribed_BOTH.getEntity(), null, PresenceStanzaType.SUBSCRIBE, null, null).build());
+        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(
+                initiatingUser.getEntityFQ(), subscribed_BOTH.getEntity(), null, PresenceStanzaType.SUBSCRIBE, null,
+                null).build());
 
         handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext);
         assertEquals(ResourceState.AVAILABLE_INTERESTED, getResourceState());

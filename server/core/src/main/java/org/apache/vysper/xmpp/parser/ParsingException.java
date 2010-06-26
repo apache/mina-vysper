@@ -36,19 +36,19 @@ public class ParsingException extends Exception {
     private ParsingErrorCondition errorCondition = ParsingErrorCondition.BAD_FORMAT;
 
     public ParsingException() {
-        super();    //To change body of overridden methods use File | Settings | File Templates.
+        super(); //To change body of overridden methods use File | Settings | File Templates.
     }
 
     public ParsingException(String string) {
-        super(string);    //To change body of overridden methods use File | Settings | File Templates.
+        super(string); //To change body of overridden methods use File | Settings | File Templates.
     }
 
     public ParsingException(String string, Throwable throwable) {
-        super(string, throwable);    //To change body of overridden methods use File | Settings | File Templates.
+        super(string, throwable); //To change body of overridden methods use File | Settings | File Templates.
     }
 
     public ParsingException(Throwable throwable) {
-        super(throwable);    //To change body of overridden methods use File | Settings | File Templates.
+        super(throwable); //To change body of overridden methods use File | Settings | File Templates.
     }
 
     public ParsingErrorCondition getErrorCondition() {

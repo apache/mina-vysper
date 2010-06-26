@@ -19,11 +19,11 @@
  */
 package org.apache.vysper.xmpp.protocol;
 
-import org.apache.vysper.xml.fragment.XMLElement;
-import org.apache.vysper.xmpp.stanza.Stanza;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.apache.vysper.xml.fragment.XMLElement;
+import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
  * basic facility to collect and query a set of namespace-based handlers 
@@ -33,7 +33,8 @@ public abstract class AbstractStanzaHandlerLookup {
 
     public void addDictionary(NamespaceHandlerDictionary namespaceHandlerDictionary) {
         String namespace = namespaceHandlerDictionary.getNamespaceURI();
-        if (namespaceDictionaries.containsKey(namespace)) throw new IllegalArgumentException("dictionary already exists covering namespace " + namespace);
+        if (namespaceDictionaries.containsKey(namespace))
+            throw new IllegalArgumentException("dictionary already exists covering namespace " + namespace);
         namespaceDictionaries.put(namespace, namespaceHandlerDictionary);
     }
 
@@ -54,7 +55,8 @@ public abstract class AbstractStanzaHandlerLookup {
             namespace = xmlElement.getNamespacePrefix();
             namespaceHandlerDictionary = namespaceDictionaries.get(namespace);
         }
-        if (namespaceHandlerDictionary != null) return namespaceHandlerDictionary.get(stanza);
+        if (namespaceHandlerDictionary != null)
+            return namespaceHandlerDictionary.get(stanza);
 
         return null;
     }

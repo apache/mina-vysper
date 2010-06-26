@@ -40,7 +40,7 @@ import org.apache.vysper.xmpp.stanza.StanzaErrorType;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-@SpecCompliant(spec="xep-0054", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+@SpecCompliant(spec = "xep-0054", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
 public class VcardTempIQHandler extends DefaultIQHandler {
 
     protected boolean returnEmptyVCardWhenNonExistent = true;
@@ -72,12 +72,14 @@ public class VcardTempIQHandler extends DefaultIQHandler {
         try {
             vCardElement = stanza.getSingleInnerElementsNamed("vCard");
         } catch (XMLSemanticError xmlSemanticError) {
-            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza, StanzaErrorType.MODIFY, "vCard element is missing", null, null);
+            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
+                    StanzaErrorType.MODIFY, "vCard element is missing", null, null);
         }
         String vcardContent = new Renderer(vCardElement).getComplete();
 
         if (persistenceManager == null) {
-            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR, stanza, StanzaErrorType.WAIT, "internal storage inaccessible", null, null);
+            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR,
+                    stanza, StanzaErrorType.WAIT, "internal storage inaccessible", null, null);
         }
 
         boolean success = persistenceManager.setVcard(from, vcardContent);
@@ -103,7 +105,7 @@ public class VcardTempIQHandler extends DefaultIQHandler {
 
         String vcardXml = null;
         if (persistenceManager != null) {
-            vcardXml =  persistenceManager.getVcard(requestedCard);
+            vcardXml = persistenceManager.getVcard(requestedCard);
         }
 
         // from XEP-0054 3.1:
@@ -111,21 +113,21 @@ public class VcardTempIQHandler extends DefaultIQHandler {
         // or an IQ-result containing an empty <vCard/> element.
         if (vcardXml == null) {
             IQStanzaType iqStanzaType = returnEmptyVCardWhenNonExistent ? IQStanzaType.RESULT : IQStanzaType.ERROR;
-            StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), iqStanzaType, stanza.getID());
+            StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), iqStanzaType,
+                    stanza.getID());
             stanzaBuilder.startInnerElement("vCard", NamespaceURIs.VCARD_TEMP).endInnerElement();
             if (returnEmptyVCardWhenNonExistent) {
                 // keep it like it is
             } else {
-                stanzaBuilder.
-                    startInnerElement("error", NamespaceURIs.JABBER_CLIENT).addAttribute("type", "cancel").
-                        startInnerElement("item-not-found", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).
-                        endInnerElement().
-                    endInnerElement();
+                stanzaBuilder.startInnerElement("error", NamespaceURIs.JABBER_CLIENT).addAttribute("type", "cancel")
+                        .startInnerElement("item-not-found", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS)
+                        .endInnerElement().endInnerElement();
             }
             return stanzaBuilder.build();
         }
 
-        StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID());
+        StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(),
+                IQStanzaType.RESULT, stanza.getID());
         stanzaBuilder.addText(vcardXml);
         return stanzaBuilder.build();
     }

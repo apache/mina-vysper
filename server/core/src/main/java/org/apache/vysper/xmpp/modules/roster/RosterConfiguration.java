@@ -26,7 +26,9 @@ package org.apache.vysper.xmpp.modules.roster;
 public class RosterConfiguration {
 
     public static int ROSTER_ITEM_NAME_MAX_LENGTH = 4096;
+
     public static int ROSTER_GROUP_NAME_MAX_LENGTH = 4096;
+
     public static boolean ROSTER_ITEM_GROUP_ALLOW_DUPLICATES = true;
 
 }

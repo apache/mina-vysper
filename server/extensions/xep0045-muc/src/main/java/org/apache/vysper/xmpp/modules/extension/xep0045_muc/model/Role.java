@@ -46,31 +46,28 @@ import org.apache.vysper.compliance.SpecCompliant;
  * 
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-@SpecCompliant(spec="xep-0045", section="5.1", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+@SpecCompliant(spec = "xep-0045", section = "5.1", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
 public enum Role {
 
-    Moderator,
-    None,
-    Participant,
-    Visitor;
-    
+    Moderator, None, Participant, Visitor;
+
     @Override
     public String toString() {
         return name().toLowerCase();
     }
-    
-    @SpecCompliant(spec="xep-0045", section="7.1.4", status= SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+
+    @SpecCompliant(spec = "xep-0045", section = "7.1.4", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
     public static Role getRole(Affiliation affiliation, EnumSet<RoomType> roomTypes) {
-        switch(affiliation) {
+        switch (affiliation) {
         case Owner:
         case Admin:
             return Moderator;
         case Member:
             return Participant;
         case None:
-            if(roomTypes.contains(RoomType.MembersOnly)) {
+            if (roomTypes.contains(RoomType.MembersOnly)) {
                 return None;
-            } else if(roomTypes.contains(RoomType.Moderated)) {
+            } else if (roomTypes.contains(RoomType.Moderated)) {
                 return Visitor;
             } else {
                 return Participant;
@@ -82,10 +79,15 @@ public enum Role {
     }
 
     public static Role fromString(String value) {
-        if(Moderator.toString().equals(value)) return Moderator;
-        else if(None.toString().equals(value)) return None;
-        else if(Participant.toString().equals(value)) return Participant;
-        else if(Visitor.toString().equals(value)) return Visitor;
-        else throw new IllegalArgumentException("Unknown role: " + value);
+        if (Moderator.toString().equals(value))
+            return Moderator;
+        else if (None.toString().equals(value))
+            return None;
+        else if (Participant.toString().equals(value))
+            return Participant;
+        else if (Visitor.toString().equals(value))
+            return Visitor;
+        else
+            throw new IllegalArgumentException("Unknown role: " + value);
     }
 }

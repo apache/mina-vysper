@@ -40,9 +40,11 @@ import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 /**
  */
 public class DeliveringStanzaRelayTestCase extends TestCase {
-    
+
     protected ResourceRegistry resourceRegistry = new ResourceRegistry();
+
     protected AccountManagement accountVerification;
+
     protected DeliveringInboundStanzaRelay stanzaRelay;
 
     static class AccountVerificationMock implements AccountManagement {
@@ -60,13 +62,14 @@ public class DeliveringStanzaRelayTestCase extends TestCase {
         super.setUp();
 
         accountVerification = new AccountVerificationMock();
-        stanzaRelay = new DeliveringInboundStanzaRelay(EntityImpl.parse("vysper.org"), resourceRegistry, accountVerification);
+        stanzaRelay = new DeliveringInboundStanzaRelay(EntityImpl.parse("vysper.org"), resourceRegistry,
+                accountVerification);
     }
 
     public void testSimpleRelay() throws EntityFormatException, XMLSemanticError, DeliveryException {
         DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(null, null);
         stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
-        
+
         EntityImpl fromEntity = EntityImpl.parse("userFrom@vysper.org");
         EntityImpl toEntity = EntityImpl.parse("userTo@vysper.org");
         TestSessionContext sessionContext = TestSessionContext.createSessionContext(toEntity);
@@ -84,7 +87,7 @@ public class DeliveringStanzaRelayTestCase extends TestCase {
             throw e;
         }
     }
-    
+
     public void testSimpleRelayToUnboundSession() throws EntityFormatException, XMLSemanticError, DeliveryException {
         EntityImpl fromEntity = EntityImpl.parse("userFrom@vysper.org");
         EntityImpl toEntity = EntityImpl.parse("userTo@vysper.org");
@@ -104,9 +107,10 @@ public class DeliveringStanzaRelayTestCase extends TestCase {
         }
     }
 
-    public void testRelayToTwoRecepients_DeliverToALL() throws EntityFormatException, XMLSemanticError, DeliveryException, BindException {
+    public void testRelayToTwoRecepients_DeliverToALL() throws EntityFormatException, XMLSemanticError,
+            DeliveryException, BindException {
         DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(null, null);
-        
+
         // !! DeliverMessageToHighestPriorityResourcesOnly = FALSE
         serverRuntimeContext.getServerFeatures().setDeliverMessageToHighestPriorityResourcesOnly(false);
 
@@ -115,7 +119,6 @@ public class DeliveringStanzaRelayTestCase extends TestCase {
         EntityImpl fromEntity = EntityImpl.parse("userFrom@vysper.org");
 
         EntityImpl toEntity = EntityImpl.parse("userTo@vysper.org");
-
 
         TestSessionContext sessionContextToEntity_1_prio3 = createSessionForTo(toEntity, 3); // NON-NEGATIVE
         TestSessionContext sessionContextToEntity_2_prio0 = createSessionForTo(toEntity, 0); // NON-NEGATIVE
@@ -140,7 +143,8 @@ public class DeliveringStanzaRelayTestCase extends TestCase {
 
     }
 
-    public void testRelayToTwoRecepients_DeliverToHIGHEST() throws EntityFormatException, XMLSemanticError, DeliveryException, BindException {
+    public void testRelayToTwoRecepients_DeliverToHIGHEST() throws EntityFormatException, XMLSemanticError,
+            DeliveryException, BindException {
         DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(null, null);
 
         // !! DeliverMessageToHighestPriorityResourcesOnly = TRUE
@@ -151,7 +155,6 @@ public class DeliveringStanzaRelayTestCase extends TestCase {
         EntityImpl fromEntity = EntityImpl.parse("userFrom@vysper.org");
 
         EntityImpl toEntity = EntityImpl.parse("userTo@vysper.org");
-
 
         TestSessionContext sessionContextToEntity_1_prio3 = createSessionForTo(toEntity, 3); // HIGHEST PRIO
         TestSessionContext sessionContextToEntity_2_prio0 = createSessionForTo(toEntity, 1); // not receiving
@@ -183,6 +186,5 @@ public class DeliveringStanzaRelayTestCase extends TestCase {
         resourceRegistry.setResourcePriority(toEntityRes, priority);
         return sessionContextToEntity;
     }
-
 
 }

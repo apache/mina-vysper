@@ -19,18 +19,19 @@
  */
 package org.apache.vysper.xmpp.modules;
 
-import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceDiscoveryRequestListenerRegistry;
 import static org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceDiscoveryRequestListenerRegistry.SERVICE_DISCOVERY_REQUEST_LISTENER_REGISTRY;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequestListener;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequestListener;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestListener;
-import org.apache.vysper.xmpp.modules.servicediscovery.management.ComponentInfoRequestListener;
-import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceDiscoveryRequestListenerRegistry;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.ComponentInfoRequestListener;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequestListener;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestListener;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequestListener;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * typically your module will publish/announce services it provides through service discovery. in this cases it is
@@ -46,7 +47,8 @@ abstract public class DefaultDiscoAwareModule extends DefaultModule {
     public void initialize(ServerRuntimeContext serverRuntimeContext) {
         super.initialize(serverRuntimeContext);
 
-        ServerRuntimeContextService service = serverRuntimeContext.getServerRuntimeContextService(SERVICE_DISCOVERY_REQUEST_LISTENER_REGISTRY);
+        ServerRuntimeContextService service = serverRuntimeContext
+                .getServerRuntimeContextService(SERVICE_DISCOVERY_REQUEST_LISTENER_REGISTRY);
         if (service == null) {
             logger.error("cannot register disco request listeners: no registry service found");
             return;
@@ -57,28 +59,32 @@ abstract public class DefaultDiscoAwareModule extends DefaultModule {
         List<InfoRequestListener> infoRequestListeners = new ArrayList<InfoRequestListener>();
         addInfoRequestListeners(infoRequestListeners);
         for (InfoRequestListener infoRequestListener : infoRequestListeners) {
-            if (infoRequestListener == null) continue;
+            if (infoRequestListener == null)
+                continue;
             requestListenerRegistry.addInfoRequestListener(infoRequestListener);
         }
 
         List<ServerInfoRequestListener> serverInfoRequestListeners = new ArrayList<ServerInfoRequestListener>();
         addServerInfoRequestListeners(serverInfoRequestListeners);
         for (ServerInfoRequestListener serverInfoRequestListener : serverInfoRequestListeners) {
-            if (serverInfoRequestListener == null) continue;
+            if (serverInfoRequestListener == null)
+                continue;
             requestListenerRegistry.addServerInfoRequestListener(serverInfoRequestListener);
         }
 
         List<ComponentInfoRequestListener> componentInfoRequestListeners = new ArrayList<ComponentInfoRequestListener>();
         addComponentInfoRequestListeners(componentInfoRequestListeners);
         for (ComponentInfoRequestListener componentInfoRequestListener : componentInfoRequestListeners) {
-            if (componentInfoRequestListener == null) continue;
+            if (componentInfoRequestListener == null)
+                continue;
             requestListenerRegistry.addComponentInfoRequestListener(componentInfoRequestListener);
         }
 
         List<ItemRequestListener> itemRequestListeners = new ArrayList<ItemRequestListener>();
         addItemRequestListeners(itemRequestListeners);
         for (ItemRequestListener itemRequestListener : itemRequestListeners) {
-            if (itemRequestListener == null) continue;
+            if (itemRequestListener == null)
+                continue;
             requestListenerRegistry.addItemRequestListener(itemRequestListener);
         }
 

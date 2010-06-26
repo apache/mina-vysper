@@ -19,20 +19,32 @@
  */
 package org.apache.vysper.compliance.reporting;
 
+import static java.util.Collections.emptySet;
+import static java.util.Collections.unmodifiableCollection;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import org.apache.vysper.compliance.SpecCompliance;
+import org.apache.vysper.compliance.SpecCompliant;
+
 import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.apt.AnnotationProcessorFactory;
 import com.sun.mirror.apt.Filer;
-import com.sun.mirror.declaration.*;
-import org.apache.vysper.compliance.SpecCompliant;
-import org.apache.vysper.compliance.SpecCompliance;
-
-import static java.util.Collections.emptySet;
-import static java.util.Collections.unmodifiableCollection;
-import java.util.*;
-import java.io.PrintWriter;
-import java.io.IOException;
-import java.io.File;
+import com.sun.mirror.declaration.AnnotationTypeDeclaration;
+import com.sun.mirror.declaration.ClassDeclaration;
+import com.sun.mirror.declaration.Declaration;
+import com.sun.mirror.declaration.FieldDeclaration;
+import com.sun.mirror.declaration.MemberDeclaration;
+import com.sun.mirror.declaration.MethodDeclaration;
+import com.sun.mirror.declaration.TypeDeclaration;
 
 /**
  * this generates from all SpecCompliant annotations a HTML doc to show what parts of the spec are covered.
@@ -46,8 +58,8 @@ import java.io.File;
  */
 public class DocumentSpecCompliantAnnotationFactory implements AnnotationProcessorFactory {
     // Process any set of annotations
-    private static final Collection<String> supportedAnnotations
-        = unmodifiableCollection(Arrays.asList("org.apache.vysper.compliance.*"));
+    private static final Collection<String> supportedAnnotations = unmodifiableCollection(Arrays
+            .asList("org.apache.vysper.compliance.*"));
 
     // No supported options
     private static final Collection<String> supportedOptions = emptySet();
@@ -60,28 +72,32 @@ public class DocumentSpecCompliantAnnotationFactory implements AnnotationProcess
         return supportedOptions;
     }
 
-    public AnnotationProcessor getProcessorFor(
-            Set<AnnotationTypeDeclaration> atds,
-            AnnotationProcessorEnvironment env) {
+    public AnnotationProcessor getProcessorFor(Set<AnnotationTypeDeclaration> atds, AnnotationProcessorEnvironment env) {
         return new SpecCompliantClassAP(env);
     }
 
     private static class SpecCompliantClassAP implements AnnotationProcessor {
 
         protected final AnnotationProcessorEnvironment env;
+
         protected AnnotationTypeDeclaration specCompliantAnnotation;
+
         protected AnnotationTypeDeclaration specCompliantCollectionAnnotation;
 
         protected Map<String, SpecDoc> map = new TreeMap<String, SpecDoc>();
+
         protected PrintWriter fileWriter;
 
         SpecCompliantClassAP(AnnotationProcessorEnvironment env) {
             this.env = env;
-            specCompliantAnnotation = (AnnotationTypeDeclaration) env.getTypeDeclaration("org.apache.vysper.compliance.SpecCompliant");
-            specCompliantCollectionAnnotation = (AnnotationTypeDeclaration) env.getTypeDeclaration("org.apache.vysper.compliance.SpecCompliance");
+            specCompliantAnnotation = (AnnotationTypeDeclaration) env
+                    .getTypeDeclaration("org.apache.vysper.compliance.SpecCompliant");
+            specCompliantCollectionAnnotation = (AnnotationTypeDeclaration) env
+                    .getTypeDeclaration("org.apache.vysper.compliance.SpecCompliance");
 
             try {
-                fileWriter = env.getFiler().createTextFile(Filer.Location.SOURCE_TREE, "", new File("spec_compliance.html"), null);
+                fileWriter = env.getFiler().createTextFile(Filer.Location.SOURCE_TREE, "",
+                        new File("spec_compliance.html"), null);
             } catch (IOException e) {
                 throw new RuntimeException("could not write to output file", e);
             }
@@ -98,13 +114,15 @@ public class DocumentSpecCompliantAnnotationFactory implements AnnotationProcess
             }
 
             // Retrieve all SpecCompliance-typed declarations and extract SpecCompliant annotations 
-            Collection<Declaration> moreDeclarations = env.getDeclarationsAnnotatedWith(specCompliantCollectionAnnotation);
+            Collection<Declaration> moreDeclarations = env
+                    .getDeclarationsAnnotatedWith(specCompliantCollectionAnnotation);
             System.out.println("number of @SpecCompliance: " + moreDeclarations.size());
             for (Declaration declaration : moreDeclarations) {
                 final SpecCompliance compliance = declaration.getAnnotation(SpecCompliance.class);
                 final SpecCompliant[] specCompliants = compliance.compliant();
                 for (SpecCompliant specCompliant : specCompliants) {
-                    if (specCompliant == null) continue;
+                    if (specCompliant == null)
+                        continue;
 
                     final SpecDoc doc = new SpecDoc(declaration, specCompliant);
                     map.put(doc.getKey(), doc);
@@ -114,10 +132,11 @@ public class DocumentSpecCompliantAnnotationFactory implements AnnotationProcess
             // visit every annotation fromt the now sorted map
 
             // write the HTML file
-            fileWriter.println("<html><head>" +
-                    "<link rel='stylesheet' type='text/css' href='http://yui.yahooapis.com/2.7.0/build/reset-fonts-grids/reset-fonts-grids.css'>\n" +
-                    "<link rel='stylesheet' type='text/css' href='http://yui.yahooapis.com/2.7.0/build/base/base-min.css'>\n" + 
-                    "</head><body><table><thead><th>spec</th><th>section</th><th>package</th><th>class</th><th>field/method/etc.</th><th>coverage</th><th>implementation</th><th>comment</th></thead>");
+            fileWriter
+                    .println("<html><head>"
+                            + "<link rel='stylesheet' type='text/css' href='http://yui.yahooapis.com/2.7.0/build/reset-fonts-grids/reset-fonts-grids.css'>\n"
+                            + "<link rel='stylesheet' type='text/css' href='http://yui.yahooapis.com/2.7.0/build/base/base-min.css'>\n"
+                            + "</head><body><table><thead><th>spec</th><th>section</th><th>package</th><th>class</th><th>field/method/etc.</th><th>coverage</th><th>implementation</th><th>comment</th></thead>");
             for (String key : map.keySet()) {
                 fileWriter.print("<tr>");
                 System.out.println(key);
@@ -126,25 +145,29 @@ public class DocumentSpecCompliantAnnotationFactory implements AnnotationProcess
                 // spec
                 fileWriter.print("<td>");
                 final String specURL = doc.getSpecDocURL();
-                if (specURL != null) fileWriter.print("<a href='" + specURL + "'>");
+                if (specURL != null)
+                    fileWriter.print("<a href='" + specURL + "'>");
                 final String specDoc = doc.getSpecDoc();
-                if (specDoc != null) fileWriter.print(specDoc);
-                if (specURL != null) fileWriter.print("</a>"); 
+                if (specDoc != null)
+                    fileWriter.print(specDoc);
+                if (specURL != null)
+                    fileWriter.print("</a>");
                 fileWriter.print("</td>");
-
 
                 // spec section
                 fileWriter.print("<td>");
                 String specSection = doc.getSpecSection();
                 if (specSection != null && specSection.length() > 0) {
-                    if (specSection.endsWith(".")) specSection = specSection.substring(0, specSection.length() - 1);
-                    String anchorLink = Character.isDigit(specSection.charAt(0)) ? "#section-" : "#appendix-";  
-                    if (specURL != null) fileWriter.print("<a href='" + specURL + anchorLink + specSection + "'>");
+                    if (specSection.endsWith("."))
+                        specSection = specSection.substring(0, specSection.length() - 1);
+                    String anchorLink = Character.isDigit(specSection.charAt(0)) ? "#section-" : "#appendix-";
+                    if (specURL != null)
+                        fileWriter.print("<a href='" + specURL + anchorLink + specSection + "'>");
                     fileWriter.print(specSection);
-                    if (specURL != null) fileWriter.print("</a>");
+                    if (specURL != null)
+                        fileWriter.print("</a>");
                 }
                 fileWriter.print("</td>");
-
 
                 // package
                 fileWriter.print("<td>");
@@ -164,13 +187,13 @@ public class DocumentSpecCompliantAnnotationFactory implements AnnotationProcess
                 }
                 fileWriter.print("</td>");
 
-
                 // class element
                 fileWriter.print("<td>");
                 final String member = doc.getMember();
                 if (member != null) {
                     if (className != null) {
-                        fileWriter.print("<a href='" + className.replace(".", "/") + ".html#" + doc.getMemberAnchor().replace(",", ",%20") + "'>");
+                        fileWriter.print("<a href='" + className.replace(".", "/") + ".html#"
+                                + doc.getMemberAnchor().replace(",", ",%20") + "'>");
                     }
                     fileWriter.print(o_a_v_cut(packageName, member));
                     if (className != null) {
@@ -179,25 +202,25 @@ public class DocumentSpecCompliantAnnotationFactory implements AnnotationProcess
                 }
                 fileWriter.print("</td>");
 
-
                 // coverage
                 fileWriter.print("<td>");
                 final SpecCompliant.ComplianceCoverage coverage = doc.getCoverageLevel();
-                if (coverage != null) fileWriter.print(coverage.toString().toLowerCase());
+                if (coverage != null)
+                    fileWriter.print(coverage.toString().toLowerCase());
                 fileWriter.print("</td>");
-
 
                 // status
                 fileWriter.print("<td>");
                 final SpecCompliant.ComplianceStatus complianceStatus = doc.getComplianceStatus();
-                if (complianceStatus != null) fileWriter.print(complianceStatus.toString().toLowerCase());
+                if (complianceStatus != null)
+                    fileWriter.print(complianceStatus.toString().toLowerCase());
                 fileWriter.print("</td>");
-
 
                 // comment
                 fileWriter.print("<td>");
                 final String comment = doc.getComment();
-                if (comment != null) fileWriter.print(comment);
+                if (comment != null)
+                    fileWriter.print(comment);
                 fileWriter.print("</td>");
 
                 fileWriter.println("</tr>");
@@ -207,12 +230,14 @@ public class DocumentSpecCompliantAnnotationFactory implements AnnotationProcess
         }
 
         private String o_a_v_shortened(String packageString) {
-            if (packageString != null && packageString.contains("org.apache.vysper.")) return packageString.replace("org.apache.vysper.", "o.a.v.");
+            if (packageString != null && packageString.contains("org.apache.vysper."))
+                return packageString.replace("org.apache.vysper.", "o.a.v.");
             return packageString;
         }
 
         private String o_a_v_cut(String packageString, String memberString) {
-            if (memberString != null && memberString.contains(packageString + ".")) return memberString.replace(packageString + ".", "");
+            if (memberString != null && memberString.contains(packageString + "."))
+                return memberString.replace(packageString + ".", "");
             return memberString;
         }
 
@@ -221,6 +246,7 @@ public class DocumentSpecCompliantAnnotationFactory implements AnnotationProcess
     static class SpecDoc {
 
         Declaration declaration;
+
         SpecCompliant specCompliant;
 
         SpecDoc(Declaration declaration, SpecCompliant specCompliant) {
@@ -241,7 +267,7 @@ public class DocumentSpecCompliantAnnotationFactory implements AnnotationProcess
             if (declaration instanceof FieldDeclaration || declaration instanceof MethodDeclaration) {
                 MemberDeclaration memberDeclaration = (MemberDeclaration) declaration;
                 return memberDeclaration.getDeclaringType().getQualifiedName();
-            } else if(declaration instanceof ClassDeclaration) {
+            } else if (declaration instanceof ClassDeclaration) {
                 ClassDeclaration classDeclaration = (ClassDeclaration) declaration;
                 return classDeclaration.getPackage() + "." + classDeclaration.getSimpleName();
             } else {
@@ -250,9 +276,9 @@ public class DocumentSpecCompliantAnnotationFactory implements AnnotationProcess
         }
 
         public String getPackage() {
-            if (declaration instanceof TypeDeclaration ) {
+            if (declaration instanceof TypeDeclaration) {
                 TypeDeclaration typeDeclaration = (TypeDeclaration) declaration;
-                return typeDeclaration.getPackage().getQualifiedName(); 
+                return typeDeclaration.getPackage().getQualifiedName();
             } else if (declaration instanceof FieldDeclaration || declaration instanceof MethodDeclaration) {
                 MemberDeclaration memberDeclaration = (MemberDeclaration) declaration;
                 return memberDeclaration.getDeclaringType().getPackage().getQualifiedName();
@@ -280,7 +306,8 @@ public class DocumentSpecCompliantAnnotationFactory implements AnnotationProcess
         }
 
         public String getKey() {
-            return getSpecDoc() + " " + getSpecSection() + " " + getClassName() + " " + getMember() + " " + getCoverageLevel() + " " + getComplianceStatus();
+            return getSpecDoc() + " " + getSpecSection() + " " + getClassName() + " " + getMember() + " "
+                    + getCoverageLevel() + " " + getComplianceStatus();
         }
 
         public String getSpecSection() {
@@ -289,15 +316,18 @@ public class DocumentSpecCompliantAnnotationFactory implements AnnotationProcess
 
         public String getSpecDoc() {
             final String specRaw = specCompliant.spec();
-            if (specRaw == null) return null;
+            if (specRaw == null)
+                return null;
             return specRaw.toLowerCase();
         }
 
         public String getSpecDocURL() {
             final String spec = getSpecDoc();
-            if (spec == null) return null;
+            if (spec == null)
+                return null;
 
-            if (spec.startsWith("xep")) return "http://xmpp.org/extensions/" + spec + ".html";
+            if (spec.startsWith("xep"))
+                return "http://xmpp.org/extensions/" + spec + ".html";
             if (spec.startsWith("rfc")) {
                 if (!spec.contains("bis")) {
                     return "http://tools.ietf.org/html/" + spec;

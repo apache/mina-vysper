@@ -62,102 +62,100 @@ public class MUCIqAdminHandler extends DefaultIQHandler {
     final Logger logger = LoggerFactory.getLogger(MUCIqAdminHandler.class);
 
     private Conference conference;
-    
-    public MUCIqAdminHandler(Conference conference) {
-		this.conference = conference;
-	}
 
-	@Override
+    public MUCIqAdminHandler(Conference conference) {
+        this.conference = conference;
+    }
+
+    @Override
     protected boolean verifyNamespace(Stanza stanza) {
         return verifyInnerNamespace(stanza, NamespaceURIs.XEP0045_MUC_ADMIN);
     }
-	
-	private Entity roomAndNick(Room room, Occupant occupant) {
-		return new EntityImpl(room.getJID(), occupant.getName());
-	}
-	
-	@Override
-	protected Stanza handleSet(IQStanza stanza,
-			ServerRuntimeContext serverRuntimeContext,
-			SessionContext sessionContext) {
 
-		Room room = conference.findRoom(stanza.getTo());
-		
-		Occupant moderator = room.findOccupantByJID(stanza.getFrom());
-		
-		// TODO add check if moderator or admin
-		
-		try {
-			List<IqAdminItem> items = IqAdminItem.extractItems(stanza);
-			
-			for(IqAdminItem item : items) {
-				if(item.getRole().equals(Role.None)) {
-					// kicking a user
-					
-					// find kicked users jid
-					Occupant toBeKicked = null;
-					if(item.getNick() != null) {
-						toBeKicked = room.findOccupantByNick(item.getNick());
-					} else {
-						// TODO fix
-					}
-					
-					// a moderator can not kick someone with a higher affiliation
-					// and, you can not kick yourself
-					if(toBeKicked.getAffiliation().compareTo(moderator.getAffiliation()) < 0) {
-					    return MUCHandlerHelper.createErrorReply(stanza, StanzaErrorType.CANCEL, StanzaErrorCondition.NOT_ALLOWED);
-					}
+    private Entity roomAndNick(Room room, Occupant occupant) {
+        return new EntityImpl(room.getJID(), occupant.getName());
+    }
 
-                                        if(moderator.getJid().equals(toBeKicked.getJid())) {
-	                                   return MUCHandlerHelper.createErrorReply(stanza, StanzaErrorType.CANCEL, StanzaErrorCondition.CONFLICT);
-	                                }
+    @Override
+    protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
 
-					// remove user from room
-					toBeKicked.setRole(Role.None);
-					room.removeOccupant(toBeKicked.getJid());
-					Entity kickedInRoom = roomAndNick(room, toBeKicked);
-					
-					Status kickedStatus = new Status(StatusCode.BEEN_KICKED);
-					
-					// notify user he got kicked
-					Stanza presenceToKicked = MUCStanzaBuilder.createPresenceStanza(kickedInRoom, toBeKicked.getJid(),  
-							PresenceStanzaType.UNAVAILABLE, NamespaceURIs.XEP0045_MUC_USER, 
-							new MucUserPresenceItem(Affiliation.None, Role.None),
-							// TODO handle <actor>
-							// TODO handle <reason>
-							kickedStatus);
+        Room room = conference.findRoom(stanza.getTo());
 
-					relayStanza(toBeKicked.getJid(), presenceToKicked, serverRuntimeContext);
-					
-					// notify remaining users that user got kicked
-					for(Occupant remaining : room.getOccupants()) {
-						Stanza presenceToRemaining = MUCStanzaBuilder.createPresenceStanza(kickedInRoom, remaining.getJid(),  
-								PresenceStanzaType.UNAVAILABLE, NamespaceURIs.XEP0045_MUC_USER, 
-								new MucUserPresenceItem(Affiliation.None, Role.None),
-								kickedStatus);
-						
-						relayStanza(remaining.getJid(), presenceToRemaining, serverRuntimeContext);
-					}
-				}
-			}
-			
-	        return StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID()).build();
-			
-		} catch (XMLSemanticError e) {
+        Occupant moderator = room.findOccupantByJID(stanza.getFrom());
+
+        // TODO add check if moderator or admin
+
+        try {
+            List<IqAdminItem> items = IqAdminItem.extractItems(stanza);
+
+            for (IqAdminItem item : items) {
+                if (item.getRole().equals(Role.None)) {
+                    // kicking a user
+
+                    // find kicked users jid
+                    Occupant toBeKicked = null;
+                    if (item.getNick() != null) {
+                        toBeKicked = room.findOccupantByNick(item.getNick());
+                    } else {
+                        // TODO fix
+                    }
+
+                    // a moderator can not kick someone with a higher affiliation
+                    // and, you can not kick yourself
+                    if (toBeKicked.getAffiliation().compareTo(moderator.getAffiliation()) < 0) {
+                        return MUCHandlerHelper.createErrorReply(stanza, StanzaErrorType.CANCEL,
+                                StanzaErrorCondition.NOT_ALLOWED);
+                    }
+
+                    if (moderator.getJid().equals(toBeKicked.getJid())) {
+                        return MUCHandlerHelper.createErrorReply(stanza, StanzaErrorType.CANCEL,
+                                StanzaErrorCondition.CONFLICT);
+                    }
+
+                    // remove user from room
+                    toBeKicked.setRole(Role.None);
+                    room.removeOccupant(toBeKicked.getJid());
+                    Entity kickedInRoom = roomAndNick(room, toBeKicked);
+
+                    Status kickedStatus = new Status(StatusCode.BEEN_KICKED);
+
+                    // notify user he got kicked
+                    Stanza presenceToKicked = MUCStanzaBuilder.createPresenceStanza(kickedInRoom, toBeKicked.getJid(),
+                            PresenceStanzaType.UNAVAILABLE, NamespaceURIs.XEP0045_MUC_USER, new MucUserPresenceItem(
+                                    Affiliation.None, Role.None),
+                            // TODO handle <actor>
+                            // TODO handle <reason>
+                            kickedStatus);
+
+                    relayStanza(toBeKicked.getJid(), presenceToKicked, serverRuntimeContext);
+
+                    // notify remaining users that user got kicked
+                    for (Occupant remaining : room.getOccupants()) {
+                        Stanza presenceToRemaining = MUCStanzaBuilder.createPresenceStanza(kickedInRoom, remaining
+                                .getJid(), PresenceStanzaType.UNAVAILABLE, NamespaceURIs.XEP0045_MUC_USER,
+                                new MucUserPresenceItem(Affiliation.None, Role.None), kickedStatus);
+
+                        relayStanza(remaining.getJid(), presenceToRemaining, serverRuntimeContext);
+                    }
+                }
+            }
+
+            return StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID())
+                    .build();
+
+        } catch (XMLSemanticError e) {
             return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
-                    StanzaErrorType.MODIFY,
-                    "iq stanza of type set requires exactly one query element",
+                    StanzaErrorType.MODIFY, "iq stanza of type set requires exactly one query element",
                     getErrorLanguage(serverRuntimeContext, sessionContext), null);
-		}
-		
-		
-	}
-    
+        }
+
+    }
+
     protected void relayStanza(Entity receiver, Stanza stanza, ServerRuntimeContext serverRuntimeContext) {
         try {
-                serverRuntimeContext.getStanzaRelay().relay(receiver, stanza, new IgnoreFailureStrategy());
+            serverRuntimeContext.getStanzaRelay().relay(receiver, stanza, new IgnoreFailureStrategy());
         } catch (DeliveryException e) {
-                logger.warn("presence relaying failed ", e);
+            logger.warn("presence relaying failed ", e);
         }
     }
 

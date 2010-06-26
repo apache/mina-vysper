@@ -33,7 +33,8 @@ public class Feature implements InfoElement {
     protected String var;
 
     public Feature(String var) {
-        if (var == null || var.length() == 0) throw new IllegalArgumentException("var may not be null");
+        if (var == null || var.length() == 0)
+            throw new IllegalArgumentException("var may not be null");
         this.var = var;
     }
 
@@ -46,6 +47,7 @@ public class Feature implements InfoElement {
     }
 
     public void insertElement(StanzaBuilder stanzaBuilder) {
-        stanzaBuilder.startInnerElement("feature", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO).addAttribute("var", var).endInnerElement();
+        stanzaBuilder.startInnerElement("feature", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO).addAttribute("var",
+                var).endInnerElement();
     }
 }

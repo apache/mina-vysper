@@ -41,11 +41,11 @@ import org.xml.sax.SAXException;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class BoshServlet extends HttpServlet {
-    
+
     public static final String TXT_CONTENT_TYPE = "text/plain";
-    
+
     public static final String HTML_CONTENT_TYPE = "text/html; charset=UTF-8";
-    
+
     public static final String XML_CONTENT_TYPE = "text/xml; charset=UTF-8";
 
     private static final long serialVersionUID = 1979722775762481476L;
@@ -53,27 +53,26 @@ public class BoshServlet extends HttpServlet {
     private static final String FLASH_CROSS_DOMAIN_POLICY_URI = "/crossdomain.xml";
 
     private static final String INFO_GET = "This is an XMPP BOSH connection manager, you need to use a compatible BOSH client to use its services!";
-    
+
     private static final String SERVER_IDENTIFICATION = "Vysper/0.5";
-    
+
     private final Logger logger = LoggerFactory.getLogger(BoshServlet.class);
-    
+
     private final BoshHandler boshHandler = new BoshHandler();
 
     private byte[] flashCrossDomainPolicy;
-    
+
     private String accessControlAllowOrigin = "*";
-    
+
     private String accessControlMaxAge = "86400"; // one day in seconds
-    
+
     private String accessControlAllowMethods = "GET, POST, OPTIONS";
-    
+
     /**
      * Setter for the {@link ServerRuntimeContext}
      * @param serverRuntimeContext
      */
-    public void setServerRuntimeContext(
-            ServerRuntimeContext serverRuntimeContext) {
+    public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
         boshHandler.setServerRuntimeContext(serverRuntimeContext);
     }
 
@@ -83,8 +82,7 @@ public class BoshServlet extends HttpServlet {
      * @throws IOException 
      */
     public void setFlashCrossDomainPolicy(String policyPath) throws IOException {
-        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(
-                policyPath));
+        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(policyPath));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] buf = new byte[1024];
         for (;;) {
@@ -99,8 +97,7 @@ public class BoshServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.addDateHeader("Date", System.currentTimeMillis());
         resp.addHeader("Server", SERVER_IDENTIFICATION);
         if (FLASH_CROSS_DOMAIN_POLICY_URI.equals(req.getRequestURI())) {
@@ -114,10 +111,9 @@ public class BoshServlet extends HttpServlet {
         }
         resp.flushBuffer();
     }
-    
+
     @Override
-    protected void doOptions(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+    protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         // used for preflighted requests
         resp.addDateHeader("Date", System.currentTimeMillis());
         resp.addHeader("Server", SERVER_IDENTIFICATION);
@@ -130,15 +126,14 @@ public class BoshServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         BoshResponse boshResponse = (BoshResponse) req.getAttribute("response");
         if (boshResponse != null) {
             // if continuation is resumed
             writeResponse(resp, boshResponse);
             return;
         }
-        
+
         if (ContinuationSupport.getContinuation(req).isExpired()) {
             // BOSH wait time is reached
             BoshBackedSessionContext session = (BoshBackedSessionContext) req.getAttribute("session");
@@ -147,7 +142,7 @@ public class BoshServlet extends HttpServlet {
                 return;
             }
             session.requestExpired(req);
-//            writeResponse(resp, session.getResponse(boshHandler.getEmptyStanza()));
+            //            writeResponse(resp, session.getResponse(boshHandler.getEmptyStanza()));
             return;
         }
 
@@ -158,7 +153,7 @@ public class BoshServlet extends HttpServlet {
             logger.error("Exception thrown while decoding XML", e);
         }
     }
-    
+
     private void writeResponse(HttpServletResponse resp, BoshResponse respData) throws IOException {
         resp.addDateHeader("Date", System.currentTimeMillis());
         resp.addHeader("Server", SERVER_IDENTIFICATION);

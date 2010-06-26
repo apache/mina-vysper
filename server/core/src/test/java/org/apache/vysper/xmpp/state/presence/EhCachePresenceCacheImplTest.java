@@ -19,12 +19,12 @@
  */
 package org.apache.vysper.xmpp.state.presence;
 
-import org.apache.vysper.xmpp.stanza.PresenceStanza;
-import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
-import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.modules.core.TestUser;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.modules.core.TestUser;
+import org.apache.vysper.xmpp.stanza.PresenceStanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 
 /**
  *
@@ -32,7 +32,7 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
  */
 public class EhCachePresenceCacheImplTest extends LatestPresenceCacheTestCase {
 
-    LatestPresenceCache presenceCache  = new EhCachePresenceCacheImpl(null);
+    LatestPresenceCache presenceCache = new EhCachePresenceCacheImpl(null);
 
     @Override
     protected void setUp() throws Exception {
@@ -48,7 +48,7 @@ public class EhCachePresenceCacheImplTest extends LatestPresenceCacheTestCase {
      * Test Cache is created properly
      */
     public void testCreateCache() {
-        assertNotNull(presenceCache);        
+        assertNotNull(presenceCache);
     }
 
     public void testPut() {
@@ -77,7 +77,7 @@ public class EhCachePresenceCacheImplTest extends LatestPresenceCacheTestCase {
     }
 
     public void testPutNullEntityParam() {
-         try {
+        try {
             presenceCache.put(null, getPresenceStanza(initiatingUser));
         } catch (PresenceCachingException ex) {
             assertTrue("Exception was expected was null entry", true);
@@ -87,7 +87,7 @@ public class EhCachePresenceCacheImplTest extends LatestPresenceCacheTestCase {
     }
 
     public void testPutNullPresenceParam() {
-         try {
+        try {
             presenceCache.put(getEntity(), null);
         } catch (PresenceCachingException ex) {
             assertTrue("Exception was expected was null entry", true);
@@ -115,9 +115,9 @@ public class EhCachePresenceCacheImplTest extends LatestPresenceCacheTestCase {
      * @return  Presence Information of the User
      */
     protected PresenceStanza getPresenceStanza(TestUser user) {
-        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(user.getEntityFQ(),
-                                                                                                       null, null, null, null, null).build());
-        return (PresenceStanza)initialPresence;
+        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(
+                user.getEntityFQ(), null, null, null, null, null).build());
+        return (PresenceStanza) initialPresence;
     }
 
 }

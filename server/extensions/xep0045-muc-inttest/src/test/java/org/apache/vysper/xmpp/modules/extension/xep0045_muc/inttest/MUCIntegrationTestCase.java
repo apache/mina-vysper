@@ -38,16 +38,17 @@ import org.jivesoftware.smackx.muc.MultiUserChat;
 public class MUCIntegrationTestCase extends AbstractIntegrationTestCase {
 
     private static final String MUC_SUBDOMAIN = "chat";
+
     private static final String ROOM_JID = "room@chat.vysper.org";
-    
+
     private Conference conference = new Conference("test conference");
-    
-    
-    
+
     private XMPPConnection client2;
+
     private MultiUserChat chat;
+
     private MultiUserChat chat2;
-    
+
     @Override
     protected void addModules(XMPPServer server) {
         server.addModule(new MUCModule(MUC_SUBDOMAIN, conference));
@@ -56,7 +57,7 @@ public class MUCIntegrationTestCase extends AbstractIntegrationTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        
+
         client2 = connectClient(port, TEST_USERNAME2, TEST_PASSWORD2);
 
         chat = new MultiUserChat(client, ROOM_JID);
@@ -71,11 +72,10 @@ public class MUCIntegrationTestCase extends AbstractIntegrationTestCase {
         Occupant occupant = room.getOccupants().iterator().next();
         assertEquals(TEST_USERNAME1, occupant.getJid().getBareJID().getFullQualifiedName());
         assertEquals("Nick", occupant.getName());
-        
-        
+
         final BlockingQueue<String> joinedQueue = new LinkedBlockingQueue<String>();
         chat.addParticipantStatusListener(new ParticipantStatusListenerAdapter() {
-            
+
             @Override
             public void joined(String participant) {
                 joinedQueue.add(participant);
@@ -87,14 +87,14 @@ public class MUCIntegrationTestCase extends AbstractIntegrationTestCase {
         // chat should be notified
         assertEquals(ROOM_JID + "/Nick2", joinedQueue.poll(5000, TimeUnit.MILLISECONDS));
     }
-    
+
     public void testExitRoom() throws Exception {
         chat.join("Nick");
         chat2.join("Nick2");
 
         Room room = conference.findRoom(EntityImpl.parseUnchecked(ROOM_JID));
         assertEquals(2, room.getOccupantCount());
-        
+
         final BlockingQueue<String> leftQueue = new LinkedBlockingQueue<String>();
         chat.addParticipantStatusListener(new ParticipantStatusListenerAdapter() {
             @Override
@@ -103,9 +103,8 @@ public class MUCIntegrationTestCase extends AbstractIntegrationTestCase {
             }
         });
 
-        
         chat2.leave();
-        
+
         // wait for status update
         assertEquals(ROOM_JID + "/Nick2", leftQueue.poll(5000, TimeUnit.MILLISECONDS));
         assertEquals(1, room.getOccupantCount());
@@ -123,7 +122,7 @@ public class MUCIntegrationTestCase extends AbstractIntegrationTestCase {
         assertEquals("Fooo", message.getBody());
         assertEquals(ROOM_JID + "/Nick", message.getFrom());
         assertEquals(TEST_USERNAME1, EntityImpl.parse(message.getTo()).getBareJID().getFullQualifiedName());
-        
+
         message = chat2.nextMessage(5000);
         assertNotNull(message);
         assertEquals("Fooo", message.getBody());

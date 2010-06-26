@@ -49,5 +49,5 @@ public interface StorageProviderRegistry {
      * class name of the implementation. the implementation must have a public
      * no-argument constructor
      */
-    void add(String  storageProviderFullQualifiedClassname);
+    void add(String storageProviderFullQualifiedClassname);
 }

@@ -19,12 +19,12 @@
  */
 package org.apache.vysper.xmpp.modules.servicediscovery;
 
+import java.util.List;
+
 import org.apache.vysper.xmpp.modules.DefaultModule;
 import org.apache.vysper.xmpp.modules.ServerRuntimeContextService;
 import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceCollector;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
-
-import java.util.List;
 
 /**
  * all the roster stuff assembled in a module

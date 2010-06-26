@@ -28,10 +28,13 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
  * @author The Apache MINA Project (http://mina.apache.org)
  */
 public class PubsubFeature {
-    
+
     protected String name;
+
     protected String description;
+
     protected PubsubFeatureLevel level;
+
     protected String xep0060chapter;
 
     /**
@@ -48,7 +51,7 @@ public class PubsubFeature {
         this.level = level;
         this.xep0060chapter = xep0060chapter;
     }
-    
+
     /**
      * Returns a string representation of the features (complete with the pubsub namespace).
      */
@@ -56,7 +59,7 @@ public class PubsubFeature {
     public String toString() {
         return NamespaceURIs.XEP0060_PUBSUB + "#" + this.name;
     }
-    
+
     /**
      * @return creates a service discovery feature object out of this pubsub feature.
      */

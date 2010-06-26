@@ -21,9 +21,9 @@
 package org.apache.vysper.xmpp.delivery;
 
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
+import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
  * receives a stanza and relays to the receiving entity
@@ -39,6 +39,7 @@ public interface StanzaRelay {
      * @param deliveryFailureStrategy what to do in case of errors
      * @throws DeliveryException relaying failed
      */
-    public void relay(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy) throws DeliveryException;
+    public void relay(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy)
+            throws DeliveryException;
 
 }

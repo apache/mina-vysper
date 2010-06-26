@@ -20,7 +20,6 @@
 package org.apache.vysper.xmpp.protocol;
 
 import org.apache.vysper.xmpp.server.SessionState;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

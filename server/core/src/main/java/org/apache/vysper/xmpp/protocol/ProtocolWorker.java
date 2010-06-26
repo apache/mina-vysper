@@ -71,7 +71,6 @@ public class ProtocolWorker implements StanzaProcessor {
         stateWorker.put(SessionState.CLOSED, new EndOrClosedProtocolWorker());
     }
 
-
     /**
      * executes the handler for a stanza, handles Protocol exceptions.
      * also writes a response, if the handler implements ResponseStanzaContainer
@@ -80,8 +79,10 @@ public class ProtocolWorker implements StanzaProcessor {
      * @param stanza
      * @param sessionStateHolder
      */
-    public void processStanza(ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, Stanza stanza, SessionStateHolder sessionStateHolder) {
-        if (stanza == null) throw new RuntimeException("cannot process NULL stanzas");
+    public void processStanza(ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, Stanza stanza,
+            SessionStateHolder sessionStateHolder) {
+        if (stanza == null)
+            throw new RuntimeException("cannot process NULL stanzas");
 
         StanzaHandler stanzaHandler = serverRuntimeContext.getHandler(stanza);
 
@@ -99,11 +100,9 @@ public class ProtocolWorker implements StanzaProcessor {
         }
 
         // check as of RFC3920/4.3:
-        if (sessionStateHolder.getState() != SessionState.AUTHENTICATED)
-        {
+        if (sessionStateHolder.getState() != SessionState.AUTHENTICATED) {
             // is not authenticated...
-            if (XMPPCoreStanza.getWrapper(stanza) != null)
-            {
+            if (XMPPCoreStanza.getWrapper(stanza) != null) {
                 // ... and is a IQ/PRESENCE/MESSAGE stanza!
                 responseWriter.handleNotAuthorized(sessionContext, stanza);
                 return;
@@ -124,7 +123,8 @@ public class ProtocolWorker implements StanzaProcessor {
         }
         // make sure that there is a bound resource entry for that from's resource id attribute!
         if (from != null && from.getResource() != null) {
-            List<String> boundResources = sessionContext.getServerRuntimeContext().getResourceRegistry().getBoundResources(from, false);
+            List<String> boundResources = sessionContext.getServerRuntimeContext().getResourceRegistry()
+                    .getBoundResources(from, false);
             if (boundResources.size() == 0) {
                 responseWriter.handleWrongFromJID(sessionContext, stanza);
                 return;
@@ -134,7 +134,8 @@ public class ProtocolWorker implements StanzaProcessor {
         // in the same session.
         // see rfc3920_draft-saintandre-rfc3920bis-04.txt#8.5.4
         if (from != null && from.getResource() == null) {
-            List<String> boundResources = sessionContext.getServerRuntimeContext().getResourceRegistry().getResourcesForSession(sessionContext);
+            List<String> boundResources = sessionContext.getServerRuntimeContext().getResourceRegistry()
+                    .getResourcesForSession(sessionContext);
             if (boundResources.size() > 1) {
                 responseWriter.handleWrongFromJID(sessionContext, stanza);
                 return;
@@ -142,10 +143,10 @@ public class ProtocolWorker implements StanzaProcessor {
         }
 
         try {
-            stateAwareProtocolWorker.processStanza(sessionContext, sessionStateHolder,
-                                                   stanza, stanzaHandler);
+            stateAwareProtocolWorker.processStanza(sessionContext, sessionStateHolder, stanza, stanzaHandler);
         } catch (Exception e) {
-            logger.error("error executing handler {} with stanza {}", stanzaHandler.getClass().getName(), DenseStanzaLogRenderer.render(stanza));
+            logger.error("error executing handler {} with stanza {}", stanzaHandler.getClass().getName(),
+                    DenseStanzaLogRenderer.render(stanza));
             logger.debug("error executing handler exception: ", e);
         }
     }
@@ -154,7 +155,8 @@ public class ProtocolWorker implements StanzaProcessor {
         processTLSEstablishedInternal(sessionContext, sessionStateHolder, responseWriter);
     }
 
-    static void processTLSEstablishedInternal(SessionContext sessionContext, SessionStateHolder sessionStateHolder, ResponseWriter responseWriter) {
+    static void processTLSEstablishedInternal(SessionContext sessionContext, SessionStateHolder sessionStateHolder,
+            ResponseWriter responseWriter) {
         if (sessionContext.getState() != SessionState.ENCRYPTION_STARTED) {
             responseWriter.handleProtocolError(new TLSException(), sessionContext, null);
             return;

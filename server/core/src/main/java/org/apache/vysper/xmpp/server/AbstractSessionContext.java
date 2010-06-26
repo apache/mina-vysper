@@ -20,6 +20,9 @@
 
 package org.apache.vysper.xmpp.server;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
@@ -33,10 +36,6 @@ import org.apache.vysper.xmpp.writer.StanzaWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
-
 /**
  * provides default session context behavior
  * 
@@ -45,15 +44,23 @@ import java.util.List;
 public abstract class AbstractSessionContext implements SessionContext {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractSessionContext.class);
-    
+
     protected ServerRuntimeContext serverRuntimeContext;
+
     protected String sessionId;
+
     protected String xmlLang;
+
     protected UUIDGenerator sequence = new JVMBuiltinUUIDGenerator();
+
     protected SessionStateHolder sessionStateHolder; // be secure: do not provide this via a getter or other means
+
     protected Entity serverEntity;
+
     private Entity initiatingEntity;
+
     private boolean serverToServer = false;
+
     private Map<String, Object> attributeMap = new HashMap<String, Object>();
 
     public AbstractSessionContext(ServerRuntimeContext serverRuntimeContext, SessionStateHolder sessionStateHolder) {
@@ -82,8 +89,10 @@ public abstract class AbstractSessionContext implements SessionContext {
     }
 
     public void setInitiatingEntity(Entity entity) {
-        if (entity == null) throw new IllegalArgumentException("initiating entity must not be set to NULL");
-        if (entity.isResourceSet()) throw new IllegalArgumentException("initiating entity must be bare JID");
+        if (entity == null)
+            throw new IllegalArgumentException("initiating entity must not be set to NULL");
+        if (entity.isResourceSet())
+            throw new IllegalArgumentException("initiating entity must be bare JID");
         this.initiatingEntity = entity;
     }
 
@@ -117,15 +126,15 @@ public abstract class AbstractSessionContext implements SessionContext {
     }
 
     public void endSession(SessionTerminationCause terminationCause) {
-		StanzaWriter stanzaWriter = getResponseWriter();
-		stanzaWriter.close();
+        StanzaWriter stanzaWriter = getResponseWriter();
+        stanzaWriter.close();
 
         if (terminationCause == null) {
             throw new RuntimeException("no termination cause given");
         }
 
-		if (terminationCause == SessionTerminationCause.CLIENT_BYEBYE ||
-            terminationCause == SessionTerminationCause.CONNECTION_ABORT) {
+        if (terminationCause == SessionTerminationCause.CLIENT_BYEBYE
+                || terminationCause == SessionTerminationCause.CONNECTION_ABORT) {
             Stanza unavailableStanza = StanzaBuilder.createUnavailablePresenceStanza(null, terminationCause);
             StanzaHandler handler = serverRuntimeContext.getHandler(unavailableStanza);
             try {
@@ -144,11 +153,11 @@ public abstract class AbstractSessionContext implements SessionContext {
 
         // unbind session and remove from registry
         serverRuntimeContext.getResourceRegistry().unbindSession(this);
-        
+
         sessionStateHolder.setState(SessionState.CLOSED); // no more traffic
-        
-		// TODO close underlying transport (TCP socket)
-	}
+
+        // TODO close underlying transport (TCP socket)
+    }
 
     public Entity getServerJID() {
         return serverEntity;
@@ -166,7 +175,7 @@ public abstract class AbstractSessionContext implements SessionContext {
      * @return unique sequence ID
      */
     public String nextSequenceValue() {
-    	return sequence.create();
+        return sequence.create();
     }
 
     public Object putAttribute(String key, Object value) {

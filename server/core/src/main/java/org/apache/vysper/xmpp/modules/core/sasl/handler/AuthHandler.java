@@ -19,6 +19,8 @@
  */
 package org.apache.vysper.xmpp.modules.core.sasl.handler;
 
+import java.util.List;
+
 import org.apache.vysper.xmpp.authorization.SASLMechanism;
 import org.apache.vysper.xmpp.modules.core.sasl.AuthorizationRetriesCounter;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
@@ -27,8 +29,6 @@ import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.stanza.Stanza;
-
-import java.util.List;
 
 /**
  *
@@ -44,7 +44,8 @@ public class AuthHandler extends AbstractSASLHandler {
     }
 
     @Override
-    protected ResponseStanzaContainer executeWorker(Stanza stanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder) {
+    protected ResponseStanzaContainer executeWorker(Stanza stanza, SessionContext sessionContext,
+            SessionStateHolder sessionStateHolder) {
         String requestedMechanism = stanza.getAttributeValue("mechanism");
         if (requestedMechanism == null) {
             return respondSASLFailure();
@@ -52,14 +53,16 @@ public class AuthHandler extends AbstractSASLHandler {
 
         SASLMechanism identifiedMechanism = null;
 
-        List<SASLMechanism> list = sessionContext.getServerRuntimeContext().getServerFeatures().getAuthenticationMethods();
+        List<SASLMechanism> list = sessionContext.getServerRuntimeContext().getServerFeatures()
+                .getAuthenticationMethods();
         for (SASLMechanism saslMechanism : list) {
             if (saslMechanism.getName().equals(requestedMechanism)) {
                 identifiedMechanism = saslMechanism;
                 break;
             }
         }
-        if (identifiedMechanism == null) throw new RuntimeException("return error");
+        if (identifiedMechanism == null)
+            throw new RuntimeException("return error");
 
         Stanza responseStanza = identifiedMechanism.started(sessionContext, sessionStateHolder, stanza);
         if (sessionStateHolder.getState() == SessionState.AUTHENTICATED) {

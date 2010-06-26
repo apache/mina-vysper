@@ -40,20 +40,19 @@ public class ServerResponsesTestCase extends TestCase {
 
     public void testFeaturesForAuthentication() throws ParsingException {
 
-        Stanza stanza = new StanzaBuilder("features")
-        	.startInnerElement("mechanisms", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
-        		.startInnerElement("mechanism", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).addText("EXTERNAL").endInnerElement()
-        		.startInnerElement("mechanism", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).addText("PLAIN").endInnerElement()
-        		.startInnerElement("mechanism", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).addText("ANONYMOUS").endInnerElement()
-        	.endInnerElement()
-        	.build();
-
+        Stanza stanza = new StanzaBuilder("features").startInnerElement("mechanisms",
+                NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).startInnerElement("mechanism",
+                NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).addText("EXTERNAL").endInnerElement()
+                .startInnerElement("mechanism", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).addText("PLAIN")
+                .endInnerElement().startInnerElement("mechanism", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
+                .addText("ANONYMOUS").endInnerElement().endInnerElement().build();
 
         List<SASLMechanism> mechanismList = new ArrayList<SASLMechanism>();
         mechanismList.add(new External());
         mechanismList.add(new Plain());
         mechanismList.add(new Anonymous());
         // add others
-        assertEquals("stanzas are identical", stanza.toString(), new ServerResponses().getFeaturesForAuthentication(mechanismList).toString());
+        assertEquals("stanzas are identical", stanza.toString(), new ServerResponses().getFeaturesForAuthentication(
+                mechanismList).toString());
     }
 }

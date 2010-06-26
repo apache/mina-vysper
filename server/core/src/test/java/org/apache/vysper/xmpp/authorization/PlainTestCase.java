@@ -21,14 +21,14 @@ package org.apache.vysper.xmpp.authorization;
 
 import junit.framework.TestCase;
 
-import org.apache.vysper.xml.fragment.XMLSemanticError;
-import org.apache.vysper.xmpp.server.TestSessionContext;
-import org.apache.vysper.xmpp.server.SessionState;
-import org.apache.vysper.xmpp.protocol.SessionStateHolder;
-import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.vysper.xml.fragment.XMLSemanticError;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.server.SessionState;
+import org.apache.vysper.xmpp.server.TestSessionContext;
+import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
 /**
  */
@@ -45,9 +45,8 @@ public class PlainTestCase extends TestCase {
 
     public void testPlainNonBASE64() throws XMLSemanticError {
 
-        Stanza stanza = new StanzaBuilder("plain", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
-                .addText("aEflkejidkj==")
-                .build();
+        Stanza stanza = new StanzaBuilder("plain", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).addText(
+                "aEflkejidkj==").build();
 
         Stanza response = startMechanism(stanza);
         assertResponse(response, "malformed-request");
@@ -55,9 +54,8 @@ public class PlainTestCase extends TestCase {
 
     public void testPlainNonExistingUser() throws XMLSemanticError {
 
-        Stanza stanza = new StanzaBuilder("plain", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
-                .addText(encode("dieter", "schluppkoweit"))
-                .build();
+        Stanza stanza = new StanzaBuilder("plain", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).addText(
+                encode("dieter", "schluppkoweit")).build();
 
         Stanza response = startMechanism(stanza);
         assertResponse(response, "not-authorized");
@@ -65,9 +63,8 @@ public class PlainTestCase extends TestCase {
 
     public void testPlainNotExistingUser() throws XMLSemanticError {
 
-        Stanza stanza = new StanzaBuilder("plain", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
-                .addText(encode("dieter", "schluppkoweit"))
-                .build();
+        Stanza stanza = new StanzaBuilder("plain", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).addText(
+                encode("dieter", "schluppkoweit")).build();
 
         Stanza response = startMechanism(stanza);
         assertResponse(response, "not-authorized");
@@ -77,8 +74,8 @@ public class PlainTestCase extends TestCase {
 
         String innerText = new String(Base64.encodeBase64("continuous".getBytes()));
 
-        Stanza stanza = new StanzaBuilder("plain", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
-                .addText(innerText).build();
+        Stanza stanza = new StanzaBuilder("plain", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).addText(innerText)
+                .build();
 
         Stanza response = startMechanism(stanza);
         assertResponse(response, "malformed-request");
@@ -94,7 +91,7 @@ public class PlainTestCase extends TestCase {
     private void assertResponse(Stanza response, String failureType) throws XMLSemanticError {
         assertTrue(response.getVerifier().nameEquals("failure"));
         assertNotNull(response.getSingleInnerElementsNamed(failureType));
-        assert stateHolder.getState() != SessionState.AUTHENTICATED; 
+        assert stateHolder.getState() != SessionState.AUTHENTICATED;
     }
 
     private String encode(String username, String password) {

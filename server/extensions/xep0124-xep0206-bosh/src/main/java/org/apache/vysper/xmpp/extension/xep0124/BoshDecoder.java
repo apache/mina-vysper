@@ -43,7 +43,7 @@ import org.xml.sax.SAXException;
 public class BoshDecoder {
 
     private final NonBlockingXMLReader reader;
-    
+
     private final HttpServletRequest request;
 
     public BoshDecoder(BoshHandler boshHandler, HttpServletRequest req) {

@@ -46,7 +46,7 @@ public class ServerMain {
 
         StorageProviderRegistry providerRegistry = new MemoryStorageProviderRegistry();
 
-        AccountManagement accountManagement = (AccountManagement)providerRegistry.retrieve(AccountManagement.class);
+        AccountManagement accountManagement = (AccountManagement) providerRegistry.retrieve(AccountManagement.class);
 
         accountManagement.addUser("user1@vysper.org", "password1");
         accountManagement.addUser("user2@vysper.org", "password1");
@@ -65,7 +65,7 @@ public class ServerMain {
         server.addModule(new VcardTempModule());
         server.addModule(new XmppPingModule());
         server.addModule(new PrivateDataModule());
-        
+
         server.addModule(new MUCModule());
     }
 }

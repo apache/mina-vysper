@@ -28,7 +28,7 @@ import org.jivesoftware.smackx.pubsub.listener.ItemEventListener;
 
 public class PubsubEventListener implements ItemEventListener {
     private PubsubClientModel parent;
-    
+
     public PubsubEventListener(PubsubClientModel parent) {
         this.parent = parent;
     }
@@ -36,8 +36,8 @@ public class PubsubEventListener implements ItemEventListener {
     public void handlePublishedItems(ItemPublishEvent e) {
         DefaultListModel lm = parent.getListModel(e.getNodeId());
         System.out.println("Got something from " + e.getNodeId());
-        for(Item<SimplePayload> i : e.getItems()) {
-            lm.add(0,i.getPayload().toXML()); //alwasy add to the top
+        for (Item<SimplePayload> i : e.getItems()) {
+            lm.add(0, i.getPayload().toXML()); //alwasy add to the top
         }
     }
 

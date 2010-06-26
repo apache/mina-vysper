@@ -38,8 +38,8 @@ public class XmppPingIntegrationTestCase extends AbstractIntegrationTestCase {
         pingRequest.setTo(SERVER_DOMAIN);
         pingRequest.setFrom(TEST_USERNAME1);
 
-        IQ result = (IQ)sendSync(client, pingRequest);
-        
+        IQ result = (IQ) sendSync(client, pingRequest);
+
         assertNotNull(result);
         assertEquals(IQ.Type.RESULT, result.getType());
         assertEquals(SERVER_DOMAIN, result.getFrom());

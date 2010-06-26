@@ -31,11 +31,9 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 public class Delay extends XMLElement {
 
     public Delay(Entity from, Calendar timestamp) {
-        super(NamespaceURIs.URN_XMPP_DELAY, "delay", null, Arrays.asList(
-            new Attribute("from", from.getFullQualifiedName()),
-            new Attribute("stamp", DateTimeProfile.getInstance().getDateTimeInUTC(timestamp.getTime()))
-            ), null);
+        super(NamespaceURIs.URN_XMPP_DELAY, "delay", null, Arrays.asList(new Attribute("from", from
+                .getFullQualifiedName()), new Attribute("stamp", DateTimeProfile.getInstance().getDateTimeInUTC(
+                timestamp.getTime()))), null);
     }
 
-    
 }

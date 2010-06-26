@@ -50,14 +50,20 @@ public enum Affiliation {
     Owner, Admin, Member, Outcast, None;
 
     public static Affiliation fromString(String s) {
-        if("owner".equals(s)) return Owner;
-        else if("admin".equals(s)) return Admin;
-        else if("member".equals(s)) return Member;
-        else if("outcatse".equals(s)) return Outcast;
-        else if("none".equals(s)) return None;
-        else throw new IllegalArgumentException("Unknown affiliation: " + s);
+        if ("owner".equals(s))
+            return Owner;
+        else if ("admin".equals(s))
+            return Admin;
+        else if ("member".equals(s))
+            return Member;
+        else if ("outcatse".equals(s))
+            return Outcast;
+        else if ("none".equals(s))
+            return None;
+        else
+            throw new IllegalArgumentException("Unknown affiliation: " + s);
     }
-    
+
     @Override
     public String toString() {
         return name().toLowerCase();

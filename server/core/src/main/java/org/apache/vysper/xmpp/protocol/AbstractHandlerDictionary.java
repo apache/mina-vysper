@@ -32,6 +32,7 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 public abstract class AbstractHandlerDictionary implements HandlerDictionary {
 
     private List<StanzaHandler> handlerList = new ArrayList<StanzaHandler>();
+
     private boolean sealed = false;
 
     public AbstractHandlerDictionary() {
@@ -52,10 +53,13 @@ public abstract class AbstractHandlerDictionary implements HandlerDictionary {
     }
 
     public void register(StanzaHandler stanzaHandler) {
-        if (sealed) throw new IllegalStateException("stanza directory is sealed. registering denied.");
-        if (stanzaHandler == null || stanzaHandler.getName() == null) throw new IllegalArgumentException("stanza handler not complete");
+        if (sealed)
+            throw new IllegalStateException("stanza directory is sealed. registering denied.");
+        if (stanzaHandler == null || stanzaHandler.getName() == null)
+            throw new IllegalArgumentException("stanza handler not complete");
 
-        if (handlerList.contains(stanzaHandler)) throw new IllegalStateException("stanza handler already in handlerList: " + stanzaHandler.getName());
+        if (handlerList.contains(stanzaHandler))
+            throw new IllegalStateException("stanza handler already in handlerList: " + stanzaHandler.getName());
         handlerList.add(stanzaHandler);
     }
 
@@ -69,7 +73,8 @@ public abstract class AbstractHandlerDictionary implements HandlerDictionary {
      */
     public StanzaHandler get(Stanza stanza) {
         for (StanzaHandler stanzaHandler : handlerList) {
-            if (stanzaHandler.verify(stanza)) return stanzaHandler;
+            if (stanzaHandler.verify(stanza))
+                return stanzaHandler;
         }
         return null;
     }

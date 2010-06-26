@@ -33,7 +33,9 @@ import org.apache.vysper.xmpp.writer.StanzaWriter;
 abstract public class ResponseFuture<T extends XMPPCoreStanza> implements RunnableFuture<T> {
 
     protected T requestStanza;
+
     protected ServerRuntimeContext serverRuntimeContext;
+
     protected SessionContext sessionContext;
 
     protected ResponseFuture(T requestStanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {

@@ -26,6 +26,8 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
  */
 public class PubSubPrivilege {
     public static final PubSubAffiliation DELETE = PubSubAffiliation.OWNER;
+
     public static final PubSubAffiliation PUBLISH = PubSubAffiliation.PUBLISHER;
+
     public static final PubSubAffiliation MANAGE_AFFILIATIONS = PubSubAffiliation.OWNER;
 }

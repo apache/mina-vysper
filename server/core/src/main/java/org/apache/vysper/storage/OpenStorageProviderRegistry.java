@@ -19,13 +19,13 @@
  */
 package org.apache.vysper.storage;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * multi-purpose storage provider registry. it is recommended to re-use this
@@ -33,13 +33,16 @@ import java.util.Set;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class OpenStorageProviderRegistry implements StorageProviderRegistry {
-    
+
     protected final Logger logger = LoggerFactory.getLogger(OpenStorageProviderRegistry.class);
 
-    protected enum OverridePolicy { ERROR, WARN, ACCEPT};
-    
+    protected enum OverridePolicy {
+        ERROR, WARN, ACCEPT
+    };
+
     protected Map<Class<? extends StorageProvider>, StorageProvider> storageServices = new HashMap<Class<? extends StorageProvider>, StorageProvider>();
-    protected OverridePolicy overridePolicy = OverridePolicy.ERROR; 
+
+    protected OverridePolicy overridePolicy = OverridePolicy.ERROR;
 
     public void setEntries(Map<Class<? extends StorageProvider>, StorageProvider> entries) {
         storageServices.putAll(entries);
@@ -56,7 +59,8 @@ public class OpenStorageProviderRegistry implements StorageProviderRegistry {
      * @param storageProvider
      */
     public void add(StorageProvider storageProvider) {
-        if (storageProvider == null) throw new IllegalArgumentException("storage service must not be NULL!");
+        if (storageProvider == null)
+            throw new IllegalArgumentException("storage service must not be NULL!");
         Class<? extends StorageProvider> clazz = storageProvider.getClass();
 
         Set<Class> storageProviderInterfaces = getStorageProviderInterfaces(clazz);
@@ -69,7 +73,7 @@ public class OpenStorageProviderRegistry implements StorageProviderRegistry {
     public void add(String storageProviderFQClassname) {
         Class<StorageProvider> storageProviderClass;
         try {
-            storageProviderClass = (Class<StorageProvider>)Class.forName(storageProviderFQClassname);
+            storageProviderClass = (Class<StorageProvider>) Class.forName(storageProviderFQClassname);
         } catch (ClassCastException e) {
             System.err.println("not a Vysper storage provider class: " + storageProviderFQClassname);
             return;
@@ -99,27 +103,30 @@ public class OpenStorageProviderRegistry implements StorageProviderRegistry {
                 }
             }
         }
-        
+
         if (storageProviderInterfaces.size() == 0 && clazz.getSuperclass() != null) {
             // we don't have one, maybe superclass has. go up the hierarchie
             storageProviderInterfaces = getStorageProviderInterfaces(clazz.getSuperclass());
         }
-        
+
         return storageProviderInterfaces;
     }
 
     private void addInternal(Class<? extends StorageProvider> interfaceClass, StorageProvider storageProvider) {
         // handle overriding
         switch (overridePolicy) {
-            case ACCEPT:
-                break; // fall through to put 
-            case ERROR:
-                if (retrieve(interfaceClass) != null) throw new IllegalStateException("storage service already registered for class " + interfaceClass.getCanonicalName());
-            case WARN:
-                if (retrieve(interfaceClass) != null) logger.warn("storage service already registered for class " + interfaceClass.getCanonicalName());
-                break; // fall through to put
-            default:
-                throw new IllegalStateException("unknown override policy state: " + overridePolicy.name());
+        case ACCEPT:
+            break; // fall through to put 
+        case ERROR:
+            if (retrieve(interfaceClass) != null)
+                throw new IllegalStateException("storage service already registered for class "
+                        + interfaceClass.getCanonicalName());
+        case WARN:
+            if (retrieve(interfaceClass) != null)
+                logger.warn("storage service already registered for class " + interfaceClass.getCanonicalName());
+            break; // fall through to put
+        default:
+            throw new IllegalStateException("unknown override policy state: " + overridePolicy.name());
         }
 
         storageServices.put(interfaceClass, storageProvider);

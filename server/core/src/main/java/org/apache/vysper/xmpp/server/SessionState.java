@@ -55,7 +55,7 @@ public enum SessionState {
     /**
      * authentication has begun, but is not yet finished
      */
-//    AUTHENTICATION_STARTED,
+    //    AUTHENTICATION_STARTED,
 
     /**
      * authenticated
@@ -65,12 +65,12 @@ public enum SessionState {
     /**
      * a resource has been bound to the server
      */
-//    RESOURCE_BOUND,
+    //    RESOURCE_BOUND,
 
     /**
      * the initial session handshake is completed and regular stanzas are processed
      */
-//    OPEN_FOR_XMPP,
+    //    OPEN_FOR_XMPP,
 
     /**
      * end stanza processed

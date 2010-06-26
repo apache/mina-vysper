@@ -22,7 +22,7 @@ package org.apache.vysper.xmpp.state.presence;
 /**
  */
 public class SimplePresenceCacheTestCase extends LatestPresenceCacheTestCase {
-    
+
     protected final SimplePresenceCache simplePresenceCache = new SimplePresenceCache();
 
     @Override

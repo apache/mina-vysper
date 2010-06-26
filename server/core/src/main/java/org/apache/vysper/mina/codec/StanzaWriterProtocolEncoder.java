@@ -21,7 +21,6 @@ package org.apache.vysper.mina.codec;
 
 import java.nio.charset.CharsetEncoder;
 
-
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoder;
@@ -52,10 +51,14 @@ public class StanzaWriterProtocolEncoder implements ProtocolEncoder {
         Renderer renderer = new Renderer(element);
 
         IoBuffer byteBuffer = IoBuffer.allocate(16).setAutoExpand(true);
-        if (stanzaWriteInfo.isWriteProlog()) byteBuffer.putString(StanzaWriter.XML_PROLOG, getSessionEncoder());
-        if (stanzaWriteInfo.isWriteOpeningElement()) byteBuffer.putString(renderer.getOpeningElement(), getSessionEncoder());
-        if (stanzaWriteInfo.isWriteContent()) byteBuffer.putString(renderer.getElementContent(), getSessionEncoder());
-        if (stanzaWriteInfo.isWriteClosingElement()) byteBuffer.putString(renderer.getClosingElement(), getSessionEncoder());
+        if (stanzaWriteInfo.isWriteProlog())
+            byteBuffer.putString(StanzaWriter.XML_PROLOG, getSessionEncoder());
+        if (stanzaWriteInfo.isWriteOpeningElement())
+            byteBuffer.putString(renderer.getOpeningElement(), getSessionEncoder());
+        if (stanzaWriteInfo.isWriteContent())
+            byteBuffer.putString(renderer.getElementContent(), getSessionEncoder());
+        if (stanzaWriteInfo.isWriteClosingElement())
+            byteBuffer.putString(renderer.getClosingElement(), getSessionEncoder());
 
         byteBuffer.flip();
         protocolEncoderOutput.write(byteBuffer);

@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
- package org.apache.vysper.xmpp.protocol.worker;
+package org.apache.vysper.xmpp.protocol.worker;
 
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
@@ -37,7 +37,8 @@ public class UnconnectedProtocolWorker extends AbstractStateAwareProtocolWorker 
     }
 
     @Override
-    protected boolean checkState(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza, StanzaHandler stanzaHandler) {
+    protected boolean checkState(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
+            StanzaHandler stanzaHandler) {
         // TODO
         return true;
     }

@@ -40,7 +40,7 @@ public class LeafNodeTestCase extends TestCase {
         PubSubServiceConfiguration serviceConfig = new PubSubServiceConfiguration(new CollectionNode());
         serviceConfig.setServerJID(nodeJID);
         Entity creatorJID = new EntityImpl("creator", "vysper.org", null);
-        
+
         node = new LeafNode(serviceConfig, "node", "Some test node", creatorJID);
     }
 
@@ -83,7 +83,7 @@ public class LeafNodeTestCase extends TestCase {
         try {
             result = node.unsubscribe(me);
             fail();
-        } catch(MultipleSubscriptionException e) {
+        } catch (MultipleSubscriptionException e) {
             // good
         }
         assertEquals(2, node.countSubscriptions(me));

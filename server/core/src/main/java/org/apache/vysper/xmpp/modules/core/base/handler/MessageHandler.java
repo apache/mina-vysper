@@ -25,14 +25,14 @@ import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.server.SessionContext;
-import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-import org.apache.vysper.xmpp.stanza.MessageStanza;
-import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
-import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.delivery.failure.ReturnErrorToSenderFailureStrategy;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.stanza.MessageStanza;
+import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 
 /**
  * handling message stanzas
@@ -49,9 +49,9 @@ public class MessageHandler extends XMPPCoreStanzaHandler {
         return MessageStanza.isOfType(stanza);
     }
 
-
     @Override
-    protected Stanza executeCore(XMPPCoreStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza, SessionContext sessionContext) {
+    protected Stanza executeCore(XMPPCoreStanza stanza, ServerRuntimeContext serverRuntimeContext,
+            boolean isOutboundStanza, SessionContext sessionContext) {
 
         // (try to) read thread id
         String threadId = null;
@@ -89,20 +89,24 @@ public class MessageHandler extends XMPPCoreStanzaHandler {
 
         if (isOutboundStanza) {
             // check if message reception is turned of either globally or locally
-            if (!serverRuntimeContext.getServerFeatures().isRelayingMessages() ||
-                (sessionContext != null && sessionContext.getAttribute(SessionContext.SESSION_ATTRIBUTE_MESSAGE_STANZA_NO_RECEIVE) != null)) {
+            if (!serverRuntimeContext.getServerFeatures().isRelayingMessages()
+                    || (sessionContext != null && sessionContext
+                            .getAttribute(SessionContext.SESSION_ATTRIBUTE_MESSAGE_STANZA_NO_RECEIVE) != null)) {
                 return null;
             }
 
             Entity from = stanza.getFrom();
             if (from == null || !from.isResourceSet()) {
                 // rewrite stanza with new from
-                String resource = serverRuntimeContext.getResourceRegistry().getUniqueResourceForSession(sessionContext);
-                if (resource == null) throw new IllegalStateException("could not determine unique resource");
+                String resource = serverRuntimeContext.getResourceRegistry()
+                        .getUniqueResourceForSession(sessionContext);
+                if (resource == null)
+                    throw new IllegalStateException("could not determine unique resource");
                 from = new EntityImpl(sessionContext.getInitiatingEntity(), resource);
                 StanzaBuilder stanzaBuilder = new StanzaBuilder(stanza.getName());
                 for (Attribute attribute : stanza.getAttributes()) {
-                    if ("from".equals(attribute.getName())) continue;
+                    if ("from".equals(attribute.getName()))
+                        continue;
                     stanzaBuilder.addAttribute(attribute);
                 }
                 stanzaBuilder.addAttribute("from", from.getFullQualifiedName());
@@ -117,7 +121,7 @@ public class MessageHandler extends XMPPCoreStanzaHandler {
                 stanzaRelay.relay(stanza.getTo(), stanza, new ReturnErrorToSenderFailureStrategy(stanzaRelay));
             } catch (Exception e) {
                 // TODO return error stanza
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                e.printStackTrace(); //To change body of catch statement use File | Settings | File Templates.
             }
         } else if (sessionContext != null) {
             sessionContext.getResponseWriter().write(stanza);

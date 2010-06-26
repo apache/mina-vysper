@@ -29,12 +29,12 @@ import java.nio.charset.CharsetEncoder;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class CharsetUtil {
-	
-	/**
-	 * Charset decoder for UTF-8
-	 */
+
+    /**
+     * Charset decoder for UTF-8
+     */
     public static final CharsetDecoder UTF8_DECODER = Charset.forName("UTF-8").newDecoder();
-    
+
     /**
      * Charset encoder for UTF-8
      */

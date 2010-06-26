@@ -25,12 +25,12 @@ import org.apache.vysper.xmpp.addressing.Entity;
 public class Invite extends AbstractInviteDecline {
 
     private static final String ElEMENT_NAME = "invite";
-    
+
     public Invite(XMLElement elm) {
         super(ElEMENT_NAME, elm);
     }
-    
+
     public Invite(Entity from, Entity to, String reason) {
         super(ElEMENT_NAME, from, to, reason);
-    }    
+    }
 }

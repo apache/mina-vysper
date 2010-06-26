@@ -32,6 +32,7 @@ import java.io.OutputStream;
 public class PlainToTLSStreaming {
 
     private InputStream inputStream;
+
     private OutputStream outputStream;
 
     public PlainToTLSStreaming(InputStream inputStream, OutputStream outputStream) {
@@ -39,11 +40,8 @@ public class PlainToTLSStreaming {
         this.outputStream = outputStream;
     }
 
-    public boolean switchToTLS()
-    {
+    public boolean switchToTLS() {
         return false;
     }
-
-
 
 }

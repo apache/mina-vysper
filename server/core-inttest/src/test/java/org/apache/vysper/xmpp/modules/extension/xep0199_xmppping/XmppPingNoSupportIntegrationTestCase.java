@@ -21,7 +21,6 @@ package org.apache.vysper.xmpp.modules.extension.xep0199_xmppping;
 
 import org.apache.vysper.xmpp.server.XMPPServer;
 import org.jivesoftware.smack.packet.IQ;
-import org.apache.vysper.xmpp.modules.extension.xep0199_xmppping.PingPacket;
 
 /**
  */
@@ -38,9 +37,8 @@ public class XmppPingNoSupportIntegrationTestCase extends AbstractIntegrationTes
         pingRequest.setTo(SERVER_DOMAIN);
         pingRequest.setFrom(TEST_USERNAME1);
 
-        IQ result = (IQ)sendSync(client, pingRequest);
-        
-        
+        IQ result = (IQ) sendSync(client, pingRequest);
+
         assertNotNull(result);
         assertEquals(IQ.Type.ERROR, result.getType());
         assertEquals(SERVER_DOMAIN, result.getFrom());

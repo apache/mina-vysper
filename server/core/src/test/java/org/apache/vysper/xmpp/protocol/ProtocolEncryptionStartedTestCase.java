@@ -40,5 +40,4 @@ public class ProtocolEncryptionStartedTestCase extends AbstractProtocolStateTest
         skeleton_testDontAcceptArbitraryStanzaWhileNotAuthenticated();
     }
 
-
 }

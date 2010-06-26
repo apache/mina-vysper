@@ -31,7 +31,7 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
  * @author The Apache MINA Project (http://mina.apache.org)
  */
 public class PubSubConfigureNodeTestCase extends AbstractPublishSubscribeTestCase {
-    
+
     class DefaultConfigureNodeStanzaGenerator extends AbstractStanzaGenerator {
         @Override
         protected StanzaBuilder buildInnerElement(Entity client, Entity pubsub, StanzaBuilder sb, String node) {

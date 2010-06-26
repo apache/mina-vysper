@@ -23,139 +23,136 @@ import java.util.Iterator;
 
 import org.apache.vysper.xml.sax.impl.TestHandler.TestEvent;
 
-
 /**
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class ParseElementsTestCase extends AbstractAsyncXMLReaderTestCase {
 
-	public void testEmptyElement() throws Exception {
-		Iterator<TestEvent> events = parse("<root />").iterator();
+    public void testEmptyElement() throws Exception {
+        Iterator<TestEvent> events = parse("<root />").iterator();
 
-		assertStartDocument(events.next());
-		assertStartElement("", "root", "root", events.next());
-		assertEndElement("", "root", "root", events.next());
-		assertEndDocument(events.next());
-		
-		assertNoMoreevents(events);
-	}
+        assertStartDocument(events.next());
+        assertStartElement("", "root", "root", events.next());
+        assertEndElement("", "root", "root", events.next());
+        assertEndDocument(events.next());
 
-	public void testElement() throws Exception {
-		Iterator<TestEvent> events = parse("<root></root>").iterator();
+        assertNoMoreevents(events);
+    }
 
-		assertStartDocument(events.next());
-		assertStartElement("", "root", "root", events.next());
-		assertEndElement("", "root", "root", events.next());
-		assertEndDocument(events.next());
-		
-		assertNoMoreevents(events);
-	}
+    public void testElement() throws Exception {
+        Iterator<TestEvent> events = parse("<root></root>").iterator();
 
-	public void testElements() throws Exception {
-		Iterator<TestEvent> events = parse("<root><child><inner /></child></root>").iterator();
+        assertStartDocument(events.next());
+        assertStartElement("", "root", "root", events.next());
+        assertEndElement("", "root", "root", events.next());
+        assertEndDocument(events.next());
 
-		assertStartDocument(events.next());
-		assertStartElement("", "root", "root", events.next());
-		assertStartElement("", "child", "child", events.next());
-		assertStartElement("", "inner", "inner", events.next());
-		
-		assertEndElement("", "inner", "inner", events.next());
-		assertEndElement("", "child", "child", events.next());
-		assertEndElement("", "root", "root", events.next());
-		assertEndDocument(events.next());
-		
-		assertNoMoreevents(events);
-	}
+        assertNoMoreevents(events);
+    }
 
-	public void testIllegalClosingElement() throws Exception {
-		Iterator<TestEvent> events = parse("<root><child /></error>").iterator();
+    public void testElements() throws Exception {
+        Iterator<TestEvent> events = parse("<root><child><inner /></child></root>").iterator();
 
-		assertStartDocument(events.next());
-		assertStartElement("", "root", "root", events.next());
-		assertStartElement("", "child", "child", events.next());
-		assertEndElement("", "child", "child", events.next());
-		assertFatalError(events.next());
-		
-		assertNoMoreevents(events);
-	}
+        assertStartDocument(events.next());
+        assertStartElement("", "root", "root", events.next());
+        assertStartElement("", "child", "child", events.next());
+        assertStartElement("", "inner", "inner", events.next());
 
-	public void testNumberAsFirstCharInName() throws Exception {
-		Iterator<TestEvent> events = parse("<1root />").iterator();
+        assertEndElement("", "inner", "inner", events.next());
+        assertEndElement("", "child", "child", events.next());
+        assertEndElement("", "root", "root", events.next());
+        assertEndDocument(events.next());
 
-		assertStartDocument(events.next());
-		assertFatalError(events.next());
-		
-		assertNoMoreevents(events);
-	}
+        assertNoMoreevents(events);
+    }
 
-	public void testDashAsFirstCharInName() throws Exception {
-		Iterator<TestEvent> events = parse("<-root />").iterator();
+    public void testIllegalClosingElement() throws Exception {
+        Iterator<TestEvent> events = parse("<root><child /></error>").iterator();
 
-		assertStartDocument(events.next());
-		assertFatalError(events.next());
-		
-		assertNoMoreevents(events);
-	}
+        assertStartDocument(events.next());
+        assertStartElement("", "root", "root", events.next());
+        assertStartElement("", "child", "child", events.next());
+        assertEndElement("", "child", "child", events.next());
+        assertFatalError(events.next());
 
-	public void testNumberInName() throws Exception {
-		Iterator<TestEvent> events = parse("<r1oot />").iterator();
+        assertNoMoreevents(events);
+    }
 
-		assertStartDocument(events.next());
-		assertStartElement("", "r1oot", "r1oot", events.next());
-		assertEndElement("", "r1oot", "r1oot", events.next());
-		assertEndDocument(events.next());
-		
-		assertNoMoreevents(events);
-	}
+    public void testNumberAsFirstCharInName() throws Exception {
+        Iterator<TestEvent> events = parse("<1root />").iterator();
 
-	public void testInvalidUnicodeInName() throws Exception {
-		Iterator<TestEvent> events = parse("<r\u2190oot />").iterator();
+        assertStartDocument(events.next());
+        assertFatalError(events.next());
 
-		assertStartDocument(events.next());
-		assertFatalError(events.next());
-		
-		assertNoMoreevents(events);
-	}
+        assertNoMoreevents(events);
+    }
 
-	public void testValidUnicodeInName() throws Exception {
-		Iterator<TestEvent> events = parse("<r\u218Foot />").iterator();
+    public void testDashAsFirstCharInName() throws Exception {
+        Iterator<TestEvent> events = parse("<-root />").iterator();
 
-		assertStartDocument(events.next());
-		assertStartElement("", "r\u218Foot", "r\u218Foot", events.next());
-		assertEndElement("", "r\u218Foot", "r\u218Foot", events.next());
-		assertEndDocument(events.next());
+        assertStartDocument(events.next());
+        assertFatalError(events.next());
 
-		
-		assertNoMoreevents(events);
-	}
+        assertNoMoreevents(events);
+    }
 
-	public void testXmlBeginName() throws Exception {
-		Iterator<TestEvent> events = parse("<xmlroot />").iterator();
+    public void testNumberInName() throws Exception {
+        Iterator<TestEvent> events = parse("<r1oot />").iterator();
 
-		assertStartDocument(events.next());
-		assertFatalError(events.next());
+        assertStartDocument(events.next());
+        assertStartElement("", "r1oot", "r1oot", events.next());
+        assertEndElement("", "r1oot", "r1oot", events.next());
+        assertEndDocument(events.next());
 
-		assertNoMoreevents(events);
-	}
+        assertNoMoreevents(events);
+    }
 
-	public void testXmlInsideName() throws Exception {
-		Iterator<TestEvent> events = parse("<roxmlot />").iterator();
+    public void testInvalidUnicodeInName() throws Exception {
+        Iterator<TestEvent> events = parse("<r\u2190oot />").iterator();
 
-		assertStartDocument(events.next());
-		assertStartElement("", "roxmlot", "roxmlot", events.next());
-		assertEndElement("", "roxmlot", "roxmlot", events.next());
-		assertEndDocument(events.next());
+        assertStartDocument(events.next());
+        assertFatalError(events.next());
 
-		assertNoMoreevents(events);
-	}
+        assertNoMoreevents(events);
+    }
 
-	
-	public void testMixedXmlBeginName() throws Exception {
-		Iterator<TestEvent> events = parse("<XmLroot />").iterator();
+    public void testValidUnicodeInName() throws Exception {
+        Iterator<TestEvent> events = parse("<r\u218Foot />").iterator();
 
-		assertStartDocument(events.next());
-		assertFatalError(events.next());
+        assertStartDocument(events.next());
+        assertStartElement("", "r\u218Foot", "r\u218Foot", events.next());
+        assertEndElement("", "r\u218Foot", "r\u218Foot", events.next());
+        assertEndDocument(events.next());
 
-		assertNoMoreevents(events);
-	}
+        assertNoMoreevents(events);
+    }
+
+    public void testXmlBeginName() throws Exception {
+        Iterator<TestEvent> events = parse("<xmlroot />").iterator();
+
+        assertStartDocument(events.next());
+        assertFatalError(events.next());
+
+        assertNoMoreevents(events);
+    }
+
+    public void testXmlInsideName() throws Exception {
+        Iterator<TestEvent> events = parse("<roxmlot />").iterator();
+
+        assertStartDocument(events.next());
+        assertStartElement("", "roxmlot", "roxmlot", events.next());
+        assertEndElement("", "roxmlot", "roxmlot", events.next());
+        assertEndDocument(events.next());
+
+        assertNoMoreevents(events);
+    }
+
+    public void testMixedXmlBeginName() throws Exception {
+        Iterator<TestEvent> events = parse("<XmLroot />").iterator();
+
+        assertStartDocument(events.next());
+        assertFatalError(events.next());
+
+        assertNoMoreevents(events);
+    }
 }

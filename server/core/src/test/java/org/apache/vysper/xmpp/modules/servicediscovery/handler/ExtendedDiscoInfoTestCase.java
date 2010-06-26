@@ -19,6 +19,9 @@
  */
 package org.apache.vysper.xmpp.modules.servicediscovery.handler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.apache.vysper.xml.fragment.XMLElement;
@@ -44,17 +47,14 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 import org.apache.vysper.xmpp.stanza.dataforms.DataForm;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  */
 public class ExtendedDiscoInfoTestCase extends TestCase {
-    
+
     public void testExtendedInfo() throws EntityFormatException {
 
         // test if the data form is correctly added to the disco info response 
-        
+
         ServiceCollector serviceCollector = new ServiceCollector();
         serviceCollector.addInfoRequestListener(new InfoRequestListener() {
             public List<InfoElement> getInfosFor(InfoRequest request) throws ServiceDiscoveryRequestException {
@@ -71,18 +71,22 @@ public class ExtendedDiscoInfoTestCase extends TestCase {
             }
         });
 
-        DefaultServerRuntimeContext runtimeContext = new DefaultServerRuntimeContext(EntityImpl.parse("vysper.org"), null);
+        DefaultServerRuntimeContext runtimeContext = new DefaultServerRuntimeContext(EntityImpl.parse("vysper.org"),
+                null);
         runtimeContext.registerServerRuntimeContextService(serviceCollector);
 
         DiscoInfoIQHandler infoIQHandler = new DiscoInfoIQHandler();
 
-        StanzaBuilder request = StanzaBuilder.createIQStanza(EntityImpl.parse("user@vysper.org"), EntityImpl.parse("info@vysper.org"), IQStanzaType.GET, "1");
+        StanzaBuilder request = StanzaBuilder.createIQStanza(EntityImpl.parse("user@vysper.org"), EntityImpl
+                .parse("info@vysper.org"), IQStanzaType.GET, "1");
 
-        IQStanza finalStanza = (IQStanza)XMPPCoreStanza.getWrapper(request.build());
-        
-        Stanza resultStanza = infoIQHandler.handleGet(finalStanza, runtimeContext, new TestSessionContext(runtimeContext, new SessionStateHolder()));
+        IQStanza finalStanza = (IQStanza) XMPPCoreStanza.getWrapper(request.build());
 
-        assertTrue(resultStanza.getVerifier().onlySubelementEquals("query", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO));
+        Stanza resultStanza = infoIQHandler.handleGet(finalStanza, runtimeContext, new TestSessionContext(
+                runtimeContext, new SessionStateHolder()));
+
+        assertTrue(resultStanza.getVerifier().onlySubelementEquals("query",
+                NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO));
         XMLElement queryElement = resultStanza.getFirstInnerElement();
         XMLElementVerifier queryVerifier = queryElement.getVerifier();
         assertTrue(queryVerifier.subElementsPresentExact(4));
@@ -91,5 +95,5 @@ public class ExtendedDiscoInfoTestCase extends TestCase {
         XMLElementVerifier xmlElementVerifier = xmlElement.getVerifier();
         assertTrue(xmlElementVerifier.nameEquals("x"));
     }
-    
+
 }

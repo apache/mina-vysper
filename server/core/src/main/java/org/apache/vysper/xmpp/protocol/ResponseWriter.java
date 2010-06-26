@@ -19,6 +19,8 @@
  */
 package org.apache.vysper.xmpp.protocol;
 
+import org.apache.vysper.xmpp.parser.ParsingErrorCondition;
+import org.apache.vysper.xmpp.parser.ParsingException;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.XMPPVersion;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
@@ -27,8 +29,6 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
 import org.apache.vysper.xmpp.stanza.StanzaErrorType;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
-import org.apache.vysper.xmpp.parser.ParsingException;
-import org.apache.vysper.xmpp.parser.ParsingErrorCondition;
 
 /**
  * writes protocol level errors
@@ -39,11 +39,11 @@ public class ResponseWriter {
 
     public static void writeUnsupportedStanzaError(SessionContext sessionContext) {
 
-        Stanza errorStanza = ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.UNSUPPORTED_STANZA_TYPE,
-                sessionContext.getXMLLang(),
-                "service unavailable at this session state",
-                null);
-        Stanza streamOpener = new ServerResponses().getStreamOpenerForError(false, sessionContext.getServerJID(), XMPPVersion.VERSION_1_0, errorStanza);
+        Stanza errorStanza = ServerErrorResponses.getInstance().getStreamError(
+                StreamErrorCondition.UNSUPPORTED_STANZA_TYPE, sessionContext.getXMLLang(),
+                "service unavailable at this session state", null);
+        Stanza streamOpener = new ServerResponses().getStreamOpenerForError(false, sessionContext.getServerJID(),
+                XMPPVersion.VERSION_1_0, errorStanza);
 
         writeErrorAndClose(sessionContext, streamOpener);
     }
@@ -67,32 +67,29 @@ public class ResponseWriter {
         sessionContext.getResponseWriter().write(responseStanza);
     }
 
-    public static void handleProtocolError(ProtocolException protocolException, SessionContext sessionContext, Stanza receivedStanza) {
+    public static void handleProtocolError(ProtocolException protocolException, SessionContext sessionContext,
+            Stanza receivedStanza) {
         Stanza errorStanza = null;
-        if (protocolException != null) errorStanza = protocolException.getErrorStanza();
+        if (protocolException != null)
+            errorStanza = protocolException.getErrorStanza();
 
         if (errorStanza == null) {
             errorStanza = ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.BAD_FORMAT,
-                                                              sessionContext.getXMLLang(),
-                                                              "could not process incoming stanza",
-                                                              receivedStanza);
+                    sessionContext.getXMLLang(), "could not process incoming stanza", receivedStanza);
         }
         writeErrorAndClose(sessionContext, errorStanza);
     }
 
     public void handleUnsupportedStanzaType(SessionContext sessionContext, Stanza receivedStanza) {
-        Stanza errorStanza = ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.UNSUPPORTED_STANZA_TYPE,
-                                                          sessionContext.getXMLLang(),
-                                                          "could not process incoming stanza",
-                                                          receivedStanza);
+        Stanza errorStanza = ServerErrorResponses.getInstance().getStreamError(
+                StreamErrorCondition.UNSUPPORTED_STANZA_TYPE, sessionContext.getXMLLang(),
+                "could not process incoming stanza", receivedStanza);
         writeErrorAndClose(sessionContext, errorStanza);
     }
 
     public void handleNotAuthorized(SessionContext sessionContext, Stanza receivedStanza) {
         Stanza errorStanza = ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.NOT_AUTHORIZED,
-                                                          sessionContext.getXMLLang(),
-                                                          "could not process incoming stanza",
-                                                          receivedStanza);
+                sessionContext.getXMLLang(), "could not process incoming stanza", receivedStanza);
         writeErrorAndClose(sessionContext, errorStanza);
     }
 
@@ -104,20 +101,17 @@ public class ResponseWriter {
         }
 
         Stanza errorStanza = ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.UNKNOWN_SENDER,
-                                                          receivedCoreStanza,
-                                                          StanzaErrorType.MODIFY,
-                                                          "from attribute does not match authorized entity",
-                                                          null, null);
+                receivedCoreStanza, StanzaErrorType.MODIFY, "from attribute does not match authorized entity", null,
+                null);
         writeResponse(sessionContext, errorStanza);
     }
 
     public void handleParsingException(SessionContext sessionContext, ParsingException e) {
         //TODO write the __right__ error response, not bad-format default only
-        if (e.getErrorCondition() != ParsingErrorCondition.BAD_FORMAT) throw new RuntimeException("cannot handle this error condition yet");
+        if (e.getErrorCondition() != ParsingErrorCondition.BAD_FORMAT)
+            throw new RuntimeException("cannot handle this error condition yet");
         Stanza errorStanza = ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.BAD_FORMAT,
-                sessionContext.getXMLLang(),
-                "could not parse incoming stanza",
-                null);
+                sessionContext.getXMLLang(), "could not parse incoming stanza", null);
         writeErrorAndClose(sessionContext, errorStanza);
     }
 
@@ -125,6 +119,5 @@ public class ResponseWriter {
         writeResponse(sessionContext, errorStanza);
         sessionContext.endSession(SessionContext.SessionTerminationCause.STREAM_ERROR);
     }
-
 
 }

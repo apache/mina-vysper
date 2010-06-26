@@ -49,19 +49,18 @@ public class JcrPrivateDataPersistenceManager implements PrivateDataPersistenceM
         try {
             session = jcrStorage.getRepositorySession();
             return session != null;
-        }
-        catch (JcrStorageException e) {
+        } catch (JcrStorageException e) {
             return false;
         }
     }
 
     public String getPrivateData(Entity entity, String key) {
         Node entityNode = getEntityNodeSave(entity, false);
-        if (entityNode == null) return null;
+        if (entityNode == null)
+            return null;
         try {
             return entityNode.getProperty(key).getString();
-        }
-        catch (RepositoryException e) {
+        } catch (RepositoryException e) {
             return null;
         }
     }
@@ -73,8 +72,7 @@ public class JcrPrivateDataPersistenceManager implements PrivateDataPersistenceM
             entityNode.save();
             logger.info("JCR node created: " + entityNode);
             return true;
-        }
-        catch (RepositoryException e) {
+        } catch (RepositoryException e) {
             return false;
         }
     }
@@ -83,11 +81,11 @@ public class JcrPrivateDataPersistenceManager implements PrivateDataPersistenceM
         Node entityNode;
         try {
             entityNode = jcrStorage.getEntityNode(entity.getBareJID(), NamespaceURIs.PRIVATE_DATA, createIfMissing);
-        }
-        catch (JcrStorageException e) {
+        } catch (JcrStorageException e) {
             return null;
         }
-        if (entityNode == null) return null;
+        if (entityNode == null)
+            return null;
         return entityNode;
     }
 }

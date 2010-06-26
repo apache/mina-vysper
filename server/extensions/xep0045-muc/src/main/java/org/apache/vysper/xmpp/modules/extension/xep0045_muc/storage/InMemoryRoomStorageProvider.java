@@ -28,7 +28,6 @@ import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
 
-
 /**
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
@@ -36,7 +35,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
 public class InMemoryRoomStorageProvider implements RoomStorageProvider {
 
     private Map<Entity, Room> rooms = new ConcurrentHashMap<Entity, Room>();
-    
+
     public void initialize() {
         // do nothing
     }
@@ -61,10 +60,7 @@ public class InMemoryRoomStorageProvider implements RoomStorageProvider {
 
     public void deleteRoom(Entity jid) {
         rooms.remove(jid);
-        
+
     }
 
-
-
-    
 }

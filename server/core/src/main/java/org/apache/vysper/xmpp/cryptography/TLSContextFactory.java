@@ -19,9 +19,10 @@
  */
 package org.apache.vysper.xmpp.cryptography;
 
-import javax.net.ssl.SSLContext;
-import java.security.GeneralSecurityException;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
+
+import javax.net.ssl.SSLContext;
 
 /**
  *

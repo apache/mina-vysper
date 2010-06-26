@@ -29,7 +29,6 @@ import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.History;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
-
 /**
  * The discussion history for a room
  *
@@ -38,97 +37,99 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 public class DiscussionHistory {
 
     public static final int DEFAULT_HISTORY_SIZE = 20;
-    
+
     private int maxItems = DEFAULT_HISTORY_SIZE;
+
     private DiscussionMessage subjectMessage;
+
     private List<DiscussionMessage> items = new ArrayList<DiscussionMessage>();
-    
+
     public void append(Stanza stanza, Occupant sender) {
         append(stanza, sender, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
     }
-    
+
     public void append(Stanza stanza, Occupant sender, Calendar timestamp) {
         synchronized (items) {
             DiscussionMessage discMsg = new DiscussionMessage(stanza, sender, timestamp);
-            
-            if(discMsg.hasSubject() && !discMsg.hasBody()) {
+
+            if (discMsg.hasSubject() && !discMsg.hasBody()) {
                 subjectMessage = discMsg;
             } else {
                 items.add(discMsg);
             }
 
             // check if size is over limits
-            if(getSize() > maxItems) {
+            if (getSize() > maxItems) {
                 items.remove(0);
             }
         }
     }
-    
+
     private int getSize() {
         int size = items.size();
-        if(subjectMessage != null) size++;
+        if (subjectMessage != null)
+            size++;
         return size;
     }
-    
-    public List<Stanza> createStanzas(Occupant receiver, boolean includeJid, 
-            History history) {
+
+    public List<Stanza> createStanzas(Occupant receiver, boolean includeJid, History history) {
         synchronized (items) {
-            
+
             int maxstanzas = history != null && history.getMaxStanzas() != null ? history.getMaxStanzas() : -1;
             int maxchars = history != null && history.getMaxChars() != null ? history.getMaxChars() : -1;
             int seconds = history != null && history.getSeconds() != null ? history.getSeconds() : -1;
-            
+
             List<Stanza> stanzas = new ArrayList<Stanza>();
-            
-            if(maxchars == 0 || maxstanzas == 0 || seconds == 0) {
+
+            if (maxchars == 0 || maxstanzas == 0 || seconds == 0) {
                 // quick return for no-stanza requests
             } else {
                 int counter = 0;
                 int totalChars = 0;
-                
+
                 List<DiscussionMessage> itemsWithSubject = new ArrayList<DiscussionMessage>(items);
                 // add subject if one is provided
-                if(subjectMessage != null) {
+                if (subjectMessage != null) {
                     itemsWithSubject.add(subjectMessage);
                 }
-    
+
                 // the timestamp at which "seconds" start filtering from 
                 long secondsLimit = -1;
-                if(seconds != -1) {
+                if (seconds != -1) {
                     Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
                     cal.add(Calendar.SECOND, -seconds);
                     secondsLimit = cal.getTimeInMillis();
                 }
-                
+
                 // now add all messages, as long as the predicated are fulfilled
                 // first, do this in reverse order so that older messages are filtered out
-                for(int i = itemsWithSubject.size() - 1; i > -1; i--) {
+                for (int i = itemsWithSubject.size() - 1; i > -1; i--) {
                     DiscussionMessage item = itemsWithSubject.get(i);
-                    Stanza stanza = item.createStanza(receiver, includeJid); 
+                    Stanza stanza = item.createStanza(receiver, includeJid);
                     counter++;
-    
-                    if(secondsLimit != -1 && secondsLimit > item.getTimestamp().getTimeInMillis()) {
+
+                    if (secondsLimit != -1 && secondsLimit > item.getTimestamp().getTimeInMillis()) {
                         // too old, break
                         break;
                     }
-                    
-                    if(history != null && history.getSince() != null && history.getSince().after(item.getTimestamp())) {
+
+                    if (history != null && history.getSince() != null && history.getSince().after(item.getTimestamp())) {
                         // too old, break
                         break;
                     }
-                    
+
                     // only count chars if needed
-                    if(maxchars != -1) {
+                    if (maxchars != -1) {
                         totalChars += new Renderer(stanza).getComplete().length();
-                        
-                        if(totalChars > maxchars) {
+
+                        if (totalChars > maxchars) {
                             break;
                         }
                     }
-                    
+
                     // checks after this line will include the last stanza
                     stanzas.add(stanza);
-                    if(maxstanzas != -1 && counter == maxstanzas) {
+                    if (maxstanzas != -1 && counter == maxstanzas) {
                         // max number of stanzas reached, return
                         break;
                     }

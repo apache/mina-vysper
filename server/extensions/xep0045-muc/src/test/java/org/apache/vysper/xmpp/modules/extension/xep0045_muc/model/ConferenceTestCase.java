@@ -33,10 +33,11 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class ConferenceTestCase extends TestCase {
-    
+
     private Entity jid1 = EntityImpl.parseUnchecked("jid1@vysper.org");
+
     private Entity jid2 = EntityImpl.parseUnchecked("jid2@vysper.org");
-    
+
     public void testGetName() {
         Conference conference = new Conference("foo");
         assertEquals("foo", conference.getName());
@@ -46,7 +47,7 @@ public class ConferenceTestCase extends TestCase {
         try {
             new Conference(null);
             fail("Expecting IllegalArgumentException");
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             // ok
         }
     }
@@ -55,7 +56,7 @@ public class ConferenceTestCase extends TestCase {
         try {
             new Conference("");
             fail("Expecting IllegalArgumentException");
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             // ok
         }
     }
@@ -64,24 +65,24 @@ public class ConferenceTestCase extends TestCase {
         try {
             new Conference("\t ");
             fail("Expecting IllegalArgumentException");
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             // ok
         }
     }
-    
+
     public void testCreateGetRooms() {
         Conference conference = new Conference("foo");
         conference.createRoom(jid1, "room1");
         conference.createRoom(jid2, "room2");
-        
+
         Collection<Room> rooms = conference.getAllRooms();
         List<String> roomNames = new ArrayList<String>();
-        for(Room room : rooms) {
+        for (Room room : rooms) {
             roomNames.add(room.getName());
         }
-        
+
         assertTrue(roomNames.contains("room1"));
-        assertTrue(roomNames.contains("room2"));       
+        assertTrue(roomNames.contains("room2"));
     }
 
     public void testCreateDuplicateRooms() throws Exception {
@@ -93,7 +94,7 @@ public class ConferenceTestCase extends TestCase {
 
             conference.createRoom(duplicateJID, "room1");
             fail("Expecting IllegalArgumentException");
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             // ok
         }
     }

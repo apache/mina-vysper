@@ -19,10 +19,10 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
-import org.apache.vysper.xmpp.addressing.Entity;
-
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.vysper.xmpp.addressing.Entity;
 
 /**
  * This visitor visits all member-affiliations of a given node and collects it for later retrieval.
@@ -32,6 +32,7 @@ import java.util.ArrayList;
 public class CollectingMemberAffiliationVisitor implements MemberAffiliationVisitor {
     // the list of user <-> nodeName affiliation
     protected List<AffiliationItem> affiliations = null;
+
     private String nodeName;
 
     /**

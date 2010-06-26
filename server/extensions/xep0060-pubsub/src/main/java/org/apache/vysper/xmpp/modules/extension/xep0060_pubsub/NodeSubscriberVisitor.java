@@ -36,9 +36,10 @@ public class NodeSubscriberVisitor implements NodeVisitor {
 
     // the collected subscriptions
     protected List<SubscriptionItem> subscriptions = null;
+
     // the user to filter
     protected Entity bareJID = null;
-    
+
     /**
      * Create a new visitor with the user as filter.
      */
@@ -62,5 +63,5 @@ public class NodeSubscriberVisitor implements NodeVisitor {
     public List<SubscriptionItem> getSubscriptions() {
         return subscriptions;
     }
-    
+
 }

@@ -19,10 +19,10 @@
  */
 package org.apache.vysper.xmpp.authorization;
 
-import org.apache.vysper.xmpp.addressing.Entity;
-
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.vysper.xmpp.addressing.Entity;
 
 /**
  * very simple in-memory {@link org.apache.vysper.xmpp.authorization.UserAuthorization} service

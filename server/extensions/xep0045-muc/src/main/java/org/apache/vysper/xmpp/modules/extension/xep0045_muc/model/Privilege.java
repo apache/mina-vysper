@@ -36,139 +36,67 @@ import org.apache.vysper.compliance.SpecCompliant;
 @SpecCompliant(spec = "xep-0045", section = "5.1.1", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
 public enum Privilege {
 
-    PresentInRoom,
-    ReceiveMessages,
-    ReceiveOccupantPresence,
-    PresenceBroadcastedToRoom,
-    ChangeAvailabilityStatus,
-    ChangeRoomNickname,
-    SendPrivateMessages,
-    InviteOtherUsers,
-    SendMessagesToAll,
-    ModifySubject,
-    KickParticipantsAndVisitors,
-    GrantVoice,
-    RevokeVoice,
-    
-    EnterOpenRoom,
-    RegisterWithOpenRoom,
-    RetrieveMemberList,
-    EnterMembersOnlyRoom,
-    BanMembersAndUnaffiliatedUsers,
-    EditMemberList,
-    EditModeratorList,
-    EditAdminList,
-    EditOwnerList,
-    ChangeRoomDefinition,
-    DestroyRoom;
-    
+    PresentInRoom, ReceiveMessages, ReceiveOccupantPresence, PresenceBroadcastedToRoom, ChangeAvailabilityStatus, ChangeRoomNickname, SendPrivateMessages, InviteOtherUsers, SendMessagesToAll, ModifySubject, KickParticipantsAndVisitors, GrantVoice, RevokeVoice,
+
+    EnterOpenRoom, RegisterWithOpenRoom, RetrieveMemberList, EnterMembersOnlyRoom, BanMembersAndUnaffiliatedUsers, EditMemberList, EditModeratorList, EditAdminList, EditOwnerList, ChangeRoomDefinition, DestroyRoom;
+
     /**
      * Privileges for a moderator
      */
-    private static EnumSet<Privilege> MODERATOR_PRIVILEGES = EnumSet.of(
-            PresentInRoom,
-            ReceiveMessages,
-            ReceiveOccupantPresence,
-            PresenceBroadcastedToRoom,
-            ChangeAvailabilityStatus,
-            ChangeRoomNickname,
-            SendPrivateMessages,
-            InviteOtherUsers,
-            SendMessagesToAll,
-            ModifySubject,
-            KickParticipantsAndVisitors,
-            GrantVoice,
-            RevokeVoice
-    );
+    private static EnumSet<Privilege> MODERATOR_PRIVILEGES = EnumSet.of(PresentInRoom, ReceiveMessages,
+            ReceiveOccupantPresence, PresenceBroadcastedToRoom, ChangeAvailabilityStatus, ChangeRoomNickname,
+            SendPrivateMessages, InviteOtherUsers, SendMessagesToAll, ModifySubject, KickParticipantsAndVisitors,
+            GrantVoice, RevokeVoice);
 
     /**
      * Privileges for a participant
      */
-    private static EnumSet<Privilege> PARTICIPANT_PRIVILEGES = EnumSet.of(
-            PresentInRoom,
-            ReceiveMessages,
-            ReceiveOccupantPresence,
-            PresenceBroadcastedToRoom,
-            ChangeAvailabilityStatus,
-            ChangeRoomNickname,
-            SendPrivateMessages,
-            InviteOtherUsers,
-            SendMessagesToAll,
-            ModifySubject    
-        );
-    
+    private static EnumSet<Privilege> PARTICIPANT_PRIVILEGES = EnumSet.of(PresentInRoom, ReceiveMessages,
+            ReceiveOccupantPresence, PresenceBroadcastedToRoom, ChangeAvailabilityStatus, ChangeRoomNickname,
+            SendPrivateMessages, InviteOtherUsers, SendMessagesToAll, ModifySubject);
+
     /**
      * Privileges for a visitor
      */
-    private static EnumSet<Privilege> VISITOR_PRIVILEGES = EnumSet.of(
-            PresentInRoom,
-            ReceiveMessages,
-            ReceiveOccupantPresence,
-            PresenceBroadcastedToRoom,
-            ChangeAvailabilityStatus,
-            ChangeRoomNickname,
-            SendPrivateMessages,
-            InviteOtherUsers
-        );
+    private static EnumSet<Privilege> VISITOR_PRIVILEGES = EnumSet.of(PresentInRoom, ReceiveMessages,
+            ReceiveOccupantPresence, PresenceBroadcastedToRoom, ChangeAvailabilityStatus, ChangeRoomNickname,
+            SendPrivateMessages, InviteOtherUsers);
 
     /**
      * Privileges for a none
      */
     private static EnumSet<Privilege> NONE_ROLE_PRIVILEGES = EnumSet.noneOf(Privilege.class);
-    
+
     /**
      * Privileges for an {@link Affiliation} owner
      */
-    private static EnumSet<Privilege> OWNER_PRIVILEGES = EnumSet.of(
-            EnterOpenRoom,
-            RegisterWithOpenRoom,
-            RetrieveMemberList,
-            EnterMembersOnlyRoom,
-            BanMembersAndUnaffiliatedUsers,
-            EditMemberList,
-            EditModeratorList,
-            EditAdminList,
-            EditOwnerList,
-            ChangeRoomDefinition,
-            DestroyRoom
-        );
+    private static EnumSet<Privilege> OWNER_PRIVILEGES = EnumSet.of(EnterOpenRoom, RegisterWithOpenRoom,
+            RetrieveMemberList, EnterMembersOnlyRoom, BanMembersAndUnaffiliatedUsers, EditMemberList,
+            EditModeratorList, EditAdminList, EditOwnerList, ChangeRoomDefinition, DestroyRoom);
 
     /**
      * Privileges for an {@link Affiliation} admin
      */
-    private static EnumSet<Privilege> ADMIN_PRIVILEGES = EnumSet.of(
-            EnterOpenRoom,
-            RegisterWithOpenRoom,
-            RetrieveMemberList,
-            EnterMembersOnlyRoom,
-            BanMembersAndUnaffiliatedUsers,
-            EditMemberList,
-            EditModeratorList   
-        );
-    
+    private static EnumSet<Privilege> ADMIN_PRIVILEGES = EnumSet
+            .of(EnterOpenRoom, RegisterWithOpenRoom, RetrieveMemberList, EnterMembersOnlyRoom,
+                    BanMembersAndUnaffiliatedUsers, EditMemberList, EditModeratorList);
+
     /**
      * Privileges for an {@link Affiliation} member
      */
-    private static EnumSet<Privilege> MEMBER_PRIVILEGES = EnumSet.of(
-            EnterOpenRoom,
-            RegisterWithOpenRoom,
-            RetrieveMemberList,
-            EnterMembersOnlyRoom 
-        );
-    
+    private static EnumSet<Privilege> MEMBER_PRIVILEGES = EnumSet.of(EnterOpenRoom, RegisterWithOpenRoom,
+            RetrieveMemberList, EnterMembersOnlyRoom);
+
     /**
      * Privileges for an {@link Affiliation} none
      */
-    private static EnumSet<Privilege> NONE_AFFILIATION_PRIVILEGES = EnumSet.of(
-            EnterOpenRoom,
-            RegisterWithOpenRoom
-        );
+    private static EnumSet<Privilege> NONE_AFFILIATION_PRIVILEGES = EnumSet.of(EnterOpenRoom, RegisterWithOpenRoom);
 
     /**
      * Privileges for an {@link Affiliation} outcast
      */
     private static EnumSet<Privilege> OUTCATS_PRIVILEGES = EnumSet.noneOf(Privilege.class);
-    
+
     /**
      * Get the privileges for the specified {@link Role}
      * @param role The {@link Role} to look up privileges for
@@ -186,7 +114,7 @@ public enum Privilege {
             return NONE_ROLE_PRIVILEGES;
         }
     }
-    
+
     /**
      * Get the privileges for the specified {@link Affiliation}
      * @param role The {@link Affiliation} to look up privileges for

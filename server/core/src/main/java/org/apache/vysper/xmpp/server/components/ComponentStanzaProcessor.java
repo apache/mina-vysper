@@ -19,39 +19,47 @@
  */
 package org.apache.vysper.xmpp.server.components;
 
-import org.apache.vysper.xmpp.protocol.*;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
+import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
+import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
+import org.apache.vysper.xmpp.protocol.ProtocolException;
+import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.protocol.StanzaHandler;
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
-import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
-import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 
 /**
  */
 public class ComponentStanzaProcessor implements StanzaProcessor {
 
     protected ServerRuntimeContext serverRuntimeContext;
-    
+
     protected ComponentStanzaHandlerLookup componentStanzaHandlerLookup = new ComponentStanzaHandlerLookup();
 
     public ComponentStanzaProcessor(ServerRuntimeContext serverRuntimeContext) {
         this.serverRuntimeContext = serverRuntimeContext;
     }
-    
+
     public void addHandler(StanzaHandler stanzaHandler) {
         componentStanzaHandlerLookup.addDefaultHandler(stanzaHandler);
     }
-    
+
     public void addDictionary(NamespaceHandlerDictionary namespaceHandlerDictionary) {
         componentStanzaHandlerLookup.addDictionary(namespaceHandlerDictionary);
     }
 
-    public void processStanza(ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, Stanza stanza, SessionStateHolder sessionStateHolder) {
-        if (stanza == null) throw new RuntimeException("cannot process NULL stanzas");
+    public void processStanza(ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, Stanza stanza,
+            SessionStateHolder sessionStateHolder) {
+        if (stanza == null)
+            throw new RuntimeException("cannot process NULL stanzas");
 
         XMPPCoreStanza xmppStanza = XMPPCoreStanza.getWrapper(stanza);
-        if (xmppStanza == null) throw new RuntimeException("cannot process only: IQ, message or presence");
+        if (xmppStanza == null)
+            throw new RuntimeException("cannot process only: IQ, message or presence");
 
         StanzaHandler stanzaHandler = componentStanzaHandlerLookup.getHandler(xmppStanza);
 
@@ -62,9 +70,10 @@ public class ComponentStanzaProcessor implements StanzaProcessor {
 
         ResponseStanzaContainer responseStanzaContainer = null;
         try {
-            responseStanzaContainer = stanzaHandler.execute(stanza, serverRuntimeContext, false, sessionContext, sessionStateHolder);
+            responseStanzaContainer = stanzaHandler.execute(stanza, serverRuntimeContext, false, sessionContext,
+                    sessionStateHolder);
         } catch (ProtocolException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace(); //To change body of catch statement use File | Settings | File Templates.
         }
 
         if (responseStanzaContainer != null && responseStanzaContainer.getResponseStanza() != null) {

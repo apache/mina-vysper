@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 public class XmppIoHandlerAdapter implements IoHandler {
 
     public static final String ATTRIBUTE_VYSPER_SESSION = "vysperSession";
+
     public static final String ATTRIBUTE_VYSPER_SESSIONSTATEHOLDER = "vysperSessionStateHolder";
 
     final Logger logger = LoggerFactory.getLogger(XmppIoHandlerAdapter.class);
@@ -53,7 +54,8 @@ public class XmppIoHandlerAdapter implements IoHandler {
             if (message instanceof XMLText) {
                 String text = ((XMLText) message).getText();
                 // tolerate reasonable amount of whitespaces for stanza separation
-                if (text.length() < 40 && text.trim().length() == 0) return;
+                if (text.length() < 40 && text.trim().length() == 0)
+                    return;
             }
 
             messageReceivedNoStanza(ioSession, message);
@@ -62,7 +64,8 @@ public class XmppIoHandlerAdapter implements IoHandler {
 
         Stanza stanza = (Stanza) message;
         SessionContext session = extractSession(ioSession);
-        SessionStateHolder stateHolder = (SessionStateHolder) ioSession.getAttribute(ATTRIBUTE_VYSPER_SESSIONSTATEHOLDER);
+        SessionStateHolder stateHolder = (SessionStateHolder) ioSession
+                .getAttribute(ATTRIBUTE_VYSPER_SESSIONSTATEHOLDER);
 
         serverRuntimeContext.getStanzaProcessor().processStanza(serverRuntimeContext, session, stanza, stateHolder);
     }
@@ -70,16 +73,18 @@ public class XmppIoHandlerAdapter implements IoHandler {
     private void messageReceivedNoStanza(IoSession ioSession, Object message) {
         if (message == SslFilter.SESSION_SECURED) {
             SessionContext session = extractSession(ioSession);
-            SessionStateHolder stateHolder = (SessionStateHolder) ioSession.getAttribute(ATTRIBUTE_VYSPER_SESSIONSTATEHOLDER);
+            SessionStateHolder stateHolder = (SessionStateHolder) ioSession
+                    .getAttribute(ATTRIBUTE_VYSPER_SESSIONSTATEHOLDER);
             serverRuntimeContext.getStanzaProcessor().processTLSEstablished(session, stateHolder);
             return;
         } else if (message == SslFilter.SESSION_UNSECURED) {
             // TODO
             return;
-//            throw new IllegalStateException("server must close session!");
+            //            throw new IllegalStateException("server must close session!");
         }
 
-        throw new IllegalArgumentException("xmpp handler only accepts Stanza-typed messages, but received type " + message.getClass());
+        throw new IllegalArgumentException("xmpp handler only accepts Stanza-typed messages, but received type "
+                + message.getClass());
     }
 
     private SessionContext extractSession(IoSession ioSession) {
@@ -104,7 +109,7 @@ public class XmppIoHandlerAdapter implements IoHandler {
     public void sessionClosed(IoSession ioSession) throws Exception {
         SessionContext sessionContext = extractSession(ioSession);
         String sessionId = "UNKNOWN";
-        if(sessionContext != null) {
+        if (sessionContext != null) {
             sessionId = sessionContext.getSessionId();
             sessionContext.endSession(SessionContext.SessionTerminationCause.CONNECTION_ABORT);
         }
@@ -112,7 +117,8 @@ public class XmppIoHandlerAdapter implements IoHandler {
     }
 
     public void sessionIdle(IoSession ioSession, IdleStatus idleStatus) throws Exception {
-        logger.debug("session {} is idle", ((SessionContext) ioSession.getAttribute(ATTRIBUTE_VYSPER_SESSION)).getSessionId());
+        logger.debug("session {} is idle", ((SessionContext) ioSession.getAttribute(ATTRIBUTE_VYSPER_SESSION))
+                .getSessionId());
     }
 
     public void exceptionCaught(IoSession ioSession, Throwable throwable) throws Exception {

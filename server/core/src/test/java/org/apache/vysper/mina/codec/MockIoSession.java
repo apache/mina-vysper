@@ -25,14 +25,11 @@ import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.session.DummySession;
 import org.apache.mina.core.session.IoSessionConfig;
 
-public class MockIoSession extends DummySession
-    {
+public class MockIoSession extends DummySession {
 
-  public MockIoSession() {
-    setTransportMetadata(
-    new DefaultTransportMetadata(
-        "mina", "dummy", false, true,
-        SocketAddress.class, IoSessionConfig.class, Object.class));
+    public MockIoSession() {
+        setTransportMetadata(new DefaultTransportMetadata("mina", "dummy", false, true, SocketAddress.class,
+                IoSessionConfig.class, Object.class));
     }
 
 }

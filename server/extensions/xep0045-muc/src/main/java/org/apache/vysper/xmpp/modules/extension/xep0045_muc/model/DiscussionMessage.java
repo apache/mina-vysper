@@ -31,9 +31,11 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 public class DiscussionMessage {
 
     private Stanza message;
+
     private String fromNick;
+
     private Calendar timestamp;
-    
+
     public DiscussionMessage(Stanza stanza, Occupant from) {
         this(stanza, from, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
     }
@@ -41,10 +43,10 @@ public class DiscussionMessage {
     public DiscussionMessage(Stanza stanza, Occupant from, Calendar timestamp) {
         this.message = stanza;
         this.fromNick = from.getName();
-        
+
         this.timestamp = (Calendar) timestamp.clone();
     }
-    
+
     public Calendar getTimestamp() {
         return (Calendar) timestamp.clone();
     }
@@ -52,34 +54,35 @@ public class DiscussionMessage {
     public String getNick() {
         return fromNick;
     }
-    
+
     public Stanza createStanza(Occupant receiver, boolean includeJid) {
 
-//        <message
-//            from='darkcave@chat.shakespeare.lit/secondwitch'
-//            to='hecate@shakespeare.lit/broom'
-//            type='groupchat'>
-//          <body>Thrice and once the hedge-pig whined.</body>
-//          <delay xmlns='urn:xmpp:delay'
-//             from='wiccarocks@shakespeare.lit/laptop'
-//             stamp='2002-10-13T23:58:43Z'/>
-//        </message>
-        
+        //        <message
+        //            from='darkcave@chat.shakespeare.lit/secondwitch'
+        //            to='hecate@shakespeare.lit/broom'
+        //            type='groupchat'>
+        //          <body>Thrice and once the hedge-pig whined.</body>
+        //          <delay xmlns='urn:xmpp:delay'
+        //             from='wiccarocks@shakespeare.lit/laptop'
+        //             stamp='2002-10-13T23:58:43Z'/>
+        //        </message>
+
         Entity roomJid = message.getTo();
-        StanzaBuilder builder = StanzaBuilder.createForward(message, new EntityImpl(roomJid, fromNick), receiver.getJid());
+        StanzaBuilder builder = StanzaBuilder.createForward(message, new EntityImpl(roomJid, fromNick), receiver
+                .getJid());
 
         Entity delayFrom;
-        if(includeJid) {
+        if (includeJid) {
             delayFrom = message.getFrom();
         } else {
             delayFrom = new EntityImpl(roomJid, fromNick);
         }
         Delay delay = new Delay(delayFrom, timestamp);
         builder.addPreparedElement(delay);
-        
+
         return builder.build();
     }
-    
+
     public boolean hasSubject() {
         return !message.getInnerElementsNamed("subject").isEmpty();
     }

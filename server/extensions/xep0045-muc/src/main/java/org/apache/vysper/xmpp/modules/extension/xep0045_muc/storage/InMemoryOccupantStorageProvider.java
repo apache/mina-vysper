@@ -19,8 +19,6 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.storage;
 
-
-
 /**
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
@@ -30,5 +28,5 @@ public class InMemoryOccupantStorageProvider implements OccupantStorageProvider 
     public void initialize() {
         // do nothing
     }
-   
+
 }
