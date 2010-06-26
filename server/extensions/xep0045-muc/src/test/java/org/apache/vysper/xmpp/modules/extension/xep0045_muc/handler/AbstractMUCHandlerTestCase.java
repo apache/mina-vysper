@@ -25,6 +25,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
@@ -105,7 +106,7 @@ public abstract class AbstractMUCHandlerTestCase extends TestCase {
         int index = 0;
         if(expectedInnerElements != null) {
             for(XMLElement expectedInnerElement : expectedInnerElements) {
-                assertEquals(expectedInnerElement, innerElements.get(index));
+                assertEquals(new Renderer(expectedInnerElement).getComplete() + "\n" + new Renderer(innerElements.get(index)).getComplete(), expectedInnerElement, innerElements.get(index));
                 index++;
             }
         }

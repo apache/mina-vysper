@@ -33,6 +33,8 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
+import org.apache.vysper.xmpp.stanza.StanzaErrorType;
 
 /**
  * 
@@ -60,7 +62,7 @@ public class MUCHandlerHelper {
         }
     }
     
-    public static Stanza createErrorStanza(String stanzaName, Entity from, Entity to, String id, String type, String errorName, List<XMLElement> innerElements) {
+    public static Stanza createErrorStanza(String stanzaName, String namespaceUri, Entity from, Entity to, String id, String type, String errorName, List<XMLElement> innerElements) {
         //        <presence
         //        from='darkcave@chat.shakespeare.lit'
         //        to='hag66@shakespeare.lit/pda'
@@ -70,7 +72,7 @@ public class MUCHandlerHelper {
         //      </error>
         //    </presence>
 
-        StanzaBuilder builder = new StanzaBuilder(stanzaName);
+        StanzaBuilder builder = new StanzaBuilder(stanzaName, namespaceUri);
         builder.addAttribute("from", from.getFullQualifiedName());
         builder.addAttribute("to", to.getFullQualifiedName());
         if(id != null) builder.addAttribute("id", id);
@@ -88,6 +90,25 @@ public class MUCHandlerHelper {
         
         return builder.build();
     }
+
+    public static Stanza createErrorReply(Stanza originalStanza, StanzaErrorType type, StanzaErrorCondition error) {
+        StanzaBuilder builder = new StanzaBuilder(originalStanza.getName(), originalStanza.getNamespaceURI());
+        builder.addAttribute("from", originalStanza.getTo().getFullQualifiedName());
+        builder.addAttribute("to", originalStanza.getFrom().getFullQualifiedName());
+        builder.addAttribute("id", originalStanza.getAttributeValue("id"));
+        builder.addAttribute("type", "error");
+        
+        for(XMLElement inner : originalStanza.getInnerElements()) {
+            builder.addPreparedElement(inner);
+        }
+        
+        builder.startInnerElement("error",NamespaceURIs.JABBER_CLIENT).addAttribute("type", type.value());
+        builder.startInnerElement(error.value(), NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).endInnerElement();
+        builder.endInnerElement();
+        
+        return builder.build();
+    }
+
     
     public static Stanza createInviteMessageStanza(Stanza original, String password) throws EntityFormatException {
         X orginalX = X.fromStanza(original);

@@ -82,7 +82,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         // the MUC child element (i.e., <x xmlns='http://jabber.org/protocol/muc'/>) in the 
         // <presence/> stanza of type "error"."
 
-        return MUCHandlerHelper.createErrorStanza("presence", from, to, id, type, errorName, Arrays.asList((XMLElement)new X()));
+        return MUCHandlerHelper.createErrorStanza("presence", NamespaceURIs.JABBER_CLIENT, from, to, id, type, errorName, Arrays.asList((XMLElement)new X()));
     }
     
     @Override

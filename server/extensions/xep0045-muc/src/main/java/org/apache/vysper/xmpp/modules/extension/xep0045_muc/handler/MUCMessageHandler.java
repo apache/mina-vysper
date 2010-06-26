@@ -37,6 +37,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.MessageStanza;
@@ -77,7 +78,7 @@ public class MUCMessageHandler extends DefaultMessageHandler {
     
     private Stanza createMessageErrorStanza(Entity from, Entity to, String id, StanzaErrorType type, 
             StanzaErrorCondition errorCondition, Stanza stanza) {
-        return MUCHandlerHelper.createErrorStanza("message", from, to, id, type.value(), errorCondition.value(), stanza.getInnerElements());
+        return MUCHandlerHelper.createErrorStanza("message", NamespaceURIs.JABBER_CLIENT, from, to, id, type.value(), errorCondition.value(), stanza.getInnerElements());
     }
     
     @Override

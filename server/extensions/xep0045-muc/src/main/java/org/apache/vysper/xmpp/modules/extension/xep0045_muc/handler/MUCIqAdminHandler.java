@@ -91,35 +91,43 @@ public class MUCIqAdminHandler extends DefaultIQHandler {
 			List<IqAdminItem> items = IqAdminItem.extractItems(stanza);
 			
 			for(IqAdminItem item : items) {
-				
-				
 				if(item.getRole().equals(Role.None)) {
 					// kicking a user
 					
 					// find kicked users jid
-					Occupant kicked = null;
+					Occupant toBeKicked = null;
 					if(item.getNick() != null) {
-						kicked = room.findOccupantByNick(item.getNick());
+						toBeKicked = room.findOccupantByNick(item.getNick());
 					} else {
 						// TODO fix
 					}
 					
+					// a moderator can not kick someone with a higher affiliation
+					// and, you can not kick yourself
+					if(toBeKicked.getAffiliation().compareTo(moderator.getAffiliation()) < 0) {
+					    return MUCHandlerHelper.createErrorReply(stanza, StanzaErrorType.CANCEL, StanzaErrorCondition.NOT_ALLOWED);
+					}
+
+                                        if(moderator.getJid().equals(toBeKicked.getJid())) {
+	                                   return MUCHandlerHelper.createErrorReply(stanza, StanzaErrorType.CANCEL, StanzaErrorCondition.CONFLICT);
+	                                }
+
 					// remove user from room
-					kicked.setRole(Role.None);
-					room.removeOccupant(kicked.getJid());
-					Entity kickedInRoom = roomAndNick(room, kicked);
+					toBeKicked.setRole(Role.None);
+					room.removeOccupant(toBeKicked.getJid());
+					Entity kickedInRoom = roomAndNick(room, toBeKicked);
 					
 					Status kickedStatus = new Status(StatusCode.BEEN_KICKED);
 					
 					// notify user he got kicked
-					Stanza presenceToKicked = MUCStanzaBuilder.createPresenceStanza(kickedInRoom, kicked.getJid(),  
+					Stanza presenceToKicked = MUCStanzaBuilder.createPresenceStanza(kickedInRoom, toBeKicked.getJid(),  
 							PresenceStanzaType.UNAVAILABLE, NamespaceURIs.XEP0045_MUC_USER, 
 							new MucUserPresenceItem(Affiliation.None, Role.None),
 							// TODO handle <actor>
 							// TODO handle <reason>
 							kickedStatus);
 
-					relayStanza(kicked.getJid(), presenceToKicked, serverRuntimeContext);
+					relayStanza(toBeKicked.getJid(), presenceToKicked, serverRuntimeContext);
 					
 					// notify remaining users that user got kicked
 					for(Occupant remaining : room.getOccupants()) {
