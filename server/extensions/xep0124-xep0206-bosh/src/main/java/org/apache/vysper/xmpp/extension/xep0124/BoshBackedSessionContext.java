@@ -32,6 +32,7 @@ import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.writer.StanzaWriter;
 import org.eclipse.jetty.continuation.Continuation;
+import org.eclipse.jetty.continuation.ContinuationListener;
 import org.eclipse.jetty.continuation.ContinuationSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +64,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
 
     private Queue<HttpServletRequest> requestQueue;
 
-    private Queue<BoshResponse> delayedResponseQueue;
+    private Queue<Stanza> delayedResponseQueue;
 
     /**
      * Creates a new context for a session
@@ -72,10 +73,10 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      */
     public BoshBackedSessionContext(BoshHandler boshHandler, ServerRuntimeContext serverRuntimeContext) {
         super(serverRuntimeContext, new SessionStateHolder());
-        sessionStateHolder.setState(SessionState.INITIATED);
+        sessionStateHolder.setState(SessionState.ENCRYPTED);
         this.boshHandler = boshHandler;
         requestQueue = new LinkedList<HttpServletRequest>();
-        delayedResponseQueue = new LinkedList<BoshResponse>();
+        delayedResponseQueue = new LinkedList<Stanza>();
     }
 
     public SessionStateHolder getStateHolder() {
@@ -89,18 +90,25 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     public void setIsReopeningXMLStream() {
     }
 
-    public void write(Stanza stanza) {
-        write(getResponse(stanza));
+    synchronized public void write(Stanza stanza) {
+        write0(boshHandler.wrapStanza(stanza));
     }
 
-    public void write(BoshResponse resp) {
+    /*
+     *  package access
+     */
+    void write0(Stanza boshStanza) {
         HttpServletRequest req = requestQueue.poll();
         if (req == null) {
-            delayedResponseQueue.offer(resp);
+            delayedResponseQueue.offer(boshStanza);
             return;
         }
+        BoshResponse boshResponse = getBoshResponse(boshStanza);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("BOSH writing stanza: {}", new String(boshResponse.getContent()));
+        }
         Continuation continuation = ContinuationSupport.getContinuation(req);
-        continuation.setAttribute("response", resp);
+        continuation.setAttribute("response", boshResponse);
         continuation.resume();
     }
 
@@ -169,15 +177,21 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         return requests;
     }
 
-    synchronized public void requestExpired(HttpServletRequest req) {
+    synchronized public void requestExpired(Continuation continuation) {
+        HttpServletRequest req = (HttpServletRequest) continuation.getAttribute("request");
+        if (req == null) {
+            LOGGER.warn("Continuation expired without having an associated request!");
+            return;
+        }
+        continuation.setAttribute("response", getBoshResponse(boshHandler.getEmptyStanza()));
         for (;;) {
             HttpServletRequest r = requestQueue.peek();
             if (r == null) {
-                return;
+                break;
             }
-            write(boshHandler.getEmptyStanza());
+            write0(boshHandler.getEmptyStanza());
             if (r == req) {
-                return;
+                break;
             }
         }
     }
@@ -186,21 +200,37 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         Continuation continuation = ContinuationSupport.getContinuation(req);
         continuation.setTimeout(wait * 1000);
         continuation.suspend();
-        continuation.setAttribute("session", this);
+        continuation.setAttribute("request", req);
         requestQueue.offer(req);
 
-        BoshResponse resp = delayedResponseQueue.poll();
-        if (resp != null) {
-            write(resp);
+        continuation.addContinuationListener(new ContinuationListener() {
+
+            public void onTimeout(Continuation continuation) {
+                requestExpired(continuation);
+            }
+
+            public void onComplete(Continuation continuation) {
+                // ignore
+            }
+
+        });
+
+        Stanza delayedStanza;
+        Stanza mergedStanza = null;
+        while ((delayedStanza = delayedResponseQueue.poll()) != null) {
+            mergedStanza = boshHandler.mergeStanzas(mergedStanza, delayedStanza);
+        }
+        if (mergedStanza != null) {
+            write0(mergedStanza);
             return;
         }
 
         if (requestQueue.size() > hold) {
-            write(boshHandler.getEmptyStanza());
+            write0(boshHandler.getEmptyStanza());
         }
     }
-
-    public BoshResponse getResponse(Stanza stanza) {
+    
+    private BoshResponse getBoshResponse(Stanza stanza) {
         byte[] content = new Renderer(stanza).getComplete().getBytes();
         return new BoshResponse(contentType, content);
     }

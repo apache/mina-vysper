@@ -108,7 +108,7 @@ public class ServerResponses {
         return stanzaBuilder.build();
     }
 
-    private Stanza getFeaturesForSession() {
+    public Stanza getFeaturesForSession() {
         StanzaBuilder stanzaBuilder = startFeatureStanza();
 
         stanzaBuilder.startInnerElement("bind", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND).startInnerElement(

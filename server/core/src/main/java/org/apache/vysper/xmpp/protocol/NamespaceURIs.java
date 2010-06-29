@@ -67,6 +67,8 @@ public class NamespaceURIs {
     public static final String URN_XMPP_PING = "urn:xmpp:ping";
 
     public static final String URN_XMPP_DELAY = "urn:xmpp:delay";
+    
+    public static final String URN_XMPP_XBOSH = "urn:xmpp:xbosh";
 
     public static final String VCARD_TEMP = "vcard-temp";
 
@@ -93,5 +95,4 @@ public class NamespaceURIs {
     public static final String XEP0060_PUBSUB_ERRORS = "http://jabber.org/protocol/pubsub#errors";
 
     public static final String XEP0124_BOSH = "http://jabber.org/protocol/httpbind";
-
 }

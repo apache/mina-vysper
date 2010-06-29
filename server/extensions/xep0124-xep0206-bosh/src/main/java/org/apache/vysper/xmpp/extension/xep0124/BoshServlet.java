@@ -30,7 +30,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-import org.eclipse.jetty.continuation.ContinuationSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -129,20 +128,8 @@ public class BoshServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         BoshResponse boshResponse = (BoshResponse) req.getAttribute("response");
         if (boshResponse != null) {
-            // if continuation is resumed
+            // if continuation is resumed or expired
             writeResponse(resp, boshResponse);
-            return;
-        }
-
-        if (ContinuationSupport.getContinuation(req).isExpired()) {
-            // BOSH wait time is reached
-            BoshBackedSessionContext session = (BoshBackedSessionContext) req.getAttribute("session");
-            if (session == null) {
-                logger.error("Continuation expired without having a session associated!");
-                return;
-            }
-            session.requestExpired(req);
-            //            writeResponse(resp, session.getResponse(boshHandler.getEmptyStanza()));
             return;
         }
 

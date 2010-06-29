@@ -25,9 +25,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.vysper.xmpp.authorization.SASLMechanism;
+import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionState;
+import org.apache.vysper.xmpp.server.response.ServerResponses;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.slf4j.Logger;
@@ -86,8 +88,52 @@ public class BoshHandler {
                 return;
             }
         } else {
-            //            handleSession(req, stanza);
+            BoshBackedSessionContext session = sessions.get(stanza.getAttributeValue("sid"));
+            if (session == null) {
+                LOGGER.warn("Received an invalid 'sid'!");
+                return;
+            }
+            synchronized (session) {
+                session.addRequest(req);
+                processSession(session, stanza);
+            }
         }
+    }
+    
+    private void processSession(BoshBackedSessionContext session, Stanza stanza) {
+        if (session.getState() == SessionState.ENCRYPTED) {
+            if (stanza.getInnerElements().isEmpty()) {
+                // session needs authentication
+                return;
+            }
+            for (XMLElement element : stanza.getInnerElements()) {
+                if (element.getNamespaceURI().equals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)) {
+                    processStanza(session, element);
+                }
+            }
+        } else if (session.getState() == SessionState.AUTHENTICATED) {
+            if ("true".equals(stanza.getAttributeValue(NamespaceURIs.URN_XMPP_XBOSH, "restart"))) {
+                // restart request
+                session.write0(getRestartResponseStanza());
+            } else {
+                // any other request
+                for (XMLElement element : stanza.getInnerElements()) {
+                    processStanza(session, element);
+                }
+            }
+        }
+    }
+
+    private void processStanza(BoshBackedSessionContext session, XMLElement element) {
+        Stanza innerStanza;
+        if (element instanceof Stanza) {
+            innerStanza = (Stanza) element;
+        } else {
+            innerStanza = new Stanza(element.getNamespaceURI(), element.getName(), element.getNamespacePrefix(),
+                    element.getAttributes(), element.getInnerFragments());
+        }
+        serverRuntimeContext.getStanzaProcessor().processStanza(serverRuntimeContext, session, innerStanza,
+                session.getStateHolder());
     }
 
     private void createSession(HttpServletRequest req, Stanza stanza) throws IOException {
@@ -110,7 +156,7 @@ public class BoshHandler {
         session.addRequest(req);
         sessions.put(session.getSessionId(), session);
 
-        session.write(getSessionCreationStanza(session));
+        session.write0(getSessionCreationStanza(session));
     }
 
     public Stanza getSessionCreationStanza(BoshBackedSessionContext session) {
@@ -124,21 +170,46 @@ public class BoshHandler {
         body.addAttribute("ver", session.getBoshVersion());
         body.addAttribute("from", session.getServerJID().getFullQualifiedName());
 
-        StanzaBuilder features = new StanzaBuilder("features", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS, "stream");
-        features.startInnerElement("mechanisms", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
-        for (SASLMechanism authenticationMethod : serverRuntimeContext.getServerFeatures().getAuthenticationMethods()) {
-            features.startInnerElement("mechanism", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).addText(
-                    authenticationMethod.getName()).endInnerElement();
-        }
-        features.endInnerElement();
-
-        body.addPreparedElement(features.build());
+        Stanza features = new ServerResponses().getFeaturesForAuthentication(serverRuntimeContext.getServerFeatures()
+                .getAuthenticationMethods());
+        body.addPreparedElement(features);
         return body.build();
     }
 
     public Stanza getEmptyStanza() {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH);
         return stanzaBuilder.build();
+    }
+
+    public Stanza wrapStanza(Stanza stanza) {
+        StanzaBuilder body = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH);
+        body.addPreparedElement(stanza);
+        return body.build();
+    }
+    
+    public Stanza mergeStanzas(Stanza stanza1, Stanza stanza2) {
+        if (stanza1 == null && stanza2 == null) {
+            return null;
+        }
+        if (stanza1 == null) {
+            return stanza2;
+        }
+        if (stanza2 == null) {
+            return stanza1;
+        }
+        StanzaBuilder body = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH);
+        for (XMLElement element : stanza1.getInnerElements()) {
+            body.addPreparedElement(element);
+        }
+        for (XMLElement element : stanza2.getInnerElements()) {
+            body.addPreparedElement(element);
+        }
+        return body.build();
+    }
+    
+    private Stanza getRestartResponseStanza() {
+        Stanza features = new ServerResponses().getFeaturesForSession();
+        return wrapStanza(features);
     }
 
 }
