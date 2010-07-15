@@ -128,7 +128,7 @@ public class BoshServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         BoshResponse boshResponse = (BoshResponse) req.getAttribute("response");
         if (boshResponse != null) {
-            // if continuation is resumed or expired
+            // if the continuation is resumed or expired
             writeResponse(resp, boshResponse);
             return;
         }
@@ -146,7 +146,7 @@ public class BoshServlet extends HttpServlet {
         resp.addHeader("Server", SERVER_IDENTIFICATION);
         resp.setContentType(respData.getContentType());
         resp.setContentLength(respData.getContent().length);
-        resp.addHeader("Access-control-allow-origin", accessControlAllowOrigin);
+        resp.addHeader("Access-Control-Allow-Origin", accessControlAllowOrigin);
         resp.getOutputStream().write(respData.getContent());
         resp.flushBuffer();
     }

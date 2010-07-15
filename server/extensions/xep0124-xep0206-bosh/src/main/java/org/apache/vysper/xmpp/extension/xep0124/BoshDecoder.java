@@ -32,7 +32,7 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
 /**
- * Decodes bytes into BOSH stanzas
+ * Decodes bytes into BOSH requests
  * <p>
  * Uses nbxml for XML processing.
  * For every HTTP request there is a BoshDecoder instance
@@ -46,6 +46,11 @@ public class BoshDecoder {
 
     private final HttpServletRequest request;
 
+    /**
+     * Creates a new decoder to parse an HTTP request
+     * @param boshHandler
+     * @param req
+     */
     public BoshDecoder(BoshHandler boshHandler, HttpServletRequest req) {
         request = req;
         reader = new DefaultNonBlockingXMLReader();
@@ -55,7 +60,7 @@ public class BoshDecoder {
 
     /**
      * Decodes the bytes from the {@link InputStream} provided by the current {@link HttpServletRequest} of
-     * the request context into a BOSH stanza.
+     * the request context into a BOSH requests.
      * @throws IOException
      * @throws SAXException
      */

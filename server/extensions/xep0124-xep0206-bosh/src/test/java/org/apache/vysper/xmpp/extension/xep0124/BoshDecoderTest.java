@@ -67,17 +67,17 @@ public class BoshDecoderTest {
         mocksControl.replay();
         boshDecoder.decode();
         mocksControl.verify();
-        Stanza stanza = captured.getValue();
-        assertNotNull(stanza);
-        assertEquals("body", stanza.getName());
-        assertEquals("http://jabber.org/protocol/httpbind", stanza.getNamespaceURI());
-        assertEquals("3549788615", stanza.getAttributeValue("rid"));
-        assertEquals("vysper.org", stanza.getAttributeValue("to"));
-        assertEquals("60", stanza.getAttributeValue("wait"));
-        assertEquals("1", stanza.getAttributeValue("hold"));
-        assertEquals("1.6", stanza.getAttributeValue("ver"));
-        assertEquals("1.0", stanza.getAttributeValue("urn:xmpp:xbosh", "version"));
-        assertEquals("en", stanza.getAttributeValue("http://www.w3.org/XML/1998/namespace", "lang"));
+        Stanza request = captured.getValue();
+        assertNotNull(request);
+        assertEquals("body", request.getName());
+        assertEquals("http://jabber.org/protocol/httpbind", request.getNamespaceURI());
+        assertEquals("3549788615", request.getAttributeValue("rid"));
+        assertEquals("vysper.org", request.getAttributeValue("to"));
+        assertEquals("60", request.getAttributeValue("wait"));
+        assertEquals("1", request.getAttributeValue("hold"));
+        assertEquals("1.6", request.getAttributeValue("ver"));
+        assertEquals("1.0", request.getAttributeValue("urn:xmpp:xbosh", "version"));
+        assertEquals("en", request.getAttributeValue("http://www.w3.org/XML/1998/namespace", "lang"));
     }
 
 }

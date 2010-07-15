@@ -36,7 +36,7 @@ import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
 /**
- * SAX handler that constructs stanzas by parsing XML from BOSH clients.
+ * SAX handler that constructs BOSH requests by parsing the XML from BOSH clients.
  * <p>
  * This class is similar to {@link XMPPContentHandler}
  *
@@ -86,7 +86,7 @@ public class BoshSaxContentHandler implements ContentHandler {
         isBodyPayloadDecoded = true;
         XMLElement element = builder.build();
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("BOSH decoding stanza: {}", new Renderer(element).getComplete());
+            LOGGER.debug("BOSH decoding request: {}", new Renderer(element).getComplete());
         }
         boshHandler.process(request, (Stanza) element);
         builder = null;

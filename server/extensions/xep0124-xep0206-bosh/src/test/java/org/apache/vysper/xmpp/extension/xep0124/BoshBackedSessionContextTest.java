@@ -19,8 +19,12 @@
  */
 package org.apache.vysper.xmpp.extension.xep0124;
 
-import static org.easymock.EasyMock.*;
-import static org.junit.Assert.*;
+import static org.easymock.EasyMock.anyLong;
+import static org.easymock.EasyMock.createControl;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.junit.Assert.assertEquals;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -80,13 +84,13 @@ public class BoshBackedSessionContextTest {
 
         boshBackedSessionContext = new BoshBackedSessionContext(boshHandler, serverRuntimeContext);
         boshBackedSessionContext.addRequest(httpServletRequest);
-        Stanza stanza = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH).build();
-        boshBackedSessionContext.write0(stanza);
+        Stanza body = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH).build();
+        boshBackedSessionContext.write0(body);
         mocksControl.verify();
 
         BoshResponse boshResponse = captured.getValue();
         assertEquals(BoshServlet.XML_CONTENT_TYPE, boshResponse.getContentType());
-        assertEquals(new Renderer(stanza).getComplete(), new String(boshResponse.getContent()));
+        assertEquals(new Renderer(body).getComplete(), new String(boshResponse.getContent()));
     }
 
     @Test
@@ -107,7 +111,7 @@ public class BoshBackedSessionContextTest {
 
     @Test
     public void testRequestExpired() {
-        Stanza stanza = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH).build();
+        Stanza body = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH).build();
 
         // addRequest
         HttpServletRequest httpServletRequest = mocksControl.createMock(HttpServletRequest.class);
@@ -126,7 +130,7 @@ public class BoshBackedSessionContextTest {
         Capture<BoshResponse> responseCaptured = new Capture<BoshResponse>();
         continuation.setAttribute(eq("response"), EasyMock.<BoshResponse> capture(responseCaptured));
 
-        expect(boshHandler.getEmptyStanza()).andReturn(stanza);
+        expect(boshHandler.getEmptyResponse()).andReturn(body);
         expectLastCall().atLeastOnce();
 
         // write0
@@ -139,7 +143,7 @@ public class BoshBackedSessionContextTest {
         listenerCaptured.getValue().onTimeout(continuation);
         mocksControl.verify();
 
-        assertEquals(new Renderer(stanza).getComplete(), new String(responseCaptured.getValue().getContent()));
+        assertEquals(new Renderer(body).getComplete(), new String(responseCaptured.getValue().getContent()));
         assertEquals(BoshServlet.XML_CONTENT_TYPE, responseCaptured.getValue().getContentType());
     }
 
@@ -174,11 +178,11 @@ public class BoshBackedSessionContextTest {
         boshBackedSessionContext.setHold(2);
         boshBackedSessionContext.addRequest(httpServletRequest1);
         boshBackedSessionContext.addRequest(httpServletRequest2);
-        Stanza stanza = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH).build();
-        boshBackedSessionContext.write0(stanza);
+        Stanza body = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH).build();
+        boshBackedSessionContext.write0(body);
         mocksControl.verify();
 
-        assertEquals(new Renderer(stanza).getComplete(), new String(captured.getValue().getContent()));
+        assertEquals(new Renderer(body).getComplete(), new String(captured.getValue().getContent()));
         assertEquals(BoshServlet.XML_CONTENT_TYPE, captured.getValue().getContentType());
     }
 
@@ -194,9 +198,9 @@ public class BoshBackedSessionContextTest {
 
         continuation.addContinuationListener(EasyMock.<ContinuationListener> anyObject());
 
-        Stanza stanza1 = mocksControl.createMock(Stanza.class);
-        Stanza stanza2 = mocksControl.createMock(Stanza.class);
-        expect(boshHandler.mergeStanzas(EasyMock.<Stanza> anyObject(), EasyMock.<Stanza> anyObject())).andReturn(
+        Stanza body1 = mocksControl.createMock(Stanza.class);
+        Stanza body2 = mocksControl.createMock(Stanza.class);
+        expect(boshHandler.mergeResponses(EasyMock.<Stanza> anyObject(), EasyMock.<Stanza> anyObject())).andReturn(
                 new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH).build());
         expectLastCall().times(2);
 
@@ -206,8 +210,8 @@ public class BoshBackedSessionContextTest {
         mocksControl.replay();
 
         boshBackedSessionContext = new BoshBackedSessionContext(boshHandler, serverRuntimeContext);
-        boshBackedSessionContext.write0(stanza1);
-        boshBackedSessionContext.write0(stanza2);
+        boshBackedSessionContext.write0(body1);
+        boshBackedSessionContext.write0(body2);
         boshBackedSessionContext.addRequest(httpServletRequest);
         mocksControl.verify();
     }

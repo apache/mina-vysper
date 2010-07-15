@@ -20,7 +20,7 @@
 package org.apache.vysper.xmpp.extension.xep0124;
 
 /**
- * The response sent to BOSH clients
+ * An encapsulation of an HTTP response that will be sent to BOSH clients
  * 
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
