@@ -40,27 +40,23 @@ public class BoshHandlerTest {
     }
 
     @Test
-    @Ignore
+    @Ignore("Not yet implemented")
     public void testProcess() {
-        fail("Not yet implemented");
     }
 
     @Test
-    @Ignore
+    @Ignore("Not yet implemented")
     public void testGetSessionCreationStanza() {
-        fail("Not yet implemented");
     }
 
     @Test
-    @Ignore
+    @Ignore("Not yet implemented")
     public void testWrapStanza() {
-        fail("Not yet implemented");
     }
 
     @Test
-    @Ignore
+    @Ignore("Not yet implemented")
     public void testMergeStanzas() {
-        fail("Not yet implemented");
     }
 
     private Stanza createPingRequestStanza(String to, String id) {
