@@ -28,7 +28,7 @@ The password for the keystore and for the key is "password" and the Common Name 
 The CN must be the domain name used by the clients to connect to the Vysper server (otherwise
 the browser will warn the user that the certificate is issued for another domain name)
 
-Using the self-signed certificate (from the keystore) will make the web browser warn you that the certificate if self-signed,
+Using the self-signed certificate (from the keystore) will make the web browser warn you that the certificate is self-signed,
 but for testing purposes you can add an exception for the browser to accept it.
 
 More information about keytool: http://java.sun.com/javase/6/docs/technotes/tools/windows/keytool.html

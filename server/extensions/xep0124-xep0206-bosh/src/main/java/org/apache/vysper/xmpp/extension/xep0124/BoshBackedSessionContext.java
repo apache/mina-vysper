@@ -52,7 +52,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
 
     private final int polling = 15;
 
-    private final int requests = 2;
+    private int requests = 2;
 
     private String boshVersion = "1.9";
 
@@ -138,7 +138,10 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     }
 
     public void setHold(int hold) {
-        this.hold = Math.min(hold, this.hold);
+        this.hold = hold;
+        if (hold >= 2) {
+            requests = hold + 1;
+        }
     }
 
     public int getHold() {
@@ -177,7 +180,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         return requests;
     }
 
-    synchronized public void requestExpired(Continuation continuation) {
+    synchronized private void requestExpired(Continuation continuation) {
         HttpServletRequest req = (HttpServletRequest) continuation.getAttribute("request");
         if (req == null) {
             LOGGER.warn("Continuation expired without having an associated request!");
