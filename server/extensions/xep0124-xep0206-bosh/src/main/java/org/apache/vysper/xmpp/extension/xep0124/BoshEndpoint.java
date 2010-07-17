@@ -133,7 +133,10 @@ public class BoshEndpoint implements Endpoint {
 
         BoshServlet boshServlet = new BoshServlet();
         boshServlet.setServerRuntimeContext(serverRuntimeContext);
-        boshServlet.setFlashCrossDomainPolicy(flashCrossDomainPolicy);
+        
+        if(flashCrossDomainPolicy != null) {
+            boshServlet.setFlashCrossDomainPolicy(flashCrossDomainPolicy);
+        }
         context.addServlet(new ServletHolder(boshServlet), "/");
 
         try {

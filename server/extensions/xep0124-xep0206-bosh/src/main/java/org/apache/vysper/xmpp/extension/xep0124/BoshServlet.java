@@ -99,7 +99,7 @@ public class BoshServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.addDateHeader("Date", System.currentTimeMillis());
         resp.addHeader("Server", SERVER_IDENTIFICATION);
-        if (FLASH_CROSS_DOMAIN_POLICY_URI.equals(req.getRequestURI())) {
+        if (FLASH_CROSS_DOMAIN_POLICY_URI.equals(req.getRequestURI()) && flashCrossDomainPolicy != null) {
             resp.setContentType(XML_CONTENT_TYPE);
             resp.setContentLength(flashCrossDomainPolicy.length);
             resp.getOutputStream().write(flashCrossDomainPolicy);
