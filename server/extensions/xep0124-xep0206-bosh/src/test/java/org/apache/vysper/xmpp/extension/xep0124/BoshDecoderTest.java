@@ -29,6 +29,7 @@ import java.io.IOException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
@@ -70,14 +71,14 @@ public class BoshDecoderTest {
         Stanza request = captured.getValue();
         assertNotNull(request);
         assertEquals("body", request.getName());
-        assertEquals("http://jabber.org/protocol/httpbind", request.getNamespaceURI());
+        assertEquals(NamespaceURIs.XEP0124_BOSH, request.getNamespaceURI());
         assertEquals("3549788615", request.getAttributeValue("rid"));
         assertEquals("vysper.org", request.getAttributeValue("to"));
         assertEquals("60", request.getAttributeValue("wait"));
         assertEquals("1", request.getAttributeValue("hold"));
         assertEquals("1.6", request.getAttributeValue("ver"));
-        assertEquals("1.0", request.getAttributeValue("urn:xmpp:xbosh", "version"));
-        assertEquals("en", request.getAttributeValue("http://www.w3.org/XML/1998/namespace", "lang"));
+        assertEquals("1.0", request.getAttributeValue(NamespaceURIs.URN_XMPP_XBOSH, "version"));
+        assertEquals("en", request.getAttributeValue(NamespaceURIs.XML, "lang"));
     }
 
 }
