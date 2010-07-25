@@ -51,7 +51,7 @@ public class BoshServlet extends HttpServlet {
 
     private static final String FLASH_CROSS_DOMAIN_POLICY_URI = "/crossdomain.xml";
 
-    private static final String INFO_GET = "This is an XMPP BOSH connection manager, you need to use a compatible BOSH client to use its services!";
+    private static final String INFO_GET = "This is an XMPP BOSH connection manager, only POST is allowed";
 
     private static final String SERVER_IDENTIFICATION = "Vysper/0.5";
 
@@ -104,9 +104,7 @@ public class BoshServlet extends HttpServlet {
             resp.setContentLength(flashCrossDomainPolicy.length);
             resp.getOutputStream().write(flashCrossDomainPolicy);
         } else {
-            resp.setContentType(HTML_CONTENT_TYPE);
-            resp.setContentLength(INFO_GET.length());
-            resp.getWriter().println(INFO_GET);
+            resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, INFO_GET);
         }
         resp.flushBuffer();
     }
@@ -139,6 +137,18 @@ public class BoshServlet extends HttpServlet {
         } catch (SAXException e) {
             logger.error("Exception thrown while decoding XML", e);
         }
+    }
+    
+    
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, INFO_GET);
+    }
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, INFO_GET);
     }
 
     private void writeResponse(HttpServletResponse resp, BoshResponse respData) throws IOException {
