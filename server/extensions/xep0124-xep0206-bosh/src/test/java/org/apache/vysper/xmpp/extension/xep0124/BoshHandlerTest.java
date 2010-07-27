@@ -32,6 +32,7 @@ import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.SASLMechanism;
@@ -177,8 +178,8 @@ public class BoshHandlerTest {
         assertEquals("body", merged.getName());
         assertEquals(NamespaceURIs.XEP0124_BOSH, merged.getNamespaceURI());
         assertEquals(2, merged.getInnerElements().size());
-        assertEquals(response1, merged.getInnerElements().get(0));
-        assertEquals(response2, merged.getInnerElements().get(0));
+        assertEquals(response1.getInnerElements().get(0), merged.getInnerElements().get(0));
+        assertEquals(response2.getInnerElements().get(0), merged.getInnerElements().get(1));
     }
 
     private Stanza createSessionRequest() {
