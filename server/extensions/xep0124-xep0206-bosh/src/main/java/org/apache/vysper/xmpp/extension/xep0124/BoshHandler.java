@@ -57,6 +57,15 @@ public class BoshHandler {
         sessions = new ConcurrentHashMap<String, BoshBackedSessionContext>();
     }
 
+    
+    /**
+     * Getting for the {@link ServerRuntimeContext}
+     * @return The current {@link ServerRuntimeContext}
+     */
+    public ServerRuntimeContext getServerRuntimeContext() {
+        return serverRuntimeContext;
+    }
+
     /**
      * Setter for the {@link ServerRuntimeContext}
      * @param serverRuntimeContext

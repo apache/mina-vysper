@@ -20,6 +20,7 @@
 package org.apache.vysper.xmpp.extension.xep0124;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.vysper.charset.CharsetUtil;
@@ -56,6 +57,23 @@ public class XMLUtil implements ContentHandler {
         input = IoBuffer.allocate(xml.length());
         input.setAutoExpand(true);
         input.put(xml.getBytes());
+        input.flip();
+        builderFactory = new StanzaBuilderFactory();
+        reader = new DefaultNonBlockingXMLReader();
+        reader.setContentHandler(this);
+    }
+    
+    public XMLUtil(InputStream xml) throws IOException {
+        input = IoBuffer.allocate(1024);
+        input.setAutoExpand(true);
+        byte[] buf = new byte[1024];
+        for (;;) {
+            int n = xml.read(buf);
+            if (n == -1) {
+                break;
+            }
+            input.put(buf, 0, n);
+        }
         input.flip();
         builderFactory = new StanzaBuilderFactory();
         reader = new DefaultNonBlockingXMLReader();

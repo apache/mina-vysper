@@ -23,6 +23,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -61,6 +62,7 @@ public class BoshServlet extends HttpServlet {
 
     private byte[] flashCrossDomainPolicy;
 
+    // TODO we should be secure by default, allowing all domains by default is probably not the best thing
     private String accessControlAllowOrigin = "*";
 
     private String accessControlMaxAge = "86400"; // one day in seconds
@@ -94,15 +96,34 @@ public class BoshServlet extends HttpServlet {
         bis.close();
         flashCrossDomainPolicy = baos.toByteArray();
     }
+    
+    private byte[] createDefaultFlashCrossDomainPolicy() {
+        String crossDomain = "<?xml version='1.0'?>" 
+            + "<!DOCTYPE cross-domain-policy SYSTEM 'http://www.macromedia.com/xml/dtds/cross-domain-policy.dtd'>"
+            + "<cross-domain-policy>"
+            + "<allow-access-from domain='" + boshHandler.getServerRuntimeContext().getServerEnitity().getDomain() + "' />"
+            + "</cross-domain-policy>"; 
+        try {
+            return crossDomain.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException shouldNotHappen) {
+            throw new RuntimeException(shouldNotHappen);
+        }
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.addDateHeader("Date", System.currentTimeMillis());
         resp.addHeader("Server", SERVER_IDENTIFICATION);
-        if (FLASH_CROSS_DOMAIN_POLICY_URI.equals(req.getRequestURI()) && flashCrossDomainPolicy != null) {
+        if (FLASH_CROSS_DOMAIN_POLICY_URI.equals(req.getRequestURI())){
             resp.setContentType(XML_CONTENT_TYPE);
-            resp.setContentLength(flashCrossDomainPolicy.length);
-            resp.getOutputStream().write(flashCrossDomainPolicy);
+            if(flashCrossDomainPolicy != null) {
+                resp.setContentLength(flashCrossDomainPolicy.length);
+                resp.getOutputStream().write(flashCrossDomainPolicy);
+            } else {
+                byte[] tempFlashCrossDomainPolicy = createDefaultFlashCrossDomainPolicy();
+                resp.setContentLength(tempFlashCrossDomainPolicy.length);
+                resp.getOutputStream().write(tempFlashCrossDomainPolicy);
+            }
         } else {
             resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, INFO_GET);
         }
