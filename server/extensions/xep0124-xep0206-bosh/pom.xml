@@ -93,7 +93,11 @@
 
 	<profiles>
 		<profile>
-			<!-- Used to skip unit tests for BOSH. Useful in Harmony, which currently not supported by Easymock (and Objenesis) -->
+			<!-- Used to skip unit tests for BOSH. Useful in Harmony, which currently not supported by Easymock (and Objenesis) 
+				   Tracked in https://issues.apache.org/jira/browse/VYSPER-224
+				 Also, Vysper currently assumes support for JKS keystores, something which Harmony does not support 
+				   (https://issues.apache.org/jira/browse/VYSPER-188). Needs to be fixed.
+			-->
 			<id>skipboshtests</id>
 			<build>
 				<plugins>

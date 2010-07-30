@@ -135,8 +135,19 @@ public class BoshHandler {
                 for (XMLElement element : boshRequest.getInnerElements()) {
                     processStanza(session, element);
                 }
+                
+                // if the client solicited the session termination
+                if ("terminate".equals(boshRequest.getAttributeValue("type"))) {
+                    terminateSession(session);
+                }
             }
         }
+    }
+
+    private void terminateSession(BoshBackedSessionContext session) {
+        sessions.remove(session.getSessionId());
+        session.write0(getTerminateResponse());
+        session.close();
     }
 
     private void processStanza(BoshBackedSessionContext session, XMLElement element) {
@@ -243,6 +254,12 @@ public class BoshHandler {
     private Stanza getRestartResponse() {
         Stanza features = new ServerResponses().getFeaturesForSession();
         return wrapStanza(features);
+    }
+    
+    private Stanza getTerminateResponse() {
+        StanzaBuilder stanzaBuilder = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH);
+        stanzaBuilder.addAttribute("type", "terminate");
+        return stanzaBuilder.build();
     }
 
 }

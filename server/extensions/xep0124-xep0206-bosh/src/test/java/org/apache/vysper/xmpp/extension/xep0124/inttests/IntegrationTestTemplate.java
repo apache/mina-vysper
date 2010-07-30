@@ -85,6 +85,10 @@ public class IntegrationTestTemplate {
         return boshResponse;
     }
 
+    protected BoshEndpoint processBoshEndpoint(BoshEndpoint endpoint) {
+        // default, do nothing
+        return endpoint;
+    }
     
     @Before
     public void startServer() throws Exception {
@@ -104,9 +108,12 @@ public class IntegrationTestTemplate {
         
         BoshEndpoint boshEndpoint = new BoshEndpoint();
         int port = findFreePort();
-        
         boshEndpoint.setPort(port);
+        
+        boshEndpoint = processBoshEndpoint(boshEndpoint);
+        
         server.addEndpoint(boshEndpoint);
+        
         
         server.start();
         System.out.println("Vysper BOSH server running on port " + port);
@@ -116,8 +123,8 @@ public class IntegrationTestTemplate {
     
     @After
     public void tearDown() throws Exception {
-        httpclient.getConnectionManager().shutdown();
         server.stop();
+        httpclient.getConnectionManager().shutdown();
     }
 
 }

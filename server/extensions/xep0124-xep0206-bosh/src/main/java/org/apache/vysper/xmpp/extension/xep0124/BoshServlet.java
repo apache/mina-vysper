@@ -24,6 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -60,10 +61,7 @@ public class BoshServlet extends HttpServlet {
 
     private final BoshHandler boshHandler = new BoshHandler();
 
-    private byte[] flashCrossDomainPolicy;
-
-    // TODO we should be secure by default, allowing all domains by default is probably not the best thing
-    private String accessControlAllowOrigin = "*";
+    private List<String> accessControlAllowOrigin;
 
     private String accessControlMaxAge = "86400"; // one day in seconds
 
@@ -76,53 +74,65 @@ public class BoshServlet extends HttpServlet {
     public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
         boshHandler.setServerRuntimeContext(serverRuntimeContext);
     }
-
-    /**
-     * Configures the Flash cross-domain policy
-     * @param policyPath
-     * @throws IOException 
-     */
-    public void setFlashCrossDomainPolicy(String policyPath) throws IOException {
-        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(policyPath));
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        byte[] buf = new byte[1024];
-        for (;;) {
-            int i = bis.read(buf);
-            if (i == -1) {
-                break;
-            }
-            baos.write(buf, 0, i);
-        }
-        bis.close();
-        flashCrossDomainPolicy = baos.toByteArray();
-    }
     
-    private byte[] createDefaultFlashCrossDomainPolicy() {
-        String crossDomain = "<?xml version='1.0'?>" 
-            + "<!DOCTYPE cross-domain-policy SYSTEM 'http://www.macromedia.com/xml/dtds/cross-domain-policy.dtd'>"
-            + "<cross-domain-policy>"
-            + "<allow-access-from domain='" + boshHandler.getServerRuntimeContext().getServerEnitity().getDomain() + "' />"
-            + "</cross-domain-policy>"; 
+    
+    
+    public List<String> getAccessControlAllowOrigin() {
+        return accessControlAllowOrigin;
+    }
+
+
+
+    public void setAccessControlAllowOrigin(List<String> accessControlAllowOrigin) {
+        this.accessControlAllowOrigin = accessControlAllowOrigin;
+    }
+
+
+
+    private byte[] createFlashCrossDomainPolicy() {
+        StringBuffer crossDomain = new StringBuffer();
+        crossDomain.append("<?xml version='1.0'?>"); 
+        crossDomain.append("<!DOCTYPE cross-domain-policy SYSTEM 'http://www.macromedia.com/xml/dtds/cross-domain-policy.dtd'>");
+        crossDomain.append("<cross-domain-policy>");
+            for(String domain : accessControlAllowOrigin) {
+                crossDomain.append("<allow-access-from domain='");
+                crossDomain.append(domain);
+                crossDomain.append("' />");
+            }
+            crossDomain.append("</cross-domain-policy>"); 
         try {
-            return crossDomain.getBytes("UTF-8");
+            return crossDomain.toString().getBytes("UTF-8");
         } catch (UnsupportedEncodingException shouldNotHappen) {
             throw new RuntimeException(shouldNotHappen);
         }
     }
 
+    private String createAccessControlAllowOrigin() {
+        StringBuffer crossDomain = new StringBuffer();
+        boolean first = true;
+        for(String domain : accessControlAllowOrigin) {
+            if(!first) {
+                crossDomain.append(',');
+            }
+            crossDomain.append(domain);
+            first = false;
+        }
+        return crossDomain.toString();
+    }
+
+    
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.addDateHeader("Date", System.currentTimeMillis());
         resp.addHeader("Server", SERVER_IDENTIFICATION);
         if (FLASH_CROSS_DOMAIN_POLICY_URI.equals(req.getRequestURI())){
-            resp.setContentType(XML_CONTENT_TYPE);
-            if(flashCrossDomainPolicy != null) {
+            if(accessControlAllowOrigin != null) {
+                resp.setContentType(XML_CONTENT_TYPE);
+                byte[] flashCrossDomainPolicy = createFlashCrossDomainPolicy();
                 resp.setContentLength(flashCrossDomainPolicy.length);
                 resp.getOutputStream().write(flashCrossDomainPolicy);
             } else {
-                byte[] tempFlashCrossDomainPolicy = createDefaultFlashCrossDomainPolicy();
-                resp.setContentLength(tempFlashCrossDomainPolicy.length);
-                resp.getOutputStream().write(tempFlashCrossDomainPolicy);
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
         } else {
             resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, INFO_GET);
@@ -137,9 +147,11 @@ public class BoshServlet extends HttpServlet {
         resp.addHeader("Server", SERVER_IDENTIFICATION);
         resp.setContentType(TXT_CONTENT_TYPE);
         resp.setContentLength(0);
-        resp.addHeader("Access-Control-Allow-Origin", accessControlAllowOrigin);
-        resp.addHeader("Access-Control-Allow-Methods", accessControlAllowMethods);
-        resp.addHeader("Access-Control-Max-Age", accessControlMaxAge);
+        if(accessControlAllowOrigin != null) {
+            resp.addHeader("Access-Control-Allow-Origin", createAccessControlAllowOrigin());
+            resp.addHeader("Access-Control-Allow-Methods", accessControlAllowMethods);
+            resp.addHeader("Access-Control-Max-Age", accessControlMaxAge);
+        }
         resp.flushBuffer();
     }
 
@@ -177,7 +189,9 @@ public class BoshServlet extends HttpServlet {
         resp.addHeader("Server", SERVER_IDENTIFICATION);
         resp.setContentType(respData.getContentType());
         resp.setContentLength(respData.getContent().length);
-        resp.addHeader("Access-Control-Allow-Origin", accessControlAllowOrigin);
+        if(accessControlAllowOrigin != null) {
+            resp.addHeader("Access-Control-Allow-Origin", createAccessControlAllowOrigin());
+        }
         resp.getOutputStream().write(respData.getContent());
         resp.flushBuffer();
     }

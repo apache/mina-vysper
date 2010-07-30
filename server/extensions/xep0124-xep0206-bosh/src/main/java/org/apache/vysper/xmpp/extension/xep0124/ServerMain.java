@@ -85,7 +85,6 @@ public class ServerMain {
         server.addEndpoint(new TCPEndpoint());
 
         BoshEndpoint boshEndpoint = new BoshEndpoint();
-        boshEndpoint.setFlashCrossDomainPolicy("src/main/resources/" + "crossdomain.xml");
         //        boshEndpoint.setSSLEnabled(true);
         //        boshEndpoint.setSSLCertificateInfo("src/main/resources/keystore",
         //                "password");

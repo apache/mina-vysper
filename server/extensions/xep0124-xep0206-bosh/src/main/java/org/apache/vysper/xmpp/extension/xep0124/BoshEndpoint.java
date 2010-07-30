@@ -20,6 +20,7 @@
 package org.apache.vysper.xmpp.extension.xep0124;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.vysper.xmpp.server.Endpoint;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -56,7 +57,7 @@ public class BoshEndpoint implements Endpoint {
 
     private String sslKeystorePassword;
 
-    private String flashCrossDomainPolicy;
+    private List<String> accessControlAllowOrigin;
 
     public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
         this.serverRuntimeContext = serverRuntimeContext;
@@ -99,11 +100,19 @@ public class BoshEndpoint implements Endpoint {
     }
 
     /**
-     * Setter for the Flash cross-domain policy file location
-     * @param policyPath
+     * Get the list of domains allowed to access this endpoint
+     * @return The list of allowed domains
      */
-    public void setFlashCrossDomainPolicy(String policyPath) {
-        flashCrossDomainPolicy = policyPath;
+    public List<String> getAccessControlAllowOrigin() {
+        return accessControlAllowOrigin;
+    }
+
+    /**
+     * Set the list of domains allowed to access this endpoint
+     * @param accessControlAllowOrigin The list of allowed domains
+     */
+    public void setAccessControlAllowOrigin(List<String> accessControlAllowOrigin) {
+        this.accessControlAllowOrigin = accessControlAllowOrigin;
     }
 
     /**
@@ -133,10 +142,7 @@ public class BoshEndpoint implements Endpoint {
 
         BoshServlet boshServlet = new BoshServlet();
         boshServlet.setServerRuntimeContext(serverRuntimeContext);
-        
-        if(flashCrossDomainPolicy != null) {
-            boshServlet.setFlashCrossDomainPolicy(flashCrossDomainPolicy);
-        }
+        boshServlet.setAccessControlAllowOrigin(accessControlAllowOrigin);
         context.addServlet(new ServletHolder(boshServlet), "/");
 
         try {

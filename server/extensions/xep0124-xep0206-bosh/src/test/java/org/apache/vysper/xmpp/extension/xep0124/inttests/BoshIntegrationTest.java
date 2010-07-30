@@ -130,6 +130,11 @@ public class BoshIntegrationTest extends IntegrationTestTemplate {
         assertTrue(jid.matches("user1@vysper.org/.+"));
         
         System.out.println("JID " + jid + " is connected to the Vysper server");
+        
+     // session termination
+        boshResponse = sendRequest("<body rid='104' xmlns='http://jabber.org/protocol/httpbind' sid='" + sid + "' type='terminate'><presence type='unavailable' from='" + jid + "' xmlns='jabber:client'/></body>");
+        assertTrue(boshResponse.getInnerElements().isEmpty());
+        assertEquals("terminate", boshResponse.getAttributeValue("type"));
     }
 
     private String getPlainAuth(String user, String pass) {

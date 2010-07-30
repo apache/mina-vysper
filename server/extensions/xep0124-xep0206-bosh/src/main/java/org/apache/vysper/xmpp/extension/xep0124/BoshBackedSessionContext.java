@@ -133,8 +133,19 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         continuation.resume();
     }
 
+    /*
+     * Terminates the BOSH session
+     */
     public void close() {
-        LOGGER.info("session will be closed now");
+        // respond to all the queued HTTP requests with empty responses
+        while (!requestQueue.isEmpty()) {
+            write0(boshHandler.getEmptyResponse());
+        }
+        
+        serverRuntimeContext.getResourceRegistry().unbindSession(this);
+        sessionStateHolder.setState(SessionState.CLOSED);
+        
+        LOGGER.info("BOSH session {} closed", getSessionId());
     }
 
     public void switchToTLS() {

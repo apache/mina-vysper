@@ -22,35 +22,30 @@ package org.apache.vysper.xmpp.extension.xep0124.inttests;
 import junit.framework.Assert;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpOptions;
 import org.junit.Test;
 
 
+/**
+ * Test allowed origin when none are set for the endpoint. Should 
+ * default to only allow the called domain, which is what will
+ * be allowed if no crossdomain.xml or header is returned.
+ *
+ */
+public class DefaultAllowedOriginIntegrationTest extends IntegrationTestTemplate {
 
-public class MethodsNotAllowedIntegrationTest extends IntegrationTestTemplate {
-
-    
-    
     @Test
-    public void doNotAllowGet() throws Exception {
-        HttpResponse response = httpclient.execute(new HttpGet(getServerUrl()));
+    public void flashCrossdomain() throws Exception {
+        HttpResponse response = httpclient.execute(new HttpGet(getServerUrl() + "crossdomain.xml"));
 
-        Assert.assertEquals(405, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(404, response.getStatusLine().getStatusCode());
     }
-
+    
     @Test
-    public void doNotAllowPut() throws Exception {
-        HttpResponse response = httpclient.execute(new HttpPut(getServerUrl()));
+    public void optionsAccessControlAllowOrigin() throws Exception {
+        HttpResponse response = httpclient.execute(new HttpOptions(getServerUrl()));
 
-        Assert.assertEquals(405, response.getStatusLine().getStatusCode());
-    }
-
-    @Test
-    public void doNotAllowDelete() throws Exception {
-        HttpResponse response = httpclient.execute(new HttpDelete(getServerUrl()));
-
-        Assert.assertEquals(405, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(0, response.getHeaders("Access-Control-Allow-Origin").length);
     }
 }
