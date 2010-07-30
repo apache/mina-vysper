@@ -192,7 +192,7 @@ public abstract class AbstractMUCHandlerTestCase extends TestCase {
     protected void assertPresenceStanza(Stanza stanza, Entity expectedFrom, Entity expectedTo, String expectedType,
             MucUserPresenceItem expectedItem, StatusCode expectedStatus) throws Exception {
         List<MucUserPresenceItem> expectedItems = Arrays.asList(expectedItem);
-        List<StatusCode> expectedStatuses = Arrays.asList(expectedStatus);
+        List<StatusCode> expectedStatuses = expectedStatus == null ? null : Arrays.asList(expectedStatus);
         assertPresenceStanza(stanza, expectedFrom, expectedTo, expectedType, expectedItems, expectedStatuses);
     }
 
@@ -221,7 +221,6 @@ public abstract class AbstractMUCHandlerTestCase extends TestCase {
             assertEquals(expectedItem.getAffiliation().toString(), itemElm.getAttributeValue("affiliation"));
             assertEquals(expectedItem.getRole().toString(), itemElm.getAttributeValue("role"));
         }
-
         if (expectedStatuses != null) {
             for (StatusCode status : expectedStatuses) {
                 XMLElement statusElm = innerElements.next();
