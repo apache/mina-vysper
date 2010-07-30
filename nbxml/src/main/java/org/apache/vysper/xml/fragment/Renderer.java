@@ -121,7 +121,7 @@ public class Renderer {
 
     private void renderElementName(StringBuilder buffer, XMLElement element, ResolverNamespaceResolver nsResolver) {
         // if the element has a namespace prefix, retrieves the prefix from the defining attribute
-        if (element.getNamespacePrefix().length() > 0) {
+        if (element.getNamespacePrefix() != null && element.getNamespacePrefix().length() > 0) {
             buffer.append(element.getNamespacePrefix()).append(COLON);
         } else if (element.getNamespaceURI().length() > 0) {
             // element is in a namespace, but without a declared prefix, we need to resolve the prefix

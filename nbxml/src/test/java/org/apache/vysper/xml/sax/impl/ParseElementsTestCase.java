@@ -107,6 +107,17 @@ public class ParseElementsTestCase extends AbstractAsyncXMLReaderTestCase {
         assertNoMoreevents(events);
     }
 
+    public void testDashInName() throws Exception {
+        Iterator<TestEvent> events = parse("<ro-ot />").iterator();
+
+        assertStartDocument(events.next());
+        assertStartElement("", "ro-ot", "ro-ot", events.next());
+        assertEndElement("", "ro-ot", "ro-ot", events.next());
+        assertEndDocument(events.next());
+
+        assertNoMoreevents(events);
+    }
+    
     public void testInvalidUnicodeInName() throws Exception {
         Iterator<TestEvent> events = parse("<r\u2190oot />").iterator();
 

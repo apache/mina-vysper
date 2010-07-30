@@ -87,6 +87,8 @@ public class XMLTokenizer {
                 } else if (c == '\'') {
                     emit(c, byteBuffer);
                     state = State.IN_SINGLE_ATTRIBUTE_VALUE;
+                } else if (c == '-') {
+                    emit(c, byteBuffer);
                 } else if (isControlChar(c)) {
                     emit(c, byteBuffer);
                 } else if (Character.isWhitespace(c)) {
@@ -132,7 +134,7 @@ public class XMLTokenizer {
     }
 
     private boolean isControlChar(char c) {
-        return c == '<' || c == '>' || c == '-' || c == '!' || c == '/' || c == '?' || c == '=';
+        return c == '<' || c == '>' || c == '!' || c == '/' || c == '?' || c == '=';
     }
 
     private void emit(char token, IoBuffer byteBuffer) throws SAXException {

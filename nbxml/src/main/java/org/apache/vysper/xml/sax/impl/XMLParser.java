@@ -193,6 +193,8 @@ public class XMLParser implements TokenListener {
             // token must be =
             if (c == '=') {
                 state = State.AFTER_ATTRIBUTE_EQUALS;
+            } else {
+                fatalError("Not wellformed");
             }
             break;
         case AFTER_ATTRIBUTE_EQUALS:
