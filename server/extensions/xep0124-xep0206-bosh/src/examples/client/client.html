@@ -20,8 +20,10 @@
 <html>
 <head>
 <title>BOSH client</title>
+<link type="text/css" href="../resources/jquery/css/jquery-ui-1.8.2.custom.css" rel="stylesheet" />
+
 </head>
-<body>
+<body style="font-family: arial;">
 
 <div id="connect-form" style="margin: auto; width: 300px;">
 <table>
@@ -49,18 +51,40 @@
 </table>
 </div>
 
+<div id="workspace" style="display: none;">
+
+<div id="buttons" style="float: right;">
+<input type="button" value="Chat with JID..." id="chat" disabled="disabled"/>
+<input type="button" value="Disconnect" id="disconnect" disabled="disabled"/>
+</div>
+
+<div>
+<select size="10" style="width: 150px;" id="roster">
+</select>
+<br/>
+Roster
+</div>
+
+<div id="tabs">
+<ul></ul>
+</div>
 
 <div style="position: absolute; left: 0; width: 100%; bottom: 0px;">
 <div id="logger"
-	style="border: 1px solid; height: 300px; overflow: scroll; margin: 10px; font-family: arial; display: none;">
+	style="border: 1px solid; height: 300px; overflow: scroll; margin: 10px;">
 </div>
 </div>
 
+</div>
+
 <script src="../resources/jquery/jquery-1.4.2.min.js"></script>
-<script src="../resources/flXHR/flensed.js"></script>
-<script src="../resources/flXHR/flXHR.js"></script>
-<script src="../resources/strophe/strophe.min.js"></script>
-<script src="../resources/strophe/strophe.flxhr.min.js"></script>
+<script src="../resources/jquery/jquery-ui-1.8.2.custom.min.js"></script>
+<script src="../resources/flxhr/flensed.js"></script>
+<script src="../resources/flxhr/flXHR.js"></script>
+<script src="../resources/strophe/core.js"></script>
+<script src="../resources/strophe/base64.js"></script>
+<script src="../resources/strophe/md5.js"></script>
+<script src="../resources/strophe/strophe.flxhr.js"></script>
 <script src="client.js"></script>
 </body>
 </html>
