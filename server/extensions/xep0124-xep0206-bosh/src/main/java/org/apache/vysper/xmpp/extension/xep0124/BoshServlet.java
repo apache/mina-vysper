@@ -151,6 +151,7 @@ public class BoshServlet extends HttpServlet {
             resp.addHeader("Access-Control-Allow-Origin", createAccessControlAllowOrigin());
             resp.addHeader("Access-Control-Allow-Methods", accessControlAllowMethods);
             resp.addHeader("Access-Control-Max-Age", accessControlMaxAge);
+            resp.addHeader("Access-Control-Allow-Headers", "Content-Type, User-Agent, If-Modified-Since, Cache-Control");
         }
         resp.flushBuffer();
     }
