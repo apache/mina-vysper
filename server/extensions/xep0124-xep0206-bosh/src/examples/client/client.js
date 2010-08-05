@@ -38,7 +38,7 @@ connectionStatuses[Strophe.Status.DISCONNECTING] = "DISCONNECTING";
 connectionStatuses[Strophe.Status.ATTACHED] = "ATTACHED";
 
 // this is needed by flXHR to automatically include its dependencies
-window.flensed.base_path="../resources/flxhr/";
+if(window.flensed) window.flensed.base_path="../resources/flxhr/";
 
 $(document).ready(function() {
 	$("#tabs").tabs();
