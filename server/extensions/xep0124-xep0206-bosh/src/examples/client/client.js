@@ -88,7 +88,8 @@ function log(msg, xml) {
 }
 
 Strophe.log = function (level, msg) {
-	if(console && console.log) console.log(msg)
+	if(typeof console != "undefined" && console.log) console.log(msg)
+	
 };
 
 function connect() {
