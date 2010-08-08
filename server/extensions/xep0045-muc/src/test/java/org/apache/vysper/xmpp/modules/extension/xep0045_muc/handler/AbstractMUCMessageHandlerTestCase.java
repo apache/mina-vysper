@@ -33,6 +33,8 @@ import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.stanza.MessageStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
+import org.apache.vysper.xmpp.stanza.StanzaErrorType;
 
 /**
  */
@@ -64,19 +66,20 @@ public abstract class AbstractMUCMessageHandlerTestCase extends AbstractMUCHandl
         }
     }
 
-    protected void assertMessageErrorStanza(Stanza response, Entity from, Entity to, String type, String errorName,
+    protected void assertMessageErrorStanza(Stanza actualResponse, Entity expectedFrom, Entity expectedTo, 
+            StanzaErrorType expectedErrorType, StanzaErrorCondition expectedErrorName,
             XMLElement... expectedInnerElements) {
-        assertErrorStanza(response, "message", from, to, type, errorName, expectedInnerElements);
+        assertErrorStanza(actualResponse, "message", expectedFrom, expectedTo, expectedErrorType, expectedErrorName, expectedInnerElements);
     }
 
-    protected void testNotAllowedMessage(Room room, String expectedErrorName) throws Exception {
+    protected void testNotAllowedMessage(Room room, StanzaErrorCondition expectedErrorName) throws Exception {
         String body = "Message body";
 
         // now, let user 2 exit room
         Stanza errorStanza = sendMessage(OCCUPANT1_JID, ROOM1_JID, GROUPCHAT, body);
 
         XMLElement expectedBody = new XMLElementBuilder("body").addText(body).build();
-        assertMessageErrorStanza(errorStanza, ROOM1_JID, OCCUPANT1_JID, "modify", expectedErrorName, expectedBody);
+        assertMessageErrorStanza(errorStanza, ROOM1_JID, OCCUPANT1_JID, StanzaErrorType.MODIFY, expectedErrorName, expectedBody);
 
         // no message should be relayed
         assertNull(occupant1Queue.getNext());

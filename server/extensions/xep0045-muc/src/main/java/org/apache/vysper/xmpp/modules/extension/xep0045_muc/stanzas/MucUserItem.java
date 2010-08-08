@@ -36,23 +36,23 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class MucUserPresenceItem extends XMLElement {
+public class MucUserItem extends XMLElement {
 
-    public MucUserPresenceItem(Occupant occupant, boolean includeJid, boolean includeNick) {
+    public MucUserItem(Occupant occupant, boolean includeJid, boolean includeNick) {
         super(NamespaceURIs.XEP0045_MUC_USER, "item", null, createAttributes(occupant, includeJid, includeNick), null);
     }
 
-    public MucUserPresenceItem(Affiliation affiliation, Role role) {
+    public MucUserItem(Affiliation affiliation, Role role) {
         super(NamespaceURIs.XEP0045_MUC_USER, "item", null, createAttributes(null, null, affiliation, role), null);
     }
 
-    public MucUserPresenceItem(Entity jid, String nick, Affiliation affiliation, Role role) {
+    public MucUserItem(Entity jid, String nick, Affiliation affiliation, Role role) {
         super(NamespaceURIs.XEP0045_MUC_USER, "item", null, createAttributes(jid, nick, affiliation, role), null);
     }
 
     private static List<Attribute> createAttributes(Occupant occupant, boolean includeJid, boolean includeNick) {
         Entity jid = includeJid ? occupant.getJid() : null;
-        String nick = includeNick ? occupant.getName() : null;
+        String nick = includeNick ? occupant.getNick() : null;
 
         return createAttributes(jid, nick, occupant.getAffiliation(), occupant.getRole());
     }

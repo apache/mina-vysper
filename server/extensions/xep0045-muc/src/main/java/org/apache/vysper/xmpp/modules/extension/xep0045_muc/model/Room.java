@@ -109,18 +109,21 @@ public class Room implements InfoRequestListener, ItemRequestListener {
     public Occupant addOccupant(Entity occupantJid, String name) {
         Affiliation affiliation = affiliations.getAffiliation(occupantJid);
 
+        // TODO throw a domain specific exception
         if (affiliation == Affiliation.Outcast) {
-            return null;
+            throw new RuntimeException("forbidden");
         }
 
         // default to none
-        if (affiliation == null)
+        if (affiliation == null) {
             affiliation = Affiliation.None;
-
+        }
+        
         Role role = Role.getRole(affiliation, roomTypes);
-        Occupant occupant = new Occupant(occupantJid, name, affiliation, role);
+        Occupant occupant = new Occupant(occupantJid, name, this, role);
         if (isRoomType(RoomType.MembersOnly) && affiliation == Affiliation.None) {
             // don't add non member to room
+            throw new RuntimeException("registration-required");
         } else {
             occupants.put(occupantJid, occupant);
         }
@@ -133,7 +136,7 @@ public class Room implements InfoRequestListener, ItemRequestListener {
 
     public Occupant findOccupantByNick(String nick) {
         for (Occupant occupant : getOccupants()) {
-            if (occupant.getName().equals(nick))
+            if (occupant.getNick().equals(nick))
                 return occupant;
         }
 
@@ -192,7 +195,7 @@ public class Room implements InfoRequestListener, ItemRequestListener {
             // private room, return empty list
         } else {
             for (Occupant occupant : getOccupants()) {
-                items.add(new Item(new EntityImpl(getJID(), occupant.getName())));
+                items.add(new Item(new EntityImpl(getJID(), occupant.getNick())));
             }
         }
         return items;

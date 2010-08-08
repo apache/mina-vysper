@@ -28,36 +28,34 @@ import org.apache.vysper.xmpp.addressing.Entity;
  */
 public class Occupant {
 
-    private Affiliation affiliation;
+    private Room room;
 
     private Role role;
 
     private Entity jid;
 
-    private String name;
+    private String nick;
 
-    public Occupant(Entity jid, String name, Affiliation affiliation, Role role) {
+    public Occupant(Entity jid, String nick, Room room, Role role) {
         if (jid == null)
             throw new IllegalArgumentException("JID can not be null");
-        if (name == null)
+        if (nick == null)
             throw new IllegalArgumentException("Name can not be null");
-        if (affiliation == null)
-            throw new IllegalArgumentException("Affiliation can not be null");
+        if (room == null)
+            throw new IllegalArgumentException("Room can not be null");
         if (role == null)
             throw new IllegalArgumentException("Role can not be null");
 
         this.jid = jid;
-        this.name = name;
-        this.affiliation = affiliation;
+        this.nick = nick;
+        this.room = room;
         this.role = role;
     }
 
     public Affiliation getAffiliation() {
+        Affiliation affiliation = room.getAffiliations().getAffiliation(jid);
+        if(affiliation == null) affiliation = Affiliation.None;
         return affiliation;
-    }
-
-    public void setAffiliation(Affiliation affiliation) {
-        this.affiliation = affiliation;
     }
 
     public Role getRole() {
@@ -68,12 +66,12 @@ public class Occupant {
         this.role = role;
     }
 
-    public String getName() {
-        return name;
+    public String getNick() {
+        return nick;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setNick(String nick) {
+        this.nick = nick;
     }
 
     public Entity getJid() {

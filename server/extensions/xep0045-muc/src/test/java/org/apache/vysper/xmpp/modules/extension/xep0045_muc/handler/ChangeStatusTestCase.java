@@ -19,11 +19,14 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 
+import java.util.Arrays;
+
+import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Affiliation;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
-import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.MucUserPresenceItem;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.MucUserItem;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
@@ -61,9 +64,9 @@ public class ChangeStatusTestCase extends AbstractMUCHandlerTestCase {
 
         assertNull(changeStatus(OCCUPANT1_JID, ROOM1_JID_WITH_NICK, "xa", "Gone"));
 
-        MucUserPresenceItem item = new MucUserPresenceItem(OCCUPANT1_JID, "nick", Affiliation.None, Role.Participant);
-        assertPresenceStanza(occupant1Queue.getNext(), ROOM1_JID_WITH_NICK, OCCUPANT1_JID, "xa", "Gone", item);
-        assertPresenceStanza(occupant2Queue.getNext(), ROOM1_JID_WITH_NICK, OCCUPANT2_JID, "xa", "Gone", item);
+        MucUserItem item = new MucUserItem(OCCUPANT1_JID, "nick", Affiliation.None, Role.Participant);
+        assertPresenceStanza(ROOM1_JID_WITH_NICK, OCCUPANT1_JID, "xa", "Gone", item, occupant1Queue.getNext());
+        assertPresenceStanza(ROOM1_JID_WITH_NICK, OCCUPANT2_JID, "xa", "Gone", item, occupant2Queue.getNext());
     }
 
     public void testChangeShow() throws Exception {
@@ -73,9 +76,9 @@ public class ChangeStatusTestCase extends AbstractMUCHandlerTestCase {
 
         assertNull(changeStatus(OCCUPANT1_JID, ROOM1_JID_WITH_NICK, "xa", null));
 
-        MucUserPresenceItem item = new MucUserPresenceItem(OCCUPANT1_JID, "nick", Affiliation.None, Role.Participant);
-        assertPresenceStanza(occupant1Queue.getNext(), ROOM1_JID_WITH_NICK, OCCUPANT1_JID, "xa", null, item);
-        assertPresenceStanza(occupant2Queue.getNext(), ROOM1_JID_WITH_NICK, OCCUPANT2_JID, "xa", null, item);
+        MucUserItem item = new MucUserItem(OCCUPANT1_JID, "nick", Affiliation.None, Role.Participant);
+        assertPresenceStanza(ROOM1_JID_WITH_NICK, OCCUPANT1_JID, "xa", null, item, occupant1Queue.getNext());
+        assertPresenceStanza(ROOM1_JID_WITH_NICK, OCCUPANT2_JID, "xa", null, item, occupant2Queue.getNext());
     }
 
     public void testChangeStatus() throws Exception {
@@ -85,9 +88,15 @@ public class ChangeStatusTestCase extends AbstractMUCHandlerTestCase {
 
         assertNull(changeStatus(OCCUPANT1_JID, ROOM1_JID_WITH_NICK, null, "Gone"));
 
-        MucUserPresenceItem item = new MucUserPresenceItem(OCCUPANT1_JID, "nick", Affiliation.None, Role.Participant);
-        assertPresenceStanza(occupant1Queue.getNext(), ROOM1_JID_WITH_NICK, OCCUPANT1_JID, null, "Gone", item);
-        assertPresenceStanza(occupant2Queue.getNext(), ROOM1_JID_WITH_NICK, OCCUPANT2_JID, null, "Gone", item);
+        MucUserItem item = new MucUserItem(OCCUPANT1_JID, "nick", Affiliation.None, Role.Participant);
+        assertPresenceStanza(ROOM1_JID_WITH_NICK, OCCUPANT1_JID, null, "Gone", item, occupant1Queue.getNext());
+        assertPresenceStanza(ROOM1_JID_WITH_NICK, OCCUPANT2_JID, null, "Gone", item, occupant2Queue.getNext());
     }
 
+    private void assertPresenceStanza(Entity expectedFrom, Entity expectedTo, String expectedShow, String expectedStatus,
+            MucUserItem expectedItem, Stanza actualStanza) throws XMLSemanticError, Exception {
+
+        assertPresenceStanza(expectedFrom, expectedTo, null, expectedShow, expectedStatus, 
+                Arrays.asList(expectedItem), null, actualStanza);
+    }
 }

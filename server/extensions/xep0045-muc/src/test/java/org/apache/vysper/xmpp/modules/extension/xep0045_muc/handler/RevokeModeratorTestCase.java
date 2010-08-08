@@ -21,33 +21,30 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 
 import static org.apache.vysper.xmpp.stanza.IQStanzaType.SET;
 
-import org.apache.vysper.xml.fragment.XMLElement;
-import org.apache.vysper.xml.fragment.XMLElementBuilder;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Affiliation;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.IqAdminItem;
-import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.MucUserPresenceItem;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.MucUserItem;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ProtocolException;
-import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.stanza.IQStanza;
+import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
 
 /**
  */
-public class RevokeModeratorTestCase extends AbstractMUCHandlerTestCase {
+public class RevokeModeratorTestCase extends AbstractGrantRevokeTestCase {
 
     public void testRevokeModerator() throws Exception {
         Room room = conference.findOrCreateRoom(ROOM2_JID, "Room 2");
         Occupant occ1 = room.addOccupant(OCCUPANT1_JID, "nick");
         occ1.setRole(Role.Moderator);
-        occ1.setAffiliation(Affiliation.Admin);
+        room.getAffiliations().add(OCCUPANT1_JID, Affiliation.Admin);
         
         Occupant occ2 = room.addOccupant(OCCUPANT2_JID, "Nick 2");
         occ2.setRole(Role.Moderator);
-        occ2.setAffiliation(Affiliation.Member);
+        room.getAffiliations().add(OCCUPANT2_JID, Affiliation.Member);
 
         // send message to room
         IQStanza result = (IQStanza) IQStanza.getWrapper(sendIq(OCCUPANT1_JID, ROOM2_JID, SET, "id1",
@@ -57,47 +54,47 @@ public class RevokeModeratorTestCase extends AbstractMUCHandlerTestCase {
         assertEquals(Role.Participant, room.findOccupantByNick("Nick 2").getRole());
 
         // verify that remaining users got presence
-        assertPresenceStanza(occupant2Queue.getNext(), new EntityImpl(ROOM2_JID, "Nick 2"), OCCUPANT2_JID,
-                null, new MucUserPresenceItem(null, null, Affiliation.Member, Role.Participant), null);
-        assertPresenceStanza(occupant1Queue.getNext(), new EntityImpl(ROOM2_JID, "Nick 2"), OCCUPANT1_JID,
-                null, new MucUserPresenceItem(null, null, Affiliation.Member, Role.Participant), null);
+        assertPresenceStanza(new EntityImpl(ROOM2_JID, "Nick 2"), OCCUPANT2_JID, null,
+                new MucUserItem(null, null, Affiliation.Member, Role.Participant), null, occupant2Queue.getNext());
+        assertPresenceStanza(new EntityImpl(ROOM2_JID, "Nick 2"), OCCUPANT1_JID, null,
+                new MucUserItem(null, null, Affiliation.Member, Role.Participant), null, occupant1Queue.getNext());
     }
 
     public void testMemberAttemptRevokeModerator() throws Exception {
         Room room = conference.findOrCreateRoom(ROOM2_JID, "Room 2");
         Occupant occupant1 = room.addOccupant(OCCUPANT1_JID, "nick");
-        occupant1.setAffiliation(Affiliation.Member);
+        room.getAffiliations().add(OCCUPANT1_JID, Affiliation.Member);
         occupant1.setRole(Role.Moderator);
 
         room.addOccupant(OCCUPANT2_JID, "Nick 2").setRole(Role.Moderator);
 
-        testRevokeNotAllowed(room, "Nick 2", "not-allowed");
+        assertChangeNotAllowed("Nick 2", StanzaErrorCondition.NOT_ALLOWED, null, Role.Participant);
     }
 
     public void testAttemptRevokeOwnerModerator() throws Exception {
         Room room = conference.findOrCreateRoom(ROOM2_JID, "Room 2");
         Occupant occupant1 = room.addOccupant(OCCUPANT1_JID, "nick");
-        occupant1.setAffiliation(Affiliation.Owner);
+        room.getAffiliations().add(OCCUPANT1_JID, Affiliation.Owner);
         occupant1.setRole(Role.Moderator);
 
         Occupant occupant2 = room.addOccupant(OCCUPANT2_JID, "Nick 2");
-        occupant2.setAffiliation(Affiliation.Owner);
+        room.getAffiliations().add(OCCUPANT2_JID, Affiliation.Owner);
         occupant2.setRole(Role.Moderator);
 
-        testRevokeNotAllowed(room, "Nick 2", "not-allowed");
+        assertChangeNotAllowed("Nick 2", StanzaErrorCondition.NOT_ALLOWED, null, Role.Participant);
     }
 
     public void testAttemptRevokeAdminModerator() throws Exception {
         Room room = conference.findOrCreateRoom(ROOM2_JID, "Room 2");
         Occupant occupant1 = room.addOccupant(OCCUPANT1_JID, "nick");
-        occupant1.setAffiliation(Affiliation.Admin);
+        room.getAffiliations().add(OCCUPANT1_JID, Affiliation.Admin);
         occupant1.setRole(Role.Moderator);
 
         Occupant occupant2 = room.addOccupant(OCCUPANT2_JID, "Nick 2");
-        occupant2.setAffiliation(Affiliation.Owner);
+        room.getAffiliations().add(OCCUPANT2_JID, Affiliation.Owner);
         occupant2.setRole(Role.Moderator);
 
-        testRevokeNotAllowed(room, "Nick 2", "not-allowed");
+        assertChangeNotAllowed("Nick 2", StanzaErrorCondition.NOT_ALLOWED, null, Role.Participant);
     }
 
     public void testToRevokeYourself() throws Exception {
@@ -106,29 +103,9 @@ public class RevokeModeratorTestCase extends AbstractMUCHandlerTestCase {
         occupant1.setRole(Role.Moderator);
 
         // added only for presence check later
-        room.addOccupant(OCCUPANT2_JID, "Nick 2").setAffiliation(Affiliation.Owner);
+        room.addOccupant(OCCUPANT2_JID, "Nick 2");
+        room.getAffiliations().add(OCCUPANT1_JID, Affiliation.Owner);
 
-        testRevokeNotAllowed(room, "nick", "conflict");
+        assertChangeNotAllowed("nick", StanzaErrorCondition.CONFLICT, null, Role.Participant);
     }
-
-    private void testRevokeNotAllowed(Room room, String nickToRevoke, String expectedError) throws ProtocolException {
-        // send message to room
-        IQStanza result = (IQStanza) IQStanza.getWrapper(sendIq(OCCUPANT1_JID, ROOM2_JID, SET, "id1",
-                NamespaceURIs.XEP0045_MUC_ADMIN, new IqAdminItem(nickToRevoke, Role.Participant)));
-
-        XMLElement expectedInner = new XMLElementBuilder("query", NamespaceURIs.XEP0045_MUC_ADMIN).startInnerElement(
-                "item", NamespaceURIs.XEP0045_MUC_ADMIN).addAttribute("nick", nickToRevoke).addAttribute("role", "participant")
-                .endInnerElement().build();
-
-        assertErrorStanza(result, "iq", ROOM2_JID, OCCUPANT1_JID, "cancel", expectedError, expectedInner);
-
-        assertNotNull(room.findOccupantByNick("nick"));
-        assertNotNull(room.findOccupantByNick("Nick 2"));
-    }
-
-    @Override
-    protected StanzaHandler createHandler() {
-        return new MUCIqAdminHandler(conference);
-    }
-
 }

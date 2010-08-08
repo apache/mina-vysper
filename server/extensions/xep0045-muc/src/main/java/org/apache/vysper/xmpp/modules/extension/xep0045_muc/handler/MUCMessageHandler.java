@@ -110,7 +110,7 @@ public class MUCMessageHandler extends DefaultMessageHandler {
                 // sender must be participant in room
                 if (sendingOccupant != null) {
 
-                    Entity roomAndSendingNick = new EntityImpl(room.getJID(), sendingOccupant.getName());
+                    Entity roomAndSendingNick = new EntityImpl(room.getJID(), sendingOccupant.getNick());
                     if (sendingOccupant.hasVoice()) {
                         // relay message to all occupants in room
 
@@ -169,7 +169,7 @@ public class MUCMessageHandler extends DefaultMessageHandler {
                         // must be sent to an existing occupant in the room
                         if (receivingOccupant != null) {
 
-                            Entity roomAndSendingNick = new EntityImpl(room.getJID(), sendingOccupant.getName());
+                            Entity roomAndSendingNick = new EntityImpl(room.getJID(), sendingOccupant.getNick());
                             logger.debug("Relaying message to  {}", receivingOccupant);
                             List<Attribute> replaceAttributes = new ArrayList<Attribute>();
                             replaceAttributes.add(new Attribute("from", roomAndSendingNick.getFullQualifiedName()));

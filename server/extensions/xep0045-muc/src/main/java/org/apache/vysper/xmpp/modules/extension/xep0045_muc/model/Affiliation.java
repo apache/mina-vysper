@@ -47,7 +47,7 @@ import org.apache.vysper.compliance.SpecCompliant;
 @SpecCompliant(spec = "xep-0045", section = "5.2", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
 public enum Affiliation {
 
-    Owner, Admin, Member, Outcast, None;
+    Owner, Admin, Member, None, Outcast;
 
     public static Affiliation fromString(String s) {
         if ("owner".equals(s))
@@ -56,7 +56,7 @@ public enum Affiliation {
             return Admin;
         else if ("member".equals(s))
             return Member;
-        else if ("outcatse".equals(s))
+        else if ("outcast".equals(s))
             return Outcast;
         else if ("none".equals(s))
             return None;

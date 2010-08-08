@@ -122,7 +122,7 @@ public class RoomTestCase extends TestCase {
 
         Occupant occupant = room.getOccupants().iterator().next();
         assertEquals(occupantJid1, occupant.getJid());
-        assertEquals("Nick 1", occupant.getName());
+        assertEquals("Nick 1", occupant.getNick());
 
         room.addOccupant(occupantJid2, "Nick 2");
         assertEquals(2, room.getOccupants().size());

@@ -26,6 +26,8 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
 import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
+import org.apache.vysper.xmpp.stanza.StanzaErrorType;
 
 /**
  */
@@ -71,7 +73,7 @@ public class ChangeSubjectTestCase extends AbstractMUCMessageHandlerTestCase {
         // send message to room
         Stanza error = sendMessage(OCCUPANT1_JID, ROOM2_JID, GROUPCHAT, null, null, SUBJECT);
 
-        assertMessageErrorStanza(error, ROOM2_JID, OCCUPANT1_JID, "auth", "forbidden", new XMLElementBuilder("subject")
+        assertMessageErrorStanza(error, ROOM2_JID, OCCUPANT1_JID, StanzaErrorType.AUTH, StanzaErrorCondition.FORBIDDEN, new XMLElementBuilder("subject")
                 .addText(SUBJECT).build());
 
         assertNull(occupant1Queue.getNext());

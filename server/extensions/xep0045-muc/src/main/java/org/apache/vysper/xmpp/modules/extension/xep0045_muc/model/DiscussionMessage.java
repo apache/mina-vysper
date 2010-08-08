@@ -42,7 +42,7 @@ public class DiscussionMessage {
 
     public DiscussionMessage(Stanza stanza, Occupant from, Calendar timestamp) {
         this.message = stanza;
-        this.fromNick = from.getName();
+        this.fromNick = from.getNick();
 
         this.timestamp = (Calendar) timestamp.clone();
     }

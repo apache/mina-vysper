@@ -43,6 +43,8 @@ import org.apache.vysper.xmpp.stanza.MessageStanza;
 import org.apache.vysper.xmpp.stanza.MessageStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
+import org.apache.vysper.xmpp.stanza.StanzaErrorType;
 
 /**
  */
@@ -107,7 +109,7 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
         Occupant occupant = room.getOccupants().iterator().next();
 
         assertEquals(OCCUPANT1_JID, occupant.getJid());
-        assertEquals("nick", occupant.getName());
+        assertEquals("nick", occupant.getNick());
     }
 
     public void testEnterWithGroupchatProtocol() throws Exception {
@@ -121,7 +123,7 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
         Occupant occupant = room.getOccupants().iterator().next();
 
         assertEquals(OCCUPANT1_JID, occupant.getJid());
-        assertEquals("nick", occupant.getName());
+        assertEquals("nick", occupant.getNick());
     }
 
     public void testEnterAsAdmin() throws Exception {
@@ -140,7 +142,7 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
         room.getAffiliations().add(OCCUPANT1_JID, Affiliation.Outcast);
 
         Stanza error = enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK);
-        assertPresenceErrorStanza(error, ROOM1_JID, OCCUPANT1_JID, "auth", "forbidden");
+        assertPresenceErrorStanza(error, ROOM1_JID, OCCUPANT1_JID, StanzaErrorType.AUTH, StanzaErrorCondition.FORBIDDEN);
 
         assertEquals(0, room.getOccupants().size());
     }
@@ -149,7 +151,7 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
         Room room = conference.createRoom(ROOM2_JID, "Room", RoomType.MembersOnly);
 
         Stanza error = enterRoom(OCCUPANT1_JID, ROOM2_JID_WITH_NICK);
-        assertPresenceErrorStanza(error, ROOM2_JID, OCCUPANT1_JID, "auth", "registration-required");
+        assertPresenceErrorStanza(error, ROOM2_JID, OCCUPANT1_JID, StanzaErrorType.AUTH, StanzaErrorCondition.REGISTRATION_REQUIRED);
 
         assertEquals(0, room.getOccupants().size());
     }
@@ -173,14 +175,14 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
         Occupant occupant = room.getOccupants().iterator().next();
 
         assertEquals(OCCUPANT1_JID, occupant.getJid());
-        assertEquals("nick", occupant.getName());
+        assertEquals("nick", occupant.getNick());
     }
 
     public void testEnterWithoutNick() throws Exception {
         // try entering without a nick
         Stanza response = enterRoom(OCCUPANT1_JID, ROOM1_JID);
 
-        assertPresenceErrorStanza(response, ROOM1_JID, OCCUPANT1_JID, "modify", "jid-malformed");
+        assertPresenceErrorStanza(response, ROOM1_JID, OCCUPANT1_JID, StanzaErrorType.MODIFY, StanzaErrorCondition.JID_MALFORMED);
     }
 
     public void testEnterWithPassword() throws Exception {
@@ -199,10 +201,10 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
         // try entering without a password
         Stanza response = enterRoom(OCCUPANT1_JID, ROOM2_JID_WITH_NICK);
 
-        assertPresenceErrorStanza(response, ROOM2_JID, OCCUPANT1_JID, "auth", "not-authorized");
+        assertPresenceErrorStanza(response, ROOM2_JID, OCCUPANT1_JID, StanzaErrorType.AUTH, StanzaErrorCondition.NOT_AUTHORIZED);
     }
 
-    private void assertPresenceErrorStanza(Stanza response, Entity from, Entity to, String type, String errorName) {
+    private void assertPresenceErrorStanza(Stanza response, Entity from, Entity to, StanzaErrorType type, StanzaErrorCondition errorName) {
         XMLElement xElement = new XMLElementBuilder("x", NamespaceURIs.XEP0045_MUC).build();
         assertErrorStanza(response, "presence", from, to, type, errorName, xElement);
     }
@@ -257,13 +259,13 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
         Room room = conference.findOrCreateRoom(ROOM1_JID, "Room 1");
         room.getHistory().append(
                 StanzaBuilder.createMessageStanza(OCCUPANT2_JID, ROOM1_JID, MessageStanzaType.GROUPCHAT, null, "Body")
-                        .build(), new Occupant(OCCUPANT2_JID, "nick2", Affiliation.None, Role.Participant));
+                        .build(), new Occupant(OCCUPANT2_JID, "nick2", room, Role.Participant));
         room.getHistory().append(
                 StanzaBuilder.createMessageStanza(OCCUPANT2_JID, ROOM1_JID, MessageStanzaType.GROUPCHAT, null, "Body2")
-                        .build(), new Occupant(OCCUPANT2_JID, "nick2", Affiliation.None, Role.Participant));
+                        .build(), new Occupant(OCCUPANT2_JID, "nick2", room, Role.Participant));
         room.getHistory().append(
                 StanzaBuilder.createMessageStanza(OCCUPANT2_JID, ROOM1_JID, MessageStanzaType.GROUPCHAT, null, "Body3")
-                        .build(), new Occupant(OCCUPANT2_JID, "nick2", Affiliation.None, Role.Participant));
+                        .build(), new Occupant(OCCUPANT2_JID, "nick2", room, Role.Participant));
 
         // now, let user 1 enter room
         enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK, null, new History(2, null, null, null), false);

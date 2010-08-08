@@ -52,9 +52,11 @@ public class DiscussionHistoryTestCase extends TestCase {
 
     private static final Entity ROOM_JID = EntityImpl.parseUnchecked("room@vysper.org");
 
-    private static final Occupant FROM_OCCUPANT = new Occupant(FROM, NICK, Affiliation.None, Role.Visitor);
+    private static final Room ROOM = new Room(ROOM_JID, "Room");
 
-    private static final Occupant RECEIVER_OCCUPANT = new Occupant(RECEIVER, "nick2", Affiliation.None, Role.Visitor);
+    private static final Occupant FROM_OCCUPANT = new Occupant(FROM, NICK, ROOM, Role.Visitor);
+
+    private static final Occupant RECEIVER_OCCUPANT = new Occupant(RECEIVER, "nick2", ROOM, Role.Visitor);
 
     private DiscussionHistory history;
 

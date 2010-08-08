@@ -52,7 +52,9 @@ public class DiscussionMessageTestCase extends TestCase {
 
     private static final Entity ROOM_JID = EntityImpl.parseUnchecked("room@vysper.org");
 
-    private static final Occupant FROM_OCCUPANT = new Occupant(FROM, NICK, Affiliation.None, Role.Visitor);
+    private static final Room ROOM = new Room(ROOM_JID, "Room");
+    
+    private static final Occupant FROM_OCCUPANT = new Occupant(FROM, NICK, ROOM, Role.Visitor);
 
     public void testSubjectMessage() {
         StanzaBuilder builder = StanzaBuilder.createMessageStanza(FROM, ROOM_JID, null, null);
@@ -82,7 +84,7 @@ public class DiscussionMessageTestCase extends TestCase {
         DiscussionMessage item = new DiscussionMessage(inStanza, FROM_OCCUPANT, TIMESTAMP);
 
         Entity to = EntityImpl.parseUnchecked("user2@vysper.org/res");
-        Occupant toOccupant = new Occupant(to, "nick 2", Affiliation.None, Role.Visitor);
+        Occupant toOccupant = new Occupant(to, "nick 2", ROOM, Role.Visitor);
         MessageStanza outStanza = (MessageStanza) MessageStanza.getWrapper(item.createStanza(toOccupant, true));
 
         assertEquals(to, outStanza.getTo());

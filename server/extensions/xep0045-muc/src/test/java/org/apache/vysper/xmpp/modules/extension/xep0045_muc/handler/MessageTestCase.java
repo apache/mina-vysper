@@ -33,6 +33,8 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Password;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;
 import org.apache.vysper.xmpp.stanza.MessageStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
+import org.apache.vysper.xmpp.stanza.StanzaErrorType;
 
 /**
  */
@@ -44,14 +46,14 @@ public class MessageTestCase extends AbstractMUCMessageHandlerTestCase {
         // make sure the occupant has no voice
         occupant.setRole(Role.Visitor);
 
-        testNotAllowedMessage(room, "forbidden");
+        testNotAllowedMessage(room, StanzaErrorCondition.FORBIDDEN);
     }
 
     public void testMessageUserNotOccupant() throws Exception {
         Room room = conference.findOrCreateRoom(ROOM1_JID, "Room 1");
         // do not add user to room
 
-        testNotAllowedMessage(room, "not-acceptable");
+        testNotAllowedMessage(room, StanzaErrorCondition.NOT_ACCEPTABLE);
     }
 
     public void testMessageToRoomWithRelays() throws Exception {
@@ -97,7 +99,7 @@ public class MessageTestCase extends AbstractMUCMessageHandlerTestCase {
                 MessageStanzaType.GROUPCHAT, BODY);
 
         XMLElement expectedBody = new XMLElementBuilder("body").addText(BODY).build();
-        assertMessageErrorStanza(errorStanza, ROOM1_JID, OCCUPANT1_JID, "modify", "bad-request", expectedBody);
+        assertMessageErrorStanza(errorStanza, ROOM1_JID, OCCUPANT1_JID, StanzaErrorType.MODIFY, StanzaErrorCondition.BAD_REQUEST, expectedBody);
 
         // no message should be relayed
         assertNull(occupant1Queue.getNext());

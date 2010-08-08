@@ -19,9 +19,11 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 
+import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
@@ -32,8 +34,9 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.IqAdminItem;
-import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.MucUserPresenceItem;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.MucUserItem;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Status;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Status.StatusCode;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
@@ -72,7 +75,7 @@ public class MUCIqAdminHandler extends DefaultIQHandler {
     }
 
     private Entity roomAndNick(Room room, Occupant occupant) {
-        return new EntityImpl(room.getJID(), occupant.getName());
+        return new EntityImpl(room.getJID(), occupant.getNick());
     }
 
     @Override
@@ -86,29 +89,31 @@ public class MUCIqAdminHandler extends DefaultIQHandler {
             // only moderators are allowed to continue
             return MUCHandlerHelper.createErrorReply(stanza, StanzaErrorType.AUTH, StanzaErrorCondition.FORBIDDEN);
         }
-
         try {
             XMLElement query = stanza.getSingleInnerElementsNamed("query", NamespaceURIs.XEP0045_MUC_ADMIN);
             XMLElement itemElement = query.getSingleInnerElementsNamed("item", NamespaceURIs.XEP0045_MUC_ADMIN);
 
-            IqAdminItem item = IqAdminItem.getWrapper(itemElement);
-
-            Occupant target = null;
-            if (item.getNick() != null) {
-                target = room.findOccupantByNick(item.getNick());
-            } else {
-                return createBadRequestError(stanza, serverRuntimeContext, sessionContext, "Missing nick for item");
+            IqAdminItem item;
+            try {
+                item = IqAdminItem.getWrapper(itemElement);
+            } catch (EntityFormatException e) {
+                return createBadRequestError(stanza, serverRuntimeContext, sessionContext,
+                    "Invalid JID");
             }
 
+
             if (item.getRole() != null) {
-                return changeRole(stanza, serverRuntimeContext, sessionContext, item, room, moderator, target);
+                return changeRole(stanza, serverRuntimeContext, sessionContext, item, room, moderator);
+            } else if(item.getAffiliation() != null) {
+                return changeAffiliation(stanza, serverRuntimeContext, sessionContext, item, room, moderator);
             } else {
                 return createBadRequestError(stanza, serverRuntimeContext, sessionContext, "Unknown IQ stanza");
             }
 
         } catch (XMLSemanticError e) {
+            e.printStackTrace();
             return createBadRequestError(stanza, serverRuntimeContext, sessionContext,
-                    "iq stanza of type set requires exactly one query element");
+                    "Invalid IQ stanza");
         }
 
     }
@@ -116,12 +121,131 @@ public class MUCIqAdminHandler extends DefaultIQHandler {
     private Stanza createBadRequestError(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext, String message) {
         return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
-                StanzaErrorType.MODIFY, "iq stanza of type set requires exactly one query element",
+                StanzaErrorType.MODIFY, message,
                 getErrorLanguage(serverRuntimeContext, sessionContext), null);
+    }
+    
+    private Stanza changeAffiliation(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
+            SessionContext sessionContext, IqAdminItem item, Room room, Occupant moderator) {
+        // only allowed by admins and owners
+        if(moderator.getAffiliation() != Affiliation.Admin && moderator.getAffiliation() != Affiliation.Owner) {
+            return MUCHandlerHelper.createErrorReply(stanza, StanzaErrorType.CANCEL,
+                    StanzaErrorCondition.NOT_ALLOWED);
+        }
+        
+        
+        Entity target = null;
+        
+        if (item.getNick() != null) {
+            target = room.findOccupantByNick(item.getNick()).getJid();
+        } else {
+            try {
+                if(item.getJid() != null) {
+                    target = item.getJid();
+                } else {
+                    return createBadRequestError(stanza, serverRuntimeContext, sessionContext, "Missing nick for item");
+                }
+            } catch (EntityFormatException e) {
+                return createBadRequestError(stanza, serverRuntimeContext, sessionContext, "Invalid JID");
+            }
+        }
+        
+        Affiliation currentAffiliation = room.getAffiliations().getAffiliation(target);
+        Affiliation newAffiliation = item.getAffiliation();
+
+        // if the target is present in the room, we need to send presence updates
+        // otherwise we should send messages
+        Occupant targetOccupant = room.findOccupantByJID(target);
+        
+        // notify remaining users that user got affiliation updated
+        PresenceStanzaType presenceType = null;
+        Status status = null;
+        Role newRole;
+        Entity from;
+        if(targetOccupant != null) {
+            newRole = targetOccupant.getRole();
+            from = roomAndNick(room, targetOccupant);
+        } else {
+            newRole = Role.None;
+            from = room.getJID();
+            
+        }
+        
+        // only owners can revoke ownership and admin
+        if((currentAffiliation == Affiliation.Owner || currentAffiliation == Affiliation.Admin) && moderator.getAffiliation() != Affiliation.Owner) {
+            return MUCHandlerHelper.createErrorReply(stanza, StanzaErrorType.CANCEL,
+                    StanzaErrorCondition.NOT_ALLOWED);
+        }
+        
+        // if the occupant is getting revoke as a member, and this is a members-only room, he also needs to leave the room
+        if((newAffiliation == Affiliation.None && room.isRoomType(RoomType.MembersOnly)) || newAffiliation == Affiliation.Outcast) {
+            if(newAffiliation == Affiliation.Outcast && targetOccupant.getAffiliation().compareTo(moderator.getAffiliation()) < 0) {
+                return MUCHandlerHelper.createErrorReply(stanza, StanzaErrorType.CANCEL,
+                        StanzaErrorCondition.NOT_ALLOWED);
+            }
+            
+            if(targetOccupant != null) {
+                room.removeOccupant(target);
+            }
+            presenceType = PresenceStanzaType.UNAVAILABLE;
+            
+            if(newAffiliation == Affiliation.Outcast) {
+                status = new Status(StatusCode.BEEN_BANNED);
+            } else {
+                status = new Status(StatusCode.REMOVED_BY_AFFILIATION);
+            }
+
+            newRole = Role.None;
+            
+            MucUserItem presenceItem = new MucUserItem(newAffiliation, newRole);
+
+            Stanza presenceToFormerMember = MUCStanzaBuilder.createPresenceStanza(from, targetOccupant.getJid(),
+                    presenceType, NamespaceURIs.XEP0045_MUC_USER, presenceItem, status);
+
+            relayStanza(targetOccupant.getJid(), presenceToFormerMember, serverRuntimeContext);
+        } else if(newAffiliation == Affiliation.Owner || newAffiliation == Affiliation.Admin) {
+            if(moderator.getAffiliation() != Affiliation.Owner) {
+                return MUCHandlerHelper.createErrorReply(stanza, StanzaErrorType.CANCEL,
+                        StanzaErrorCondition.NOT_ALLOWED);
+            }
+        }
+        room.getAffiliations().add(target, newAffiliation);
+            
+
+        if(targetOccupant != null) {
+            MucUserItem presenceItem = new MucUserItem(newAffiliation, newRole);
+            for (Occupant occupant : room.getOccupants()) {
+                Stanza presenceToRemaining = MUCStanzaBuilder.createPresenceStanza(from, occupant.getJid(),
+                        presenceType, NamespaceURIs.XEP0045_MUC_USER, presenceItem, status);
+
+                relayStanza(occupant.getJid(), presenceToRemaining, serverRuntimeContext);
+            }
+        } else {
+            room.getAffiliations().add(target, newAffiliation);
+            
+            MucUserItem presenceItem = new MucUserItem(target, null, newAffiliation, Role.None);
+            for (Occupant occupant : room.getOccupants()) {
+                StanzaBuilder builder = MUCStanzaBuilder.createMessageStanza(room.getJID(), occupant.getJid(), null, null);
+                builder.addPreparedElement(presenceItem);
+
+                relayStanza(occupant.getJid(), builder.build(), serverRuntimeContext);
+            }
+            
+        }
+
+        return StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID())
+                .build();
     }
 
     private Stanza changeRole(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
-            SessionContext sessionContext, IqAdminItem item, Room room, Occupant moderator, Occupant target) {
+            SessionContext sessionContext, IqAdminItem item, Room room, Occupant moderator) {
+        Occupant target = null;
+        if (item.getNick() != null) {
+            target = room.findOccupantByNick(item.getNick());
+        } else {
+            return createBadRequestError(stanza, serverRuntimeContext, sessionContext, "Missing nick for item");
+        }
+        
         Role newRole = item.getRole();
 
         // you can not change yourself
@@ -177,7 +301,7 @@ public class MUCIqAdminHandler extends DefaultIQHandler {
 
             // notify user he got kicked
             Stanza presenceToKicked = MUCStanzaBuilder.createPresenceStanza(targetInRoom, target.getJid(),
-                    PresenceStanzaType.UNAVAILABLE, NamespaceURIs.XEP0045_MUC_USER, new MucUserPresenceItem(
+                    PresenceStanzaType.UNAVAILABLE, NamespaceURIs.XEP0045_MUC_USER, new MucUserItem(
                             Affiliation.None, Role.None),
                     // TODO handle <actor>
                     // TODO handle <reason>
@@ -189,7 +313,7 @@ public class MUCIqAdminHandler extends DefaultIQHandler {
         PresenceStanzaType availType = (newRole == Role.None) ? PresenceStanzaType.UNAVAILABLE : null;
 
         // notify remaining users that user got role updated
-        MucUserPresenceItem presenceItem = new MucUserPresenceItem(target.getAffiliation(), newRole);
+        MucUserItem presenceItem = new MucUserItem(target.getAffiliation(), newRole);
         for (Occupant occupant : room.getOccupants()) {
             Stanza presenceToRemaining = MUCStanzaBuilder.createPresenceStanza(targetInRoom, occupant.getJid(),
                     availType, NamespaceURIs.XEP0045_MUC_USER, presenceItem, status);

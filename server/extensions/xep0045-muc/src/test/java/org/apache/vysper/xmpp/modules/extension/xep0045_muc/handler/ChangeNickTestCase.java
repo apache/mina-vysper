@@ -27,12 +27,13 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Affiliation;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
-import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.MucUserPresenceItem;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.MucUserItem;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Status.StatusCode;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
+import org.apache.vysper.xmpp.stanza.PresenceStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
@@ -69,21 +70,21 @@ public class ChangeNickTestCase extends AbstractMUCHandlerTestCase {
         changeNick(OCCUPANT1_JID, new EntityImpl(ROOM1_JID, "new nick"));
 
         Occupant occupant = room.findOccupantByJID(OCCUPANT1_JID);
-        assertEquals("new nick", occupant.getName());
+        assertEquals("new nick", occupant.getNick());
 
-        MucUserPresenceItem unavailbleItem = new MucUserPresenceItem(OCCUPANT1_JID, "new nick", Affiliation.None,
+        MucUserItem unavailbleItem = new MucUserItem(OCCUPANT1_JID, "new nick", Affiliation.None,
                 Role.Participant);
-        assertPresenceStanza(occupant1Queue.getNext(), new EntityImpl(ROOM1_JID, "nick"), OCCUPANT1_JID, "unavailable",
-                Arrays.asList(unavailbleItem), Arrays.asList(StatusCode.NEW_NICK, StatusCode.OWN_PRESENCE));
-        assertPresenceStanza(occupant2Queue.getNext(), new EntityImpl(ROOM1_JID, "nick"), OCCUPANT2_JID, "unavailable",
-                Arrays.asList(unavailbleItem), Arrays.asList(StatusCode.NEW_NICK));
+        assertPresenceStanza(new EntityImpl(ROOM1_JID, "nick"), OCCUPANT1_JID, PresenceStanzaType.UNAVAILABLE, Arrays.asList(unavailbleItem),
+                Arrays.asList(StatusCode.NEW_NICK, StatusCode.OWN_PRESENCE), occupant1Queue.getNext());
+        assertPresenceStanza(new EntityImpl(ROOM1_JID, "nick"), OCCUPANT2_JID, PresenceStanzaType.UNAVAILABLE, Arrays.asList(unavailbleItem),
+                Arrays.asList(StatusCode.NEW_NICK), occupant2Queue.getNext());
 
-        MucUserPresenceItem availbleItem = new MucUserPresenceItem(OCCUPANT1_JID, null, Affiliation.None,
+        MucUserItem availbleItem = new MucUserItem(OCCUPANT1_JID, null, Affiliation.None,
                 Role.Participant);
-        assertPresenceStanza(occupant1Queue.getNext(), new EntityImpl(ROOM1_JID, "new nick"), OCCUPANT1_JID, null,
-                Arrays.asList(availbleItem), Arrays.asList(StatusCode.OWN_PRESENCE));
-        assertPresenceStanza(occupant2Queue.getNext(), new EntityImpl(ROOM1_JID, "new nick"), OCCUPANT2_JID, null,
-                Arrays.asList(availbleItem), null);
+        assertPresenceStanza(new EntityImpl(ROOM1_JID, "new nick"), OCCUPANT1_JID, null, Arrays.asList(availbleItem),
+                Arrays.asList(StatusCode.OWN_PRESENCE), occupant1Queue.getNext());
+        assertPresenceStanza(new EntityImpl(ROOM1_JID, "new nick"), OCCUPANT2_JID, null, Arrays.asList(availbleItem),
+                null, occupant2Queue.getNext());
     }
 
     public void testChangeNickWithDuplicateNick() throws Exception {
