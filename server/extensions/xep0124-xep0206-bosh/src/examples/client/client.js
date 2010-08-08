@@ -23,7 +23,6 @@ var port;
 var jid;
 var password;
 var connection;
-var subscribeRequests = [];
 var isDisconnecting = false;
 
 var connectionStatuses = {};
@@ -59,15 +58,6 @@ $(document).ready(function() {
 		connect();
 	});
 });
-
-function getSubscribeRequest(jid) {
-    for (var i = 0; i < subscribeRequests.length; i++) {
-        if (jid === subscribeRequests[i]) {
-            return i;
-        }
-    }
-    return -1;
-}
 
 function formatTime(val) {
 	return val < 10 ? "0" + val : val;
@@ -217,12 +207,16 @@ function presenceReceived(presence) {
 			connection.send(pres);
 		}
 	} else if (bareFromJid !== jid) {
-		$("#roster > div[jid=" + id + "]").text(bareFromJid + " (" + (type === "unavailable" ? "offline" : "online") + ")");
-		if (getSubscribeRequest(bareFromJid) === -1) {
-			log("Sending presence", $pres().toString());
-			connection.send($pres());
-		} else {
-			subscribeRequests.splice(getSubscribeRequest(bareFromJid), 1);
+		var contact = $("#roster > div[jid=" + id + "]");
+		if (contact.length === 1) {
+			var isOnline = contact.text().match(/.+\(online\)/);
+			if (isOnline && type === "unavailable") {
+				contact.text(bareFromJid + " (offline)");
+			} else if (!isOnline && type !== "unavailable") {
+				contact.text(bareFromJid + " (online)");
+				log("Sending presence", $pres().toString());
+				connection.send($pres());
+			}
 		}
 	}
 	return true;
@@ -243,7 +237,6 @@ function addContact() {
 		return;
 	}
 	$("#roster").append("<div jid='" + jid2id(toJid) + "'>" + toJid + " (offline)</div>");
-	subscribeRequests.push(toJid);
 	var pres = $pres({to: toJid, type: "subscribe"});
 	log("Requesting subscribe to " + toJid, pres.toString());
 	connection.send(pres);
