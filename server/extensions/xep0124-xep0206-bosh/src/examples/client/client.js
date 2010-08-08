@@ -75,6 +75,7 @@ function log(msg, xml) {
 	}
 	m += "<br/>";
 	$("#logger").append(m);
+	$("#logger").get(0).scrollTop = $("#logger").get(0).scrollHeight;
 }
 
 Strophe.log = function (level, msg) {
@@ -129,11 +130,23 @@ function rosterReceived(iq) {
 		if ($(this).attr('ask')) {
 			return true;
 		}
-		var jid = $(this).attr('jid');
-		$("#roster").append("<div jid='" + jid2id(jid) + "'>" + jid + " (offline)</div>");
+		addToRoster($(this).attr('jid'));
 	});
 	log("Sending my presence", $pres().toString());
 	connection.send($pres());
+}
+
+function addToRoster(jid) {
+	var id = jid2id(jid);
+	$("#roster").append("<div style='cursor: pointer;' jid='" + id + "'>" + jid + " (offline)</div>");
+	$("#roster > div[jid=" + id + "]").click(function() {
+		chatWith(jid);
+	});
+	$("#roster > div[jid=" + id + "]").hover(function() {
+		$(this).css("color", "red");
+	}, function() {
+		$(this).css("color", "#333333");
+	});
 }
 
 function jid2id(jid) {
@@ -143,28 +156,47 @@ function jid2id(jid) {
 function messageReceived(msg) {
 	log("Received chat message", Strophe.serialize(msg));
 	var jid = $(msg).attr("from");
-	var bareJid = Strophe.getBareJidFromJid(jid);
-	var id = jid2id(jid);
-
-	$("#tabs").show()
 	
-	if ($("#chat" + id).length === 0) {
-		$("#tabs").tabs("add", "#chat" + id, bareJid);
-		$("#chat" + id).append("<div style='height: 290px; margin-bottom: 10px; overflow: auto;'></div><input type='text' style='width: 100%;'/>");
+	verifyChatTab(jid);
+	
+	var body = $(msg).find("> body");
+	if (body.length === 1) {
+		showMessage(jid2id(jid), jid, body.text());
 	}
-	
-	if($(msg).find("> body")) {
-		$("#chat" + id + " > div").append("<p>" + $(msg).find("> body").text() + "</p>");
-		$("#chat" + id + " > div").get(0).scrollTop = $("#chat" + id + " > div").get(0).scrollHeight;
-	}
-	
-	$("#chat" + id).data("jid", jid);
-	$("#tabs").tabs("select", "#chat" + id);
-	$("#chat" + id + " > input").focus();
-
 	return true;
 }
 
+function showMessage(tabId, authorJid, text) {
+	var bareJid = Strophe.getBareJidFromJid(authorJid);
+	var chat = $("#chat" + tabId + " > div");
+	if (chat.length === 0) {
+		return;
+	}
+	chat.append("<div><b>" + bareJid + "</b>: " + text + "</div>");
+	chat.get(0).scrollTop = chat.get(0).scrollHeight;
+	$("#tabs").tabs("select", "#chat" + tabId);
+	$("#chat" + tabId + " > input").focus();
+}
+
+function verifyChatTab(jid) {
+	var id = jid2id(jid);
+	var bareJid = Strophe.getBareJidFromJid(jid);
+	$("#tabs").show();
+	if ($("#chat" + id).length === 0) {
+		$("#tabs").tabs("add", "#chat" + id, bareJid);
+		$("#chat" + id).append("<div style='height: 290px; margin-bottom: 10px; overflow: auto;'></div><input type='text' style='width: 100%;'/>");
+		$("#chat" + id).data("jid", jid);
+		$("#chat" + id + " > input").keydown(function(event) {
+			if (event.which === 13) {
+				event.preventDefault();
+				sendMessage($(this).parent().data("jid"), $(this).val());
+				$(this).val("");
+			}
+		});
+	}
+	$("#tabs").tabs("select", "#chat" + id);
+	$("#chat" + id + " > input").focus();
+}
 
 function disconnect() {
 	isDisconnecting = true;
@@ -178,8 +210,16 @@ function disconnect() {
 	connection.disconnect();
 }
 
-function chat() {
-	
+function chatWith(toJid) {
+	log("Chatting with " + toJid + "...");
+	verifyChatTab(toJid);
+}
+
+function sendMessage(toJid, text) {
+	showMessage(jid2id(toJid), jid, text);
+    var msg = $msg({to: toJid, "type": "chat"}).c('body').t(text);
+    log("Sending message", Strophe.serialize(msg));
+    connection.send(msg);
 }
 
 function presenceReceived(presence) {
@@ -196,7 +236,7 @@ function presenceReceived(presence) {
 			log("Allowing subscribe", pres.toString());
 			connection.send(pres);
 			if ($("#roster > div[jid=" + id + "]").length === 0) {
-				$("#roster").append("<div jid='" + id + "'>" + bareFromJid + " (offline)</div>");
+				addToRoster(fromJid);
 				pres = $pres({to: fromJid, type: "subscribe"});
 				log("Requesting subscribe from " + fromJid, pres.toString());
 				connection.send(pres);
@@ -236,7 +276,7 @@ function addContact() {
 		alert("JID already present in the roster!");
 		return;
 	}
-	$("#roster").append("<div jid='" + jid2id(toJid) + "'>" + toJid + " (offline)</div>");
+	addToRoster(toJid);
 	var pres = $pres({to: toJid, type: "subscribe"});
 	log("Requesting subscribe to " + toJid, pres.toString());
 	connection.send(pres);
