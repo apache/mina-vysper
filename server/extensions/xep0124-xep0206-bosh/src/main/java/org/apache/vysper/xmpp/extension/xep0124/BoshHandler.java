@@ -179,6 +179,10 @@ public class BoshHandler {
             String ver = boshRequest.getAttributeValue("ver");
             session.setBoshVersion(ver);
         }
+        if (boshRequest.getAttribute(NamespaceURIs.XML, "lang") != null) {
+            String lang = boshRequest.getAttributeValue(NamespaceURIs.XML, "lang");
+            session.setXMLLang(lang);
+        }
         session.addRequest(httpRequest);
         sessions.put(session.getSessionId(), session);
 
@@ -195,6 +199,7 @@ public class BoshHandler {
         body.addAttribute("sid", session.getSessionId());
         body.addAttribute("ver", session.getBoshVersion());
         body.addAttribute("from", session.getServerJID().getFullQualifiedName());
+        body.addAttribute("secure", "true");
 
         Stanza features = new ServerResponses().getFeaturesForAuthentication(serverRuntimeContext.getServerFeatures()
                 .getAuthenticationMethods());
