@@ -64,6 +64,20 @@ public class Field {
         this.var = var;
     }
 
+    /**
+     * Create field with a single value
+     * @param label The value of the  "label" attribute
+     * @param type The value of the "type" attribute
+     * @param var The value of the "var" attribute
+     * @param value The text of the initial "value" element
+     */
+    public Field(String label, Type type, String var, String value) {
+        this.label = label;
+        this.type = type;
+        this.var = var;
+        addValue(value);
+    }
+    
     public String getLabel() {
         return label;
     }

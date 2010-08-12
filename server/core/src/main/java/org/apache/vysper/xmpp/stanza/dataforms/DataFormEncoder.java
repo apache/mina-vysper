@@ -88,7 +88,7 @@ public class DataFormEncoder {
         List<Attribute> attributes = new ArrayList<Attribute>();
         attributes.add(new Attribute("type", dataForm.getType().value()));
 
-        return new XMLElement(NamespaceURIs.JABBER_X_DATA, "x", NamespaceURIs.JABBER_X_DATA, attributes, childElements);
+        return new XMLElement(NamespaceURIs.JABBER_X_DATA, "x", null, attributes, childElements);
     }
 
     protected XMLElement encodeField(Field field) {
@@ -106,11 +106,11 @@ public class DataFormEncoder {
             fieldAttributes.add(new Attribute("type", field.getType().value()));
         }
 
-        ArrayList<XMLFragment> descFragment = new ArrayList<XMLFragment>();
         if (field.getDesc() != null) {
+            ArrayList<XMLFragment> descFragment = new ArrayList<XMLFragment>();
             descFragment.add(new XMLText(field.getDesc()));
+            fieldElements.add(new XMLElement(NamespaceURIs.JABBER_X_DATA, "desc", null, null, descFragment));
         }
-        fieldElements.add(new XMLElement(NamespaceURIs.JABBER_X_DATA, "desc", null, null, descFragment));
 
         if (field.isRequired()) {
             fieldElements.add(createEmptyElement(NamespaceURIs.JABBER_X_DATA, "required"));
