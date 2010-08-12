@@ -82,6 +82,8 @@ public class NamespaceURIs {
 
     public static final String XEP0045_MUC_OWNER = "http://jabber.org/protocol/muc#owner";
 
+    public static final String XEP0045_MUC_REQUEST = "http://jabber.org/protocol/muc#request";
+
     public static final String XEP0045_MUC_UNIQUE = "http://jabber.org/protocol/muc#unique";
 
     public static final String XEP0045_MUC_USER = "http://jabber.org/protocol/muc#user";
