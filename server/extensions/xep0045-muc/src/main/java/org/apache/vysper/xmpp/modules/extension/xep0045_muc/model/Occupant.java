@@ -20,6 +20,7 @@
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.model;
 
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 
 /**
  * An occupant (user) in a room
@@ -89,6 +90,10 @@ public class Occupant {
 
     public boolean isModerator() {
         return role == Role.Moderator;
+    }
+    
+    public Entity getJidInRoom() {
+        return new EntityImpl(room.getJID(), nick);
     }
 
 }

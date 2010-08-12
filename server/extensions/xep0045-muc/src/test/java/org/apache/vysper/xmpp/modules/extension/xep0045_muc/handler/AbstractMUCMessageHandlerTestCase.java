@@ -46,7 +46,12 @@ public abstract class AbstractMUCMessageHandlerTestCase extends AbstractMUCHandl
         return sendMessage(from, to, type, body, null, null);
     }
 
-    protected Stanza sendMessage(Entity from, Entity to, MessageStanzaType type, String body, X x, String subject)
+    protected Stanza sendMessage(Entity from, Entity to, XMLElement x)
+    throws ProtocolException {
+        return sendMessage(from, to, null, null, x, null);
+    }
+    
+    protected Stanza sendMessage(Entity from, Entity to, MessageStanzaType type, String body, XMLElement x, String subject)
             throws ProtocolException {
         StanzaBuilder stanzaBuilder = StanzaBuilder.createMessageStanza(from, to, type, null, body);
         if (subject != null) {

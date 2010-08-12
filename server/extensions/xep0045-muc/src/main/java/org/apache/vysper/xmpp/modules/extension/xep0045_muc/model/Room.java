@@ -143,6 +143,19 @@ public class Room implements InfoRequestListener, ItemRequestListener {
         return null;
     }
 
+    public Set<Occupant> getModerators() {
+        return getByRole(Role.Moderator);
+    }
+    
+    private Set<Occupant> getByRole(Role role) {
+        Set<Occupant> matches = new HashSet<Occupant>();
+        for (Occupant occupant : getOccupants()) {
+            if (role.equals(occupant.getRole()))
+                matches.add(occupant);
+        }
+        return matches;
+    }
+    
     public boolean isInRoom(Entity jid) {
         return findOccupantByJID(jid) != null;
     }

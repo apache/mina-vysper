@@ -19,7 +19,6 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 
-import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
@@ -100,7 +99,6 @@ public class MUCIqAdminHandler extends DefaultIQHandler {
                 return createBadRequestError(stanza, serverRuntimeContext, sessionContext,
                     "Invalid JID");
             }
-
 
             if (item.getRole() != null) {
                 return changeRole(stanza, serverRuntimeContext, sessionContext, item, room, moderator);
@@ -230,7 +228,6 @@ public class MUCIqAdminHandler extends DefaultIQHandler {
 
                 relayStanza(occupant.getJid(), builder.build(), serverRuntimeContext);
             }
-            
         }
 
         return StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID())

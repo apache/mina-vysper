@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.vysper.compliance.SpecCompliance;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xml.fragment.Attribute;
+import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
@@ -32,10 +33,14 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultMessageHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.MUCStanzaBuilder;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.dataforms.VoiceRequestForm;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.MucUserItem;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -161,7 +166,19 @@ public class MUCMessageHandler extends DefaultMessageHandler {
                 Occupant sendingOccupant = room.findOccupantByJID(from);
 
                 // sender must be participant in room
-                if (roomWithNickJid.isResourceSet()) {
+                if(roomWithNickJid.equals(roomJid)) {
+                    // check x element
+                    
+                    if(stanza.getVerifier().onlySubelementEquals("x", NamespaceURIs.JABBER_X_DATA)) {
+                        // voice requests
+                        logger.debug("Received voice request for room {}", roomJid);
+                        
+                        handleVoiceRequest(from, sendingOccupant, room, stanza, serverRuntimeContext);
+                    } else if(stanza.getVerifier().onlySubelementEquals("x", NamespaceURIs.XEP0045_MUC)) {
+                        // invites/declines
+                        return handleInvites(stanza, from, sendingOccupant, room, serverRuntimeContext);
+                    }
+                } else if (roomWithNickJid.isResourceSet()) {
                     if (sendingOccupant != null) {
                         // got resource, private message for occupant
                         Occupant receivingOccupant = room.findOccupantByNick(roomWithNickJid.getResource());
@@ -188,38 +205,6 @@ public class MUCMessageHandler extends DefaultMessageHandler {
                         return createMessageErrorStanza(room.getJID(), from, stanza.getID(), StanzaErrorType.MODIFY,
                                 StanzaErrorCondition.NOT_ACCEPTABLE, stanza);
                     }
-                } else {
-                    X x = X.fromStanza(stanza);
-                    if (x != null && x.getInvite() != null) {
-                        if (sendingOccupant != null) {
-                            // invite, forward modified invite
-                            try {
-                                Stanza invite = MUCHandlerHelper.createInviteMessageStanza(stanza, room.getPassword());
-                                relayStanza(invite.getTo(), invite, serverRuntimeContext);
-                            } catch (EntityFormatException e) {
-                                // invalid format of invite element
-                                return createMessageErrorStanza(room.getJID(), from, stanza.getID(),
-                                        StanzaErrorType.MODIFY, StanzaErrorCondition.JID_MALFORMED, stanza);
-                            }
-                        } else {
-                            // user must be occupant to send invite
-                            return createMessageErrorStanza(room.getJID(), from, stanza.getID(),
-                                    StanzaErrorType.MODIFY, StanzaErrorCondition.NOT_ACCEPTABLE, stanza);
-                        }
-                    } else if (x != null && x.getDecline() != null) {
-                        // invite, forward modified decline
-                        try {
-                            Stanza decline = MUCHandlerHelper.createDeclineMessageStanza(stanza);
-                            relayStanza(decline.getTo(), decline, serverRuntimeContext);
-                        } catch (EntityFormatException e) {
-                            // invalid format of invite element
-                            return createMessageErrorStanza(room.getJID(), from, stanza.getID(),
-                                    StanzaErrorType.MODIFY, StanzaErrorCondition.JID_MALFORMED, stanza);
-                        }
-                    } else {
-                        return createMessageErrorStanza(room.getJID(), from, stanza.getID(), StanzaErrorType.MODIFY,
-                                StanzaErrorCondition.UNEXPECTED_REQUEST, stanza);
-                    }
                 }
             } else {
                 return createMessageErrorStanza(moduleDomain, from, stanza.getID(), StanzaErrorType.MODIFY,
@@ -228,6 +213,94 @@ public class MUCMessageHandler extends DefaultMessageHandler {
         }
 
         return null;
+    }
+
+    private Stanza handleInvites(MessageStanza stanza, Entity from, Occupant sendingOccupant, Room room,
+            ServerRuntimeContext serverRuntimeContext) {
+        X x = X.fromStanza(stanza);
+        if (x != null && x.getInvite() != null) {
+            if (sendingOccupant != null) {
+                // invite, forward modified invite
+                try {
+                    Stanza invite = MUCHandlerHelper.createInviteMessageStanza(stanza, room.getPassword());
+                    relayStanza(invite.getTo(), invite, serverRuntimeContext);
+                } catch (EntityFormatException e) {
+                    // invalid format of invite element
+                    return createMessageErrorStanza(room.getJID(), from, stanza.getID(),
+                            StanzaErrorType.MODIFY, StanzaErrorCondition.JID_MALFORMED, stanza);
+                }
+            } else {
+                // user must be occupant to send invite
+                return createMessageErrorStanza(room.getJID(), from, stanza.getID(),
+                        StanzaErrorType.MODIFY, StanzaErrorCondition.NOT_ACCEPTABLE, stanza);
+            }
+        } else if (x != null && x.getDecline() != null) {
+            // invite, forward modified decline
+            try {
+                Stanza decline = MUCHandlerHelper.createDeclineMessageStanza(stanza);
+                relayStanza(decline.getTo(), decline, serverRuntimeContext);
+            } catch (EntityFormatException e) {
+                // invalid format of invite element
+                return createMessageErrorStanza(room.getJID(), from, stanza.getID(),
+                        StanzaErrorType.MODIFY, StanzaErrorCondition.JID_MALFORMED, stanza);
+            }
+        } else {
+            return createMessageErrorStanza(room.getJID(), from, stanza.getID(), StanzaErrorType.MODIFY,
+                    StanzaErrorCondition.UNEXPECTED_REQUEST, stanza);
+        }
+        
+        return null;
+    }
+
+    private void handleVoiceRequest(Entity from, Occupant sendingOccupant, Room room, Stanza stanza,
+            ServerRuntimeContext serverRuntimeContext) {
+        List<XMLElement> dataXs = stanza.getInnerElementsNamed("x", NamespaceURIs.JABBER_X_DATA);
+        XMLElement dataX = dataXs.get(0);
+        
+        // check if "request_allow" is set
+        List<XMLElement> fields = dataX.getInnerElementsNamed("field", NamespaceURIs.JABBER_X_DATA);
+        String requestAllow = getFieldValue(fields, "muc#request_allow");
+        if("true".equals(requestAllow)) {
+            // submitted voice grant, only allowed by moderators
+            if(sendingOccupant.isModerator()) {
+                String requestNick = getFieldValue(fields, "muc#roomnick");
+                Occupant requestor = room.findOccupantByNick(requestNick);
+                requestor.setRole(Role.Participant);
+                
+                // notify remaining users that user got role updated
+                MucUserItem presenceItem = new MucUserItem(requestor.getAffiliation(), requestor.getRole());
+                for (Occupant occupant : room.getOccupants()) {
+                    Stanza presenceToRemaining = MUCStanzaBuilder.createPresenceStanza(requestor.getJidInRoom(), occupant.getJid(),
+                            null, NamespaceURIs.XEP0045_MUC_USER, presenceItem);
+
+                    relayStanza(occupant.getJid(), presenceToRemaining, serverRuntimeContext);
+                }
+            }
+        } else if(requestAllow == null) {
+            // no request allow, treat as voice request
+            VoiceRequestForm requestForm = new VoiceRequestForm(from, sendingOccupant.getNick());
+            
+            for(Occupant moderator : room.getModerators()) {
+                Stanza request = StanzaBuilder.createMessageStanza(room.getJID(), moderator.getJid(), null, null)
+                    .addPreparedElement(requestForm.createFormXML()).build();
+                
+                relayStanza(moderator.getJid(), request, serverRuntimeContext);
+            }
+        }
+    }
+    
+    private String getFieldValue(List<XMLElement> fields, String var) {
+        for(XMLElement field : fields) {
+            if(var.equals(field.getAttributeValue("var"))) {
+                try {
+                    return field.getSingleInnerElementsNamed("value", NamespaceURIs.JABBER_X_DATA).getInnerText().getText();
+                } catch (XMLSemanticError e) {
+                    return null;
+                }
+            }
+        }
+        return null;
+
     }
 
     protected void relayStanza(Entity receiver, Stanza stanza, ServerRuntimeContext serverRuntimeContext) {
