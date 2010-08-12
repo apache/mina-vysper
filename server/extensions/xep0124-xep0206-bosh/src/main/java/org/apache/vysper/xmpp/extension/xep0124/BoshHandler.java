@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.vysper.xml.fragment.Attribute;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -77,67 +78,76 @@ public class BoshHandler {
     /**
      * Processes BOSH requests
      * @param httpRequest the HTTP request
-     * @param boshRequest the decoded BOSH request
+     * @param body the decoded BOSH request
      */
-    public void process(HttpServletRequest httpRequest, Stanza boshRequest) {
-        if (!boshRequest.getNamespaceURI().equalsIgnoreCase(NamespaceURIs.XEP0124_BOSH)) {
-            LOGGER.error("Invalid namespace for body wrapper '{}', must be '{}'!", boshRequest.getNamespaceURI(),
+    public void process(HttpServletRequest httpRequest, Stanza body) {
+        if (!body.getNamespaceURI().equalsIgnoreCase(NamespaceURIs.XEP0124_BOSH)) {
+            LOGGER.error("Invalid namespace for body wrapper '{}', must be '{}'!", body.getNamespaceURI(),
                     NamespaceURIs.XEP0124_BOSH);
             return;
         }
-        if (!boshRequest.getName().equalsIgnoreCase("body")) {
-            LOGGER.error("Invalid body wrapper '{}'!", boshRequest.getName());
+        if (!body.getName().equalsIgnoreCase("body")) {
+            LOGGER.error("Invalid body wrapper '{}'!", body.getName());
             return;
         }
-        if (boshRequest.getAttribute("rid") == null) {
+        if (body.getAttribute("rid") == null) {
             LOGGER.error("Invalid request that does not have a request identifier (rid) attribute!");
             return;
         }
-
-        if (boshRequest.getAttribute("sid") == null) {
+        BoshRequest br = new BoshRequest(httpRequest, body, Long.parseLong(body.getAttributeValue("rid")));
+        if (body.getAttribute("sid") == null) {
             // the session creation request (first request) does not have a "sid" attribute
             try {
-                createSession(httpRequest, boshRequest);
+                createSession(br);
             } catch (IOException e) {
                 LOGGER.error("Exception thrown while processing the session creation request", e);
                 return;
             }
         } else {
-            BoshBackedSessionContext session = sessions.get(boshRequest.getAttributeValue("sid"));
+            BoshBackedSessionContext session = sessions.get(body.getAttributeValue("sid"));
             if (session == null) {
                 LOGGER.warn("Received an invalid 'sid'!");
                 return;
             }
             synchronized (session) {
-                session.addRequest(httpRequest);
-                processSession(session, boshRequest);
+                session.insertRequest(br);
+                for (;;) {
+                    // When a request from the user comes in, it is possible that the request fills a gap
+                    // created by previous lost request, and it could be possible to process more than the current request
+                    // continuing with all the adjacent requests.
+                    br = session.getNextRequest();
+                    if (br == null) {
+                        break;
+                    }
+                    processSession(session, br);
+                }
             }
         }
     }
     
-    private void processSession(BoshBackedSessionContext session, Stanza boshRequest) {
+    private void processSession(BoshBackedSessionContext session, BoshRequest br) {
         if (session.getState() == SessionState.ENCRYPTED) {
-            if (boshRequest.getInnerElements().isEmpty()) {
+            if (br.getBody().getInnerElements().isEmpty()) {
                 // session needs authentication
                 return;
             }
-            for (XMLElement element : boshRequest.getInnerElements()) {
+            for (XMLElement element : br.getBody().getInnerElements()) {
                 if (element.getNamespaceURI().equals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)) {
                     processStanza(session, element);
                 }
             }
         } else if (session.getState() == SessionState.AUTHENTICATED) {
-            if ("true".equals(boshRequest.getAttributeValue(NamespaceURIs.URN_XMPP_XBOSH, "restart"))) {
+            if ("true".equals(br.getBody().getAttributeValue(NamespaceURIs.URN_XMPP_XBOSH, "restart"))) {
                 // restart request
                 session.write0(getRestartResponse());
             } else {
                 // any other request
-                for (XMLElement element : boshRequest.getInnerElements()) {
+                for (XMLElement element : br.getBody().getInnerElements()) {
                     processStanza(session, element);
                 }
                 
                 // if the client solicited the session termination
-                if ("terminate".equals(boshRequest.getAttributeValue("type"))) {
+                if ("terminate".equals(br.getBody().getAttributeValue("type"))) {
                     terminateSession(session);
                 }
             }
@@ -162,28 +172,28 @@ public class BoshHandler {
                 session.getStateHolder());
     }
 
-    private void createSession(HttpServletRequest httpRequest, Stanza boshRequest) throws IOException {
+    private void createSession(BoshRequest br) throws IOException {
         BoshBackedSessionContext session = new BoshBackedSessionContext(this, serverRuntimeContext);
-        if (boshRequest.getAttribute("content") != null) {
-            session.setContentType(boshRequest.getAttributeValue("content"));
+        if (br.getBody().getAttribute("content") != null) {
+            session.setContentType(br.getBody().getAttributeValue("content"));
         }
-        if (boshRequest.getAttribute("wait") != null) {
-            int wait = Integer.parseInt(boshRequest.getAttributeValue("wait"));
+        if (br.getBody().getAttribute("wait") != null) {
+            int wait = Integer.parseInt(br.getBody().getAttributeValue("wait"));
             session.setWait(wait);
         }
-        if (boshRequest.getAttribute("hold") != null) {
-            int hold = Integer.parseInt(boshRequest.getAttributeValue("hold"));
+        if (br.getBody().getAttribute("hold") != null) {
+            int hold = Integer.parseInt(br.getBody().getAttributeValue("hold"));
             session.setHold(hold);
         }
-        if (boshRequest.getAttribute("ver") != null) {
-            String ver = boshRequest.getAttributeValue("ver");
+        if (br.getBody().getAttribute("ver") != null) {
+            String ver = br.getBody().getAttributeValue("ver");
             session.setBoshVersion(ver);
         }
-        if (boshRequest.getAttribute(NamespaceURIs.XML, "lang") != null) {
-            String lang = boshRequest.getAttributeValue(NamespaceURIs.XML, "lang");
+        if (br.getBody().getAttribute(NamespaceURIs.XML, "lang") != null) {
+            String lang = br.getBody().getAttributeValue(NamespaceURIs.XML, "lang");
             session.setXMLLang(lang);
         }
-        session.addRequest(httpRequest);
+        session.insertRequest(br);
         sessions.put(session.getSessionId(), session);
 
         session.write0(getSessionCreationResponse(session));
@@ -200,6 +210,10 @@ public class BoshHandler {
         body.addAttribute("ver", session.getBoshVersion());
         body.addAttribute("from", session.getServerJID().getFullQualifiedName());
         body.addAttribute("secure", "true");
+        
+        // adding the ack attribute here is needed because when responding to o request with the same RID (as is the case here)
+        // the ack would not be included on BoshBackedSessionContext#write0, but this first ack is required.
+        body.addAttribute("ack", Long.toString(session.getHighestAcknowledgedRid()));
 
         Stanza features = new ServerResponses().getFeaturesForAuthentication(serverRuntimeContext.getServerFeatures()
                 .getAuthenticationMethods());
@@ -264,6 +278,18 @@ public class BoshHandler {
     private Stanza getTerminateResponse() {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH);
         stanzaBuilder.addAttribute("type", "terminate");
+        return stanzaBuilder.build();
+    }
+    
+    public Stanza addAck(Stanza stanza, Long ack) {
+        StanzaBuilder stanzaBuilder = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH);
+        for (Attribute attr : stanza.getAttributes()) {
+            stanzaBuilder.addAttribute(attr);
+        }
+        stanzaBuilder.addAttribute("ack", ack.toString());
+        for (XMLElement element : stanza.getInnerElements()) {
+            stanzaBuilder.addPreparedElement(element);
+        }
         return stanzaBuilder.build();
     }
 

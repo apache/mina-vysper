@@ -21,8 +21,8 @@ package org.apache.vysper.xmpp.extension.xep0124;
 
 import java.util.LinkedList;
 import java.util.Queue;
-
-import javax.servlet.http.HttpServletRequest;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
@@ -61,12 +61,18 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     private int wait = 60;
 
     private int hold = 1;
-
+    
+    private Long highestAcknowledgedRid = null;
+    
+    private Long currentProcessingRequest = null;
+    
     /*
      * Keeps the suspended HTTP requests (does not respond to them) until the server has an asynchronous message
      * to send to the client. (Comet HTTP Long Polling technique - described in XEP-0124)
+     * 
+     * The BOSH requests sorted by their RIDs.
      */
-    private Queue<HttpServletRequest> requestQueue;
+    private SortedMap<Long, BoshRequest> requestsWindow;
 
     /*
      * Keeps the asynchronous messages sent from server that cannot be delivered to the client because there are
@@ -86,8 +92,17 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         sessionStateHolder.setState(SessionState.ENCRYPTED);
 
         this.boshHandler = boshHandler;
-        requestQueue = new LinkedList<HttpServletRequest>();
+        requestsWindow = new TreeMap<Long, BoshRequest>();
         delayedResponseQueue = new LinkedList<Stanza>();
+    }
+    
+    /**
+     * Returns the highest RID that is received in a continuous (uninterrupted) sequence of RIDs.
+     * Higher RIDs can exist with gaps separating them from the highestAcknowledgedRid.
+     * @return the highest continuous RID received so far
+     */
+    public long getHighestAcknowledgedRid() {
+        return highestAcknowledgedRid;
     }
 
     public SessionStateHolder getStateHolder() {
@@ -119,16 +134,18 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      * @param response The BOSH response to write
      */
     void write0(Stanza response) {
-        HttpServletRequest req = requestQueue.poll();
-        if (req == null) {
+        BoshRequest req;
+        if (requestsWindow.isEmpty() || requestsWindow.firstKey() > highestAcknowledgedRid) {
             delayedResponseQueue.offer(response);
             return;
+        } else {
+            req = requestsWindow.remove(requestsWindow.firstKey());
         }
-        BoshResponse boshResponse = getBoshResponse(response);
+        BoshResponse boshResponse = getBoshResponse(response, req.getRid().equals(highestAcknowledgedRid) ? null : highestAcknowledgedRid);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("BOSH writing response: {}", new String(boshResponse.getContent()));
         }
-        Continuation continuation = ContinuationSupport.getContinuation(req);
+        Continuation continuation = ContinuationSupport.getContinuation(req.getHttpServletRequest());
         continuation.setAttribute("response", boshResponse);
         continuation.resume();
     }
@@ -138,7 +155,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      */
     public void close() {
         // respond to all the queued HTTP requests with empty responses
-        while (!requestQueue.isEmpty()) {
+        while (!requestsWindow.isEmpty()) {
             write0(boshHandler.getEmptyResponse());
         }
         
@@ -267,21 +284,13 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      * expirations for the BOSH client while the current request expires.
      */
     synchronized private void requestExpired(Continuation continuation) {
-        HttpServletRequest req = (HttpServletRequest) continuation.getAttribute("request");
+        BoshRequest req = (BoshRequest) continuation.getAttribute("request");
         if (req == null) {
             LOGGER.warn("Continuation expired without having an associated request!");
             return;
         }
-        continuation.setAttribute("response", getBoshResponse(boshHandler.getEmptyResponse()));
-        for (;;) {
-            HttpServletRequest r = requestQueue.peek();
-            if (r == null) {
-                break;
-            }
+        while (!requestsWindow.isEmpty() && requestsWindow.firstKey() <= req.getRid()) {
             write0(boshHandler.getEmptyResponse());
-            if (r == req) {
-                break;
-            }
         }
     }
 
@@ -291,12 +300,28 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      * 
      * @param req the HTTP request
      */
-    public void addRequest(HttpServletRequest req) {
-        Continuation continuation = ContinuationSupport.getContinuation(req);
+    public void insertRequest(BoshRequest br) {
+        if (highestAcknowledgedRid != null && br.getRid() <= highestAcknowledgedRid || requestsWindow.containsKey(br.getRid())) {
+            // TODO: return the old response
+            return;
+        }
+        Continuation continuation = ContinuationSupport.getContinuation(br.getHttpServletRequest());
         continuation.setTimeout(wait * 1000);
         continuation.suspend();
-        continuation.setAttribute("request", req);
-        requestQueue.offer(req);
+        continuation.setAttribute("request", br);
+        requestsWindow.put(br.getRid(), br);
+        if (highestAcknowledgedRid == null) {
+            highestAcknowledgedRid = br.getRid();
+        }
+        for (;;) {
+            // update the highestAcknowledgedRid to the latest value
+            // it is possible to have higher RIDs than the highestAcknowledgedRid with a gap between them (e.g. lost client request)
+            if (requestsWindow.containsKey(highestAcknowledgedRid + 1)) {
+                highestAcknowledgedRid++;
+            } else {
+                break;
+            }
+        }
 
         // listen the continuation to be notified when the request expires
         continuation.addContinuationListener(new ContinuationListener() {
@@ -325,14 +350,37 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
 
         // If there are more suspended enqueued requests than it is allowed by the BOSH 'hold' parameter,
         // than we release the oldest one by sending an empty response.
-        if (requestQueue.size() > hold) {
+        if (requestsWindow.size() > hold) {
             write0(boshHandler.getEmptyResponse());
         }
     }
 
-    private BoshResponse getBoshResponse(Stanza stanza) {
+    private BoshResponse getBoshResponse(Stanza stanza, Long ack) {
+        if (ack != null) {
+            stanza = boshHandler.addAck(stanza, ack);
+        }
         byte[] content = new Renderer(stanza).getComplete().getBytes();
         return new BoshResponse(contentType, content);
+    }
+
+    /**
+     * Returns the next BOSH body to process.
+     * It is possible to have more than one BOSH body to process in the case where a lost request is resent by the client.
+     * @return the next (by RID order) body to process
+     */
+    public BoshRequest getNextRequest() {
+        if (requestsWindow.isEmpty()) {
+            return null;
+        }
+        if (currentProcessingRequest == null || currentProcessingRequest < requestsWindow.firstKey()) {
+            currentProcessingRequest = requestsWindow.firstKey();
+        }
+        if (currentProcessingRequest > highestAcknowledgedRid) {
+            return null;
+        } else {
+            currentProcessingRequest++;
+            return requestsWindow.get(currentProcessingRequest - 1);
+        }
     }
 
 }

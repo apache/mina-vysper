@@ -51,8 +51,6 @@ public class BoshBackedSessionContextTest {
 
     private ServerRuntimeContext serverRuntimeContext;
 
-    private BoshBackedSessionContext boshBackedSessionContext;
-
     @Before
     public void setUp() throws Exception {
         mocksControl = createControl();
@@ -74,7 +72,7 @@ public class BoshBackedSessionContextTest {
         expect(httpServletRequest.getAttribute(Continuation.ATTRIBUTE)).andReturn(continuation);
         expectLastCall().atLeastOnce();
         continuation.setTimeout(anyLong());
-        continuation.setAttribute("request", httpServletRequest);
+        continuation.setAttribute(eq("request"), EasyMock.<BoshRequest> notNull());
         continuation.suspend();
         continuation.resume();
         continuation.addContinuationListener(EasyMock.<ContinuationListener> anyObject());
@@ -82,12 +80,12 @@ public class BoshBackedSessionContextTest {
         continuation.setAttribute(eq("response"), EasyMock.<BoshResponse> capture(captured));
         mocksControl.replay();
 
-        boshBackedSessionContext = new BoshBackedSessionContext(boshHandler, serverRuntimeContext);
-        boshBackedSessionContext.addRequest(httpServletRequest);
+        BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(boshHandler, serverRuntimeContext);
         Stanza body = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH).build();
+        boshBackedSessionContext.insertRequest(new BoshRequest(httpServletRequest, body, 1L));
         boshBackedSessionContext.write0(body);
         mocksControl.verify();
-
+        
         BoshResponse boshResponse = captured.getValue();
         assertEquals(BoshServlet.XML_CONTENT_TYPE, boshResponse.getContentType());
         assertEquals(new Renderer(body).getComplete(), new String(boshResponse.getContent()));
@@ -96,17 +94,19 @@ public class BoshBackedSessionContextTest {
     @Test
     public void testSetBoshVersion1() {
         mocksControl.replay();
-        boshBackedSessionContext = new BoshBackedSessionContext(boshHandler, serverRuntimeContext);
+        BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(boshHandler, serverRuntimeContext);
         boshBackedSessionContext.setBoshVersion("1.8");
         assertEquals("1.8", boshBackedSessionContext.getBoshVersion());
+        mocksControl.verify();
     }
 
     @Test
     public void testSetBoshVersion2() {
         mocksControl.replay();
-        boshBackedSessionContext = new BoshBackedSessionContext(boshHandler, serverRuntimeContext);
+        BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(boshHandler, serverRuntimeContext);
         boshBackedSessionContext.setBoshVersion("2.0");
         assertEquals("1.9", boshBackedSessionContext.getBoshVersion());
+        mocksControl.verify();
     }
 
     @Test
@@ -120,13 +120,15 @@ public class BoshBackedSessionContextTest {
         expectLastCall().atLeastOnce();
         continuation.setTimeout(anyLong());
         continuation.suspend();
-        continuation.setAttribute("request", httpServletRequest);
+        continuation.setAttribute(eq("request"), EasyMock.<BoshRequest> notNull());
 
         Capture<ContinuationListener> listenerCaptured = new Capture<ContinuationListener>();
         continuation.addContinuationListener(EasyMock.<ContinuationListener> capture(listenerCaptured));
+        
+        BoshRequest br = new BoshRequest(httpServletRequest, body, 1L);
 
         // requestExpired
-        expect(continuation.getAttribute("request")).andReturn(httpServletRequest);
+        expect(continuation.getAttribute("request")).andReturn(br);
         Capture<BoshResponse> responseCaptured = new Capture<BoshResponse>();
         continuation.setAttribute(eq("response"), EasyMock.<BoshResponse> capture(responseCaptured));
 
@@ -134,12 +136,12 @@ public class BoshBackedSessionContextTest {
         expectLastCall().atLeastOnce();
 
         // write0
-        continuation.setAttribute(eq("response"), EasyMock.<BoshResponse> anyObject());
         continuation.resume();
 
         mocksControl.replay();
-        boshBackedSessionContext = new BoshBackedSessionContext(boshHandler, serverRuntimeContext);
-        boshBackedSessionContext.addRequest(httpServletRequest);
+        BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(boshHandler, serverRuntimeContext);
+        
+        boshBackedSessionContext.insertRequest(br);
         listenerCaptured.getValue().onTimeout(continuation);
         mocksControl.verify();
 
@@ -160,12 +162,17 @@ public class BoshBackedSessionContextTest {
         expectLastCall().atLeastOnce();
         continuation1.setTimeout(anyLong());
         continuation1.suspend();
-        continuation1.setAttribute("request", httpServletRequest1);
+        Capture<BoshRequest> br1 = new Capture<BoshRequest>();
+        continuation1.setAttribute(eq("request"), EasyMock.<BoshRequest> capture(br1));
         continuation2.setTimeout(anyLong());
         continuation2.suspend();
-        continuation2.setAttribute("request", httpServletRequest2);
+        Capture<BoshRequest> br2 = new Capture<BoshRequest>();
+        continuation2.setAttribute(eq("request"), EasyMock.<BoshRequest> capture(br2));
         continuation1.addContinuationListener(EasyMock.<ContinuationListener> anyObject());
         continuation2.addContinuationListener(EasyMock.<ContinuationListener> anyObject());
+        
+        Stanza body = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH).build();
+        expect(boshHandler.addAck(eq(body), EasyMock.anyLong())).andReturn(body);
 
         // write0
         Capture<BoshResponse> captured = new Capture<BoshResponse>();
@@ -173,14 +180,17 @@ public class BoshBackedSessionContextTest {
         continuation1.resume();
 
         mocksControl.replay();
-        boshBackedSessionContext = new BoshBackedSessionContext(boshHandler, serverRuntimeContext);
+        BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(boshHandler, serverRuntimeContext);
 
         boshBackedSessionContext.setHold(2);
-        boshBackedSessionContext.addRequest(httpServletRequest1);
-        boshBackedSessionContext.addRequest(httpServletRequest2);
-        Stanza body = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH).build();
+        // consecutive writes with RID 1 and 2
+        boshBackedSessionContext.insertRequest(new BoshRequest(httpServletRequest1, body, 1L));
+        boshBackedSessionContext.insertRequest(new BoshRequest(httpServletRequest2, body, 2L));
         boshBackedSessionContext.write0(body);
         mocksControl.verify();
+        
+        assertEquals(httpServletRequest1, br1.getValue().getHttpServletRequest());
+        assertEquals(httpServletRequest2, br2.getValue().getHttpServletRequest());
 
         assertEquals(new Renderer(body).getComplete(), new String(captured.getValue().getContent()));
         assertEquals(BoshServlet.XML_CONTENT_TYPE, captured.getValue().getContentType());
@@ -194,7 +204,7 @@ public class BoshBackedSessionContextTest {
         expectLastCall().atLeastOnce();
         continuation.setTimeout(anyLong());
         continuation.suspend();
-        continuation.setAttribute("request", httpServletRequest);
+        continuation.setAttribute(eq("request"), EasyMock.<BoshRequest> notNull());
 
         continuation.addContinuationListener(EasyMock.<ContinuationListener> anyObject());
 
@@ -209,10 +219,10 @@ public class BoshBackedSessionContextTest {
 
         mocksControl.replay();
 
-        boshBackedSessionContext = new BoshBackedSessionContext(boshHandler, serverRuntimeContext);
+        BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(boshHandler, serverRuntimeContext);
         boshBackedSessionContext.write0(body1);
         boshBackedSessionContext.write0(body2);
-        boshBackedSessionContext.addRequest(httpServletRequest);
+        boshBackedSessionContext.insertRequest(new BoshRequest(httpServletRequest, body1, 1L));
         mocksControl.verify();
     }
 

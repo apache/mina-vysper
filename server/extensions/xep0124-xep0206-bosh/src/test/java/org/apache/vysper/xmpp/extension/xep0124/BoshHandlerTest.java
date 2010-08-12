@@ -32,7 +32,6 @@ import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.SASLMechanism;
@@ -85,7 +84,8 @@ public class BoshHandlerTest {
         expect(httpServletRequest.getAttribute(Continuation.ATTRIBUTE)).andReturn(continuation);
         expectLastCall().atLeastOnce();
         continuation.setTimeout(anyLong());
-        continuation.setAttribute("request", httpServletRequest);
+        Capture<BoshRequest> br = new Capture<BoshRequest>();
+        continuation.setAttribute(eq("request"), EasyMock.<BoshRequest> capture(br));
         continuation.addContinuationListener(EasyMock.<ContinuationListener> anyObject());
         continuation.suspend();
 
@@ -101,6 +101,9 @@ public class BoshHandlerTest {
         Stanza boshRequest = createSessionRequest();
         boshHandler.process(httpServletRequest, boshRequest);
         mocksControl.verify();
+        
+        assertEquals(httpServletRequest, br.getValue().getHttpServletRequest());
+        assertEquals(boshRequest, br.getValue().getBody());
 
         Stanza response = new XMLUtil(new String(captured.getValue().getContent())).parse();
         assertNotNull(response);
@@ -126,7 +129,7 @@ public class BoshHandlerTest {
         expectLastCall().atLeastOnce();
         continuation.setTimeout(anyLong());
         continuation.suspend();
-        continuation.setAttribute("request", httpServletRequest);
+        continuation.setAttribute(eq("request"), EasyMock.<BoshRequest> capture(br));
         continuation.addContinuationListener(EasyMock.<ContinuationListener> anyObject());
         StanzaProcessor stanzaProcessor = mocksControl.createMock(StanzaProcessor.class);
         expect(serverRuntimeContext.getStanzaProcessor()).andReturn(stanzaProcessor);
@@ -137,6 +140,10 @@ public class BoshHandlerTest {
         boshRequest = createSaslRequest();
         boshHandler.process(httpServletRequest, boshRequest);
         mocksControl.verify();
+        
+        assertEquals(httpServletRequest, br.getValue().getHttpServletRequest());
+        assertEquals(boshRequest, br.getValue().getBody());
+        
         Stanza stanza = stanzaCaptured.getValue();
         assertNotNull(stanza);
         assertEquals("auth", stanza.getName());
