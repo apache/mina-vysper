@@ -19,9 +19,6 @@
  */
 package org.apache.vysper.xmpp.extension.xep0124;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;

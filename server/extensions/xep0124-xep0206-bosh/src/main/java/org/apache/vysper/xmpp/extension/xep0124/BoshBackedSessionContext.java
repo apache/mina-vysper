@@ -30,7 +30,6 @@ import org.apache.vysper.xmpp.server.AbstractSessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.writer.StanzaWriter;
 import org.eclipse.jetty.continuation.Continuation;
 import org.eclipse.jetty.continuation.ContinuationListener;
@@ -66,6 +65,8 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     private Long highestAcknowledgedRid = null;
     
     private Long currentProcessingRequest = null;
+    
+    private BoshRequest latestEmptyPollingRequest = null;
     
     /*
      * Keeps the suspended HTTP requests (does not respond to them) until the server has an asynchronous message
@@ -328,9 +329,26 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         }
         if (requestsWindow.size() + 1 > requests && !"terminate".equals(br.getBody().getAttributeValue("type"))
                 && br.getBody().getAttributeValue("pause") == null) {
-            // overactivity
+            LOGGER.warn("BOSH Overactivity: Too many simultaneous requests");
             error("policy-violation");
             return;
+        }
+        if (requestsWindow.size() + 1 == requests && !"terminate".equals(br.getBody().getAttributeValue("type"))
+                && br.getBody().getAttributeValue("pause") == null && br.getBody().getInnerElements().isEmpty()) {
+            if (!requestsWindow.isEmpty()
+                    && br.getTimestamp() - requestsWindow.get(requestsWindow.lastKey()).getTimestamp() < polling * 1000) {
+                LOGGER.warn("BOSH Overactivity: Too frequent requests");
+                error("policy-violation");
+                return;
+            }
+        }
+        if ((wait == 0 || hold == 0) && br.getBody().getInnerElements().isEmpty()) {
+            if (latestEmptyPollingRequest != null && br.getTimestamp() - latestEmptyPollingRequest.getTimestamp() < polling * 1000) {
+                LOGGER.warn("BOSH Overactivity for polling: Too frequent requests");
+                error("policy-violation");
+                return;
+            }
+            latestEmptyPollingRequest = br;
         }
         Continuation continuation = ContinuationSupport.getContinuation(br.getHttpServletRequest());
         continuation.setTimeout(wait * 1000);

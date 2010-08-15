@@ -35,11 +35,14 @@ public class BoshRequest implements Comparable<BoshRequest> {
     private final Stanza body;
 
     private final Long rid;
+    
+    private final long timestamp;
 
     public BoshRequest(HttpServletRequest httpServletRequest, Stanza body, Long rid) {
         this.httpServletRequest = httpServletRequest;
         this.body = body;
         this.rid = rid;
+        timestamp = System.currentTimeMillis();
     }
 
     public HttpServletRequest getHttpServletRequest() {
@@ -78,6 +81,10 @@ public class BoshRequest implements Comparable<BoshRequest> {
         } else if (!rid.equals(other.rid))
             return false;
         return true;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
     }
 
 }

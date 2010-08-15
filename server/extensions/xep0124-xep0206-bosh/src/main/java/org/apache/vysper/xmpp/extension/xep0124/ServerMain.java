@@ -22,7 +22,6 @@ package org.apache.vysper.xmpp.extension.xep0124;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.vysper.mina.TCPEndpoint;
