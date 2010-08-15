@@ -275,18 +275,30 @@ public class BoshHandler {
         return wrapStanza(features);
     }
     
-    private Stanza getTerminateResponse() {
+    /**
+     * Creates a session termination BOSH response
+     * @return the termination BOSH body
+    */
+    public Stanza getTerminateResponse() {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH);
         stanzaBuilder.addAttribute("type", "terminate");
         return stanzaBuilder.build();
     }
     
-    public Stanza addAck(Stanza stanza, Long ack) {
+    /**
+     * Adds a custom attribute to a BOSH body.
+     * 
+     * @param stanza the BOSH body
+     * @param attributeName the name of the attribute
+     * @param attributeValue the value of the attribute
+     * @return a new BOSH body identical with the one provided except it also has the newly added attribute
+     */
+    public Stanza addAttribute(Stanza stanza, String attributeName, String attributeValue) {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH);
         for (Attribute attr : stanza.getAttributes()) {
             stanzaBuilder.addAttribute(attr);
         }
-        stanzaBuilder.addAttribute("ack", ack.toString());
+        stanzaBuilder.addAttribute(attributeName, attributeValue);
         for (XMLElement element : stanza.getInnerElements()) {
             stanzaBuilder.addPreparedElement(element);
         }

@@ -172,7 +172,7 @@ public class BoshBackedSessionContextTest {
         continuation2.addContinuationListener(EasyMock.<ContinuationListener> anyObject());
         
         Stanza body = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH).build();
-        expect(boshHandler.addAck(eq(body), EasyMock.anyLong())).andReturn(body);
+        expect(boshHandler.addAttribute(eq(body), eq("ack"), Long.toString(EasyMock.anyLong()))).andReturn(body);
 
         // write0
         Capture<BoshResponse> captured = new Capture<BoshResponse>();

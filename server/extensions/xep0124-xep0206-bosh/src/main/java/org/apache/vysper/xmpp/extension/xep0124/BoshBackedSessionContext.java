@@ -30,6 +30,7 @@ import org.apache.vysper.xmpp.server.AbstractSessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.writer.StanzaWriter;
 import org.eclipse.jetty.continuation.Continuation;
 import org.eclipse.jetty.continuation.ContinuationListener;
@@ -149,11 +150,31 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         continuation.setAttribute("response", boshResponse);
         continuation.resume();
     }
+    
+    /**
+     * Writes an error to the client and closes the connection
+     * @param condition the error condition
+     */
+    synchronized public void error(String condition) {
+        if (!requestsWindow.isEmpty()) {
+            BoshRequest req = requestsWindow.remove(requestsWindow.firstKey());
+            Stanza stanza = boshHandler.getTerminateResponse();
+            stanza = boshHandler.addAttribute(stanza, "condition", condition);
+            BoshResponse boshResponse = getBoshResponse(stanza, null);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("BOSH writing response: {}", new String(boshResponse.getContent()));
+            }
+            Continuation continuation = ContinuationSupport.getContinuation(req.getHttpServletRequest());
+            continuation.setAttribute("response", boshResponse);
+            continuation.resume();
+        }
+        close();
+    }
 
     /*
      * Terminates the BOSH session
      */
-    public void close() {
+    synchronized public void close() {
         // respond to all the queued HTTP requests with empty responses
         while (!requestsWindow.isEmpty()) {
             write0(boshHandler.getEmptyResponse());
@@ -305,6 +326,12 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
             // TODO: return the old response
             return;
         }
+        if (requestsWindow.size() + 1 > requests && !"terminate".equals(br.getBody().getAttributeValue("type"))
+                && br.getBody().getAttributeValue("pause") == null) {
+            // overactivity
+            error("policy-violation");
+            return;
+        }
         Continuation continuation = ContinuationSupport.getContinuation(br.getHttpServletRequest());
         continuation.setTimeout(wait * 1000);
         continuation.suspend();
@@ -357,7 +384,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
 
     private BoshResponse getBoshResponse(Stanza stanza, Long ack) {
         if (ack != null) {
-            stanza = boshHandler.addAck(stanza, ack);
+            stanza = boshHandler.addAttribute(stanza, "ack", ack.toString());
         }
         byte[] content = new Renderer(stanza).getComplete().getBytes();
         return new BoshResponse(contentType, content);
