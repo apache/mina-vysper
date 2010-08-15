@@ -62,7 +62,12 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
 
     private int hold = 1;
     
-    private Long highestAcknowledgedRid = null;
+    /*
+     * The highest RID that can be read and processed, this is the highest (rightmost) contiguous RID.
+     * The requests from the client can come theoretically with missing updates:
+     * rid_1, rid_2, rid_4 (missing rid_3, highestReadRid is rid_2)
+     */
+    private Long highestReadRid = null;
     
     private Long currentProcessingRequest = null;
     
@@ -72,13 +77,13 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      * Keeps the suspended HTTP requests (does not respond to them) until the server has an asynchronous message
      * to send to the client. (Comet HTTP Long Polling technique - described in XEP-0124)
      * 
-     * The BOSH requests sorted by their RIDs.
+     * The BOSH requests are sorted by their RIDs.
      */
     private SortedMap<Long, BoshRequest> requestsWindow;
 
     /*
      * Keeps the asynchronous messages sent from server that cannot be delivered to the client because there are
-     * no available HTTP requests to respond to (requestQueue is empty).
+     * no available HTTP requests to respond to (requestsWindow is empty).
      */
     private Queue<Stanza> delayedResponseQueue;
 
@@ -100,11 +105,11 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     
     /**
      * Returns the highest RID that is received in a continuous (uninterrupted) sequence of RIDs.
-     * Higher RIDs can exist with gaps separating them from the highestAcknowledgedRid.
+     * Higher RIDs can exist with gaps separating them from the highestReadRid.
      * @return the highest continuous RID received so far
      */
-    public long getHighestAcknowledgedRid() {
-        return highestAcknowledgedRid;
+    public long getHighestReadRid() {
+        return highestReadRid;
     }
 
     public SessionStateHolder getStateHolder() {
@@ -137,13 +142,13 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      */
     void write0(Stanza response) {
         BoshRequest req;
-        if (requestsWindow.isEmpty() || requestsWindow.firstKey() > highestAcknowledgedRid) {
+        if (requestsWindow.isEmpty() || requestsWindow.firstKey() > highestReadRid) {
             delayedResponseQueue.offer(response);
             return;
         } else {
             req = requestsWindow.remove(requestsWindow.firstKey());
         }
-        BoshResponse boshResponse = getBoshResponse(response, req.getRid().equals(highestAcknowledgedRid) ? null : highestAcknowledgedRid);
+        BoshResponse boshResponse = getBoshResponse(response, req.getRid().equals(highestReadRid) ? null : highestReadRid);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("BOSH writing response: {}", new String(boshResponse.getContent()));
         }
@@ -301,7 +306,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     }
 
     /*
-     * A request expires when it stays enqueued in the requestQueue longer than the allowed 'wait' time.
+     * A request expires when it stays enqueued in the requestsWindow longer than the allowed 'wait' time.
      * The synchronization on the session object ensures that there will be no concurrent writes or other concurrent
      * expirations for the BOSH client while the current request expires.
      */
@@ -323,7 +328,12 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      * @param req the HTTP request
      */
     public void insertRequest(BoshRequest br) {
-        if (highestAcknowledgedRid != null && br.getRid() <= highestAcknowledgedRid || requestsWindow.containsKey(br.getRid())) {
+        if (highestReadRid != null && highestReadRid + requests < br.getRid()) {
+            LOGGER.warn("BOSH received RID greater than the permitted window of concurrent requests");
+            error("item-not-found");
+            return;
+        }
+        if (highestReadRid != null && br.getRid() <= highestReadRid || requestsWindow.containsKey(br.getRid())) {
             // TODO: return the old response
             return;
         }
@@ -355,14 +365,14 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         continuation.suspend();
         continuation.setAttribute("request", br);
         requestsWindow.put(br.getRid(), br);
-        if (highestAcknowledgedRid == null) {
-            highestAcknowledgedRid = br.getRid();
+        if (highestReadRid == null) {
+            highestReadRid = br.getRid();
         }
         for (;;) {
             // update the highestAcknowledgedRid to the latest value
             // it is possible to have higher RIDs than the highestAcknowledgedRid with a gap between them (e.g. lost client request)
-            if (requestsWindow.containsKey(highestAcknowledgedRid + 1)) {
-                highestAcknowledgedRid++;
+            if (requestsWindow.containsKey(highestReadRid + 1)) {
+                highestReadRid++;
             } else {
                 break;
             }
@@ -420,7 +430,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         if (currentProcessingRequest == null || currentProcessingRequest < requestsWindow.firstKey()) {
             currentProcessingRequest = requestsWindow.firstKey();
         }
-        if (currentProcessingRequest > highestAcknowledgedRid) {
+        if (currentProcessingRequest > highestReadRid) {
             return null;
         } else {
             currentProcessingRequest++;

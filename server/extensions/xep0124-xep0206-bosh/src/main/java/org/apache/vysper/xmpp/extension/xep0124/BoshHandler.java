@@ -213,7 +213,7 @@ public class BoshHandler {
         
         // adding the ack attribute here is needed because when responding to o request with the same RID (as is the case here)
         // the ack would not be included on BoshBackedSessionContext#write0, but this first ack is required.
-        body.addAttribute("ack", Long.toString(session.getHighestAcknowledgedRid()));
+        body.addAttribute("ack", Long.toString(session.getHighestReadRid()));
 
         Stanza features = new ServerResponses().getFeaturesForAuthentication(serverRuntimeContext.getServerFeatures()
                 .getAuthenticationMethods());
