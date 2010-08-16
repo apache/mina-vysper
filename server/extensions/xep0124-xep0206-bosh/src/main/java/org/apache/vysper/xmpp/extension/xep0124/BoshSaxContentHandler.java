@@ -22,12 +22,12 @@ package org.apache.vysper.xmpp.extension.xep0124;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.vysper.mina.codec.StanzaBuilderFactory;
-import org.apache.vysper.xml.decoder.XMLElementBuilderFactory;
 import org.apache.vysper.xml.decoder.XMPPContentHandler;
 import org.apache.vysper.xml.fragment.AbstractXMLElementBuilder;
 import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
@@ -50,10 +50,9 @@ public class BoshSaxContentHandler implements ContentHandler {
 
     private final HttpServletRequest request;
 
-    private final XMLElementBuilderFactory builderFactory;
+    private final StanzaBuilderFactory builderFactory;
 
-    @SuppressWarnings("rawtypes")
-    private AbstractXMLElementBuilder builder;
+    private AbstractXMLElementBuilder<StanzaBuilder, Stanza> builder;
 
     private int depth = 0;
 
