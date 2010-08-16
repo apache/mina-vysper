@@ -30,9 +30,12 @@ public class BoshResponse {
 
     private final byte[] content;
 
+    private final long timestamp;
+
     public BoshResponse(String contentType, byte[] content) {
         this.contentType = contentType;
         this.content = content;
+        timestamp = System.currentTimeMillis();
     }
 
     public String getContentType() {
@@ -41,6 +44,10 @@ public class BoshResponse {
 
     public byte[] getContent() {
         return content;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
     }
 
 }

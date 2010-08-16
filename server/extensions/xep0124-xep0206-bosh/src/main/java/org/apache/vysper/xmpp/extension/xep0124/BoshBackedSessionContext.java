@@ -56,6 +56,12 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     private final int maximumSentResponses = 10;
     
     /*
+     * The number of milliseconds that will have to pass for a response to be reported missing to the client by
+     * responding with a report and time attributes. See Response Acknowledgements in XEP-0124.
+     */
+    private final int brokenConnectionReportTimeout = 1000;
+    
+    /*
      * Keeps the suspended HTTP requests (does not respond to them) until the server has an asynchronous message
      * to send to the client. (Comet HTTP Long Polling technique - described in XEP-0124)
      * 
@@ -211,9 +217,9 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     private void error(BoshRequest br, String condition) {
         requestsWindow.put(br.getRid(), br);
         BoshRequest req = requestsWindow.remove(requestsWindow.firstKey());
-        Stanza stanza = boshHandler.getTerminateResponse();
-        stanza = boshHandler.addAttribute(stanza, "condition", condition);
-        BoshResponse boshResponse = getBoshResponse(stanza, null);
+        Stanza body = boshHandler.getTerminateResponse();
+        body = boshHandler.addAttribute(body, "condition", condition);
+        BoshResponse boshResponse = getBoshResponse(body, null);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("BOSH writing response: {}", new String(boshResponse.getContent()));
         }
@@ -227,9 +233,17 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      * Terminates the BOSH session
      */
     synchronized public void close() {
-        // respond to all the queued HTTP requests with empty responses
+        // respond to all the queued HTTP requests with termination responses
         while (!requestsWindow.isEmpty()) {
-            write0(boshHandler.getEmptyResponse());
+            BoshRequest req = requestsWindow.remove(requestsWindow.firstKey());
+            Stanza body = boshHandler.getTerminateResponse();
+            BoshResponse boshResponse = getBoshResponse(body, null);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("BOSH writing response: {}", new String(boshResponse.getContent()));
+            }
+            Continuation continuation = ContinuationSupport.getContinuation(req.getHttpServletRequest());
+            continuation.setAttribute("response", boshResponse);
+            continuation.resume();
         }
         
         serverRuntimeContext.getResourceRegistry().unbindSession(this);
@@ -434,10 +448,6 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
             }
             latestEmptyPollingRequest = br;
         }
-        if (isClientAcknowledgements()) {
-            // TODO: if received client ack is not the expected one, then send a response report to the client informing him about this,
-            // so that he could rerequest the missing responses.
-        }
         
         requestsWindow.put(br.getRid(), br);
         if (highestReadRid == null) {
@@ -450,6 +460,27 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
                 highestReadRid++;
             } else {
                 break;
+            }
+        }
+        
+        if (isClientAcknowledgements()) {
+            if (br.getBody().getAttribute("ack") == null) {
+                // if there is no ack attribute present then the client confirmed it received all the responses to all the previous requests
+                // and we clear the cache
+                sentResponses.clear();
+            } else if (!sentResponses.isEmpty()) {
+                // After receiving a request with an 'ack' value less than the 'rid' of the last request that it has already responded to,
+                // the connection manager MAY inform the client of the situation. In this case it SHOULD include a 'report' attribute set
+                // to one greater than the 'ack' attribute it received from the client, and a 'time' attribute set to the number of milliseconds
+                // since it sent the response associated with the 'report' attribute.
+                long ack = Long.parseLong(br.getBody().getAttributeValue("ack"));
+                if (ack < sentResponses.lastKey() && sentResponses.containsKey(ack + 1)) {
+                    long delta = System.currentTimeMillis() - sentResponses.get(ack + 1).getTimestamp();
+                    if (delta >= brokenConnectionReportTimeout) {
+                        sendBrokenConnectionReport(ack + 1, delta);
+                        return;
+                    }
+                }
             }
         }
         
@@ -470,6 +501,13 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         if (requestsWindow.size() > hold) {
             write0(boshHandler.getEmptyResponse());
         }
+    }
+    
+    private void sendBrokenConnectionReport(long report, long delta) {
+        Stanza body = boshHandler.getTerminateResponse();
+        body = boshHandler.addAttribute(body, "report", Long.toString(report));
+        body = boshHandler.addAttribute(body, "time", Long.toString(delta));
+        write0(body);
     }
     
     private void addContinuationExpirationListener(Continuation continuation) {
