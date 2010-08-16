@@ -210,8 +210,9 @@ public class BoshBackedSessionContextTest {
 
         Stanza body1 = mocksControl.createMock(Stanza.class);
         Stanza body2 = mocksControl.createMock(Stanza.class);
-        expect(boshHandler.mergeResponses(EasyMock.<Stanza> anyObject(), EasyMock.<Stanza> anyObject())).andReturn(
-                new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH).build());
+        Stanza body = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH).build();
+        expect(boshHandler.mergeResponses(EasyMock.<Stanza> anyObject(), EasyMock.<Stanza> anyObject()))
+                .andReturn(body);
         expectLastCall().times(2);
 
         continuation.setAttribute(eq("response"), EasyMock.<BoshResponse> anyObject());
@@ -219,10 +220,11 @@ public class BoshBackedSessionContextTest {
 
         mocksControl.replay();
 
-        BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(boshHandler, serverRuntimeContext);
+        BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(boshHandler,
+                serverRuntimeContext);
         boshBackedSessionContext.write0(body1);
         boshBackedSessionContext.write0(body2);
-        boshBackedSessionContext.insertRequest(new BoshRequest(httpServletRequest, body1, 1L));
+        boshBackedSessionContext.insertRequest(new BoshRequest(httpServletRequest, body, 1L));
         mocksControl.verify();
     }
 

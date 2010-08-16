@@ -193,6 +193,9 @@ public class BoshHandler {
             String lang = br.getBody().getAttributeValue(NamespaceURIs.XML, "lang");
             session.setXMLLang(lang);
         }
+        if ("1".equals(br.getBody().getAttributeValue("ack"))) {
+            session.setClientAcknowledgements(true);
+        }
         session.insertRequest(br);
         sessions.put(session.getSessionId(), session);
 
