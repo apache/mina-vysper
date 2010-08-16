@@ -196,6 +196,7 @@ public class BoshHandler {
         if ("1".equals(br.getBody().getAttributeValue("ack"))) {
             session.setClientAcknowledgements(true);
         }
+        session.startInactivityChecker();
         session.insertRequest(br);
         sessions.put(session.getSessionId(), session);
 
@@ -213,6 +214,7 @@ public class BoshHandler {
         body.addAttribute("ver", session.getBoshVersion());
         body.addAttribute("from", session.getServerJID().getFullQualifiedName());
         body.addAttribute("secure", "true");
+        body.addAttribute("maxpause", Integer.toString(session.getMaxPause()));
         
         // adding the ack attribute here is needed because when responding to o request with the same RID (as is the case here)
         // the ack would not be included on BoshBackedSessionContext#write0, but this first ack is required.

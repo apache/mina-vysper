@@ -22,6 +22,8 @@ package org.apache.vysper.xmpp.extension.xep0124;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.SortedMap;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.TreeMap;
 
 import org.apache.vysper.xml.fragment.Renderer;
@@ -48,6 +50,8 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     private final static Logger LOGGER = LoggerFactory.getLogger(BoshBackedSessionContext.class);
 
     private final BoshHandler boshHandler;
+    
+    private final int maxpause = 120;
 
     private final int inactivity = 60;
 
@@ -91,6 +95,8 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
 
     private int hold = 1;
     
+    private int currentInactivity = inactivity;
+    
     /*
      * The highest RID that can be read and processed, this is the highest (rightmost) contiguous RID.
      * The requests from the client can come theoretically with missing updates:
@@ -107,6 +113,14 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      * attribute in any request is meaningful.
      */
     private boolean clientAcknowledgements;
+    
+    /*
+     * The timestamp of the latest response wrote to the client is used to measure the inactivity period.
+     * When reaching the maximum inactivity the session will automatically close.
+     */
+    private long latestWriteTimestamp = System.currentTimeMillis();
+    
+    private Timer inactivityChecker = new Timer(true);
 
     /**
      * Creates a new context for a session
@@ -123,6 +137,25 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         requestsWindow = new TreeMap<Long, BoshRequest>();
         delayedResponseQueue = new LinkedList<Stanza>();
         sentResponses = new TreeMap<Long, BoshResponse>();
+    }
+    
+    /**
+     * Periodically checks if the session reached the maximum inactivity period.
+     */
+    public void startInactivityChecker() {
+        inactivityChecker.schedule(new TimerTask() {
+            
+            @Override
+            public void run() {
+                synchronized (BoshBackedSessionContext.this) {
+                    if (System.currentTimeMillis() - latestWriteTimestamp >= currentInactivity * 1000 && requestsWindow.isEmpty()) {
+                        LOGGER.info("BOSH session reached maximum inactivity period, closing session...");
+                        close();
+                    }
+                }
+            }
+            
+        }, 1000, 1000);
     }
     
     /**
@@ -189,6 +222,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         Continuation continuation = ContinuationSupport.getContinuation(req.getHttpServletRequest());
         continuation.setAttribute("response", boshResponse);
         continuation.resume();
+        latestWriteTimestamp = System.currentTimeMillis();
     }
     
     private boolean isResponseSavable(BoshRequest req, Stanza response) {
@@ -249,6 +283,8 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         serverRuntimeContext.getResourceRegistry().unbindSession(this);
         sessionStateHolder.setState(SessionState.CLOSED);
         
+        inactivityChecker.cancel();
+        
         LOGGER.info("BOSH session {} closed", getSessionId());
     }
 
@@ -271,6 +307,14 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      */
     public String getContentType() {
         return contentType;
+    }
+    
+    /**
+     * Getter for the maximum length of a temporary session pause (in seconds) that a client can request
+     * @return
+     */
+    public int getMaxPause() {
+        return maxpause;
     }
 
     /**
@@ -404,6 +448,9 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      * @param req the HTTP request
      */
     public void insertRequest(BoshRequest br) {
+        // reset the inactivity
+        currentInactivity = inactivity;
+        
         Continuation continuation = ContinuationSupport.getContinuation(br.getHttpServletRequest());
         addContinuationExpirationListener(continuation);
         continuation.setTimeout(wait * 1000);
@@ -484,6 +531,21 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
             }
         }
         
+        // we cannot pause if there are missing requests, this is tested with
+        // br.getRid().equals(requestsWindow.lastKey()) && highestReadRid.equals(br.getRid())
+        if (br.getBody().getAttribute("pause") != null && br.getRid().equals(requestsWindow.lastKey()) && highestReadRid.equals(br.getRid())) {
+            int pause = Integer.parseInt(br.getBody().getAttributeValue("pause"));
+            if (pause > maxpause) {
+                // do not allow to pause more than maxpause
+                pause = maxpause;
+            }
+            if (pause < 0) {
+                pause = 0;
+            }
+            respondToPause(pause);
+            return;
+        }
+        
         // If there are delayed responses waiting to be sent to the BOSH client, then we wrap them all in
         // a <body/> element and send them as a HTTP response to the current HTTP request.
         Stanza delayedResponse;
@@ -499,6 +561,18 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         // If there are more suspended enqueued requests than it is allowed by the BOSH 'hold' parameter,
         // than we release the oldest one by sending an empty response.
         if (requestsWindow.size() > hold) {
+            write0(boshHandler.getEmptyResponse());
+        }
+    }
+    
+    private void respondToPause(int pause) {
+        LOGGER.debug("Setting inactivity period to {}", pause);
+        currentInactivity = pause;
+        for (;;) {
+            BoshRequest boshRequest = getNextRequest();
+            if (boshRequest == null) {
+                break;
+            }
             write0(boshHandler.getEmptyResponse());
         }
     }
@@ -533,6 +607,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         Continuation continuation = ContinuationSupport.getContinuation(br.getHttpServletRequest());
         continuation.setAttribute("response", boshResponse);
         continuation.resume();
+        latestWriteTimestamp = System.currentTimeMillis();
     }
 
     private BoshResponse getBoshResponse(Stanza stanza, Long ack) {
