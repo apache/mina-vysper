@@ -176,6 +176,7 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
 
         assertEquals(OCCUPANT1_JID, occupant.getJid());
         assertEquals("nick", occupant.getNick());
+        assertEquals(Role.Moderator, occupant.getRole());
     }
 
     public void testEnterWithoutNick() throws Exception {

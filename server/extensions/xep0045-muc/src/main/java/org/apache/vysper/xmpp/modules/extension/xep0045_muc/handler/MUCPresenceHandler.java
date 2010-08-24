@@ -33,7 +33,6 @@ import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultPresenceHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.MUCStanzaBuilder;
-import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Affiliation;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
@@ -129,8 +128,13 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
     private Stanza available(PresenceStanza stanza, Entity roomJid, Entity newOccupantJid, String nick,
             ServerRuntimeContext serverRuntimeContext) {
 
+        boolean newRoom = false;
         // TODO what to use for the room name?
-        Room room = conference.findOrCreateRoom(roomJid, roomJid.getNode());
+        Room room = conference.findRoom(roomJid);
+        if(room == null) {
+            room = conference.createRoom(roomJid, roomJid.getNode());
+            newRoom = true;
+        }
 
         if (room.isInRoom(newOccupantJid)) {
             // user is already in room, change nick
@@ -192,6 +196,10 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
                 newOccupant = room.addOccupant(newOccupantJid, nick);
             } catch(RuntimeException e) {
                 return createPresenceErrorStanza(roomJid, newOccupantJid, stanza.getID(), "auth", e.getMessage());
+            }
+            
+            if(newRoom) {
+                newOccupant.setRole(Role.Moderator);
             }
 
             // relay presence of all existing room occupants to the now joined occupant
