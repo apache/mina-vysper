@@ -24,6 +24,7 @@ import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.Version;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -36,7 +37,7 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 @SpecCompliant(spec = "xep-0092", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
 public class SoftwareVersionIQHandler extends DefaultIQHandler {
 
-    public static final String VYSPER_RELEASE = "0.6-SNAPSHOT";
+    public static final String VYSPER_RELEASE = Version.getVersion();
 
     public static final String OS_VERSION = System.getProperty("os.name", "undetermined") + " "
             + System.getProperty("os.arch", "") + " " + System.getProperty("os.version", "");
