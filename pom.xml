@@ -79,13 +79,6 @@
     <url>http://svn.apache.org/viewvc/mina/vysper/trunk</url>
   </scm>
 
-  <repositories>
-    <repository>
-      <id>ehcache-repo</id>
-      <url>http://oss.sonatype.org/content/repositories/sourceforge-releases</url>
-    </repository>
-  </repositories>
-
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -132,9 +125,8 @@
 
       <dependency>
         <groupId>net.sf.ehcache</groupId>
-        <artifactId>ehcache</artifactId>
-        <version>1.6.1</version>
-        <type>jar</type>
+        <artifactId>ehcache-core</artifactId>
+        <version>2.2.0</version>
        </dependency>
 
       <!-- Logging -->

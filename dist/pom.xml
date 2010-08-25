@@ -51,6 +51,11 @@
     </dependency>
 
     <dependency>
+      <groupId>org.apache.vysper.extensions</groupId>
+      <artifactId>xep0124-xep0206-bosh</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring</artifactId>
       <optional>true</optional>
@@ -123,7 +128,7 @@
 
     <dependency>
       <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
+      <artifactId>ehcache-core</artifactId>
       <optional>true</optional>
     </dependency>
   </dependencies>
