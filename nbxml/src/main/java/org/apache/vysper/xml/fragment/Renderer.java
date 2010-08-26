@@ -93,13 +93,14 @@ public class Renderer {
             }
         }
         openElementBuffer.append(">");
-
         for (XMLFragment xmlFragment : element.getInnerFragments()) {
-            if (xmlFragment instanceof XMLElement)
+            if (xmlFragment instanceof XMLElement) {
                 renderXMLElement((XMLElement) xmlFragment, nsResolver, elementContentBuffer, elementContentBuffer,
                         elementContentBuffer);
-            else if (xmlFragment instanceof XMLText) {
+            } else if (xmlFragment instanceof XMLText) {
                 elementContentBuffer.append(escapeTextValue(((XMLText) xmlFragment).getText()));
+            } else if(xmlFragment == null) {
+                // ignore
             } else {
                 throw new UnsupportedOperationException("cannot render XML fragment of type "
                         + xmlFragment.getClass().getName());
@@ -109,7 +110,6 @@ public class Renderer {
         closeElementBuffer.append("</");
         renderElementName(closeElementBuffer, element, nsResolver);
         closeElementBuffer.append(">");
-
         // remove this element from the NS resolver stack
         nsResolver.pop();
     }
