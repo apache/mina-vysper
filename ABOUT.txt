@@ -41,9 +41,9 @@ The different build artifacts are compiled in dist/.
 There are different ways to run Vysper
 
 A ready-to-run setup is created by the build in 
-  dist/targtet/appassembler/
+  dist/target/appassembler/
 Under  
-  dist/targtet/appassembler/bin
+  dist/target/appassembler/bin
 you'll find start scripts for Unix/Mac and Windows.
 
 This makes use of the Spring-based server runtime.
