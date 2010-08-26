@@ -79,6 +79,8 @@ public class MUCIqAdminHandler extends DefaultIQHandler {
 
     @Override
     protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+        logger.debug("Received MUC admin stanza");
+        
         Room room = conference.findRoom(stanza.getTo());
 
         Occupant moderator = room.findOccupantByJID(stanza.getFrom());
@@ -86,6 +88,8 @@ public class MUCIqAdminHandler extends DefaultIQHandler {
         // check if moderator
         if (moderator.getRole() != Role.Moderator) {
             // only moderators are allowed to continue
+            logger.debug("Only moderators are allowed to issue admin stanzas");
+            
             return MUCHandlerHelper.createErrorReply(stanza, StanzaErrorType.AUTH, StanzaErrorCondition.FORBIDDEN);
         }
         try {
@@ -101,15 +105,18 @@ public class MUCIqAdminHandler extends DefaultIQHandler {
             }
 
             if (item.getRole() != null) {
+                logger.debug("Changing role");
                 return changeRole(stanza, serverRuntimeContext, sessionContext, item, room, moderator);
             } else if(item.getAffiliation() != null) {
+                logger.debug("Changing affiliation");
                 return changeAffiliation(stanza, serverRuntimeContext, sessionContext, item, room, moderator);
             } else {
+                logger.debug("Invalid MUC admin stanza");
                 return createBadRequestError(stanza, serverRuntimeContext, sessionContext, "Unknown IQ stanza");
             }
 
         } catch (XMLSemanticError e) {
-            e.printStackTrace();
+            logger.debug("Invalid MUC admin stanza", e);
             return createBadRequestError(stanza, serverRuntimeContext, sessionContext,
                     "Invalid IQ stanza");
         }
@@ -244,7 +251,6 @@ public class MUCIqAdminHandler extends DefaultIQHandler {
         }
         
         Role newRole = item.getRole();
-
         // you can not change yourself
         if (moderator.getJid().equals(target.getJid())) {
             return MUCHandlerHelper.createErrorReply(stanza, StanzaErrorType.CANCEL, StanzaErrorCondition.CONFLICT);
@@ -283,7 +289,6 @@ public class MUCIqAdminHandler extends DefaultIQHandler {
                         StanzaErrorCondition.NOT_ALLOWED);
             }
         }
-
         target.setRole(newRole);
         if (newRole == Role.None) {
             // remove user from room
@@ -317,7 +322,6 @@ public class MUCIqAdminHandler extends DefaultIQHandler {
 
             relayStanza(occupant.getJid(), presenceToRemaining, serverRuntimeContext);
         }
-
         return StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID())
                 .build();
     }

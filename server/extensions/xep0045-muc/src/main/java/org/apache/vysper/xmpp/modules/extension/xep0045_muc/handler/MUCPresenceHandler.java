@@ -33,6 +33,7 @@ import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultPresenceHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.MUCStanzaBuilder;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Affiliation;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
@@ -199,6 +200,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
             }
             
             if(newRoom) {
+                room.getAffiliations().add(newOccupantJid, Affiliation.Owner);
                 newOccupant.setRole(Role.Moderator);
             }
 
