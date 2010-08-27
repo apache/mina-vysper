@@ -26,6 +26,7 @@ import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.addressing.EntityUtils;
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
 import org.apache.vysper.xmpp.modules.core.base.handler.MessageHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.PubSubCreateNodeHandler;
@@ -111,11 +112,7 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements C
 
         this.serverRuntimeContext = serverRuntimeContext;
 
-        try {
-            fullDomain = EntityImpl.parse(subdomain + "." + serverRuntimeContext.getServerEnitity().getDomain());
-        } catch (EntityFormatException e) {
-            throw new RuntimeException("failed to initialize PubSub domain", e);
-        }
+        fullDomain = EntityUtils.createComponentDomain(subdomain, serverRuntimeContext);
 
         CollectionNodeStorageProvider collectionNodeStorageProvider = (CollectionNodeStorageProvider) serverRuntimeContext
                 .getStorageProvider(CollectionNodeStorageProvider.class);

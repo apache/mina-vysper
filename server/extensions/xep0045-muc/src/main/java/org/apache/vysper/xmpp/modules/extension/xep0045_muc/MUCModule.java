@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.addressing.EntityUtils;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
@@ -94,11 +95,7 @@ public class MUCModule extends DefaultDiscoAwareModule implements Component, Com
 
         this.serverRuntimeContext = serverRuntimeContext;
 
-        try {
-            fullDomain = EntityImpl.parse(subdomain + "." + serverRuntimeContext.getServerEnitity().getDomain());
-        } catch (EntityFormatException e) {
-            throw new RuntimeException("failed to initialize MUC domain", e);
-        }
+        fullDomain = EntityUtils.createComponentDomain(subdomain, serverRuntimeContext);
 
         ComponentStanzaProcessor processor = new ComponentStanzaProcessor(serverRuntimeContext);
         processor.addHandler(new MUCPresenceHandler(conference));

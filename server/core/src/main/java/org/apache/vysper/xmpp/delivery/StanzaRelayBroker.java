@@ -20,6 +20,7 @@
 package org.apache.vysper.xmpp.delivery;
 
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityUtils;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -62,8 +63,7 @@ public class StanzaRelayBroker implements StanzaRelay {
             throws DeliveryException {
 
         boolean toServerTLD = receiver == null
-                || (!receiver.isNodeSet() && serverRuntimeContext.getServerEnitity().getDomain().equals(
-                        receiver.getDomain()));
+                || (!receiver.isNodeSet() && EntityUtils.isAddressingServer(receiver, serverRuntimeContext.getServerEnitity()));
         boolean toComponent = !toServerTLD && !receiver.isNodeSet();
         if (toServerTLD) {
             // TODO handle by server

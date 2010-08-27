@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityUtils;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
 import org.apache.vysper.xmpp.delivery.OfflineStanzaReceiver;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
@@ -169,12 +170,12 @@ public class DeliveringInboundStanzaRelay implements StanzaRelay {
         protected RelayResult deliver() {
             try {
                 String receiverDomain = receiver.getDomain();
-                if (receiverDomain != null && !receiverDomain.equals(serverEntity.getDomain())) {
+                if (receiverDomain != null && !EntityUtils.isAddressingServer(receiver, serverEntity)) {
                     if (serverRuntimeContext == null) {
                         return new RelayResult(new ServiceNotAvailableException(
                                 "cannot retrieve component from server context"));
                     }
-                    if (!receiverDomain.endsWith("." + serverEntity.getDomain())) {
+                    if (!EntityUtils.isAddressingServerComponent(receiver, serverEntity)) {
                         return new RelayResult(new ServiceNotAvailableException("unsupported domain " + receiverDomain));
                     }
 
