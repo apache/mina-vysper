@@ -21,6 +21,7 @@ package org.apache.vysper.xmpp.modules.core.base.handler;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.addressing.EntityUtils;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.ReturnErrorToSenderFailureStrategy;
 import org.apache.vysper.xmpp.modules.roster.persistence.RosterManager;
@@ -61,7 +62,8 @@ public class RelayingIQHandler extends IQHandler {
 
         if (outboundStanza) {
             try {
-                boolean toComponent = !to.isNodeSet() && !to.isResourceSet();
+
+                boolean toComponent = EntityUtils.isAddressingServerComponent(to, serverRuntimeContext.getServerEnitity());
 
                 Entity from = stanza.getFrom();
                 if (from == null || !from.isResourceSet()) {
@@ -94,7 +96,8 @@ public class RelayingIQHandler extends IQHandler {
             // write inbound stanza to the user
 
             Entity from = stanza.getFrom();
-            boolean fromComponent = (from != null) && (!from.isNodeSet()) && (!from.isResourceSet());
+
+            boolean fromComponent = (from != null) && EntityUtils.isAddressingServerComponent(from, serverRuntimeContext.getServerEnitity());
 
             // determine if 'from' is a component or a matching subscription...
             boolean isToContact = false;
