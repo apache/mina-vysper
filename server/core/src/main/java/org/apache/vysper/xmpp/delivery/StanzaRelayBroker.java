@@ -64,7 +64,8 @@ public class StanzaRelayBroker implements StanzaRelay {
 
         boolean toServerTLD = receiver == null
                 || (!receiver.isNodeSet() && EntityUtils.isAddressingServer(receiver, serverRuntimeContext.getServerEnitity()));
-        boolean toComponent = !toServerTLD && !receiver.isNodeSet();
+        
+        boolean toComponent = EntityUtils.isAddressingServerComponent(receiver, serverRuntimeContext.getServerEnitity());
         if (toServerTLD) {
             // TODO handle by server
 
@@ -78,7 +79,7 @@ public class StanzaRelayBroker implements StanzaRelay {
 
         boolean relayToExternal = serverRuntimeContext.getServerFeatures().isRelayingToFederationServers();
 
-        if (EntityUtils.isAddressingServerComponent(receiver, serverRuntimeContext.getServerEnitity()) || toComponent) {
+        if (EntityUtils.isAddressingServer(receiver, serverRuntimeContext.getServerEnitity()) || toComponent) {
             internalRelay.relay(receiver, stanza, deliveryFailureStrategy);
         } else {
             if (!relayToExternal)
