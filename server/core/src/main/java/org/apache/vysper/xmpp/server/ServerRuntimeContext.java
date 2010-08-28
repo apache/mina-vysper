@@ -70,5 +70,5 @@ public interface ServerRuntimeContext {
 
     void registerComponent(Component component);
 
-    StanzaProcessor getComponentStanzaProcessor(String domain);
+    StanzaProcessor getComponentStanzaProcessor(Entity entity);
 }

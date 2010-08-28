@@ -30,6 +30,7 @@ import org.apache.vysper.storage.OpenStorageProviderRegistry;
 import org.apache.vysper.storage.StorageProvider;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityUtils;
 import org.apache.vysper.xmpp.authorization.UserAuthorization;
 import org.apache.vysper.xmpp.cryptography.TLSContextFactory;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
@@ -339,11 +340,12 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         componentMap.put(component.getSubdomain(), component);
     }
 
-    public StanzaProcessor getComponentStanzaProcessor(String domain) {
+    public StanzaProcessor getComponentStanzaProcessor(Entity entity) {
         String serverDomain = getServerEnitity().getDomain();
-        if (!domain.endsWith(serverDomain)) {
+        if (!EntityUtils.isAddressingServerComponent(entity, getServerEnitity())) {
             return null;
         }
+        String domain = entity.getDomain();
         String subdomain = domain.replace("." + serverDomain, "");
         Component component = componentMap.get(subdomain);
         if (component == null)

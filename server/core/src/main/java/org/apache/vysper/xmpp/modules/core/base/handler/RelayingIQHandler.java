@@ -90,7 +90,7 @@ public class RelayingIQHandler extends IQHandler {
                 serverRuntimeContext.getStanzaRelay().relay(to, forwardedStanza,
                         new ReturnErrorToSenderFailureStrategy(serverRuntimeContext.getStanzaRelay()));
             } catch (DeliveryException e) {
-                final Logger logger = LoggerFactory.getLogger(RelayingIQHandler.class);
+                // TODO how to handle this exception?
             }
         } else {
             // write inbound stanza to the user

@@ -179,7 +179,7 @@ public class DeliveringInboundStanzaRelay implements StanzaRelay {
                         return new RelayResult(new ServiceNotAvailableException("unsupported domain " + receiverDomain));
                     }
 
-                    StanzaProcessor processor = serverRuntimeContext.getComponentStanzaProcessor(receiverDomain);
+                    StanzaProcessor processor = serverRuntimeContext.getComponentStanzaProcessor(receiver);
                     if (processor == null) {
                         return new RelayResult(new ServiceNotAvailableException(
                                 "cannot retrieve component stanza processor for" + receiverDomain));

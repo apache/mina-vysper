@@ -89,7 +89,7 @@ public class DiscoItemIQHandler extends DefaultIQHandler {
             isServerInfoRequest = true; // this can only be meant to query the server
         } else if (!to.isNodeSet()) {
             isServerInfoRequest = serverRuntimeContext.getServerEnitity().equals(to);
-            isComponentInfoRequest = serverRuntimeContext.getComponentStanzaProcessor(to.getDomain()) != null;
+            isComponentInfoRequest = serverRuntimeContext.getComponentStanzaProcessor(to) != null;
             if (!isServerInfoRequest && !isComponentInfoRequest) {
                 return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.ITEM_NOT_FOUND, stanza,
                         StanzaErrorType.CANCEL,
