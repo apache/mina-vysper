@@ -20,13 +20,13 @@
 	<parent>
 		<artifactId>vysper-extensions</artifactId>
 		<groupId>org.apache.vysper</groupId>
-		<version>0.6-SNAPSHOT</version>
+		<version>0.6</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.apache.vysper.extensions</groupId>
 	<artifactId>xep0124-xep0206-bosh</artifactId>
 	<name>Apache Vysper XEP-0124 and XEP-0206 BOSH</name>
-	<version>0.6-SNAPSHOT</version>
+	<version>0.6</version>
 
 
 	<dependencies>
