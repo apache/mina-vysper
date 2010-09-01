@@ -18,6 +18,13 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>vysper-extensions</artifactId>
+    <groupId>org.apache.parent</groupId>
+    <version>0.6</version>
+    <relativePath>../../../pom.xml</relativePath>
+  </parent>
+
   <groupId>org.apache.vysper</groupId>
   <artifactId>demo-pubsub-client</artifactId>
   <name>Apache Vysper XEP-0060 Publish-Subscribe Demo Application</name>
