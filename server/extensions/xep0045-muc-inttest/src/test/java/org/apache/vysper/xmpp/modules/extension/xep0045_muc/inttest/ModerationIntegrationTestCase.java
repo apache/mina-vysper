@@ -37,7 +37,5 @@ public class ModerationIntegrationTestCase extends AbstractMUCIntegrationTestCas
         
         chat.grantModerator(NICK2);
         assertEquals(Role.Moderator, room.findOccupantByNick(NICK2).getRole());
-        
     }
-
 }

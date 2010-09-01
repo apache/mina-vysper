@@ -20,13 +20,13 @@
   <parent>
     <artifactId>vysper-extensions</artifactId>
     <groupId>org.apache.vysper</groupId>
-    <version>0.6-SNAPSHOT</version>
+    <version>0.7-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.vysper.extensions</groupId>
   <artifactId>xep0045-muc</artifactId>
   <name>Apache Vysper XEP-0045 Multi-user chat</name>
-  <version>0.6-SNAPSHOT</version>
+  <version>0.7-SNAPSHOT</version>
   
   
   <dependencies>
