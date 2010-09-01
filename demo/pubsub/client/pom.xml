@@ -28,7 +28,7 @@
   <groupId>org.apache.vysper</groupId>
   <artifactId>demo-pubsub-client</artifactId>
   <name>Apache Vysper XEP-0060 Publish-Subscribe Demo Application</name>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>0.6</version>
 
   <repositories>
     <repository>
