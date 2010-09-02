@@ -24,8 +24,6 @@ import java.util.List;
 
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.addressing.EntityFormatException;
-import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.addressing.EntityUtils;
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
 import org.apache.vysper.xmpp.modules.core.base.handler.MessageHandler;
@@ -138,7 +136,7 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements C
                 .addDictionary(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB_EVENT, new MessageHandler()));
         stanzaProcessor = processor;
 
-        this.serviceConfiguration.setServerJID(serverRuntimeContext.getServerEnitity());
+        this.serviceConfiguration.setDomainJID(fullDomain);
         this.serviceConfiguration.initialize();
     }
 

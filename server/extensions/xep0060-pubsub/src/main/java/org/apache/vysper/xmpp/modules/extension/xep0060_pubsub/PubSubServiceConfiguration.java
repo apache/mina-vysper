@@ -53,18 +53,20 @@ public class PubSubServiceConfiguration {
     }
 
     /**
-     * Sets the JID of the server.
+     * Sets the JID of the pubsub service.
+     * this can either be the server's own domain, or - more common - a subdomain of the server like 
+     * "pubsub.server.tld"
      * 
      * @param serverJID
      */
-    public void setServerJID(Entity serverJID) {
+    public void setDomainJID(Entity serverJID) {
         this.serverJID = serverJID;
     }
 
     /**
-     * @return the JID of the server.
+     * @return the domain of the pubsub component.
      */
-    public Entity getServerJID() {
+    public Entity getDomainJID() {
         return serverJID;
     }
 

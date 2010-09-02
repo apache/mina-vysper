@@ -71,7 +71,7 @@ public class PubSubOwnerDeleteNodeHandler extends AbstractPubSubOwnerHandler {
             @SpecCompliant(spec = "xep-0060", section = "8.4.3.1", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE),
             @SpecCompliant(spec = "xep-0060", section = "8.4.3.2", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE) })
     protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
-        Entity serverJID = serviceConfiguration.getServerJID();
+        Entity serverJID = serviceConfiguration.getDomainJID();
         CollectionNode root = serviceConfiguration.getRootNode();
 
         Entity sender = extractSenderJID(stanza, sessionContext);

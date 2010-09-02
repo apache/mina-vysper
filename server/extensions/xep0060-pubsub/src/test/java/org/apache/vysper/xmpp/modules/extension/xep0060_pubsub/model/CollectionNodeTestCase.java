@@ -46,7 +46,7 @@ public class CollectionNodeTestCase extends TestCase {
 
         owner = new EntityImpl("owner", "vysper.org", null);
         Entity jid = new EntityImpl(null, "pubsub.vysper.org", null);
-        serviceConfig.setServerJID(jid);
+        serviceConfig.setDomainJID(jid);
     }
 
     public void testCreateNode() throws Exception {

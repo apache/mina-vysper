@@ -67,7 +67,7 @@ public class PubSubRetrieveAffiliationsHandler extends AbstractPubSubGeneralHand
      */
     @Override
     protected Stanza handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
-        Entity serverJID = serviceConfiguration.getServerJID();
+        Entity serverJID = serviceConfiguration.getDomainJID();
         CollectionNode root = serviceConfiguration.getRootNode();
 
         Entity sender = extractSenderJID(stanza, sessionContext);

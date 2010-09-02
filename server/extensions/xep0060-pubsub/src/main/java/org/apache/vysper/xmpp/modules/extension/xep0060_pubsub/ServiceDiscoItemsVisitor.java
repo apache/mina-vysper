@@ -45,7 +45,7 @@ public class ServiceDiscoItemsVisitor implements NodeVisitor {
      * @see org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.NodeVisitor#visit(org.apache.vysper.xmpp.addressing.Entity, org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode)
      */
     public void visit(LeafNode ln) {
-        this.itemList.add(new Item(serviceConfiguration.getServerJID(), ln.getTitle(), ln.getName()));
+        this.itemList.add(new Item(serviceConfiguration.getDomainJID(), ln.getTitle(), ln.getName()));
     }
 
     /**

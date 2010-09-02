@@ -38,7 +38,7 @@ public class LeafNodeTestCase extends TestCase {
         super.setUp();
         Entity nodeJID = new EntityImpl(null, "pubsub.vysper.org", null);
         PubSubServiceConfiguration serviceConfig = new PubSubServiceConfiguration(new CollectionNode());
-        serviceConfig.setServerJID(nodeJID);
+        serviceConfig.setDomainJID(nodeJID);
         Entity creatorJID = new EntityImpl("creator", "vysper.org", null);
 
         node = new LeafNode(serviceConfig, "node", "Some test node", creatorJID);

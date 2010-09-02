@@ -81,7 +81,7 @@ public class PubSubPublishHandler extends AbstractPubSubGeneralHandler {
             @SpecCompliant(spec = "xep-0060", section = "7.1.3.5", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED),
             @SpecCompliant(spec = "xep-0060", section = "7.1.3.6", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED) })
     protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
-        Entity serverJID = serviceConfiguration.getServerJID();
+        Entity serverJID = serviceConfiguration.getDomainJID();
         CollectionNode root = serviceConfiguration.getRootNode();
 
         Entity sender = extractSenderJID(stanza, sessionContext);

@@ -82,7 +82,7 @@ public class PubSubOwnerManageAffiliationsHandler extends AbstractPubSubOwnerHan
             @SpecCompliant(spec = "xep-0060", section = "8.9.2.3.3", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED),
             @SpecCompliant(spec = "xep-0060", section = "8.9.2.3.4", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED) })
     protected Stanza handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
-        Entity serverJID = serviceConfiguration.getServerJID();
+        Entity serverJID = serviceConfiguration.getDomainJID();
         CollectionNode root = serviceConfiguration.getRootNode();
 
         Entity sender = extractSenderJID(stanza, sessionContext);
@@ -119,7 +119,7 @@ public class PubSubOwnerManageAffiliationsHandler extends AbstractPubSubOwnerHan
             @SpecCompliant(spec = "xep-0060", section = "8.9.2.3.3", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE),
             @SpecCompliant(spec = "xep-0060", section = "8.9.2.3.4", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE) })
     protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
-        Entity serverJID = serviceConfiguration.getServerJID();
+        Entity serverJID = serviceConfiguration.getDomainJID();
         CollectionNode root = serviceConfiguration.getRootNode();
         Entity sender = extractSenderJID(stanza, sessionContext);
 

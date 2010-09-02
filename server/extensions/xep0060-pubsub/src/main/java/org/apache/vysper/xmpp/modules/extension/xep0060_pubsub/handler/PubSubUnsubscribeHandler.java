@@ -76,7 +76,7 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
             @SpecCompliant(spec = "xep-0060", section = "6.2.3.4", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE),
             @SpecCompliant(spec = "xep-0060", section = "6.2.3.5", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE) })
     protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
-        Entity serverJID = serviceConfiguration.getServerJID();
+        Entity serverJID = serviceConfiguration.getDomainJID();
         CollectionNode root = serviceConfiguration.getRootNode();
 
         Entity sender = extractSenderJID(stanza, sessionContext);

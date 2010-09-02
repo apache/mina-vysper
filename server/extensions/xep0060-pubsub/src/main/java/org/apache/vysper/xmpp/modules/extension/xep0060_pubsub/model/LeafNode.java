@@ -197,7 +197,7 @@ public class LeafNode {
      */
     protected void sendMessageToSubscriber(StanzaRelay stanzaRelay, XMLElement item) {
         storage.acceptForEachSubscriber(name, new SubscriberPayloadNotificationVisitor(serviceConfiguration
-                .getServerJID(), stanzaRelay, item));
+                .getDomainJID(), stanzaRelay, item));
     }
 
     /**

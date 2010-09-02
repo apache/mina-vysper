@@ -99,11 +99,11 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
         XMLElement news = null;
         XMLElement blogs = null;
         for (XMLElement el : inner) {
-            if (el.getName().equals("item") /* && el.getNamespace().equals(NamespaceURIs.XEP0030_SERVICE_DISCOVERY_ITEMS) */) { //TODO enable after fixing the namespace bug
-                if (el.getAttributeValue("jid").equals(serverEntity.getFullQualifiedName())
+            if (el.getName().equals("item") && el.getNamespaceURI().equals(NamespaceURIs.XEP0030_SERVICE_DISCOVERY_ITEMS) ) {
+                if (el.getAttributeValue("jid").equals(serviceConfiguration.getDomainJID().getFullQualifiedName())
                         && el.getAttributeValue("node").equals("news") && el.getAttributeValue("name").equals("News")) {
                     news = el;
-                } else if (el.getAttributeValue("jid").equals(serverEntity.getFullQualifiedName())
+                } else if (el.getAttributeValue("jid").equals(serviceConfiguration.getDomainJID().getFullQualifiedName())
                         && el.getAttributeValue("node").equals("blogs") && el.getAttributeValue("name").equals("Blogs")) {
                     blogs = el;
                 }
