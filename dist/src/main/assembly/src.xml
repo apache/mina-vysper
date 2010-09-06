@@ -31,7 +31,6 @@
       <directory>..</directory>
       <outputDirectory></outputDirectory>
       <excludes>
-        <exclude>**/dist/**</exclude>
         <exclude>**/target/**</exclude>
         <exclude>.*</exclude>
         <exclude>.*/**</exclude>
