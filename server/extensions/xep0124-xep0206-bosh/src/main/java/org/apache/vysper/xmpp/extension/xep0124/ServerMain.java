@@ -90,6 +90,7 @@ public class ServerMain {
         //        boshEndpoint.setSSLEnabled(true);
         //        boshEndpoint.setSSLCertificateInfo("src/main/resources/keystore",
         //                "password");
+        boshEndpoint.setContextPath("/bosh");
         server.addEndpoint(boshEndpoint);
 
         //server.addEndpoint(new StanzaSessionFactory());

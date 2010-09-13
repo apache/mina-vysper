@@ -21,49 +21,14 @@
 
 <beans>
 
-    <!-- Domain -->
-    <bean id="domain" class="org.apache.vysper.xmpp.addressing.EntityImpl" >
-        <constructor-arg value=""/>
-        <constructor-arg value="vysper.org"/>
-        <constructor-arg value=""/>
-    </bean>
-    
-    <!-- The SSL configuration -->
-
-     <bean id="bogusTrustManagerFactory" class="org.apache.vysper.xmpp.cryptography.BogusTrustManagerFactory"/>
-    
-    <bean id="tlsContextFactory" class="org.apache.vysper.spring.ResourceBasedTLSContextFactory">
-        <constructor-arg value="classpath:bogus_mina_tls.cert"/>
-        <property name="password" value="boguspw" />
-        <property name="trustManagerFactory"><bean class="org.apache.vysper.xmpp.cryptography.BogusTrustManagerFactory" /></property>
-    </bean>
-
-    <!--
-        Vysper Server singletons
-    -->
-
     <bean id="inmemoryStorageRegistry" class="org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry" />
 
     <bean id="jcrStorageRegistry" class="org.apache.vysper.storage.jcr.JcrStorageProviderRegistry" />
 
     <!-- choose one of the storage registries -->
     <alias name="inmemoryStorageRegistry" alias="storageRegistry" />
-    
-    <bean id="internalOutboundRelay" class="org.apache.vysper.xmpp.delivery.inbound.DeliveringInboundStanzaRelay" >
-        <constructor-arg ref="domain" />
-        <constructor-arg ref="resourceRegistry"/>
-        <constructor-arg ref="storageRegistry"/>
-        <property name="serverRuntimeContext" ref="server" />
-    </bean>
 
-    <bean id="stanzaRelay" class="org.apache.vysper.xmpp.delivery.StanzaRelayBroker" >
-        <property name="internalRelay" ref="internalOutboundRelay" />
-        <property name="externalRelay"><bean class="org.apache.vysper.xmpp.delivery.RecordingStanzaRelay"/></property>
-        <property name="serverRuntimeContext" ref="server" />
-    </bean>
-    
-    <bean name="resourceRegistry" class="org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry" />
-    
+    <!-- default users; remove if you have persistently stored users -->
     <bean id="addUsers" class="org.apache.vysper.spring.AddUserHelper">
         <constructor-arg index="0">
             <map>
@@ -75,94 +40,54 @@
         <property name="storageProviderRegistry" ref="storageRegistry" />
     </bean>
     
-    <bean id="serverFeatures" class="org.apache.vysper.xmpp.server.ServerFeatures">
-        <property name="authenticationMethods">
-            <list>
-                <bean class="org.apache.vysper.xmpp.authorization.Anonymous" />
-                <bean class="org.apache.vysper.xmpp.authorization.Plain" />
-            </list>
-        </property>
-        <property name="startTLSRequired" value="true"/>
+    <bean id="tcpEndpoint" class="org.apache.vysper.mina.TCPEndpoint">
     </bean>
     
-    <bean id="server" class="org.apache.vysper.spring.SpringCompatibleDefaultServerRuntimeContext" >
-        <constructor-arg ref="domain" />
-        <constructor-arg ref="serverFeatures"/>
-        <constructor-arg>
+    <!-- for making the server available over HTTP transport, configure the BOSH endpoint
+         BOSH requires extension xep0124-xep0206-bosh to be on the classpath.
+    -->
+    <!--
+    <bean id="boshEndpoint" class="org.apache.vysper.xmpp.extension.xep0124.BoshEndpoint">
+        <property name="handlers">
             <list>
-                <bean class="org.apache.vysper.xmpp.modules.core.base.BaseStreamStanzaDictionary"/>
-                <bean class="org.apache.vysper.xmpp.modules.core.starttls.StartTLSStanzaDictionary"/>
-                <bean class="org.apache.vysper.xmpp.modules.core.sasl.SASLStanzaDictionary"/>
-                <bean class="org.apache.vysper.xmpp.modules.core.bind.BindResourceDictionary"/>
-                <bean class="org.apache.vysper.xmpp.modules.core.session.SessionStanzaDictionary"/>
-                <bean class="org.apache.vysper.xmpp.modules.core.compatibility.jabber_iq_auth.JabberIQAuthDictionary"/>
+                <ref bean="chatApplicationContextHandler" />
             </list>
-        </constructor-arg>
-        <constructor-arg ref="resourceRegistry"/>
-        <property name="stanzaRelay" ref="stanzaRelay" />
-        <property name="tlsContextFactory" ref="tlsContextFactory" />
-        <property name="storageProviderRegistry" ref="storageRegistry" />
-        <property name="modules">
+        </property>
+        <property name="accessControlAllowOrigin">
+            <list><value>*</value></list>
+        </property>
+        <property name="port" value="8080" />
+        <property name="contextPath" value="/bosh" />
+    </bean>
+    -->
+    
+    <bean id="server" class="org.apache.vysper.spring.SpringCompatibleXMPPServer"
+          init-method="init" destroy-method="destroy">
+        <!-- TODO change domain name to your domain -->
+        <constructor-arg value="vysper.org"/>
+        <property name="endpoints">
             <list>
-                <bean class="org.apache.vysper.xmpp.modules.servicediscovery.ServiceDiscoveryModule" />
-                <bean class="org.apache.vysper.xmpp.modules.roster.RosterModule" />
-                <bean class="org.apache.vysper.xmpp.modules.extension.xep0092_software_version.SoftwareVersionModule" />
+                <ref bean="tcpEndpoint"/>
+                <!--<ref bean="boshEndpoint"/>-->
+            </list>
+        </property>
+        <property name="storageProviderRegistry" ref="storageRegistry" />
+        <property name="certificateFile" value="src/main/config/bogus_mina_tls.cert" />
+        <property name="certificatePassword" value="boguspw" />
+        <property name="modules" >
+            <list>
+                <bean class="org.apache.vysper.xmpp.modules.extension.xep0092_software_version.SoftwareVersionModule"/>
                 <bean class="org.apache.vysper.xmpp.modules.extension.xep0202_entity_time.EntityTimeModule" />
                 <bean class="org.apache.vysper.xmpp.modules.extension.xep0054_vcardtemp.VcardTempModule" />
+                <bean class="org.apache.vysper.xmpp.modules.extension.xep0119_xmppping.XmppPingModule" />
+                <bean class="org.apache.vysper.xmpp.modules.extension.xep0049_privatedata.PrivateDataModule" />
                 <!-- below some more modules which are available as separately-built jars. 
-                     make sure they are on the classpath when enabling them -->
-                <bean class="org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PublishSubscribeModule" />
-                <bean class="org.apache.vysper.xmpp.modules.extension.xep0045_muc.MUCModule" />
+                     make sure they are on the classpath when enabling them or remove the beans below, 
+                     depending on the features your server should expose -->
+                <!--<bean class="org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PublishSubscribeModule" />-->
+                <!--<bean class="org.apache.vysper.xmpp.modules.extension.xep0045_muc.MUCModule" />-->
             </list>
         </property>
     </bean>
     
-    <!--
-        MINA configuration: XMPP/TCP endpoint
-    -->
-    <bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
-        <property name="customEditors">
-            <map>
-                <entry key="java.net.SocketAddress">
-                    <bean class="org.apache.mina.integration.beans.InetSocketAddressEditor" />
-                </entry>
-            </map>
-        </property>
-    </bean>
-
-    <bean id="xmppHandler" class="org.apache.vysper.mina.XmppIoHandlerAdapter">
-        <property name="serverRuntimeContext" ref="server"/>
-    </bean>
-
-    <bean id="xmppCodec" class="org.apache.vysper.mina.codec.XMPPProtocolCodecFactory">
-    </bean>
-
-    <bean id="filterChainBuilder" class="org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder">
-      <property name="filters">
-        <map>
-        	<entry key="executor">
-        		<bean class="org.apache.mina.filter.executor.ExecutorFilter" />
-        	</entry>
-            <entry key="codec">  
-              <bean class="org.apache.mina.filter.codec.ProtocolCodecFilter">
-                  <constructor-arg>
-                  	<bean class="org.apache.vysper.mina.codec.XMPPProtocolCodecFactory" />
-                  </constructor-arg>
-              </bean>
-            </entry>
-            <entry key="logging">
-              <bean class="org.apache.mina.filter.logging.LoggingFilter" />
-            </entry>
-        </map>
-      </property>
-    </bean>
-
-    <!-- socket based xmpp: IoAcceptor binding to xmpp port 5222 -->
-    <bean id="ioAcceptor" class="org.apache.mina.transport.socket.nio.NioSocketAcceptor" init-method="bind" destroy-method="unbind">
-    	<property name="defaultLocalAddress" value=":5222" />
-    	<property name="handler" ref="xmppHandler" />
-    	<property name="filterChainBuilder" ref="filterChainBuilder" />
-    	<property name="reuseAddress" value="true" />
-	</bean>
-
 </beans>

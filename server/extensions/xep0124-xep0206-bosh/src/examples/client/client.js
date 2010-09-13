@@ -86,11 +86,12 @@ Strophe.log = function (level, msg) {
 function connect() {
 	server = $("#server").val();
 	port = $("#port").val();
+	contextPath = $("#contextPath").val();
 	jid = $("#jid").val();
 	password = $("#password").val();
-	log("Connecting to <b>" + server + ":" + port + "</b> as <b>" + jid + "</b>...");
+	log("Connecting to <b>" + server + ":" + port + "/" + contextPath + "</b> as <b>" + jid + "</b>...");
 	
-	connection = new Strophe.Connection("http://" + server + ":" + port + "/");
+	connection = new Strophe.Connection("http://" + server + ":" + port + "/" + contextPath);
 
 	connection.connect(jid, password, function(status) {
 		log("Connection status: " + connectionStatuses[status]);

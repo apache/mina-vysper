@@ -25,7 +25,11 @@ import java.util.List;
 import org.apache.vysper.xmpp.server.Endpoint;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -43,21 +47,23 @@ import org.slf4j.LoggerFactory;
  */
 public class BoshEndpoint implements Endpoint {
 
-    private final Logger logger = LoggerFactory.getLogger(BoshEndpoint.class);
+    protected final static Logger logger = LoggerFactory.getLogger(BoshEndpoint.class);
 
-    private ServerRuntimeContext serverRuntimeContext;
+    protected ServerRuntimeContext serverRuntimeContext;
 
-    private int port = 8080;
+    protected int port = 8080;
 
-    private Server server;
+    protected Server server;
 
-    private boolean isSSLEnabled;
+    protected boolean isSSLEnabled;
 
-    private String sslKeystorePath;
+    protected String sslKeystorePath;
 
-    private String sslKeystorePassword;
+    protected String sslKeystorePassword;
 
-    private List<String> accessControlAllowOrigin;
+    protected List<String> accessControlAllowOrigin;
+    
+    protected String contextPath = "/";
 
     public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
         this.serverRuntimeContext = serverRuntimeContext;
@@ -72,19 +78,30 @@ public class BoshEndpoint implements Endpoint {
     }
 
     /**
-     * Configures the SSL keystore and the keystore password.
+     * Configures the SSL keystore
      * <p>
-     * These parameters are required if SSL is enabled.
+     * Required if SSL is enabled. Also, setting the keystore password is 
+     * required.
+     * @see #setSSLCertificateKeystorePassword 
+     * @param keystorePath the path to the Java keystore
+     */
+    public void setSSLCertificateKeystore(String keystorePath) {
+        sslKeystorePath = keystorePath;
+    }
+
+    /**
+     * Configures the SSL keystore password.
+     * <p>
+     * Required if SSL is enabled. Also, the keystore must be set using
+     * {@link #setSSLCertificateKeystore(String)}  }
      * The password is used both for accessing the keystore and for recovering
      * the key from the keystore. The unique password is a limitation, you
      * cannot use different passwords for the keystore and for the key.
      * 
-     * @param keystorePath the path to the Java keystore
      * @param password the password used as the keystore password and also used
      * when recovering the key from the keystore
      */
-    public void setSSLCertificateInfo(String keystorePath, String password) {
-        sslKeystorePath = keystorePath;
+    public void setSSLCertificateKeystorePassword(String password) {
         sslKeystorePassword = password;
     }
 
@@ -116,12 +133,22 @@ public class BoshEndpoint implements Endpoint {
     }
 
     /**
-     * @throws IOException 
-     * @throws RuntimeException a wrapper of the possible
-     * {@link java.lang.Exception} that Jetty can throw at start-up
+     * Determines the context URI where the BOSH transport will be accessible.
+     * The default is as 'root context' under '/'. 
+     * @param contextPath
      */
-    public void start() throws IOException {
-        server = new Server();
+    public void setContextPath(String contextPath) {
+        if (contextPath == null) contextPath = "/";
+        this.contextPath = contextPath;
+    }
+
+    /**
+     * create a basic Jetty server including a connector on the configured port
+     * override in subclass to create a different kind of setup or to reuse an existing instance
+     * @return
+     */
+    protected Server createJettyServer() {
+        Server server = new Server();
 
         Connector connector;
         if (isSSLEnabled) {
@@ -135,16 +162,39 @@ public class BoshEndpoint implements Endpoint {
         }
         connector.setPort(port);
         server.setConnectors(new Connector[] { connector });
+        return server;
+    }
 
-        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        context.setContextPath("/");
-        server.setHandler(context);
+    /**
+     * create handler for BOSH. 
+     * for a different handler setup, override in a subclass.
+     * for more than one handler, add them to a org.eclipse.jetty.server.handler.ContextHandlerCollection
+     * and return the collection 
+     * @return
+     */
+    protected Handler createHandler() {
+        ServletContextHandler boshContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
+        boshContext.setContextPath(contextPath);
 
         BoshServlet boshServlet = new BoshServlet();
         boshServlet.setServerRuntimeContext(serverRuntimeContext);
         boshServlet.setAccessControlAllowOrigin(accessControlAllowOrigin);
-        context.addServlet(new ServletHolder(boshServlet), "/");
+        boshContext.addServlet(new ServletHolder(boshServlet), "/");
 
+        return boshContext;
+    }
+    
+    /**
+     * @throws IOException 
+     * @throws RuntimeException a wrapper of the possible
+     * {@link java.lang.Exception} that Jetty can throw at start-up
+     */
+    public void start() throws IOException {
+
+        Server server = createJettyServer();
+        Handler handler = createHandler();
+        server.setHandler(handler);
+        
         try {
             server.start();
         } catch (Exception e) {
