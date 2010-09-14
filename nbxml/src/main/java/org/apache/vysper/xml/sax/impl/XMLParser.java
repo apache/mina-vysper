@@ -159,7 +159,11 @@ public class XMLParser implements TokenListener {
                     qname = token;
                     state = State.AFTER_START_NAME;
                 } else {
-                    fatalError("Invalid element name: " + qname);
+                    if(token != null) {
+                        fatalError("Invalid element name: " + qname);
+                    } else {
+                        fatalError("Not well-formed start tag");
+                    }
                     return;
                 }
             }
