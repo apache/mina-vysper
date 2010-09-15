@@ -48,11 +48,6 @@
     -->
     <!--
     <bean id="boshEndpoint" class="org.apache.vysper.xmpp.extension.xep0124.BoshEndpoint">
-        <property name="handlers">
-            <list>
-                <ref bean="chatApplicationContextHandler" />
-            </list>
-        </property>
         <property name="accessControlAllowOrigin">
             <list><value>*</value></list>
         </property>
