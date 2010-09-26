@@ -191,7 +191,7 @@ public class BoshEndpoint implements Endpoint {
      */
     public void start() throws IOException {
 
-        Server server = createJettyServer();
+        server = createJettyServer();
         Handler handler = createHandler();
         server.setHandler(handler);
         
