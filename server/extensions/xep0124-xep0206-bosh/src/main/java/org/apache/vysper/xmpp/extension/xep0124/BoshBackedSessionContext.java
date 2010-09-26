@@ -22,8 +22,6 @@ package org.apache.vysper.xmpp.extension.xep0124;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.SortedMap;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.TreeMap;
 
 import org.apache.vysper.xml.fragment.Renderer;
@@ -120,7 +118,11 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      */
     private long latestWriteTimestamp = System.currentTimeMillis();
     
-    private Timer inactivityChecker = new Timer(true);
+    private InactivityChecker inactivityChecker;
+    
+    private Long lastInactivityExpireTime;
+    
+    private boolean isWatchedByInactivityChecker;
 
     /**
      * Creates a new context for a session
@@ -140,22 +142,29 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     }
     
     /**
-     * Periodically checks if the session reached the maximum inactivity period.
+     * Configures the inactivity checker instance
      */
-    public void startInactivityChecker() {
-        inactivityChecker.schedule(new TimerTask() {
-            
-            @Override
-            public void run() {
-                synchronized (BoshBackedSessionContext.this) {
-                    if (System.currentTimeMillis() - latestWriteTimestamp >= currentInactivity * 1000 && requestsWindow.isEmpty()) {
-                        LOGGER.info("BOSH session reached maximum inactivity period, closing session...");
-                        close();
-                    }
-                }
+    public void setInactivityChecker(InactivityChecker inactivityChecker) {
+        this.inactivityChecker = inactivityChecker;
+        updateInactivityChecker();
+    }
+    
+    public boolean isWatchedByInactivityChecker() {
+        return isWatchedByInactivityChecker;
+    }
+    
+    private void updateInactivityChecker() {
+        Long newInactivityExpireTime = null;
+        if (requestsWindow.isEmpty()) {
+            newInactivityExpireTime = latestWriteTimestamp + currentInactivity * 1000;
+            if (newInactivityExpireTime == lastInactivityExpireTime) {
+                return;
             }
-            
-        }, 1000, 1000);
+        } else if (!isWatchedByInactivityChecker) {
+            return;
+        }
+        isWatchedByInactivityChecker = inactivityChecker.updateExpireTime(this, lastInactivityExpireTime, newInactivityExpireTime);
+        lastInactivityExpireTime = newInactivityExpireTime;
     }
     
     /**
@@ -223,6 +232,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         continuation.setAttribute("response", boshResponse);
         continuation.resume();
         latestWriteTimestamp = System.currentTimeMillis();
+        updateInactivityChecker();
     }
     
     private boolean isResponseSavable(BoshRequest req, Stanza response) {
@@ -283,7 +293,8 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         serverRuntimeContext.getResourceRegistry().unbindSession(this);
         sessionStateHolder.setState(SessionState.CLOSED);
         
-        inactivityChecker.cancel();
+        inactivityChecker.updateExpireTime(this, lastInactivityExpireTime, null);
+        lastInactivityExpireTime = null;
         
         LOGGER.info("BOSH session {} closed", getSessionId());
     }
@@ -497,6 +508,8 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         }
         
         requestsWindow.put(br.getRid(), br);
+        updateInactivityChecker();
+        
         if (highestReadRid == null) {
             highestReadRid = br.getRid();
         }
@@ -608,6 +621,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         continuation.setAttribute("response", boshResponse);
         continuation.resume();
         latestWriteTimestamp = System.currentTimeMillis();
+        updateInactivityChecker();
     }
 
     private BoshResponse getBoshResponse(Stanza stanza, Long ack) {

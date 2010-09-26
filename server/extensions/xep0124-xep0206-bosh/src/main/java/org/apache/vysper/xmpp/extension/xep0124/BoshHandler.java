@@ -50,12 +50,16 @@ public class BoshHandler {
     private ServerRuntimeContext serverRuntimeContext;
 
     private Map<String, BoshBackedSessionContext> sessions;
+    
+    private InactivityChecker inactivityChecker;
 
     public BoshHandler() {
         // The sessions are stored in a ConcurrentHashMap to maintain the "happens before relationship" memory consistency.
         // Although the operations on specific sessions are synchronized, the session creation and retrieval need the memory
         // consistency guarantee too.
         sessions = new ConcurrentHashMap<String, BoshBackedSessionContext>();
+        inactivityChecker = new InactivityChecker();
+        inactivityChecker.start();
     }
 
     
@@ -196,7 +200,7 @@ public class BoshHandler {
         if ("1".equals(br.getBody().getAttributeValue("ack"))) {
             session.setClientAcknowledgements(true);
         }
-        session.startInactivityChecker();
+        session.setInactivityChecker(inactivityChecker);
         session.insertRequest(br);
         sessions.put(session.getSessionId(), session);
 
