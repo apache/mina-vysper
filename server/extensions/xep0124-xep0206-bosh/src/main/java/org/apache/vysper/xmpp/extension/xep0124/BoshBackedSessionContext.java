@@ -118,7 +118,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      */
     private long latestWriteTimestamp = System.currentTimeMillis();
     
-    private InactivityChecker inactivityChecker;
+    private final InactivityChecker inactivityChecker;
     
     private Long lastInactivityExpireTime;
     
@@ -128,8 +128,9 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      * Creates a new context for a session
      * @param boshHandler
      * @param serverRuntimeContext
+     * @param inactivityChecker
      */
-    public BoshBackedSessionContext(BoshHandler boshHandler, ServerRuntimeContext serverRuntimeContext) {
+    public BoshBackedSessionContext(BoshHandler boshHandler, ServerRuntimeContext serverRuntimeContext, InactivityChecker inactivityChecker) {
         super(serverRuntimeContext, new SessionStateHolder());
 
         // in BOSH we jump directly to the encrypted state
@@ -139,12 +140,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         requestsWindow = new TreeMap<Long, BoshRequest>();
         delayedResponseQueue = new LinkedList<Stanza>();
         sentResponses = new TreeMap<Long, BoshResponse>();
-    }
-    
-    /**
-     * Configures the inactivity checker instance
-     */
-    public void setInactivityChecker(InactivityChecker inactivityChecker) {
+        
         this.inactivityChecker = inactivityChecker;
         updateInactivityChecker();
     }

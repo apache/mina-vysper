@@ -177,7 +177,7 @@ public class BoshHandler {
     }
 
     private void createSession(BoshRequest br) throws IOException {
-        BoshBackedSessionContext session = new BoshBackedSessionContext(this, serverRuntimeContext);
+        BoshBackedSessionContext session = new BoshBackedSessionContext(this, serverRuntimeContext, inactivityChecker);
         if (br.getBody().getAttribute("content") != null) {
             session.setContentType(br.getBody().getAttributeValue("content"));
         }
@@ -200,7 +200,6 @@ public class BoshHandler {
         if ("1".equals(br.getBody().getAttributeValue("ack"))) {
             session.setClientAcknowledgements(true);
         }
-        session.setInactivityChecker(inactivityChecker);
         session.insertRequest(br);
         sessions.put(session.getSessionId(), session);
 
