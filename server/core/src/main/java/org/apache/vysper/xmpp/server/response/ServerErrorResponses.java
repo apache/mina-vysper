@@ -64,7 +64,7 @@ public class ServerErrorResponses {
 
         if (languageCode == null)
             languageCode = "en_US";
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("error");
+        StanzaBuilder stanzaBuilder = new StanzaBuilder("error", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STREAMS);
 
         stanzaBuilder.startInnerElement(definedErrorCondition.value(),
                 NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STREAMS).endInnerElement();

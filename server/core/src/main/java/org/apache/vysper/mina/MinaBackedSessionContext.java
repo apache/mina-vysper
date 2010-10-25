@@ -93,7 +93,8 @@ public class MinaBackedSessionContext extends AbstractSessionContext implements 
     public void close() {
         logger.info("session will be closed now");
         closeFuture.setClosed();
-        minaSession.close();
+        minaSession.close(false);
+        logger.info("session closed");
     }
 
     public void operationComplete(IoFuture ioFuture) {

@@ -22,14 +22,18 @@ package org.apache.vysper.mina;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
+import org.apache.mina.core.write.WriteToClosedSessionException;
 import org.apache.mina.filter.ssl.SslFilter;
 import org.apache.vysper.xml.fragment.XMLText;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.protocol.StreamErrorCondition;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXParseException;
 
 /**
  *
@@ -109,7 +113,7 @@ public class XmppIoHandlerAdapter implements IoHandler {
     public void sessionClosed(IoSession ioSession) throws Exception {
         SessionContext sessionContext = extractSession(ioSession);
         String sessionId = "UNKNOWN";
-        if (sessionContext != null) {
+        if (sessionContext != null && ioSession.isConnected()) {
             sessionId = sessionContext.getSessionId();
             sessionContext.endSession(SessionContext.SessionTerminationCause.CONNECTION_ABORT);
         }
@@ -122,6 +126,23 @@ public class XmppIoHandlerAdapter implements IoHandler {
     }
 
     public void exceptionCaught(IoSession ioSession, Throwable throwable) throws Exception {
-        logger.warn("error caught on transportation layer: {}", throwable);
+        SessionContext sessionContext = extractSession(ioSession);
+
+        Stanza errorStanza;
+        if(throwable.getCause() != null && throwable.getCause() instanceof SAXParseException) {
+            logger.info("Client sent not well-formed XML, closing session: {}", throwable);
+            errorStanza = ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.XML_NOT_WELL_FORMED,
+                    sessionContext.getXMLLang(), "Stanza not well-formed", null);
+        } else if(throwable instanceof WriteToClosedSessionException) {
+            // ignore
+            return;
+        } else {
+            logger.warn("error caught on transportation layer: {}", throwable);
+            errorStanza = ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.UNDEFINED_CONDITION,
+                    sessionContext.getXMLLang(), "Unknown error", null);
+
+        }
+        sessionContext.getResponseWriter().write(errorStanza);
+        sessionContext.endSession(SessionContext.SessionTerminationCause.STREAM_ERROR);
     }
 }
