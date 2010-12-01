@@ -20,6 +20,9 @@
 package org.apache.vysper.xmpp.server;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +33,7 @@ import org.apache.vysper.xmpp.authorization.Plain;
 import org.apache.vysper.xmpp.authorization.SASLMechanism;
 import org.apache.vysper.xmpp.cryptography.BogusTrustManagerFactory;
 import org.apache.vysper.xmpp.cryptography.FileBasedTLSContextFactory;
+import org.apache.vysper.xmpp.cryptography.InputStreamBasedTLSContextFactory;
 import org.apache.vysper.xmpp.delivery.RecordingStanzaRelay;
 import org.apache.vysper.xmpp.delivery.StanzaRelayBroker;
 import org.apache.vysper.xmpp.delivery.inbound.DeliveringInboundStanzaRelay;
@@ -63,7 +67,7 @@ public class XMPPServer {
 
     private StorageProviderRegistry storageProviderRegistry;
 
-    private File tlsCertificateFile;
+    private InputStream tlsCertificate;
 
     private String tlsCertificatePassword;
 
@@ -84,8 +88,13 @@ public class XMPPServer {
         this.storageProviderRegistry = storageProviderRegistry;
     }
 
-    public void setTLSCertificateInfo(File certificate, String password) {
-        tlsCertificateFile = certificate;
+    public void setTLSCertificateInfo(File certificate, String password) throws FileNotFoundException {
+        tlsCertificate = new FileInputStream(certificate);
+        tlsCertificatePassword = password;
+    }
+
+    public void setTLSCertificateInfo(InputStream certificate, String password) {
+        tlsCertificate = certificate;
         tlsCertificatePassword = password;
     }
 
@@ -96,7 +105,7 @@ public class XMPPServer {
     public void start() throws Exception {
 
         BogusTrustManagerFactory bogusTrustManagerFactory = new BogusTrustManagerFactory();
-        FileBasedTLSContextFactory tlsContextFactory = new FileBasedTLSContextFactory(tlsCertificateFile);
+        InputStreamBasedTLSContextFactory tlsContextFactory = new InputStreamBasedTLSContextFactory(tlsCertificate);
         tlsContextFactory.setPassword(tlsCertificatePassword);
         tlsContextFactory.setTrustManagerFactory(bogusTrustManagerFactory);
 
