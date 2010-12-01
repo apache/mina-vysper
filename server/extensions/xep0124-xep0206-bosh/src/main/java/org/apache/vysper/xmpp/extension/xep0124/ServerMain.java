@@ -20,6 +20,7 @@
 package org.apache.vysper.xmpp.extension.xep0124;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -55,7 +56,7 @@ public class ServerMain {
      * 
      * @param args
      */
-    public static void main(String[] args) throws AccountCreationException, EntityFormatException {
+    public static void main(String[] args) throws AccountCreationException, EntityFormatException, FileNotFoundException {
 
         String addedModuleProperty = System.getProperty("vysper.add.module");
         List<Module> listOfModules = null;

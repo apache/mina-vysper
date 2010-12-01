@@ -20,6 +20,7 @@
 package org.apache.vysper.demo.pubsub.client;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import org.apache.vysper.mina.TCPEndpoint;
 import org.apache.vysper.storage.StorageProviderRegistry;
@@ -52,7 +53,7 @@ public class ServerMain {
      * 
      * @param args
      */
-    public static void main(String[] args) throws AccountCreationException, EntityFormatException {
+    public static void main(String[] args) throws AccountCreationException, EntityFormatException, FileNotFoundException {
 
         // choose the storage you want to use
         //StorageProviderRegistry providerRegistry = new JcrStorageProviderRegistry();
