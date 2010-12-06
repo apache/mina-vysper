@@ -31,6 +31,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Decline;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Invite;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Password;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.MessageStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
@@ -117,7 +118,7 @@ public class MessageTestCase extends AbstractMUCMessageHandlerTestCase {
 
         Invite invite = new Invite(null, OCCUPANT2_JID, reason);
         // send message to occupant 1
-        assertNull(sendMessage(OCCUPANT1_JID, ROOM1_JID, null, null, new X(invite), null));
+        assertNull(sendMessage(OCCUPANT1_JID, ROOM1_JID, null, null, new X(NamespaceURIs.XEP0045_MUC_USER, invite), null));
 
         X expectedX = new X(new Invite(OCCUPANT1_JID, null, reason), new Password("secret"));
         // verify stanzas to existing occupants on the exiting user
@@ -134,7 +135,7 @@ public class MessageTestCase extends AbstractMUCMessageHandlerTestCase {
 
         Decline decline = new Decline(null, OCCUPANT2_JID, reason);
         // send message to occupant 1
-        Stanza error = sendMessage(OCCUPANT1_JID, ROOM1_JID, null, null, new X(decline), null);
+        Stanza error = sendMessage(OCCUPANT1_JID, ROOM1_JID, null, null, new X(NamespaceURIs.XEP0045_MUC_USER, decline), null);
         assertNull(error);
 
         X expectedX = new X(new Decline(OCCUPANT1_JID, null, reason));

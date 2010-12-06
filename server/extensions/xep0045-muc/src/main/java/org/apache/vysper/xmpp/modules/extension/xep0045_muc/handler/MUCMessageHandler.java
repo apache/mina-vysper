@@ -174,7 +174,7 @@ public class MUCMessageHandler extends DefaultMessageHandler {
                         logger.debug("Received voice request for room {}", roomJid);
                         
                         handleVoiceRequest(from, sendingOccupant, room, stanza, serverRuntimeContext);
-                    } else if(stanza.getVerifier().onlySubelementEquals("x", NamespaceURIs.XEP0045_MUC)) {
+                    } else if(stanza.getVerifier().onlySubelementEquals("x", NamespaceURIs.XEP0045_MUC_USER)) {
                         // invites/declines
                         return handleInvites(stanza, from, sendingOccupant, room, serverRuntimeContext);
                     }
