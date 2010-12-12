@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.addressing;
 import java.util.Arrays;
 
 import junit.framework.TestCase;
+import org.apache.vysper.xmpp.addressing.stringprep.StringPrepViolationException;
 
 public class EntityConformanceTestCase extends TestCase {
 
@@ -63,5 +64,16 @@ public class EntityConformanceTestCase extends TestCase {
         assertEquals(new EntityImpl(null, "vysper.org", null), new EntityImpl(null, "vysper.org", ""));
         assertEquals(new EntityImpl(null, "vysper.org", null), new EntityImpl("", "vysper.org", null));
         assertEquals(new EntityImpl(null, "vysper.org", null), new EntityImpl("", "vysper.org", ""));
+    }
+
+    public void testPreppedInConstructor() throws EntityFormatException {
+        // a colon may not occur in the node part of the JID
+        try {
+            final EntityImpl testJID = new EntityImpl("contains:colon", "vysper.org", "somebody");
+            fail("expected RuntimeException.StringPrepViolationException");
+        } catch (RuntimeException rte) {
+            assertTrue(rte.getCause() instanceof StringPrepViolationException);
+            // test succeeded!
+        }
     }
 }

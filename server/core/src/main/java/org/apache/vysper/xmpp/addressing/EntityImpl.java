@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.addressing;
 
 import org.apache.vysper.xmpp.addressing.stringprep.NodePrep;
 import org.apache.vysper.xmpp.addressing.stringprep.ResourcePrep;
+import org.apache.vysper.xmpp.addressing.stringprep.StringPrepViolationException;
 
 /**
  * {@link Entity} implementation. provides consersion helper method {@link #parse(String)} to create Entity from String
@@ -67,7 +68,7 @@ public class EntityImpl implements Entity {
             resource = entity.substring(indexOfSlash + 1);
             resource = ResourcePrep.prepare(resource);
         }
-        return new EntityImpl(node, domain, resource);
+        return new EntityImpl(node, domain, resource, true);
     }
 
     /**
@@ -81,19 +82,24 @@ public class EntityImpl implements Entity {
         } catch (EntityFormatException e) {
             throw new IllegalArgumentException(e);
         }
+    }
 
+    private EntityImpl(String node, String domain, String resource, boolean prepped) {
+        try {
+            this.node = (!prepped && node != null) ? NodePrep.prepare(node): node;
+            this.domain = domain;
+            this.resource = (!prepped && resource != null) ? ResourcePrep.prepare(resource) : resource;
+        } catch (StringPrepViolationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public EntityImpl(String node, String domain, String resource) {
-        this.node = node;
-        this.domain = domain;
-        this.resource = resource;
+        this(node, domain, resource, false);
     }
 
     public EntityImpl(Entity bareId, String resource) {
-        this.node = bareId.getNode();
-        this.domain = bareId.getDomain();
-        this.resource = resource;
+        this (bareId.getNode(), bareId.getDomain(), resource);
     }
 
     public String getNode() {

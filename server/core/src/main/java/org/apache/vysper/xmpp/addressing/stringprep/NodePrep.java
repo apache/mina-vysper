@@ -49,7 +49,7 @@ public class NodePrep extends StringPrep {
      * @throws StringPrepViolationException
      *             in case the Nodeprep profile can't be applied
      */
-    public static final String prepare(String node) throws StringPrepViolationException {
+    public static String prepare(String node) throws StringPrepViolationException {
         return INSTANCE.prepareString(node);
     }
 
