@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Stack;
 
 /**
@@ -89,11 +90,18 @@ public abstract class AbstractXMLElementBuilder<B extends AbstractXMLElementBuil
         return new XMLElement(namespaceURI, name, namespacePrefix, attributes, innerFragments, namespaces);
     }
 
-    private void startNewElement(String name, String namespaceURI, String namespacePrefix) {
+    public void startNewElement(String name, String namespaceURI, String namespacePrefix) {
         // TODO assert that name does not contain namespace (":")
         ElementStruct element = new ElementStruct();
         element.attributes = new ArrayList<Attribute>();
         element.namespaces = new HashMap<String, String>();
+        
+        if(namespacePrefix == null) {
+            namespacePrefix = "";
+        }
+        if(namespaceURI != null && !namespacePrefix.isEmpty()) {
+            element.namespaces.put(namespacePrefix, namespaceURI);
+        }
         element.innerFragments = new ArrayList<XMLFragment>();
         element.element = createElement(namespaceURI, name, namespacePrefix, element.attributes, element.namespaces,
                 element.innerFragments);
@@ -102,6 +110,14 @@ public abstract class AbstractXMLElementBuilder<B extends AbstractXMLElementBuil
     }
 
     public B declareNamespace(String namespacePrefix, String value) {
+        if(currentElement.namespaces.containsValue(value)) {
+            for(Entry<String, String> ns : currentElement.namespaces.entrySet()) {
+                if(ns.getValue().equals(value)) {
+                    currentElement.namespaces.remove(ns.getKey());
+                }
+            }
+        }
+        
         currentElement.namespaces.put(namespacePrefix, value);
         return (B) this;
     }

@@ -115,8 +115,10 @@ public class RendererTestCase extends TestCase {
     }
 
     public void testRenderPrefixedNamespaceElement() {
-        XMLElement elm = new XMLElement("http://example.com", "foo", "pr", (Attribute[]) null, null);
-        assertRendering("<pr:foo xmlns:pr=\"http://example.com\"></pr:foo>", elm);
+        XMLElement elm = new XMLElementBuilder("foo", "http://example.com", "pr")
+            .startInnerElement("bar", "http://example.com").build();
+
+        assertRendering("<pr:foo xmlns:pr=\"http://example.com\"><pr:bar></pr:bar></pr:foo>", elm);
     }
 
     public void testRenderDeclaredNamespaceElement() {
