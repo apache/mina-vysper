@@ -42,6 +42,14 @@ public class ServerResponses {
     }
 
     public Stanza getStreamOpener(boolean forClient, Entity from, XMPPVersion version, SessionContext sessionContext) {
+        if(forClient) {
+            return getStreamOpenerForClient(from, version, sessionContext);
+        } else {
+            return getStreamOpenerForServerAcceptor(from, version, sessionContext);
+        }
+    }
+    
+    public Stanza getStreamOpenerForClient(Entity from, XMPPVersion version, SessionContext sessionContext) {
         Stanza innerFeatureStanza;
         if (sessionContext.getState() == SessionState.INITIATED)
             innerFeatureStanza = getFeaturesForEncryption(sessionContext);
@@ -55,12 +63,47 @@ public class ServerResponses {
             throw new IllegalStateException("unsupported state for responding with stream opener");
         }
 
-        StanzaBuilder stanzaBuilder = getStreamOpener(forClient, from, sessionContext.getXMLLang(), version,
+        StanzaBuilder stanzaBuilder = getStreamOpener(true, from, sessionContext.getXMLLang(), version,
                 sessionContext.getSessionId(), innerFeatureStanza);
 
         return stanzaBuilder.build();
     }
 
+    public Stanza getStreamOpenerForServerAcceptor(Entity from, XMPPVersion version, SessionContext sessionContext) {
+        Stanza innerFeatureStanza;
+        if (sessionContext.getState() == SessionState.INITIATED) {
+            StanzaBuilder stanzaBuilder = startFeatureStanza();
+            stanzaBuilder.startInnerElement("dialback", NamespaceURIs.JABBER_SERVER_DIALBACK)
+                .declareNamespace("", NamespaceURIs.JABBER_SERVER_DIALBACK);
+            stanzaBuilder.endInnerElement();
+            innerFeatureStanza = stanzaBuilder.build();
+//        else if (sessionContext.getState() == SessionState.ENCRYPTED)
+//            innerFeatureStanza = getFeaturesForAuthentication(sessionContext.getServerRuntimeContext()
+//                    .getServerFeatures().getAuthenticationMethods());
+//        else if (sessionContext.getState() == SessionState.AUTHENTICATED) {
+//            sessionContext.setIsReopeningXMLStream();
+//            innerFeatureStanza = getFeaturesForSession();
+        } else {
+            throw new IllegalStateException("unsupported state for responding with stream opener");
+        }
+        
+        StanzaBuilder stanzaBuilder = getStreamOpener(false, from, sessionContext.getXMLLang(), version,
+                sessionContext.getSessionId(), innerFeatureStanza);
+        if (sessionContext.getState() == SessionState.INITIATED) {
+            stanzaBuilder.declareNamespace("db", NamespaceURIs.JABBER_SERVER_DIALBACK);
+        }
+        return stanzaBuilder.build();
+    }
+
+    public Stanza getStreamOpenerForServerConnector(Entity from, Entity to, XMPPVersion version, SessionContext sessionContext) {
+        StanzaBuilder stanzaBuilder = getStreamOpener(false, from, sessionContext.getXMLLang(), version,
+                null, null);
+        stanzaBuilder.addAttribute("to", to.getDomain());
+        stanzaBuilder.declareNamespace("db", NamespaceURIs.JABBER_SERVER_DIALBACK);
+        return stanzaBuilder.build();
+    }
+
+    
     public StanzaBuilder getStreamOpener(boolean forClient, Entity from, String xmlLang, XMPPVersion version,
             Stanza innerStanza) {
         return getStreamOpener(forClient, from, xmlLang, version, null, innerStanza);
@@ -75,7 +118,7 @@ public class ServerResponses {
             stanzaBuilder.addAttribute(NamespaceURIs.XML, "lang", xmlLang);
         if (version != null)
             stanzaBuilder.addAttribute("version", version.toString());
-        if (forClient && sessionId != null)
+        if (sessionId != null)
             stanzaBuilder.addAttribute("id", sessionId);
         if (innerStanza != null)
             stanzaBuilder.addPreparedElement(innerStanza);

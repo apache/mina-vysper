@@ -32,7 +32,6 @@ import org.apache.vysper.xmpp.authorization.AccountManagement;
 import org.apache.vysper.xmpp.authorization.Plain;
 import org.apache.vysper.xmpp.authorization.SASLMechanism;
 import org.apache.vysper.xmpp.cryptography.BogusTrustManagerFactory;
-import org.apache.vysper.xmpp.cryptography.FileBasedTLSContextFactory;
 import org.apache.vysper.xmpp.cryptography.InputStreamBasedTLSContextFactory;
 import org.apache.vysper.xmpp.delivery.RecordingStanzaRelay;
 import org.apache.vysper.xmpp.delivery.StanzaRelayBroker;
@@ -165,5 +164,9 @@ public class XMPPServer {
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.bind.BindResourceDictionary());
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.session.SessionStanzaDictionary());
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.compatibility.jabber_iq_auth.JabberIQAuthDictionary());
+    }
+    
+    public ServerRuntimeContext getServerRuntimeContext() {
+        return serverRuntimeContext;
     }
 }

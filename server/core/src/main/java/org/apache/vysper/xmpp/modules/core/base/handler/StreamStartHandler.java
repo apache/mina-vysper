@@ -36,6 +36,7 @@ import org.apache.vysper.xmpp.server.XMPPVersion;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
 import org.apache.vysper.xmpp.server.response.ServerResponses;
 import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
 /**
  *
@@ -159,7 +160,11 @@ public class StreamStartHandler implements StanzaHandler {
 
                 }
             }
-            throw new RuntimeException("server connection not yet supported");
+            
+            // TODO set version correctly
+            responseVersion = XMPPVersion.VERSION_1_0;
+            responseStanza = new ServerResponses().getStreamOpener(clientCall, sessionContext.getServerJID(),
+                    responseVersion, sessionContext);
         } else {
             String descriptiveText = "one of the two namespaces must be present: " + NamespaceURIs.JABBER_CLIENT
                     + " or " + NamespaceURIs.JABBER_SERVER;

@@ -27,6 +27,8 @@ import org.apache.vysper.xmpp.modules.core.base.handler.RelayingIQHandler;
 import org.apache.vysper.xmpp.modules.core.base.handler.StreamStartHandler;
 import org.apache.vysper.xmpp.modules.core.base.handler.XMLPrologHandler;
 import org.apache.vysper.xmpp.modules.core.im.handler.PresenceHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbResultHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbVerifyHandler;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
@@ -67,17 +69,22 @@ public class StanzaHandlerLookup extends AbstractStanzaHandlerLookup {
             return null;
 
         String name = stanza.getName();
-        if ("xml".equals(name))
+
+        if ("xml".equals(name)) {
             return new XMLPrologHandler();
-        else if ("stream".equals(name))
+        } else if ("stream".equals(name)) {
             return new StreamStartHandler();
-        else if (iqHandler.verify(stanza))
+        } else if ("verify".equals(name)) {
+            return new DbVerifyHandler();
+        } else if ("result".equals(name)) {
+            return new DbResultHandler();
+        } else if (iqHandler.verify(stanza)) {
             return getIQHandler(stanza);
-        else if (messageHandler.verify(stanza))
+        } else if (messageHandler.verify(stanza)) {
             return getMessageHandler(stanza);
-        else if (presenceHandler.verify(stanza))
+        } else if (presenceHandler.verify(stanza)) {
             return getPresenceHandler(stanza);
-        else {
+        } else {
             // this is not a core stanza (RFC3920), but something like the following
             // (in descending-probability order):
             // a. a custom extension of iq, message, presence

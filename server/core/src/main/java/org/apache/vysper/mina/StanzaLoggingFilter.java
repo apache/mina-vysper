@@ -44,7 +44,8 @@ public class StanzaLoggingFilter extends IoFilterAdapter {
             XMLElement element = (XMLElement) message;
 
             if (clientLogger.isInfoEnabled()) {
-                clientLogger.info(DenseStanzaLogRenderer.render(element));
+                //clientLogger.info(DenseStanzaLogRenderer.render(element));
+                clientLogger.info("< " + new Renderer(element).getComplete());
             }
             if (clientLogger.isDebugEnabled()) {
                 boolean openElement = true;
@@ -75,7 +76,8 @@ public class StanzaLoggingFilter extends IoFilterAdapter {
             StanzaWriteInfo stanzaWriteInfo = (StanzaWriteInfo) message;
 
             if (serverLogger.isInfoEnabled()) {
-                serverLogger.info(DenseStanzaLogRenderer.render(stanzaWriteInfo.getStanza()));
+                //serverLogger.info(DenseStanzaLogRenderer.render(stanzaWriteInfo.getStanza()));
+                clientLogger.info("> " + new Renderer(stanzaWriteInfo.getStanza()).getComplete());
             }
             if (serverLogger.isDebugEnabled()) {
                 String xml = toXml(stanzaWriteInfo.getStanza(), stanzaWriteInfo.isWriteOpeningElement(),
