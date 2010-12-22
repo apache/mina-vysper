@@ -86,7 +86,7 @@ public class MUCIqAdminHandler extends DefaultIQHandler {
         Occupant moderator = room.findOccupantByJID(stanza.getFrom());
 
         // check if moderator
-        if (moderator.getRole() != Role.Moderator) {
+        if (moderator == null || moderator.getRole() != Role.Moderator) {
             // only moderators are allowed to continue
             logger.debug("Only moderators are allowed to issue admin stanzas");
             

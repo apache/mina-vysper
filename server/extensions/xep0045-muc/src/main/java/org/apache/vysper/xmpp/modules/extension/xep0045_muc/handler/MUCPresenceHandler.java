@@ -294,13 +294,13 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         List<XMLElement> inner = new ArrayList<XMLElement>();
 
         // room is non-anonymous or semi-anonymous and the occupant a moderator, send full user JID
-        boolean includeJid = room.getRoomTypes().contains(RoomType.NonAnonymous)
-                || (room.getRoomTypes().contains(RoomType.SemiAnonymous) && existingOccupant.getRole() == Role.Moderator);
+        boolean includeJid = room.isRoomType(RoomType.NonAnonymous)
+                || (room.isRoomType(RoomType.SemiAnonymous) && existingOccupant.getRole() == Role.Moderator);
         inner.add(new MucUserItem(newOccupant, includeJid, false));
 
         if (existingOccupant.getJid().equals(newOccupant.getJid())) {
 
-            if (room.getRoomTypes().contains(RoomType.NonAnonymous)) {
+            if (room.isRoomType(RoomType.NonAnonymous)) {
                 // notify the user that this is a non-anonymous room
                 inner.add(new Status(StatusCode.ROOM_NON_ANONYMOUS));
             }
@@ -358,9 +358,9 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
     }
 
     private boolean includeJidInItem(Room room, Occupant receiver) {
-        // room is non-anonymous or semi-anonmoys and the occupant a moderator, send full user JID
-        return room.getRoomTypes().contains(RoomType.NonAnonymous)
-                || (room.getRoomTypes().contains(RoomType.SemiAnonymous) && receiver.getRole() == Role.Moderator);
+        // room is non-anonymous or semi-anonymous and the occupant a moderator, send full user JID
+        return room.isRoomType(RoomType.NonAnonymous)
+                || (room.isRoomType(RoomType.SemiAnonymous) && receiver.getRole() == Role.Moderator);
     }
 
     private void sendChangeNickAvailable(Occupant changer, Occupant receiver, Room room,
