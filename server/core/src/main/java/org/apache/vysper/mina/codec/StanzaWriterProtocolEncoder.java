@@ -22,10 +22,12 @@ package org.apache.vysper.mina.codec;
 import java.nio.charset.CharsetEncoder;
 
 import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.apache.vysper.charset.CharsetUtil;
+import org.apache.vysper.mina.XmppIoHandlerAdapter;
 import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.writer.StanzaWriter;
@@ -65,7 +67,14 @@ public class StanzaWriterProtocolEncoder implements ProtocolEncoder {
     }
 
     public void dispose(IoSession ioSession) throws Exception {
-        logger.warn("unhandled StanzaWriterProtocolEncoder.dispose()");
+        final IoHandler handler = ioSession.getHandler();
+        if (handler instanceof XmppIoHandlerAdapter) {
+            XmppIoHandlerAdapter xmppIoHandlerAdapter = (XmppIoHandlerAdapter)handler;
+            xmppIoHandlerAdapter.sessionClosed(ioSession);
+            logger.debug("terminated and disposed session id = " + ioSession.getId());
+        } else {
+            logger.warn("unhandled StanzaWriterProtocolEncoder.dispose()");
+        }
     }
 
     public CharsetEncoder getSessionEncoder() {
