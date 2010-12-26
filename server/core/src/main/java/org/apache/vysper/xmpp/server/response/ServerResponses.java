@@ -73,11 +73,11 @@ public class ServerResponses {
         Stanza innerFeatureStanza;
         if (sessionContext.getState() == SessionState.INITIATED) {
             StanzaBuilder stanzaBuilder = startFeatureStanza();
-            stanzaBuilder.startInnerElement("dialback", NamespaceURIs.JABBER_SERVER_DIALBACK)
-                .declareNamespace("", NamespaceURIs.JABBER_SERVER_DIALBACK);
+            stanzaBuilder.startInnerElement("dialback", NamespaceURIs.URN_XMPP_FEATURES_DIALBACK);
             stanzaBuilder.endInnerElement();
             innerFeatureStanza = stanzaBuilder.build();
-//        else if (sessionContext.getState() == SessionState.ENCRYPTED)
+
+            //        else if (sessionContext.getState() == SessionState.ENCRYPTED)
 //            innerFeatureStanza = getFeaturesForAuthentication(sessionContext.getServerRuntimeContext()
 //                    .getServerFeatures().getAuthenticationMethods());
 //        else if (sessionContext.getState() == SessionState.AUTHENTICATED) {
