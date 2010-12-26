@@ -17,18 +17,22 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
 public class Server2Server {
 
-    private static Entity otherServer = EntityImpl.parseUnchecked("jabber.org");
+    // TODO temporarily uses hard coded servers, change for your own tests
+    private static Entity localServer = EntityImpl.parseUnchecked("protocol7.dyndns.org");
+    private static Entity localUser = EntityImpl.parseUnchecked("niklas@protocol7.dyndns.org");
+    private static Entity remoteServer = EntityImpl.parseUnchecked("jabber.org");
+    private static Entity remoteUser = EntityImpl.parseUnchecked("niklas@protocol7.com");
     
     public static void main(String[] args) throws Exception {
         
-        XMPPServer server = new XMPPServer("protocol7.dyndns.org");
+        XMPPServer server = new XMPPServer(localServer.getDomain());
 
         StorageProviderRegistry providerRegistry = new MemoryStorageProviderRegistry();
         final AccountManagement accountManagement = (AccountManagement) providerRegistry
         .retrieve(AccountManagement.class);
 
-        if (!accountManagement.verifyAccountExists(EntityImpl.parseUnchecked("user1@vysper.org"))) {
-            accountManagement.addUser("user1@vysper.org", "password1");
+        if (!accountManagement.verifyAccountExists(localUser)) {
+            accountManagement.addUser(localUser.getFullQualifiedName(), "password1");
         }
 
         // S2S endpoint
@@ -45,16 +49,28 @@ public class Server2Server {
         
         Thread.sleep(2000);
 
-        XMPPServerConnector connector = new XMPPServerConnector(otherServer, serverRuntimeContext);
-        connector.start();
+        XMPPServerConnectorRegistry registry = serverRuntimeContext.getServerConnectorRegistry();
+        
+        XMPPServerConnector connector = registry.getConnector(remoteServer);
         
         Stanza ping = new StanzaBuilder("iq", NamespaceURIs.JABBER_SERVER)
             .addAttribute("from", serverRuntimeContext.getServerEnitity().getDomain())
-            .addAttribute("to", otherServer.getDomain())
+            .addAttribute("to", remoteServer.getDomain())
             .addAttribute("type", "get")
             .addAttribute("id", "123")
             .startInnerElement("ping", NamespaceURIs.URN_XMPP_PING).endInnerElement().build();
         connector.write(ping);
+
+//        Stanza stanza = new StanzaBuilder("message", NamespaceURIs.JABBER_SERVER)
+//            .addAttribute("from", localUser.getFullQualifiedName())
+//            .addAttribute("to", remoteUser.getFullQualifiedName())
+//            .startInnerElement("body", NamespaceURIs.JABBER_SERVER)
+//            .addText("Hello world")
+//            .endInnerElement()
+//            .build();
+            
+//        connector.write(stanza);
+        
         
         Thread.sleep(2000);
         
