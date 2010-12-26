@@ -116,6 +116,11 @@ public abstract class AbstractSessionContext implements SessionContext {
         return sessionId;
     }
 
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
+
+    
     public String getXMLLang() {
         return xmlLang;
     }
