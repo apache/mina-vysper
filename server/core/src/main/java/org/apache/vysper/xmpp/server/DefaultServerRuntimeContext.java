@@ -45,6 +45,7 @@ import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaHandlerLookup;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.components.Component;
+import org.apache.vysper.xmpp.server.s2s.XMPPServerConnectorRegistry;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.state.presence.LatestPresenceCache;
 import org.apache.vysper.xmpp.state.presence.SimplePresenceCache;
@@ -111,6 +112,8 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
      */
     private LatestPresenceCache presenceCache = new SimplePresenceCache();
 
+    private XMPPServerConnectorRegistry serverConnectorRegistry = new XMPPServerConnectorRegistry(this);
+    
     /**
      * holds the storage services
      */
@@ -186,7 +189,11 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         return serverFeatures;
     }
 
-    public void addDictionary(NamespaceHandlerDictionary namespaceHandlerDictionary) {
+    public XMPPServerConnectorRegistry getServerConnectorRegistry() {
+        return serverConnectorRegistry;
+    }
+
+    public void addDictionary(HandlerDictionary namespaceHandlerDictionary) {
         stanzaHandlerLookup.addDictionary(namespaceHandlerDictionary);
     }
 

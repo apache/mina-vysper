@@ -12,7 +12,6 @@ import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.apache.vysper.mina.MinaBackedSessionContext;
 import org.apache.vysper.mina.StanzaLoggingFilter;
 import org.apache.vysper.mina.codec.XMPPProtocolCodecFactory;
-import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DailbackIdGenerator;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
@@ -53,28 +52,39 @@ public class XMPPServerConnector {
 
             @Override
             public void messageReceived(IoSession session, Object message) throws Exception {
-                XMLElement msg = (XMLElement) message;
+                Stanza msg = (Stanza) message;
                 
                 if(msg.getName().equals("stream")) {
-                    Entity originating = serverRuntimeContext.getServerEnitity();
+                    sessionContext.setSessionId(msg.getAttributeValue("id"));
+                } else if(msg.getName().equals("features")) {
+                    if(dialbackSupported(msg)) {
+                        Entity originating = serverRuntimeContext.getServerEnitity();
 
-                    String dailbackId = new DailbackIdGenerator().generate(otherServer, originating, msg.getAttributeValue("id"));
-                    
-                    Stanza dbResult = new StanzaBuilder("result", NamespaceURIs.JABBER_SERVER_DIALBACK, "db")
-                        .addAttribute("from", originating.getDomain())
-                        .addAttribute("to", otherServer.getDomain())
-                        .addText(dailbackId)
-                        .build();
-                    
-                    sessionContext.write(dbResult);
-                } else if(msg.getName().equals("result")) {
+                        String dailbackId = new DailbackIdGenerator().generate(otherServer, originating, sessionContext.getSessionId());
+                        
+                        Stanza dbResult = new StanzaBuilder("result", NamespaceURIs.JABBER_SERVER_DIALBACK, "db")
+                            .addAttribute("from", originating.getDomain())
+                            .addAttribute("to", otherServer.getDomain())
+                            .addText(dailbackId)
+                            .build();
+                        
+                        sessionContext.write(dbResult);
+                    } else {
+                        throw new RuntimeException("Unsupported features");
+                    }
+                } else if(msg.getName().equals("result") && NamespaceURIs.JABBER_SERVER_DIALBACK.equals(msg.getNamespaceURI())) {
                     // TODO check and handle dailback result
                     sessionStateHolder.setState(SessionState.AUTHENTICATED);
-                    System.out.println("Done with dailback");
+                    System.out.println("Done with dialback");
                     latch.countDown();
                 } else {
                     // TODO other stanzas coming here?
                 }
+            }
+            
+            private boolean dialbackSupported(Stanza stanza) {
+                // TODO check for dialback namespace
+                return !stanza.getInnerElementsNamed("dialback", NamespaceURIs.URN_XMPP_FEATURES_DIALBACK).isEmpty();
             }
 
             @Override

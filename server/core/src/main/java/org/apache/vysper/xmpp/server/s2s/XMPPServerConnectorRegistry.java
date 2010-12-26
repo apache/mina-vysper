@@ -10,6 +10,10 @@ public class XMPPServerConnectorRegistry {
     private ServerRuntimeContext serverRuntimeContext;
     private Map<Entity, XMPPServerConnector> connectors = new ConcurrentHashMap<Entity, XMPPServerConnector>();
     
+    public XMPPServerConnectorRegistry(ServerRuntimeContext serverRuntimeContext) {
+        this.serverRuntimeContext = serverRuntimeContext;
+    }
+
     public synchronized XMPPServerConnector getConnector(Entity server) {
         XMPPServerConnector connector = connectors.get(server);
 
