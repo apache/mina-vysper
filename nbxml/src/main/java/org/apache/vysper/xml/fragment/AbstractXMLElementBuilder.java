@@ -99,7 +99,7 @@ public abstract class AbstractXMLElementBuilder<B extends AbstractXMLElementBuil
         if(namespacePrefix == null) {
             namespacePrefix = "";
         }
-        if(namespaceURI != null && !namespacePrefix.isEmpty()) {
+        if(namespaceURI != null && namespacePrefix.length() > 0) {
             element.namespaces.put(namespacePrefix, namespaceURI);
         }
         element.innerFragments = new ArrayList<XMLFragment>();
