@@ -29,6 +29,7 @@ import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
@@ -37,7 +38,6 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class DbResultHandler implements StanzaHandler {
-    private DailbackIdGenerator dailbackIdGenerator = new DailbackIdGenerator();
     
     public String getName() {
         return "result";
@@ -71,10 +71,12 @@ public class DbResultHandler implements StanzaHandler {
             
             // TODO implement dailback verification
             
-            StanzaBuilder builder = new StanzaBuilder("result", NamespaceURIs.JABBER_SERVER_DIALBACK);
+            StanzaBuilder builder = new StanzaBuilder("result", NamespaceURIs.JABBER_SERVER_DIALBACK, "db");
             builder.addAttribute("from", originating.getDomain());
             builder.addAttribute("to", receiving.getDomain());
             builder.addAttribute("type", "valid");
+            
+            sessionStateHolder.setState(SessionState.AUTHENTICATED);
             
             return new ResponseStanzaContainerImpl(builder.build());
         } else {
