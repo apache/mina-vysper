@@ -70,6 +70,8 @@ public class NamespaceURIs {
     
     public static final String URN_XMPP_XBOSH = "urn:xmpp:xbosh";
 
+    public static final String URN_XMPP_FEATURES_DIALBACK = "urn:xmpp:features:dialback";
+
     public static final String VCARD_TEMP = "vcard-temp";
 
     public static final String XEP0030_SERVICE_DISCOVERY_ITEMS = "http://jabber.org/protocol/disco#items";
