@@ -22,8 +22,10 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.vysper.xml.fragment.Attribute;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLElementBuilder;
+import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.TestSessionContext;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Affiliation;
@@ -101,11 +103,11 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
 
     public void testEnterExistingRoom() throws Exception {
         Room room = conference.findRoom(ROOM1_JID);
-        assertEquals(0, room.getOccupants().size());
+        assertEquals(0, room.getOccupantCount());
 
         enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK);
 
-        assertEquals(1, room.getOccupants().size());
+        assertEquals(1, room.getOccupantCount());
         Occupant occupant = room.getOccupants().iterator().next();
 
         assertEquals(OCCUPANT1_JID, occupant.getJid());
@@ -114,12 +116,12 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
 
     public void testEnterWithGroupchatProtocol() throws Exception {
         Room room = conference.findRoom(ROOM1_JID);
-        assertEquals(0, room.getOccupants().size());
+        assertEquals(0, room.getOccupantCount());
 
         // enter using the old groupchat protocol
         enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK, null, null, true);
 
-        assertEquals(1, room.getOccupants().size());
+        assertEquals(1, room.getOccupantCount());
         Occupant occupant = room.getOccupants().iterator().next();
 
         assertEquals(OCCUPANT1_JID, occupant.getJid());
@@ -144,7 +146,7 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
         Stanza error = enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK);
         assertPresenceErrorStanza(error, ROOM1_JID, OCCUPANT1_JID, StanzaErrorType.AUTH, StanzaErrorCondition.FORBIDDEN);
 
-        assertEquals(0, room.getOccupants().size());
+        assertEquals(0, room.getOccupantCount());
     }
 
     public void testEnterAsNonMember() throws Exception {
@@ -153,14 +155,35 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
         Stanza error = enterRoom(OCCUPANT1_JID, ROOM2_JID_WITH_NICK);
         assertPresenceErrorStanza(error, ROOM2_JID, OCCUPANT1_JID, StanzaErrorType.AUTH, StanzaErrorCondition.REGISTRATION_REQUIRED);
 
-        assertEquals(0, room.getOccupants().size());
+        assertEquals(0, room.getOccupantCount());
     }
 
     public void testEnterRoomWithDuplicateNick() throws Exception {
-        assertNull(enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK));
-        Stanza error = enterRoom(OCCUPANT2_JID, ROOM1_JID_WITH_NICK);
+        Room room1 = conference.findRoom(ROOM1_JID);
+        room1.setRewriteDuplicateNick(false); // do not rewrite existing nick, second join will fail
+        assertNull(enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK)); // 1st join                                   
+        Stanza error = enterRoom(OCCUPANT2_JID, ROOM1_JID_WITH_NICK); // 2nd join
 
         assertNotNull(error);
+    }
+
+    public void testEnterRoomWithDuplicateNick_Rewrite() throws Exception {
+        Room room1 = conference.findRoom(ROOM1_JID);
+        room1.setRewriteDuplicateNick(true); // do rewrite nick, second join will succeed
+        assertNull(enterRoom(OCCUPANT2_JID, ROOM1_JID_WITH_NICK)); // 1st join                                   
+        Stanza error = enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK); // 2nd join
+        assertNull(error);
+        final Stanza stanza1 = occupant1Queue.getNext();
+        final Stanza stanza2 = occupant1Queue.getNext();
+        final XMLElementVerifier verifier = stanza2.getVerifier();
+        final X x = X.fromStanza(stanza2);
+        final List<XMLElement> statuses = x.getInnerElementsNamed("status");
+        boolean rewriteCode = false;
+        for (XMLElement status : statuses) {
+            final String code = status.getAttributeValue("code");
+            if ("210".equals(code)) rewriteCode = true;
+        }
+        assertTrue(rewriteCode);
     }
 
     public void testEnterNonExistingRoom() throws Exception {
@@ -171,7 +194,7 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
 
         room = conference.findRoom(ROOM2_JID);
         assertNotNull(room);
-        assertEquals(1, room.getOccupants().size());
+        assertEquals(1, room.getOccupantCount());
         Occupant occupant = room.getOccupants().iterator().next();
 
         assertEquals(OCCUPANT1_JID, occupant.getJid());
@@ -192,7 +215,7 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
 
         // no error should be returned
         assertNull(enterRoom(OCCUPANT1_JID, ROOM2_JID_WITH_NICK, "secret", null, false));
-        assertEquals(1, room.getOccupants().size());
+        assertEquals(1, room.getOccupantCount());
     }
 
     public void testEnterWithoutPassword() throws Exception {

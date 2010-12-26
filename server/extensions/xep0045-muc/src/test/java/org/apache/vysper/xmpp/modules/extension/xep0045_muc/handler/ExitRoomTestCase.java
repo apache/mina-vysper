@@ -69,7 +69,7 @@ public class ExitRoomTestCase extends AbstractMUCHandlerTestCase {
 
         assertNull(exitRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK));
 
-        assertEquals(1, room.getOccupants().size());
+        assertEquals(1, room.getOccupantCount());
         Occupant occupant = room.getOccupants().iterator().next();
 
         assertEquals(OCCUPANT2_JID, occupant.getJid());

@@ -118,18 +118,18 @@ public class RoomTestCase extends TestCase {
         Room room = new Room(roomJid1, "Room 1");
         room.addOccupant(occupantJid1, "Nick 1");
 
-        assertEquals(1, room.getOccupants().size());
+        assertEquals(1, room.getOccupantCount());
 
         Occupant occupant = room.getOccupants().iterator().next();
         assertEquals(occupantJid1, occupant.getJid());
         assertEquals("Nick 1", occupant.getNick());
 
         room.addOccupant(occupantJid2, "Nick 2");
-        assertEquals(2, room.getOccupants().size());
+        assertEquals(2, room.getOccupantCount());
 
         room.removeOccupant(occupantJid1);
 
-        assertEquals(1, room.getOccupants().size());
+        assertEquals(1, room.getOccupantCount());
 
         occupant = room.getOccupants().iterator().next();
         assertEquals(occupantJid2, occupant.getJid());

@@ -55,6 +55,8 @@ public class Room implements InfoRequestListener, ItemRequestListener {
     private String name;
 
     private String password;
+    
+    private boolean rewriteDuplicateNick = true;
 
     private DiscussionHistory history = new DiscussionHistory();
 
@@ -104,6 +106,14 @@ public class Room implements InfoRequestListener, ItemRequestListener {
 
     public boolean isRoomType(RoomType type) {
         return roomTypes.contains(type);
+    }
+
+    public boolean rewritesDuplicateNick() {
+        return rewriteDuplicateNick;
+    }
+
+    public void setRewriteDuplicateNick(boolean rewriteDuplicateNick) {
+        this.rewriteDuplicateNick = rewriteDuplicateNick;
     }
 
     public Occupant addOccupant(Entity occupantJid, String name) {
@@ -177,11 +187,7 @@ public class Room implements InfoRequestListener, ItemRequestListener {
     }
 
     public Set<Occupant> getOccupants() {
-        Set<Occupant> set = new HashSet<Occupant>();
-        for (Occupant occupant : occupants.values()) {
-            set.add(occupant);
-        }
-
+        Set<Occupant> set = new HashSet<Occupant>(occupants.values());
         return Collections.unmodifiableSet(set);
     }
 

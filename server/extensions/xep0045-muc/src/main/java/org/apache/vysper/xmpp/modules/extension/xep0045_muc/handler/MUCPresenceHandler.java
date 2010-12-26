@@ -21,6 +21,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -173,7 +174,22 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         } else {
             logger.debug("{} has requested to enter room {}", newOccupantJid, roomJid);
 
-            if (room.isInRoom(nick)) {
+            boolean nickConflict = room.isInRoom(nick);
+            boolean nickRewritten = false;
+            int counter = 1; // max conflicts, to avoid DoS attacks
+            String rewrittenNick = null;
+            while (nickConflict && counter < 100 && room.rewritesDuplicateNick()) {
+                rewrittenNick = nick + "_" + counter;
+                nickConflict = room.isInRoom(rewrittenNick);
+                if (nickConflict) {
+                    counter++;
+                } else {
+                    nick = rewrittenNick;
+                    nickRewritten = true;
+                }
+            }
+                
+            if (nickConflict) {
                 // user with this nick is already in room
                 return createPresenceErrorStanza(roomJid, newOccupantJid, stanza.getID(), "cancel", "conflict");
             }
@@ -211,7 +227,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
 
             // relay presence of the newly added occupant to all existing occupants
             for (Occupant occupant : room.getOccupants()) {
-                sendNewOccupantPresenceToExisting(newOccupant, occupant, room, serverRuntimeContext);
+                sendNewOccupantPresenceToExisting(newOccupant, occupant, room, serverRuntimeContext, nickRewritten);
             }
 
             // send discussion history to user
@@ -234,7 +250,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
 
             // user must by in room, or we do nothing
             if (exitingOccupant != null) {
-                Set<Occupant> allOccupants = room.getOccupants();
+                Collection<Occupant> allOccupants = room.getOccupants();
 
                 room.removeOccupant(occupantJid);
 
@@ -288,7 +304,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
     }
 
     private void sendNewOccupantPresenceToExisting(Occupant newOccupant, Occupant existingOccupant, Room room,
-            ServerRuntimeContext serverRuntimeContext) {
+                                                   ServerRuntimeContext serverRuntimeContext, boolean nickRewritten) {
         Entity roomAndNewUserNick = new EntityImpl(room.getJID(), newOccupant.getNick());
 
         List<XMLElement> inner = new ArrayList<XMLElement>();
@@ -307,6 +323,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
 
             // send status to indicate that this is the users own presence
             inner.add(new Status(StatusCode.OWN_PRESENCE));
+            if (nickRewritten) inner.add(new Status(StatusCode.NICK_MODIFIED));
         }
 
         Stanza presenceToExisting = MUCStanzaBuilder.createPresenceStanza(roomAndNewUserNick,
