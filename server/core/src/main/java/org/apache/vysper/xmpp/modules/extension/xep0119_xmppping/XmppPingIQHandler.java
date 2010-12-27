@@ -51,6 +51,21 @@ public class XmppPingIQHandler extends DefaultIQHandler {
     }
 
     @Override
+    public boolean verify(Stanza stanza) {
+        boolean extension = super.verify(stanza);
+        if(extension) {
+            return true;
+        } else {
+            String id = stanza.getAttributeValue("id");
+            if(id != null && id.equals("123")) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    @Override
     protected boolean verifyNamespace(Stanza stanza) {
         return verifyInnerNamespace(stanza, NamespaceURIs.URN_XMPP_PING);
     }
@@ -68,4 +83,13 @@ public class XmppPingIQHandler extends DefaultIQHandler {
 
         return stanzaBuilder.build();
     }
+
+    @Override
+    protected Stanza handleResult(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
+            SessionContext sessionContext) {
+        System.out.println("Got Pong");
+        return null;
+    }
+    
+    
 }

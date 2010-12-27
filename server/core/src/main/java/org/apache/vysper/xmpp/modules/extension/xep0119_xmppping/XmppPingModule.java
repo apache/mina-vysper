@@ -27,8 +27,8 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequestListener;
+import org.apache.vysper.xmpp.protocol.DefaultHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
-import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 
 /**
@@ -61,6 +61,6 @@ public class XmppPingModule extends DefaultDiscoAwareModule implements ServerInf
 
     @Override
     protected void addHandlerDictionaries(List<HandlerDictionary> dictionary) {
-        dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.URN_XMPP_PING, new XmppPingIQHandler()));
+        dictionary.add(new DefaultHandlerDictionary(new XmppPingIQHandler()));
     }
 }

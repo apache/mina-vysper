@@ -25,20 +25,20 @@ import java.util.List;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
- * Abstract class for implementations of {@link HandlerDictionary}
+ * Default implementation of {@link HandlerDictionary}. Will simple check all handlers
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public abstract class AbstractHandlerDictionary implements HandlerDictionary {
+public class DefaultHandlerDictionary implements HandlerDictionary {
 
     private List<StanzaHandler> handlerList = new ArrayList<StanzaHandler>();
 
     private boolean sealed = false;
 
-    public AbstractHandlerDictionary() {
+    public DefaultHandlerDictionary() {
     }
 
-    public AbstractHandlerDictionary(List<StanzaHandler> handlerList) {
+    public DefaultHandlerDictionary(List<StanzaHandler> handlerList) {
         if (handlerList != null) {
             for (StanzaHandler stanzaHandler : handlerList) {
                 register(stanzaHandler);
@@ -47,7 +47,7 @@ public abstract class AbstractHandlerDictionary implements HandlerDictionary {
         seal();
     }
 
-    public AbstractHandlerDictionary(StanzaHandler stanzaHandler) {
+    public DefaultHandlerDictionary(StanzaHandler stanzaHandler) {
         register(stanzaHandler);
         seal();
     }

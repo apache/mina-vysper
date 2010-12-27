@@ -7,6 +7,7 @@ import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
+import org.apache.vysper.xmpp.modules.extension.xep0119_xmppping.XmppPingModule;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.XMPPServer;
@@ -44,7 +45,10 @@ public class Server2Server {
         server.addEndpoint(new TCPEndpoint());
         server.setStorageProviderRegistry(providerRegistry);
         server.setTLSCertificateInfo(new File("src/main/config/bogus_mina_tls.cert"), "boguspw");
+        
         server.start();
+        server.addModule(new XmppPingModule());
+
         ServerRuntimeContext serverRuntimeContext = server.getServerRuntimeContext();
         
         Thread.sleep(2000);

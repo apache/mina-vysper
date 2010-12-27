@@ -20,7 +20,7 @@
 package org.apache.vysper.xmpp.server.components;
 
 import org.apache.vysper.xml.fragment.XMLElement;
-import org.apache.vysper.xmpp.protocol.AbstractHandlerDictionary;
+import org.apache.vysper.xmpp.protocol.DefaultHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.AbstractStanzaHandlerLookup;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -30,7 +30,7 @@ import org.apache.vysper.xmpp.stanza.Stanza;
  */
 public class ComponentStanzaHandlerLookup extends AbstractStanzaHandlerLookup {
 
-    private static class ComponentHandlerDictionary extends AbstractHandlerDictionary {
+    private static class ComponentHandlerDictionary extends DefaultHandlerDictionary {
 
         public ComponentHandlerDictionary() {
             super();

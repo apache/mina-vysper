@@ -143,7 +143,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     }
 
     public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay, ServerFeatures serverFeatures,
-            List<NamespaceHandlerDictionary> dictionaries, ResourceRegistry resourceRegistry) {
+            List<HandlerDictionary> dictionaries, ResourceRegistry resourceRegistry) {
         this(serverEntity, stanzaRelay);
         this.serverFeatures = serverFeatures;
         this.resourceRegistry = resourceRegistry;
@@ -193,12 +193,12 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         return serverConnectorRegistry;
     }
 
-    public void addDictionary(NamespaceHandlerDictionary namespaceHandlerDictionary) {
+    public void addDictionary(HandlerDictionary namespaceHandlerDictionary) {
         stanzaHandlerLookup.addDictionary(namespaceHandlerDictionary);
     }
 
-    protected void addDictionaries(List<NamespaceHandlerDictionary> dictionaries) {
-        for (NamespaceHandlerDictionary dictionary : dictionaries) {
+    protected void addDictionaries(List<HandlerDictionary> dictionaries) {
+        for (HandlerDictionary dictionary : dictionaries) {
             addDictionary(dictionary);
         }
     }
@@ -328,12 +328,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         if (handlerDictionaryList != null) {
 
             for (HandlerDictionary handlerDictionary : handlerDictionaryList) {
-                if (handlerDictionary instanceof NamespaceHandlerDictionary) {
-                    addDictionary((NamespaceHandlerDictionary) handlerDictionary);
-                } else {
-                    throw new RuntimeException("arbitrary HandlerDictionary implementations not supported yet, "
-                            + "only NamespaceHandlerDictionary.");
-                }
+                addDictionary(handlerDictionary);
             }
 
         }

@@ -39,7 +39,7 @@ import org.apache.vysper.xmpp.delivery.inbound.DeliveringInboundStanzaRelay;
 import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.roster.RosterModule;
 import org.apache.vysper.xmpp.modules.servicediscovery.ServiceDiscoveryModule;
-import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
+import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 
 /**
@@ -108,7 +108,7 @@ public class XMPPServer {
         tlsContextFactory.setPassword(tlsCertificatePassword);
         tlsContextFactory.setTrustManagerFactory(bogusTrustManagerFactory);
 
-        List<NamespaceHandlerDictionary> dictionaries = new ArrayList<NamespaceHandlerDictionary>();
+        List<HandlerDictionary> dictionaries = new ArrayList<HandlerDictionary>();
         addCoreDictionaries(dictionaries);
 
         ResourceRegistry resourceRegistry = new ResourceRegistry();
@@ -157,7 +157,7 @@ public class XMPPServer {
         serverRuntimeContext.addModule(module);
     }
 
-    private void addCoreDictionaries(List<NamespaceHandlerDictionary> dictionaries) {
+    private void addCoreDictionaries(List<HandlerDictionary> dictionaries) {
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.base.BaseStreamStanzaDictionary());
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.starttls.StartTLSStanzaDictionary());
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.sasl.SASLStanzaDictionary());

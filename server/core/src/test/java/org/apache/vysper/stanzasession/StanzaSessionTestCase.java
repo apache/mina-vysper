@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.StanzaRelayBroker;
-import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
+import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
 import org.apache.vysper.xmpp.server.ServerFeatures;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -44,7 +44,7 @@ public class StanzaSessionTestCase extends TestCase {
     protected void setUp() throws Exception {
         StanzaRelayBroker relay = new StanzaRelayBroker();
 
-        List<NamespaceHandlerDictionary> dictionaries = new ArrayList<NamespaceHandlerDictionary>();
+        List<HandlerDictionary> dictionaries = new ArrayList<HandlerDictionary>();
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.base.BaseStreamStanzaDictionary());
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.starttls.StartTLSStanzaDictionary());
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.sasl.SASLStanzaDictionary());
