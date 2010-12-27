@@ -193,7 +193,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         return serverConnectorRegistry;
     }
 
-    public void addDictionary(HandlerDictionary namespaceHandlerDictionary) {
+    public void addDictionary(NamespaceHandlerDictionary namespaceHandlerDictionary) {
         stanzaHandlerLookup.addDictionary(namespaceHandlerDictionary);
     }
 
