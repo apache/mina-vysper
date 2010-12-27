@@ -142,7 +142,7 @@ public class ServiceCollector implements ServerRuntimeContextService, ServiceDis
     public List<Item> processItemRequest(InfoRequest infoRequest) throws ServiceDiscoveryRequestException {
         List<Item> elements = new ArrayList<Item>();
         for (ItemRequestListener itemRequestListener : itemRequestListeners) {
-            List<Item> elementList = null;
+            List<Item> elementList;
             try {
                 elementList = itemRequestListener.getItemsFor(infoRequest);
             } catch (ServiceDiscoveryRequestException abortion) {

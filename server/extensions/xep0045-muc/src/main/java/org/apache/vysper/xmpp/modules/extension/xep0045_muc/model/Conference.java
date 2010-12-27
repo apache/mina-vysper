@@ -114,6 +114,8 @@ public class Conference implements ServerInfoRequestListener, ItemRequestListene
     }
 
     public List<InfoElement> getServerInfosFor(InfoRequest request) {
+        if (request.getNode() != null && request.getNode().length() > 0) return null;
+        
         List<InfoElement> infoElements = new ArrayList<InfoElement>();
         infoElements.add(new Identity("conference", "text", getName()));
         infoElements.add(new Feature(NamespaceURIs.XEP0045_MUC));

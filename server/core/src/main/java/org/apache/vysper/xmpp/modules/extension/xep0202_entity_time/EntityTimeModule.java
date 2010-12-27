@@ -55,10 +55,13 @@ public class EntityTimeModule extends DefaultDiscoAwareModule implements ServerI
     }
 
     public List<InfoElement> getServerInfosFor(InfoRequest request) {
+        if (request.getNode() != null && request.getNode().length() > 0) return null;
+
         List<InfoElement> infoElements = new ArrayList<InfoElement>();
         infoElements.add(new Feature(NamespaceURIs.URN_XMPP_TIME));
-        if (supportXEP0090)
+        if (supportXEP0090) {
             infoElements.add(new Feature(NamespaceURIs.JABBER_IQ_TIME));
+        }
         return infoElements;
     }
 

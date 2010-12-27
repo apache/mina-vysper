@@ -102,9 +102,11 @@ public class DiscoItemIQHandler extends DefaultIQHandler {
         String node = queryElement != null ? queryElement.getAttributeValue("node") : null;
 
         // collect all the item response elements
-        List<Item> items = null;
+        List<Item> items;
         try {
-            items = serviceCollector.processItemRequest(new InfoRequest(stanza.getFrom(), stanza.getTo(), node, stanza
+            Entity from = stanza.getFrom();
+            if (from == null) from = sessionContext.getInitiatingEntity(); 
+            items = serviceCollector.processItemRequest(new InfoRequest(from, stanza.getTo(), node, stanza
                     .getID()));
         } catch (ServiceDiscoveryRequestException e) {
             // the request yields an error

@@ -113,14 +113,16 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
         // collect all the info response elements
         List<InfoElement> elements = null;
         try {
+            Entity from = stanza.getFrom();
+            if (from == null) from = sessionContext.getInitiatingEntity(); 
             if (isServerInfoRequest) {
-                elements = serviceCollector.processServerInfoRequest(new InfoRequest(stanza.getFrom(), to, node, stanza
+                elements = serviceCollector.processServerInfoRequest(new InfoRequest(from, to, node, stanza
                         .getID()));
             } else if (isComponentInfoRequest) {
-                elements = serviceCollector.processComponentInfoRequest(new InfoRequest(stanza.getFrom(), to, node,
+                elements = serviceCollector.processComponentInfoRequest(new InfoRequest(from, to, node,
                         stanza.getID()));
             } else {
-                elements = serviceCollector.processInfoRequest(new InfoRequest(stanza.getFrom(), to, node, stanza
+                elements = serviceCollector.processInfoRequest(new InfoRequest(from, to, node, stanza
                         .getID()));
             }
         } catch (ServiceDiscoveryRequestException e) {
