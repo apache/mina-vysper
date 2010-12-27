@@ -19,6 +19,9 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0119_xmppping;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
@@ -47,6 +50,8 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 @SpecCompliant(spec = "xep-0199", status = SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
 public class XmppPingIQHandler extends DefaultIQHandler {
 
+    private List<XmppPinger> pingers = new ArrayList<XmppPinger>();
+    
     public XmppPingIQHandler() {
     }
 
@@ -56,15 +61,26 @@ public class XmppPingIQHandler extends DefaultIQHandler {
         if(extension) {
             return true;
         } else {
-            String id = stanza.getAttributeValue("id");
-            if(id != null && id.equals("123")) {
-                return true;
+            String type = stanza.getAttributeValue("type");
+            if(type != null && type.equals("result")) {
+                String id = stanza.getAttributeValue("id");
+                if(id != null && id.startsWith("xmppping-")) {
+                    return true;
+                }
             }
         }
         
         return false;
     }
+    
+    protected void addPinger(XmppPinger pinger) {
+        pingers.add(pinger);
+    }
 
+    protected void removePinger(XmppPinger pinger) {
+        pingers.remove(pinger);
+    }
+    
     @Override
     protected boolean verifyNamespace(Stanza stanza) {
         return verifyInnerNamespace(stanza, NamespaceURIs.URN_XMPP_PING);
@@ -83,11 +99,14 @@ public class XmppPingIQHandler extends DefaultIQHandler {
 
         return stanzaBuilder.build();
     }
-
+    
     @Override
     protected Stanza handleResult(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
-        System.out.println("Got Pong");
+        for(XmppPinger pinger : pingers) {
+            pinger.pong(stanza.getID());
+        }
+        
         return null;
     }
     

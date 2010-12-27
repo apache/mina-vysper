@@ -1,5 +1,7 @@
 package org.apache.vysper.xmpp.server.s2s;
 import java.net.InetSocketAddress;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -13,6 +15,8 @@ import org.apache.vysper.mina.MinaBackedSessionContext;
 import org.apache.vysper.mina.StanzaLoggingFilter;
 import org.apache.vysper.mina.codec.XMPPProtocolCodecFactory;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.modules.extension.xep0119_xmppping.XmppPingListener;
+import org.apache.vysper.xmpp.modules.extension.xep0119_xmppping.XmppPingModule;
 import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DailbackIdGenerator;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
@@ -22,14 +26,35 @@ import org.apache.vysper.xmpp.server.XMPPVersion;
 import org.apache.vysper.xmpp.server.response.ServerResponses;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.writer.StanzaWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class XMPPServerConnector {
+public class XMPPServerConnector implements StanzaWriter, XmppPingListener {
 
+    private static final Logger LOG = LoggerFactory.getLogger(XMPPServerConnector.class);
+    
     private ServerRuntimeContext serverRuntimeContext;
     private MinaBackedSessionContext sessionContext;
     private Entity otherServer;
     private SessionStateHolder sessionStateHolder = new SessionStateHolder();
     private IoConnector connector = new NioSocketConnector();
+    
+    private int pingPeriod = 30000;
+    private int pingTimeout = 10000;
+    
+    private boolean closed = false;
+    
+    private Timer pingTimer = new Timer();
+    
+    private class PingTask extends TimerTask {
+        public void run() {
+            XmppPingModule pingModule = serverRuntimeContext.getModule(XmppPingModule.class);
+            if(pingModule != null) {
+                pingModule.ping(XMPPServerConnector.this, serverRuntimeContext.getServerEnitity(), otherServer, pingTimeout, XMPPServerConnector.this);
+            }
+        }
+    }
     
     public XMPPServerConnector(Entity otherServer, ServerRuntimeContext serverRuntimeContext) {
         this.serverRuntimeContext = serverRuntimeContext;
@@ -42,6 +67,7 @@ public class XMPPServerConnector {
     }
 
     public void start() {
+        LOG.info("Starting XMPP server connector to {}", otherServer);
         final CountDownLatch latch = new CountDownLatch(1);
         
         connector.setHandler(new IoHandlerAdapter() {
@@ -75,8 +101,12 @@ public class XMPPServerConnector {
                 } else if(msg.getName().equals("result") && NamespaceURIs.JABBER_SERVER_DIALBACK.equals(msg.getNamespaceURI())) {
                     // TODO check and handle dailback result
                     sessionStateHolder.setState(SessionState.AUTHENTICATED);
-                    System.out.println("Done with dialback");
+                    
+                    LOG.info("XMPP server connector to {} authenticated using dialback", otherServer);
                     latch.countDown();
+                    
+                    // connection established, start pinging
+                    startPinging();
                 } else {
                     // TODO other stanzas coming here?
                 }
@@ -89,7 +119,9 @@ public class XMPPServerConnector {
 
             @Override
             public void sessionClosed(IoSession session) throws Exception {
-                System.out.println("Closed");
+                // Socket was closed, make sure we close the connector
+                LOG.debug("XMPP server connector socket closed, closing connector");
+                close();
             }
 
             @Override
@@ -104,6 +136,8 @@ public class XMPPServerConnector {
         
         XmppEndpointResolver resolver = new XmppEndpointResolver();
         InetSocketAddress address = resolver.resolveXmppServer(otherServer.getDomain()).get(0).getAddress();
+        
+        LOG.debug("Connecting to XMPP server {} at {}", otherServer, address);
         connector.connect(address);
         
         // make this method sync
@@ -115,11 +149,31 @@ public class XMPPServerConnector {
         }
     }
     
-    public void stop() {
-        connector.dispose();
+    private void startPinging() {
+        pingTimer.schedule(new PingTask(), pingPeriod, pingPeriod);
     }
     
     public void write(Stanza stanza) {
         sessionContext.write(stanza);
+    }
+
+    public void close() {
+        LOG.info("XMPP server connector to {} closed", otherServer);        
+        connector.dispose();
+        pingTimer.cancel();
+        closed = true;
+    }
+
+    public void pong() {
+        // do nothing, all happy
+    }
+
+    public void timeout() {
+        LOG.debug("XMPP server connector to {} timed out, closing", otherServer);
+        close();
+    }
+
+    public boolean isClosed() {
+        return closed;
     }
 }

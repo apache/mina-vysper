@@ -17,7 +17,11 @@ public class XMPPServerConnectorRegistry {
     public synchronized XMPPServerConnector getConnector(Entity server) {
         XMPPServerConnector connector = connectors.get(server);
 
-        // TODO handle closed connectors
+        if(connector != null && connector.isClosed()) {
+            connectors.remove(server);
+            connector = null;
+        } 
+        
         if(connector == null) {
             connector = new XMPPServerConnector(server, serverRuntimeContext);
             connector.start();

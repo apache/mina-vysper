@@ -20,12 +20,15 @@
 
 package org.apache.vysper.xmpp.server;
 
+import java.util.List;
+
 import javax.net.ssl.SSLContext;
 
 import org.apache.vysper.storage.StorageProvider;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.authorization.UserAuthorization;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
+import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.ServerRuntimeContextService;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
@@ -74,4 +77,8 @@ public interface ServerRuntimeContext {
     StanzaProcessor getComponentStanzaProcessor(Entity entity);
     
     XMPPServerConnectorRegistry getServerConnectorRegistry();
+    
+    List<Module> getModules();
+
+    <T> T getModule(Class<T> clazz);
 }

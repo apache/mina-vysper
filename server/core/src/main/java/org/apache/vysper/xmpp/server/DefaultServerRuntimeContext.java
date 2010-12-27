@@ -20,6 +20,8 @@
 
 package org.apache.vysper.xmpp.server;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -124,6 +126,8 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
      */
     final private Map<String, ServerRuntimeContextService> serverRuntimeContextServiceMap = new HashMap<String, ServerRuntimeContextService>();
 
+    private List<Module> modules = new ArrayList<Module>();
+    
     /**
      * map of all registered components, index by the subdomain they are registered for
      */
@@ -336,8 +340,21 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         if (module instanceof Component) {
             registerComponent((Component) module);
         }
+        
+        modules.add(module);
+    }
+    
+    public List<Module> getModules() {
+        return Collections.unmodifiableList(modules);
     }
 
+    public <T> T getModule(Class<T> clazz) {
+        for(Module module : modules) {
+            if(module.getClass().equals(clazz)) return (T) module;
+        }
+        return null;
+    }
+    
     public void registerComponent(Component component) {
         componentMap.put(component.getSubdomain(), component);
     }
@@ -354,5 +371,6 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
             return null;
         return component.getStanzaProcessor();
     }
+
 
 }

@@ -7,13 +7,10 @@ import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
+import org.apache.vysper.xmpp.modules.extension.xep0119_xmppping.XmppPingListener;
 import org.apache.vysper.xmpp.modules.extension.xep0119_xmppping.XmppPingModule;
-import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.XMPPServer;
-import org.apache.vysper.xmpp.server.s2s.XMPPServerConnector;
-import org.apache.vysper.xmpp.stanza.Stanza;
-import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
 
 public class Server2Server {
@@ -57,14 +54,6 @@ public class Server2Server {
         
         XMPPServerConnector connector = registry.getConnector(remoteServer);
         
-        Stanza ping = new StanzaBuilder("iq", NamespaceURIs.JABBER_SERVER)
-            .addAttribute("from", serverRuntimeContext.getServerEnitity().getDomain())
-            .addAttribute("to", remoteServer.getDomain())
-            .addAttribute("type", "get")
-            .addAttribute("id", "123")
-            .startInnerElement("ping", NamespaceURIs.URN_XMPP_PING).endInnerElement().build();
-        connector.write(ping);
-
 //        Stanza stanza = new StanzaBuilder("message", NamespaceURIs.JABBER_SERVER)
 //            .addAttribute("from", localUser.getFullQualifiedName())
 //            .addAttribute("to", remoteUser.getFullQualifiedName())
@@ -76,9 +65,9 @@ public class Server2Server {
 //        connector.write(stanza);
         
         
-        Thread.sleep(2000);
+        Thread.sleep(200000);
         
-        connector.stop();
+        connector.close();
         server.stop();
     }
     
