@@ -42,7 +42,13 @@ public class Field {
         public String value() {
             return value;
         }
+
+        public static boolean isMulti(Type type) {
+            return type != null && (type == JID_MULTI || type == LIST_MULTI || type == TEXT_MULTI);   
+        }
     }
+
+    public static final String FORM_TYPE = "FORM_TYPE";
 
     protected String label;
 
