@@ -16,17 +16,18 @@ import java.util.Map;
 
 /**
  */
-public class AddUserCommandHandler extends PasswordCheckingCommandHandler {
+public class ChangeUserPasswordCommandHandler extends PasswordCheckingCommandHandler {
     
     protected AccountManagement accountManagement;
-    protected List<String> allowedDomains;
 
-    public AddUserCommandHandler(AccountManagement accountManagement, List<String> allowedDomains) {
+    /**
+     * if not NULL, the user will only be able this JID's (his own) password
+     */
+    protected Entity constrainedJID;
+
+    public ChangeUserPasswordCommandHandler(AccountManagement accountManagement, Entity constrainedJID) {
         this.accountManagement = accountManagement;
-        if (allowedDomains == null || allowedDomains.size() == 0) {
-            throw new IllegalArgumentException("allowed domain list cannot be empty");
-        }
-        this.allowedDomains = allowedDomains;
+        this.constrainedJID = constrainedJID;
     }
 
     public XMLElement process(List<XMLElement> commandElements, List<Note> notes) {
@@ -38,17 +39,18 @@ public class AddUserCommandHandler extends PasswordCheckingCommandHandler {
     }
 
     protected XMLElement sendForm() {
-        final DataForm dataForm = createFormForm("Adding a User", "Fill out this form to add a user.");
-        dataForm.addField(new Field("The Jabber ID for the account to be added", Field.Type.JID_SINGLE, "accountjid"));
-        dataForm.addField(new Field("The password for this account", Field.Type.TEXT_PRIVATE, "password"));
-        dataForm.addField(new Field("Retype password", Field.Type.TEXT_PRIVATE, "password-verify"));
-        dataForm.addField(new Field("Email address", Field.Type.TEXT_SINGLE, "email"));
-        dataForm.addField(new Field("Given name", Field.Type.TEXT_SINGLE, "given_name"));
-        dataForm.addField(new Field("Family name", Field.Type.TEXT_SINGLE, "surname"));
+        final DataForm dataForm = createFormForm("Changing a User Password", "Fill out this form to change a user&apos;s password.");
+        if (constrainedJID == null) {
+            dataForm.addField(new Field("The Jabber ID whose password will be changed.", Field.Type.JID_SINGLE, "accountjid"));
+        } else {
+            dataForm.addField(new Field("The Jabber ID whose password will be changed.", Field.Type.JID_SINGLE, "accountjid", constrainedJID.getFullQualifiedName()));
+        }
+        dataForm.addField(new Field("The new password for this account", Field.Type.TEXT_PRIVATE, "password"));
+        dataForm.addField(new Field("Retype new password", Field.Type.TEXT_PRIVATE, "password-verify"));
 
         return DATA_FORM_ENCODER.getXML(dataForm);
     }
-
+    
     protected XMLElement processForm(List<XMLElement> commandElements, List<Note> notes) {
         if (commandElements.size() != 1) {
             throw new IllegalStateException("must be an X element");
@@ -59,23 +61,18 @@ public class AddUserCommandHandler extends PasswordCheckingCommandHandler {
         final String password = (String)valueMap.get("password");
         final String password2 = (String)valueMap.get("password-verify");
 
-        if (accountjid == null || !allowedDomains.contains(accountjid.getDomain())) {
-            notes.add(Note.error("new account must match one of this server's domains, e.g. " + allowedDomains.get(0)));
-            return sendForm();
-        }
-
         final boolean success = checkPassword(notes, accountjid, password, password2);
         if (!success) return sendForm();
-        
-        if (accountManagement.verifyAccountExists(accountjid)) {
-            notes.add(Note.error("account already exists: " + accountjid));
+
+        if (constrainedJID != null && !constrainedJID.equals(accountjid)) {
+            notes.add(Note.error("password change only allowed for " + constrainedJID.getFullQualifiedName()));
             return sendForm();
         }
-
+        
         try {
-            accountManagement.addUser(accountjid.getFullQualifiedName(), password);
+            accountManagement.changePassword(accountjid.getFullQualifiedName(), password);
         } catch (AccountCreationException e) {
-            notes.add(Note.error("account creation failed for " + accountjid));
+            notes.add(Note.error("changing password failed for " + accountjid));
             return sendForm();
         }
 

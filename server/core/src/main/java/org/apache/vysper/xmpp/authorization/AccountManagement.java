@@ -28,6 +28,8 @@ import org.apache.vysper.xmpp.addressing.Entity;
  */
 public interface AccountManagement extends StorageProvider {
     void addUser(String username, String password) throws AccountCreationException;
+    
+    void changePassword(String username, String password) throws AccountCreationException;
 
     /**
      * checks if there is this jid is registered with the server

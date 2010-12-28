@@ -45,6 +45,13 @@ public class SimpleUserAuthorization implements UserAuthorization, AccountManage
         userPasswordMap.put(username, password);
     }
 
+    public void changePassword(String username, String password) throws AccountCreationException {
+        if (!userPasswordMap.containsKey(username)) {
+            throw new AccountCreationException("could not change password for unknown user " + username);
+        }
+        userPasswordMap.put(username, password);
+    }
+
     public boolean verifyCredentials(Entity jid, String passwordCleartext, Object credentials) {
         return verify(jid.getFullQualifiedName(), passwordCleartext);
     }

@@ -109,4 +109,22 @@ public class JcrUserManagement implements UserAuthorization, AccountManagement {
         }
 
     }
+
+    public void changePassword(String username, String password) throws AccountCreationException {
+        final EntityImpl entity;
+        try {
+            entity = EntityImpl.parse(username);
+        } catch (EntityFormatException e) {
+            throw new AccountCreationException("username is expected to be in proper entity format, not " + username, e); // wrap as unchecked
+        }
+        try {
+            final Node credentialsNode = jcrStorage.getEntityNode(entity, CREDENTIALS_NAMESPACE, false);
+            credentialsNode.setProperty("password", password);
+            credentialsNode.save();
+            logger.info("JCR password changed: " + credentialsNode);
+        } catch (Exception e) {
+            // TODO remove account?
+            throw new AccountCreationException("failed to create the account set credentials", e);
+        }
+    }
 }

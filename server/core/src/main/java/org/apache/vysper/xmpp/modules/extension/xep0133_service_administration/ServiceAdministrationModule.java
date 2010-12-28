@@ -19,22 +19,23 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0133_service_administration;
 
-import org.apache.vysper.storage.StorageProvider;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
-import org.apache.vysper.xmpp.authorization.UserAuthorization;
 import org.apache.vysper.xmpp.modules.DefaultModule;
+import org.apache.vysper.xmpp.modules.ServerRuntimeContextService;
 import org.apache.vysper.xmpp.modules.extension.xep0050_adhoc_commands.AdhocCommandHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0050_adhoc_commands.AdhocCommandSupport;
 import org.apache.vysper.xmpp.modules.extension.xep0050_adhoc_commands.AdhocCommandsModule;
 import org.apache.vysper.xmpp.modules.extension.xep0050_adhoc_commands.AdhocCommandsService;
 import org.apache.vysper.xmpp.modules.extension.xep0050_adhoc_commands.CommandInfo;
 import org.apache.vysper.xmpp.modules.extension.xep0133_service_administration.command.AddUserCommandHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0133_service_administration.command.ChangeUserPasswordCommandHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0133_service_administration.command.GetOnlineUsersCommandHandler;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,12 +51,13 @@ import java.util.Set;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class ServiceAdministrationModule extends DefaultModule implements AdhocCommandSupport {
+public class ServiceAdministrationModule extends DefaultModule implements AdhocCommandSupport, ServerRuntimeContextService, ServerAdministrationService {
 
     private final Logger logger = LoggerFactory.getLogger(ServiceAdministrationModule.class);
 
     public static final String COMMAND_NODE_ADD_USER = "http://jabber.org/protocol/admin#add-user";
     public static final String COMMAND_GET_ONLINE_USERS_NUM = "http://jabber.org/protocol/admin#get-online-users-num";
+    public static final String COMMAND_CHANGE_USER_PASSWORD = "http://jabber.org/protocol/admin#change-user-password";
     
     private ServerRuntimeContext serverRuntimeContext;
 
@@ -63,8 +65,9 @@ public class ServiceAdministrationModule extends DefaultModule implements AdhocC
     protected final Map<String, CommandInfo> allCommandInfos = new HashMap<String, CommandInfo>();
 
     public ServiceAdministrationModule() {
-        allCommandInfos.put(COMMAND_NODE_ADD_USER, new CommandInfo(COMMAND_NODE_ADD_USER, "Add User"));
-        allCommandInfos.put(COMMAND_GET_ONLINE_USERS_NUM, new CommandInfo(COMMAND_GET_ONLINE_USERS_NUM, "Get Number of Online Users"));
+        /* XEP-133 4.1  */ allCommandInfos.put(COMMAND_NODE_ADD_USER, new CommandInfo(COMMAND_NODE_ADD_USER, "Add User"));
+        /* XEP-133 4.7  */ allCommandInfos.put(COMMAND_CHANGE_USER_PASSWORD, new CommandInfo(COMMAND_CHANGE_USER_PASSWORD, "Change User Password"));
+        /* XEP-133 4.15 */ allCommandInfos.put(COMMAND_GET_ONLINE_USERS_NUM, new CommandInfo(COMMAND_GET_ONLINE_USERS_NUM, "Get Number of Online Users"));
     }
 
     /**
@@ -78,6 +81,8 @@ public class ServiceAdministrationModule extends DefaultModule implements AdhocC
 
         final AdhocCommandsService adhocCommandsService = (AdhocCommandsService)serverRuntimeContext.getServerRuntimeContextService(AdhocCommandsModule.ADHOC_COMMANDS);
         adhocCommandsService.registerCommandSupport(this);
+        
+        serverRuntimeContext.registerServerRuntimeContextService(this);
     }
 
     public void setAddAdminJIDs(Collection<Entity> admins) {
@@ -96,7 +101,11 @@ public class ServiceAdministrationModule extends DefaultModule implements AdhocC
         }
         this.admins.addAll(adminEntities);
     }
-    
+
+    public boolean isAdmin(Entity adminCandidate) {
+        return admins.contains(adminCandidate);
+    }
+
     @Override
     public String getName() {
         return "XEP-0133 Service Administration";
@@ -107,9 +116,13 @@ public class ServiceAdministrationModule extends DefaultModule implements AdhocC
         return "1.1";
     }
 
+    public String getServiceName() {
+        return getName();
+    }
+    
     public Collection<CommandInfo> getCommandInfosForInfoRequest(InfoRequest infoRequest, boolean hintListAll) {
         if (!admins.contains(infoRequest.getFrom())) {
-            return null;
+            return Arrays.asList(allCommandInfos.get(COMMAND_CHANGE_USER_PASSWORD));
         }
         if (hintListAll) return allCommandInfos.values();
 
@@ -118,15 +131,26 @@ public class ServiceAdministrationModule extends DefaultModule implements AdhocC
     }
 
     public AdhocCommandHandler getCommandHandler(String commandNode, Entity executingUser) {
-        if (executingUser == null || !admins.contains(executingUser)) {
+        if (executingUser == null) return null;
+
+        final AccountManagement accountManagement = (AccountManagement)serverRuntimeContext.getStorageProvider(AccountManagement.class);
+        final ResourceRegistry resourceRegistry = serverRuntimeContext.getResourceRegistry();
+        
+        if (!admins.contains(executingUser)) {
+            // non-admins can only admin their own accounts
+            if (commandNode.equals(COMMAND_CHANGE_USER_PASSWORD)) {
+                return new ChangeUserPasswordCommandHandler(accountManagement, executingUser);
+            }
             return null;
         }
+        
         if (commandNode.equals(COMMAND_NODE_ADD_USER)) {
-            final AccountManagement accountManagement = (AccountManagement)serverRuntimeContext.getStorageProvider(AccountManagement.class);
             if (accountManagement == null) return null;
             return new AddUserCommandHandler(accountManagement, Arrays.asList(serverRuntimeContext.getServerEnitity().getDomain()));
+        } else if (commandNode.equals(COMMAND_CHANGE_USER_PASSWORD)) {
+            return new ChangeUserPasswordCommandHandler(accountManagement, null);
         } else if (commandNode.equals(COMMAND_GET_ONLINE_USERS_NUM)) {
-            return new GetOnlineUsersCommandHandler(serverRuntimeContext.getResourceRegistry());
+            return new GetOnlineUsersCommandHandler(resourceRegistry);
         }
         return null;
     }

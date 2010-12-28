@@ -52,6 +52,10 @@ public class DeliveringStanzaRelayTestCase extends TestCase {
             ; // empty
         }
 
+        public void changePassword(String username, String password) throws AccountCreationException {
+            ; // empty
+        }
+
         public boolean verifyAccountExists(Entity jid) {
             return true;
         }
