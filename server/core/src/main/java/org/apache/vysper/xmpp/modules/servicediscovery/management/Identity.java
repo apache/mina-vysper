@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.servicediscovery.management;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
@@ -37,9 +38,9 @@ public class Identity implements InfoElement {
     protected String name; // optional
 
     public Identity(String category, String type, String name) {
-        if (category == null || category.length() == 0)
+        if (StringUtils.isEmpty(category))
             throw new IllegalArgumentException("category may not be null");
-        if (type == null || type.length() == 0)
+        if (StringUtils.isEmpty(type))
             throw new IllegalArgumentException("type may not be null");
         this.category = category;
         this.type = type;

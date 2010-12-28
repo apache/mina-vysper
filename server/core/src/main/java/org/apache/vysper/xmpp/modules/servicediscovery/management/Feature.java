@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.servicediscovery.management;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
@@ -33,7 +34,7 @@ public class Feature implements InfoElement {
     protected String var;
 
     public Feature(String var) {
-        if (var == null || var.length() == 0)
+        if (StringUtils.isEmpty(var))
             throw new IllegalArgumentException("var may not be null");
         this.var = var;
     }

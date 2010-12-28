@@ -20,6 +20,8 @@
 
 package org.apache.vysper.xmpp.server;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
@@ -65,7 +67,7 @@ public class XMPPVersion {
     }
 
     private int convertToInt(String part) {
-        if (part == null || part.length() == 0)
+        if (StringUtils.isEmpty(part))
             throw new IllegalArgumentException("version part is empty");
         if (STRING_ZERO.equals(part))
             return 0;

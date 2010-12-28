@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.vysper.compliance.SpecCompliance;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xml.fragment.Attribute;
@@ -156,7 +157,7 @@ public class RosterUtils {
                 } catch (XMLSemanticError xmlSemanticError) {
                     throw new RosterBadRequestException("roster item group node is malformed");
                 }
-                if (groupName == null || groupName.length() == 0) {
+                if (StringUtils.isEmpty(groupName)) {
                     throw new RosterNotAcceptableException("roster item group name of zero length");
                 } else if (groupName.length() > RosterConfiguration.ROSTER_GROUP_NAME_MAX_LENGTH) {
                     throw new RosterNotAcceptableException("roster item group name too long: " + groupName.length());

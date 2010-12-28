@@ -312,6 +312,14 @@ public class ResourceRegistry {
     }
 
     /**
+     * number of active bare ids (# of users, regardless whether they have one or more connected sessions)
+     * @return
+     */
+    public long getSessionCount() {
+        return entityResources.size();
+    }
+
+    /**
      * retrieves the highest prioritized session(s) for this entity.
      * 
      * @param entity if this is not a bare JID, only the session for the JID's resource part will be returned, without

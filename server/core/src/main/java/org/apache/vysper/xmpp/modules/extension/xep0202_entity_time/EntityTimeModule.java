@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0202_entity_time;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
@@ -55,7 +56,7 @@ public class EntityTimeModule extends DefaultDiscoAwareModule implements ServerI
     }
 
     public List<InfoElement> getServerInfosFor(InfoRequest request) {
-        if (request.getNode() != null && request.getNode().length() > 0) return null;
+        if (StringUtils.isNotEmpty(request.getNode())) return null;
 
         List<InfoElement> infoElements = new ArrayList<InfoElement>();
         infoElements.add(new Feature(NamespaceURIs.URN_XMPP_TIME));
