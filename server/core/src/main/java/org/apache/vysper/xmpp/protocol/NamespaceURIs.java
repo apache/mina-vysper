@@ -88,6 +88,8 @@ public class NamespaceURIs {
 
     public static final String XEP0045_MUC_USER = "http://jabber.org/protocol/muc#user";
 
+    public static final String XEP0050_ADHOC_COMMANDS = "http://jabber.org/protocol/commands";
+
     public static final String XEP0060_PUBSUB = "http://jabber.org/protocol/pubsub";
 
     public static final String XEP0060_PUBSUB_EVENT = "http://jabber.org/protocol/pubsub#event";
@@ -97,4 +99,6 @@ public class NamespaceURIs {
     public static final String XEP0060_PUBSUB_ERRORS = "http://jabber.org/protocol/pubsub#errors";
 
     public static final String XEP0124_BOSH = "http://jabber.org/protocol/httpbind";
+    
+    public static final String XEP0133_SERVICE_ADMIN = "http://jabber.org/protocol/admin";
 }
