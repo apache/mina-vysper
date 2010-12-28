@@ -38,12 +38,6 @@
     
     <dependency>
       <groupId>org.apache.vysper</groupId>
-      <artifactId>nbxml</artifactId>
-      <optional>true</optional>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.vysper</groupId>
       <artifactId>vysper-core</artifactId>
     </dependency>
     
