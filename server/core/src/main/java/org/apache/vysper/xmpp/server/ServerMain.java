@@ -19,11 +19,7 @@
  */
 package org.apache.vysper.xmpp.server;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.vysper.mina.TCPEndpoint;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
@@ -33,10 +29,18 @@ import org.apache.vysper.xmpp.authorization.AccountCreationException;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
 import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.extension.xep0049_privatedata.PrivateDataModule;
+import org.apache.vysper.xmpp.modules.extension.xep0050_adhoc_commands.AdhocCommandsModule;
 import org.apache.vysper.xmpp.modules.extension.xep0054_vcardtemp.VcardTempModule;
 import org.apache.vysper.xmpp.modules.extension.xep0092_software_version.SoftwareVersionModule;
 import org.apache.vysper.xmpp.modules.extension.xep0119_xmppping.XmppPingModule;
+import org.apache.vysper.xmpp.modules.extension.xep0133_service_administration.ServiceAdministrationModule;
 import org.apache.vysper.xmpp.modules.extension.xep0202_entity_time.EntityTimeModule;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * starts the server as a standalone application
@@ -56,6 +60,8 @@ public class ServerMain {
      */
     public static void main(String[] args) throws AccountCreationException, EntityFormatException, FileNotFoundException {
 
+        String domain = "vysper.org";
+        
         String addedModuleProperty = System.getProperty("vysper.add.module");
         List<Module> listOfModules = null;
         if (addedModuleProperty != null) {
@@ -67,20 +73,17 @@ public class ServerMain {
         //StorageProviderRegistry providerRegistry = new JcrStorageProviderRegistry();
         StorageProviderRegistry providerRegistry = new MemoryStorageProviderRegistry();
 
+        final String adminJID = "admin@" + domain;
         final AccountManagement accountManagement = (AccountManagement) providerRegistry
                 .retrieve(AccountManagement.class);
 
-        if (!accountManagement.verifyAccountExists(EntityImpl.parse("user1@vysper.org"))) {
-            accountManagement.addUser("user1@vysper.org", "password1");
-        }
-        if (!accountManagement.verifyAccountExists(EntityImpl.parse("user2@vysper.org"))) {
-            accountManagement.addUser("user2@vysper.org", "password1");
-        }
-        if (!accountManagement.verifyAccountExists(EntityImpl.parse("user3@vysper.org"))) {
-            accountManagement.addUser("user3@vysper.org", "password1");
+        if (!accountManagement.verifyAccountExists(EntityImpl.parse(adminJID))) {
+            final String randomPassword = RandomStringUtils.randomAlphanumeric(8);
+            accountManagement.addUser(adminJID, randomPassword);
+            System.out.println(adminJID + " user has been added with random password: '" + randomPassword + "'");
         }
 
-        XMPPServer server = new XMPPServer("vysper.org");
+        XMPPServer server = new XMPPServer(domain);
         server.addEndpoint(new TCPEndpoint());
         //server.addEndpoint(new StanzaSessionFactory());
         server.setStorageProviderRegistry(providerRegistry);
@@ -99,6 +102,11 @@ public class ServerMain {
         server.addModule(new VcardTempModule());
         server.addModule(new XmppPingModule());
         server.addModule(new PrivateDataModule());
+        server.addModule(new AdhocCommandsModule());
+        final ServiceAdministrationModule serviceAdministrationModule = new ServiceAdministrationModule();
+        // unless admin user account with a secure password is added, this will be not become effective
+        serviceAdministrationModule.setAddAdmins(Arrays.asList(adminJID)); 
+        server.addModule(serviceAdministrationModule);
 
         if (listOfModules != null) {
             for (Module module : listOfModules) {

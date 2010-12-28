@@ -22,6 +22,8 @@ package org.apache.vysper.spring;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -48,7 +50,12 @@ public class AddUserHelper {
 
         for (String user : userPasswordMap.keySet()) {
             if (!accountManagement.verifyAccountExists(EntityImpl.parse(user))) {
-                accountManagement.addUser(user, userPasswordMap.get(user));
+                String password = userPasswordMap.get(user);
+                if (StringUtils.isEmpty(password)) {
+                    password = RandomStringUtils.randomAlphanumeric(8);
+                }
+                accountManagement.addUser(user, password);
+                System.out.println(user + " user has been added with random password: '" + password + "'");
             }
         }
     }

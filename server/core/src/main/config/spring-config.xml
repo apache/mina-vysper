@@ -28,13 +28,18 @@
     <!-- choose one of the storage registries -->
     <alias name="inmemoryStorageRegistry" alias="storageRegistry" />
 
-    <!-- default users; remove if you have persistently stored users -->
+    <!-- default users; remove if you have persistently stored users
+         NOTE: if passwords are empty, random passwords are generated and printed on the console
+               So, your default install of Vysper is secure from the very beginning
+    -->
     <bean id="addUsers" class="org.apache.vysper.spring.AddUserHelper">
         <constructor-arg index="0">
             <map>
-                <entry key="user1@vysper.org" value="password1" />
-                <entry key="user2@vysper.org" value="password1" />
-                <entry key="user3@vysper.org" value="password1" />
+                <entry key="admin@vysper.org" value="" />
+                <entry key="user1@vysper.org" value="" />
+                <entry key="user2@vysper.org" value="" />
+                <entry key="user3@vysper.org" value="" />
+                <!--<entry key="admin@vysper.org" value="CHOOSE A SECURE PASSWORD OR LEAVE EMPTY" />-->
             </map>
         </constructor-arg>
         <property name="storageProviderRegistry" ref="storageRegistry" />
@@ -76,6 +81,12 @@
                 <bean class="org.apache.vysper.xmpp.modules.extension.xep0054_vcardtemp.VcardTempModule" />
                 <bean class="org.apache.vysper.xmpp.modules.extension.xep0119_xmppping.XmppPingModule" />
                 <bean class="org.apache.vysper.xmpp.modules.extension.xep0049_privatedata.PrivateDataModule" />
+                <bean class="org.apache.vysper.xmpp.modules.extension.xep0050_adhoc_commands.AdhocCommandsModule" />
+                <bean class="org.apache.vysper.xmpp.modules.extension.xep0133_service_administration.ServiceAdministrationModule" >
+                    <property name="addAdmins">
+                        <list><value>admin@vysper.org</value></list>
+                    </property>
+                </bean>
                 <!-- below some more modules which are available as separately-built jars. 
                      make sure they are on the classpath when enabling them or remove the beans below, 
                      depending on the features your server should expose -->
