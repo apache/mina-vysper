@@ -70,7 +70,7 @@ public class StartTLSHandler implements StanzaHandler {
         // if all is correct, go to next phase
         sessionStateHolder.setState(SessionState.ENCRYPTION_STARTED);
 
-        sessionContext.switchToTLS();
+        sessionContext.switchToTLS(true, false);
 
         return new ResponseStanzaContainerImpl(responseStanza);
     }

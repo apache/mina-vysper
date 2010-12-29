@@ -16,8 +16,6 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
 public class Server2Server {
 
-    // TODO temporarily uses hard coded servers, change for your own tests
-    
     public static void main(String[] args) throws Exception {
         Entity localServer = EntityImpl.parseUnchecked(args[0]);
         Entity localUser = EntityImpl.parseUnchecked(args[1]);
@@ -33,7 +31,6 @@ public class Server2Server {
             keystorePath = "src/main/config/bogus_mina_tls.cert";
             keystorePassword = "boguspw";            
         }
-            
         
         XMPPServer server = new XMPPServer(localServer.getDomain());
 
@@ -79,8 +76,7 @@ public class Server2Server {
             
         connector.write(stanza);
         
-        
-        Thread.sleep(5000);
+        Thread.sleep(50000);
         
         server.stop();
     }

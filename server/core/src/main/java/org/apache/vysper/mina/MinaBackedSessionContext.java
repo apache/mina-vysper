@@ -50,6 +50,7 @@ public class MinaBackedSessionContext extends AbstractSessionContext implements 
     private boolean openingStanzaWritten = false;
 
     private boolean switchToTLS = false;
+    private boolean clientTLS = false;
 
     protected CloseFuture closeFuture;
 
@@ -66,25 +67,38 @@ public class MinaBackedSessionContext extends AbstractSessionContext implements 
         return this;
     }
 
-    public void switchToTLS() {
-        switchToTLS = true;
+    public void switchToTLS(boolean delayed, boolean clientTls) {
+        this.clientTLS = clientTls;
+
+        if(delayed) {
+            switchToTLS = true;
+        } else {
+            addSslFilter();
+        }
     }
 
     public void setIsReopeningXMLStream() {
         openingStanzaWritten = false;
     }
+    
+    private void addSslFilter() {
+        minaSession.suspendRead();
+        minaSession.suspendWrite();
+        SslFilter filter = new SslFilter(getServerRuntimeContext().getSslContext());
+        filter.setUseClientMode(clientTLS);
+        minaSession.getFilterChain().addFirst("sslFilter", filter);
+        if(!clientTLS) {
+            minaSession.setAttribute(SslFilter.DISABLE_ENCRYPTION_ONCE, Boolean.TRUE);
+        }
+        minaSession.setAttribute(SslFilter.USE_NOTIFICATION, Boolean.TRUE);
+        minaSession.resumeWrite();
+        minaSession.resumeRead();
+        
+    }
 
     public void write(Stanza stanza) {
         if (switchToTLS) {
-            minaSession.suspendRead();
-            minaSession.suspendWrite();
-            SslFilter filter = new SslFilter(getServerRuntimeContext().getSslContext());
-            filter.setUseClientMode(false);
-            minaSession.getFilterChain().addFirst("sslFilter", filter);
-            minaSession.setAttribute(SslFilter.DISABLE_ENCRYPTION_ONCE, Boolean.TRUE);
-            minaSession.setAttribute(SslFilter.USE_NOTIFICATION, Boolean.TRUE);
-            minaSession.resumeWrite();
-            minaSession.resumeRead();
+            addSslFilter();
             switchToTLS = false;
         }
 

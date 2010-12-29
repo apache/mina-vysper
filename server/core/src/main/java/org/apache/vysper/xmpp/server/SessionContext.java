@@ -150,7 +150,7 @@ public interface SessionContext {
     /**
      * signals the underlying transport to handle TLS handshake
      */
-    void switchToTLS();
+    void switchToTLS(boolean delayed, boolean clientTls);
 
     /**
      * this method signals that from now on a new <stream:stream>... xml stream

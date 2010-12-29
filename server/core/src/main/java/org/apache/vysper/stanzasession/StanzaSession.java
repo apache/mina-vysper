@@ -38,7 +38,7 @@ public class StanzaSession {
     }
 
     public void setIsSecure() {
-        sessionContext.switchToTLS();
+        sessionContext.switchToTLS(true, false);
     }
 
     public Stanza poll() {

@@ -10,6 +10,7 @@ import org.apache.mina.core.service.IoConnector;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.filter.ssl.SslFilter;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.apache.vysper.mina.MinaBackedSessionContext;
 import org.apache.vysper.mina.StanzaLoggingFilter;
@@ -68,50 +69,80 @@ public class XMPPServerConnector implements StanzaWriter, XmppPingListener {
 
     public synchronized void start() {
         LOG.info("Starting XMPP server connector to {}", otherServer);
-        final CountDownLatch latch = new CountDownLatch(1);
+        final CountDownLatch authenticatedLatch = new CountDownLatch(1);
         
         connector.setHandler(new IoHandlerAdapter() {
             @Override
             public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
-                cause.printStackTrace();
+                LOG.info("Exception thrown by XMPP server connector to {}, probably a bug in Vysper", otherServer);
             }
 
             @Override
             public void messageReceived(IoSession session, Object message) throws Exception {
-                Stanza msg = (Stanza) message;
-                
-                if(msg.getName().equals("stream")) {
-                    sessionContext.setSessionId(msg.getAttributeValue("id"));
-                } else if(msg.getName().equals("features")) {
-                    if(dialbackSupported(msg)) {
-                        Entity originating = serverRuntimeContext.getServerEnitity();
-
-                        String dailbackId = new DailbackIdGenerator().generate(otherServer, originating, sessionContext.getSessionId());
-                        
-                        Stanza dbResult = new StanzaBuilder("result", NamespaceURIs.JABBER_SERVER_DIALBACK, "db")
-                            .addAttribute("from", originating.getDomain())
-                            .addAttribute("to", otherServer.getDomain())
-                            .addText(dailbackId)
-                            .build();
-                        
-                        sessionContext.write(dbResult);
-                    } else {
-                        throw new RuntimeException("Unsupported features");
-                    }
-                } else if(msg.getName().equals("result") && NamespaceURIs.JABBER_SERVER_DIALBACK.equals(msg.getNamespaceURI())) {
-                    // TODO check and handle dailback result
-                    sessionStateHolder.setState(SessionState.AUTHENTICATED);
+                if(message == SslFilter.SESSION_SECURED) {
+                    // TODO handle unsecure
+                    // connection secured, send stream opener
+                    sessionStateHolder.setState(SessionState.ENCRYPTED);
                     
-                    LOG.info("XMPP server connector to {} authenticated using dialback", otherServer);
-                    latch.countDown();
+                    LOG.info("XMPP server connector to {} secured using TLS", otherServer);
+                    LOG.debug("XMPP server connector to {} restarting stream", otherServer);
                     
-                    // connection established, start pinging
-                    startPinging();
+                    sessionContext.setIsReopeningXMLStream();
+                    
+                    Stanza opener = new ServerResponses().getStreamOpenerForServerConnector(serverRuntimeContext.getServerEnitity(), otherServer, XMPPVersion.VERSION_1_0, sessionContext);
+                    
+                    sessionContext.write(opener);
                 } else {
-                    // TODO other stanzas coming here?
+                    Stanza msg = (Stanza) message;
+                    
+                    if(msg.getName().equals("stream")) {
+                        sessionContext.setSessionId(msg.getAttributeValue("id"));
+                    } else if(msg.getName().equals("features")) {
+                        if(startTlsSupported(msg)) {
+                            LOG.info("XMPP server connector to {} is starting TLS", otherServer);
+                            Stanza startTlsStanza = new StanzaBuilder("starttls", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS).build();
+                            
+                            sessionContext.write(startTlsStanza);
+                            
+                        } else if(dialbackSupported(msg)) {
+                            Entity originating = serverRuntimeContext.getServerEnitity();
+    
+                            String dailbackId = new DailbackIdGenerator().generate(otherServer, originating, sessionContext.getSessionId());
+                            
+                            Stanza dbResult = new StanzaBuilder("result", NamespaceURIs.JABBER_SERVER_DIALBACK, "db")
+                                .addAttribute("from", originating.getDomain())
+                                .addAttribute("to", otherServer.getDomain())
+                                .addText(dailbackId)
+                                .build();
+                            
+                            sessionContext.write(dbResult);
+                        } else {
+                            throw new RuntimeException("Unsupported features");
+                        }
+                    } else if(msg.getName().equals("result") && NamespaceURIs.JABBER_SERVER_DIALBACK.equals(msg.getNamespaceURI())) {
+                        // TODO check and handle dailback result
+                        sessionStateHolder.setState(SessionState.AUTHENTICATED);
+                        
+                        LOG.info("XMPP server connector to {} authenticated using dialback", otherServer);
+                        authenticatedLatch.countDown();
+                        
+                        // connection established, start pinging
+                        startPinging();
+                    } else if(msg.getName().equals("proceed") && NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS.equals(msg.getNamespaceURI())) {
+                        sessionStateHolder.setState(SessionState.ENCRYPTION_STARTED);
+                        
+                        LOG.debug("XMPP server connector to {} switching to TLS", otherServer);
+                        sessionContext.switchToTLS(false, true);
+                    } else {
+                        // TODO other stanzas coming here?
+                    }
                 }
             }
             
+            private boolean startTlsSupported(Stanza stanza) {
+                return !stanza.getInnerElementsNamed("starttls", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS).isEmpty();
+            }
+
             private boolean dialbackSupported(Stanza stanza) {
                 // TODO check for dialback namespace
                 return !stanza.getInnerElementsNamed("dialback", NamespaceURIs.URN_XMPP_FEATURES_DIALBACK).isEmpty();
@@ -120,8 +151,8 @@ public class XMPPServerConnector implements StanzaWriter, XmppPingListener {
             @Override
             public void sessionClosed(IoSession session) throws Exception {
                 // Socket was closed, make sure we close the connector
-                LOG.debug("XMPP server connector socket closed, closing connector");
-                //close();
+                LOG.info("XMPP server connector socket closed, closing connector");
+                close();
             }
 
             @Override
@@ -143,7 +174,7 @@ public class XMPPServerConnector implements StanzaWriter, XmppPingListener {
         // make this method sync
         // TODO handle timeout
         try {
-            latch.await(20000, TimeUnit.MILLISECONDS);
+            authenticatedLatch.await(20000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             // TODO handle
         }
@@ -158,13 +189,13 @@ public class XMPPServerConnector implements StanzaWriter, XmppPingListener {
     }
 
     public void close() {
+        closed = true;
         if(!closed) {
             LOG.info("XMPP server connector to {} closing", otherServer);
             sessionContext.close();
             
             connector.dispose();
             pingTimer.cancel();
-            closed = true;
             LOG.info("XMPP server connector to {} closed", otherServer);
         }
     }
