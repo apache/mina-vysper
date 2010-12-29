@@ -19,12 +19,6 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
@@ -35,6 +29,7 @@ import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultPresenceHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.MUCStanzaBuilder;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Affiliation;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Affiliations;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
@@ -43,8 +38,9 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.History;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.MucUserItem;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Status;
-import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Status.StatusCode;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;
+import org.apache.vysper.xmpp.modules.extension.xep0133_service_administration.ServerAdministrationService;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
@@ -54,6 +50,11 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Implementation of <a href="http://xmpp.org/extensions/xep-0045.html">XEP-0045 Multi-user chat</a>.
@@ -220,6 +221,16 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
                 newOccupant.setRole(Role.Moderator);
             }
 
+            // if the new occupant is a server admin, he will be for the room, too
+            final ServerAdministrationService adhocCommandsService = (ServerAdministrationService)serverRuntimeContext.getServerRuntimeContextService(ServerAdministrationService.SERVICE_ID);
+            if (adhocCommandsService != null && adhocCommandsService.isAdmin(newOccupantJid.getBareJID())) {
+                final Affiliations roomAffiliations = room.getAffiliations();
+                // make new occupant an Admin, but do not downgrade from Owner
+                if (roomAffiliations.getAffiliation(newOccupantJid) != Affiliation.Owner) {
+                    roomAffiliations.add(newOccupantJid, Affiliation.Admin);
+                }
+            }
+            
             // relay presence of all existing room occupants to the now joined occupant
             for (Occupant occupant : room.getOccupants()) {
                 sendExistingOccupantToNewOccupant(newOccupant, occupant, room, serverRuntimeContext);
