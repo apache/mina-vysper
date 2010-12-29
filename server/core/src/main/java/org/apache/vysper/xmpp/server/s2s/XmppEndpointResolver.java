@@ -39,12 +39,6 @@ public class XmppEndpointResolver {
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        XmppEndpointResolver resolver = new XmppEndpointResolver();
-        System.out.println(resolver.resolveXmppServer("protocol7.com"));
-        
-    }
-    
     public List<ResolvedAddress> resolveXmppServer(String domain) {
         List<ResolvedAddress> addresses = new ArrayList<ResolvedAddress>();
         try {

@@ -1,4 +1,5 @@
 package org.apache.vysper.xmpp.server.s2s;
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -14,7 +15,7 @@ public class XMPPServerConnectorRegistry {
         this.serverRuntimeContext = serverRuntimeContext;
     }
 
-    public synchronized XMPPServerConnector getConnector(Entity server) {
+    public synchronized XMPPServerConnector getConnector(Entity server) throws IOException {
         XMPPServerConnector connector = connectors.get(server);
 
         if(connector != null && connector.isClosed()) {
