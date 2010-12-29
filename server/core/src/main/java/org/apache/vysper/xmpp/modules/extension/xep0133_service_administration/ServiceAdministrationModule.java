@@ -117,7 +117,7 @@ public class ServiceAdministrationModule extends DefaultModule implements AdhocC
     }
 
     public String getServiceName() {
-        return getName();
+        return ServerAdministrationService.SERVICE_ID;
     }
     
     public Collection<CommandInfo> getCommandInfosForInfoRequest(InfoRequest infoRequest, boolean hintListAll) {

@@ -54,6 +54,7 @@ public class AdhocCommandsModule extends DefaultDiscoAwareModule
                    ServerRuntimeContextService, AdhocCommandsService {
 
     public static final String ADHOC_COMMANDS = "adhoc_commands";
+    
     private final Logger logger = LoggerFactory.getLogger(org.apache.vysper.xmpp.modules.extension.xep0050_adhoc_commands.AdhocCommandsModule.class);
 
     protected ServerRuntimeContext serverRuntimeContext;

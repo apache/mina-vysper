@@ -8,6 +8,8 @@ import java.util.Collection;
  */
 public interface ServerAdministrationService {
 
+    public static final String SERVICE_ID = "ServerAdministrationService";
+    
     void setAddAdminJIDs(Collection<Entity> admins);
 
     void setAddAdmins(Collection<String> admins);
