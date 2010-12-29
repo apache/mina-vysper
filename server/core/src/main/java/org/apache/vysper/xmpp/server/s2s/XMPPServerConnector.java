@@ -45,7 +45,7 @@ public class XMPPServerConnector implements StanzaWriter, XmppPingListener {
     
     private boolean closed = false;
     
-    private Timer pingTimer = new Timer();
+    private Timer pingTimer = new Timer("pingtimer", true);
     
     private class PingTask extends TimerTask {
         public void run() {
@@ -66,7 +66,7 @@ public class XMPPServerConnector implements StanzaWriter, XmppPingListener {
         connector.setFilterChainBuilder(filterChainBuilder);
     }
 
-    public void start() {
+    public synchronized void start() {
         LOG.info("Starting XMPP server connector to {}", otherServer);
         final CountDownLatch latch = new CountDownLatch(1);
         
@@ -121,7 +121,7 @@ public class XMPPServerConnector implements StanzaWriter, XmppPingListener {
             public void sessionClosed(IoSession session) throws Exception {
                 // Socket was closed, make sure we close the connector
                 LOG.debug("XMPP server connector socket closed, closing connector");
-                close();
+                //close();
             }
 
             @Override
@@ -158,10 +158,15 @@ public class XMPPServerConnector implements StanzaWriter, XmppPingListener {
     }
 
     public void close() {
-        LOG.info("XMPP server connector to {} closed", otherServer);        
-        connector.dispose();
-        pingTimer.cancel();
-        closed = true;
+        if(!closed) {
+            LOG.info("XMPP server connector to {} closing", otherServer);
+            sessionContext.close();
+            
+            connector.dispose();
+            pingTimer.cancel();
+            closed = true;
+            LOG.info("XMPP server connector to {} closed", otherServer);
+        }
     }
 
     public void pong() {

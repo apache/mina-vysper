@@ -77,5 +77,6 @@ public class TCPEndpoint implements Endpoint {
 
     public void stop() {
         acceptor.unbind();
+        acceptor.dispose();
     }
 }

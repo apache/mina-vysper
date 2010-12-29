@@ -71,6 +71,7 @@ public class XMPPServer {
     private String tlsCertificatePassword;
 
     private final List<Endpoint> endpoints = new ArrayList<Endpoint>();
+    
 
     public XMPPServer(String domain) {
         this.serverDomain = domain;
@@ -151,6 +152,8 @@ public class XMPPServer {
         for (Endpoint endpoint : endpoints) {
             endpoint.stop();
         }
+        
+        serverRuntimeContext.getServerConnectorRegistry().close();
     }
 
     public void addModule(Module module) {

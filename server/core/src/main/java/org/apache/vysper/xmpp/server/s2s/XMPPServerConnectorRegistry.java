@@ -30,4 +30,10 @@ public class XMPPServerConnectorRegistry {
         
         return connector;
     }
+
+    public void close() {
+        for(XMPPServerConnector connector : connectors.values()) {
+            connector.close();
+        }
+    }
 }

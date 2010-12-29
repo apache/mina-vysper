@@ -19,6 +19,8 @@
  */
 package org.apache.vysper.mina;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.future.IoFutureListener;
@@ -93,7 +95,15 @@ public class MinaBackedSessionContext extends AbstractSessionContext implements 
     public void close() {
         logger.info("session will be closed now");
         closeFuture.setClosed();
-        minaSession.close(false);
+        try {
+            // allow some time to flush before closibng
+            if(!minaSession.close(false).await(5000, TimeUnit.MILLISECONDS)) {
+                // no really close if necessary
+                minaSession.close(true);
+            }
+        } catch (InterruptedException e) {
+            // ignore
+        }
         logger.info("session closed");
     }
 

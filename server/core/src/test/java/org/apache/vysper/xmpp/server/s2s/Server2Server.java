@@ -7,21 +7,33 @@ import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
-import org.apache.vysper.xmpp.modules.extension.xep0119_xmppping.XmppPingListener;
-import org.apache.vysper.xmpp.modules.extension.xep0119_xmppping.XmppPingModule;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.XMPPServer;
+import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
 
 public class Server2Server {
 
     // TODO temporarily uses hard coded servers, change for your own tests
-    private static Entity localServer = EntityImpl.parseUnchecked("protocol7.dyndns.org");
-    private static Entity localUser = EntityImpl.parseUnchecked("niklas@protocol7.dyndns.org");
-    private static Entity remoteServer = EntityImpl.parseUnchecked("jabber.org");
-    private static Entity remoteUser = EntityImpl.parseUnchecked("niklas@protocol7.com");
     
     public static void main(String[] args) throws Exception {
+        Entity localServer = EntityImpl.parseUnchecked(args[0]);
+        Entity localUser = EntityImpl.parseUnchecked(args[1]);
+        Entity remoteServer = EntityImpl.parseUnchecked(args[2]);
+        Entity remoteUser = EntityImpl.parseUnchecked(args[3]);
+
+        String keystorePath;
+        String keystorePassword;
+        if(args.length > 4) {
+            keystorePath = args[4];
+            keystorePassword = args[5];
+        } else {
+            keystorePath = "src/main/config/bogus_mina_tls.cert";
+            keystorePassword = "boguspw";            
+        }
+            
         
         XMPPServer server = new XMPPServer(localServer.getDomain());
 
@@ -40,11 +52,14 @@ public class Server2Server {
         
         // C2S endpoint
         server.addEndpoint(new TCPEndpoint());
+        
         server.setStorageProviderRegistry(providerRegistry);
-        server.setTLSCertificateInfo(new File("src/main/config/bogus_mina_tls.cert"), "boguspw");
+        server.setTLSCertificateInfo(new File(keystorePath), keystorePassword);
         
         server.start();
-        server.addModule(new XmppPingModule());
+        
+        // enable server connection to use ping
+        //server.addModule(new XmppPingModule());
 
         ServerRuntimeContext serverRuntimeContext = server.getServerRuntimeContext();
         
@@ -54,20 +69,19 @@ public class Server2Server {
         
         XMPPServerConnector connector = registry.getConnector(remoteServer);
         
-//        Stanza stanza = new StanzaBuilder("message", NamespaceURIs.JABBER_SERVER)
-//            .addAttribute("from", localUser.getFullQualifiedName())
-//            .addAttribute("to", remoteUser.getFullQualifiedName())
-//            .startInnerElement("body", NamespaceURIs.JABBER_SERVER)
-//            .addText("Hello world")
-//            .endInnerElement()
-//            .build();
+        Stanza stanza = new StanzaBuilder("message", NamespaceURIs.JABBER_SERVER)
+            .addAttribute("from", localUser.getFullQualifiedName())
+            .addAttribute("to", remoteUser.getFullQualifiedName())
+            .startInnerElement("body", NamespaceURIs.JABBER_SERVER)
+            .addText("Hello world")
+            .endInnerElement()
+            .build();
             
-//        connector.write(stanza);
+        connector.write(stanza);
         
         
-        Thread.sleep(200000);
+        Thread.sleep(5000);
         
-        connector.close();
         server.stop();
     }
     
