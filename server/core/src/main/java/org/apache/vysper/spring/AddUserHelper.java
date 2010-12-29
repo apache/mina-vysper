@@ -53,9 +53,9 @@ public class AddUserHelper {
                 String password = userPasswordMap.get(user);
                 if (StringUtils.isEmpty(password)) {
                     password = RandomStringUtils.randomAlphanumeric(8);
+                    System.out.println(user + " user will be added with random password: '" + password + "'");
                 }
                 accountManagement.addUser(user, password);
-                System.out.println(user + " user has been added with random password: '" + password + "'");
             }
         }
     }

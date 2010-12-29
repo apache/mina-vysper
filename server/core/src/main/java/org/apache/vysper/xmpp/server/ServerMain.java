@@ -77,10 +77,9 @@ public class ServerMain {
         final AccountManagement accountManagement = (AccountManagement) providerRegistry
                 .retrieve(AccountManagement.class);
 
+        String initialPassword = System.getProperty("vysper.admin.initial.password", "CHOOSE SECURE PASSWORD");
         if (!accountManagement.verifyAccountExists(EntityImpl.parse(adminJID))) {
-            final String randomPassword = RandomStringUtils.randomAlphanumeric(8);
-            accountManagement.addUser(adminJID, randomPassword);
-            System.out.println(adminJID + " user has been added with random password: '" + randomPassword + "'");
+            accountManagement.addUser(adminJID, initialPassword);
         }
 
         XMPPServer server = new XMPPServer(domain);

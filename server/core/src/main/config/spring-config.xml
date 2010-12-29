@@ -35,11 +35,10 @@
     <bean id="addUsers" class="org.apache.vysper.spring.AddUserHelper">
         <constructor-arg index="0">
             <map>
-                <entry key="admin@vysper.org" value="" />
-                <entry key="user1@vysper.org" value="" />
-                <entry key="user2@vysper.org" value="" />
-                <entry key="user3@vysper.org" value="" />
-                <!--<entry key="admin@vysper.org" value="CHOOSE A SECURE PASSWORD OR LEAVE EMPTY" />-->
+                <entry key="admin@vysper.org" value="CHOOSE A SECURE PASSWORD" />
+                <!--<entry key="user1@vysper.org" value="CHOOSE A SECURE PASSWORD" />-->
+                <!--<entry key="user2@vysper.org" value="CHOOSE A SECURE PASSWORD" />-->
+                <!--<entry key="user3@vysper.org" value="CHOOSE A SECURE PASSWORD" />-->
             </map>
         </constructor-arg>
         <property name="storageProviderRegistry" ref="storageRegistry" />
@@ -91,7 +90,7 @@
                      make sure they are on the classpath when enabling them or remove the beans below, 
                      depending on the features your server should expose -->
                 <!--<bean class="org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PublishSubscribeModule" />-->
-                <!--<bean class="org.apache.vysper.xmpp.modules.extension.xep0045_muc.MUCModule" />-->
+                <bean class="org.apache.vysper.xmpp.modules.extension.xep0045_muc.MUCModule" />
             </list>
         </property>
     </bean>
