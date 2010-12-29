@@ -226,8 +226,10 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
             if (adhocCommandsService != null && adhocCommandsService.isAdmin(newOccupantJid.getBareJID())) {
                 final Affiliations roomAffiliations = room.getAffiliations();
                 // make new occupant an Admin, but do not downgrade from Owner
+                // Admin affilitation implies Moderator role (see XEP-0045 5.1.2)
                 if (roomAffiliations.getAffiliation(newOccupantJid) != Affiliation.Owner) {
                     roomAffiliations.add(newOccupantJid, Affiliation.Admin);
+                    newOccupant.setRole(Role.Moderator);
                 }
             }
             
