@@ -12,6 +12,9 @@ import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.XMPPServer;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.packet.Message;
 
 
 public class Server2Server {
@@ -62,19 +65,40 @@ public class Server2Server {
         
         Thread.sleep(2000);
 
-        XMPPServerConnectorRegistry registry = serverRuntimeContext.getServerConnectorRegistry();
+//        XMPPServerConnectorRegistry registry = serverRuntimeContext.getServerConnectorRegistry();
+//        
+//        XMPPServerConnector connector = registry.getConnector(remoteServer);
+//        
+//        Stanza stanza = new StanzaBuilder("message", NamespaceURIs.JABBER_SERVER)
+//            .addAttribute("from", localUser.getFullQualifiedName())
+//            .addAttribute("to", remoteUser.getFullQualifiedName())
+//            .startInnerElement("body", NamespaceURIs.JABBER_SERVER)
+//            .addText("Hello world")
+//            .endInnerElement()
+//            .build();
+//            
+//        connector.write(stanza);
         
-        XMPPServerConnector connector = registry.getConnector(remoteServer);
         
-        Stanza stanza = new StanzaBuilder("message", NamespaceURIs.JABBER_SERVER)
-            .addAttribute("from", localUser.getFullQualifiedName())
-            .addAttribute("to", remoteUser.getFullQualifiedName())
-            .startInnerElement("body", NamespaceURIs.JABBER_SERVER)
-            .addText("Hello world")
-            .endInnerElement()
-            .build();
-            
-        connector.write(stanza);
+        ConnectionConfiguration connectionConfiguration = new ConnectionConfiguration("localhost", 5222);
+        connectionConfiguration.setKeystorePath(keystorePath);
+        connectionConfiguration.setTruststorePath(keystorePath);
+        connectionConfiguration.setTruststorePassword(keystorePassword);
+        XMPPConnection client = new XMPPConnection(connectionConfiguration);
+
+        client.connect();
+        client.login(localUser.getNode(), "password1");
+        
+        Thread.sleep(3000);
+        
+        Message msg = new Message(remoteUser.getFullQualifiedName());
+        msg.setBody("Hello world");
+        
+        client.sendPacket(msg);
+        
+        
+        Thread.sleep(3000);
+        client.disconnect();
         
         Thread.sleep(50000);
         

@@ -35,7 +35,8 @@ import org.apache.vysper.xmpp.cryptography.BogusTrustManagerFactory;
 import org.apache.vysper.xmpp.cryptography.InputStreamBasedTLSContextFactory;
 import org.apache.vysper.xmpp.delivery.RecordingStanzaRelay;
 import org.apache.vysper.xmpp.delivery.StanzaRelayBroker;
-import org.apache.vysper.xmpp.delivery.inbound.DeliveringInboundStanzaRelay;
+import org.apache.vysper.xmpp.delivery.inbound.DeliveringInternalInboundStanzaRelay;
+import org.apache.vysper.xmpp.delivery.inbound.DeliveringExternalInboundStanzaRelay;
 import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.roster.RosterModule;
 import org.apache.vysper.xmpp.modules.servicediscovery.ServiceDiscoveryModule;
@@ -118,9 +119,9 @@ public class XMPPServer {
 
         AccountManagement accountManagement = (AccountManagement) storageProviderRegistry
                 .retrieve(AccountManagement.class);
-        DeliveringInboundStanzaRelay internalStanzaRelay = new DeliveringInboundStanzaRelay(serverEntity,
+        DeliveringInternalInboundStanzaRelay internalStanzaRelay = new DeliveringInternalInboundStanzaRelay(serverEntity,
                 resourceRegistry, accountManagement);
-        RecordingStanzaRelay externalStanzaRelay = new RecordingStanzaRelay();
+        DeliveringExternalInboundStanzaRelay externalStanzaRelay = new DeliveringExternalInboundStanzaRelay();
 
         StanzaRelayBroker stanzaRelayBroker = new StanzaRelayBroker();
         stanzaRelayBroker.setInternalRelay(internalStanzaRelay);
@@ -139,6 +140,7 @@ public class XMPPServer {
 
         stanzaRelayBroker.setServerRuntimeContext(serverRuntimeContext);
         internalStanzaRelay.setServerRuntimeContext(serverRuntimeContext);
+        externalStanzaRelay.setServerRuntimeContext(serverRuntimeContext);
 
         if (endpoints.size() == 0)
             throw new IllegalStateException("server must have at least one endpoint");

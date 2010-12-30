@@ -45,7 +45,7 @@ public class DeliveringStanzaRelayTestCase extends TestCase {
 
     protected AccountManagement accountVerification;
 
-    protected DeliveringInboundStanzaRelay stanzaRelay;
+    protected DeliveringInternalInboundStanzaRelay stanzaRelay;
 
     static class AccountVerificationMock implements AccountManagement {
         public void addUser(String username, String password) throws AccountCreationException {
@@ -62,7 +62,7 @@ public class DeliveringStanzaRelayTestCase extends TestCase {
         super.setUp();
 
         accountVerification = new AccountVerificationMock();
-        stanzaRelay = new DeliveringInboundStanzaRelay(EntityImpl.parse("vysper.org"), resourceRegistry,
+        stanzaRelay = new DeliveringInternalInboundStanzaRelay(EntityImpl.parse("vysper.org"), resourceRegistry,
                 accountVerification);
     }
 

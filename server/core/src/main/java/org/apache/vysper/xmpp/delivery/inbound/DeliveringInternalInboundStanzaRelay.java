@@ -19,8 +19,6 @@
  */
 package org.apache.vysper.xmpp.delivery.inbound;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -28,7 +26,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.storage.StorageProviderRegistry;
@@ -68,9 +65,9 @@ import org.slf4j.LoggerFactory;
  *  
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class DeliveringInboundStanzaRelay implements StanzaRelay {
+public class DeliveringInternalInboundStanzaRelay implements StanzaRelay {
 
-    final Logger logger = LoggerFactory.getLogger(DeliveringInboundStanzaRelay.class);
+    final Logger logger = LoggerFactory.getLogger(DeliveringInternalInboundStanzaRelay.class);
 
     private static final InboundStanzaProtocolWorker INBOUND_STANZA_PROTOCOL_WORKER = new InboundStanzaProtocolWorker();
 
@@ -88,13 +85,13 @@ public class DeliveringInboundStanzaRelay implements StanzaRelay {
 
     protected ServerRuntimeContext serverRuntimeContext = null;
 
-    public DeliveringInboundStanzaRelay(Entity serverEntity, ResourceRegistry resourceRegistry,
+    public DeliveringInternalInboundStanzaRelay(Entity serverEntity, ResourceRegistry resourceRegistry,
             StorageProviderRegistry storageProviderRegistry) {
         this(serverEntity, resourceRegistry, (AccountManagement) storageProviderRegistry
                 .retrieve(AccountManagement.class));
     }
 
-    public DeliveringInboundStanzaRelay(Entity serverEntity, ResourceRegistry resourceRegistry,
+    public DeliveringInternalInboundStanzaRelay(Entity serverEntity, ResourceRegistry resourceRegistry,
             AccountManagement accountVerification) {
         this.serverEntity = serverEntity;
         this.resourceRegistry = resourceRegistry;
@@ -360,42 +357,6 @@ public class DeliveringInboundStanzaRelay implements StanzaRelay {
         @Override
         public SessionState getState() {
             return SessionState.AUTHENTICATED;
-        }
-    }
-
-    private static class RelayResult {
-        private List<DeliveryException> processingErrors = null;
-
-        private AtomicInteger relayed = new AtomicInteger(0);
-
-        public RelayResult() {
-            // empty
-        }
-
-        public RelayResult(DeliveryException processingError) {
-            addProcessingError(processingError);
-        }
-
-        /*package*/void addProcessingError(DeliveryException processingError) {
-            if (processingError == null)
-                processingErrors = new ArrayList<DeliveryException>();
-            processingErrors.add(processingError);
-        }
-
-        public boolean isRelayed() {
-            return relayed.get() > 0;
-        }
-
-        public List<DeliveryException> getProcessingErrors() {
-            if (processingErrors == null) {
-                return Collections.<DeliveryException> emptyList();
-            } else {
-                return Collections.unmodifiableList(processingErrors);
-            }
-        }
-
-        public boolean hasProcessingErrors() {
-            return processingErrors != null && processingErrors.size() > 0;
         }
     }
 
