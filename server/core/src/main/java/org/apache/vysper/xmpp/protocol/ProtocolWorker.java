@@ -110,7 +110,7 @@ public class ProtocolWorker implements StanzaProcessor {
         }
 
         // make sure that 'from' (if present) matches the bare authorized entity
-        // else repond with a stanza error 'unknown-sender'
+        // else respond with a stanza error 'unknown-sender'
         // see rfc3920_draft-saintandre-rfc3920bis-04.txt#8.5.4
         Entity from = stanza.getFrom();
         if (from != null && sessionContext.getInitiatingEntity() != null) {

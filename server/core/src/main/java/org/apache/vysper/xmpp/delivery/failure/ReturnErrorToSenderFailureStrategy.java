@@ -65,15 +65,17 @@ public class ReturnErrorToSenderFailureStrategy implements DeliveryFailureStrate
             @SpecCompliant(spec = "rfc3921bis-08", section = "4.3", status = NOT_STARTED, coverage = UNKNOWN) })
     public void process(Stanza failedToDeliverStanza, List<DeliveryException> deliveryExceptions)
             throws DeliveryException {
-
         StanzaErrorCondition stanzaErrorCondition = StanzaErrorCondition.SERVICE_UNAVAILABLE;
         StanzaErrorType errorType = StanzaErrorType.CANCEL;
 
+        // TODO would it be better to check for the correct stanzas instead of assuming the stanza is wrapped?
         if (!(failedToDeliverStanza instanceof XMPPCoreStanza)) {
             throw new DeliveryException("could not return to sender");
         }
+        
+        
         XMPPCoreStanza failedCoreStanza = (XMPPCoreStanza) failedToDeliverStanza;
-        if (failedCoreStanza.getType() != null && failedCoreStanza.getType().equals("error")) {
+        if ("error".equals(failedCoreStanza.getType())) {
             return; // do not answer these
         }
 
@@ -112,6 +114,15 @@ public class ReturnErrorToSenderFailureStrategy implements DeliveryFailureStrate
                         return;
                     }
                 }
+            } else if (deliveryException instanceof SmartDeliveryException) {
+                // RFC3921bis#10.4.3: return remote server error to sender
+                SmartDeliveryException smartDeliveryException = (SmartDeliveryException) deliveryException;
+                XMPPCoreStanza error = XMPPCoreStanza
+                        .getWrapper(ServerErrorResponses.getInstance().getStanzaError(
+                                smartDeliveryException.getStanzaErrorCondition(), failedCoreStanza,
+                                smartDeliveryException.getStanzaErrorType(), smartDeliveryException.getErrorText(),
+                                "en", null));
+                stanzaRelay.relay(error.getTo(), error, IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY);
             }
         } else if (deliveryExceptions.size() > 1) {
             throw new RuntimeException("cannot return to sender for multiple failed deliveries");

@@ -91,13 +91,14 @@ public class Server2Server {
         
         Thread.sleep(3000);
         
-        Message msg = new Message(remoteUser.getFullQualifiedName());
+        //Message msg = new Message(remoteUser.getFullQualifiedName());
+        Message msg = new Message("foo@sadfsdgdsfgdfsgfd.com");
         msg.setBody("Hello world");
         
         client.sendPacket(msg);
         
         
-        Thread.sleep(3000);
+        Thread.sleep(8000);
         client.disconnect();
         
         Thread.sleep(50000);

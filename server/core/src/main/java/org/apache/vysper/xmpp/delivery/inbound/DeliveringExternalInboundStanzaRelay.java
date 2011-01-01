@@ -19,7 +19,6 @@
  */
 package org.apache.vysper.xmpp.delivery.inbound;
 
-import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -27,19 +26,19 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.OfflineStanzaReceiver;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
-import org.apache.vysper.xmpp.delivery.failure.DeliveredToOfflineReceiverException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
-import org.apache.vysper.xmpp.delivery.failure.LocalRecipientOfflineException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.s2s.XMPPServerConnector;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,6 +68,10 @@ public class DeliveringExternalInboundStanzaRelay implements StanzaRelay {
                 new LinkedBlockingQueue<Runnable>());
     }
 
+    public DeliveringExternalInboundStanzaRelay(ExecutorService executor) {
+        this.executor = executor;
+    }
+
     public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
         this.serverRuntimeContext = serverRuntimeContext;
     }
@@ -78,28 +81,33 @@ public class DeliveringExternalInboundStanzaRelay implements StanzaRelay {
         
         // rewrite the namespace into the jabber:server namespace
         stanza = StanzaBuilder.rewriteNamespace(stanza, NamespaceURIs.JABBER_CLIENT, NamespaceURIs.JABBER_SERVER);
-
-        Future<RelayResult> resultFuture = executor.submit(new OutboundRelayCallable(receiver, stanza, deliveryFailureStrategy));
+        XMPPCoreStanza coreStanza = XMPPCoreStanza.getWrapper(stanza);
+        
+        if(coreStanza != null) {
+            Future<RelayResult> resultFuture = executor.submit(new OutboundRelayCallable(coreStanza, deliveryFailureStrategy));
+        } else {
+            // ignore non-core stanzas
+        }
     }
     
     private class OutboundRelayCallable implements Callable<RelayResult> {
-        private Entity receiver;
-
-        private Stanza stanza;
+        private XMPPCoreStanza stanza;
 
         private DeliveryFailureStrategy deliveryFailureStrategy;
 
-        OutboundRelayCallable(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy) {
-            this.receiver = receiver;
+        OutboundRelayCallable(XMPPCoreStanza stanza, DeliveryFailureStrategy deliveryFailureStrategy) {
             this.stanza = stanza;
             this.deliveryFailureStrategy = deliveryFailureStrategy;
         }
 
         public RelayResult call() {
             RelayResult relayResult = deliver();
-            if (relayResult == null || !relayResult.hasProcessingErrors())
+
+            if (relayResult == null || !relayResult.hasProcessingErrors()) {
                 return relayResult;
-            return runFailureStrategy(relayResult);
+            } else {
+                return runFailureStrategy(relayResult);
+            }
         }
 
         private RelayResult runFailureStrategy(RelayResult relayResult) {
@@ -119,30 +127,16 @@ public class DeliveringExternalInboundStanzaRelay implements StanzaRelay {
         /**
          * @return
          */
-        //@SpecCompliant(spec = "draft-ietf-xmpp-3921bis-00", section = "8.", status = SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
+        @SpecCompliant(spec = "draft-ietf-xmpp-3920bis-22", section = "10.4", status = SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
         protected RelayResult deliver() {
-            RelayResult relayResult = new RelayResult();
             try {
-                XMPPServerConnector connector = serverRuntimeContext.getServerConnectorRegistry().getConnector(EntityImpl.parseUnchecked(stanza.getTo().getDomain()));
+                RelayResult relayResult = new RelayResult();
+                XMPPServerConnector connector = serverRuntimeContext.getServerConnectorRegistry().connect(EntityImpl.parseUnchecked(stanza.getTo().getDomain()));
                 
                 connector.write(stanza);
-            } catch (IOException e) {
-                return new RelayResult(new DeliveryException(e));
-            } catch (RuntimeException e) {
-                return new RelayResult(new DeliveryException(e));
-            }
-            
-            return relayResult;
-        }
-        
-        private RelayResult relayNotPossible() {
-            if (offlineStanzaReceiver != null) {
-                offlineStanzaReceiver.receive(stanza);
-                return new RelayResult(new DeliveredToOfflineReceiverException());
-            } else {
-                logger.warn("cannot relay to offline receiver {} stanza {}", receiver.getFullQualifiedName(), stanza
-                        .toString());
-                return new RelayResult(new LocalRecipientOfflineException());
+                return relayResult;
+            } catch (DeliveryException e) {
+                return new RelayResult(e);
             }
         }
     }

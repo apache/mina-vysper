@@ -39,7 +39,7 @@ import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 
 /**
  */
-public class DeliveringStanzaRelayTestCase extends TestCase {
+public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
 
     protected ResourceRegistry resourceRegistry = new ResourceRegistry();
 

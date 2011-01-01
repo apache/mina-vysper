@@ -40,13 +40,13 @@ import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.ModuleRegistry;
 import org.apache.vysper.xmpp.modules.ServerRuntimeContextService;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
-import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.ProtocolWorker;
 import org.apache.vysper.xmpp.protocol.QueuedStanzaProcessor;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaHandlerLookup;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.components.Component;
+import org.apache.vysper.xmpp.server.s2s.DefaultXMPPServerConnectorRegistry;
 import org.apache.vysper.xmpp.server.s2s.XMPPServerConnectorRegistry;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.state.presence.LatestPresenceCache;
@@ -114,7 +114,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
      */
     private LatestPresenceCache presenceCache = new SimplePresenceCache();
 
-    private XMPPServerConnectorRegistry serverConnectorRegistry = new XMPPServerConnectorRegistry(this);
+    private XMPPServerConnectorRegistry serverConnectorRegistry = new DefaultXMPPServerConnectorRegistry(this);
     
     /**
      * holds the storage services
