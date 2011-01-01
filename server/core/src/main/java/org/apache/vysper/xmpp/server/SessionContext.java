@@ -77,12 +77,12 @@ public interface SessionContext {
     boolean isRemotelyInitiatedSession();
 
     /**
-     * @return the initiating {@link Entity}
+     * @return the initiating {@link Entity}. For c2s, this is the client {@link Entity}. For s2s, this is the server {@link Entity}
      */
     Entity getInitiatingEntity();
 
     /**
-     * Sets the initiating entity.
+     * Sets the initiating entity. For c2s, this is the client {@link Entity}. For s2s, this is the server {@link Entity}
      *
      * @param entity
      */

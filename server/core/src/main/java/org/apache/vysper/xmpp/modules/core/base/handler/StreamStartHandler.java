@@ -70,6 +70,7 @@ public class StreamStartHandler implements StanzaHandler {
         boolean clientCall = xmlElementVerifier.namespacePresent(NamespaceURIs.JABBER_CLIENT);
         boolean serverCall = xmlElementVerifier.namespacePresent(NamespaceURIs.JABBER_SERVER);
 
+        // TODO is it better to derive c2s or s2s from the type of endpoint and verify the namespace here?
         if (clientCall && serverCall)
             serverCall = false; // silently ignore ambiguous attributes
         if (serverCall)

@@ -76,6 +76,7 @@ public class DbResultHandler implements StanzaHandler {
             builder.addAttribute("to", receiving.getDomain());
             builder.addAttribute("type", "valid");
             
+            sessionContext.setInitiatingEntity(receiving);
             sessionStateHolder.setState(SessionState.AUTHENTICATED);
             
             return new ResponseStanzaContainerImpl(builder.build());

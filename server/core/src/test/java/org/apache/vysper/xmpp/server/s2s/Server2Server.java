@@ -13,8 +13,11 @@ import org.apache.vysper.xmpp.server.XMPPServer;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Packet;
 
 
 public class Server2Server {
@@ -24,12 +27,13 @@ public class Server2Server {
         Entity localUser = EntityImpl.parseUnchecked(args[1]);
         Entity remoteServer = EntityImpl.parseUnchecked(args[2]);
         Entity remoteUser = EntityImpl.parseUnchecked(args[3]);
+        String remotePassword = args[4];
 
         String keystorePath;
         String keystorePassword;
-        if(args.length > 4) {
-            keystorePath = args[4];
-            keystorePassword = args[5];
+        if(args.length > 5) {
+            keystorePath = args[5];
+            keystorePassword = args[6];
         } else {
             keystorePath = "src/main/config/bogus_mina_tls.cert";
             keystorePassword = "boguspw";            
@@ -79,27 +83,46 @@ public class Server2Server {
 //            
 //        connector.write(stanza);
         
-        
-        ConnectionConfiguration connectionConfiguration = new ConnectionConfiguration("localhost", 5222);
-        connectionConfiguration.setKeystorePath(keystorePath);
-        connectionConfiguration.setTruststorePath(keystorePath);
-        connectionConfiguration.setTruststorePassword(keystorePassword);
-        XMPPConnection client = new XMPPConnection(connectionConfiguration);
+        ConnectionConfiguration localConnectionConfiguration = new ConnectionConfiguration("localhost", 5222);
+        localConnectionConfiguration.setKeystorePath(keystorePath);
+        localConnectionConfiguration.setTruststorePath(keystorePath);
+        localConnectionConfiguration.setTruststorePassword(keystorePassword);
+        XMPPConnection localClient = new XMPPConnection(localConnectionConfiguration);
 
-        client.connect();
-        client.login(localUser.getNode(), "password1");
+        localClient.connect();
+        localClient.login(localUser.getNode(), "password1");
+        localClient.addPacketListener(new PacketListener() {
+            public void processPacket(Packet packet) {
+                System.out.println("# " + packet);
+            }
+        }, new PacketFilter() {
+            public boolean accept(Packet arg0) {
+                return true;
+            }
+        });
+        
+        
+        ConnectionConfiguration remoteConnectionConfiguration = new ConnectionConfiguration(remoteServer.getFullQualifiedName(), 5222);
+        remoteConnectionConfiguration.setKeystorePath(keystorePath);
+        remoteConnectionConfiguration.setTruststorePath(keystorePath);
+        remoteConnectionConfiguration.setTruststorePassword(keystorePassword);
+        XMPPConnection remoteClient = new XMPPConnection(remoteConnectionConfiguration);
+
+        remoteClient.connect();
+        remoteClient.login(remoteUser.getNode(), remotePassword);
         
         Thread.sleep(3000);
         
-        //Message msg = new Message(remoteUser.getFullQualifiedName());
-        Message msg = new Message("foo@sadfsdgdsfgdfsgfd.com");
+//        Message msg = new Message(remoteUser.getFullQualifiedName());
+        Message msg = new Message(localUser.getFullQualifiedName());
         msg.setBody("Hello world");
         
-        client.sendPacket(msg);
+        remoteClient.sendPacket(msg);
         
         
         Thread.sleep(8000);
-        client.disconnect();
+        remoteClient.disconnect();
+        localClient.disconnect();
         
         Thread.sleep(50000);
         

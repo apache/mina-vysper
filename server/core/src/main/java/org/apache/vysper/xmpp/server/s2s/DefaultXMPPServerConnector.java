@@ -22,7 +22,7 @@ import org.apache.vysper.xmpp.delivery.failure.RemoteServerNotFoundException;
 import org.apache.vysper.xmpp.delivery.failure.RemoteServerTimeoutException;
 import org.apache.vysper.xmpp.modules.extension.xep0119_xmppping.XmppPingListener;
 import org.apache.vysper.xmpp.modules.extension.xep0119_xmppping.XmppPingModule;
-import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DailbackIdGenerator;
+import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DialbackIdGenerator;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -209,7 +209,7 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
                     } else if(dialbackSupported(msg)) {
                         Entity originating = serverRuntimeContext.getServerEnitity();
    
-                        String dailbackId = new DailbackIdGenerator().generate(otherServer, originating, sessionContext.getSessionId());
+                        String dailbackId = new DialbackIdGenerator().generate(otherServer, originating, sessionContext.getSessionId());
                         
                         Stanza dbResult = new StanzaBuilder("result", NamespaceURIs.JABBER_SERVER_DIALBACK, "db")
                             .addAttribute("from", originating.getDomain())

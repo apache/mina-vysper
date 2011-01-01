@@ -37,7 +37,7 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class DbVerifyHandler implements StanzaHandler {
-    private DailbackIdGenerator dailbackIdGenerator = new DailbackIdGenerator();
+    private DialbackIdGenerator dailbackIdGenerator = new DialbackIdGenerator();
     
     public String getName() {
         return "verify";

@@ -12,14 +12,14 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.vysper.xmpp.addressing.Entity;
 
 
-public class DailbackIdGenerator {
+public class DialbackIdGenerator {
 
     // generates a shared secret within the server
     private static final String SECRET = UUID.randomUUID().toString();
     private SecretKeySpec signingKey = new SecretKeySpec(DigestUtils.sha256(SECRET), "HmacSHA256");
     private Mac mac;
     
-    public DailbackIdGenerator() {
+    public DialbackIdGenerator() {
         try {
             mac = Mac.getInstance("HmacSHA256");
             mac.init(signingKey);
