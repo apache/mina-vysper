@@ -1,4 +1,4 @@
-package org.apache.vysper.xmpp.server;
+package org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
@@ -7,7 +7,7 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DialbackIdGenerator;
 
 
-public class IdTest extends TestCase {
+public class DialbackIdGeneratorTest extends TestCase {
 
     private Entity receiving = EntityImpl.parseUnchecked("xmpp.example.com");
     private Entity originating = EntityImpl.parseUnchecked("example.org");

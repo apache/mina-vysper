@@ -6,7 +6,9 @@ import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.failure.RemoteServerNotFoundException;
 import org.apache.vysper.xmpp.delivery.failure.RemoteServerTimeoutException;
+import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
 
 public class DefaultXMPPServerConnectorRegistry implements XMPPServerConnectorRegistry {
 
@@ -22,6 +24,14 @@ public class DefaultXMPPServerConnectorRegistry implements XMPPServerConnectorRe
      */
     @SpecCompliant(spec = "draft-ietf-xmpp-3920bis-22", section = "10.4", status = SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
     public synchronized XMPPServerConnector connect(Entity server) throws RemoteServerNotFoundException, RemoteServerTimeoutException {
+        return connect(server, null, null);
+    }
+    
+    public synchronized XMPPServerConnector connectForDialback(Entity server, SessionContext orginalSessionContext, SessionStateHolder originalSessionStateHolder) throws RemoteServerNotFoundException, RemoteServerTimeoutException {
+        return connect(server, orginalSessionContext, originalSessionStateHolder);
+    }
+    
+    private XMPPServerConnector connect(Entity server, SessionContext dialbackSessionContext, SessionStateHolder dialbackSessionStateHolder) throws RemoteServerNotFoundException, RemoteServerTimeoutException {
         DefaultXMPPServerConnector connector = connectors.get(server);
 
         if(connector != null && connector.isClosed()) {
@@ -30,12 +40,16 @@ public class DefaultXMPPServerConnectorRegistry implements XMPPServerConnectorRe
         } 
         
         if(connector == null) {
-            connector = new DefaultXMPPServerConnector(server, serverRuntimeContext);
+            connector = new DefaultXMPPServerConnector(server, serverRuntimeContext, dialbackSessionContext, dialbackSessionStateHolder);
             connector.start();
-            connectors.put(server, connector);
+
+            // only register if we're not starting a connector for dialback
+            if(dialbackSessionContext == null) {
+                connectors.put(server, connector);
+            }
         }
         
-        return connector;
+        return connector;        
     }
 
     /* (non-Javadoc)

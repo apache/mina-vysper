@@ -60,22 +60,30 @@ public class DbVerifyHandler implements StanzaHandler {
 
     public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
             boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder) {
-        String dailbackId = stanza.getInnerText().getText();
+        
+        String type = stanza.getAttributeValue("type");
         Entity receiving = EntityImpl.parseUnchecked(stanza.getAttributeValue("from"));
         Entity originating = serverRuntimeContext.getServerEnitity();
-        String streamId = stanza.getAttributeValue("id");
         
-        StanzaBuilder builder = new StanzaBuilder("verify", NamespaceURIs.JABBER_SERVER_DIALBACK);
-        builder.addAttribute("from", originating.getDomain());
-        builder.addAttribute("to", receiving.getDomain());
-        builder.addAttribute("id", streamId);
-        
-        if(dailbackIdGenerator.verify(dailbackId, receiving, originating, streamId)) {
-            builder.addAttribute("type", "valid");
+        if(type == null) {
+            // ask for verification
+            String dailbackId = stanza.getInnerText().getText();
+            String streamId = stanza.getAttributeValue("id");
+            
+            StanzaBuilder builder = new StanzaBuilder("verify", NamespaceURIs.JABBER_SERVER_DIALBACK, "db");
+            builder.addAttribute("from", originating.getDomain());
+            builder.addAttribute("to", receiving.getDomain());
+            builder.addAttribute("id", streamId);
+            
+            if(dailbackIdGenerator.verify(dailbackId, receiving, originating, streamId)) {
+                builder.addAttribute("type", "valid");
+            } else {
+                builder.addAttribute("type", "invalid");
+            }
+            
+            return new ResponseStanzaContainerImpl(builder.build());
         } else {
-            builder.addAttribute("type", "invalid");
+            throw new RuntimeException("Unexpected stanza");
         }
-
-        return new ResponseStanzaContainerImpl(builder.build());
     }
 }

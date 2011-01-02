@@ -29,7 +29,7 @@ import org.apache.vysper.xmpp.writer.StanzaWriter;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public interface SessionContext {
+public interface SessionContext extends StanzaWriter {
 
     static final String SESSION_ATTRIBUTE_MESSAGE_STANZA_NO_RECEIVE = "stanza.message.no_receive";
 

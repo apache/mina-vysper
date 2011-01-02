@@ -117,6 +117,7 @@ public class Server2Server {
         Message msg = new Message(localUser.getFullQualifiedName());
         msg.setBody("Hello world");
         
+//        localClient.sendPacket(msg);
         remoteClient.sendPacket(msg);
         
         
