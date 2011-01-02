@@ -151,14 +151,12 @@ public class StreamStartHandler implements StanzaHandler {
             // RFC3920: 'from' attribute SHOULD be used by the receiving entity
             String fromValue = stanza.getAttributeValue("from");
             if (fromValue != null) {
-                EntityImpl entity = null;
                 try {
-                    entity = EntityImpl.parse(fromValue);
+                    EntityImpl.parse(fromValue);
                 } catch (EntityFormatException e) {
                     return new ResponseStanzaContainerImpl(ServerErrorResponses.getInstance().getStreamError(
                             StreamErrorCondition.INVALID_FROM, sessionContext.getXMLLang(),
                             "could not parse incoming stanza's FROM attribute", null));
-
                 }
             }
             

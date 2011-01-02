@@ -45,9 +45,9 @@ public class StartedProtocolWorker extends AbstractStateAwareProtocolWorker {
             StanzaHandler stanzaHandler) {
         if (stanzaHandler instanceof StartTLSHandler)
             return true;
-        if (stanzaHandler instanceof DbVerifyHandler)
+        if (sessionContext.isServerToServer() && stanzaHandler instanceof DbVerifyHandler)
             return true;
-        if (stanzaHandler instanceof DbResultHandler)
+        if (sessionContext.isServerToServer() && stanzaHandler instanceof DbResultHandler)
             return true;
         ResponseWriter.writeUnsupportedStanzaError(sessionContext);
         return false;

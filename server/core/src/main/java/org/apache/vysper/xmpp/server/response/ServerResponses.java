@@ -70,28 +70,21 @@ public class ServerResponses {
     }
 
     public Stanza getStreamOpenerForServerAcceptor(Entity from, XMPPVersion version, SessionContext sessionContext) {
-        Stanza innerFeatureStanza;
+        StanzaBuilder featureBuilder = startFeatureStanza();
         if (sessionContext.getState() == SessionState.INITIATED) {
-            StanzaBuilder stanzaBuilder = startFeatureStanza();
-            stanzaBuilder.startInnerElement("dialback", NamespaceURIs.URN_XMPP_FEATURES_DIALBACK);
-            stanzaBuilder.endInnerElement();
-            innerFeatureStanza = stanzaBuilder.build();
+            featureBuilder.startInnerElement("starttls", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS).endInnerElement();
+            featureBuilder.startInnerElement("dialback", NamespaceURIs.URN_XMPP_FEATURES_DIALBACK).endInnerElement();
 
-            //        else if (sessionContext.getState() == SessionState.ENCRYPTED)
-//            innerFeatureStanza = getFeaturesForAuthentication(sessionContext.getServerRuntimeContext()
-//                    .getServerFeatures().getAuthenticationMethods());
-//        else if (sessionContext.getState() == SessionState.AUTHENTICATED) {
-//            sessionContext.setIsReopeningXMLStream();
-//            innerFeatureStanza = getFeaturesForSession();
+        } else if (sessionContext.getState() == SessionState.ENCRYPTED) {
+            featureBuilder.startInnerElement("dialback", NamespaceURIs.URN_XMPP_FEATURES_DIALBACK).endInnerElement();
         } else {
             throw new IllegalStateException("unsupported state for responding with stream opener");
         }
         
         StanzaBuilder stanzaBuilder = getStreamOpener(false, from, sessionContext.getXMLLang(), version,
-                sessionContext.getSessionId(), innerFeatureStanza);
-        if (sessionContext.getState() == SessionState.INITIATED) {
-            stanzaBuilder.declareNamespace("db", NamespaceURIs.JABBER_SERVER_DIALBACK);
-        }
+                sessionContext.getSessionId(), featureBuilder.build());
+
+        stanzaBuilder.declareNamespace("db", NamespaceURIs.JABBER_SERVER_DIALBACK);
         return stanzaBuilder.build();
     }
 
