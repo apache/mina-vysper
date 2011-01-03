@@ -20,6 +20,7 @@
 
 package org.apache.vysper.xmpp.modules.core.base.handler;
 
+import org.apache.vysper.mina.MinaBackedSessionContext;
 import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -158,9 +159,7 @@ public class StreamStartHandler implements StanzaHandler {
                             "could not parse incoming stanza's FROM attribute", null));
                 }
             }
-            
-            // TODO set version correctly
-            responseVersion = XMPPVersion.VERSION_1_0;
+
             responseStanza = new ServerResponses().getStreamOpenerForServerAcceptor(sessionContext.getServerJID(),
                     responseVersion, sessionContext, serverRuntimeContext.getSslContext() != null);
         } else {

@@ -25,6 +25,8 @@ import org.apache.vysper.xmpp.modules.extension.xep0119_xmppping.XmppPingListene
 import org.apache.vysper.xmpp.modules.extension.xep0119_xmppping.XmppPingModule;
 import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbResultHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbVerifyHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DialbackIdGenerator;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
@@ -35,6 +37,7 @@ import org.apache.vysper.xmpp.server.XMPPVersion;
 import org.apache.vysper.xmpp.server.response.ServerResponses;
 import org.apache.vysper.xmpp.server.s2s.XmppEndpointResolver.ResolvedAddress;
 import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -243,14 +246,27 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
                 // none of the handlers matched, stream start is handled separately
                 } else if(stanza.getName().equals("stream")) {
                     sessionContext.setSessionId(stanza.getAttributeValue("id"));
-                    sessionContext.setInitiatingEntity(stanza.getFrom());
+                    sessionContext.setInitiatingEntity(otherServer);
+                    
+                    String version = stanza.getAttributeValue("version");
+                    if(version == null) {
+                        // old protocol, assume dialback
+                        String dailbackId = new DialbackIdGenerator().generate(otherServer, serverRuntimeContext.getServerEnitity(), sessionContext.getSessionId());
+                        
+                        Stanza dbResult = new StanzaBuilder("result", NamespaceURIs.JABBER_SERVER_DIALBACK, "db")
+                            .addAttribute("from", serverRuntimeContext.getServerEnitity().getDomain())
+                            .addAttribute("to", otherServer.getDomain())
+                            .addText(dailbackId)
+                            .build();
+                        write(dbResult);
+                    }
                     
                     if(dialbackSessionContext != null) {
                         // connector is being used for dialback verification, don't do further authentication
                         sessionContext.putAttribute("DIALBACK_SESSION_CONTEXT", dialbackSessionContext);
                         sessionContext.putAttribute("DIALBACK_SESSION_STATE_HOLDER", dialbackSessionStateHolder);
                      
-                        sessionContext.setInitiatingEntity(stanza.getFrom());
+                        sessionContext.setInitiatingEntity(otherServer);
                         sessionStateHolder.setState(SessionState.AUTHENTICATED);
                         authenticatedLatch.countDown();
                     }

@@ -15,6 +15,7 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
@@ -69,20 +70,30 @@ public class Server2Server {
         
         Thread.sleep(2000);
 
-//        XMPPServerConnectorRegistry registry = serverRuntimeContext.getServerConnectorRegistry();
-//        
-//        XMPPServerConnector connector = registry.getConnector(remoteServer);
-//        
-//        Stanza stanza = new StanzaBuilder("message", NamespaceURIs.JABBER_SERVER)
-//            .addAttribute("from", localUser.getFullQualifiedName())
-//            .addAttribute("to", remoteUser.getFullQualifiedName())
-//            .startInnerElement("body", NamespaceURIs.JABBER_SERVER)
-//            .addText("Hello world")
-//            .endInnerElement()
-//            .build();
-//            
-//        connector.write(stanza);
+        XMPPServerConnectorRegistry registry = serverRuntimeContext.getServerConnectorRegistry();
         
+        XMPPServerConnector connector = registry.connect(remoteServer);
+        
+        Stanza stanza = new StanzaBuilder("message", NamespaceURIs.JABBER_SERVER)
+            .addAttribute("from", localUser.getFullQualifiedName())
+            .addAttribute("to", remoteUser.getFullQualifiedName())
+            .startInnerElement("body", NamespaceURIs.JABBER_SERVER)
+            .addText("Hello world")
+            .endInnerElement()
+            .build();
+            
+        connector.write(stanza);
+        
+        //sendMessagesUsingClients(localUser, remoteServer, remoteUser, remotePassword, keystorePath, keystorePassword);
+        
+        Thread.sleep(50000);
+        
+        server.stop();
+    }
+
+    private static void sendMessagesUsingClients(Entity localUser, Entity remoteServer, Entity remoteUser,
+            String remotePassword, String keystorePath, String keystorePassword) throws XMPPException,
+            InterruptedException {
         ConnectionConfiguration localConnectionConfiguration = new ConnectionConfiguration("localhost", 5222);
         localConnectionConfiguration.setKeystorePath(keystorePath);
         localConnectionConfiguration.setTruststorePath(keystorePath);
@@ -124,10 +135,6 @@ public class Server2Server {
         Thread.sleep(8000);
         remoteClient.disconnect();
         localClient.disconnect();
-        
-        Thread.sleep(50000);
-        
-        server.stop();
     }
     
 }
