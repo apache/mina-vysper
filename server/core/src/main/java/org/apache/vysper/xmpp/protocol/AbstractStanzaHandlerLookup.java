@@ -19,8 +19,9 @@
  */
 package org.apache.vysper.xmpp.protocol;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -29,13 +30,10 @@ import org.apache.vysper.xmpp.stanza.Stanza;
  * basic facility to collect and query a set of namespace-based handlers 
  */
 public abstract class AbstractStanzaHandlerLookup {
-    protected Map<String, NamespaceHandlerDictionary> namespaceDictionaries = new LinkedHashMap<String, NamespaceHandlerDictionary>();
+    protected List<HandlerDictionary> namespaceDictionaries = new ArrayList<HandlerDictionary>();
 
-    public void addDictionary(NamespaceHandlerDictionary namespaceHandlerDictionary) {
-        String namespace = namespaceHandlerDictionary.getNamespaceURI();
-        if (namespaceDictionaries.containsKey(namespace))
-            throw new IllegalArgumentException("dictionary already exists covering namespace " + namespace);
-        namespaceDictionaries.put(namespace, namespaceHandlerDictionary);
+    public void addDictionary(HandlerDictionary namespaceHandlerDictionary) {
+        namespaceDictionaries.add(namespaceHandlerDictionary);
     }
 
     public abstract StanzaHandler getHandler(Stanza stanza);
@@ -46,18 +44,10 @@ public abstract class AbstractStanzaHandlerLookup {
      * 2. xmlElements namespace, if the element name has a namespace prefix
      */
     protected StanzaHandler getHandlerForElement(Stanza stanza, XMLElement xmlElement) {
-
-        String namespace = xmlElement.getNamespaceURI();
-        NamespaceHandlerDictionary namespaceHandlerDictionary = namespaceDictionaries.get(namespace);
-
-        // another try to get a dictionary
-        if (namespaceHandlerDictionary == null) {
-            namespace = xmlElement.getNamespacePrefix();
-            namespaceHandlerDictionary = namespaceDictionaries.get(namespace);
+        for(HandlerDictionary dictionary : namespaceDictionaries) {
+            StanzaHandler stanzaHandler = dictionary.get(stanza);
+            if(stanzaHandler != null) return stanzaHandler;
         }
-        if (namespaceHandlerDictionary != null)
-            return namespaceHandlerDictionary.get(stanza);
-
         return null;
     }
 }

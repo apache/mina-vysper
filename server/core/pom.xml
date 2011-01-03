@@ -97,6 +97,12 @@
     </dependency>
       
 
+	<dependency>
+	    <groupId>dnsjava</groupId>
+	    <artifactId>dnsjava</artifactId>
+	    <version>2.0.8</version>
+	</dependency>
+
     <!-- Logging -->
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -140,6 +146,24 @@
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
+    
+    <dependency>
+      <groupId>jivesoftware</groupId>
+      <artifactId>smack</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>jivesoftware</groupId>
+      <artifactId>smackx</artifactId>
+      <scope>test</scope>
+    </dependency>
+    
+	<dependency>
+    	<groupId>org.mockito</groupId>
+    	<artifactId>mockito-all</artifactId>
+		<scope>test</scope>
+	</dependency>
   </dependencies>
 
 </project>

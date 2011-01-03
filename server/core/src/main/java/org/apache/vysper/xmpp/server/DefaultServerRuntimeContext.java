@@ -20,6 +20,8 @@
 
 package org.apache.vysper.xmpp.server;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,13 +40,14 @@ import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.ModuleRegistry;
 import org.apache.vysper.xmpp.modules.ServerRuntimeContextService;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
-import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.ProtocolWorker;
 import org.apache.vysper.xmpp.protocol.QueuedStanzaProcessor;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaHandlerLookup;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.components.Component;
+import org.apache.vysper.xmpp.server.s2s.DefaultXMPPServerConnectorRegistry;
+import org.apache.vysper.xmpp.server.s2s.XMPPServerConnectorRegistry;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.state.presence.LatestPresenceCache;
 import org.apache.vysper.xmpp.state.presence.SimplePresenceCache;
@@ -111,6 +114,8 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
      */
     private LatestPresenceCache presenceCache = new SimplePresenceCache();
 
+    private XMPPServerConnectorRegistry serverConnectorRegistry = new DefaultXMPPServerConnectorRegistry(this);
+    
     /**
      * holds the storage services
      */
@@ -121,6 +126,8 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
      */
     final private Map<String, ServerRuntimeContextService> serverRuntimeContextServiceMap = new HashMap<String, ServerRuntimeContextService>();
 
+    private List<Module> modules = new ArrayList<Module>();
+    
     /**
      * map of all registered components, index by the subdomain they are registered for
      */
@@ -140,7 +147,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     }
 
     public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay, ServerFeatures serverFeatures,
-            List<NamespaceHandlerDictionary> dictionaries, ResourceRegistry resourceRegistry) {
+            List<HandlerDictionary> dictionaries, ResourceRegistry resourceRegistry) {
         this(serverEntity, stanzaRelay);
         this.serverFeatures = serverFeatures;
         this.resourceRegistry = resourceRegistry;
@@ -186,12 +193,16 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         return serverFeatures;
     }
 
-    public void addDictionary(NamespaceHandlerDictionary namespaceHandlerDictionary) {
+    public XMPPServerConnectorRegistry getServerConnectorRegistry() {
+        return serverConnectorRegistry;
+    }
+
+    public void addDictionary(HandlerDictionary namespaceHandlerDictionary) {
         stanzaHandlerLookup.addDictionary(namespaceHandlerDictionary);
     }
 
-    protected void addDictionaries(List<NamespaceHandlerDictionary> dictionaries) {
-        for (NamespaceHandlerDictionary dictionary : dictionaries) {
+    protected void addDictionaries(List<HandlerDictionary> dictionaries) {
+        for (HandlerDictionary dictionary : dictionaries) {
             addDictionary(dictionary);
         }
     }
@@ -321,12 +332,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         if (handlerDictionaryList != null) {
 
             for (HandlerDictionary handlerDictionary : handlerDictionaryList) {
-                if (handlerDictionary instanceof NamespaceHandlerDictionary) {
-                    addDictionary((NamespaceHandlerDictionary) handlerDictionary);
-                } else {
-                    throw new RuntimeException("arbitrary HandlerDictionary implementations not supported yet, "
-                            + "only NamespaceHandlerDictionary.");
-                }
+                addDictionary(handlerDictionary);
             }
 
         }
@@ -334,8 +340,21 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         if (module instanceof Component) {
             registerComponent((Component) module);
         }
+        
+        modules.add(module);
+    }
+    
+    public List<Module> getModules() {
+        return Collections.unmodifiableList(modules);
     }
 
+    public <T> T getModule(Class<T> clazz) {
+        for(Module module : modules) {
+            if(module.getClass().equals(clazz)) return (T) module;
+        }
+        return null;
+    }
+    
     public void registerComponent(Component component) {
         componentMap.put(component.getSubdomain(), component);
     }
@@ -352,5 +371,6 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
             return null;
         return component.getStanzaProcessor();
     }
+
 
 }

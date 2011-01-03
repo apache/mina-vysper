@@ -170,7 +170,7 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
         return this;
     }
 
-    public void switchToTLS() {
+    public void switchToTLS(boolean delayed, boolean clientTls) {
         switchToTLSCalled = true;
     }
 

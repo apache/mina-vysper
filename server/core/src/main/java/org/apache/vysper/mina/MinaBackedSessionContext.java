@@ -19,6 +19,8 @@
  */
 package org.apache.vysper.mina;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.future.IoFutureListener;
@@ -48,6 +50,7 @@ public class MinaBackedSessionContext extends AbstractSessionContext implements 
     private boolean openingStanzaWritten = false;
 
     private boolean switchToTLS = false;
+    private boolean clientTLS = false;
 
     protected CloseFuture closeFuture;
 
@@ -64,25 +67,38 @@ public class MinaBackedSessionContext extends AbstractSessionContext implements 
         return this;
     }
 
-    public void switchToTLS() {
-        switchToTLS = true;
+    public void switchToTLS(boolean delayed, boolean clientTls) {
+        this.clientTLS = clientTls;
+
+        if(delayed) {
+            switchToTLS = true;
+        } else {
+            addSslFilter();
+        }
     }
 
     public void setIsReopeningXMLStream() {
         openingStanzaWritten = false;
     }
+    
+    private void addSslFilter() {
+        minaSession.suspendRead();
+        minaSession.suspendWrite();
+        SslFilter filter = new SslFilter(getServerRuntimeContext().getSslContext());
+        filter.setUseClientMode(clientTLS);
+        minaSession.getFilterChain().addFirst("sslFilter", filter);
+        if(!clientTLS) {
+            minaSession.setAttribute(SslFilter.DISABLE_ENCRYPTION_ONCE, Boolean.TRUE);
+        }
+        minaSession.setAttribute(SslFilter.USE_NOTIFICATION, Boolean.TRUE);
+        minaSession.resumeWrite();
+        minaSession.resumeRead();
+        
+    }
 
     public void write(Stanza stanza) {
         if (switchToTLS) {
-            minaSession.suspendRead();
-            minaSession.suspendWrite();
-            SslFilter filter = new SslFilter(getServerRuntimeContext().getSslContext());
-            filter.setUseClientMode(false);
-            minaSession.getFilterChain().addFirst("sslFilter", filter);
-            minaSession.setAttribute(SslFilter.DISABLE_ENCRYPTION_ONCE, Boolean.TRUE);
-            minaSession.setAttribute(SslFilter.USE_NOTIFICATION, Boolean.TRUE);
-            minaSession.resumeWrite();
-            minaSession.resumeRead();
+            addSslFilter();
             switchToTLS = false;
         }
 
@@ -93,7 +109,15 @@ public class MinaBackedSessionContext extends AbstractSessionContext implements 
     public void close() {
         logger.info("session will be closed now");
         closeFuture.setClosed();
-        minaSession.close(false);
+        try {
+            // allow some time to flush before closibng
+            if(!minaSession.close(false).await(5000, TimeUnit.MILLISECONDS)) {
+                // no really close if necessary
+                minaSession.close(true);
+            }
+        } catch (InterruptedException e) {
+            // ignore
+        }
         logger.info("session closed");
     }
 

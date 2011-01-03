@@ -29,7 +29,7 @@ import org.apache.vysper.xmpp.writer.StanzaWriter;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public interface SessionContext {
+public interface SessionContext extends StanzaWriter {
 
     static final String SESSION_ATTRIBUTE_MESSAGE_STANZA_NO_RECEIVE = "stanza.message.no_receive";
 
@@ -77,12 +77,12 @@ public interface SessionContext {
     boolean isRemotelyInitiatedSession();
 
     /**
-     * @return the initiating {@link Entity}
+     * @return the initiating {@link Entity}. For c2s, this is the client {@link Entity}. For s2s, this is the server {@link Entity}
      */
     Entity getInitiatingEntity();
 
     /**
-     * Sets the initiating entity.
+     * Sets the initiating entity. For c2s, this is the client {@link Entity}. For s2s, this is the server {@link Entity}
      *
      * @param entity
      */
@@ -150,7 +150,7 @@ public interface SessionContext {
     /**
      * signals the underlying transport to handle TLS handshake
      */
-    void switchToTLS();
+    void switchToTLS(boolean delayed, boolean clientTls);
 
     /**
      * this method signals that from now on a new <stream:stream>... xml stream

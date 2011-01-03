@@ -29,6 +29,7 @@ import org.apache.vysper.xml.fragment.AbstractXMLElementBuilder;
 import org.apache.vysper.xml.fragment.Attribute;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLFragment;
+import org.apache.vysper.xml.fragment.XMLText;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
@@ -210,6 +211,44 @@ public class StanzaBuilder extends AbstractXMLElementBuilder<StanzaBuilder, Stan
      */
     public static Stanza createForwardStanza(Stanza original, Entity from, Entity to) {
         return createForward(original, from, to).build();
+    }
+    
+    public static Stanza rewriteNamespace(Stanza stanza, String fromNamespaceUri, String toNamespaceUri) {
+        StanzaBuilder builder = new StanzaBuilder(stanza.getName(), toNamespaceUri, stanza.getNamespacePrefix());
+        for(Attribute attribute : stanza.getAttributes()) {
+            builder.addAttribute(attribute);
+        }
+        
+        for(XMLFragment fragment : stanza.getInnerFragments()) {
+            if(fragment instanceof XMLElement) {
+                rewriteNamespace((XMLElement) fragment, builder, fromNamespaceUri, toNamespaceUri);
+            } else {
+                // XMLText
+                builder.addText(((XMLText)fragment).getText());
+            }
+        }
+        
+        return builder.build();
+    }
+    
+    private static void rewriteNamespace(XMLElement element, StanzaBuilder builder, String fromNamespaceUri, String toNamespaceUri) {
+        if(fromNamespaceUri.equals(element.getNamespaceURI())) {
+            builder.startInnerElement(element.getName(), toNamespaceUri);
+            for(Attribute attribute : element.getAttributes()) {
+                builder.addAttribute(attribute);
+            }
+            for(XMLFragment fragment : element.getInnerFragments()) {
+                if(fragment instanceof XMLElement) {
+                    rewriteNamespace((XMLElement) fragment, builder, fromNamespaceUri, toNamespaceUri);
+                } else {
+                    // XMLText
+                    builder.addText(((XMLText)fragment).getText());
+                }
+            }
+            builder.endInnerElement();
+        } else {
+            builder.addPreparedElement(element);
+        }
     }
 
     class ElementStruct {

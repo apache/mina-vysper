@@ -20,6 +20,7 @@
 
 package org.apache.vysper.xmpp.modules.core.base.handler;
 
+import org.apache.vysper.mina.MinaBackedSessionContext;
 import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -36,6 +37,7 @@ import org.apache.vysper.xmpp.server.XMPPVersion;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
 import org.apache.vysper.xmpp.server.response.ServerResponses;
 import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
 /**
  *
@@ -69,6 +71,7 @@ public class StreamStartHandler implements StanzaHandler {
         boolean clientCall = xmlElementVerifier.namespacePresent(NamespaceURIs.JABBER_CLIENT);
         boolean serverCall = xmlElementVerifier.namespacePresent(NamespaceURIs.JABBER_SERVER);
 
+        // TODO is it better to derive c2s or s2s from the type of endpoint and verify the namespace here?
         if (clientCall && serverCall)
             serverCall = false; // silently ignore ambiguous attributes
         if (serverCall)
@@ -128,9 +131,8 @@ public class StreamStartHandler implements StanzaHandler {
             // RFC3920: 'to' attribute SHOULD be used by the initiating entity
             String toValue = stanza.getAttributeValue("to");
             if (toValue != null) {
-                EntityImpl toEntity = null;
                 try {
-                    toEntity = EntityImpl.parse(toValue);
+                    EntityImpl.parse(toValue);
                 } catch (EntityFormatException e) {
                     return new ResponseStanzaContainerImpl(ServerErrorResponses.getInstance().getStreamError(
                             StreamErrorCondition.IMPROPER_ADDRESSING, sessionContext.getXMLLang(),
@@ -143,23 +145,23 @@ public class StreamStartHandler implements StanzaHandler {
                 // TODO RFC3920: 'from' attribute SHOULD be silently ignored by the receiving entity
                 // TODO RFC3920bis: 'from' attribute SHOULD be not ignored by the receiving entity and used as 'to' in responses
             }
-            responseStanza = new ServerResponses().getStreamOpener(clientCall, sessionContext.getServerJID(),
+            responseStanza = new ServerResponses().getStreamOpenerForClient(sessionContext.getServerJID(),
                     responseVersion, sessionContext);
         } else if (serverCall) {
             // RFC3920: 'from' attribute SHOULD be used by the receiving entity
             String fromValue = stanza.getAttributeValue("from");
             if (fromValue != null) {
-                EntityImpl entity = null;
                 try {
-                    entity = EntityImpl.parse(fromValue);
+                    EntityImpl.parse(fromValue);
                 } catch (EntityFormatException e) {
                     return new ResponseStanzaContainerImpl(ServerErrorResponses.getInstance().getStreamError(
                             StreamErrorCondition.INVALID_FROM, sessionContext.getXMLLang(),
                             "could not parse incoming stanza's FROM attribute", null));
-
                 }
             }
-            throw new RuntimeException("server connection not yet supported");
+
+            responseStanza = new ServerResponses().getStreamOpenerForServerAcceptor(sessionContext.getServerJID(),
+                    responseVersion, sessionContext, serverRuntimeContext.getSslContext() != null);
         } else {
             String descriptiveText = "one of the two namespaces must be present: " + NamespaceURIs.JABBER_CLIENT
                     + " or " + NamespaceURIs.JABBER_SERVER;

@@ -32,15 +32,15 @@ import org.apache.vysper.xmpp.authorization.AccountManagement;
 import org.apache.vysper.xmpp.authorization.Plain;
 import org.apache.vysper.xmpp.authorization.SASLMechanism;
 import org.apache.vysper.xmpp.cryptography.BogusTrustManagerFactory;
-import org.apache.vysper.xmpp.cryptography.FileBasedTLSContextFactory;
 import org.apache.vysper.xmpp.cryptography.InputStreamBasedTLSContextFactory;
 import org.apache.vysper.xmpp.delivery.RecordingStanzaRelay;
 import org.apache.vysper.xmpp.delivery.StanzaRelayBroker;
-import org.apache.vysper.xmpp.delivery.inbound.DeliveringInboundStanzaRelay;
+import org.apache.vysper.xmpp.delivery.inbound.DeliveringInternalInboundStanzaRelay;
+import org.apache.vysper.xmpp.delivery.inbound.DeliveringExternalInboundStanzaRelay;
 import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.roster.RosterModule;
 import org.apache.vysper.xmpp.modules.servicediscovery.ServiceDiscoveryModule;
-import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
+import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 
 /**
@@ -72,6 +72,7 @@ public class XMPPServer {
     private String tlsCertificatePassword;
 
     private final List<Endpoint> endpoints = new ArrayList<Endpoint>();
+    
 
     public XMPPServer(String domain) {
         this.serverDomain = domain;
@@ -109,7 +110,7 @@ public class XMPPServer {
         tlsContextFactory.setPassword(tlsCertificatePassword);
         tlsContextFactory.setTrustManagerFactory(bogusTrustManagerFactory);
 
-        List<NamespaceHandlerDictionary> dictionaries = new ArrayList<NamespaceHandlerDictionary>();
+        List<HandlerDictionary> dictionaries = new ArrayList<HandlerDictionary>();
         addCoreDictionaries(dictionaries);
 
         ResourceRegistry resourceRegistry = new ResourceRegistry();
@@ -118,9 +119,9 @@ public class XMPPServer {
 
         AccountManagement accountManagement = (AccountManagement) storageProviderRegistry
                 .retrieve(AccountManagement.class);
-        DeliveringInboundStanzaRelay internalStanzaRelay = new DeliveringInboundStanzaRelay(serverEntity,
+        DeliveringInternalInboundStanzaRelay internalStanzaRelay = new DeliveringInternalInboundStanzaRelay(serverEntity,
                 resourceRegistry, accountManagement);
-        RecordingStanzaRelay externalStanzaRelay = new RecordingStanzaRelay();
+        DeliveringExternalInboundStanzaRelay externalStanzaRelay = new DeliveringExternalInboundStanzaRelay();
 
         StanzaRelayBroker stanzaRelayBroker = new StanzaRelayBroker();
         stanzaRelayBroker.setInternalRelay(internalStanzaRelay);
@@ -139,6 +140,7 @@ public class XMPPServer {
 
         stanzaRelayBroker.setServerRuntimeContext(serverRuntimeContext);
         internalStanzaRelay.setServerRuntimeContext(serverRuntimeContext);
+        externalStanzaRelay.setServerRuntimeContext(serverRuntimeContext);
 
         if (endpoints.size() == 0)
             throw new IllegalStateException("server must have at least one endpoint");
@@ -152,18 +154,24 @@ public class XMPPServer {
         for (Endpoint endpoint : endpoints) {
             endpoint.stop();
         }
+        
+        serverRuntimeContext.getServerConnectorRegistry().close();
     }
 
     public void addModule(Module module) {
         serverRuntimeContext.addModule(module);
     }
 
-    private void addCoreDictionaries(List<NamespaceHandlerDictionary> dictionaries) {
+    private void addCoreDictionaries(List<HandlerDictionary> dictionaries) {
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.base.BaseStreamStanzaDictionary());
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.starttls.StartTLSStanzaDictionary());
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.sasl.SASLStanzaDictionary());
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.bind.BindResourceDictionary());
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.session.SessionStanzaDictionary());
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.compatibility.jabber_iq_auth.JabberIQAuthDictionary());
+    }
+    
+    public ServerRuntimeContext getServerRuntimeContext() {
+        return serverRuntimeContext;
     }
 }

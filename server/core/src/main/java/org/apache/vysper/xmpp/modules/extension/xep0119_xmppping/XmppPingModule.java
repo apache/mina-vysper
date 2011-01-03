@@ -23,14 +23,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequestListener;
+import org.apache.vysper.xmpp.protocol.DefaultHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
-import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.writer.StanzaWriter;
 
 /**
  * A module for <a href="http://xmpp.org/extensions/xep-0199.html">XEP-0199 XMPP Ping</a>.
@@ -39,6 +41,8 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
  */
 public class XmppPingModule extends DefaultDiscoAwareModule implements ServerInfoRequestListener {
 
+    private XmppPingIQHandler handler = new XmppPingIQHandler();
+    
     @Override
     public String getName() {
         return "XEP-0199 XMPP Ping";
@@ -64,6 +68,13 @@ public class XmppPingModule extends DefaultDiscoAwareModule implements ServerInf
 
     @Override
     protected void addHandlerDictionaries(List<HandlerDictionary> dictionary) {
-        dictionary.add(new NamespaceHandlerDictionary(NamespaceURIs.URN_XMPP_PING, new XmppPingIQHandler()));
+        dictionary.add(new DefaultHandlerDictionary(handler));
     }
+    
+    public void ping(StanzaWriter stanzaWriter, Entity from, Entity to, int timeoutMillis, XmppPingListener listener) {
+        XmppPinger pinger = new XmppPinger(handler);
+        pinger.ping(stanzaWriter, from, to, timeoutMillis, listener);
+    }
+    
+    
 }

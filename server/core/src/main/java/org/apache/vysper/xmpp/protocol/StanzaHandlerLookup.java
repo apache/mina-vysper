@@ -27,6 +27,8 @@ import org.apache.vysper.xmpp.modules.core.base.handler.RelayingIQHandler;
 import org.apache.vysper.xmpp.modules.core.base.handler.StreamStartHandler;
 import org.apache.vysper.xmpp.modules.core.base.handler.XMLPrologHandler;
 import org.apache.vysper.xmpp.modules.core.im.handler.PresenceHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbResultHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbVerifyHandler;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
@@ -66,31 +68,33 @@ public class StanzaHandlerLookup extends AbstractStanzaHandlerLookup {
         if (stanza == null)
             return null;
 
-        String name = stanza.getName();
-        if ("xml".equals(name))
-            return new XMLPrologHandler();
-        else if ("stream".equals(name))
-            return new StreamStartHandler();
-        else if (iqHandler.verify(stanza))
-            return getIQHandler(stanza);
-        else if (messageHandler.verify(stanza))
-            return getMessageHandler(stanza);
-        else if (presenceHandler.verify(stanza))
-            return getPresenceHandler(stanza);
-        else {
-            // this is not a core stanza (RFC3920), but something like the following
-            // (in descending-probability order):
-            // a. a custom extension of iq, message, presence
-            // b. some handshake stanza other than iq, message, presence
-            // c. an arbitrary test stanza
-            // d. an evil forged stanza
-            // e. some extension we don't know yet
-            // ...so we delegate:
-            StanzaHandler stanzaHandler = getHandlerForElement(stanza, stanza);
-            // ... and if we could not resolve and it's a core stanza, we can safely return an error
-            if (stanzaHandler == null && XMPPCoreStanza.getWrapper(stanza) != null)
-                return SERVICE_UNAVAILABLE_STANZA_ERROR_HANDLER;
+        // allow extensions to override default handling
+        StanzaHandler stanzaHandler = getHandlerForElement(stanza, stanza);
+        
+        if(stanzaHandler != null) {
             return stanzaHandler;
+        } else {
+            String name = stanza.getName();
+    
+            if ("xml".equals(name)) {
+                return new XMLPrologHandler();
+            } else if ("stream".equals(name)) {
+                return new StreamStartHandler();
+            } else if ("verify".equals(name)) {
+                return new DbVerifyHandler();
+            } else if ("result".equals(name)) {
+                return new DbResultHandler();
+            } else if (iqHandler.verify(stanza)) {
+                return getIQHandler(stanza);
+            } else if (messageHandler.verify(stanza)) {
+                return getMessageHandler(stanza);
+            } else if (presenceHandler.verify(stanza)) {
+                return getPresenceHandler(stanza);
+            } else {
+                // ... and if we could not resolve and it's a core stanza, we can safely return an error
+                if (XMPPCoreStanza.getWrapper(stanza) != null) return SERVICE_UNAVAILABLE_STANZA_ERROR_HANDLER;
+                else return null;
+            }
         }
     }
 

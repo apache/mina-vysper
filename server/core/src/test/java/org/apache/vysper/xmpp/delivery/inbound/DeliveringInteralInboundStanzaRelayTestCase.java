@@ -39,25 +39,25 @@ import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 
 /**
  */
-public class DeliveringStanzaRelayTestCase extends TestCase {
+public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
 
     protected ResourceRegistry resourceRegistry = new ResourceRegistry();
 
     protected AccountManagement accountVerification;
 
-    protected DeliveringInboundStanzaRelay stanzaRelay;
+    protected DeliveringInternalInboundStanzaRelay stanzaRelay;
 
     static class AccountVerificationMock implements AccountManagement {
         public void addUser(String username, String password) throws AccountCreationException {
             ; // empty
         }
 
-        public void changePassword(String username, String password) throws AccountCreationException {
-            ; // empty
-        }
-
         public boolean verifyAccountExists(Entity jid) {
             return true;
+        }
+
+        public void changePassword(String username, String password) throws AccountCreationException {
+            ; // empty
         }
     }
 
@@ -66,7 +66,7 @@ public class DeliveringStanzaRelayTestCase extends TestCase {
         super.setUp();
 
         accountVerification = new AccountVerificationMock();
-        stanzaRelay = new DeliveringInboundStanzaRelay(EntityImpl.parse("vysper.org"), resourceRegistry,
+        stanzaRelay = new DeliveringInternalInboundStanzaRelay(EntityImpl.parse("vysper.org"), resourceRegistry,
                 accountVerification);
     }
 

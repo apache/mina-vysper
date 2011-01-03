@@ -44,9 +44,9 @@ public class StanzaLoggingFilter extends IoFilterAdapter {
             XMLElement element = (XMLElement) message;
 
             if (clientLogger.isInfoEnabled()) {
-                clientLogger.info(DenseStanzaLogRenderer.render(element));
+                //clientLogger.info(DenseStanzaLogRenderer.render(element));
             }
-            if (clientLogger.isDebugEnabled()) {
+//            if (clientLogger.isDebugEnabled()) {
                 boolean openElement = true;
                 boolean closeElement = true;
                 // this is somewhat of a hack, can we detect opening and closing elements only cleaner?
@@ -62,8 +62,8 @@ public class StanzaLoggingFilter extends IoFilterAdapter {
 
                 String xml = toXml(element, openElement, closeElement);
                 clientLogger.debug("Received stanza: " + xml);
-            }
-
+                clientLogger.info("< " + xml);
+//            }
         }
 
         nextFilter.messageReceived(session, message);
@@ -75,14 +75,15 @@ public class StanzaLoggingFilter extends IoFilterAdapter {
             StanzaWriteInfo stanzaWriteInfo = (StanzaWriteInfo) message;
 
             if (serverLogger.isInfoEnabled()) {
-                serverLogger.info(DenseStanzaLogRenderer.render(stanzaWriteInfo.getStanza()));
+                //serverLogger.info(DenseStanzaLogRenderer.render(stanzaWriteInfo.getStanza()));
             }
-            if (serverLogger.isDebugEnabled()) {
+//            if (serverLogger.isDebugEnabled()) {
                 String xml = toXml(stanzaWriteInfo.getStanza(), stanzaWriteInfo.isWriteOpeningElement(),
                         stanzaWriteInfo.isWriteClosingElement());
 
-                serverLogger.info("Sent stanza: " + xml);
-            }
+                //serverLogger.info("Sent stanza: " + xml);
+                clientLogger.info("> " + xml);
+//            }
         }
 
         nextFilter.messageSent(session, request);

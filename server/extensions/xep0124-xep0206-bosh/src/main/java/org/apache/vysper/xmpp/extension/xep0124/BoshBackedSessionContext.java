@@ -295,7 +295,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         LOGGER.info("BOSH session {} closed", getSessionId());
     }
 
-    public void switchToTLS() {
+    public void switchToTLS(boolean delayed, boolean clientTls) {
         // BOSH cannot switch dynamically (because STARTTLS cannot be used with HTTP),
         // SSL can be enabled/disabled in BoshEndpoint#setSSLEnabled()
     }

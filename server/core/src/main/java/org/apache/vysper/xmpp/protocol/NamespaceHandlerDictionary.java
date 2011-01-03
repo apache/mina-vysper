@@ -21,12 +21,14 @@ package org.apache.vysper.xmpp.protocol;
 
 import java.util.List;
 
+import org.apache.vysper.xmpp.stanza.Stanza;
+
 /**
  * holds all stanza handlers for a distinct namespace
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class NamespaceHandlerDictionary extends AbstractHandlerDictionary {
+public class NamespaceHandlerDictionary extends DefaultHandlerDictionary {
 
     private String namespaceURI;
 
@@ -46,5 +48,21 @@ public class NamespaceHandlerDictionary extends AbstractHandlerDictionary {
 
     public String getNamespaceURI() {
         return namespaceURI;
+    }
+
+    @Override
+    public StanzaHandler get(Stanza stanza) {
+        String namespace;
+        if(stanza.getVerifier().subElementsPresentExact(1)) {
+            namespace = stanza.getFirstInnerElement().getNamespaceURI();
+        } else {
+            namespace = stanza.getNamespaceURI();
+        }
+        
+        if(namespace != null && namespace.equals(namespaceURI)) {
+            return super.get(stanza);
+        } else {
+            return null;
+        }
     }
 }

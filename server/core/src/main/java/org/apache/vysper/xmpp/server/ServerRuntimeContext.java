@@ -20,16 +20,20 @@
 
 package org.apache.vysper.xmpp.server;
 
+import java.util.List;
+
 import javax.net.ssl.SSLContext;
 
 import org.apache.vysper.storage.StorageProvider;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.authorization.UserAuthorization;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
+import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.ServerRuntimeContextService;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.components.Component;
+import org.apache.vysper.xmpp.server.s2s.XMPPServerConnectorRegistry;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.state.presence.LatestPresenceCache;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
@@ -71,4 +75,10 @@ public interface ServerRuntimeContext {
     void registerComponent(Component component);
 
     StanzaProcessor getComponentStanzaProcessor(Entity entity);
+    
+    XMPPServerConnectorRegistry getServerConnectorRegistry();
+    
+    List<Module> getModules();
+
+    <T> T getModule(Class<T> clazz);
 }
