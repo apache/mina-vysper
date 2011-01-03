@@ -29,6 +29,8 @@ import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.SessionState;
+import org.apache.vysper.xmpp.server.s2s.XMPPServerConnector;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
@@ -55,35 +57,66 @@ public class DbVerifyHandler implements StanzaHandler {
     }
 
     public boolean isSessionRequired() {
-        return false;
+        return true;
     }
 
     public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
             boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder) {
         
         String type = stanza.getAttributeValue("type");
+        String id = stanza.getAttributeValue("id");
         Entity receiving = EntityImpl.parseUnchecked(stanza.getAttributeValue("from"));
         Entity originating = serverRuntimeContext.getServerEnitity();
-        
         if(type == null) {
-            // ask for verification
+            // acting as a Authoritative server
+            // getting asked for verification from the Receiving server
             String dailbackId = stanza.getInnerText().getText();
-            String streamId = stanza.getAttributeValue("id");
             
             StanzaBuilder builder = new StanzaBuilder("verify", NamespaceURIs.JABBER_SERVER_DIALBACK, "db");
             builder.addAttribute("from", originating.getDomain());
             builder.addAttribute("to", receiving.getDomain());
-            builder.addAttribute("id", streamId);
+            builder.addAttribute("id", id);
             
-            if(dailbackIdGenerator.verify(dailbackId, receiving, originating, streamId)) {
+            if(dailbackIdGenerator.verify(dailbackId, receiving, originating, id)) {
                 builder.addAttribute("type", "valid");
             } else {
                 builder.addAttribute("type", "invalid");
             }
-            
             return new ResponseStanzaContainerImpl(builder.build());
         } else {
-            throw new RuntimeException("Unexpected stanza");
+            // acting as a Receiving server
+            // getting a response from the Authoritative server
+            SessionStateHolder dialbackSessionStateHolder = (SessionStateHolder) sessionContext.getAttribute("DIALBACK_SESSION_STATE_HOLDER");
+            SessionContext dialbackSessionContext = (SessionContext) sessionContext.getAttribute("DIALBACK_SESSION_CONTEXT");
+
+//            XMPPServerConnector connector = serverRuntimeContext.getServerConnectorRegistry().getConnectorBySessionId(id);
+            
+//            if(connector != null) {
+//                SessionStateHolder dialbackSessionStateHolder = connector.getSessionStateHolder();
+//                SessionContext dialbackSessionContext = connector.getSessionContext();
+    
+                
+                Entity otherServer = sessionContext.getInitiatingEntity();
+                String resultType = "invalid";
+                // dialbackSessionContext must be non-null or someone is trying to send this stanza in the wrong state
+                if("valid".equals(type)) {
+                    dialbackSessionStateHolder.setState(SessionState.AUTHENTICATED);
+                    dialbackSessionContext.setInitiatingEntity(otherServer);
+                    resultType = "valid";
+                }
+                
+                // <db:result xmlns:db="jabber:server:dialback" to="xmpp.protocol7.com" from="jabber.org" type="valid"></db:result>
+                StanzaBuilder builder = new StanzaBuilder("result", NamespaceURIs.JABBER_SERVER_DIALBACK, "db");
+                builder.addAttribute("from", originating.getDomain());
+                builder.addAttribute("to", otherServer.getDomain());
+                builder.addAttribute("type", resultType);
+    
+                dialbackSessionContext.write(builder.build());
+//            }
+            
+            // close this session as we are now done checking dialback
+            sessionContext.close();
+            return null;
         }
     }
 }

@@ -7,7 +7,7 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DialbackIdGenerator;
 
 
-public class DialbackIdGeneratorTest extends TestCase {
+public class DialbackIdGeneratorTestCase extends TestCase {
 
     private Entity receiving = EntityImpl.parseUnchecked("xmpp.example.com");
     private Entity originating = EntityImpl.parseUnchecked("example.org");

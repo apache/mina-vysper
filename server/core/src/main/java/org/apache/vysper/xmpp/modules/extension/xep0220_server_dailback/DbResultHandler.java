@@ -29,15 +29,21 @@ import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.server.s2s.XMPPServerConnector;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class DbResultHandler implements StanzaHandler {
+    
+    private static final Logger LOG = LoggerFactory.getLogger(DbResultHandler.class);
+
     
     public String getName() {
         return "result";
@@ -64,6 +70,7 @@ public class DbResultHandler implements StanzaHandler {
         String type = stanza.getAttributeValue("type");
         
         if(type == null) {
+            // acting as the Receiving server
             // start of dailback, respond
             String streamId = sessionContext.getSessionId();
             String dailbackId = stanza.getInnerText().getText();
@@ -97,6 +104,14 @@ public class DbResultHandler implements StanzaHandler {
                 return new ResponseStanzaContainerImpl(builder.build());
             }
         } else {
+            // acting as the Originating server
+            // receiving the result from the Receiving server
+            if("valid".equals(type)) {
+                sessionStateHolder.setState(SessionState.AUTHENTICATED);
+                Entity receiving = EntityImpl.parseUnchecked(stanza.getAttributeValue("from"));
+                LOG.info("XMPP server connector to {} authenticated using dialback", receiving);
+            } 
+
             return null;
         }
     }

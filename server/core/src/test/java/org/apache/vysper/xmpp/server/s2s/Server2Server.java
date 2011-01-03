@@ -113,12 +113,12 @@ public class Server2Server {
         
         Thread.sleep(3000);
         
-//        Message msg = new Message(remoteUser.getFullQualifiedName());
-        Message msg = new Message(localUser.getFullQualifiedName());
+        Message msg = new Message(remoteUser.getFullQualifiedName());
+//        Message msg = new Message(localUser.getFullQualifiedName());
         msg.setBody("Hello world");
         
-//        localClient.sendPacket(msg);
-        remoteClient.sendPacket(msg);
+        localClient.sendPacket(msg);
+//        remoteClient.sendPacket(msg);
         
         
         Thread.sleep(8000);

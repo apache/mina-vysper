@@ -41,14 +41,6 @@ public class ServerResponses {
         return getStreamOpener(forClient, from, null, version, errorStanza).build();
     }
 
-    public Stanza getStreamOpener(boolean forClient, Entity from, XMPPVersion version, SessionContext sessionContext) {
-        if(forClient) {
-            return getStreamOpenerForClient(from, version, sessionContext);
-        } else {
-            return getStreamOpenerForServerAcceptor(from, version, sessionContext);
-        }
-    }
-    
     public Stanza getStreamOpenerForClient(Entity from, XMPPVersion version, SessionContext sessionContext) {
         Stanza innerFeatureStanza;
         if (sessionContext.getState() == SessionState.INITIATED)
@@ -69,7 +61,7 @@ public class ServerResponses {
         return stanzaBuilder.build();
     }
 
-    public Stanza getStreamOpenerForServerAcceptor(Entity from, XMPPVersion version, SessionContext sessionContext) {
+    public Stanza getStreamOpenerForServerAcceptor(Entity from, XMPPVersion version, SessionContext sessionContext, boolean tlsConfigured) {
         StanzaBuilder featureBuilder = startFeatureStanza();
         if (sessionContext.getState() == SessionState.INITIATED) {
             featureBuilder.startInnerElement("starttls", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS).endInnerElement();

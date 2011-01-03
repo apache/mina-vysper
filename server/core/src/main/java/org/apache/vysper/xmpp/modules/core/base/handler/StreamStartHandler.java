@@ -130,9 +130,8 @@ public class StreamStartHandler implements StanzaHandler {
             // RFC3920: 'to' attribute SHOULD be used by the initiating entity
             String toValue = stanza.getAttributeValue("to");
             if (toValue != null) {
-                EntityImpl toEntity = null;
                 try {
-                    toEntity = EntityImpl.parse(toValue);
+                    EntityImpl.parse(toValue);
                 } catch (EntityFormatException e) {
                     return new ResponseStanzaContainerImpl(ServerErrorResponses.getInstance().getStreamError(
                             StreamErrorCondition.IMPROPER_ADDRESSING, sessionContext.getXMLLang(),
@@ -145,7 +144,7 @@ public class StreamStartHandler implements StanzaHandler {
                 // TODO RFC3920: 'from' attribute SHOULD be silently ignored by the receiving entity
                 // TODO RFC3920bis: 'from' attribute SHOULD be not ignored by the receiving entity and used as 'to' in responses
             }
-            responseStanza = new ServerResponses().getStreamOpener(clientCall, sessionContext.getServerJID(),
+            responseStanza = new ServerResponses().getStreamOpenerForClient(sessionContext.getServerJID(),
                     responseVersion, sessionContext);
         } else if (serverCall) {
             // RFC3920: 'from' attribute SHOULD be used by the receiving entity
@@ -162,8 +161,8 @@ public class StreamStartHandler implements StanzaHandler {
             
             // TODO set version correctly
             responseVersion = XMPPVersion.VERSION_1_0;
-            responseStanza = new ServerResponses().getStreamOpener(clientCall, sessionContext.getServerJID(),
-                    responseVersion, sessionContext);
+            responseStanza = new ServerResponses().getStreamOpenerForServerAcceptor(sessionContext.getServerJID(),
+                    responseVersion, sessionContext, serverRuntimeContext.getSslContext() != null);
         } else {
             String descriptiveText = "one of the two namespaces must be present: " + NamespaceURIs.JABBER_CLIENT
                     + " or " + NamespaceURIs.JABBER_SERVER;

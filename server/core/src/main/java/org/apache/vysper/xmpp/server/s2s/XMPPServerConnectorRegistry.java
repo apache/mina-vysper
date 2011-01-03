@@ -14,7 +14,6 @@ public interface XMPPServerConnectorRegistry {
     XMPPServerConnector connectForDialback(Entity server, SessionContext sessionContext, SessionStateHolder sessionStateHolder) throws RemoteServerNotFoundException,
     RemoteServerTimeoutException;
 
-    
     void close();
 
 }

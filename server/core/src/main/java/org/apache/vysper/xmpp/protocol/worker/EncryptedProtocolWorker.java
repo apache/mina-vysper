@@ -23,6 +23,7 @@ import org.apache.vysper.xmpp.modules.core.base.handler.StreamStartHandler;
 import org.apache.vysper.xmpp.modules.core.base.handler.XMLPrologHandler;
 import org.apache.vysper.xmpp.modules.core.sasl.handler.AbstractSASLHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbResultHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbVerifyHandler;
 import org.apache.vysper.xmpp.protocol.ResponseWriter;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
@@ -44,6 +45,7 @@ public class EncryptedProtocolWorker extends AbstractStateAwareProtocolWorker {
     @Override
     protected boolean checkState(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
             StanzaHandler stanzaHandler) {
+        
         if (stanzaHandler instanceof StreamStartHandler)
             return true;
         if (stanzaHandler instanceof AbstractSASLHandler)
@@ -51,6 +53,8 @@ public class EncryptedProtocolWorker extends AbstractStateAwareProtocolWorker {
         if (stanzaHandler instanceof XMLPrologHandler)
             return true; // PSI client sends that. 
         if (sessionContext.isServerToServer() && stanzaHandler instanceof DbResultHandler)
+            return true;
+        if (sessionContext.isServerToServer() && stanzaHandler instanceof DbVerifyHandler)
             return true;
         ResponseWriter.writeUnsupportedStanzaError(sessionContext);
         return false;

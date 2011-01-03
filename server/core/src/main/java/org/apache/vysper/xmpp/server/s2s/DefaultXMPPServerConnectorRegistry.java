@@ -24,14 +24,6 @@ public class DefaultXMPPServerConnectorRegistry implements XMPPServerConnectorRe
      */
     @SpecCompliant(spec = "draft-ietf-xmpp-3920bis-22", section = "10.4", status = SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
     public synchronized XMPPServerConnector connect(Entity server) throws RemoteServerNotFoundException, RemoteServerTimeoutException {
-        return connect(server, null, null);
-    }
-    
-    public synchronized XMPPServerConnector connectForDialback(Entity server, SessionContext orginalSessionContext, SessionStateHolder originalSessionStateHolder) throws RemoteServerNotFoundException, RemoteServerTimeoutException {
-        return connect(server, orginalSessionContext, originalSessionStateHolder);
-    }
-    
-    private XMPPServerConnector connect(Entity server, SessionContext dialbackSessionContext, SessionStateHolder dialbackSessionStateHolder) throws RemoteServerNotFoundException, RemoteServerTimeoutException {
         DefaultXMPPServerConnector connector = connectors.get(server);
 
         if(connector != null && connector.isClosed()) {
@@ -40,18 +32,21 @@ public class DefaultXMPPServerConnectorRegistry implements XMPPServerConnectorRe
         } 
         
         if(connector == null) {
-            connector = new DefaultXMPPServerConnector(server, serverRuntimeContext, dialbackSessionContext, dialbackSessionStateHolder);
+            connector = new DefaultXMPPServerConnector(server, serverRuntimeContext, null, null);
             connector.start();
 
-            // only register if we're not starting a connector for dialback
-            if(dialbackSessionContext == null) {
-                connectors.put(server, connector);
-            }
+            connectors.put(server, connector);
         }
         
         return connector;        
     }
-
+    
+    public synchronized XMPPServerConnector connectForDialback(Entity server, SessionContext orginalSessionContext, SessionStateHolder originalSessionStateHolder) throws RemoteServerNotFoundException, RemoteServerTimeoutException {
+        DefaultXMPPServerConnector connector = new DefaultXMPPServerConnector(server, serverRuntimeContext, orginalSessionContext, originalSessionStateHolder);
+        connector.start();
+        return connector;
+    }
+    
     /* (non-Javadoc)
      * @see org.apache.vysper.xmpp.server.s2s.XMPPServerConnectorRegistry#close()
      */
@@ -60,4 +55,6 @@ public class DefaultXMPPServerConnectorRegistry implements XMPPServerConnectorRe
             connector.close();
         }
     }
+
+
 }
