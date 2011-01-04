@@ -93,6 +93,11 @@ public class PlainTestCase extends TestCase {
         assertNotNull(response.getSingleInnerElementsNamed(failureType));
         assert stateHolder.getState() != SessionState.AUTHENTICATED;
     }
+    
+    public static void main(String[] args) {
+        PlainTestCase plain = new PlainTestCase();
+        System.out.println(plain.encode("user1@vysper.org", "password1"));
+    }
 
     private String encode(String username, String password) {
         return new String(Base64.encodeBase64(('\0' + username + '\0' + password).getBytes()));

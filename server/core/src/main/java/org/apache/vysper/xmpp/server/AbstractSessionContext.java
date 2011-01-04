@@ -158,7 +158,6 @@ public abstract class AbstractSessionContext implements SessionContext {
 
         // unbind session and remove from registry
         serverRuntimeContext.getResourceRegistry().unbindSession(this);
-
         sessionStateHolder.setState(SessionState.CLOSED); // no more traffic
 
         // TODO close underlying transport (TCP socket)

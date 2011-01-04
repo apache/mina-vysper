@@ -1,0 +1,43 @@
+<html>
+	<head>
+	<script>
+		// This is a very simple client just to demo the technology
+	
+		String.prototype.contains = function(it) { return this.indexOf(it) != -1; };
+	
+		var streamStart = "<stream:stream from='user1@vysper.org' to='user2@vysper.org' version='1.0' xml:lang='en' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams'>"
+	
+		var socket = new WebSocket("ws://localhost:8080/ws/ws", "xmpp");
+		socket.onopen = function(){
+			socket.send(streamStart)
+			
+		}  
+		socket.onmessage = function(msg){
+			var stanza = msg.data
+			
+			console.log(stanza)
+			if(stanza.contains("<stream:features")) {
+				if(stanza.contains("<mechanism>PLAIN</mechanism>")) {
+					// SASL
+					socket.send("<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='PLAIN'>AHVzZXIxQHZ5c3Blci5vcmcAcGFzc3dvcmQx</auth>")
+				} else if(stanza.contains("<bind")) {
+					// resource binding
+					socket.send("<iq id='tn281v37' type='set'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'/></iq>")
+				}
+			} else if(stanza.contains("<success")) {
+				// SASL success, restart stream
+				socket.send(streamStart)
+			} else if(stanza.contains("<iq")) {
+				if(stanza.contains("<bind")) {
+					// resource binding complete, off we go
+					// socket.send("<message to='protocol7@jabber.org'><body>Hello world</body></message>")
+					socket.close();
+				}
+			}
+		}  
+	
+	</script>
+	</head>
+<body>
+</body>
+</html>

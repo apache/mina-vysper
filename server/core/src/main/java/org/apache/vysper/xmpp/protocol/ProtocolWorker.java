@@ -89,7 +89,7 @@ public class ProtocolWorker implements StanzaProcessor {
             throw new RuntimeException("cannot process NULL stanzas");
 
         StanzaHandler stanzaHandler = serverRuntimeContext.getHandler(stanza);
-
+System.out.println(stanzaHandler);
         if (stanzaHandler == null) {
             responseWriter.handleUnsupportedStanzaType(sessionContext, stanza);
             return;

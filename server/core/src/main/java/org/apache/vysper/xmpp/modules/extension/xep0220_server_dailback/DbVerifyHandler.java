@@ -30,6 +30,7 @@ import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
+import org.apache.vysper.xmpp.server.SessionContext.SessionTerminationCause;
 import org.apache.vysper.xmpp.server.s2s.XMPPServerConnector;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -111,11 +112,11 @@ public class DbVerifyHandler implements StanzaHandler {
                 builder.addAttribute("to", otherServer.getDomain());
                 builder.addAttribute("type", resultType);
     
-                dialbackSessionContext.write(builder.build());
+                dialbackSessionContext.getResponseWriter().write(builder.build());
 //            }
             
             // close this session as we are now done checking dialback
-            sessionContext.close();
+            sessionContext.endSession(SessionTerminationCause.CLIENT_BYEBYE);
             return null;
         }
     }
