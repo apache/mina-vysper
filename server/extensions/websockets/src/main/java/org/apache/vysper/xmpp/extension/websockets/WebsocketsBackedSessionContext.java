@@ -129,12 +129,16 @@ public class WebsocketsBackedSessionContext extends AbstractSessionContext imple
     public void write(Stanza stanza) {
         // handle stream open
         Renderer renderer = new Renderer(stanza);
-        String xml;
         if("stream".equals(stanza.getName()) && NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS.equals(stanza.getNamespaceURI())) {
-            xml = renderer.getOpeningElement() + renderer.getElementContent();
+            // stream:stream and stream:features comes at the same time, split them 
+            send(renderer.getOpeningElement());
+            send(renderer.getElementContent());
         } else {
-            xml = renderer.getComplete();
+            send(renderer.getComplete());
         }
+    }
+
+    private void send(String xml) {
         try {
             LOG.info("> " + xml);
             outbound.sendMessage(xml);
