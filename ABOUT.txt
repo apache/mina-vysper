@@ -67,10 +67,8 @@ Vysper uses SSL encryption per default.
 For this purpose, an TLS certificate is provided.
 It is highly recommended to create and use a self-generated certificate!
 
-There are three users configured by default.
-Their account names are user1@vysper.org ... user3@vysper.org
-and their password is password1 for all three.
-Please change these settings before starting!
+There is one preconfigured user (admin@vysper.org). The password for this
+user is "CHOOSE A SECURE PASSWORD". Please change this password before starting!
 
 Please note that the domain vysper.org is not running an XMPP server.
 If you go with the default setup and don't configure your own domain name,
