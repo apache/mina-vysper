@@ -85,7 +85,7 @@ public class ServerMain {
 
         server.addEndpoint(new TCPEndpoint());
 
-        WebsocketsEndpoint wsEndpoint = new WebsocketsEndpoint();
+        WebSocketEndpoint wsEndpoint = new WebSocketEndpoint();
 //        wsEndpoint.setSSLEnabled(true);
 //        wsEndpoint.setSSLCertificateKeystore("src/test/resources/keystore.jks", "password");
         wsEndpoint.setContextPath("/ws");

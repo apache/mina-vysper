@@ -49,17 +49,17 @@ import org.xml.sax.SAXException;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class WebsocketsBackedSessionContext extends AbstractSessionContext implements WebSocket, StanzaListener, StanzaWriter {
+public class WebSocketBackedSessionContext extends AbstractSessionContext implements WebSocket, StanzaListener, StanzaWriter {
 
     private final static Charset CHARSET = Charset.forName("UTF-8");
     private final static CharsetDecoder CHARSET_DECODER = CHARSET.newDecoder();
     
-    private final static Logger LOG = LoggerFactory.getLogger(WebsocketsBackedSessionContext.class);
+    private final static Logger LOG = LoggerFactory.getLogger(WebSocketBackedSessionContext.class);
 
     private Outbound outbound;
     private NonBlockingXMLReader xmlReader = new DefaultNonBlockingXMLReader();
     
-    public WebsocketsBackedSessionContext(ServerRuntimeContext serverRuntimeContext,
+    public WebSocketBackedSessionContext(ServerRuntimeContext serverRuntimeContext,
             SessionStateHolder sessionStateHolder) {
         super(serverRuntimeContext, sessionStateHolder);
         

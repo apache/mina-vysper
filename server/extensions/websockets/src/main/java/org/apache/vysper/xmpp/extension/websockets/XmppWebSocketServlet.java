@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.extension.websockets;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
@@ -32,24 +33,42 @@ import org.slf4j.LoggerFactory;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class XmppWebsocketsServlet extends WebSocketServlet {
+public class XmppWebSocketServlet extends WebSocketServlet {
     
-    private final static Logger LOG = LoggerFactory.getLogger(XmppWebsocketsServlet.class);
+    public static final String SERVER_RUNTIME_CONTEXT_ATTRIBUTE = "org.apache.vysper.xmpp.server.ServerRuntimeContext";
+
+    private final static Logger LOG = LoggerFactory.getLogger(XmppWebSocketServlet.class);
     
     private static final long serialVersionUID = 197413099255392883L;
     private static final String SUB_PROTOCOL = "xmpp";
 
-    private final ServerRuntimeContext serverRuntimeContext;
+    private ServerRuntimeContext serverRuntimeContext;
     
-    public XmppWebsocketsServlet(ServerRuntimeContext serverRuntimeContext) {
+    public XmppWebSocketServlet() {
+        // default cstr needed
+    }
+    
+    public XmppWebSocketServlet(ServerRuntimeContext serverRuntimeContext) {
         this.serverRuntimeContext = serverRuntimeContext;
     }
-
     
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        
+        if(serverRuntimeContext == null) {
+            serverRuntimeContext = (ServerRuntimeContext) getServletContext().getAttribute(SERVER_RUNTIME_CONTEXT_ATTRIBUTE);
+            System.out.println(serverRuntimeContext);
+            if(serverRuntimeContext == null) {
+                throw new RuntimeException("Failed to get Vysper ServerRuntimeContext from servlet context attribute \"" + SERVER_RUNTIME_CONTEXT_ATTRIBUTE + "\"");
+            }
+        }        
+    }
+
     protected WebSocket doWebSocketConnect(HttpServletRequest request, String protocol) {
         if(SUB_PROTOCOL.equals(protocol)) {
             SessionStateHolder sessionStateHolder = new SessionStateHolder();
-            WebsocketsBackedSessionContext sessionContext = new WebsocketsBackedSessionContext(serverRuntimeContext, sessionStateHolder);
+            WebSocketBackedSessionContext sessionContext = new WebSocketBackedSessionContext(serverRuntimeContext, sessionStateHolder);
             return sessionContext;
         } else {
             LOG.warn("Unsupported WebSocket sub protocol, must be \"xmpp\"");

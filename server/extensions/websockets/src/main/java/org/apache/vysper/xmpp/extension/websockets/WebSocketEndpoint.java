@@ -41,9 +41,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class WebsocketsEndpoint implements Endpoint {
+public class WebSocketEndpoint implements Endpoint {
 
-    protected final static Logger logger = LoggerFactory.getLogger(WebsocketsEndpoint.class);
+    protected final static Logger logger = LoggerFactory.getLogger(WebSocketEndpoint.class);
 
     protected ServerRuntimeContext serverRuntimeContext;
 
@@ -147,7 +147,7 @@ public class WebsocketsEndpoint implements Endpoint {
         ServletContextHandler boshContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
         boshContext.setContextPath(contextPath);
 
-        XmppWebsocketsServlet boshServlet = new XmppWebsocketsServlet(serverRuntimeContext);
+        XmppWebSocketServlet boshServlet = new XmppWebSocketServlet(serverRuntimeContext);
         boshContext.addServlet(new ServletHolder(boshServlet), "/ws");
         
         return boshContext;

@@ -23,69 +23,42 @@
 		<version>0.7-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.apache.vysper.extensions</groupId>
-	<artifactId>vysper-websockets</artifactId>
-	<name>Apache Vysper Websockets support</name>
+	<groupId>org.apache.vysper.examples</groupId>
+	<artifactId>vysper-embedded-war</artifactId>
+	<name>Example of Apache Vysper embedded in a WAR</name>
 	<version>0.7-SNAPSHOT</version>
-
+	<packaging>war</packaging>
 
 	<dependencies>
 		<dependency>
-			<groupId>org.apache.vysper</groupId>
-			<artifactId>spec-compliance</artifactId>
-			<optional>true</optional>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.vysper</groupId>
-			<artifactId>vysper-core</artifactId>
+			<groupId>org.apache.vysper.extensions</groupId>
+			<artifactId>vysper-websockets</artifactId>
 		</dependency>
 
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-websocket</artifactId>
 			<version>7.2.1.v20101111</version>
+<!--			<scope>provided</scope>-->
 		</dependency>
 
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-servlet</artifactId>
 			<version>7.2.1.v20101111</version>
+<!--			<scope>provided</scope>-->
 		</dependency>
 
-		<!-- Test dependencies -->
+
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
-			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<scope>test</scope>
 		</dependency>
-
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.8.1</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<version>4.0.1</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec</artifactId>
-			<scope>test</scope>
-		</dependency>
-
 	</dependencies>
 
 </project>
