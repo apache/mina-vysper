@@ -58,7 +58,6 @@ public class XmppWebSocketServlet extends WebSocketServlet {
         
         if(serverRuntimeContext == null) {
             serverRuntimeContext = (ServerRuntimeContext) getServletContext().getAttribute(SERVER_RUNTIME_CONTEXT_ATTRIBUTE);
-            System.out.println(serverRuntimeContext);
             if(serverRuntimeContext == null) {
                 throw new RuntimeException("Failed to get Vysper ServerRuntimeContext from servlet context attribute \"" + SERVER_RUNTIME_CONTEXT_ATTRIBUTE + "\"");
             }

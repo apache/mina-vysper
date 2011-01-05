@@ -1,7 +1,5 @@
 package org.apache.vysper.xmpp.exemples.embeddedwar;
 
-import java.io.File;
-
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -22,7 +20,6 @@ public class VysperListener implements ServletContextListener {
     private XMPPServer server;
 
     public void contextInitialized(ServletContextEvent sce) {
-        System.out.println("starting listener");
         try {
             String domain = sce.getServletContext().getInitParameter("domain");
             
@@ -39,7 +36,6 @@ public class VysperListener implements ServletContextListener {
     
             server = new XMPPServer(domain);
             server.addEndpoint(new TCPEndpoint());
-            //server.addEndpoint(new StanzaSessionFactory());
             server.setStorageProviderRegistry(providerRegistry);
     
             server.setTLSCertificateInfo(sce.getServletContext().getResourceAsStream("WEB-INF/bogus_mina_tls.cert"), "password");
