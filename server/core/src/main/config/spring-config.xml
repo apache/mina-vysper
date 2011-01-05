@@ -71,7 +71,7 @@
             </list>
         </property>
         <property name="storageProviderRegistry" ref="storageRegistry" />
-        <property name="certificateFile" value="src/main/config/bogus_mina_tls.cert" />
+        <property name="certificateFile" value="classpath:bogus_mina_tls.cert" />
         <property name="certificatePassword" value="boguspw" />
         <property name="modules" >
             <list>

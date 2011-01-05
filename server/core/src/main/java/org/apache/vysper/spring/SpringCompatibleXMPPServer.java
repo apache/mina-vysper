@@ -22,8 +22,10 @@ package org.apache.vysper.spring;
 import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.server.Endpoint;
 import org.apache.vysper.xmpp.server.XMPPServer;
+import org.springframework.core.io.Resource;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -37,15 +39,15 @@ import java.util.List;
 public class SpringCompatibleXMPPServer extends XMPPServer {
 
     protected final List<Module> listOfModules = new ArrayList<Module>();
-    protected String certificateFile = null;
+    protected File certificateFile = null;
     protected String certificatePassword = null;
 
     public SpringCompatibleXMPPServer(String domain) {
         super(domain);
     }
 
-    public void setCertificateFile(String certificateFile) {
-        this.certificateFile = certificateFile;
+    public void setCertificateFile(Resource certificateFile) throws IOException {
+        this.certificateFile = certificateFile.getFile();
     }
 
     public void setCertificatePassword(String certificatePassword) {
@@ -63,7 +65,7 @@ public class SpringCompatibleXMPPServer extends XMPPServer {
     }
     
     public void init() throws Exception {
-        setTLSCertificateInfo(new File(certificateFile), certificatePassword);
+        setTLSCertificateInfo(certificateFile, certificatePassword);
         start();
         if (listOfModules != null) {
             for (Module module : listOfModules) {
