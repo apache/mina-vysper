@@ -103,7 +103,7 @@ public class WebsocketsBackedSessionContext extends AbstractSessionContext imple
     public void onMessage(byte frame, String data) {
         LOG.info("< " + data);
         try {
-            xmlReader.parse(IoBuffer.wrap(data.getBytes(CHARSET)), CHARSET_DECODER);
+            xmlReader.parse(IoBuffer.wrap(data.getBytes(CHARSET.name())), CHARSET_DECODER);
         } catch (IOException e) {
             // should never happen since we read from a string
             throw new RuntimeException(e);
