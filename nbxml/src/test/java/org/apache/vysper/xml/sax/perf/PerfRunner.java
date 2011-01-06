@@ -30,7 +30,7 @@ import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
  * 
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class PerfTest {
+public class PerfRunner {
 
     private static class CounterStanzaListener implements StanzaListener {
 
