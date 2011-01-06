@@ -67,12 +67,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.mina</groupId>
-      <artifactId>mina-integration-jmx</artifactId>
-      <optional>true</optional>
-    </dependency>
-
-    <dependency>
       <groupId>javax.jcr</groupId>
       <artifactId>jcr</artifactId>
     </dependency>
