@@ -24,6 +24,7 @@ import java.io.File;
 import org.apache.vysper.mina.TCPEndpoint;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
 import org.apache.vysper.xmpp.modules.extension.xep0049_privatedata.PrivateDataModule;
 import org.apache.vysper.xmpp.modules.extension.xep0054_vcardtemp.VcardTempModule;
@@ -48,8 +49,9 @@ public class ServerMain {
 
         AccountManagement accountManagement = (AccountManagement) providerRegistry.retrieve(AccountManagement.class);
 
-        accountManagement.addUser("user1@vysper.org", "password1");
-        accountManagement.addUser("user2@vysper.org", "password1");
+        
+        accountManagement.addUser(EntityImpl.parseUnchecked("user1@vysper.org"), "password1");
+        accountManagement.addUser(EntityImpl.parseUnchecked("user2@vysper.org"), "password1");
 
         XMPPServer server = new XMPPServer("vysper.org");
         server.addEndpoint(new TCPEndpoint());

@@ -73,7 +73,7 @@ public class AddUserCommandHandler extends PasswordCheckingCommandHandler {
         }
 
         try {
-            accountManagement.addUser(accountjid.getFullQualifiedName(), password);
+            accountManagement.addUser(accountjid, password);
         } catch (AccountCreationException e) {
             notes.add(Note.error("account creation failed for " + accountjid));
             return sendForm();

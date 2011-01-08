@@ -82,24 +82,18 @@ public class JcrUserManagement implements UserAuthorization, AccountManagement {
         }
     }
 
-    public void addUser(String username, String password) throws AccountCreationException {
-        final EntityImpl entity;
-        try {
-            entity = EntityImpl.parse(username);
-        } catch (EntityFormatException e) {
-            throw new AccountCreationException("username is expected to be in proper entity format, not " + username, e); // wrap as unchecked
-        }
+    public void addUser(Entity username, String password) throws AccountCreationException {
         // if already existent, don't create, throw error
         try {
-            if (jcrStorage.getEntityNode(entity, CREDENTIALS_NAMESPACE, false) != null) {
-                throw new AccountCreationException("account already exists: " + entity.getFullQualifiedName());
+            if (jcrStorage.getEntityNode(username, CREDENTIALS_NAMESPACE, false) != null) {
+                throw new AccountCreationException("account already exists: " + username.getFullQualifiedName());
             }
         } catch (JcrStorageException e) {
-            throw new AccountCreationException("account exists check failed for " + entity.getFullQualifiedName(), e);
+            throw new AccountCreationException("account exists check failed for " + username.getFullQualifiedName(), e);
         }
         // now, finally, create
         try {
-            final Node credentialsNode = jcrStorage.getEntityNode(entity, CREDENTIALS_NAMESPACE, true);
+            final Node credentialsNode = jcrStorage.getEntityNode(username, CREDENTIALS_NAMESPACE, true);
             credentialsNode.setProperty("password", password);
             credentialsNode.save();
             logger.info("JCR node created: " + credentialsNode);
@@ -110,15 +104,9 @@ public class JcrUserManagement implements UserAuthorization, AccountManagement {
 
     }
 
-    public void changePassword(String username, String password) throws AccountCreationException {
-        final EntityImpl entity;
+    public void changePassword(Entity username, String password) throws AccountCreationException {
         try {
-            entity = EntityImpl.parse(username);
-        } catch (EntityFormatException e) {
-            throw new AccountCreationException("username is expected to be in proper entity format, not " + username, e); // wrap as unchecked
-        }
-        try {
-            final Node credentialsNode = jcrStorage.getEntityNode(entity, CREDENTIALS_NAMESPACE, false);
+            final Node credentialsNode = jcrStorage.getEntityNode(username, CREDENTIALS_NAMESPACE, false);
             credentialsNode.setProperty("password", password);
             credentialsNode.save();
             logger.info("JCR password changed: " + credentialsNode);

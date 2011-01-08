@@ -27,6 +27,7 @@ import junit.framework.TestCase;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.vysper.storage.OpenStorageProviderRegistry;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.Plain;
 import org.apache.vysper.xmpp.authorization.SASLMechanism;
 import org.apache.vysper.xmpp.authorization.SimpleUserAuthorization;
@@ -59,7 +60,7 @@ public class AbortHandlerTestCase extends TestCase {
 
         sessionContext.getServerRuntimeContext().getServerFeatures().setAuthenticationMethods(methods);
         SimpleUserAuthorization users = new SimpleUserAuthorization();
-        users.addUser("user007@test", "pass007");
+        users.addUser(EntityImpl.parseUnchecked("user007@test"), "pass007");
         OpenStorageProviderRegistry providerRegistry = new OpenStorageProviderRegistry();
         providerRegistry.add(users);
         ((DefaultServerRuntimeContext) sessionContext.getServerRuntimeContext())

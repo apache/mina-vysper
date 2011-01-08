@@ -48,7 +48,7 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
     protected DeliveringInternalInboundStanzaRelay stanzaRelay;
 
     static class AccountVerificationMock implements AccountManagement {
-        public void addUser(String username, String password) throws AccountCreationException {
+        public void addUser(Entity username, String password) throws AccountCreationException {
             ; // empty
         }
 
@@ -56,7 +56,7 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
             return true;
         }
 
-        public void changePassword(String username, String password) throws AccountCreationException {
+        public void changePassword(Entity username, String password) throws AccountCreationException {
             ; // empty
         }
     }

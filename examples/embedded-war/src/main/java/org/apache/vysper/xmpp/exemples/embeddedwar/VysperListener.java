@@ -6,6 +6,7 @@ import javax.servlet.ServletContextListener;
 import org.apache.vysper.mina.TCPEndpoint;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
+import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
 import org.apache.vysper.xmpp.extension.websockets.XmppWebSocketServlet;
@@ -25,14 +26,13 @@ public class VysperListener implements ServletContextListener {
             
             StorageProviderRegistry providerRegistry = new MemoryStorageProviderRegistry();
     
-            final String adminJID = "admin@" + domain;
             final AccountManagement accountManagement = (AccountManagement) providerRegistry
                     .retrieve(AccountManagement.class);
-    
-            String initialPassword = System.getProperty("vysper.admin.initial.password", "CHOOSE SECURE PASSWORD");
-                if (!accountManagement.verifyAccountExists(EntityImpl.parse(adminJID))) {
-                    accountManagement.addUser(adminJID, initialPassword);
-                }
+
+            Entity user1 = EntityImpl.parse("user1@vysper.org");
+            if (!accountManagement.verifyAccountExists(user1)) {
+                accountManagement.addUser(user1, "password1");
+            }
     
             server = new XMPPServer(domain);
             server.addEndpoint(new TCPEndpoint());

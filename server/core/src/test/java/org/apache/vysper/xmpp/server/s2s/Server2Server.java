@@ -47,7 +47,7 @@ public class Server2Server {
         .retrieve(AccountManagement.class);
 
         if (!accountManagement.verifyAccountExists(localUser)) {
-            accountManagement.addUser(localUser.getFullQualifiedName(), "password1");
+            accountManagement.addUser(localUser, "password1");
         }
 
         // S2S endpoint

@@ -84,7 +84,7 @@ public class ServerMain {
         final AccountManagement accountManagement = (AccountManagement) providerRegistry
                 .retrieve(AccountManagement.class);
 
-        accountManagement.addUser(localUser.getFullQualifiedName(), "password1");
+        accountManagement.addUser(localUser, "password1");
 
         XMPPServer server = new XMPPServer(localServer.getFullQualifiedName());
 

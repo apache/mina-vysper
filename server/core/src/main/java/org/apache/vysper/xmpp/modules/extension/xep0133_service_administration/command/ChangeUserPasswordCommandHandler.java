@@ -70,7 +70,7 @@ public class ChangeUserPasswordCommandHandler extends PasswordCheckingCommandHan
         }
         
         try {
-            accountManagement.changePassword(accountjid.getFullQualifiedName(), password);
+            accountManagement.changePassword(accountjid, password);
         } catch (AccountCreationException e) {
             notes.add(Note.error("changing password failed for " + accountjid));
             return sendForm();

@@ -23,6 +23,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.vysper.mina.TCPEndpoint;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
+import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.AccountCreationException;
@@ -58,7 +59,7 @@ public class ServerMain {
      * 
      * @param args
      */
-    public static void main(String[] args) throws AccountCreationException, EntityFormatException, FileNotFoundException {
+    public static void main(String[] args) throws AccountCreationException, FileNotFoundException {
 
         String domain = "vysper.org";
         
@@ -73,12 +74,12 @@ public class ServerMain {
         //StorageProviderRegistry providerRegistry = new JcrStorageProviderRegistry();
         StorageProviderRegistry providerRegistry = new MemoryStorageProviderRegistry();
 
-        final String adminJID = "admin@" + domain;
+        final Entity adminJID = EntityImpl.parseUnchecked("admin@" + domain);
         final AccountManagement accountManagement = (AccountManagement) providerRegistry
                 .retrieve(AccountManagement.class);
 
         String initialPassword = System.getProperty("vysper.admin.initial.password", "CHOOSE SECURE PASSWORD");
-        if (!accountManagement.verifyAccountExists(EntityImpl.parse(adminJID))) {
+        if (!accountManagement.verifyAccountExists(adminJID)) {
             accountManagement.addUser(adminJID, initialPassword);
         }
 
@@ -104,7 +105,7 @@ public class ServerMain {
         server.addModule(new AdhocCommandsModule());
         final ServiceAdministrationModule serviceAdministrationModule = new ServiceAdministrationModule();
         // unless admin user account with a secure password is added, this will be not become effective
-        serviceAdministrationModule.setAddAdmins(Arrays.asList(adminJID)); 
+        serviceAdministrationModule.setAddAdminJIDs(Arrays.asList(adminJID)); 
         server.addModule(serviceAdministrationModule);
 
         if (listOfModules != null) {

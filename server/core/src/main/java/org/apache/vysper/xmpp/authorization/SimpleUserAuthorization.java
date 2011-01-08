@@ -31,21 +31,21 @@ import org.apache.vysper.xmpp.addressing.Entity;
  */
 public class SimpleUserAuthorization implements UserAuthorization, AccountManagement {
 
-    private final Map<String, String> userPasswordMap = new HashMap<String, String>();
+    private final Map<Entity, String> userPasswordMap = new HashMap<Entity, String>();
 
     public SimpleUserAuthorization() {
         ; // empty
     }
 
-    public SimpleUserAuthorization(Map<String, String> userPasswordMap) {
+    public SimpleUserAuthorization(Map<Entity, String> userPasswordMap) {
         this.userPasswordMap.putAll(userPasswordMap);
     }
 
-    public void addUser(String username, String password) {
+    public void addUser(Entity username, String password) {
         userPasswordMap.put(username, password);
     }
 
-    public void changePassword(String username, String password) throws AccountCreationException {
+    public void changePassword(Entity username, String password) throws AccountCreationException {
         if (!userPasswordMap.containsKey(username)) {
             throw new AccountCreationException("could not change password for unknown user " + username);
         }

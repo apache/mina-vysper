@@ -25,6 +25,7 @@ import java.util.Map;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.vysper.storage.StorageProviderRegistry;
+import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.AccountCreationException;
@@ -49,13 +50,14 @@ public class AddUserHelper {
             throw new IllegalStateException("no account manager accessible.");
 
         for (String user : userPasswordMap.keySet()) {
-            if (!accountManagement.verifyAccountExists(EntityImpl.parse(user))) {
+            Entity entity = EntityImpl.parse(user);
+            if (!accountManagement.verifyAccountExists(entity)) {
                 String password = userPasswordMap.get(user);
                 if (StringUtils.isEmpty(password)) {
                     password = RandomStringUtils.randomAlphanumeric(8);
                     System.out.println(user + " user will be added with random password: '" + password + "'");
                 }
-                accountManagement.addUser(user, password);
+                accountManagement.addUser(entity, password);
             }
         }
     }

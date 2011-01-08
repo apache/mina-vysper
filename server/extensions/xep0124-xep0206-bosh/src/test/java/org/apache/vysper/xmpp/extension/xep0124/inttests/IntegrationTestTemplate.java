@@ -35,6 +35,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
+import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
 import org.apache.vysper.xmpp.extension.xep0124.BoshEndpoint;
@@ -97,8 +98,9 @@ public class IntegrationTestTemplate {
         final AccountManagement accountManagement = (AccountManagement) providerRegistry
                 .retrieve(AccountManagement.class);
 
-        if (!accountManagement.verifyAccountExists(EntityImpl.parse("user1@vysper.org"))) {
-            accountManagement.addUser("user1@vysper.org", "password1");
+        Entity user1 = EntityImpl.parseUnchecked("user1@vysper.org");
+        if (!accountManagement.verifyAccountExists(user1)) {
+            accountManagement.addUser(user1, "password1");
         }
         
         server = new XMPPServer("vysper.org");

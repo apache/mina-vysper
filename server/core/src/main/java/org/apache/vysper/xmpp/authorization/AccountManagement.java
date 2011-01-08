@@ -27,9 +27,9 @@ import org.apache.vysper.xmpp.addressing.Entity;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public interface AccountManagement extends StorageProvider {
-    void addUser(String username, String password) throws AccountCreationException;
+    void addUser(Entity username, String password) throws AccountCreationException;
     
-    void changePassword(String username, String password) throws AccountCreationException;
+    void changePassword(Entity username, String password) throws AccountCreationException;
 
     /**
      * checks if there is this jid is registered with the server

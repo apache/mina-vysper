@@ -25,6 +25,7 @@ import java.io.FileNotFoundException;
 import org.apache.vysper.mina.TCPEndpoint;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
+import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.AccountCreationException;
@@ -62,14 +63,17 @@ public class ServerMain {
         final AccountManagement accountManagement = (AccountManagement) providerRegistry
                 .retrieve(AccountManagement.class);
 
-        if (!accountManagement.verifyAccountExists(EntityImpl.parse("user1@vysper.org"))) {
-            accountManagement.addUser("user1@vysper.org", "password1");
+        Entity user1 = EntityImpl.parse("user1@vysper.org");
+        if (!accountManagement.verifyAccountExists(user1)) {
+            accountManagement.addUser(user1, "password1");
         }
-        if (!accountManagement.verifyAccountExists(EntityImpl.parse("user2@vysper.org"))) {
-            accountManagement.addUser("user2@vysper.org", "password1");
+        Entity user2 = EntityImpl.parse("user2@vysper.org");
+        if (!accountManagement.verifyAccountExists(user2)) {
+            accountManagement.addUser(user2, "password1");
         }
-        if (!accountManagement.verifyAccountExists(EntityImpl.parse("user3@vysper.org"))) {
-            accountManagement.addUser("user3@vysper.org", "password1");
+        Entity user3 = EntityImpl.parse("user3@vysper.org");
+        if (!accountManagement.verifyAccountExists(user3)) {
+            accountManagement.addUser(user3, "password1");
         }
 
         XMPPServer server = new XMPPServer("vysper.org");
