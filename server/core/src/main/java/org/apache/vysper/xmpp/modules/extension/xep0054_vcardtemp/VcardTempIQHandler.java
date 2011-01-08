@@ -72,13 +72,13 @@ public class VcardTempIQHandler extends DefaultIQHandler {
         try {
             vCardElement = stanza.getSingleInnerElementsNamed("vCard");
         } catch (XMLSemanticError xmlSemanticError) {
-            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
+            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
                     StanzaErrorType.MODIFY, "vCard element is missing", null, null);
         }
         String vcardContent = new Renderer(vCardElement).getComplete();
 
         if (persistenceManager == null) {
-            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR,
+            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR,
                     stanza, StanzaErrorType.WAIT, "internal storage inaccessible", null, null);
         }
 

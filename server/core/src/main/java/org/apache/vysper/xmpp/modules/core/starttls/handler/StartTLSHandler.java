@@ -76,6 +76,6 @@ public class StartTLSHandler implements StanzaHandler {
     }
 
     private ResponseStanzaContainer respondTLSFailure() {
-        return new ResponseStanzaContainerImpl(ServerErrorResponses.getInstance().getTLSFailure());
+        return new ResponseStanzaContainerImpl(ServerErrorResponses.getTLSFailure());
     }
 }

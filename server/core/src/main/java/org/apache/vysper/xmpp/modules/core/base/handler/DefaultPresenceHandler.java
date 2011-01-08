@@ -73,7 +73,7 @@ public class DefaultPresenceHandler extends XMPPCoreStanzaHandler {
     protected Stanza executePresenceLogic(PresenceStanza stanza, ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
         // this is default behavior and must be replaced by overrider
-        return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
+        return ServerErrorResponses.getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
                 StanzaErrorType.CANCEL, null, null, null);
     }
 

@@ -80,7 +80,7 @@ public abstract class DefaultIQHandler extends IQHandler {
             SessionContext sessionContext) {
         logger.warn("IQ 'result' stanza not handled by {}: {}", getClass().getCanonicalName(), DenseStanzaLogRenderer
                 .render(stanza));
-        return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
+        return ServerErrorResponses.getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
                 StanzaErrorType.CANCEL, "iq stanza of type 'result' is not handled for this namespace",
                 getErrorLanguage(serverRuntimeContext, sessionContext), null);
     }
@@ -88,7 +88,7 @@ public abstract class DefaultIQHandler extends IQHandler {
     protected Stanza handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         logger.warn("IQ 'get' stanza not handled by {}: {}", getClass().getCanonicalName(), DenseStanzaLogRenderer
                 .render(stanza));
-        return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
+        return ServerErrorResponses.getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
                 StanzaErrorType.CANCEL, "iq stanza of type 'get' is not handled for this namespace",
                 getErrorLanguage(serverRuntimeContext, sessionContext), null);
     }
@@ -102,7 +102,7 @@ public abstract class DefaultIQHandler extends IQHandler {
     protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         logger.warn("IQ 'set' stanza not handled by {}: {}", getClass().getCanonicalName(), DenseStanzaLogRenderer
                 .render(stanza));
-        return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
+        return ServerErrorResponses.getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
                 StanzaErrorType.CANCEL, "iq stanza of type 'set' is not handled for this namespace",
                 getErrorLanguage(serverRuntimeContext, sessionContext), null);
     }

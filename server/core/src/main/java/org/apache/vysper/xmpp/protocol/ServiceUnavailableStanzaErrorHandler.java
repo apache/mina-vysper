@@ -55,7 +55,7 @@ public class ServiceUnavailableStanzaErrorHandler implements StanzaHandler {
             throw new IllegalArgumentException("cannot coerce into a message, iq or presence stanza");
 
         XMPPCoreStanza coreStanza = (XMPPCoreStanza) stanza;
-        Stanza errorStanza = ServerErrorResponses.getInstance().getStanzaError(
+        Stanza errorStanza = ServerErrorResponses.getStanzaError(
                 StanzaErrorCondition.SERVICE_UNAVAILABLE, coreStanza, StanzaErrorType.CANCEL,
                 "namespace not supported", null, null);
         return new ResponseStanzaContainerImpl(errorStanza);

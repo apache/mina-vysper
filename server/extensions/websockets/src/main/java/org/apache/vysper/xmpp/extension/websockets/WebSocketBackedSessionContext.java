@@ -123,7 +123,7 @@ public class WebSocketBackedSessionContext extends AbstractSessionContext implem
             // should never happen since we read from a string
             throw new RuntimeException(e);
         } catch (SAXException e) {
-            Stanza errorStanza = ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.XML_NOT_WELL_FORMED,
+            Stanza errorStanza = ServerErrorResponses.getStreamError(StreamErrorCondition.XML_NOT_WELL_FORMED,
                     getXMLLang(), "Stanza not well-formed", null);
             write(errorStanza);
             endSession(SessionTerminationCause.STREAM_ERROR);

@@ -35,20 +35,12 @@ import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class ServerErrorResponses {
-    private static ServerErrorResponses serverErrorResponsesInstance = null;
 
-    public static ServerErrorResponses getInstance() {
-        if (serverErrorResponsesInstance == null) {
-            serverErrorResponsesInstance = new ServerErrorResponses();
-        }
-        return serverErrorResponsesInstance;
-    }
-
-    protected ServerErrorResponses() {
+    private ServerErrorResponses() {
         // empty
     }
 
-    public Stanza getStreamError(StreamErrorCondition definedErrorCondition, String languageCode,
+    public static Stanza getStreamError(StreamErrorCondition definedErrorCondition, String languageCode,
             String descriptiveText, XMLElement applicationSpecificError) {
 
         /*
@@ -91,11 +83,11 @@ public class ServerErrorResponses {
      * @param errorConditionElement - optional application specific error condition element
      * @return error response stanza
      */
-    public Stanza getStanzaError(StanzaErrorCondition errorCondition, XMPPCoreStanza stanza, StanzaErrorType type,
+    public static Stanza getStanzaError(StanzaErrorCondition errorCondition, XMPPCoreStanza stanza, StanzaErrorType type,
             String errorText, String errorLang, XMLElement errorConditionElement) {
 
         if (stanza != null && "error".equals(stanza.getType())) {
-            return ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.UNSUPPORTED_STANZA_TYPE,
+            return ServerErrorResponses.getStreamError(StreamErrorCondition.UNSUPPORTED_STANZA_TYPE,
                     errorLang, "cannot respond to IQ stanza of type error with the same", null);
         }
 
@@ -106,7 +98,7 @@ public class ServerErrorResponses {
         return responseBuilder.build();
     }
 
-    private void fillErrorStanza(XMPPCoreStanza stanza, StanzaErrorType type, StanzaErrorCondition errorCondition,
+    private static void fillErrorStanza(XMPPCoreStanza stanza, StanzaErrorType type, StanzaErrorCondition errorCondition,
             String errorText, String errorLang, XMLElement errorConditionElement, StanzaBuilder responseBuilder) {
         // inline incoming stanza as of RFC 3920 9.3.1
         for (XMLElement innerElement : stanza.getInnerElements()) {
@@ -132,12 +124,12 @@ public class ServerErrorResponses {
         responseBuilder.endInnerElement();
     }
 
-    public Stanza getTLSFailure() {
+    public static Stanza getTLSFailure() {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("failure", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS);
         return stanzaBuilder.build();
     }
 
-    public Stanza getSASLFailure(SASLFailureType failureType) {
+    public static Stanza getSASLFailure(SASLFailureType failureType) {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("failure", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
         if (failureType != null) {
             stanzaBuilder.startInnerElement(failureType.toString(), NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)

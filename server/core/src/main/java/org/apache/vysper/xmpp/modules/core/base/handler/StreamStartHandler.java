@@ -134,7 +134,7 @@ public class StreamStartHandler implements StanzaHandler {
                 try {
                     EntityImpl.parse(toValue);
                 } catch (EntityFormatException e) {
-                    return new ResponseStanzaContainerImpl(ServerErrorResponses.getInstance().getStreamError(
+                    return new ResponseStanzaContainerImpl(ServerErrorResponses.getStreamError(
                             StreamErrorCondition.IMPROPER_ADDRESSING, sessionContext.getXMLLang(),
                             "could not parse incoming stanza's TO attribute", null));
 
@@ -154,7 +154,7 @@ public class StreamStartHandler implements StanzaHandler {
                 try {
                     EntityImpl.parse(fromValue);
                 } catch (EntityFormatException e) {
-                    return new ResponseStanzaContainerImpl(ServerErrorResponses.getInstance().getStreamError(
+                    return new ResponseStanzaContainerImpl(ServerErrorResponses.getStreamError(
                             StreamErrorCondition.INVALID_FROM, sessionContext.getXMLLang(),
                             "could not parse incoming stanza's FROM attribute", null));
                 }
@@ -186,12 +186,12 @@ public class StreamStartHandler implements StanzaHandler {
     }
 
     private ResponseStanzaContainer respondIllegalNamespaceError(String descriptiveText) {
-        return new ResponseStanzaContainerImpl(ServerErrorResponses.getInstance().getStreamError(
+        return new ResponseStanzaContainerImpl(ServerErrorResponses.getStreamError(
                 StreamErrorCondition.INVALID_NAMESPACE, null, descriptiveText, null));
     }
 
     private ResponseStanzaContainer respondUnsupportedStanzaType(String descriptiveText) {
-        return new ResponseStanzaContainerImpl(ServerErrorResponses.getInstance().getStreamError(
+        return new ResponseStanzaContainerImpl(ServerErrorResponses.getStreamError(
                 StreamErrorCondition.UNSUPPORTED_STANZA_TYPE, null, descriptiveText, null));
     }
 
@@ -199,7 +199,7 @@ public class StreamStartHandler implements StanzaHandler {
             String errorMessage) {
         if (xmlLang == null)
             xmlLang = "en_US";
-        Stanza error = ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.UNSUPPORTED_VERSION,
+        Stanza error = ServerErrorResponses.getStreamError(StreamErrorCondition.UNSUPPORTED_VERSION,
                 xmlLang, errorMessage + versionAttributeValue, null);
         return new ResponseStanzaContainerImpl(error);
     }

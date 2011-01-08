@@ -120,14 +120,14 @@ System.out.println(stanzaHandler);
             if(coreStanza != null) {
                 // stanza must come from the origin server
                 if(from == null) {
-                    Stanza errorStanza = ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.UNKNOWN_SENDER,
+                    Stanza errorStanza = ServerErrorResponses.getStanzaError(StanzaErrorCondition.UNKNOWN_SENDER,
                             coreStanza, StanzaErrorType.MODIFY, "Missing from attribute", null, null);
                     ResponseWriter.writeResponse(sessionContext, errorStanza);
                     return;
                 } else if(!from.getDomain().equals(sessionContext.getInitiatingEntity().getDomain())) {
                     // make sure the from attribute refers to the correct remote server
                     
-                        Stanza errorStanza = ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.UNKNOWN_SENDER,
+                        Stanza errorStanza = ServerErrorResponses.getStanzaError(StanzaErrorCondition.UNKNOWN_SENDER,
                                 coreStanza, StanzaErrorType.MODIFY, "Incorrect from attribute", null, null);
                         ResponseWriter.writeResponse(sessionContext, errorStanza); 
                         return;
@@ -136,13 +136,13 @@ System.out.println(stanzaHandler);
                 Entity to = stanza.getTo();
                 if(to == null) {
                     // TODO what's the appropriate error? StreamErrorCondition.IMPROPER_ADDRESSING?
-                    Stanza errorStanza = ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.BAD_REQUEST,
+                    Stanza errorStanza = ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST,
                             coreStanza, StanzaErrorType.MODIFY, "Missing to attribute", null, null);
                     ResponseWriter.writeResponse(sessionContext, errorStanza);
                     return;                    
                 } else if(!to.getDomain().equals(serverRuntimeContext.getServerEnitity().getDomain())) {
                     // TODO what's the appropriate error? StreamErrorCondition.IMPROPER_ADDRESSING?
-                    Stanza errorStanza = ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.BAD_REQUEST,
+                    Stanza errorStanza = ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST,
                             coreStanza, StanzaErrorType.MODIFY, "Invalid to attribute", null, null);
                     ResponseWriter.writeResponse(sessionContext, errorStanza);
                     return;                    

@@ -108,7 +108,7 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
         if (isOutboundStanza) {
             Entity user = XMPPCoreStanzaHandler.extractUniqueSenderJID(presenceStanza, sessionContext);
             if (user == null) {
-                return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.UNKNOWN_SENDER,
+                return ServerErrorResponses.getStanzaError(StanzaErrorCondition.UNKNOWN_SENDER,
                         presenceStanza, StanzaErrorType.MODIFY, "sender info insufficient: no from", null, null);
             }
 

@@ -102,7 +102,7 @@ public abstract class XMPPCoreStanzaHandler implements StanzaHandler {
         Entity to = stanza.getTo();
         if (sessionContext != null && sessionContext.isServerToServer() && to == null) {
             // "to" MUST be present for jabber:server
-            return new ResponseStanzaContainerImpl(ServerErrorResponses.getInstance().getStreamError(
+            return new ResponseStanzaContainerImpl(ServerErrorResponses.getStreamError(
                     StreamErrorCondition.IMPROPER_ADDRESSING, stanza.getXMLLang(), "missing to attribute", null));
         }
 

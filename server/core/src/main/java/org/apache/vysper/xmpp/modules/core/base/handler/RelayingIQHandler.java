@@ -54,7 +54,7 @@ public class RelayingIQHandler extends IQHandler {
         // but we might will relay to a component (chat.vysper.org)
         Entity to = stanza.getTo();
         if (to == null || to.equals(sessionContext.getServerJID())) {
-            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED,
+            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED,
                     stanza, StanzaErrorType.CANCEL, null, null, null);
         }
 
@@ -82,7 +82,7 @@ public class RelayingIQHandler extends IQHandler {
                 }
                 // deny relaying if neither isFromContact nor toComponent
                 if (!isFromContact && !toComponent) {
-                    return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE,
+                    return ServerErrorResponses.getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE,
                             stanza, StanzaErrorType.CANCEL, null, null, null);
                 }
 
@@ -110,7 +110,7 @@ public class RelayingIQHandler extends IQHandler {
             }
             // ...otherwise relaying is denied
             if (!isToContact && !fromComponent) {
-                return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE,
+                return ServerErrorResponses.getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE,
                         stanza, StanzaErrorType.CANCEL, null, null, null);
             }
 

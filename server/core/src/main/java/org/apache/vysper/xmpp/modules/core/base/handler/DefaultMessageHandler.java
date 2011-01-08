@@ -73,7 +73,7 @@ public class DefaultMessageHandler extends XMPPCoreStanzaHandler {
     protected Stanza executeMessageLogic(MessageStanza stanza, ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
         // this is default behavior and must be replaced by overrider
-        return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
+        return ServerErrorResponses.getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
                 StanzaErrorType.CANCEL, null, null, null);
     }
 

@@ -57,7 +57,7 @@ public class AuthCompatibilityIQHandler extends IQHandler {
 
         case GET:
         case SET:
-            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE, stanza,
+            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE, stanza,
                     StanzaErrorType.CANCEL, "jabber:iq:auth not supported", "en", null);
 
         case ERROR:

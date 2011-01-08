@@ -125,7 +125,7 @@ public class MUCIqAdminHandler extends DefaultIQHandler {
 
     private Stanza createBadRequestError(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext, String message) {
-        return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
+        return ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
                 StanzaErrorType.MODIFY, message,
                 getErrorLanguage(serverRuntimeContext, sessionContext), null);
     }

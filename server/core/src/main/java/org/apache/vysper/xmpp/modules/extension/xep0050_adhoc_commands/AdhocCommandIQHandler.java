@@ -58,7 +58,7 @@ public class AdhocCommandIQHandler extends DefaultIQHandler {
         try {
             XMLElement commandElement = stanza.getSingleInnerElementsNamed("command");
             if (commandElement == null) {
-                return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
+                return ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
                         StanzaErrorType.MODIFY, "command is missing", null, null);
             }
             commandNode = commandElement.getAttributeValue("node");
@@ -76,13 +76,13 @@ public class AdhocCommandIQHandler extends DefaultIQHandler {
             } else {
                 commandHandler = runningCommands.get(requestedSessionId);
                 if (commandHandler == null) {
-                    return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
+                    return ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
                             StanzaErrorType.CANCEL, "command session id not found: " + requestedSessionId, null, null);
                 }
             }
             commandElements = commandElement.getInnerElements();
         } catch (XMLSemanticError xmlSemanticError) {
-            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
+            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
                     StanzaErrorType.MODIFY, "command is not well-formed", null, null);
         }
 
@@ -93,7 +93,7 @@ public class AdhocCommandIQHandler extends DefaultIQHandler {
 
         // handle unauthorized access (or command does not exist at all)
         if (commandHandler == null) {
-            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.FORBIDDEN, stanza,
+            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.FORBIDDEN, stanza,
                     StanzaErrorType.CANCEL, "command is not available", null, null);
         }
 

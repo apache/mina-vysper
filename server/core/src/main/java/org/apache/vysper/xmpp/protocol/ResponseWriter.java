@@ -39,7 +39,7 @@ public class ResponseWriter {
 
     public static void writeUnsupportedStanzaError(SessionContext sessionContext) {
 
-        Stanza errorStanza = ServerErrorResponses.getInstance().getStreamError(
+        Stanza errorStanza = ServerErrorResponses.getStreamError(
                 StreamErrorCondition.UNSUPPORTED_STANZA_TYPE, sessionContext.getXMLLang(),
                 "service unavailable at this session state", null);
         Stanza streamOpener = new ServerResponses().getStreamOpenerForError(false, sessionContext.getServerJID(),
@@ -74,21 +74,21 @@ public class ResponseWriter {
             errorStanza = protocolException.getErrorStanza();
 
         if (errorStanza == null) {
-            errorStanza = ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.BAD_FORMAT,
+            errorStanza = ServerErrorResponses.getStreamError(StreamErrorCondition.BAD_FORMAT,
                     sessionContext.getXMLLang(), "could not process incoming stanza", receivedStanza);
         }
         writeErrorAndClose(sessionContext, errorStanza);
     }
 
     public void handleUnsupportedStanzaType(SessionContext sessionContext, Stanza receivedStanza) {
-        Stanza errorStanza = ServerErrorResponses.getInstance().getStreamError(
+        Stanza errorStanza = ServerErrorResponses.getStreamError(
                 StreamErrorCondition.UNSUPPORTED_STANZA_TYPE, sessionContext.getXMLLang(),
                 "could not process incoming stanza", receivedStanza);
         writeErrorAndClose(sessionContext, errorStanza);
     }
 
     public void handleNotAuthorized(SessionContext sessionContext, Stanza receivedStanza) {
-        Stanza errorStanza = ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.NOT_AUTHORIZED,
+        Stanza errorStanza = ServerErrorResponses.getStreamError(StreamErrorCondition.NOT_AUTHORIZED,
                 sessionContext.getXMLLang(), "could not process incoming stanza", receivedStanza);
         writeErrorAndClose(sessionContext, errorStanza);
     }
@@ -100,7 +100,7 @@ public class ResponseWriter {
             return;
         }
 
-        Stanza errorStanza = ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.UNKNOWN_SENDER,
+        Stanza errorStanza = ServerErrorResponses.getStanzaError(StanzaErrorCondition.UNKNOWN_SENDER,
                 receivedCoreStanza, StanzaErrorType.MODIFY, "from attribute does not match authorized entity", null,
                 null);
         writeResponse(sessionContext, errorStanza);
@@ -110,7 +110,7 @@ public class ResponseWriter {
         //TODO write the __right__ error response, not bad-format default only
         if (e.getErrorCondition() != ParsingErrorCondition.BAD_FORMAT)
             throw new RuntimeException("cannot handle this error condition yet");
-        Stanza errorStanza = ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.BAD_FORMAT,
+        Stanza errorStanza = ServerErrorResponses.getStreamError(StreamErrorCondition.BAD_FORMAT,
                 sessionContext.getXMLLang(), "could not parse incoming stanza", null);
         writeErrorAndClose(sessionContext, errorStanza);
     }

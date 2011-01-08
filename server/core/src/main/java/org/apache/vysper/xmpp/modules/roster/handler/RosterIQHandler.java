@@ -96,7 +96,7 @@ public class RosterIQHandler extends DefaultIQHandler {
 
         Entity from = extractUniqueSenderJID(stanza, sessionContext);
         if (from == null || !from.isResourceSet()) {
-            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.UNKNOWN_SENDER, stanza,
+            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.UNKNOWN_SENDER, stanza,
                     StanzaErrorType.MODIFY,
                     "sender info insufficient: " + ((from == null) ? "no from" : from.getFullQualifiedName()), null,
                     null);
@@ -138,7 +138,7 @@ public class RosterIQHandler extends DefaultIQHandler {
 
         Entity user = extractUniqueSenderJID(stanza, sessionContext);
         if (user == null || !user.isResourceSet()) {
-            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.UNKNOWN_SENDER, stanza,
+            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.UNKNOWN_SENDER, stanza,
                     StanzaErrorType.MODIFY,
                     "sender info insufficient: " + ((user == null) ? "no from" : user.getFullQualifiedName()), null,
                     null);
@@ -148,10 +148,10 @@ public class RosterIQHandler extends DefaultIQHandler {
         try {
             setRosterItem = RosterUtils.parseRosterItem(stanza);
         } catch (RosterBadRequestException e) {
-            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
+            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
                     StanzaErrorType.MODIFY, e.getMessage(), null, null);
         } catch (RosterNotAcceptableException e) {
-            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.NOT_ACCEPTABLE, stanza,
+            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.NOT_ACCEPTABLE, stanza,
                     StanzaErrorType.MODIFY, e.getMessage(), null, null);
         }
 
@@ -185,7 +185,7 @@ public class RosterIQHandler extends DefaultIQHandler {
             // update contact persistently
             rosterManager.addContact(user.getBareJID(), existingItem);
         } catch (RosterException e) {
-            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
+            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
                     StanzaErrorType.CANCEL, "roster item contact not (yet) in roster: " + contactJid, null, null);
         }
 
@@ -215,7 +215,7 @@ public class RosterIQHandler extends DefaultIQHandler {
         try {
             rosterManager.removeContact(user.getBareJID(), contactJid);
         } catch (RosterException e) {
-            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.ITEM_NOT_FOUND, stanza,
+            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.ITEM_NOT_FOUND, stanza,
                     StanzaErrorType.CANCEL, "roster item contact not in roster: " + contactJid, null, null);
         }
 

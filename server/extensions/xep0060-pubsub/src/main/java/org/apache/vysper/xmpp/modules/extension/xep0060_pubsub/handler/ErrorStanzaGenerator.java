@@ -46,9 +46,6 @@ public class ErrorStanzaGenerator {
 
     protected static final String INVALID_JID = "invalid-jid";
 
-    // The ServerErrorResponses object for generating type-safe error stanzas
-    protected ServerErrorResponses errorResponses = ServerErrorResponses.getInstance();
-
     /**
      * Creates a "JID malformed" error stanza (not specific to the pubsub module).
      * 
@@ -58,7 +55,7 @@ public class ErrorStanzaGenerator {
      * @return the generated stanza.
      */
     public Stanza generateJIDMalformedErrorStanza(Entity sender, Entity receiver, IQStanza stanza) {
-        return errorResponses.getStanzaError(StanzaErrorCondition.JID_MALFORMED, stanza, StanzaErrorType.MODIFY, null,
+        return ServerErrorResponses.getStanzaError(StanzaErrorCondition.JID_MALFORMED, stanza, StanzaErrorType.MODIFY, null,
                 null, null);
     }
 
@@ -71,7 +68,7 @@ public class ErrorStanzaGenerator {
      * @return the generated stanza.
      */
     public Stanza generateInsufficientPrivilegesErrorStanza(Entity sender, Entity receiver, IQStanza stanza) {
-        return errorResponses.getStanzaError(StanzaErrorCondition.FORBIDDEN, stanza, StanzaErrorType.AUTH, null, null,
+        return ServerErrorResponses.getStanzaError(StanzaErrorCondition.FORBIDDEN, stanza, StanzaErrorType.AUTH, null, null,
                 null);
     }
 
@@ -86,7 +83,7 @@ public class ErrorStanzaGenerator {
      */
     public Stanza generateNoSuchSubscriberErrorStanza(Entity sender, Entity receiver, IQStanza stanza) {
         XMLElement notSubscribed = createXMLElement(NOT_SUBSCRIBED, NamespaceURIs.XEP0060_PUBSUB_ERRORS);
-        return errorResponses.getStanzaError(StanzaErrorCondition.UNEXPECTED_REQUEST, stanza, StanzaErrorType.CANCEL,
+        return ServerErrorResponses.getStanzaError(StanzaErrorCondition.UNEXPECTED_REQUEST, stanza, StanzaErrorType.CANCEL,
                 null, null, notSubscribed);
     }
 
@@ -101,7 +98,7 @@ public class ErrorStanzaGenerator {
      */
     public Stanza generateSubIDRequiredErrorStanza(Entity sender, Entity receiver, IQStanza stanza) {
         XMLElement subidRequired = createXMLElement(SUBID_REQUIRED, NamespaceURIs.XEP0060_PUBSUB_ERRORS);
-        return errorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza, StanzaErrorType.MODIFY, null,
+        return ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza, StanzaErrorType.MODIFY, null,
                 null, subidRequired);
     }
 
@@ -114,7 +111,7 @@ public class ErrorStanzaGenerator {
      * @return the generated stanza.
      */
     public Stanza generateNoNodeErrorStanza(Entity sender, Entity receiver, IQStanza stanza) {
-        return errorResponses.getStanzaError(StanzaErrorCondition.ITEM_NOT_FOUND, stanza, StanzaErrorType.CANCEL, null,
+        return ServerErrorResponses.getStanzaError(StanzaErrorCondition.ITEM_NOT_FOUND, stanza, StanzaErrorType.CANCEL, null,
                 null, null);
     }
 
@@ -129,7 +126,7 @@ public class ErrorStanzaGenerator {
      */
     public Stanza generateSubIDNotValidErrorStanza(Entity sender, Entity receiver, IQStanza stanza) {
         XMLElement invalidSubID = createXMLElement(INVALID_SUBID, NamespaceURIs.XEP0060_PUBSUB_ERRORS);
-        return errorResponses.getStanzaError(StanzaErrorCondition.NOT_ACCEPTABLE, stanza, StanzaErrorType.MODIFY, null,
+        return ServerErrorResponses.getStanzaError(StanzaErrorCondition.NOT_ACCEPTABLE, stanza, StanzaErrorType.MODIFY, null,
                 null, invalidSubID);
     }
 
@@ -144,7 +141,7 @@ public class ErrorStanzaGenerator {
      */
     public Stanza generateJIDDontMatchErrorStanza(Entity sender, Entity receiver, IQStanza stanza) {
         XMLElement invalidJID = createXMLElement(INVALID_JID, NamespaceURIs.XEP0060_PUBSUB_ERRORS);
-        return errorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza, StanzaErrorType.MODIFY, null,
+        return ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza, StanzaErrorType.MODIFY, null,
                 null, invalidJID);
     }
 
@@ -157,7 +154,7 @@ public class ErrorStanzaGenerator {
      * @return the generated stanza.
      */
     public Stanza generateBadRequestErrorStanza(Entity sender, Entity receiver, IQStanza stanza) {
-        return errorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza, StanzaErrorType.MODIFY, null,
+        return ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza, StanzaErrorType.MODIFY, null,
                 null, null);
     }
 
@@ -170,7 +167,7 @@ public class ErrorStanzaGenerator {
      * @return
      */
     public Stanza generateDuplicateNodeErrorStanza(Entity sender, Entity receiver, IQStanza stanza) {
-        return errorResponses.getStanzaError(StanzaErrorCondition.CONFLICT, stanza, StanzaErrorType.CANCEL, null, null,
+        return ServerErrorResponses.getStanzaError(StanzaErrorCondition.CONFLICT, stanza, StanzaErrorType.CANCEL, null, null,
                 null);
     }
 
@@ -195,7 +192,7 @@ public class ErrorStanzaGenerator {
      * @return the generated stanza.
      */
     public Stanza generateNotAcceptableErrorStanza(Entity sender, Entity receiver, IQStanza stanza) {
-        return errorResponses.getStanzaError(StanzaErrorCondition.NOT_ACCEPTABLE, stanza, StanzaErrorType.MODIFY, null,
+        return ServerErrorResponses.getStanzaError(StanzaErrorCondition.NOT_ACCEPTABLE, stanza, StanzaErrorType.MODIFY, null,
                 null, null);
     }
 }

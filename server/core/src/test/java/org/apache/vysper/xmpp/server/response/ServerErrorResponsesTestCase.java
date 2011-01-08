@@ -51,9 +51,7 @@ public class ServerErrorResponsesTestCase extends TestCase {
         Stanza request = builder.build();
         IQStanza requestIq = new IQStanza(request);
 
-        ServerErrorResponses serverErrorResponses = ServerErrorResponses.getInstance();
-
-        Stanza errorReply = serverErrorResponses.getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE, requestIq,
+        Stanza errorReply = ServerErrorResponses.getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE, requestIq,
                 StanzaErrorType.CANCEL, "Test", "en", null);
         assertEquals("error", errorReply.getAttributeValue("type"));
         assertEquals(SERVER_JID, errorReply.getAttributeValue("from"));

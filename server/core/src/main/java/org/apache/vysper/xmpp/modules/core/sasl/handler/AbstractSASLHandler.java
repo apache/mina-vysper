@@ -53,7 +53,7 @@ public abstract class AbstractSASLHandler implements StanzaHandler {
             throws AuthorizationFailedException {
         if (!AuthorizationRetriesCounter.getFromSession(sessionContext).hasTriesLeft()) {
             AuthorizationFailedException failedException = new AuthorizationFailedException("too many retries");
-            failedException.setErrorStanza(ServerErrorResponses.getInstance().getStreamError(
+            failedException.setErrorStanza(ServerErrorResponses.getStreamError(
                     StreamErrorCondition.POLICY_VIOLATION, null, null, null));
             throw failedException;
         }
@@ -72,7 +72,7 @@ public abstract class AbstractSASLHandler implements StanzaHandler {
     }
 
     protected ResponseStanzaContainer respondSASLFailure() {
-        return new ResponseStanzaContainerImpl(ServerErrorResponses.getInstance().getSASLFailure(
+        return new ResponseStanzaContainerImpl(ServerErrorResponses.getSASLFailure(
                 SASLFailureType.MALFORMED_REQUEST));
     }
 

@@ -77,7 +77,7 @@ public class DiscoItemIQHandler extends DefaultIQHandler {
         }
 
         if (serviceCollector == null) {
-            return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR,
+            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR,
                     stanza, StanzaErrorType.CANCEL, "cannot retrieve IQ-get-items result from internal components",
                     getErrorLanguage(serverRuntimeContext, sessionContext), null);
         }
@@ -91,7 +91,7 @@ public class DiscoItemIQHandler extends DefaultIQHandler {
             isServerInfoRequest = serverRuntimeContext.getServerEnitity().equals(to);
             isComponentInfoRequest = serverRuntimeContext.getComponentStanzaProcessor(to) != null;
             if (!isServerInfoRequest && !isComponentInfoRequest) {
-                return ServerErrorResponses.getInstance().getStanzaError(StanzaErrorCondition.ITEM_NOT_FOUND, stanza,
+                return ServerErrorResponses.getStanzaError(StanzaErrorCondition.ITEM_NOT_FOUND, stanza,
                         StanzaErrorType.CANCEL,
                         "server does not handle items query requests for " + to.getFullQualifiedName(),
                         getErrorLanguage(serverRuntimeContext, sessionContext), null);
@@ -113,7 +113,7 @@ public class DiscoItemIQHandler extends DefaultIQHandler {
             StanzaErrorCondition stanzaErrorCondition = e.getErrorCondition();
             if (stanzaErrorCondition == null)
                 stanzaErrorCondition = StanzaErrorCondition.INTERNAL_SERVER_ERROR;
-            return ServerErrorResponses.getInstance().getStanzaError(stanzaErrorCondition, stanza,
+            return ServerErrorResponses.getStanzaError(stanzaErrorCondition, stanza,
                     StanzaErrorType.CANCEL, "disco info request failed.",
                     getErrorLanguage(serverRuntimeContext, sessionContext), null);
         }

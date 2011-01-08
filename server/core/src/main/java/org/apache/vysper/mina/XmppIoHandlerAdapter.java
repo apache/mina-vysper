@@ -131,14 +131,14 @@ public class XmppIoHandlerAdapter implements IoHandler {
         Stanza errorStanza;
         if(throwable.getCause() != null && throwable.getCause() instanceof SAXParseException) {
             logger.info("Client sent not well-formed XML, closing session: {}", throwable);
-            errorStanza = ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.XML_NOT_WELL_FORMED,
+            errorStanza = ServerErrorResponses.getStreamError(StreamErrorCondition.XML_NOT_WELL_FORMED,
                     sessionContext.getXMLLang(), "Stanza not well-formed", null);
         } else if(throwable instanceof WriteToClosedSessionException) {
             // ignore
             return;
         } else {
             logger.warn("error caught on transportation layer: {}", throwable);
-            errorStanza = ServerErrorResponses.getInstance().getStreamError(StreamErrorCondition.UNDEFINED_CONDITION,
+            errorStanza = ServerErrorResponses.getStreamError(StreamErrorCondition.UNDEFINED_CONDITION,
                     sessionContext.getXMLLang(), "Unknown error", null);
 
         }

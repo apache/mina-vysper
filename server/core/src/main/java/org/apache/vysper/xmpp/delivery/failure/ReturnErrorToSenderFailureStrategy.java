@@ -80,7 +80,7 @@ public class ReturnErrorToSenderFailureStrategy implements DeliveryFailureStrate
         }
 
         if (deliveryExceptions == null) {
-            XMPPCoreStanza error = XMPPCoreStanza.getWrapper(ServerErrorResponses.getInstance().getStanzaError(
+            XMPPCoreStanza error = XMPPCoreStanza.getWrapper(ServerErrorResponses.getStanzaError(
                     stanzaErrorCondition, failedCoreStanza, errorType, "stanza could not be delivered", "en", null));
             stanzaRelay.relay(error.getTo(), error, IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY);
         } else if (deliveryExceptions.size() == 1) {
@@ -118,7 +118,7 @@ public class ReturnErrorToSenderFailureStrategy implements DeliveryFailureStrate
                 // RFC3921bis#10.4.3: return remote server error to sender
                 SmartDeliveryException smartDeliveryException = (SmartDeliveryException) deliveryException;
                 XMPPCoreStanza error = XMPPCoreStanza
-                        .getWrapper(ServerErrorResponses.getInstance().getStanzaError(
+                        .getWrapper(ServerErrorResponses.getStanzaError(
                                 smartDeliveryException.getStanzaErrorCondition(), failedCoreStanza,
                                 smartDeliveryException.getStanzaErrorType(), smartDeliveryException.getErrorText(),
                                 "en", null));
