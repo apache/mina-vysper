@@ -25,6 +25,8 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
+import org.junit.Assert;
+
 /**
  */
 public class XMLElementTestCase extends TestCase {
@@ -208,7 +210,59 @@ public class XMLElementTestCase extends TestCase {
         assertNull(xmlElement.getAttributeValue("http://example.com", "foo"));
         assertNull(xmlElement.getAttributeValue("lang"));
         assertEquals("cn", xmlElement.getAttributeValue(Namespaces.XML, "lang"));
+    }
+    
+    public void testEqualsAttributeOrder() {
+        XMLElement elm1 = new XMLElementBuilder("test")
+            .addAttribute("attr1", "foo")
+            .addAttribute("attr2", "foo")
+            .build();
 
+        XMLElement elm2 = new XMLElementBuilder("test")
+        .addAttribute("attr2", "foo")
+        .addAttribute("attr1", "foo")
+        .build();
+        
+        Assert.assertTrue("Equals must be true", elm1.equals(elm2));
+    }
+
+    public void testEqualsAttributeValue() {
+        XMLElement elm1 = new XMLElementBuilder("test")
+            .addAttribute("attr1", "foo")
+            .addAttribute("attr2", "bar")
+            .build();
+
+        XMLElement elm2 = new XMLElementBuilder("test")
+            .addAttribute("attr1", "foo")
+            .addAttribute("attr2", "foo")
+            .build();
+        
+        Assert.assertFalse("Equals must be false", elm1.equals(elm2));
+    }
+
+    public void testEqualsAttributeMissing() {
+        XMLElement elm1 = new XMLElementBuilder("test")
+            .addAttribute("attr1", "foo")
+            .addAttribute("attr2", "bar")
+            .build();
+
+        XMLElement elm2 = new XMLElementBuilder("test")
+            .addAttribute("attr1", "foo")
+            .build();
+        
+        Assert.assertFalse("Equals must be false", elm1.equals(elm2));
+    }
+
+    public void testEqualsNoAttributes() {
+        XMLElement elm1 = new XMLElementBuilder("test")
+            .addAttribute("attr1", "foo")
+            .addAttribute("attr2", "bar")
+            .build();
+
+        XMLElement elm2 = new XMLElementBuilder("test")
+            .build();
+        
+        Assert.assertFalse("Equals must be false", elm1.equals(elm2));
     }
 
 }

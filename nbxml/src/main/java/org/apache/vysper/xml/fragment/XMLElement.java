@@ -297,8 +297,26 @@ public class XMLElement implements XMLFragment {
 
         final XMLElement that = (XMLElement) o;
 
-        if (attributes != null ? !attributes.equals(that.attributes) : that.attributes != null)
+        // attributes are allowed to be in any order
+        if(attributes != null && that.attributes != null) {
+            if(attributes.size() != that.attributes.size()) return false;
+            for(Attribute attribute : attributes) {
+                boolean found = false;
+                for(Attribute thatAttribute : that.attributes) {
+                    if(thatAttribute.equals(attribute)) {
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found) return false;
+            }
+            
+        } else if(attributes == null && that.attributes == null) {
+            // ok
+        } else {
             return false;
+        }
+        
         if (innerFragments != null ? !innerFragments.equals(that.innerFragments) : that.innerFragments != null) {
             return false;
         }
