@@ -25,21 +25,36 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.apache.vysper.xml.fragment.Renderer;
+import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.Anonymous;
 import org.apache.vysper.xmpp.authorization.External;
 import org.apache.vysper.xmpp.authorization.Plain;
 import org.apache.vysper.xmpp.authorization.SASLMechanism;
 import org.apache.vysper.xmpp.parser.ParsingException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.SessionState;
+import org.apache.vysper.xmpp.server.XMPPVersion;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 /**
  */
-public class ServerResponsesTestCase extends TestCase {
+public class ServerResponsesTestCase {
 
+    private static final Entity FROM = EntityImpl.parseUnchecked("from.org");
+    private static final Entity TO = EntityImpl.parseUnchecked("to.org");
+    private static final XMPPVersion VERSION = XMPPVersion.VERSION_1_0;
+    private SessionContext sessionContext = Mockito.mock(SessionContext.class);
+
+    
+    @Test
     public void testFeaturesForAuthentication() throws ParsingException {
-
         Stanza stanza = new StanzaBuilder("features").startInnerElement("mechanisms",
                 NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).startInnerElement("mechanism",
                 NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).addText("EXTERNAL").endInnerElement()
@@ -52,7 +67,96 @@ public class ServerResponsesTestCase extends TestCase {
         mechanismList.add(new Plain());
         mechanismList.add(new Anonymous());
         // add others
-        assertEquals("stanzas are identical", stanza.toString(), new ServerResponses().getFeaturesForAuthentication(
+        Assert.assertEquals("stanzas are identical", stanza.toString(), new ServerResponses().getFeaturesForAuthentication(
                 mechanismList).toString());
     }
+    
+    @Test
+    public void getStreamOpenerForServerAcceptorInititatedTlsSupported() throws ParsingException {
+        Mockito.when(sessionContext.getState()).thenReturn(SessionState.INITIATED);
+        
+        Stanza expected = new StanzaBuilder("stream", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS, "stream")
+            .addAttribute("from", FROM.getFullQualifiedName())
+            .addAttribute("version", "1.0")
+            .declareNamespace("db", NamespaceURIs.JABBER_SERVER_DIALBACK)
+            .declareNamespace("", NamespaceURIs.JABBER_SERVER)
+            .startInnerElement("features", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS)
+                .startInnerElement("starttls", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS).endInnerElement()
+                .startInnerElement("dialback", NamespaceURIs.URN_XMPP_FEATURES_DIALBACK).endInnerElement()
+            .endInnerElement()
+            .build();
+
+        Stanza actual = new ServerResponses().getStreamOpenerForServerAcceptor(FROM, VERSION, sessionContext, true);
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void getStreamOpenerForServerAcceptorInititatedTlsNotSupported() throws ParsingException {
+        Mockito.when(sessionContext.getState()).thenReturn(SessionState.INITIATED);
+        
+        Stanza expected = new StanzaBuilder("stream", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS, "stream")
+            .addAttribute("from", FROM.getFullQualifiedName())
+            .addAttribute("version", "1.0")
+            .declareNamespace("db", NamespaceURIs.JABBER_SERVER_DIALBACK)
+            .declareNamespace("", NamespaceURIs.JABBER_SERVER)
+            .startInnerElement("features", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS)
+                .startInnerElement("dialback", NamespaceURIs.URN_XMPP_FEATURES_DIALBACK).endInnerElement()
+            .endInnerElement()
+            .build();
+
+        Stanza actual = new ServerResponses().getStreamOpenerForServerAcceptor(FROM, VERSION, sessionContext, false);
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void getStreamOpenerForServerAcceptorInititatedNoVersion() throws ParsingException {
+        Mockito.when(sessionContext.getState()).thenReturn(SessionState.INITIATED);
+        
+        Stanza expected = new StanzaBuilder("stream", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS, "stream")
+            .addAttribute("from", FROM.getFullQualifiedName())
+            .declareNamespace("db", NamespaceURIs.JABBER_SERVER_DIALBACK)
+            .declareNamespace("", NamespaceURIs.JABBER_SERVER)
+            .build();
+
+        Stanza actual = new ServerResponses().getStreamOpenerForServerAcceptor(FROM, null, sessionContext, true);
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void getStreamOpenerForServerAcceptorEncryptedTlsSupported() throws ParsingException {
+        Mockito.when(sessionContext.getState()).thenReturn(SessionState.ENCRYPTED);
+        
+        Stanza expected = new StanzaBuilder("stream", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS, "stream")
+            .addAttribute("from", FROM.getFullQualifiedName())
+            .addAttribute("version", "1.0")
+            .declareNamespace("db", NamespaceURIs.JABBER_SERVER_DIALBACK)
+            .declareNamespace("", NamespaceURIs.JABBER_SERVER)
+            .startInnerElement("features", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS)
+                .startInnerElement("dialback", NamespaceURIs.URN_XMPP_FEATURES_DIALBACK).endInnerElement()
+            .endInnerElement()
+            .build();
+
+        Stanza actual = new ServerResponses().getStreamOpenerForServerAcceptor(FROM, VERSION, sessionContext, true);
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void getStreamOpenerForServerConnector() throws ParsingException {
+        Mockito.when(sessionContext.getXMLLang()).thenReturn("sv");
+        
+        Stanza expected = new StanzaBuilder("stream", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS, "stream")
+            .addAttribute("from", FROM.getFullQualifiedName())
+            .addAttribute("to", TO.getFullQualifiedName())
+            .addAttribute("version", "1.0")
+            .addAttribute(NamespaceURIs.XML, "lang", "sv")
+            .declareNamespace("db", NamespaceURIs.JABBER_SERVER_DIALBACK)
+            .declareNamespace("", NamespaceURIs.JABBER_SERVER)
+            .build();
+
+        Stanza actual = new ServerResponses().getStreamOpenerForServerConnector(FROM, TO, VERSION, sessionContext);
+        System.out.println(new Renderer(expected).getComplete());
+        System.out.println(new Renderer(actual).getComplete());
+        Assert.assertEquals(expected, actual);
+    }
+
 }

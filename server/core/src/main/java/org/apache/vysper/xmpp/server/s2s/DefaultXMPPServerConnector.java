@@ -138,8 +138,6 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
         connector.setHandler(new ConnectorIoHandler(authenticatedLatch));
         return connector;
     }
-
-
     
     private void startPinging() {
         // are pings not already running and is the XMPP ping module active?

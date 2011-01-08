@@ -22,6 +22,8 @@ package org.apache.vysper.xmpp.server.response;
 
 import java.util.List;
 
+import org.apache.vysper.xml.fragment.XMLElement;
+import org.apache.vysper.xml.fragment.XMLElementBuilder;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.authorization.SASLMechanism;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
@@ -63,13 +65,15 @@ public class ServerResponses {
 
     public Stanza getStreamOpenerForServerAcceptor(Entity from, XMPPVersion version, SessionContext sessionContext, boolean tlsConfigured) {
         
-        Stanza features = null;
+        XMLElement features = null;
         
         // only include <features> if the other server support version 1.0
         if(XMPPVersion.VERSION_1_0.equals(version)) {
-            StanzaBuilder featureBuilder = startFeatureStanza();
+            XMLElementBuilder featureBuilder = new XMLElementBuilder("features", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS);
             if (sessionContext.getState() == SessionState.INITIATED) {
-                featureBuilder.startInnerElement("starttls", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS).endInnerElement();
+                if(tlsConfigured) {
+                    featureBuilder.startInnerElement("starttls", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS).endInnerElement();
+                }
                 featureBuilder.startInnerElement("dialback", NamespaceURIs.URN_XMPP_FEATURES_DIALBACK).endInnerElement();
                 
             } else if (sessionContext.getState() == SessionState.ENCRYPTED) {
@@ -102,7 +106,7 @@ public class ServerResponses {
     }
 
     public StanzaBuilder getStreamOpener(boolean forClient, Entity from, String xmlLang, XMPPVersion version,
-            String sessionId, Stanza innerStanza) {
+            String sessionId, XMLElement innerStanza) {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("stream", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS,
                 "stream").declareNamespace("", forClient ? NamespaceURIs.JABBER_CLIENT : NamespaceURIs.JABBER_SERVER)
                 .addAttribute("from", from.getFullQualifiedName());
