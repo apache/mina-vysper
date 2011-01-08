@@ -36,6 +36,7 @@ import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StreamErrorCondition;
 import org.apache.vysper.xmpp.server.AbstractSessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -46,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 /**
+ * Specialized {@link SessionContext} for Websocket endpoints. 
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
@@ -78,18 +80,30 @@ public class WebSocketBackedSessionContext extends AbstractSessionContext implem
         xmlReader.setContentHandler(contentHandler);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public StanzaWriter getResponseWriter() {
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void switchToTLS(boolean delayed, boolean clientTls) {
         // n/a
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void setIsReopeningXMLStream() {
         // n/a
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void onConnect(Outbound outbound) {
         LOG.info("WebSocket client connected");
         this.outbound = outbound;
@@ -98,6 +112,9 @@ public class WebSocketBackedSessionContext extends AbstractSessionContext implem
         sessionStateHolder.setState(SessionState.ENCRYPTED);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void onMessage(byte frame, String data) {
         LOG.info("< " + data);
         try {
@@ -113,17 +130,25 @@ public class WebSocketBackedSessionContext extends AbstractSessionContext implem
         }
     }
 
-
+    /**
+     * {@inheritDoc}
+     */
     public void onDisconnect() {
         LOG.info("WebSocket client disconnected");
         endSession(SessionTerminationCause.CONNECTION_ABORT);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void stanza(XMLElement element) {
         // on parsed stanzas
         serverRuntimeContext.getStanzaProcessor().processStanza(serverRuntimeContext, this, (Stanza) element, sessionStateHolder);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void write(Stanza stanza) {
         // handle stream open
         Renderer renderer = new Renderer(stanza);
@@ -146,14 +171,23 @@ public class WebSocketBackedSessionContext extends AbstractSessionContext implem
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void close() {
         // TODO how to handle?
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void onMessage(byte frame, byte[] data, int offset, int length) {
         // binary data, should not happen, ignore
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void onFragment(boolean more, byte opcode, byte[] data, int offset, int length) {
         // binary data, should not happen, ignore
     }

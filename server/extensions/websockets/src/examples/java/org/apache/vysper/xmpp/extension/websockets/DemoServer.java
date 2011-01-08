@@ -35,10 +35,9 @@ import org.apache.vysper.xmpp.modules.extension.xep0092_software_version.Softwar
 import org.apache.vysper.xmpp.modules.extension.xep0119_xmppping.XmppPingModule;
 import org.apache.vysper.xmpp.modules.extension.xep0202_entity_time.EntityTimeModule;
 import org.apache.vysper.xmpp.server.XMPPServer;
-import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
 
 /**
  * starts the server as a standalone application
@@ -70,23 +69,28 @@ public class DemoServer {
             accountManagement.addUser("user3@vysper.org", "password1");
         }
 
-        Server jetty = new Server();
-        Connector connector = new SelectChannelConnector();
-        connector.setPort(8080);
-        jetty.addConnector(connector);
         
         XMPPServer server = new XMPPServer("vysper.org");
-      // example of how you can combine Vysper with other resources 
-        ResourceHandler resourceHandler = new ResourceHandler();
-        resourceHandler.setResourceBase("src/examples/client");
-        jetty.setHandler(resourceHandler);
 
         server.addEndpoint(new TCPEndpoint());
 
-        WebsocketsEndpoint wsEndpoint = new WebsocketsEndpoint();
+        WebSocketEndpoint wsEndpoint = new WebSocketEndpoint() {
+
+            // example of how you can combine Vysper with other resources 
+            @Override
+            protected Server createJettyServer() {
+                Server jetty = super.createJettyServer();
+                ResourceHandler resourceHandler = new ResourceHandler();
+                resourceHandler.setResourceBase("src/examples/client");
+                jetty.setHandler(resourceHandler);
+                HandlerCollection handlers = new HandlerCollection();
+                handlers.addHandler(resourceHandler);
+                jetty.setHandler(handlers);
+                
+                return jetty;
+            }
+        };
         
-        // provide our custom server to have the ResourceHandler added
-        wsEndpoint.setServer(jetty);
         // wsEndpoint.setSSLEnabled(true);
         // wsEndpoint.setSSLCertificateKeystore("src/test/resources/keystore.jks", "password");
         wsEndpoint.setContextPath("/ws");

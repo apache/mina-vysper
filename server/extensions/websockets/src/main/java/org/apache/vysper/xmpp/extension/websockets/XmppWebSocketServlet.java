@@ -19,10 +19,11 @@
  */
 package org.apache.vysper.xmpp.extension.websockets;
 
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextListener;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketServlet;
@@ -30,11 +31,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Servlet for initiating websocket connections. Only support in Jetty.
+ * <p>
+ * When creating this servlet from web.xml, the Vysper server needs to be started beforehand 
+ * (e.g. from a {@link ServletContextListener} and the {@link ServerRuntimeContext} needs to be 
+ * added as an attribute in the {@link ServletContext} with the key "org.apache.vysper.xmpp.server.ServerRuntimeContext".
+ * </p>
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class XmppWebSocketServlet extends WebSocketServlet {
     
+    /**
+     * The attribute key for the {@link ServerRuntimeContext} in {@link ServletContext} 
+     */
     public static final String SERVER_RUNTIME_CONTEXT_ATTRIBUTE = "org.apache.vysper.xmpp.server.ServerRuntimeContext";
 
     private final static Logger LOG = LoggerFactory.getLogger(XmppWebSocketServlet.class);
@@ -52,6 +62,9 @@ public class XmppWebSocketServlet extends WebSocketServlet {
         this.serverRuntimeContext = serverRuntimeContext;
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void init() throws ServletException {
         super.init();
@@ -64,6 +77,11 @@ public class XmppWebSocketServlet extends WebSocketServlet {
         }        
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * Will return null if the client does not provide the correct websocket sub protocol. "xmpp" is required.
+     */
     protected WebSocket doWebSocketConnect(HttpServletRequest request, String protocol) {
         if(SUB_PROTOCOL.equals(protocol)) {
             WebSocketBackedSessionContext sessionContext = new WebSocketBackedSessionContext(serverRuntimeContext);

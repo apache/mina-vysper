@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Allows HTTP clients to communicate via the WebSocket protocol with Vysper.
- * <p>
  * See http://tools.ietf.org/html/draft-moffitt-xmpp-over-websocket-00
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
@@ -59,13 +58,17 @@ public class WebSocketEndpoint implements Endpoint {
 
     protected String contextPath = "/";
 
+    /**
+     * {@inheritDoc}
+     */
     public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
         this.serverRuntimeContext = serverRuntimeContext;
     }
 
     /**
-     * Setter for the listen port
-     * @param port
+     * Set the port on which the endpoint will listen for incoming traffic. 
+     * Defaults to 8080.
+     * @param port The TCP/IP listener port
      */
     public void setPort(int port) {
         this.port = port;
@@ -76,8 +79,8 @@ public class WebSocketEndpoint implements Endpoint {
      * <p>
      * Required if SSL is enabled. Also, setting the keystore password is 
      * required.
-     * @see #setSSLCertificateKeystorePassword 
-     * @param keystorePath the path to the Java keystore
+     * @param keystorePath The path to the Java keystore
+     * @param password The password for the Java keystore
      */
     public void setSSLCertificateKeystore(String keystorePath, String password) {
         sslKeystorePath = keystorePath;
@@ -105,14 +108,6 @@ public class WebSocketEndpoint implements Endpoint {
         this.contextPath = contextPath;
     }
     
-    /**
-     * Provide a custom Jetty Server
-     * @param server
-     */
-    public void setServer(Server server) {
-        this.server = server;
-    }
-
     /**
      * create a basic Jetty server including a connector on the configured port
      * override in subclass to create a different kind of setup or to reuse an existing instance
@@ -154,24 +149,21 @@ public class WebSocketEndpoint implements Endpoint {
     }
     
     /**
-     * @throws IOException 
-     * @throws RuntimeException a wrapper of the possible
-     * {@link java.lang.Exception} that Jetty can throw at start-up
+     * {@inheritDoc}
+     * 
+     * @throws RuntimeException a wrapper of the possible {@link java.lang.Exception} that Jetty can throw at start-up
      */
     public void start() throws IOException {
-        HandlerCollection handlers = new HandlerCollection();
-        if(server != null) {
-            Handler handler = server.getHandler();
-            if(handler != null) {
-                handlers.addHandler(handler);
-            }
+        server = createJettyServer();
+        Handler wsHandler = createHandler();
+        
+        Handler existingHandler = server.getHandler();
+        if(existingHandler != null && existingHandler instanceof HandlerCollection) {
+            ((HandlerCollection)existingHandler).addHandler(wsHandler);
         } else {
-            server = createJettyServer();
+            server.setHandler(wsHandler);
         }
-        Handler handler = createHandler();
-        handlers.addHandler(handler);
 
-        server.setHandler(handlers);
         try {
             server.start();
         } catch (Exception e) {
@@ -179,6 +171,9 @@ public class WebSocketEndpoint implements Endpoint {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void stop() {
         try {
             server.stop();
