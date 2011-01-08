@@ -83,8 +83,8 @@
     <dependencies>
       <dependency>
         <groupId>org.springframework</groupId>
-        <artifactId>spring</artifactId>
-        <version>2.5.6</version>
+        <artifactId>spring-context</artifactId>
+        <version>3.0.5.RELEASE</version>
         <exclusions>
           <exclusion>
             <groupId>commons-logging</groupId>

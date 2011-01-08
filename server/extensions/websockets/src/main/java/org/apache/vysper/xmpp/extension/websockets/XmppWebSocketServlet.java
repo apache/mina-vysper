@@ -66,8 +66,7 @@ public class XmppWebSocketServlet extends WebSocketServlet {
 
     protected WebSocket doWebSocketConnect(HttpServletRequest request, String protocol) {
         if(SUB_PROTOCOL.equals(protocol)) {
-            SessionStateHolder sessionStateHolder = new SessionStateHolder();
-            WebSocketBackedSessionContext sessionContext = new WebSocketBackedSessionContext(serverRuntimeContext, sessionStateHolder);
+            WebSocketBackedSessionContext sessionContext = new WebSocketBackedSessionContext(serverRuntimeContext);
             return sessionContext;
         } else {
             LOG.warn("Unsupported WebSocket sub protocol, must be \"xmpp\"");

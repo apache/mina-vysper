@@ -59,10 +59,8 @@ public class WebSocketBackedSessionContext extends AbstractSessionContext implem
     private Outbound outbound;
     private NonBlockingXMLReader xmlReader = new DefaultNonBlockingXMLReader();
     
-    public WebSocketBackedSessionContext(ServerRuntimeContext serverRuntimeContext,
-            SessionStateHolder sessionStateHolder) {
-        super(serverRuntimeContext, sessionStateHolder);
-        
+    public WebSocketBackedSessionContext(ServerRuntimeContext serverRuntimeContext) {
+        super(serverRuntimeContext, new SessionStateHolder());
         XMPPContentHandler contentHandler = new XMPPContentHandler(new StanzaBuilderFactory());
         contentHandler.setListener(this);
         
@@ -157,6 +155,6 @@ public class WebSocketBackedSessionContext extends AbstractSessionContext implem
     }
 
     public void onFragment(boolean more, byte opcode, byte[] data, int offset, int length) {
-        System.out.println("onFragment");
+        // binary data, should not happen, ignore
     }
 }

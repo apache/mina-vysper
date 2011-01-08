@@ -96,7 +96,7 @@ public class WebSocketEndpoint implements Endpoint {
     }
 
     /**
-     * Determines the context URI where the BOSH transport will be accessible.
+     * Determines the context URI where the websocket transport will be accessible.
      * The default is as 'root context' under '/'. 
      * @param contextPath
      */
@@ -137,20 +137,20 @@ public class WebSocketEndpoint implements Endpoint {
     }
 
     /**
-     * create handler for BOSH. 
+     * create handler for XMPP over websockets. 
      * for a different handler setup, override in a subclass.
      * for more than one handler, add them to a org.eclipse.jetty.server.handler.ContextHandlerCollection
      * and return the collection 
      * @return
      */
     protected Handler createHandler() {
-        ServletContextHandler boshContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        boshContext.setContextPath(contextPath);
+        ServletContextHandler servletContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
+        servletContext.setContextPath(contextPath);
 
-        XmppWebSocketServlet boshServlet = new XmppWebSocketServlet(serverRuntimeContext);
-        boshContext.addServlet(new ServletHolder(boshServlet), "/ws");
+        XmppWebSocketServlet wsServlet = new XmppWebSocketServlet(serverRuntimeContext);
+        servletContext.addServlet(new ServletHolder(wsServlet), "/ws");
         
-        return boshContext;
+        return servletContext;
     }
     
     /**
