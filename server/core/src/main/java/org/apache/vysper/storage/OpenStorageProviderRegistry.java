@@ -75,17 +75,17 @@ public class OpenStorageProviderRegistry implements StorageProviderRegistry {
         try {
             storageProviderClass = (Class<StorageProvider>) Class.forName(storageProviderFQClassname);
         } catch (ClassCastException e) {
-            System.err.println("not a Vysper storage provider class: " + storageProviderFQClassname);
+            logger.info("not a Vysper storage provider class: " + storageProviderFQClassname);
             return;
         } catch (ClassNotFoundException e) {
-            System.err.println("could not load storage provider class " + storageProviderFQClassname);
+            logger.info("could not load storage provider class " + storageProviderFQClassname);
             return;
         }
         try {
             StorageProvider storageProvider = storageProviderClass.newInstance();
             add(storageProvider);
         } catch (Exception e) {
-            System.err.println("failed to instantiate storage provider class " + storageProviderFQClassname);
+            logger.info("failed to instantiate storage provider class " + storageProviderFQClassname);
             return;
         }
     }

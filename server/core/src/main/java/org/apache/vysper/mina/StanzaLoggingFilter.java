@@ -43,10 +43,7 @@ public class StanzaLoggingFilter extends IoFilterAdapter {
         if (message instanceof XMLElement) {
             XMLElement element = (XMLElement) message;
 
-            if (clientLogger.isInfoEnabled()) {
-                //clientLogger.info(DenseStanzaLogRenderer.render(element));
-            }
-//            if (clientLogger.isDebugEnabled()) {
+            if(clientLogger.isDebugEnabled()) {
                 boolean openElement = true;
                 boolean closeElement = true;
                 // this is somewhat of a hack, can we detect opening and closing elements only cleaner?
@@ -59,11 +56,12 @@ public class StanzaLoggingFilter extends IoFilterAdapter {
                         openElement = false;
                     }
                 }
-
+                
                 String xml = toXml(element, openElement, closeElement);
-                clientLogger.debug("Received stanza: " + xml);
-                clientLogger.info("< " + xml);
-//            }
+                clientLogger.debug("< " + xml);
+            } else if (clientLogger.isInfoEnabled()) {
+                clientLogger.info(DenseStanzaLogRenderer.render(element));
+            }
         }
 
         nextFilter.messageReceived(session, message);
@@ -74,16 +72,14 @@ public class StanzaLoggingFilter extends IoFilterAdapter {
         if (message instanceof StanzaWriteInfo) {
             StanzaWriteInfo stanzaWriteInfo = (StanzaWriteInfo) message;
 
-            if (serverLogger.isInfoEnabled()) {
-                //serverLogger.info(DenseStanzaLogRenderer.render(stanzaWriteInfo.getStanza()));
-            }
-//            if (serverLogger.isDebugEnabled()) {
+            if(serverLogger.isDebugEnabled()) {
                 String xml = toXml(stanzaWriteInfo.getStanza(), stanzaWriteInfo.isWriteOpeningElement(),
                         stanzaWriteInfo.isWriteClosingElement());
-
-                //serverLogger.info("Sent stanza: " + xml);
-                clientLogger.info("> " + xml);
-//            }
+                
+                serverLogger.info("> " + xml);
+            } else if (serverLogger.isInfoEnabled()) {
+                serverLogger.info(DenseStanzaLogRenderer.render(stanzaWriteInfo.getStanza()));
+            }
         }
 
         nextFilter.messageSent(session, request);
