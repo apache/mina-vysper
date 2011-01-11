@@ -196,7 +196,7 @@ public class RunS2SServers extends TestCase {
         .retrieve(AccountManagement.class);
 
         if (!accountManagement.verifyAccountExists(localUser)) {
-            accountManagement.addUser(localUser.getFullQualifiedName(), password);
+            accountManagement.addUser(localUser, password);
         }
 
         // S2S endpoint

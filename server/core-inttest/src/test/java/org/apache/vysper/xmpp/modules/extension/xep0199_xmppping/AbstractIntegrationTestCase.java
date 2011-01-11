@@ -28,6 +28,7 @@ import junit.framework.TestCase;
 import org.apache.vysper.mina.TCPEndpoint;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
 import org.apache.vysper.xmpp.server.XMPPServer;
 import org.jivesoftware.smack.ConnectionConfiguration;
@@ -83,8 +84,8 @@ public abstract class AbstractIntegrationTestCase extends TestCase {
         StorageProviderRegistry providerRegistry = new MemoryStorageProviderRegistry();
 
         AccountManagement accountManagement = (AccountManagement) providerRegistry.retrieve(AccountManagement.class);
-        accountManagement.addUser(TEST_USERNAME1, TEST_PASSWORD1);
-        accountManagement.addUser(TEST_USERNAME2, TEST_PASSWORD2);
+        accountManagement.addUser(EntityImpl.parseUnchecked(TEST_USERNAME1), TEST_PASSWORD1);
+        accountManagement.addUser(EntityImpl.parseUnchecked(TEST_USERNAME2), TEST_PASSWORD2);
 
         server = new XMPPServer(SERVER_DOMAIN);
 
