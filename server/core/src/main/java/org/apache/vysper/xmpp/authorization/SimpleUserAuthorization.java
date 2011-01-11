@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityImpl;
 
 /**
  * very simple in-memory {@link org.apache.vysper.xmpp.authorization.UserAuthorization} service
@@ -53,18 +54,18 @@ public class SimpleUserAuthorization implements UserAuthorization, AccountManage
     }
 
     public boolean verifyCredentials(Entity jid, String passwordCleartext, Object credentials) {
-        return verify(jid.getFullQualifiedName(), passwordCleartext);
+        return verify(jid.getBareJID(), passwordCleartext);
     }
 
     public boolean verifyCredentials(String username, String passwordCleartext, Object credentials) {
-        return verify(username, passwordCleartext);
+        return verify(EntityImpl.parseUnchecked(username).getBareJID(), passwordCleartext);
     }
 
     public boolean verifyAccountExists(Entity jid) {
-        return userPasswordMap.get(jid.getBareJID().getFullQualifiedName()) != null;
+        return userPasswordMap.get(jid.getBareJID()) != null;
     }
 
-    private boolean verify(String username, String passwordCleartext) {
+    private boolean verify(Entity username, String passwordCleartext) {
         return passwordCleartext.equals(userPasswordMap.get(username));
     }
 }

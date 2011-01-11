@@ -136,7 +136,7 @@ public class ServiceAdministrationModule extends DefaultModule implements AdhocC
         final AccountManagement accountManagement = (AccountManagement)serverRuntimeContext.getStorageProvider(AccountManagement.class);
         final ResourceRegistry resourceRegistry = serverRuntimeContext.getResourceRegistry();
         
-        if (!admins.contains(executingUser)) {
+        if (!admins.contains(executingUser.getBareJID())) {
             // non-admins can only admin their own accounts
             if (commandNode.equals(COMMAND_CHANGE_USER_PASSWORD)) {
                 return new ChangeUserPasswordCommandHandler(accountManagement, executingUser);
