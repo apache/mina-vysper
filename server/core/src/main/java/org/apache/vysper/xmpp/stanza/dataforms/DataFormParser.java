@@ -80,11 +80,14 @@ public class DataFormParser {
             final String typeName = fields.getAttributeValue("type");
             String valueAsString = null;
 
-            final Field.Type fieldType;
-            try {
-                fieldType = Field.Type.valueOf(typeName.toUpperCase().replace('-', '_'));
-            } catch (IllegalArgumentException e) {
-                throw e;
+            // default to TEXT_SINGLE
+            Field.Type fieldType = Field.Type.TEXT_SINGLE;
+            if(typeName != null) {
+                try {
+                    fieldType = Field.Type.valueOf(typeName.toUpperCase().replace('-', '_'));
+                } catch (IllegalArgumentException e) {
+                    throw e;
+                }
             }
             boolean isMulti = Field.Type.isMulti(fieldType);
 
