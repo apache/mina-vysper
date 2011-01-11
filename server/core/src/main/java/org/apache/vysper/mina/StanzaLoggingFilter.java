@@ -76,7 +76,7 @@ public class StanzaLoggingFilter extends IoFilterAdapter {
                 String xml = toXml(stanzaWriteInfo.getStanza(), stanzaWriteInfo.isWriteOpeningElement(),
                         stanzaWriteInfo.isWriteClosingElement());
                 
-                serverLogger.info("> " + xml);
+                serverLogger.debug("> " + xml);
             } else if (serverLogger.isInfoEnabled()) {
                 serverLogger.info(DenseStanzaLogRenderer.render(stanzaWriteInfo.getStanza()));
             }
