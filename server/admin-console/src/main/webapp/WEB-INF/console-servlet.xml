@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    /**
+     * Copyright 2010 Västra Götalandsregionen
+     *
+     *   This library is free software; you can redistribute it and/or modify
+     *   it under the terms of version 2.1 of the GNU Lesser General Public
+     *   License as published by the Free Software Foundation.
+     *
+     *   This library is distributed in the hope that it will be useful,
+     *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+     *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     *   GNU Lesser General Public License for more details.
+     *
+     *   You should have received a copy of the GNU Lesser General Public
+     *   License along with this library; if not, write to the
+     *   Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+     *   Boston, MA 02111-1307  USA
+     *
+     */
+
+-->
+
+<beans xmlns="http://www.springframework.org/schema/beans" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/mvc 
+        http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
+
+    <mvc:resources location="classpath:/META-INF/" mapping="/resources/**" /> 
+
+	<mvc:annotation-driven/>
+
+	<context:component-scan base-package="org.apache.vysper.console"/>
+	
+	<bean id="serverDomain" class="java.lang.String">
+		<constructor-arg value="vysper.org" />
+	</bean>
+	
+	<bean class="org.jivesoftware.smack.ConnectionConfiguration">
+		<constructor-arg ref="serverDomain" />
+		<constructor-arg value="5222" />
+		<constructor-arg value="localhost" />
+		<property name="keystorePath" value="src/main/resources/bogus_mina_tls.cert" />
+		<property name="truststorePath" value="src/main/resources/bogus_mina_tls.cert" />
+		<property name="truststorePassword" value="boguspw" />
+	</bean>
+	
+
+	<bean id="velocityConfig"
+		class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
+		<property name="resourceLoaderPath" value="classpath:/META-INF/velocity/" />
+		<property name="velocityProperties">
+			<props>
+				<prop key="input.encoding">utf-8</prop>
+				<prop key="output.encoding">utf-8 </prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.velocity.VelocityLayoutViewResolver">
+		<property name="layoutUrl" value="layout.vm" />
+		<property name="screenContentKey" value="screen_content"/>
+		<property name="layoutKey" value="layout"/>
+		<!-- <property name="cache" value="true"/>-->
+		<property name="prefix" value="" />
+		<property name="suffix" value=".vm" />
+		<property name="contentType" value="text/html; charset=UTF-8" />
+		<property name="exposeRequestAttributes" value="true"/>
+	 	<property name="exposeSessionAttributes" value="true"/>
+  		<property name="exposeSpringMacroHelpers" value="true"/>
+	</bean>
+    
+    
+</beans>
