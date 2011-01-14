@@ -20,7 +20,9 @@
 package org.apache.vysper.console;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -54,11 +56,12 @@ public class AdminConsoleController {
 
     public static final String SESSION_FIELD = "vysper-admingui-sessionid";
     
-    public static final List<String> COMMANDS = Arrays.asList(
-            "get-online-users-num",
-            "add-user",
-            "change-user-password"
-            );
+    public static final Map<String, String> COMMANDS = new HashMap<String, String>();
+    static {
+        COMMANDS.put("get-online-users-num", "Get online users");
+        COMMANDS.put("add-user", "Add user");
+        COMMANDS.put("change-user-password", "Change user password");
+    }
     
     private ConnectionConfiguration connectionConfiguration;
     
@@ -76,6 +79,8 @@ public class AdminConsoleController {
         if(client == null) {
             // login
             return login();
+        } else if(!client.isConnected()) {
+            return login("Disconnected from XMPP server, please log in again");
         } else {
             ModelAndView mav = new ModelAndView("index");
             mav.addObject(MODEL_AUTHENTICATED, getUserName(client));
@@ -95,8 +100,10 @@ public class AdminConsoleController {
         if(client == null) {
             // login
             return login();
+        } else if(!client.isConnected()) {
+            return login("Disconnected from XMPP server, please log in again");
         } else {
-            if(!COMMANDS.contains(command)) {
+            if(!COMMANDS.keySet().contains(command)) {
                 throw new ResourceNotFoundException();
             }
             
@@ -117,9 +124,9 @@ public class AdminConsoleController {
         if(client == null) {
             // login
             return login();
+        } else if(!client.isConnected()) {
+            return login("Disconnected from XMPP server, please log in again");
         } else {
-            System.out.println(request.getParameterMap());
-            
             @SuppressWarnings("unchecked")
             AdHocCommandData requestCommand = adHocCommandDataBuilder.build(request.getParameterMap());
             requestCommand.setType(Type.SET);
@@ -136,30 +143,33 @@ public class AdminConsoleController {
         try {
             Packet response = client.sendSync(requestCommand);
             
-            AdHocCommandData responseData = (AdHocCommandData) response;
-            DataForm form = responseData.getForm();
-            
             StringBuffer htmlForm = new StringBuffer();
-            
-            for(AdHocCommandNote note : responseData.getNotes()) {
-                htmlForm.append("<p class='note " + note.getType() + "'>" + note.getValue() + "</p>");
-            }
-            
-            htmlForm.append("<form action='' method='post'>");
-            htmlForm.append("<input type='hidden' name='" + SESSION_FIELD + "' value='" + responseData.getSessionID() + "' />");
-
-            htmlForm.append(htmlFormBuilder.build(form));
-            if(Status.executing.equals(responseData.getStatus())) {
-                htmlForm.append("<input type='submit' value='" + command + "' />");
-            } else if(Status.completed.equals(responseData.getStatus())) {
-                if(form == null || form.getFields() == null || !form.getFields().hasNext()) {
-                    // no field, print success
-                    htmlForm.append("<p>Command successful</p>");
+            if(response != null) {
+                AdHocCommandData responseData = (AdHocCommandData) response;
+                DataForm form = responseData.getForm();
+                
+                for(AdHocCommandNote note : responseData.getNotes()) {
+                    htmlForm.append("<p class='note " + note.getType() + "'>" + note.getValue() + "</p>");
                 }
+                
+                htmlForm.append("<form action='' method='post'>");
+                htmlForm.append("<input type='hidden' name='" + SESSION_FIELD + "' value='" + responseData.getSessionID() + "' />");
+    
+                htmlForm.append(htmlFormBuilder.build(form));
+                if(Status.executing.equals(responseData.getStatus())) {
+                    htmlForm.append("<input type='submit' value='" + COMMANDS.get(command) + "' />");
+                } else if(Status.completed.equals(responseData.getStatus())) {
+                    if(form == null || form.getFields() == null || !form.getFields().hasNext()) {
+                        // no field, print success
+                        htmlForm.append("<p>Command successful</p>");
+                    }
+                }
+                htmlForm.append("</form>");
+            } else {
+                htmlForm.append("<p class='note error'>Timeout waiting for response from XMPP server</p>");
+                
             }
-            htmlForm.append("</form>");
-            System.out.println(htmlForm);
-            
+                
             ModelAndView mav = new ModelAndView("command");
             mav.addObject(MODEL_AUTHENTICATED, getUserName(client));
             mav.addObject("form", htmlForm.toString());
@@ -170,7 +180,13 @@ public class AdminConsoleController {
     }
 
     private ModelAndView login() {
-        return new ModelAndView("login");
+        return login("Please log in");
+    }
+
+    private ModelAndView login(String msg) {
+        ModelAndView mav = new ModelAndView("index");
+        mav.addObject("message", msg);
+        return mav;
     }
 
     protected ExtendedXMPPConnection createXMPPConnection() {
@@ -186,7 +202,7 @@ public class AdminConsoleController {
             session.setAttribute(SESSION_ATTRIBUTE, client);
             return new ModelAndView("redirect:");
         } catch (XMPPException e) {
-            ModelAndView mav = new ModelAndView("login");
+            ModelAndView mav = new ModelAndView("index");
             mav.addObject("error", "Failed to login to server: " + e.getMessage());
             return mav;
         }

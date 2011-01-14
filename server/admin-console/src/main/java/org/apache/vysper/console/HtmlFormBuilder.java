@@ -39,7 +39,6 @@ public class HtmlFormBuilder {
         while(fields.hasNext()) {
             FormField field = fields.next();
             String type = field.getType();
-            System.out.println(type);
             sb.append("<p>");
             if("hidden".equals(type)) {
                 sb.append(hiddenFieldToHtml(field));
@@ -76,11 +75,14 @@ public class HtmlFormBuilder {
     }
 
     private String fixedFieldToHtml(FormField field) {
-        return labelToHtml(field) + " <span>" + field.getValues().next() + "</span>"; 
+        StringBuffer sb = new StringBuffer();
+        if(field.getLabel() != null) sb.append(field.getLabel());
+        sb.append(" <span>" + field.getValues().next() + "</span>");
+        return sb.toString();
     }
 
     private String jidSingleFieldToHtml(FormField field) {
-        return labelToHtml(field) + "<input name='" + field.getVariable() + "' value='" + getSingleValue(field) + "' />";
+        return labelToHtml(field) + "<input name='" + field.getVariable() + "' value='" + getSingleValue(field) + "' type='email' placeholder='example@vysper.org' />";
     }
     
     private String textSingleFieldToHtml(FormField field) {

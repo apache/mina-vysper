@@ -16,8 +16,8 @@
  *  specific language governing permissions and limitations
  *  under the License.
 *#
-<form action="login" method="post">
-	<p><input name="username" value="admin@vysper.org" /></p>
-	<p><input name="password" type="password" value="password" /></p>
-	<p><input type="submit" value="Log in" /></p>
-</form>
+<h1>Welcome to the Vysper admin console</h1>
+
+<p>In the Admin console you can manage your Vysper server, for example add users.</p>
+
+

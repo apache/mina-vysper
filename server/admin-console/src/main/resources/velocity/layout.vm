@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+#*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+*#
+ 
+<html> 
+    <head> 
+        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+        <title>Apache Vysper admin console</title> 
+        <link href="#springUrl("/resources/common.css")" rel="stylesheet" type="text/css">
+        <link href="#springUrl("/resources/vysper.css")" rel="stylesheet" type="text/css"> 
+        <link rel="shortcut icon" href="#springUrl("/resources/favicon.ico")" />
+    </head> 
+    <body> 
+        <div id="container"> 
+            <div id="header"> 
+                <div id="navBar"> 
+				 	#if($authenticated)
+			 		<span>Logged in as $authenticated.</span>
+					<span>
+						<a href="#springUrl("/logout")">
+							Log out
+						</a>
+					</span>
+					#end
+                </div>
+            </div>
+            <div id="content"> 
+                <div id="leftColumn">
+                	#if($authenticated) 
+                    <div id="navigation">
+                     
+                        <h3>Users</h3> 
+                        <ul> 
+	                        <li><a href="#springUrl("/get-online-users-num")">Get number of online users</a></li>
+							<li><a href="#springUrl("/add-user")">Add user</a></li>
+							<li><a href="#springUrl("/change-user-password")">Change user password</a></li>
+                        </ul> 
+                    </div>
+                    #else
+						<div id="login"> 
+							<h3>Please log in</p>
+							<form action="login" method="post">
+								<p><input name="username" value="admin@vysper.org" /></p>
+								<p><input name="password" type="password" value="password" /></p>
+								<p><input type="submit" value="Log in" /></p>
+							</form>
+						</div>
+                    #end
+                </div>
+                <div id="rightColumn">
+					#if ($error)
+   					<p class="note error">
+							$error
+					</p>
+					#end
+					
+					$screen_content
+                
+                </div>
+                <div id="endContent"></div> 
+            </div>
+            <div id="footer"></div>
+    </body> 
+</html>

@@ -27,7 +27,7 @@
         http://www.springframework.org/schema/mvc 
         http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
 
-    <mvc:resources location="classpath:/META-INF/" mapping="/resources/**" /> 
+    <mvc:resources location="classpath:/resources/" mapping="/resources/**" /> 
 
 	<mvc:annotation-driven/>
 
@@ -49,7 +49,7 @@
 
 	<bean id="velocityConfig"
 		class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
-		<property name="resourceLoaderPath" value="classpath:/META-INF/velocity/" />
+		<property name="resourceLoaderPath" value="classpath:/velocity/" />
 		<property name="velocityProperties">
 			<props>
 				<prop key="input.encoding">utf-8</prop>
