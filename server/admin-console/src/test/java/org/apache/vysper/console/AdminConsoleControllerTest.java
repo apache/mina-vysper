@@ -66,8 +66,9 @@ public class AdminConsoleControllerTest {
         Mockito.verify(connection).login(ENTITY, PASSWORD);
         
         Assert.assertNull(session.getAttribute(AdminConsoleController.SESSION_ATTRIBUTE));
-        Assert.assertEquals("login", mav.getViewName());
+        Assert.assertEquals("index", mav.getViewName());
         Assert.assertNotNull(mav.getModel().get("error"));
+        Assert.assertNull(mav.getModel().get("authenticated"));
     }
 
     @Test
@@ -79,29 +80,33 @@ public class AdminConsoleControllerTest {
         Mockito.verify(connection).connect();
         
         Assert.assertNull(session.getAttribute(AdminConsoleController.SESSION_ATTRIBUTE));
-        Assert.assertEquals("login", mav.getViewName());
+        Assert.assertEquals("index", mav.getViewName());
         Assert.assertNotNull(mav.getModel().get("error"));
+        Assert.assertNull(mav.getModel().get("authenticated"));
     }
 
     @Test
     public void indexNotAuthenticated() throws XMPPException {
         ModelAndView mav = controller.index(session);
         
-        Assert.assertEquals("login", mav.getViewName());
+        Assert.assertEquals("index", mav.getViewName());
+        Assert.assertNull(mav.getModel().get("authenticated"));
     }
 
     @Test
     public void commandNotAuthenticated() throws XMPPException {
         ModelAndView mav = controller.command("foo", session);
         
-        Assert.assertEquals("login", mav.getViewName());
+        Assert.assertEquals("index", mav.getViewName());
+        Assert.assertNull(mav.getModel().get("authenticated"));
     }
 
     @Test
     public void submitCommandNotAuthenticated() throws XMPPException {
         ModelAndView mav = controller.submitCommand("foo", request, session);
         
-        Assert.assertEquals("login", mav.getViewName());
+        Assert.assertEquals("index", mav.getViewName());
+        Assert.assertNull(mav.getModel().get("authenticated"));
     }
 
 }

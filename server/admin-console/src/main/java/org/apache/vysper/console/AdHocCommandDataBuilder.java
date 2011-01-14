@@ -38,7 +38,10 @@ public class AdHocCommandDataBuilder {
             if(!AdminConsoleController.SESSION_FIELD.equals(entry.getKey())) {
                 FormField field = new FormField(entry.getKey());
                 for(String value : entry.getValue()) {
-                    field.addValue(value);
+                    String[] splitValues = value.split("[\\r\\n]+");
+                    for(String splitValue : splitValues) {
+                        field.addValue(splitValue);
+                    }
                 }
                 form.addField(field);
             }
