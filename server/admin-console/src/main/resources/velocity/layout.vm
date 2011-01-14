@@ -58,8 +58,8 @@
 						<div id="login"> 
 							<h3>Please log in</p>
 							<form action="login" method="post">
-								<p><input name="username" value="admin@vysper.org" /></p>
-								<p><input name="password" type="password" value="password" /></p>
+								<p><input name="username" placeholder="admin@vysper.org" /></p>
+								<p><input name="password" type="password" /></p>
 								<p><input type="submit" value="Log in" /></p>
 							</form>
 						</div>

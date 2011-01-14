@@ -33,8 +33,8 @@ public class AdminConsole {
         server = new Server(port);
         
         WebAppContext context = new WebAppContext();
-        context.setDescriptor("src/main/webapp/WEB-INF/web.xml");
-        context.setResourceBase("src/main/webapp");
+        context.setDescriptor("src/main/resources/webapp/WEB-INF/web.xml");
+        context.setResourceBase("src/main/resources/webapp");
         context.setContextPath("/");
  
         server.setHandler(context);

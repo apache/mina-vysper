@@ -72,7 +72,7 @@ public class ServerMain {
         //server.addEndpoint(new StanzaSessionFactory());
         server.setStorageProviderRegistry(providerRegistry);
 
-        server.setTLSCertificateInfo(new File("src/main/resources/bogus_mina_tls.cert"), "boguspw");
+        server.setTLSCertificateInfo(new File("src/test/resources/bogus_mina_tls.cert"), "boguspw");
 
         server.start();
         System.out.println("Vysper server is running...");

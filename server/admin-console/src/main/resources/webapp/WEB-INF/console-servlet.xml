@@ -41,9 +41,9 @@
 		<constructor-arg ref="serverDomain" />
 		<constructor-arg value="5222" />
 		<constructor-arg value="localhost" />
-		<property name="keystorePath" value="src/main/resources/bogus_mina_tls.cert" />
-		<property name="truststorePath" value="src/main/resources/bogus_mina_tls.cert" />
-		<property name="truststorePassword" value="boguspw" />
+<!--		<property name="keystorePath" value="bogus_mina_tls.cert" />-->
+<!--		<property name="truststorePath" value="bogus_mina_tls.cert" />-->
+<!--		<property name="truststorePassword" value="boguspw" />-->
 	</bean>
 	
 
