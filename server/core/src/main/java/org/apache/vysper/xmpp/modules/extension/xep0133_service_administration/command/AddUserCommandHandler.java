@@ -73,11 +73,14 @@ public class AddUserCommandHandler extends PasswordCheckingCommandHandler {
         }
         final DataFormParser dataFormParser = new DataFormParser(commandElements.get(0));
         final Map<String,Object> valueMap = dataFormParser.extractFieldValues();
+        
         final Entity accountjid;
         if(valueMap.get("accountjid") instanceof Entity) {
             accountjid = (Entity) valueMap.get("accountjid");
-        } else {
+        } else if(valueMap.get("accountjid") != null) {
             accountjid = EntityImpl.parseUnchecked((String) valueMap.get("accountjid"));
+        } else {
+            accountjid = null;
         }
         final String password = (String)valueMap.get("password");
         final String password2 = (String)valueMap.get("password-verify");
