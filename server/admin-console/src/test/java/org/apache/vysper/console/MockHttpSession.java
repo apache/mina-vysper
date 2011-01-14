@@ -27,6 +27,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionContext;
 
+@SuppressWarnings("deprecation")
 public class MockHttpSession implements HttpSession {
     private Map<String, Object> attributes = new HashMap<String, Object>();
 
