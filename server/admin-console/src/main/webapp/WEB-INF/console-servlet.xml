@@ -63,13 +63,9 @@
 		<property name="layoutUrl" value="layout.vm" />
 		<property name="screenContentKey" value="screen_content"/>
 		<property name="layoutKey" value="layout"/>
-		<!-- <property name="cache" value="true"/>-->
 		<property name="prefix" value="" />
 		<property name="suffix" value=".vm" />
 		<property name="contentType" value="text/html; charset=UTF-8" />
-		<property name="exposeRequestAttributes" value="true"/>
-	 	<property name="exposeSessionAttributes" value="true"/>
-  		<property name="exposeSpringMacroHelpers" value="true"/>
 	</bean>
     
     

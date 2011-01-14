@@ -45,6 +45,8 @@
                 	#if($authenticated) 
                     <div id="navigation">
                      
+                        <li><a href="#springUrl("/")">Home</a></li>
+                        
                         <h3>Users</h3> 
                         <ul> 
 	                        <li><a href="#springUrl("/get-online-users-num")">Get number of online users</a></li>

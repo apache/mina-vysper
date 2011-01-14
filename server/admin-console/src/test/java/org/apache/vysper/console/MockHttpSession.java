@@ -90,6 +90,7 @@ public class MockHttpSession implements HttpSession {
         return 0;
     }
 
+    @SuppressWarnings("rawtypes")
     public Enumeration getAttributeNames() {
         return null;
     }

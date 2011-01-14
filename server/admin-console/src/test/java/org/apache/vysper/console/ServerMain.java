@@ -47,15 +47,12 @@ import org.apache.vysper.xmpp.server.XMPPServer;
 public class ServerMain {
 
     /**
-     * boots the server as a standalone application
-     * 
-     * adding a module from the command line:
-     * using a runtime property, one or more modules can be specified, like this:
-     * -Dvysper.add.module=org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PublishSubscribeModule,... more ...
+     * boots the XMPP server and admin console as a standalone application
      * 
      * @param args
+     * @throws Exception 
      */
-    public static void main(String[] args) throws AccountCreationException, FileNotFoundException {
+    public static void main(String[] args) throws Exception {
 
         String domain = "vysper.org";
         
@@ -77,12 +74,8 @@ public class ServerMain {
 
         server.setTLSCertificateInfo(new File("src/main/resources/bogus_mina_tls.cert"), "boguspw");
 
-        try {
-            server.start();
-            System.out.println("vysper server is running...");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        server.start();
+        System.out.println("Vysper server is running...");
 
         server.addModule(new SoftwareVersionModule());
         server.addModule(new EntityTimeModule());
@@ -94,5 +87,10 @@ public class ServerMain {
         // unless admin user account with a secure password is added, this will be not become effective
         serviceAdministrationModule.setAddAdminJIDs(Arrays.asList(adminJID)); 
         server.addModule(serviceAdministrationModule);
+        
+        // start the admin console
+        AdminConsole console = new AdminConsole();
+        console.start();
+        System.out.println("Admin console is running...");
     }
 }
