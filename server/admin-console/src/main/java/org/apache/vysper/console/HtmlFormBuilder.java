@@ -27,8 +27,18 @@ import org.jivesoftware.smackx.FormField;
 import org.jivesoftware.smackx.FormField.Option;
 import org.jivesoftware.smackx.packet.DataForm;
 
+/**
+ * Builds an HTML form from a {@link DataForm}
+ *
+ * @author The Apache MINA Project (dev@mina.apache.org)
+ */
 public class HtmlFormBuilder {
 
+    /**
+     * Builds an HTML form from a {@link DataForm}
+     * @param form
+     * @return
+     */
     public String build(DataForm form) {
         if (form == null)
             return "";

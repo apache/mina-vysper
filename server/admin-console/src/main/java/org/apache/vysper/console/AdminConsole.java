@@ -23,12 +23,20 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 
-
+/**
+ * Standalone admin console. Defaults to listening on port 8222.
+ *
+ * @author The Apache MINA Project (dev@mina.apache.org)
+ */
 public class AdminConsole {
 
-    private int port = 8080;
+    private int port = 8222;
     private Server server;
-    
+
+    /**
+     * Start the admin console in an embedded web server
+     * @throws Exception
+     */
     public void start() throws Exception {
         server = new Server(port);
         
@@ -42,7 +50,27 @@ public class AdminConsole {
         server.start();
     }
     
+    /**
+     * Stop the admin console
+     * @throws Exception
+     */
     public void stop() throws Exception {
         server.stop();
+    }
+
+    /**
+     * Get the port on which the admin console will listen. Defaults to 8222.
+     * @return The port
+     */
+    public int getPort() {
+        return port;
+    }
+
+    /**
+     * Set the port on which the admin console will listen.
+     * @param port The port
+     */
+    public void setPort(int port) {
+        this.port = port;
     }
 }

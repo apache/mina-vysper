@@ -26,8 +26,18 @@ import org.jivesoftware.smackx.FormField;
 import org.jivesoftware.smackx.packet.AdHocCommandData;
 import org.jivesoftware.smackx.packet.DataForm;
 
+/**
+ * Builds {@link AdHocCommandData} from posted data
+ *
+ * @author The Apache MINA Project (dev@mina.apache.org)
+ */
 public class AdHocCommandDataBuilder {
 
+    /**
+     * Builds {@link AdHocCommandData} from posted data
+     * @param parameters
+     * @return
+     */
     public AdHocCommandData build(Map<String, String[]> parameters) {
         AdHocCommandData commandData = new AdHocCommandData();
         commandData.setSessionID(getSingleValue(parameters, AdminConsoleController.SESSION_FIELD));

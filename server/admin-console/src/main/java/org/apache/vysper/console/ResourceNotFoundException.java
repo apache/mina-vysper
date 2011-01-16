@@ -22,6 +22,10 @@ package org.apache.vysper.console;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+/**
+ *
+ * @author The Apache MINA Project (dev@mina.apache.org)
+ */
 @SuppressWarnings("serial")
 @ResponseStatus(value=HttpStatus.NOT_FOUND)
 public class ResourceNotFoundException extends RuntimeException {

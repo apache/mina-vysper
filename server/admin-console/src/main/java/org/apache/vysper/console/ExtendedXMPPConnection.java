@@ -30,6 +30,11 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.packet.Packet;
 
+/**
+ * Extends {@link XMPPConnection} to add support for synchronous request-response
+ * 
+ * @author The Apache MINA Project (dev@mina.apache.org)
+ */
 public class ExtendedXMPPConnection extends XMPPConnection {
     
     public ExtendedXMPPConnection(ConnectionConfiguration config, CallbackHandler callbackHandler) {
@@ -72,6 +77,12 @@ public class ExtendedXMPPConnection extends XMPPConnection {
         }
     }
     
+    /**
+     * Send a request and wait for the response.
+     * @param request
+     * @return
+     * @throws InterruptedException
+     */
     public Packet sendSync(Packet request) throws InterruptedException {
         LinkedBlockingQueue<Packet> queue = new LinkedBlockingQueue<Packet>();
         PacketListener listener = new SyncPacketListener(queue);

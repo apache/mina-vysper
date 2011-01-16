@@ -45,6 +45,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+/**
+ * MVC controller 
+ *
+ * @author The Apache MINA Project (dev@mina.apache.org)
+ */
 @Controller
 public class AdminConsoleController {
     
@@ -71,6 +76,9 @@ public class AdminConsoleController {
         this.connectionConfiguration = connectionConfiguration;
     }
 
+    /**
+     * Show the first page
+     */
     @RequestMapping("/")
     public ModelAndView index(HttpSession session) throws XMPPException {
         ExtendedXMPPConnection client = (ExtendedXMPPConnection) session.getAttribute(SESSION_ATTRIBUTE);
@@ -91,7 +99,9 @@ public class AdminConsoleController {
         return entity.getBareJID().getFullQualifiedName();
     }
     
-    
+    /**
+     * Show the initial command form
+     */    
     @RequestMapping(value="/{command}", method=RequestMethod.GET)
     public ModelAndView command(@PathVariable("command") String command, HttpSession session) throws XMPPException {
         ExtendedXMPPConnection client = (ExtendedXMPPConnection) session.getAttribute(SESSION_ATTRIBUTE);
@@ -116,6 +126,9 @@ public class AdminConsoleController {
         }
     }
 
+    /**
+     * Handle a submitted form and show the result or additional form
+     */    
     @RequestMapping(value="/{command}", method=RequestMethod.POST)
     public ModelAndView submitCommand(@PathVariable("command") String command, HttpServletRequest request, HttpSession session) throws XMPPException {
         ExtendedXMPPConnection client = (ExtendedXMPPConnection) session.getAttribute(SESSION_ATTRIBUTE);
@@ -191,6 +204,9 @@ public class AdminConsoleController {
         return new ExtendedXMPPConnection(connectionConfiguration);
     }
     
+    /**
+     * Connect and authenticate the user 
+     */
     @RequestMapping(value="/login", method=RequestMethod.POST)
     public ModelAndView login(@RequestParam("username") String username, @RequestParam("password") String password, HttpSession session) {
         ExtendedXMPPConnection client = createXMPPConnection();
@@ -206,6 +222,9 @@ public class AdminConsoleController {
         }
     }
 
+    /**
+     * Log out and disconnect the user
+     */
     @RequestMapping(value="/logout")
     public ModelAndView logout(HttpSession session) {
         ExtendedXMPPConnection client = (ExtendedXMPPConnection) session.getAttribute(SESSION_ATTRIBUTE);
