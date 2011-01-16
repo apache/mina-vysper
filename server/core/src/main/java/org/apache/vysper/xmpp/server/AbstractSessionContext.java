@@ -141,12 +141,14 @@ public abstract class AbstractSessionContext implements SessionContext {
 
         if (terminationCause == SessionTerminationCause.CLIENT_BYEBYE
                 || terminationCause == SessionTerminationCause.CONNECTION_ABORT) {
-            Stanza unavailableStanza = StanzaBuilder.createUnavailablePresenceStanza(null, terminationCause);
-            StanzaHandler handler = serverRuntimeContext.getHandler(unavailableStanza);
-            try {
-                handler.execute(unavailableStanza, serverRuntimeContext, true, this, sessionStateHolder);
-            } catch (ProtocolException e) {
-                logger.error("Failed to send unavailable stanza on connection close", e);
+            if(getState().equals(SessionState.AUTHENTICATED)) {
+                Stanza unavailableStanza = StanzaBuilder.createUnavailablePresenceStanza(null, terminationCause);
+                StanzaHandler handler = serverRuntimeContext.getHandler(unavailableStanza);
+                try {
+                    handler.execute(unavailableStanza, serverRuntimeContext, true, this, sessionStateHolder);
+                } catch (ProtocolException e) {
+                    logger.error("Failed to send unavailable stanza on connection close", e);
+                }
             }
         } else if (terminationCause == SessionTerminationCause.SERVER_SHUTDOWN) {
             // do nothing
