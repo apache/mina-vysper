@@ -45,7 +45,7 @@ import org.apache.vysper.xmpp.stanza.StanzaErrorType;
  *  
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-@SpecCompliant(spec = "xep-0077", status = SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
+@SpecCompliant(spec = "xep-0077", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
 public class InBandRegistrationHandler extends DefaultIQHandler {
 
     public InBandRegistrationHandler() {
