@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.modules.extension.xep007_inbandreg.InBandRegistrationHandler;
 import org.apache.vysper.xmpp.protocol.exception.TLSException;
 import org.apache.vysper.xmpp.protocol.worker.AuthenticatedProtocolWorker;
 import org.apache.vysper.xmpp.protocol.worker.EncryptedProtocolWorker;
@@ -105,7 +106,8 @@ public class ProtocolWorker implements StanzaProcessor {
         // check as of RFC3920/4.3:
         if (sessionStateHolder.getState() != SessionState.AUTHENTICATED) {
             // is not authenticated...
-            if (XMPPCoreStanza.getWrapper(stanza) != null) {
+            if (XMPPCoreStanza.getWrapper(stanza) != null
+                    && !(stanzaHandler instanceof InBandRegistrationHandler)) {
                 // ... and is a IQ/PRESENCE/MESSAGE stanza!
                 responseWriter.handleNotAuthorized(sessionContext, stanza);
                 return;

@@ -19,12 +19,16 @@
  */
 package org.apache.vysper.xmpp.server;
 
-import org.apache.commons.lang.RandomStringUtils;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.vysper.mina.TCPEndpoint;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.AccountCreationException;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
@@ -32,16 +36,11 @@ import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.extension.xep0049_privatedata.PrivateDataModule;
 import org.apache.vysper.xmpp.modules.extension.xep0050_adhoc_commands.AdhocCommandsModule;
 import org.apache.vysper.xmpp.modules.extension.xep0054_vcardtemp.VcardTempModule;
+import org.apache.vysper.xmpp.modules.extension.xep007_inbandreg.InBandRegistrationModule;
 import org.apache.vysper.xmpp.modules.extension.xep0092_software_version.SoftwareVersionModule;
 import org.apache.vysper.xmpp.modules.extension.xep0119_xmppping.XmppPingModule;
 import org.apache.vysper.xmpp.modules.extension.xep0133_service_administration.ServiceAdministrationModule;
 import org.apache.vysper.xmpp.modules.extension.xep0202_entity_time.EntityTimeModule;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * starts the server as a standalone application
@@ -102,6 +101,7 @@ public class ServerMain {
         server.addModule(new VcardTempModule());
         server.addModule(new XmppPingModule());
         server.addModule(new PrivateDataModule());
+        server.addModule(new InBandRegistrationModule());
         server.addModule(new AdhocCommandsModule());
         final ServiceAdministrationModule serviceAdministrationModule = new ServiceAdministrationModule();
         // unless admin user account with a secure password is added, this will be not become effective

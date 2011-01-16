@@ -93,13 +93,28 @@ public class ServerErrorResponses {
 
         StanzaBuilder responseBuilder = StanzaBuilder.createDirectReply(stanza, true, "error");
 
-        fillErrorStanza(stanza, type, errorCondition, errorText, errorLang, errorConditionElement, responseBuilder);
+        fillErrorStanza(stanza, type, errorCondition, -1, errorText, errorLang, errorConditionElement, responseBuilder);
 
         return responseBuilder.build();
     }
 
+    public static Stanza getStanzaError(StanzaErrorCondition errorCondition, XMPPCoreStanza stanza, StanzaErrorType type, int code,
+            String errorText, String errorLang, XMLElement errorConditionElement) {
+        
+        if (stanza != null && "error".equals(stanza.getType())) {
+            return ServerErrorResponses.getStreamError(StreamErrorCondition.UNSUPPORTED_STANZA_TYPE,
+                    errorLang, "cannot respond to IQ stanza of type error with the same", null);
+        }
+        
+        StanzaBuilder responseBuilder = StanzaBuilder.createDirectReply(stanza, true, "error");
+        
+        fillErrorStanza(stanza, type, errorCondition, code, errorText, errorLang, errorConditionElement, responseBuilder);
+        
+        return responseBuilder.build();
+    }
+
     private static void fillErrorStanza(XMPPCoreStanza stanza, StanzaErrorType type, StanzaErrorCondition errorCondition,
-            String errorText, String errorLang, XMLElement errorConditionElement, StanzaBuilder responseBuilder) {
+            int code, String errorText, String errorLang, XMLElement errorConditionElement, StanzaBuilder responseBuilder) {
         // inline incoming stanza as of RFC 3920 9.3.1
         for (XMLElement innerElement : stanza.getInnerElements()) {
             responseBuilder.addPreparedElement(innerElement);
@@ -107,7 +122,9 @@ public class ServerErrorResponses {
 
         // error element
         responseBuilder.startInnerElement("error", NamespaceURIs.JABBER_CLIENT).addAttribute("type", type.value());
-
+        if(code != -1) responseBuilder.addAttribute("code", Integer.toString(code));
+        
+        
         // insert defined error condition relating to the stanza error type
         responseBuilder.startInnerElement(errorCondition.value(), NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
         responseBuilder.endInnerElement();

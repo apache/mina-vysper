@@ -48,6 +48,8 @@ public class NamespaceURIs {
 
     public static final String JABBER_SERVER_DIALBACK = "jabber:server:dialback";
 
+    public static final String JABBER_IQ_REGISTER = "jabber:iq:register";
+
     public static final String JABBER_IQ_ROSTER = "jabber:iq:roster";
 
     // compatibility namespaces

@@ -20,6 +20,7 @@
 package org.apache.vysper.xmpp.protocol.worker;
 
 import org.apache.vysper.xmpp.modules.core.starttls.handler.StartTLSHandler;
+import org.apache.vysper.xmpp.modules.extension.xep007_inbandreg.InBandRegistrationHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbResultHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbVerifyHandler;
 import org.apache.vysper.xmpp.protocol.ResponseWriter;
@@ -44,12 +45,15 @@ public class StartedProtocolWorker extends AbstractStateAwareProtocolWorker {
     protected boolean checkState(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
             StanzaHandler stanzaHandler) {
 
-        if (stanzaHandler instanceof StartTLSHandler)
+        if (stanzaHandler instanceof StartTLSHandler) {
             return true;
-        if (sessionContext.isServerToServer() && stanzaHandler instanceof DbVerifyHandler)
+        } else if (stanzaHandler instanceof InBandRegistrationHandler) {
             return true;
-        if (sessionContext.isServerToServer() && stanzaHandler instanceof DbResultHandler)
+        } else if (sessionContext.isServerToServer() && stanzaHandler instanceof DbVerifyHandler) {
             return true;
+        } else if (sessionContext.isServerToServer() && stanzaHandler instanceof DbResultHandler) {
+            return true;
+        }
         ResponseWriter.writeUnsupportedStanzaError(sessionContext);
         return false;
     }
