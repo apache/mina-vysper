@@ -1,3 +1,22 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ *
+ */
 package org.apache.vysper.xmpp.server.s2s;
 import java.nio.channels.UnresolvedAddressException;
 import java.util.Arrays;
@@ -41,6 +60,11 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Default implementation of {@link XMPPServerConnector} 
+ *  
+ * @author The Apache MINA Project (dev@mina.apache.org)
+ */
 public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerConnector {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultXMPPServerConnector.class);
@@ -71,6 +95,9 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
         this.dialbackSessionStateHolder = dialbackSessionStateHolder;
     }
 
+    /**
+     * Connect and authenticate the XMPP server connector
+     */
     public synchronized void start() throws RemoteServerNotFoundException, RemoteServerTimeoutException {
         LOG.info("Starting XMPP server connector to {}", otherServer);
 
@@ -146,14 +173,17 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
             pingTimer.schedule(new PingTask(), pingPeriod, pingPeriod);
         }
     }
-    
-    /* (non-Javadoc)
-     * @see org.apache.vysper.xmpp.server.s2s.XMPPServerConnector#write(org.apache.vysper.xmpp.stanza.Stanza)
+
+    /**
+     * {@inheritDoc}
      */
     public void write(Stanza stanza) {
         sessionContext.write(stanza);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void close() {
         closed = true;
         if(!closed) {
@@ -166,15 +196,25 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void pong() {
         // do nothing, all happy
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void timeout() {
         LOG.debug("XMPP server connector to {} timed out, closing", otherServer);
         close();
     }
 
+    /**
+     * Is this XMPP server connector closed?
+     * @return true if the connector is closed
+     */
     public boolean isClosed() {
         return closed;
     }
@@ -194,6 +234,9 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
             this.authenticatedLatch = authenticatedLatch;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
             LOG.warn("Exception thrown by XMPP server connector to " + otherServer + ", probably a bug in Vysper", cause);
@@ -208,6 +251,9 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
             return null;
         }
         
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void messageReceived(IoSession session, Object message) throws Exception {
             if(message == SslFilter.SESSION_SECURED) {
@@ -276,6 +322,9 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
             }
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void sessionClosed(IoSession session) throws Exception {
             // Socket was closed, make sure we close the connector
@@ -283,6 +332,9 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
             close();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void sessionOpened(IoSession session) throws Exception {
             sessionContext = new MinaBackedSessionContext(serverRuntimeContext, sessionStateHolder, session);
