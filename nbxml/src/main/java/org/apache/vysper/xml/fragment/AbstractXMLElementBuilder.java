@@ -134,6 +134,15 @@ public abstract class AbstractXMLElementBuilder<B extends AbstractXMLElementBuil
 
     public B addAttribute(Attribute attribute) {
         checkReset();
+        // check if attribute already exists
+        for(Attribute existing : currentElement.attributes) {
+            if(existing.getName().equals(attribute.getName())
+                    && existing.getNamespaceUri().equals(attribute.getNamespaceUri())) {
+                currentElement.attributes.remove(existing);
+                break;
+            }
+        }
+        
         currentElement.attributes.add(attribute);
         return (B) this;
     }

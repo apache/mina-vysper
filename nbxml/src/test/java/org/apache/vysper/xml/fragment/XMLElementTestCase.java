@@ -211,6 +211,28 @@ public class XMLElementTestCase extends TestCase {
         assertNull(xmlElement.getAttributeValue("lang"));
         assertEquals("cn", xmlElement.getAttributeValue(Namespaces.XML, "lang"));
     }
+
+    public void testAddAttributeMultiple() {
+        XMLElement xmlElement = new XMLElementBuilder("test")
+            .addAttribute("foo", "bar")
+            .addAttribute("foo", "fez")
+            .build();
+
+        assertEquals(1, xmlElement.getAttributes().size());
+        assertEquals("fez", xmlElement.getAttribute("foo").getValue());
+    }
+
+    public void testAddAttributeMultipleDifferentNamespaces() {
+        XMLElement xmlElement = new XMLElementBuilder("test")
+        .addAttribute("foo", "bar")
+        .addAttribute("http://example.com", "foo", "fez")
+        .build();
+        
+        assertEquals(2, xmlElement.getAttributes().size());
+        assertEquals("bar", xmlElement.getAttribute("foo").getValue());
+        assertEquals("fez", xmlElement.getAttribute("http://example.com", "foo").getValue());
+    }
+
     
     public void testEqualsAttributeOrder() {
         XMLElement elm1 = new XMLElementBuilder("test")
