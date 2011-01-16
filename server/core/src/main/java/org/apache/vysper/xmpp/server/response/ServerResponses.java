@@ -26,6 +26,7 @@ import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLElementBuilder;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.authorization.SASLMechanism;
+import org.apache.vysper.xmpp.modules.extension.xep007_inbandreg.InBandRegistrationModule;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
@@ -130,6 +131,10 @@ public class ServerResponses {
                     .endInnerElement();
         }
         stanzaBuilder.endInnerElement();
+        if(sessionContext.getServerRuntimeContext().getModule(InBandRegistrationModule.class) != null) {
+            // In-band registration active, show as feature
+            stanzaBuilder.startInnerElement("register", NamespaceURIs.JABBER_ORG_FEATURES_IQ_REGISTER);
+        }
 
         return stanzaBuilder.build();
     }

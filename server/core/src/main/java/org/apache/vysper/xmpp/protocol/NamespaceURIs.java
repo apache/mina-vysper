@@ -76,6 +76,8 @@ public class NamespaceURIs {
 
     public static final String VCARD_TEMP = "vcard-temp";
 
+    public static final String JABBER_ORG_FEATURES_IQ_REGISTER = "http://jabber.org/features/iq-register";
+
     public static final String XEP0030_SERVICE_DISCOVERY_ITEMS = "http://jabber.org/protocol/disco#items";
 
     public static final String XEP0030_SERVICE_DISCOVERY_INFO = "http://jabber.org/protocol/disco#info";
