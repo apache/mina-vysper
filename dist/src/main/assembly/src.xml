@@ -26,6 +26,7 @@
     <format>zip</format>
     <format>tar.gz</format>
   </formats>
+  <baseDirectory>${project.build.finalName}-src</baseDirectory>
   <fileSets>
     <fileSet>
       <directory>..</directory>
