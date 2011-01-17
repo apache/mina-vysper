@@ -206,6 +206,13 @@
       </dependency>
 
       <dependency>
+        <groupId>org.apache.vysper</groupId>
+        <artifactId>vysper-admin-console</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+
+      <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-websocket</artifactId>
         <version>7.2.1.v20101111</version>
