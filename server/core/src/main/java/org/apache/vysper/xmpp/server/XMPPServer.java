@@ -33,11 +33,13 @@ import org.apache.vysper.xmpp.authorization.Plain;
 import org.apache.vysper.xmpp.authorization.SASLMechanism;
 import org.apache.vysper.xmpp.cryptography.BogusTrustManagerFactory;
 import org.apache.vysper.xmpp.cryptography.InputStreamBasedTLSContextFactory;
+import org.apache.vysper.xmpp.delivery.OfflineStanzaReceiver;
 import org.apache.vysper.xmpp.delivery.RecordingStanzaRelay;
 import org.apache.vysper.xmpp.delivery.StanzaRelayBroker;
 import org.apache.vysper.xmpp.delivery.inbound.DeliveringInternalInboundStanzaRelay;
 import org.apache.vysper.xmpp.delivery.inbound.DeliveringExternalInboundStanzaRelay;
 import org.apache.vysper.xmpp.modules.Module;
+import org.apache.vysper.xmpp.modules.extension.xep0160_offline_storage.OfflineStorageProvider;
 import org.apache.vysper.xmpp.modules.roster.RosterModule;
 import org.apache.vysper.xmpp.modules.servicediscovery.ServiceDiscoveryModule;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
@@ -119,8 +121,9 @@ public class XMPPServer {
 
         AccountManagement accountManagement = (AccountManagement) storageProviderRegistry
                 .retrieve(AccountManagement.class);
+        OfflineStanzaReceiver offlineReceiver = (OfflineStanzaReceiver) storageProviderRegistry.retrieve(OfflineStorageProvider.class);
         DeliveringInternalInboundStanzaRelay internalStanzaRelay = new DeliveringInternalInboundStanzaRelay(serverEntity,
-                resourceRegistry, accountManagement);
+                resourceRegistry, accountManagement,offlineReceiver);
         DeliveringExternalInboundStanzaRelay externalStanzaRelay = new DeliveringExternalInboundStanzaRelay();
 
         StanzaRelayBroker stanzaRelayBroker = new StanzaRelayBroker();

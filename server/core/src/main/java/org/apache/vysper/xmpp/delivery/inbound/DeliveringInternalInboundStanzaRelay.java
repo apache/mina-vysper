@@ -40,6 +40,7 @@ import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
 import org.apache.vysper.xmpp.delivery.failure.LocalRecipientOfflineException;
 import org.apache.vysper.xmpp.delivery.failure.NoSuchLocalUserException;
 import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
+import org.apache.vysper.xmpp.modules.extension.xep0160_offline_storage.OfflineStorageProvider;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
@@ -88,14 +89,15 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay {
     public DeliveringInternalInboundStanzaRelay(Entity serverEntity, ResourceRegistry resourceRegistry,
             StorageProviderRegistry storageProviderRegistry) {
         this(serverEntity, resourceRegistry, (AccountManagement) storageProviderRegistry
-                .retrieve(AccountManagement.class));
+                .retrieve(AccountManagement.class),(OfflineStanzaReceiver)storageProviderRegistry.retrieve(OfflineStorageProvider.class));
     }
 
     public DeliveringInternalInboundStanzaRelay(Entity serverEntity, ResourceRegistry resourceRegistry,
-            AccountManagement accountVerification) {
+            AccountManagement accountVerification, OfflineStanzaReceiver offlineStanzaReceiver) {
         this.serverEntity = serverEntity;
         this.resourceRegistry = resourceRegistry;
         this.accountVerification = accountVerification;
+        this.offlineStanzaReceiver =offlineStanzaReceiver;
         int coreThreadCount = 10;
         int maxThreadCount = 20;
         int threadTimeoutSeconds = 2 * 60 * 1000;
@@ -322,6 +324,10 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay {
 
             List<SessionContext> receivingSessions = prioThreshold == null ? resourceRegistry.getSessions(receiver)
                     : resourceRegistry.getSessions(receiver, prioThreshold);
+
+            if (receivingSessions.size() == 0) {
+                return relayNotPossible();
+            }
 
             if (receivingSessions.size() > 1) {
                 logger.warn("multiplexing: {} sessions will be processing {} ", receivingSessions.size(), stanza);

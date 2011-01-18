@@ -27,6 +27,7 @@ import static org.apache.vysper.xmpp.stanza.PresenceStanzaType.UNSUBSCRIBED;
 import static org.apache.vysper.xmpp.stanza.PresenceStanzaType.isSubscriptionType;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.modules.core.base.handler.XMPPCoreStanzaHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0160_offline_storage.OfflineStorageProvider;
 import org.apache.vysper.xmpp.modules.roster.RosterException;
 import org.apache.vysper.xmpp.modules.roster.RosterItem;
 import org.apache.vysper.xmpp.modules.roster.RosterUtils;
@@ -252,6 +254,19 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
         // the presence priority is optional, but if contained, it might become relevant for
         // message delivery (see RFC3921bis-05#8.3.1.1)
         registry.setResourcePriority(resourceId, presenceStanza.getPrioritySafe());
+
+		// check for pending offline stored stanzas, and send them out 
+		OfflineStorageProvider offlineProvider = (OfflineStorageProvider) serverRuntimeContext
+				.getStorageProvider(OfflineStorageProvider.class);
+		if (offlineProvider == null) {
+			logger.warn("No Offline Storage Provider configured");
+		} else {
+			Collection<Stanza> offlineStanzas = offlineProvider.getStanzasForBareJID(user.getBareJID().getFullQualifiedName());
+			for (Stanza stanza : offlineStanzas) {
+				logger.debug("Sending out delayed offline stanza");
+				relayStanza(user, stanza, sessionContext);
+			}
+		}
 
         List<Entity> contacts = new ArrayList<Entity>();
 
