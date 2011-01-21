@@ -29,7 +29,8 @@
 		<listener-class>org.apache.vysper.xmpp.exemples.embeddedwar.VysperListener</listener-class>
 	</listener>
 
-
+<!-- 
+	Only works when deployed on Jetty. 
 	<servlet>
 		<servlet-name>WebSocket Servlet</servlet-name>
 		<servlet-class>org.apache.vysper.xmpp.extension.websockets.XmppWebSocketServlet</servlet-class>
@@ -39,4 +40,15 @@
 		<servlet-name>WebSocket Servlet</servlet-name>
 		<url-pattern>/ws</url-pattern>
 	</servlet-mapping>
+ -->
+	<servlet>
+		<servlet-name>Index</servlet-name>
+		<servlet-class>org.apache.vysper.xmpp.exemples.embeddedwar.IndexServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Index</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+
 </web-app>

@@ -9,7 +9,6 @@ import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
-import org.apache.vysper.xmpp.extension.websockets.XmppWebSocketServlet;
 import org.apache.vysper.xmpp.modules.extension.xep0054_vcardtemp.VcardTempModule;
 import org.apache.vysper.xmpp.modules.extension.xep0092_software_version.SoftwareVersionModule;
 import org.apache.vysper.xmpp.modules.extension.xep0119_xmppping.XmppPingModule;
@@ -38,7 +37,7 @@ public class VysperListener implements ServletContextListener {
             server.addEndpoint(new TCPEndpoint());
             server.setStorageProviderRegistry(providerRegistry);
     
-            server.setTLSCertificateInfo(sce.getServletContext().getResourceAsStream("WEB-INF/bogus_mina_tls.cert"), "password");
+            server.setTLSCertificateInfo(sce.getServletContext().getResourceAsStream("WEB-INF/bogus_mina_tls.cert"), "boguspw");
     
             try {
                 server.start();
@@ -51,9 +50,12 @@ public class VysperListener implements ServletContextListener {
             server.addModule(new EntityTimeModule());
             server.addModule(new VcardTempModule());
             server.addModule(new XmppPingModule());
-            
-            sce.getServletContext().setAttribute(XmppWebSocketServlet.SERVER_RUNTIME_CONTEXT_ATTRIBUTE, server.getServerRuntimeContext());
+
+            // Used by the websocket endpoint, if enabled
+            sce.getServletContext().setAttribute("org.apache.vysper.xmpp.server.ServerRuntimeContext", server.getServerRuntimeContext());
+            sce.getServletContext().setAttribute("vysper", server);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
