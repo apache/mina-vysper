@@ -21,7 +21,6 @@
 		<artifactId>vysper-examples</artifactId>
 		<groupId>org.apache.vysper.examples</groupId>
 		<version>0.7-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.apache.vysper.examples</groupId>
@@ -32,6 +31,13 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>org.apache.vysper</groupId>
+			<artifactId>vysper-core</artifactId>
+		</dependency>
+
+<!-- 
+	Only works when deployed on Jetty. 
+		<dependency>
 			<groupId>org.apache.vysper.extensions</groupId>
 			<artifactId>vysper-websockets</artifactId>
 		</dependency>
@@ -40,16 +46,23 @@
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-websocket</artifactId>
 			<version>7.2.1.v20101111</version>
-<!--			<scope>provided</scope>-->
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-servlet</artifactId>
 			<version>7.2.1.v20101111</version>
-<!--			<scope>provided</scope>-->
+			<scope>provided</scope>
 		</dependency>
+-->
 
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<scope>provided</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>org.slf4j</groupId>
