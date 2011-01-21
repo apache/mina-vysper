@@ -21,14 +21,14 @@ public class VysperListener implements ServletContextListener {
 
     public void contextInitialized(ServletContextEvent sce) {
         try {
-            String domain = sce.getServletContext().getInitParameter("domain");
+            String domain = "vysper.org";
             
             StorageProviderRegistry providerRegistry = new MemoryStorageProviderRegistry();
     
             final AccountManagement accountManagement = (AccountManagement) providerRegistry
                     .retrieve(AccountManagement.class);
 
-            Entity user1 = EntityImpl.parse("user1@vysper.org");
+            Entity user1 = EntityImpl.parse("user1@" + domain);
             if (!accountManagement.verifyAccountExists(user1)) {
                 accountManagement.addUser(user1, "password1");
             }

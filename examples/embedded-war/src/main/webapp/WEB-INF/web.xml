@@ -20,11 +20,6 @@
 
 	<description>Embedded Vysper</description>
 
-	<context-param>
-		<param-name>domain</param-name>
-		<param-value>vysper.org</param-value>
-	</context-param>
-
 	<listener>
 		<listener-class>org.apache.vysper.xmpp.exemples.embeddedwar.VysperListener</listener-class>
 	</listener>
@@ -42,12 +37,12 @@
 	</servlet-mapping>
  -->
 	<servlet>
-		<servlet-name>Index</servlet-name>
-		<servlet-class>org.apache.vysper.xmpp.exemples.embeddedwar.IndexServlet</servlet-class>
+		<servlet-name>Status</servlet-name>
+		<servlet-class>org.apache.vysper.xmpp.exemples.embeddedwar.StatusServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>Index</servlet-name>
+		<servlet-name>Status</servlet-name>
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
 
