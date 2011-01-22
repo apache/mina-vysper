@@ -1,6 +1,7 @@
 package org.apache.vysper.xmpp.server.s2s;
 import java.io.File;
 
+import org.apache.vysper.mina.S2SEndpoint;
 import org.apache.vysper.mina.TCPEndpoint;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
@@ -51,9 +52,7 @@ public class Server2Server {
         }
 
         // S2S endpoint
-        TCPEndpoint s2sEndpoint = new TCPEndpoint();
-        s2sEndpoint.setPort(5269);
-        server.addEndpoint(s2sEndpoint);
+        server.addEndpoint(new S2SEndpoint());
         
         // C2S endpoint
         server.addEndpoint(new TCPEndpoint());
