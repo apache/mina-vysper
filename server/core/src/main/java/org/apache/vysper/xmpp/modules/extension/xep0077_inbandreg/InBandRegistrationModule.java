@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules.extension.xep007_inbandreg;
+package org.apache.vysper.xmpp.modules.extension.xep0077_inbandreg;
 
 import java.util.List;
 

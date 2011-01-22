@@ -22,7 +22,7 @@ package org.apache.vysper.xmpp.protocol.worker;
 import org.apache.vysper.xmpp.modules.core.base.handler.StreamStartHandler;
 import org.apache.vysper.xmpp.modules.core.base.handler.XMLPrologHandler;
 import org.apache.vysper.xmpp.modules.core.sasl.handler.AbstractSASLHandler;
-import org.apache.vysper.xmpp.modules.extension.xep007_inbandreg.InBandRegistrationHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0077_inbandreg.InBandRegistrationHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbResultHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbVerifyHandler;
 import org.apache.vysper.xmpp.protocol.ResponseWriter;

@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.modules.extension.xep007_inbandreg.InBandRegistrationHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0077_inbandreg.InBandRegistrationHandler;
 import org.apache.vysper.xmpp.protocol.exception.TLSException;
 import org.apache.vysper.xmpp.protocol.worker.AuthenticatedProtocolWorker;
 import org.apache.vysper.xmpp.protocol.worker.EncryptedProtocolWorker;
