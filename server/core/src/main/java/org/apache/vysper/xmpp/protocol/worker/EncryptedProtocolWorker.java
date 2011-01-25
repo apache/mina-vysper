@@ -30,6 +30,7 @@ import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
+import org.apache.vysper.xmpp.server.SessionContext.SessionMode;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
@@ -55,9 +56,9 @@ public class EncryptedProtocolWorker extends AbstractStateAwareProtocolWorker {
             return true; // PSI client sends that. 
         } else if (stanzaHandler instanceof InBandRegistrationHandler) {
             return true;
-        } else if (sessionContext.isServerToServer() && stanzaHandler instanceof DbResultHandler) {
+        } else if (sessionContext.isSessionMode(SessionMode.SERVER_2_SERVER) && stanzaHandler instanceof DbResultHandler) {
             return true;
-        } else if (sessionContext.isServerToServer() && stanzaHandler instanceof DbVerifyHandler) {
+        } else if (sessionContext.isSessionMode(SessionMode.SERVER_2_SERVER) && stanzaHandler instanceof DbVerifyHandler) {
             return true;
         }
         ResponseWriter.writeUnsupportedStanzaError(sessionContext);

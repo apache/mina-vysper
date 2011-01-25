@@ -44,6 +44,8 @@ public class NamespaceURIs {
 
     public static final String JABBER_CLIENT = "jabber:client";
 
+    public static final String JABBER_COMPONENT_ACCEPT = "jabber:component:accep";
+
     public static final String JABBER_SERVER = "jabber:server";
 
     public static final String JABBER_SERVER_DIALBACK = "jabber:server:dialback";

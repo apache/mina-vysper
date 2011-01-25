@@ -38,6 +38,7 @@ import org.apache.vysper.xmpp.server.AbstractSessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
+import org.apache.vysper.xmpp.server.SessionContext.SessionMode;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.writer.StanzaWriter;
@@ -62,7 +63,7 @@ public class WebSocketBackedSessionContext extends AbstractSessionContext implem
     private NonBlockingXMLReader xmlReader = new DefaultNonBlockingXMLReader();
     
     public WebSocketBackedSessionContext(ServerRuntimeContext serverRuntimeContext) {
-        super(serverRuntimeContext, new SessionStateHolder());
+        super(serverRuntimeContext, new SessionStateHolder(), SessionMode.CLIENT_2_SERVER);
         XMPPContentHandler contentHandler = new XMPPContentHandler(new StanzaBuilderFactory());
         contentHandler.setListener(this);
         

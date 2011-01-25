@@ -131,7 +131,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      * @param inactivityChecker
      */
     public BoshBackedSessionContext(BoshHandler boshHandler, ServerRuntimeContext serverRuntimeContext, InactivityChecker inactivityChecker) {
-        super(serverRuntimeContext, new SessionStateHolder());
+        super(serverRuntimeContext, new SessionStateHolder(), SessionMode.CLIENT_2_SERVER);
 
         // in BOSH we jump directly to the encrypted state
         sessionStateHolder.setState(SessionState.ENCRYPTED);

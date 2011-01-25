@@ -27,9 +27,10 @@ import org.apache.vysper.xmpp.server.SessionContext.SessionMode;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class S2SEndpoint extends AbstractTCPEndpoint {
+public class C2SEndpoint extends AbstractTCPEndpoint {
 
-    public S2SEndpoint() {
-        super(5269, SessionMode.SERVER_2_SERVER);
+    public C2SEndpoint() {
+        super(5222, SessionMode.CLIENT_2_SERVER);
     }
+    
 }

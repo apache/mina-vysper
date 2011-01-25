@@ -108,7 +108,7 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
     }
 
     public TestSessionContext(ServerRuntimeContext serverRuntimeContext, SessionStateHolder sessionStateHolder) {
-        super(serverRuntimeContext, sessionStateHolder);
+        super(serverRuntimeContext, sessionStateHolder, SessionMode.CLIENT_2_SERVER);
         sessionId = serverRuntimeContext.getNextSessionId();
         xmlLang = "de";
     }

@@ -39,8 +39,8 @@ public class StanzaSessionContext extends AbstractSessionContext implements Stan
 
     protected Queue<Stanza> stanzaQueue = new LinkedList<Stanza>();
 
-    public StanzaSessionContext(ServerRuntimeContext serverRuntimeContext, SessionStateHolder sessionStateHolder) {
-        super(serverRuntimeContext, sessionStateHolder);
+    public StanzaSessionContext(ServerRuntimeContext serverRuntimeContext, SessionStateHolder sessionStateHolder, SessionMode sessionMode) {
+        super(serverRuntimeContext, sessionStateHolder, sessionMode);
     }
 
     public StanzaWriter getResponseWriter() {

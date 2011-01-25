@@ -53,6 +53,7 @@ import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.server.XMPPVersion;
+import org.apache.vysper.xmpp.server.SessionContext.SessionMode;
 import org.apache.vysper.xmpp.server.response.ServerResponses;
 import org.apache.vysper.xmpp.server.s2s.XmppEndpointResolver.ResolvedAddress;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -337,7 +338,7 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
          */
         @Override
         public void sessionOpened(IoSession session) throws Exception {
-            sessionContext = new MinaBackedSessionContext(serverRuntimeContext, sessionStateHolder, session);
+            sessionContext = new MinaBackedSessionContext(serverRuntimeContext, sessionStateHolder, session, SessionMode.SERVER_2_SERVER);
             sessionStateHolder.setState(SessionState.INITIATED);
             Stanza opener = new ServerResponses().getStreamOpenerForServerConnector(serverRuntimeContext.getServerEnitity(), otherServer, XMPPVersion.VERSION_1_0, sessionContext);
             

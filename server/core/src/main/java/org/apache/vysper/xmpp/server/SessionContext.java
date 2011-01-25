@@ -60,6 +60,12 @@ public interface SessionContext {
 
     }
 
+    public enum SessionMode {
+        CLIENT_2_SERVER,
+        SERVER_2_SERVER,
+        COMPONENT_ACCEPT
+    }
+
     /**
      * Gets the {@link ServerRuntimeContext}.
      *
@@ -89,21 +95,16 @@ public interface SessionContext {
     void setInitiatingEntity(Entity entity);
 
     /**
-     * @return <code>true</code> if this session is handling server-to-server
-     *         communication (namespace "jabber:server").
+     * Get the mode of this session, c2s, s2s or component connections.
      */
-    boolean isServerToServer();
+    SessionMode getSessionMode();
 
     /**
-     * Set this session to handle server-to-server communication.
+     * Verify the current session mode against a matching type
+     * @return true if the provided {@link SessionMode} matches that of this session 
      */
-    void setServerToServer();
-
-    /**
-     * Set this session to handle client-to-server communication.
-     */
-    void setClientToServer();
-
+    boolean isSessionMode(SessionMode mode);
+    
     /**
      * @return the state of this session
      */

@@ -34,6 +34,7 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.TestSessionContext;
+import org.apache.vysper.xmpp.server.SessionContext.SessionMode;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
@@ -83,8 +84,6 @@ public class MessageHandlerRelayTestCase extends TestCase {
         stanzaBuilder.addAttribute("to", receiverUser.getEntity().getBareJID().getFullQualifiedName());
         stanzaBuilder.startInnerElement("timestamp", NamespaceURIs.JABBER_SERVER).addAttribute("value", timestamp)
                 .endInnerElement();
-
-        senderSessionContext.setClientToServer();
 
         assertNull(receiverUser.getNextStanza()); // nothing there yet
         assertNull(senderUser.getNextStanza()); // nothing there yet

@@ -56,7 +56,7 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
      */
     public static TestSessionContext createSessionContext(Entity entity) {
         SessionStateHolder sessionStateHolder = new SessionStateHolder();
-        TestSessionContext sessionContext = new TestSessionContext(sessionStateHolder);
+        TestSessionContext sessionContext = new TestSessionContext(sessionStateHolder, SessionMode.CLIENT_2_SERVER);
         if (entity != null)
             sessionContext.setInitiatingEntity(entity.getBareJID());
         return sessionContext;
@@ -82,7 +82,7 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
         DefaultServerRuntimeContext serverContext = new DefaultServerRuntimeContext(new EntityImpl(null, "test", null),
                 relay);
         relay.setServerRuntimeContext(serverContext);
-        return new TestSessionContext(serverContext, sessionStateHolder);
+        return new TestSessionContext(serverContext, sessionStateHolder, SessionMode.CLIENT_2_SERVER);
     }
 
     /**
@@ -95,20 +95,29 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
             ServerRuntimeContext serverContext) {
         StanzaReceiverRelay relay = (StanzaReceiverRelay) serverContext.getStanzaRelay();
         relay.setServerRuntimeContext(serverContext);
-        return new TestSessionContext(serverContext, sessionStateHolder);
+        return new TestSessionContext(serverContext, sessionStateHolder, SessionMode.CLIENT_2_SERVER);
     }
 
     public TestSessionContext(SessionStateHolder sessionStateHolder) {
-        this(new DefaultServerRuntimeContext(new EntityImpl(null, "test", null), new RecordingStanzaRelay(),
-                new MemoryStorageProviderRegistry()), sessionStateHolder);
+        this(sessionStateHolder, SessionMode.CLIENT_2_SERVER);
     }
 
-    public TestSessionContext(ServerRuntimeContext serverRuntimeContext, SessionStateHolder sessionStateHolder) {
-        super(serverRuntimeContext, sessionStateHolder);
+    public TestSessionContext(SessionStateHolder sessionStateHolder, SessionMode sessionMode) {
+        this(new DefaultServerRuntimeContext(new EntityImpl(null, "test", null), new RecordingStanzaRelay(),
+                new MemoryStorageProviderRegistry()), sessionStateHolder, sessionMode);
+    }
+
+    public TestSessionContext(ServerRuntimeContext serverRuntimeContext, SessionStateHolder sessionStateHolder, SessionMode sessionMode) {
+        super(serverRuntimeContext, sessionStateHolder, sessionMode);
         sessionId = serverRuntimeContext.getNextSessionId();
         xmlLang = "de";
     }
 
+    public TestSessionContext(ServerRuntimeContext serverRuntimeContext, SessionStateHolder sessionStateHolder) {
+        this(serverRuntimeContext, sessionStateHolder, SessionMode.CLIENT_2_SERVER);
+    }
+
+    
     public Stanza getNextRecordedResponse() {
         return recordedResponses.poll();
     }

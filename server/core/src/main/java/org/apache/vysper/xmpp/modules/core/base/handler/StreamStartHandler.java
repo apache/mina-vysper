@@ -34,6 +34,7 @@ import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.server.XMPPVersion;
+import org.apache.vysper.xmpp.server.SessionContext.SessionMode;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
 import org.apache.vysper.xmpp.server.response.ServerResponses;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -67,17 +68,6 @@ public class StreamStartHandler implements StanzaHandler {
             boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder) {
         XMLElementVerifier xmlElementVerifier = stanza.getVerifier();
         boolean jabberNamespace = NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS.equals(stanza.getNamespaceURI());
-
-        boolean clientCall = xmlElementVerifier.namespacePresent(NamespaceURIs.JABBER_CLIENT);
-        boolean serverCall = xmlElementVerifier.namespacePresent(NamespaceURIs.JABBER_SERVER);
-
-        // TODO is it better to derive c2s or s2s from the type of endpoint and verify the namespace here?
-        if (clientCall && serverCall)
-            serverCall = false; // silently ignore ambiguous attributes
-        if (serverCall)
-            sessionContext.setServerToServer();
-        else
-            sessionContext.setClientToServer();
 
         if (sessionStateHolder.getState() != SessionState.INITIATED
                 && sessionStateHolder.getState() != SessionState.ENCRYPTED
@@ -127,7 +117,7 @@ public class StreamStartHandler implements StanzaHandler {
         }
 
         Stanza responseStanza = null;
-        if (clientCall) {
+        if (sessionContext.isSessionMode(SessionMode.CLIENT_2_SERVER)) {
             // RFC3920: 'to' attribute SHOULD be used by the initiating entity
             String toValue = stanza.getAttributeValue("to");
             if (toValue != null) {
@@ -147,7 +137,7 @@ public class StreamStartHandler implements StanzaHandler {
             }
             responseStanza = new ServerResponses().getStreamOpenerForClient(sessionContext.getServerJID(),
                     responseVersion, sessionContext);
-        } else if (serverCall) {
+        } else if (sessionContext.isSessionMode(SessionMode.SERVER_2_SERVER)) {
             // RFC3920: 'from' attribute SHOULD be used by the receiving entity
             String fromValue = stanza.getAttributeValue("from");
             if (fromValue != null) {

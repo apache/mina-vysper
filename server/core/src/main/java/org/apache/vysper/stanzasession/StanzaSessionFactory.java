@@ -23,6 +23,7 @@ import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.Endpoint;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionState;
+import org.apache.vysper.xmpp.server.SessionContext.SessionMode;
 
 /**
  *
@@ -38,7 +39,7 @@ public class StanzaSessionFactory implements Endpoint {
     public StanzaSession createNewSession() {
         SessionStateHolder stateHolder = new SessionStateHolder();
         stateHolder.setState(SessionState.INITIATED);
-        StanzaSessionContext sessionContext = new StanzaSessionContext(serverRuntimeContext, stateHolder);
+        StanzaSessionContext sessionContext = new StanzaSessionContext(serverRuntimeContext, stateHolder, SessionMode.CLIENT_2_SERVER);
         StanzaSession session = new StanzaSession(sessionContext);
         return session;
     }

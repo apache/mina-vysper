@@ -29,20 +29,29 @@ import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.apache.vysper.mina.codec.XMPPProtocolCodecFactory;
 import org.apache.vysper.xmpp.server.Endpoint;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext.SessionMode;
 
 /**
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class TCPEndpoint implements Endpoint {
+public abstract class AbstractTCPEndpoint implements Endpoint {
 
     private ServerRuntimeContext serverRuntimeContext;
 
-    private int port = 5222;
+    private int port;
+    
+    private SessionMode endpointType;
 
     private SocketAcceptor acceptor;
 
     private DefaultIoFilterChainBuilder filterChainBuilder;
+
+    
+    public AbstractTCPEndpoint(int defaultPort, SessionMode endpointType) {
+        this.port = defaultPort;
+        this.endpointType = endpointType;
+    }
 
     public DefaultIoFilterChainBuilder getFilterChainBuilder() {
         return filterChainBuilder;
@@ -65,7 +74,7 @@ public class TCPEndpoint implements Endpoint {
         filterChainBuilder.addLast("loggingFilter", new StanzaLoggingFilter());
         acceptor.setFilterChainBuilder(filterChainBuilder);
 
-        XmppIoHandlerAdapter adapter = new XmppIoHandlerAdapter();
+        XmppIoHandlerAdapter adapter = new XmppIoHandlerAdapter(endpointType);
         adapter.setServerRuntimeContext(serverRuntimeContext);
         acceptor.setHandler(adapter);
 

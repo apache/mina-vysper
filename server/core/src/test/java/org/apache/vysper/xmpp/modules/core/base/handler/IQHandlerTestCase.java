@@ -27,6 +27,7 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.TestSessionContext;
+import org.apache.vysper.xmpp.server.SessionContext.SessionMode;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -43,10 +44,11 @@ public class IQHandlerTestCase extends TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        sessionContext = new TestSessionContext(sessionStateHolder);
+        sessionContext = new TestSessionContext(sessionStateHolder, SessionMode.CLIENT_2_SERVER);
     }
 
     public void testMissingToInServerCall() {
+        sessionContext = new TestSessionContext(sessionStateHolder, SessionMode.SERVER_2_SERVER);
         StanzaBuilder stanzaBuilder = new StanzaBuilder("iq", NamespaceURIs.JABBER_SERVER);
         stanzaBuilder.addAttribute("type", "get");
         // missing stanzaBuilder.addAttribute("to", "test@example.com");
@@ -54,7 +56,6 @@ public class IQHandlerTestCase extends TestCase {
         stanzaBuilder.startInnerElement("inner", NamespaceURIs.JABBER_SERVER).endInnerElement();
 
         TestSessionContext sessionContext = this.sessionContext;
-        sessionContext.setServerToServer();
 
         TestIQHandler iqHandler = new TestIQHandler();
         ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanzaBuilder.build(), sessionContext

@@ -28,6 +28,7 @@ import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.server.TestSessionContext;
+import org.apache.vysper.xmpp.server.SessionContext.SessionMode;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
@@ -41,7 +42,7 @@ public class StartTLSHandlerTestCase extends TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        sessionContext = new TestSessionContext(sessionStateHolder);
+        sessionContext = new TestSessionContext(sessionStateHolder, SessionMode.SERVER_2_SERVER);
     }
 
     public void testAppropriateSessionState() {
@@ -49,7 +50,6 @@ public class StartTLSHandlerTestCase extends TestCase {
         Stanza starttlsStanza = stanzaBuilder.build();
 
         TestSessionContext sessionContext = this.sessionContext;
-        sessionContext.setServerToServer();
 
         sessionContext.setSessionState(SessionState.INITIATED);
         Stanza responseStanza = executeStartTLSHandler(starttlsStanza, sessionContext);

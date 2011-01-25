@@ -55,8 +55,8 @@ public class MinaBackedSessionContext extends AbstractSessionContext implements 
     protected CloseFuture closeFuture;
 
     public MinaBackedSessionContext(ServerRuntimeContext serverRuntimeContext, SessionStateHolder sessionStateHolder,
-            IoSession minaSession) {
-        super(serverRuntimeContext, sessionStateHolder);
+            IoSession minaSession, SessionMode sessionMode) {
+        super(serverRuntimeContext, sessionStateHolder, sessionMode);
         this.minaSession = minaSession;
         closeFuture = minaSession.getCloseFuture();
         closeFuture.addListener(this);

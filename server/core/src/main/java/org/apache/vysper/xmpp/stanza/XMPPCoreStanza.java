@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.stanza;
 
 import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.server.SessionContext.SessionMode;
 
 /**
  * wraps an all-purpose stanza into a core stanza (iq, message, presence)
@@ -78,8 +79,19 @@ abstract public class XMPPCoreStanza extends Stanza {
         return "error".equals(getType());
     }
 
-    public boolean isServerCall() {
-        return getNamespaceURI().equals(NamespaceURIs.JABBER_SERVER);
+    public boolean isValidForMode(SessionMode sessionMode) {
+        String expectedNamespace = "";
+        switch(sessionMode) {
+        case CLIENT_2_SERVER:
+            expectedNamespace = NamespaceURIs.JABBER_CLIENT;
+            break;
+        case SERVER_2_SERVER:
+            expectedNamespace = NamespaceURIs.JABBER_SERVER;
+            break;
+        case COMPONENT_ACCEPT:
+            expectedNamespace = NamespaceURIs.JABBER_COMPONENT_ACCEPT;
+            break;
+        }
+        return getNamespaceURI().equals(expectedNamespace);
     }
-
 }

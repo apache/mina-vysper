@@ -29,6 +29,7 @@ import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StreamErrorCondition;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.SessionContext.SessionMode;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -100,7 +101,7 @@ public abstract class XMPPCoreStanzaHandler implements StanzaHandler {
         }
 
         Entity to = stanza.getTo();
-        if (sessionContext != null && sessionContext.isServerToServer() && to == null) {
+        if (sessionContext != null && sessionContext.isSessionMode(SessionMode.SERVER_2_SERVER) && to == null) {
             // "to" MUST be present for jabber:server
             return new ResponseStanzaContainerImpl(ServerErrorResponses.getStreamError(
                     StreamErrorCondition.IMPROPER_ADDRESSING, stanza.getXMLLang(), "missing to attribute", null));
