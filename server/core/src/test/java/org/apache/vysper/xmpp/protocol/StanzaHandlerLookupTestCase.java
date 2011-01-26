@@ -30,6 +30,7 @@ import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.core.base.handler.MessageHandler;
 import org.apache.vysper.xmpp.modules.core.base.handler.TestIQHandler;
 import org.apache.vysper.xmpp.modules.core.im.handler.PresenceHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0114_component.HandshakeHandler;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
@@ -137,6 +138,18 @@ public class StanzaHandlerLookupTestCase extends TestCase {
         assertTrue("iq handler found", handler instanceof MessageHandler);
     }
 
+    public void testLookupComponentHandshakeHandler() {
+        StanzaHandlerLookup stanzaHandlerLookup = initStanzaHandlerLookup();
+        stanzaHandlerLookup.addDictionary(new BaseStreamStanzaDictionary());
+
+        Stanza stanza = new StanzaBuilder("handshake", NamespaceURIs.JABBER_COMPONENT_ACCEPT).build();
+        StanzaHandler handler = stanzaHandlerLookup.getHandler(stanza);
+
+        assertNotNull("handler found", handler);
+        assertTrue("handshake handler found", handler instanceof HandshakeHandler);
+    }
+
+    
     public void testLookupSpecializedIQHandler() {
         StanzaHandlerLookup stanzaHandlerLookup = initStanzaHandlerLookup();
         stanzaHandlerLookup.addDictionary(new BaseStreamStanzaDictionary());

@@ -23,6 +23,7 @@ import org.apache.vysper.xmpp.modules.core.base.handler.StreamStartHandler;
 import org.apache.vysper.xmpp.modules.core.base.handler.XMLPrologHandler;
 import org.apache.vysper.xmpp.modules.core.sasl.handler.AbstractSASLHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0077_inbandreg.InBandRegistrationHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0114_component.HandshakeHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbResultHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbVerifyHandler;
 import org.apache.vysper.xmpp.protocol.ResponseWriter;
@@ -59,6 +60,8 @@ public class EncryptedProtocolWorker extends AbstractStateAwareProtocolWorker {
         } else if (sessionContext.isSessionMode(SessionMode.SERVER_2_SERVER) && stanzaHandler instanceof DbResultHandler) {
             return true;
         } else if (sessionContext.isSessionMode(SessionMode.SERVER_2_SERVER) && stanzaHandler instanceof DbVerifyHandler) {
+            return true;
+        } else if (sessionContext.isSessionMode(SessionMode.COMPONENT_ACCEPT) && stanzaHandler instanceof HandshakeHandler) {
             return true;
         }
         ResponseWriter.writeUnsupportedStanzaError(sessionContext);

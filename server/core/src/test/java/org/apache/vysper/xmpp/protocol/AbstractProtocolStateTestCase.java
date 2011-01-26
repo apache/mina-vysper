@@ -67,7 +67,7 @@ public abstract class AbstractProtocolStateTestCase extends TestCase {
         Stanza stanza;
         Stanza recordedResponse;
         XMLElementVerifier responseVerifier;
-        stanza = new ServerResponses().getStreamOpener(true, testFrom, xmlLang, XMPPVersion.VERSION_1_0, null).build();
+        stanza = new ServerResponses().getStreamOpener(NamespaceURIs.JABBER_CLIENT, testFrom, xmlLang, XMPPVersion.VERSION_1_0, null).build();
         protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza,
                 sessionStateHolder);
 

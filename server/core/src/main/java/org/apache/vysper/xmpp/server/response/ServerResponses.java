@@ -41,7 +41,9 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 public class ServerResponses {
 
     public Stanza getStreamOpenerForError(boolean forClient, Entity from, XMPPVersion version, Stanza errorStanza) {
-        return getStreamOpener(forClient, from, null, version, errorStanza).build();
+        String namespaceUri = (forClient) ? NamespaceURIs.JABBER_CLIENT : NamespaceURIs.JABBER_SERVER;
+        
+        return getStreamOpener(namespaceUri, from, null, version, errorStanza).build();
     }
 
     public Stanza getStreamOpenerForClient(Entity from, XMPPVersion version, SessionContext sessionContext) {
@@ -58,7 +60,7 @@ public class ServerResponses {
             throw new IllegalStateException("unsupported state for responding with stream opener");
         }
 
-        StanzaBuilder stanzaBuilder = getStreamOpener(true, from, sessionContext.getXMLLang(), version,
+        StanzaBuilder stanzaBuilder = getStreamOpener(NamespaceURIs.JABBER_CLIENT, from, sessionContext.getXMLLang(), version,
                 sessionContext.getSessionId(), innerFeatureStanza);
 
         return stanzaBuilder.build();
@@ -85,15 +87,23 @@ public class ServerResponses {
             features = featureBuilder.build();
         }
         
-        StanzaBuilder stanzaBuilder = getStreamOpener(false, from, sessionContext.getXMLLang(), version,
+        StanzaBuilder stanzaBuilder = getStreamOpener(NamespaceURIs.JABBER_SERVER, from, sessionContext.getXMLLang(), version,
                 sessionContext.getSessionId(), features);
 
         stanzaBuilder.declareNamespace("db", NamespaceURIs.JABBER_SERVER_DIALBACK);
         return stanzaBuilder.build();
     }
 
+    public Stanza getStreamOpenerForComponentAcceptor(Entity from, SessionContext sessionContext) {
+        
+        StanzaBuilder stanzaBuilder = getStreamOpener(NamespaceURIs.JABBER_COMPONENT_ACCEPT, from, sessionContext.getXMLLang(), null,
+                sessionContext.getSessionId(), null);
+        return stanzaBuilder.build();
+    }
+
+    
     public Stanza getStreamOpenerForServerConnector(Entity from, Entity to, XMPPVersion version, SessionContext sessionContext) {
-        StanzaBuilder stanzaBuilder = getStreamOpener(false, from, sessionContext.getXMLLang(), version,
+        StanzaBuilder stanzaBuilder = getStreamOpener(NamespaceURIs.JABBER_SERVER, from, sessionContext.getXMLLang(), version,
                 null, null);
         stanzaBuilder.addAttribute("to", to.getDomain());
         stanzaBuilder.declareNamespace("db", NamespaceURIs.JABBER_SERVER_DIALBACK);
@@ -101,15 +111,15 @@ public class ServerResponses {
     }
 
     
-    public StanzaBuilder getStreamOpener(boolean forClient, Entity from, String xmlLang, XMPPVersion version,
+    public StanzaBuilder getStreamOpener(String namespaceUri, Entity from, String xmlLang, XMPPVersion version,
             Stanza innerStanza) {
-        return getStreamOpener(forClient, from, xmlLang, version, null, innerStanza);
+        return getStreamOpener(namespaceUri, from, xmlLang, version, null, innerStanza);
     }
 
-    public StanzaBuilder getStreamOpener(boolean forClient, Entity from, String xmlLang, XMPPVersion version,
+    public StanzaBuilder getStreamOpener(String namespaceUri, Entity from, String xmlLang, XMPPVersion version,
             String sessionId, XMLElement innerStanza) {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("stream", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS,
-                "stream").declareNamespace("", forClient ? NamespaceURIs.JABBER_CLIENT : NamespaceURIs.JABBER_SERVER)
+                "stream").declareNamespace("", namespaceUri)
                 .addAttribute("from", from.getFullQualifiedName());
         if (xmlLang != null)
             stanzaBuilder.addAttribute(NamespaceURIs.XML, "lang", xmlLang);

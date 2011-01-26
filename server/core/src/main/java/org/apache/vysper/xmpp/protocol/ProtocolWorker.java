@@ -114,13 +114,14 @@ public class ProtocolWorker implements StanzaProcessor {
                 return;
             }
         }
-        
+
         // check as of RFC3920/4.3:
         if (sessionStateHolder.getState() != SessionState.AUTHENTICATED) {
             // is not authenticated...
             if (coreStanza != null
                     && !(stanzaHandler instanceof InBandRegistrationHandler)) {
                 // ... and is a IQ/PRESENCE/MESSAGE stanza!
+                // In-band registration uses IQ stanzas before the stream is authenticated
                 responseWriter.handleNotAuthorized(sessionContext, stanza);
                 return;
             }
@@ -163,7 +164,7 @@ public class ProtocolWorker implements StanzaProcessor {
                 // rewrite namespace
                 stanza = StanzaBuilder.rewriteNamespace(stanza, NamespaceURIs.JABBER_SERVER, NamespaceURIs.JABBER_CLIENT);
             }                
-        } else {
+        } else if(sessionContext.isSessionMode(SessionMode.CLIENT_2_SERVER)) { 
             // make sure that 'from' (if present) matches the bare authorized entity
             // else respond with a stanza error 'unknown-sender'
             // see rfc3920_draft-saintandre-rfc3920bis-04.txt#8.5.4
@@ -195,6 +196,8 @@ public class ProtocolWorker implements StanzaProcessor {
                     return;
                 }
             }
+        } else if(sessionContext.isSessionMode(SessionMode.COMPONENT_ACCEPT)) {
+            // TODO make sure that "from" is from the component
         }
         
         try {

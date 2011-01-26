@@ -23,9 +23,6 @@ package org.apache.vysper.xmpp.server.response;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
-import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.Anonymous;
@@ -139,6 +136,22 @@ public class ServerResponsesTestCase {
         Stanza actual = new ServerResponses().getStreamOpenerForServerAcceptor(FROM, VERSION, sessionContext, true);
         Assert.assertEquals(expected, actual);
     }
+    
+    @Test
+    public void getStreamOpenerForComponentAcceptor() throws ParsingException {
+        Mockito.when(sessionContext.getState()).thenReturn(SessionState.INITIATED);
+        
+        Stanza expected = new StanzaBuilder("stream", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS, "stream")
+            .addAttribute("from", FROM.getFullQualifiedName())
+            .declareNamespace("", NamespaceURIs.JABBER_COMPONENT_ACCEPT)
+            .build();
+
+        Stanza actual = new ServerResponses().getStreamOpenerForComponentAcceptor(FROM, sessionContext);
+        
+        Assert.assertEquals(expected, actual);
+    }
+
+
 
     @Test
     public void getStreamOpenerForServerConnector() throws ParsingException {
@@ -154,8 +167,6 @@ public class ServerResponsesTestCase {
             .build();
 
         Stanza actual = new ServerResponses().getStreamOpenerForServerConnector(FROM, TO, VERSION, sessionContext);
-        System.out.println(new Renderer(expected).getComplete());
-        System.out.println(new Renderer(actual).getComplete());
         Assert.assertEquals(expected, actual);
     }
 

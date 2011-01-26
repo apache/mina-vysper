@@ -21,6 +21,7 @@ package org.apache.vysper.xmpp.protocol.worker;
 
 import org.apache.vysper.xmpp.modules.core.starttls.handler.StartTLSHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0077_inbandreg.InBandRegistrationHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0114_component.HandshakeHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbResultHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbVerifyHandler;
 import org.apache.vysper.xmpp.protocol.ResponseWriter;
@@ -53,6 +54,8 @@ public class StartedProtocolWorker extends AbstractStateAwareProtocolWorker {
         } else if (sessionContext.isSessionMode(SessionMode.SERVER_2_SERVER) && stanzaHandler instanceof DbVerifyHandler) {
             return true;
         } else if (sessionContext.isSessionMode(SessionMode.SERVER_2_SERVER) && stanzaHandler instanceof DbResultHandler) {
+            return true;
+        } else if (sessionContext.isSessionMode(SessionMode.COMPONENT_ACCEPT) && stanzaHandler instanceof HandshakeHandler) {
             return true;
         }
         ResponseWriter.writeUnsupportedStanzaError(sessionContext);

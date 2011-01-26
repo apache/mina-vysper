@@ -27,6 +27,7 @@ import org.apache.vysper.xmpp.modules.core.base.handler.RelayingIQHandler;
 import org.apache.vysper.xmpp.modules.core.base.handler.StreamStartHandler;
 import org.apache.vysper.xmpp.modules.core.base.handler.XMLPrologHandler;
 import org.apache.vysper.xmpp.modules.core.im.handler.PresenceHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0114_component.HandshakeHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbResultHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbVerifyHandler;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -49,6 +50,8 @@ public class StanzaHandlerLookup extends AbstractStanzaHandlerLookup {
     private MessageHandler messageHandler = new MessageHandler();
 
     private PresenceHandler presenceHandler = new PresenceHandler();
+    
+    private HandshakeHandler handshakeHandler = new HandshakeHandler();
 
     private static final ServiceUnavailableStanzaErrorHandler SERVICE_UNAVAILABLE_STANZA_ERROR_HANDLER = new ServiceUnavailableStanzaErrorHandler();
 
@@ -84,6 +87,8 @@ public class StanzaHandlerLookup extends AbstractStanzaHandlerLookup {
                 return new DbVerifyHandler();
             } else if ("result".equals(name)) {
                 return new DbResultHandler();
+            } else if (handshakeHandler.verify(stanza)) {
+                return handshakeHandler;
             } else if (iqHandler.verify(stanza)) {
                 return getIQHandler(stanza);
             } else if (messageHandler.verify(stanza)) {
