@@ -86,8 +86,8 @@ public class MessageHandler extends XMPPCoreStanzaHandler {
         }
 
         // TODO inspect all BODY elements and make sure they conform to the spec
-
         if (isOutboundStanza) {
+
             // check if message reception is turned of either globally or locally
             if (!serverRuntimeContext.getServerFeatures().isRelayingMessages()
                     || (sessionContext != null && sessionContext
@@ -97,23 +97,28 @@ public class MessageHandler extends XMPPCoreStanzaHandler {
 
             Entity from = stanza.getFrom();
             if (from == null || !from.isResourceSet()) {
-                // rewrite stanza with new from
-                String resource = serverRuntimeContext.getResourceRegistry()
-                        .getUniqueResourceForSession(sessionContext);
-                if (resource == null)
-                    throw new IllegalStateException("could not determine unique resource");
-                from = new EntityImpl(sessionContext.getInitiatingEntity(), resource);
-                StanzaBuilder stanzaBuilder = new StanzaBuilder(stanza.getName(), stanza.getNamespaceURI());
-                for (Attribute attribute : stanza.getAttributes()) {
-                    if ("from".equals(attribute.getName()))
-                        continue;
-                    stanzaBuilder.addAttribute(attribute);
+                if(from == null || from.isNodeSet()) {
+                
+                    // rewrite stanza with new from
+                    String resource = serverRuntimeContext.getResourceRegistry()
+                            .getUniqueResourceForSession(sessionContext);
+                    if (resource == null)
+                        throw new IllegalStateException("could not determine unique resource");
+                    from = new EntityImpl(sessionContext.getInitiatingEntity(), resource);
+                    StanzaBuilder stanzaBuilder = new StanzaBuilder(stanza.getName(), stanza.getNamespaceURI());
+                    for (Attribute attribute : stanza.getAttributes()) {
+                        if ("from".equals(attribute.getName()))
+                            continue;
+                        stanzaBuilder.addAttribute(attribute);
+                    }
+                    stanzaBuilder.addAttribute("from", from.getFullQualifiedName());
+                    for (XMLElement preparedElement : stanza.getInnerElements()) {
+                        stanzaBuilder.addPreparedElement(preparedElement);
+                    }
+                    stanza = XMPPCoreStanza.getWrapper(stanzaBuilder.build());
+                } else {
+                    // message sent from component
                 }
-                stanzaBuilder.addAttribute("from", from.getFullQualifiedName());
-                for (XMLElement preparedElement : stanza.getInnerElements()) {
-                    stanzaBuilder.addPreparedElement(preparedElement);
-                }
-                stanza = XMPPCoreStanza.getWrapper(stanzaBuilder.build());
             }
 
             StanzaRelay stanzaRelay = serverRuntimeContext.getStanzaRelay();

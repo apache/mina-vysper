@@ -198,6 +198,11 @@ public class ProtocolWorker implements StanzaProcessor {
             }
         } else if(sessionContext.isSessionMode(SessionMode.COMPONENT_ACCEPT)) {
             // TODO make sure that "from" is from the component
+            
+            // rewrite namespace
+            if(coreStanza != null) {
+                stanza = StanzaBuilder.rewriteNamespace(stanza, NamespaceURIs.JABBER_COMPONENT_ACCEPT, NamespaceURIs.JABBER_CLIENT);
+            }
         }
         
         try {

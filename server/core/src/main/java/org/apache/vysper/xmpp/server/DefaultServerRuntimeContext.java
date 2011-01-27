@@ -21,6 +21,7 @@
 package org.apache.vysper.xmpp.server;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +40,7 @@ import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.ModuleRegistry;
 import org.apache.vysper.xmpp.modules.ServerRuntimeContextService;
+import org.apache.vysper.xmpp.modules.extension.xep0114_component.ComponentAuthentication;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.protocol.ProtocolWorker;
 import org.apache.vysper.xmpp.protocol.QueuedStanzaProcessor;
@@ -46,6 +48,7 @@ import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaHandlerLookup;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.components.Component;
+import org.apache.vysper.xmpp.server.components.ExternalComponentStanzaProcessor;
 import org.apache.vysper.xmpp.server.s2s.DefaultXMPPServerConnectorRegistry;
 import org.apache.vysper.xmpp.server.s2s.XMPPServerConnectorRegistry;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -364,13 +367,50 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         if (!EntityUtils.isAddressingServerComponent(entity, getServerEnitity())) {
             return null;
         }
+        
+        // find an internal component
         String domain = entity.getDomain();
         String subdomain = domain.replace("." + serverDomain, "");
         Component component = componentMap.get(subdomain);
-        if (component == null)
-            return null;
-        return component.getStanzaProcessor();
+        if (component != null) {
+            return component.getStanzaProcessor();
+        } else {
+            // find an external component
+            
+            ComponentAuthentication componentAuthentication = (ComponentAuthentication) getStorageProvider(ComponentAuthentication.class);
+            if(componentAuthentication != null) {
+                if(componentAuthentication.exists(entity)) {
+                    return new ExternalComponentStanzaProcessor(entity);
+                } else {
+                    // TODO handle
+                    return null;
+                }
+            } else {
+                // TODO handle
+                return null;
+            }
+        }
     }
 
+    private List<SessionContext> sessions = new ArrayList<SessionContext>();
+    
+    public Collection<SessionContext> getSessions(Entity entity) {
+        List<SessionContext> matching = new ArrayList<SessionContext>();
+        for(SessionContext sessionContext : sessions) {
+            if(sessionContext.getInitiatingEntity() != null && sessionContext.getInitiatingEntity().equals(entity)) {
+                matching.add(sessionContext);
+            }
+        }
+        
+        return matching;
+    }
+    
+    public void sessionCreated(SessionContext sessionContext) {
+        sessions.add(sessionContext);
+    }
+
+    public void sessionClosed(SessionContext sessionContext) {
+        sessions.remove(sessionContext);
+    }
 
 }
