@@ -20,11 +20,7 @@
 package org.apache.vysper.xml.sax.impl;
 
 import java.util.Iterator;
-import java.util.Map.Entry;
 
-import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.vysper.charset.CharsetUtil;
-import org.apache.vysper.xml.sax.NonBlockingXMLReader;
 import org.apache.vysper.xml.sax.impl.TestHandler.TestEvent;
 
 /**
@@ -170,28 +166,4 @@ public class ParseElementsTestCase extends AbstractAsyncXMLReaderTestCase {
 
         assertNoMoreevents(events);
     }
-    
-    public void testSplitBuffers() throws Exception {
-        TestHandler handler = new TestHandler();
-        NonBlockingXMLReader reader = new DefaultNonBlockingXMLReader();
-
-        reader.setContentHandler(handler);
-        reader.setErrorHandler(handler);
-
-        String xml1 = "<root></r";
-        String xml2 = "oot>";
-        
-        reader.parse(IoBuffer.wrap(xml1.getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
-        reader.parse(IoBuffer.wrap(xml2.getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
-
-        Iterator<TestEvent> events = handler.getEvents().iterator();
- 
-        assertStartDocument(events.next());
-        assertStartElement("", "root", "root", events.next());
-        assertEndElement("", "root", "root", events.next());
-        assertEndDocument(events.next());
-
-        assertNoMoreevents(events);
-    }
-
 }
