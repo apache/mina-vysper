@@ -358,8 +358,7 @@
           <version>2.7.1</version>
           <configuration>
             <excludes>
-              <exclude>**/*Test.java</exclude>
-              <exclude>**/*TestCase.java</exclude>
+              <exclude>**/Test*.java</exclude>
             </excludes>
           </configuration>
         </plugin>
