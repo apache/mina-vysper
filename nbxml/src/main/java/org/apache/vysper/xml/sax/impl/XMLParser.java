@@ -335,6 +335,7 @@ public class XMLParser implements TokenListener {
         elements.clear();
         nsResolver = new ParserNamespaceResolver();
         sentStartDocument = false;
+        tokenizer.restart();
     }
 
     private void xmlDeclaration() {

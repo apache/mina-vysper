@@ -38,7 +38,7 @@ public class XMLTokenizer {
         START, IN_TAG, IN_STRING, IN_DOUBLE_ATTRIBUTE_VALUE, IN_SINGLE_ATTRIBUTE_VALUE, IN_TEXT, CLOSED
     }
 
-    private int lastPosition = 0;
+    private final IoBuffer buffer = IoBuffer.allocate(16).setAutoExpand(true);
 
     private State state = State.START;
 
@@ -59,8 +59,6 @@ public class XMLTokenizer {
      * @throws Exception
      */
     public void parse(IoBuffer byteBuffer, CharsetDecoder decoder) throws SAXException {
-        lastPosition = byteBuffer.position();
-
         while (byteBuffer.hasRemaining() && state != State.CLOSED) {
             char c = (char) byteBuffer.get();
 
@@ -70,6 +68,7 @@ public class XMLTokenizer {
                     state = State.IN_TAG;
                 } else {
                     state = State.IN_TEXT;
+                    buffer.put((byte) c);
                 }
             } else if (state == State.IN_TEXT) {
                 if (c == '<') {
@@ -92,9 +91,10 @@ public class XMLTokenizer {
                 } else if (isControlChar(c)) {
                     emit(c, byteBuffer);
                 } else if (Character.isWhitespace(c)) {
-                    lastPosition = byteBuffer.position();
+                    buffer.clear();
                 } else {
                     state = State.IN_STRING;
+                    buffer.put((byte) c);
                 }
             } else if (state == State.IN_STRING) {
                 if (c == '>') {
@@ -109,28 +109,36 @@ public class XMLTokenizer {
                     emit(byteBuffer, CharsetUtil.UTF8_DECODER);
                     state = State.IN_TAG;
                 } else {
-                    // do nothing
+                    buffer.put((byte) c);
                 }
             } else if (state == State.IN_DOUBLE_ATTRIBUTE_VALUE) {
                 if (c == '"') {
                     emit(byteBuffer, decoder);
                     emit(c, byteBuffer);
                     state = State.IN_TAG;
+                } else {
+                    buffer.put((byte) c);
                 }
             } else if (state == State.IN_SINGLE_ATTRIBUTE_VALUE) {
                 if (c == '\'') {
                     emit(byteBuffer, decoder);
                     emit(c, byteBuffer);
                     state = State.IN_TAG;
+                } else {
+                    buffer.put((byte) c);
                 }
             }
         }
-
-        byteBuffer.position(lastPosition);
     }
 
     public void close() {
         state = State.CLOSED;
+        buffer.clear();
+    }
+
+    public void restart() {
+        state = State.START;
+        buffer.clear();
     }
 
     private boolean isControlChar(char c) {
@@ -139,24 +147,15 @@ public class XMLTokenizer {
 
     private void emit(char token, IoBuffer byteBuffer) throws SAXException {
         listener.token(token, null);
-
-        lastPosition = byteBuffer.position();
     }
 
     private void emit(IoBuffer byteBuffer, CharsetDecoder decoder) throws SAXException {
-        int endPosition = byteBuffer.position();
-        int oldLimit = byteBuffer.limit();
-        byteBuffer.position(lastPosition);
-        byteBuffer.limit(endPosition - 1);
-
         try {
-            listener.token(NO_CHAR, byteBuffer.getString(decoder));
+            buffer.flip();
+            listener.token(NO_CHAR, buffer.getString(decoder));
+            buffer.clear();
         } catch (CharacterCodingException e) {
             throw new SAXException(e);
         }
-        byteBuffer.limit(oldLimit);
-        byteBuffer.position(endPosition);
-        lastPosition = byteBuffer.position();
-
     }
 }
