@@ -18,6 +18,7 @@
  *
  */
 package org.apache.vysper.xmpp.server.s2s;
+import java.io.IOException;
 import java.nio.channels.UnresolvedAddressException;
 import java.util.Arrays;
 import java.util.List;
@@ -239,7 +240,12 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
          */
         @Override
         public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
-            LOG.warn("Exception thrown by XMPP server connector to " + otherServer + ", probably a bug in Vysper", cause);
+            if(cause instanceof IOException) {
+                // socket closed
+                close();
+            } else {
+                LOG.warn("Exception thrown by XMPP server connector to " + otherServer + ", probably a bug in Vysper", cause);
+            }
         }
 
         private StanzaHandler lookupHandler(Stanza stanza) {
@@ -268,6 +274,9 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
                 Stanza opener = new ServerResponses().getStreamOpenerForServerConnector(serverRuntimeContext.getServerEnitity(), otherServer, XMPPVersion.VERSION_1_0, sessionContext);
                 
                 sessionContext.write(opener);
+            } else if(message == SslFilter.SESSION_UNSECURED) {
+                // unsecured, closing
+                close();
             } else if(message instanceof Stanza) {
                 Stanza stanza = (Stanza) message;
                 
@@ -318,7 +327,7 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
                     // TODO other stanzas coming here?
                 }
             } else {
-                throw new RuntimeException("Only handles SSL events and stanzas");
+                throw new RuntimeException("Only handles SSL events and stanzas, got: " + message.getClass());
             }
         }
 
