@@ -72,7 +72,6 @@ public class AbortHandlerTestCase extends TestCase {
         executeAbortAuthorization_3Times();
 
         StanzaBuilder stanzaBuilder = createAbort();
-        Stanza abortPlainStanza = stanzaBuilder.build();
 
         stanzaBuilder = new StanzaBuilder("auth", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
         stanzaBuilder.addAttribute("mechanism", "PLAIN");

@@ -22,13 +22,13 @@ package org.apache.vysper.xmpp.datetime;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.COMPLETE;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.IN_PROGRESS;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.time.FastDateFormat;
 import org.apache.vysper.compliance.SpecCompliant;
 
 /**
@@ -39,11 +39,11 @@ public class DateTimeProfile {
 
     protected static final TimeZone TIME_ZONE_UTC;
 
-    protected static final SimpleDateFormat utcDateFormatter;
+    protected static final FastDateFormat utcDateFormatter;
 
-    protected static final SimpleDateFormat utcDateTimeFormatter;
+    protected static final FastDateFormat utcDateTimeFormatter;
 
-    protected static final SimpleDateFormat utcTimeFormatter;
+    protected static final FastDateFormat utcTimeFormatter;
 
     private static final String DATE_PATTERN_VALUE = "(\\d\\d\\d\\d)-(\\d\\d)-(\\d\\d)";
 
@@ -62,12 +62,9 @@ public class DateTimeProfile {
 
     static {
         TIME_ZONE_UTC = TimeZone.getTimeZone("UTC");
-        utcDateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        utcDateTimeFormatter.setTimeZone(TIME_ZONE_UTC); // convert to UTC
-        utcDateFormatter = new SimpleDateFormat("yyyy-MM-dd");
-        utcDateFormatter.setTimeZone(TIME_ZONE_UTC); // convert to UTC
-        utcTimeFormatter = new SimpleDateFormat("HH:mm:ss'Z'");
-        utcTimeFormatter.setTimeZone(TIME_ZONE_UTC); // convert to UTC
+        utcDateTimeFormatter = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss'Z'", TIME_ZONE_UTC);
+        utcDateFormatter = FastDateFormat.getInstance("yyyy-MM-dd", TIME_ZONE_UTC);
+        utcTimeFormatter = FastDateFormat.getInstance("HH:mm:ss'Z'", TIME_ZONE_UTC);
     }
 
     private final static DateTimeProfile SINGLETON = new DateTimeProfile();

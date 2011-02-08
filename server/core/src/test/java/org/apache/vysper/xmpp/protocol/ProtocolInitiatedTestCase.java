@@ -118,7 +118,7 @@ public class ProtocolInitiatedTestCase extends AbstractProtocolStateTestCase {
         assertFalse("no error", responseVerifier.subElementPresent("error"));
     }
 
-    protected class IllegalXMPPVersion extends XMPPVersion {
+    protected static class IllegalXMPPVersion extends XMPPVersion {
         protected String versionString;
 
         public IllegalXMPPVersion(String version) {

@@ -29,7 +29,7 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
  */
 public class Identity implements InfoElement {
 
-    private static final Integer CLASS_ID = new Integer(1);
+    private static final Integer CLASS_ID = 1;
 
     protected String category; // required
 

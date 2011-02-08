@@ -82,7 +82,7 @@ public class MemoryOfflineStorageProvider extends AbstractOfflineStorageProvider
 		}
 	}
 
-	private class Entry {
+	private static class Entry {
 
 		private Stanza stanza;
 

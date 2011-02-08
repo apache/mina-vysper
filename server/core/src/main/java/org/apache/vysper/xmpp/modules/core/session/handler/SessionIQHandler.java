@@ -53,10 +53,8 @@ public class SessionIQHandler extends IQHandler {
         case GET:
         case ERROR:
         default:
-            new RuntimeException("iq stanza type not supported: " + stanza.getIQType());
+            throw new RuntimeException("iq stanza type not supported: " + stanza.getIQType());
         }
-
-        return null;
     }
 
 }

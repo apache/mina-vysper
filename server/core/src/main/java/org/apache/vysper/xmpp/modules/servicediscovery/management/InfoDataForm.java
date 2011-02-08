@@ -34,7 +34,7 @@ import org.apache.vysper.xmpp.stanza.dataforms.DataFormEncoder;
 @SpecCompliant(spec = "XEP-0128", status = FINISHED, coverage = COMPLETE)
 public class InfoDataForm implements InfoElement {
 
-    private static final Integer CLASS_ID = new Integer(3);
+    private static final Integer CLASS_ID = 3;
 
     protected static final DataFormEncoder DATA_FORM_ENCODER = new DataFormEncoder();
 

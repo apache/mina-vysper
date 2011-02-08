@@ -251,7 +251,7 @@ public class StanzaBuilder extends AbstractXMLElementBuilder<StanzaBuilder, Stan
         }
     }
 
-    class ElementStruct {
+    static class ElementStruct {
         public ElementStruct parentElement = null;
 
         public XMLElement element = null;
