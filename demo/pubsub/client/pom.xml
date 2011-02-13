@@ -21,7 +21,7 @@
   <parent>
     <artifactId>vysper-parent</artifactId>
     <groupId>org.apache.vysper</groupId>
-    <version>0.7-SNAPSHOT</version>
+    <version>0.7</version>
     <relativePath>../../../pom.xml</relativePath>
   </parent>
 
@@ -29,7 +29,7 @@
   <groupId>org.apache.vysper</groupId>
   <artifactId>demo-pubsub-client</artifactId>
   <name>Apache Vysper XEP-0060 Publish-Subscribe Demo Application</name>
-  <version>0.7-SNAPSHOT</version>
+  <version>0.7</version>
 
   <repositories>
     <repository>

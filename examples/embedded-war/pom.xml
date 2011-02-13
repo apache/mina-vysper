@@ -20,13 +20,13 @@
 	<parent>
 		<artifactId>vysper-examples</artifactId>
 		<groupId>org.apache.vysper.examples</groupId>
-		<version>0.7-SNAPSHOT</version>
+		<version>0.7</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.apache.vysper.examples</groupId>
 	<artifactId>vysper-embedded-war</artifactId>
 	<name>Example of Apache Vysper embedded in a WAR</name>
-	<version>0.7-SNAPSHOT</version>
+	<version>0.7</version>
 	<packaging>war</packaging>
 
 	<dependencies>
