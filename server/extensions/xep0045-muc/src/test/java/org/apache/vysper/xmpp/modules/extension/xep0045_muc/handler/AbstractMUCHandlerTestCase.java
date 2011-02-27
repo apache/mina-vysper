@@ -77,6 +77,8 @@ public abstract class AbstractMUCHandlerTestCase extends TestCase {
 
     protected static final Entity OCCUPANT2_JID = EntityImpl.parseUnchecked("user2@" + SERVERDOMAIN);
 
+    protected static final Entity OCCUPANT3_JID = EntityImpl.parseUnchecked("user3@" + SERVERDOMAIN);
+
     protected StanzaHandler handler;
 
     protected Conference conference = new Conference("foo");
@@ -253,12 +255,14 @@ public abstract class AbstractMUCHandlerTestCase extends TestCase {
         }
     }
 
-    protected Stanza sendIq(Entity from, Entity to, IQStanzaType type, String id, String namespaceUri, XMLElement item)
+    protected Stanza sendIq(Entity from, Entity to, IQStanzaType type, String id, String namespaceUri, XMLElement... items)
             throws ProtocolException {
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(from, to, type, id);
 
         stanzaBuilder.startInnerElement("query", namespaceUri);
-        stanzaBuilder.addPreparedElement(item);
+        for(XMLElement item : items) {
+            stanzaBuilder.addPreparedElement(item);
+        }
         stanzaBuilder.endInnerElement();
 
         Stanza iqStanza = stanzaBuilder.build();

@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.modules.extension.xep0119_xmppping;
+package org.apache.vysper.xmpp.modules.extension.xep0199_xmppping;
 
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;

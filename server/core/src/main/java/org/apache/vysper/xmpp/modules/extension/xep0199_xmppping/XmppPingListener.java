@@ -19,30 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0199_xmppping;
 
-import org.apache.vysper.xmpp.modules.extension.xep0199_xmppping.XmppPingModule;
-import org.apache.vysper.xmpp.server.XMPPServer;
-import org.jivesoftware.smack.packet.IQ;
-
-/**
- */
-public class XmppPingIntegrationTestCase extends AbstractIntegrationTestCase {
-
-    @Override
-    protected void addModules(XMPPServer server) {
-        server.addModule(new XmppPingModule());
-    }
-
-    public void testClientServerPing() throws Exception {
-        PingPacket pingRequest = new PingPacket();
-        pingRequest.setType(IQ.Type.GET);
-        pingRequest.setTo(SERVER_DOMAIN);
-        pingRequest.setFrom(TEST_USERNAME1);
-
-        IQ result = (IQ) sendSync(client, pingRequest);
-
-        assertNotNull(result);
-        assertEquals(IQ.Type.RESULT, result.getType());
-        assertEquals(SERVER_DOMAIN, result.getFrom());
-        assertEquals(TEST_USERNAME1, result.getTo());
-    }
+public interface XmppPingListener {
+    void pong();
+    void timeout();
 }

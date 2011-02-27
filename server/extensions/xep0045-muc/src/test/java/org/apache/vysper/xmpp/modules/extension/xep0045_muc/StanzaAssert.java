@@ -17,31 +17,21 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.delivery.inbound;
 
-import java.util.List;
+package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
 
-import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
-import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
+import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xmpp.stanza.Stanza;
+import org.junit.Assert;
 
-public class RecordingDeliveryFailureStrategy implements DeliveryFailureStrategy {
+public class StanzaAssert {
 
-    private Stanza recordedStanza;
-
-    private List<DeliveryException> recordedDeliveryException;
-
-    public void process(Stanza failedToDeliverStanza, List<DeliveryException> deliveryException)
-            throws DeliveryException {
-        this.recordedStanza = failedToDeliverStanza;
-        this.recordedDeliveryException = deliveryException;
-    }
-
-    public Stanza getRecordedStanza() {
-        return recordedStanza;
-    }
-
-    public List<DeliveryException> getRecordedDeliveryException() {
-        return recordedDeliveryException;
+    public static void assertEquals(Stanza expected, Stanza actual) {
+        try {
+            Assert.assertEquals(expected, actual);
+        } catch(Throwable e) {
+            // print something useful
+            Assert.assertEquals(new Renderer(expected).getComplete(), new Renderer(actual).getComplete());
+        }
     }
 }

@@ -19,8 +19,12 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 
@@ -45,5 +49,15 @@ public class Affiliations {
 
     public Affiliation getAffiliation(Entity user) {
         return affiliations.get(user.getBareJID());
+    }
+
+    public Collection<Entity> getByAffiliation(Affiliation affiliation) {
+        List<Entity> matching = new ArrayList<Entity>();
+        for(Entry<Entity, Affiliation> entry : affiliations.entrySet()) {
+            if(entry.getValue() == affiliation) {
+                matching.add(entry.getKey());
+            }
+        }
+        return matching;
     }
 }

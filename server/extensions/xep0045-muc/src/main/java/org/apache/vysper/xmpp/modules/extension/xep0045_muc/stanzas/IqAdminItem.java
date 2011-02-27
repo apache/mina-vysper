@@ -82,6 +82,10 @@ public class IqAdminItem extends XMLElement {
         super(NamespaceURIs.XEP0045_MUC_ADMIN, "item", null, createAttributes(nick, null, null, affiliation), null);
     }
 
+    public IqAdminItem(Affiliation affiliation) {
+        super(NamespaceURIs.XEP0045_MUC_ADMIN, "item", null, createAttributes(null, null, null, affiliation), null);
+    }
+    
     public IqAdminItem(Entity jid, Affiliation affiliation) {
         super(NamespaceURIs.XEP0045_MUC_ADMIN, "item", null, createAttributes(null, jid, null, affiliation), null);
     }
