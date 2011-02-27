@@ -93,18 +93,6 @@ public class StanzaHandlerLookupTestCase extends TestCase {
         return new StanzaHandlerLookup(null);
     }
 
-    public void testLookupCoreHandlerServerNS() {
-        StanzaHandlerLookup stanzaHandlerLookup = initStanzaHandlerLookup();
-        stanzaHandlerLookup.addDictionary(new BaseStreamStanzaDictionary());
-
-        Stanza stanza = new StanzaBuilder("iq", NamespaceURIs.JABBER_SERVER).build();
-        StanzaHandler handler = stanzaHandlerLookup.getHandler(stanza);
-
-        assertNotNull("handler found", handler);
-        assertTrue("iq handler found", handler instanceof IQHandler);
-
-    }
-
     public void testLookupCoreHandlerWrongNamespace() {
         StanzaHandlerLookup stanzaHandlerLookup = initStanzaHandlerLookup();
         stanzaHandlerLookup.addDictionary(new BaseStreamStanzaDictionary());
@@ -112,7 +100,7 @@ public class StanzaHandlerLookupTestCase extends TestCase {
         Stanza stanza = new StanzaBuilder("iq", "arbitraryNamespace").build();
         StanzaHandler handler = stanzaHandlerLookup.getHandler(stanza);
 
-        assertTrue("iq handler with arbitrary namespace not found", handler instanceof IQHandler);
+        assertTrue("iq handler with arbitrary namespace not found", handler instanceof ServiceUnavailableStanzaErrorHandler);
     }
 
     public void testLookupPresenceHandler() {

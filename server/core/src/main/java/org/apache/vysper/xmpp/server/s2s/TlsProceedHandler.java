@@ -47,7 +47,6 @@ public class TlsProceedHandler implements StanzaHandler {
         if (stanza == null) return false;
         if (!getName().equals(stanza.getName())) return false;
         String namespaceURI = stanza.getNamespaceURI();
-        if (namespaceURI == null) return false;
         return namespaceURI.equals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS);
     }
 

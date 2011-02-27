@@ -38,12 +38,14 @@ public abstract class AbstractTLSContextFactory implements TLSContextFactory {
 
     private static final String PROTOCOL = "TLS";
 
+    private static final String DEFAULT_ALGORITHM = "SunX509";
+
     private static final String KEY_MANAGER_FACTORY_ALGORITHM;
 
     static {
         String algorithm = Security.getProperty("ssl.KeyManagerFactory.algorithm");
-        if (algorithm == null)
-            algorithm = "SunX509";
+        if (algorithm == null) algorithm = DEFAULT_ALGORITHM;
+        
         KEY_MANAGER_FACTORY_ALGORITHM = algorithm;
     }
 
@@ -51,7 +53,7 @@ public abstract class AbstractTLSContextFactory implements TLSContextFactory {
 
     protected String password = null;
 
-    protected TrustManagerFactory trustManagerFactory = null;
+    protected TrustManagerFactory trustManagerFactory = new BogusTrustManagerFactory();
 
     // NOTE: The keystore was generated using keytool:
     //   keytool -genkey -alias bogus -keysize 512 -validity 3650

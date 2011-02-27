@@ -39,13 +39,9 @@ import org.apache.vysper.xmpp.state.resourcebinding.BindException;
 public class BindIQHandler extends DefaultIQHandler {
 
     @Override
-    protected boolean verifyNamespace(Stanza stanza) {
-        return verifyInnerNamespace(stanza, NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND);
-    }
-
-    @Override
     protected boolean verifyInnerElement(Stanza stanza) {
-        return verifyInnerElementWorker(stanza, "bind");
+        return verifyInnerNamespace(stanza, NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND) && 
+            verifyInnerElementWorker(stanza, "bind");
     }
 
     @Override
@@ -85,4 +81,5 @@ public class BindIQHandler extends DefaultIQHandler {
 
         return stanzaBuilder.build();
     }
+
 }

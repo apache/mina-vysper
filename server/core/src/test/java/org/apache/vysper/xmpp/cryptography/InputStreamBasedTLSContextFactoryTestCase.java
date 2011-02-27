@@ -17,31 +17,17 @@
  *  under the License.
  *
  */
+package org.apache.vysper.xmpp.cryptography;
 
-package org.apache.vysper.xmpp.parser.io;
-
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 /**
- * provide TLS communication, plus the capability to switch from plain text to
- * TLS encryption at some point
- *
- * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class PlainToTLSStreaming {
+public class InputStreamBasedTLSContextFactoryTestCase extends TLSContextFactoryTestTemplate {
 
-    private InputStream inputStream;
-
-    private OutputStream outputStream;
-
-    public PlainToTLSStreaming(InputStream inputStream, OutputStream outputStream) {
-        this.inputStream = inputStream;
-        this.outputStream = outputStream;
+    protected AbstractTLSContextFactory createTLSContextFactory() throws FileNotFoundException {
+        FileInputStream in = new FileInputStream("src/main/config/bogus_mina_tls.cert");
+        return new InputStreamBasedTLSContextFactory(in);
     }
-
-    public boolean switchToTLS() {
-        return false;
-    }
-
 }

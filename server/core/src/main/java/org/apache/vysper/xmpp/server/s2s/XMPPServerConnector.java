@@ -19,6 +19,8 @@
  */
 package org.apache.vysper.xmpp.server.s2s;
 
+import org.apache.vysper.xmpp.delivery.failure.RemoteServerNotFoundException;
+import org.apache.vysper.xmpp.delivery.failure.RemoteServerTimeoutException;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.writer.StanzaWriter;
 
@@ -29,6 +31,18 @@ import org.apache.vysper.xmpp.writer.StanzaWriter;
  */
 public interface XMPPServerConnector extends StanzaWriter {
 
+    /**
+     * Connect and authenticate the XMPP server connector
+     */
+    void start() throws RemoteServerNotFoundException, RemoteServerTimeoutException;
+    
+    /**
+     * Is this XMPP server connector closed?
+     * @return true if the connector is closed
+     */
+    boolean isClosed();
+
+    
     /**
      * Write a {@link Stanza} to another XMPP server
      * @param stanza The {@link Stanza} to write

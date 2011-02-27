@@ -55,9 +55,6 @@ public abstract class DefaultIQHandler extends IQHandler {
     }
 
     @Override
-    protected abstract boolean verifyNamespace(Stanza stanza);
-
-    @Override
     protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza,
             SessionContext sessionContext) {
 

@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.modules.core.base.handler;
 import org.apache.vysper.xml.fragment.Attribute;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
@@ -46,6 +47,8 @@ public abstract class XMPPCoreStanzaHandler implements StanzaHandler {
     final static Logger logger = LoggerFactory.getLogger(XMPPCoreStanzaHandler.class);
 
     public boolean verify(Stanza stanza) {
+        if(stanza == null) return false;
+        
         boolean typeVerified = verifyType(stanza);
         boolean namespaceVerified = verifyNamespace(stanza);
         return typeVerified && namespaceVerified;
@@ -58,7 +61,7 @@ public abstract class XMPPCoreStanzaHandler implements StanzaHandler {
     protected abstract boolean verifyType(Stanza stanza);
 
     protected boolean verifyNamespace(Stanza stanza) {
-        return true;
+        return NamespaceURIs.JABBER_CLIENT.equals(stanza.getNamespaceURI());
     }
 
     public ResponseStanzaContainer execute(Stanza anyStanza, ServerRuntimeContext serverRuntimeContext,

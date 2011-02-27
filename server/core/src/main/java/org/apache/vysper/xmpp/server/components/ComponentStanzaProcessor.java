@@ -64,8 +64,7 @@ public class ComponentStanzaProcessor implements StanzaProcessor {
         StanzaHandler stanzaHandler = componentStanzaHandlerLookup.getHandler(xmppStanza);
 
         if (stanzaHandler == null) {
-            unhandledStanza(stanza);
-            return;
+            throw new RuntimeException("no handler for stanza");
         }
 
         ResponseStanzaContainer responseStanzaContainer = null;
@@ -73,23 +72,20 @@ public class ComponentStanzaProcessor implements StanzaProcessor {
             responseStanzaContainer = stanzaHandler.execute(stanza, serverRuntimeContext, false, sessionContext,
                     sessionStateHolder);
         } catch (ProtocolException e) {
-            e.printStackTrace(); //To change body of catch statement use File | Settings | File Templates.
+            // TODO handle 
+            e.printStackTrace();
         }
 
         if (responseStanzaContainer != null && responseStanzaContainer.getResponseStanza() != null) {
             Stanza responseStanza = responseStanzaContainer.getResponseStanza();
             try {
-                IgnoreFailureStrategy failureStrategy = new IgnoreFailureStrategy(); // TODO call back module
+                IgnoreFailureStrategy failureStrategy = IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY; // TODO call back module
                 serverRuntimeContext.getStanzaRelay().relay(responseStanza.getTo(), responseStanza, failureStrategy);
             } catch (DeliveryException e) {
                 throw new RuntimeException(e);
             }
         }
 
-    }
-
-    private void unhandledStanza(Stanza stanza) {
-        throw new RuntimeException("no handler for stanza");
     }
 
     public void processTLSEstablished(SessionContext sessionContext, SessionStateHolder sessionStateHolder) {

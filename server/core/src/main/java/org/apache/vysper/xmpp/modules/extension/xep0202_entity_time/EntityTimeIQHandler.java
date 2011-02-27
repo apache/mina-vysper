@@ -44,13 +44,8 @@ public class EntityTimeIQHandler extends DefaultIQHandler {
     }
 
     @Override
-    protected boolean verifyNamespace(Stanza stanza) {
-        return verifyInnerNamespace(stanza, NamespaceURIs.URN_XMPP_TIME);
-    }
-
-    @Override
     protected boolean verifyInnerElement(Stanza stanza) {
-        return verifyInnerElementWorker(stanza, "time");
+        return verifyInnerElementWorker(stanza, "time") && verifyInnerNamespace(stanza, NamespaceURIs.URN_XMPP_TIME);
     }
 
     @Override

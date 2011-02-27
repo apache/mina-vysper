@@ -56,13 +56,8 @@ public class EntityTimeXEP0090IQHandler extends DefaultIQHandler {
     }
 
     @Override
-    protected boolean verifyNamespace(Stanza stanza) {
-        return verifyInnerNamespace(stanza, NamespaceURIs.JABBER_IQ_TIME);
-    }
-
-    @Override
     protected boolean verifyInnerElement(Stanza stanza) {
-        return verifyInnerElementWorker(stanza, "query");
+        return verifyInnerElementWorker(stanza, "query") && verifyInnerNamespace(stanza, NamespaceURIs.JABBER_IQ_TIME);
     }
 
     @Override

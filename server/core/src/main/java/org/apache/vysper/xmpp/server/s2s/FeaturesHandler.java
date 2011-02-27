@@ -51,7 +51,6 @@ public class FeaturesHandler implements StanzaHandler {
         if (stanza == null) return false;
         if (!getName().equals(stanza.getName())) return false;
         String namespaceURI = stanza.getNamespaceURI();
-        if (namespaceURI == null) return false;
         return namespaceURI.equals(NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS);
     }
 

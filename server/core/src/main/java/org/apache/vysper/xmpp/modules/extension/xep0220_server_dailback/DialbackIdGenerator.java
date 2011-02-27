@@ -28,6 +28,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.Validate;
 import org.apache.vysper.xmpp.addressing.Entity;
 
 
@@ -50,6 +51,10 @@ public class DialbackIdGenerator {
     }
     
     public String generate(Entity receiving, Entity originating, String streamId) {
+        Validate.notNull(receiving, "receiving can not be null");
+        Validate.notNull(originating, "originating can not be null");
+        Validate.notNull(streamId, "streamId can not be null");
+        
         try {
             mac.update(receiving.getDomain().getBytes("UTF-16"));
             mac.update(" ".getBytes("UTF-16"));

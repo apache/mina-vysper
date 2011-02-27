@@ -39,8 +39,8 @@ import org.apache.vysper.xmpp.stanza.StanzaErrorType;
 public class AuthCompatibilityIQHandler extends IQHandler {
 
     @Override
-    protected boolean verifyNamespace(Stanza stanza) {
-        return verifyInnerNamespace(stanza, NamespaceURIs.JABBER_IQ_AUTH_COMPATIBILITY);
+    public boolean verify(Stanza stanza) {
+        return super.verify(stanza) && verifyInnerNamespace(stanza, NamespaceURIs.JABBER_IQ_AUTH_COMPATIBILITY);
     }
 
     @Override
@@ -60,10 +60,9 @@ public class AuthCompatibilityIQHandler extends IQHandler {
             return ServerErrorResponses.getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE, stanza,
                     StanzaErrorType.CANCEL, "jabber:iq:auth not supported", "en", null);
 
+        case RESULT:
         case ERROR:
             break; // ignore errors in compatibility only namespace
-        default:
-            throw new RuntimeException("iq stanza type not supported: " + stanza.getIQType());
         }
 
         return null;

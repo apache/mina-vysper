@@ -20,7 +20,6 @@
 package org.apache.vysper.xmpp.protocol;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.apache.vysper.xml.fragment.XMLElement;
