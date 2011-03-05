@@ -27,8 +27,8 @@ import junit.framework.TestCase;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.vysper.charset.CharsetUtil;
+import org.apache.vysper.xml.decoder.XMLElementListener;
 import org.apache.vysper.xml.decoder.XMPPContentHandler;
-import org.apache.vysper.xml.decoder.XMPPContentHandler.StanzaListener;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.sax.NonBlockingXMLReader;
 
@@ -37,10 +37,10 @@ import org.apache.vysper.xml.sax.NonBlockingXMLReader;
  */
 public class XMPPContentHandlerTestCase extends TestCase {
 
-    private static class TestListener implements StanzaListener {
+    private static class TestListener implements XMLElementListener {
         public List<XMLElement> elements = new ArrayList<XMLElement>();
 
-        public void stanza(XMLElement element) {
+        public void element(XMLElement element) {
             elements.add(element);
         }
     }

@@ -21,8 +21,8 @@ package org.apache.vysper.xml.sax.perf;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.vysper.charset.CharsetUtil;
+import org.apache.vysper.xml.decoder.XMLElementListener;
 import org.apache.vysper.xml.decoder.XMPPContentHandler;
-import org.apache.vysper.xml.decoder.XMPPContentHandler.StanzaListener;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
 
@@ -32,11 +32,11 @@ import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
  */
 public class PerfRunner {
 
-    private static class CounterStanzaListener implements StanzaListener {
+    private static class CounterStanzaListener implements XMLElementListener {
 
         public int counter = 0;
 
-        public void stanza(XMLElement element) {
+        public void element(XMLElement element) {
             counter++;
         }
 
