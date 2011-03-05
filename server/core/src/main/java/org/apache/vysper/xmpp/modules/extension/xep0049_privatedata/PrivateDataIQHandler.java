@@ -19,14 +19,23 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0049_privatedata;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.vysper.charset.CharsetUtil;
 import org.apache.vysper.compliance.SpecCompliant;
-import org.apache.vysper.xml.fragment.Attribute;
+import org.apache.vysper.xml.decoder.DocumentContentHandler;
+import org.apache.vysper.xml.decoder.XMLElementListener;
 import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xml.fragment.XMLElement;
+import org.apache.vysper.xml.sax.NonBlockingXMLReader;
+import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.StreamErrorCondition;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
@@ -36,6 +45,8 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
 import org.apache.vysper.xmpp.stanza.StanzaErrorType;
+import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
+import org.xml.sax.SAXException;
 
 /**
  * @author The Apache MINA Project (dev@mina.apache.org)
@@ -50,13 +61,8 @@ public class PrivateDataIQHandler extends DefaultIQHandler {
     }
 
     @Override
-    protected boolean verifyNamespace(Stanza stanza) {
-        return verifyInnerNamespace(stanza, NamespaceURIs.PRIVATE_DATA);
-    }
-
-    @Override
     protected boolean verifyInnerElement(Stanza stanza) {
-        return verifyInnerElementWorker(stanza, "query");
+        return verifyInnerElementWorker(stanza, "query") && verifyInnerNamespace(stanza, NamespaceURIs.PRIVATE_DATA);
     }
 
     @Override
@@ -70,8 +76,8 @@ public class PrivateDataIQHandler extends DefaultIQHandler {
 
         // Not null, and not addressed to itself
         if (to != null && !to.getBareJID().equals(sessionContext.getInitiatingEntity().getBareJID())) {
-            return ServerErrorResponses.getStreamError(StreamErrorCondition.BAD_FORMAT, null,
-                    "Private data only modifiable by the owner", null);
+            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.FORBIDDEN, stanza,
+                    StanzaErrorType.CANCEL, 403, "Private data only modifiable by the owner", null, null);
         }
 
         XMLElement queryElement = stanza.getFirstInnerElement();
@@ -83,20 +89,16 @@ public class PrivateDataIQHandler extends DefaultIQHandler {
                     StanzaErrorType.MODIFY, "query's child element is missing", null, null);
         }
         XMLElement x = queryElement.getFirstInnerElement();
-        String ns = x.getAttribute("xmlns").getValue();
-        if (ns == null) {
-            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.NOT_ACCEPTABLE, stanza,
-                    StanzaErrorType.MODIFY, "no namespace", null, null);
-        }
+        String ns = x.getNamespaceURI();
 
-        // No persistancy Manager
+        // No persistance Manager
         if (persistenceManager == null) {
             return ServerErrorResponses.getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR,
                     stanza, StanzaErrorType.WAIT, "internal storage inaccessible", null, null);
         }
 
         String queryKey = getKey(x);
-        String queryContent = new Renderer(queryElement).getComplete();
+        String queryContent = new Renderer(x).getComplete();
         boolean success = persistenceManager.setPrivateData(from, queryKey, queryContent);
 
         if (success) {
@@ -116,8 +118,8 @@ public class PrivateDataIQHandler extends DefaultIQHandler {
 
         // Not null, and not addressed to itself
         if (to != null && !to.getBareJID().equals(sessionContext.getInitiatingEntity().getBareJID())) {
-            return ServerErrorResponses.getStreamError(StreamErrorCondition.BAD_FORMAT, null,
-                    "can only view your data", null);
+            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.FORBIDDEN, stanza,
+                    StanzaErrorType.CANCEL, 403, "can only view your data", null, null);
         }
 
         XMLElement queryElement = stanza.getFirstInnerElement();
@@ -129,8 +131,7 @@ public class PrivateDataIQHandler extends DefaultIQHandler {
 
         // No persistancy Manager
         if (persistenceManager == null) {
-            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR,
-                    stanza, StanzaErrorType.WAIT, "internal storage inaccessible", null, null);
+            return buildInteralStorageError(stanza);
         }
 
         String queryKey = getKey(x);
@@ -138,18 +139,46 @@ public class PrivateDataIQHandler extends DefaultIQHandler {
 
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(),
                 IQStanzaType.RESULT, stanza.getID());
-        if (privateDataXML == null) {
-            stanzaBuilder.startInnerElement(x.getName(), x.getNamespaceURI());
-            for (Attribute a : x.getAttributes()) {
-                stanzaBuilder.addAttribute(a);
+
+        stanzaBuilder.startInnerElement("query", NamespaceURIs.PRIVATE_DATA);
+        if (privateDataXML != null) {
+            try {
+                XMLElement elm = parseDocument(privateDataXML);
+                stanzaBuilder.addPreparedElement(elm);
+            } catch (Exception e) {
+                return buildInteralStorageError(stanza);
             }
-            stanzaBuilder.endInnerElement();
         } else {
-            stanzaBuilder.addText(privateDataXML);
+            stanzaBuilder.addPreparedElement(x);
         }
         return stanzaBuilder.build();
     }
+    
+    private Stanza buildInteralStorageError(XMPPCoreStanza stanza) {
+        return ServerErrorResponses.getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR,
+                stanza, StanzaErrorType.WAIT, "internal storage inaccessible", null, null);
+    }
 
+    private XMLElement parseDocument(String xml) throws IOException, SAXException {
+        NonBlockingXMLReader reader = new DefaultNonBlockingXMLReader();
+
+        DocumentContentHandler contentHandler = new DocumentContentHandler();
+        reader.setContentHandler(contentHandler);
+
+        final List<XMLElement> documents = new ArrayList<XMLElement>();
+        
+        contentHandler.setListener(new XMLElementListener() {
+            public void element(XMLElement element) {
+                documents.add(element);
+            }
+        });
+
+        IoBuffer buffer = IoBuffer.wrap(xml.getBytes(Charset.forName("UTF-8")));
+        reader.parse(buffer, CharsetUtil.UTF8_DECODER);
+
+        return documents.get(0);
+    }
+    
     /**
      * Create a property name that is unique for this query. eg this XMLElement:
      * <storage xmlns="storage:bookmarks"> is converted into this string:
@@ -159,7 +188,7 @@ public class PrivateDataIQHandler extends DefaultIQHandler {
         StringBuilder queryKey = new StringBuilder();
         queryKey.append(x.getName());
         queryKey.append("-");
-        queryKey.append(x.getAttribute("xmlns").getValue());
+        queryKey.append(x.getNamespaceURI());
 
         // Some characters are not valid for property names
         for (int i = 0; i < queryKey.length(); i++) {

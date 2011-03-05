@@ -24,7 +24,6 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.vysper.charset.CharsetUtil;
-import org.apache.vysper.xml.decoder.XMPPContentHandler.StanzaListener;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.sax.NonBlockingXMLReader;
 import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
@@ -52,14 +51,14 @@ public class XMPPDecoder extends CumulativeProtocolDecoder {
         this.builderFactory = builderFactory;
     }
 
-    public static class MinaStanzaListener implements StanzaListener {
+    public static class MinaStanzaListener implements XMLElementListener {
         private ProtocolDecoderOutput protocolDecoder;
 
         public MinaStanzaListener(ProtocolDecoderOutput protocolDecoder) {
             this.protocolDecoder = protocolDecoder;
         }
 
-        public void stanza(XMLElement element) {
+        public void element(XMLElement element) {
             if (element.getName().equals("stream")) {
                 // reset the reader 
             }

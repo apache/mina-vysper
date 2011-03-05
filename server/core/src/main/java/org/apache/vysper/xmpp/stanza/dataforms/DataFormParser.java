@@ -23,6 +23,7 @@ import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLText;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +53,7 @@ public class DataFormParser {
                 value = valueAsString;
                 break;
             case BOOLEAN:
-                value = "0".equals(valueAsString) || "true".equals(valueAsString);
+                value = "1".equals(valueAsString) || "true".equals(valueAsString);
                 break;
             case JID_MULTI:
             case JID_SINGLE:
@@ -75,7 +76,7 @@ public class DataFormParser {
     public Map<String, Object> extractFieldValues() throws IllegalArgumentException {
         Map<String,Object> map = new LinkedHashMap<String, Object>();
 
-        for (XMLElement fields : form.getInnerElementsNamed("field")) {
+        for (XMLElement fields : form.getInnerElementsNamed("field", NamespaceURIs.JABBER_X_DATA)) {
             final String varName = fields.getAttributeValue("var");
             final String typeName = fields.getAttributeValue("type");
             String valueAsString = null;
@@ -92,7 +93,7 @@ public class DataFormParser {
             boolean isMulti = Field.Type.isMulti(fieldType);
 
             List<Object> values = isMulti ? new ArrayList<Object>() : null;
-            for (XMLElement valueCandidates : fields.getInnerElementsNamed("value")) {
+            for (XMLElement valueCandidates : fields.getInnerElementsNamed("value", NamespaceURIs.JABBER_X_DATA)) {
                 final XMLText firstInnerText = valueCandidates.getFirstInnerText();
                 if (firstInnerText != null) valueAsString = firstInnerText.getText();
                 Object value;

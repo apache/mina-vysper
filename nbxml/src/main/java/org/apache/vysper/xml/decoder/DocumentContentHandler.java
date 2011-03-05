@@ -19,9 +19,9 @@
  */
 package org.apache.vysper.xml.decoder;
 
-import org.apache.vysper.xml.fragment.AbstractXMLElementBuilder;
 import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xml.fragment.XMLElement;
+import org.apache.vysper.xml.fragment.XMLElementBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
@@ -30,19 +30,15 @@ import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
 /**
- * SAX content handler for the purpose of parsing an incoming XMPP XML stream.
+ * SAX content handler for the purpose of emitting a complete XML document
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class XMPPContentHandler implements ContentHandler {
+public class DocumentContentHandler implements ContentHandler {
 
-    private Logger log = LoggerFactory.getLogger(XMPPContentHandler.class);
+    private Logger log = LoggerFactory.getLogger(DocumentContentHandler.class);
 
-    private XMLElementBuilderFactory builderFactory = new XMLElementBuilderFactory();
-
-    // TODO change into StanzaBuilder when moved into core
-    @SuppressWarnings("unchecked")
-    private AbstractXMLElementBuilder builder;
+    private XMLElementBuilder builder;
 
     private int depth = 0;
 
@@ -56,11 +52,7 @@ public class XMPPContentHandler implements ContentHandler {
         this.listener = listener;
     }
 
-    public XMPPContentHandler() {
-    }
-
-    public XMPPContentHandler(XMLElementBuilderFactory builderFactory) {
-        this.builderFactory = builderFactory;
+    public DocumentContentHandler() {
     }
 
     /**
@@ -71,7 +63,6 @@ public class XMPPContentHandler implements ContentHandler {
         if (builder != null) {
             builder.addText(new String(ch));
         }
-
     }
 
     /**
@@ -79,12 +70,9 @@ public class XMPPContentHandler implements ContentHandler {
      */
     public void endElement(String uri, String localName, String qName) throws SAXException {
         depth--;
-        if (depth == 1) {
-            // complete stanza, emit
+        if (depth == 0) {
+            // complete document, emit
             emit();
-        } else if (depth == 0) {
-            // end stream:stream element
-            // TODO handle
         } else {
             builder.endInnerElement();
         }
@@ -98,18 +86,13 @@ public class XMPPContentHandler implements ContentHandler {
         // increase element depth
         depth++;
         if (builder == null) {
-            builder = builderFactory.createBuilder(localName, uri, extractPrefix(qName), null, null);
+            builder = new XMLElementBuilder(localName, uri, extractPrefix(qName), null, null);
         } else {
             builder.startInnerElement(localName, uri);
         }
 
         for (int i = 0; i < atts.getLength(); i++) {
             builder.addAttribute(atts.getURI(i), atts.getLocalName(i), atts.getValue(i));
-        }
-
-        if (depth == 1) {
-            // outer stream:stream element, needs to be dispatched right away
-            emit();
         }
     }
 

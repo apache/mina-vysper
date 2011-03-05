@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * an immutable xml element specialized for XMPP.
@@ -73,14 +74,26 @@ public class XMLElement implements XMLFragment {
     public XMLElement(String namespaceURI, String name, String namespacePrefix, List<Attribute> attributes,
             List<XMLFragment> innerFragments, Map<String, String> namespaces) {
         this.namespaceURI = namespaceURI == null ? Namespaces.DEFAULT_NAMESPACE_URI : namespaceURI;
+
+        if(namespacePrefix != null && namespacePrefix.length() > 0) {
+            if(!isValidName(namespacePrefix) || namespacePrefix.contains(":")) throw new IllegalArgumentException("Invalid XML element namespace prefix");
+        }
         this.namespacePrefix = namespacePrefix == null ? Namespaces.DEFAULT_NAMESPACE_PREFIX : namespacePrefix;
+        
+        if(name == null || !isValidName(name)) throw new IllegalArgumentException("Invalid XML element name");
         this.name = name;
         this.attributes = (attributes == null) ? Collections.EMPTY_LIST : Collections.unmodifiableList(attributes);
         this.namespaces = (namespaces == null) ? Collections.EMPTY_MAP : Collections.unmodifiableMap(namespaces);
         this.innerFragments = (innerFragments == null) ? Collections.EMPTY_LIST : Collections
                 .unmodifiableList(innerFragments);
-        if (name == null)
-            throw new IllegalArgumentException("XMLElement name cannot be null");
+    }
+    
+    private static final String NAME_START_CHAR = "A-Za-z\\_\\:";
+    private static final String NAME_CHAR = NAME_START_CHAR + "\\-\\.0-9";
+    private static final Pattern namePattern = Pattern.compile("[" + NAME_START_CHAR + "][" + NAME_CHAR + "]*");
+    private boolean isValidName(String name) {
+        // TODO add additional char ranges
+        return namePattern.matcher(name).matches();
     }
 
     public String getName() {
@@ -217,7 +230,7 @@ public class XMLElement implements XMLFragment {
     }
 
     /**
-     * collects all inner elements named as given parameter
+     * collects all inner elements named as given parameter. Namespace UIR is ignored.
      * @param name - must not be NULL
      */
     public List<XMLElement> getInnerElementsNamed(String name) {

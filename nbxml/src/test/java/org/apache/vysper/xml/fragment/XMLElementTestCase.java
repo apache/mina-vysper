@@ -157,6 +157,15 @@ public class XMLElementTestCase extends TestCase {
         }
     }
 
+    public void testPrefixWithColon() {
+        try {
+            new XMLElementBuilder("message", "http://example.com", "pre:fix");
+            fail("Must throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // ok
+        }
+    }
+    
     public void testLanguageMapping() {
 
         XMLElement xmlElement = new XMLElementBuilder("message", "jabber:test").addText("t1").startInnerElement("body")
