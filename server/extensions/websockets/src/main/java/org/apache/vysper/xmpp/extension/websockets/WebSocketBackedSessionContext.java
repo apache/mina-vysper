@@ -25,8 +25,8 @@ import java.nio.charset.CharsetDecoder;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.vysper.mina.codec.StanzaBuilderFactory;
+import org.apache.vysper.xml.decoder.XMLElementListener;
 import org.apache.vysper.xml.decoder.XMPPContentHandler;
-import org.apache.vysper.xml.decoder.XMPPContentHandler.StanzaListener;
 import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.sax.NonBlockingXMLReader;
@@ -51,7 +51,7 @@ import org.xml.sax.SAXException;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class WebSocketBackedSessionContext extends AbstractSessionContext implements WebSocket, StanzaListener, StanzaWriter {
+public class WebSocketBackedSessionContext extends AbstractSessionContext implements WebSocket, XMLElementListener, StanzaWriter {
 
     private final static Charset CHARSET = Charset.forName("UTF-8");
     private final static CharsetDecoder CHARSET_DECODER = CHARSET.newDecoder();
@@ -141,7 +141,7 @@ public class WebSocketBackedSessionContext extends AbstractSessionContext implem
     /**
      * {@inheritDoc}
      */
-    public void stanza(XMLElement element) {
+    public void element(XMLElement element) {
         // on parsed stanzas
         serverRuntimeContext.getStanzaProcessor().processStanza(serverRuntimeContext, this, (Stanza) element, sessionStateHolder);
     }
