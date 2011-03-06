@@ -19,22 +19,12 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0049_privatedata;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.vysper.charset.CharsetUtil;
 import org.apache.vysper.compliance.SpecCompliant;
-import org.apache.vysper.xml.decoder.DocumentContentHandler;
-import org.apache.vysper.xml.decoder.XMLElementListener;
 import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xml.fragment.XMLElement;
-import org.apache.vysper.xml.sax.NonBlockingXMLReader;
-import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
+import org.apache.vysper.xmpp.parser.XMLParserUtil;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
@@ -46,7 +36,6 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
 import org.apache.vysper.xmpp.stanza.StanzaErrorType;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
-import org.xml.sax.SAXException;
 
 /**
  * @author The Apache MINA Project (dev@mina.apache.org)
@@ -143,7 +132,7 @@ public class PrivateDataIQHandler extends DefaultIQHandler {
         stanzaBuilder.startInnerElement("query", NamespaceURIs.PRIVATE_DATA);
         if (privateDataXML != null) {
             try {
-                XMLElement elm = parseDocument(privateDataXML);
+                XMLElement elm = XMLParserUtil.parseDocument(privateDataXML);
                 stanzaBuilder.addPreparedElement(elm);
             } catch (Exception e) {
                 return buildInteralStorageError(stanza);
@@ -159,25 +148,6 @@ public class PrivateDataIQHandler extends DefaultIQHandler {
                 stanza, StanzaErrorType.WAIT, "internal storage inaccessible", null, null);
     }
 
-    private XMLElement parseDocument(String xml) throws IOException, SAXException {
-        NonBlockingXMLReader reader = new DefaultNonBlockingXMLReader();
-
-        DocumentContentHandler contentHandler = new DocumentContentHandler();
-        reader.setContentHandler(contentHandler);
-
-        final List<XMLElement> documents = new ArrayList<XMLElement>();
-        
-        contentHandler.setListener(new XMLElementListener() {
-            public void element(XMLElement element) {
-                documents.add(element);
-            }
-        });
-
-        IoBuffer buffer = IoBuffer.wrap(xml.getBytes("UTF-8"));
-        reader.parse(buffer, CharsetUtil.UTF8_DECODER);
-
-        return documents.get(0);
-    }
     
     /**
      * Create a property name that is unique for this query. eg this XMLElement:
