@@ -19,7 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.core.session.handler;
 
-import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
+import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
@@ -33,28 +33,16 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class SessionIQHandler extends IQHandler {
+public class SessionIQHandler extends DefaultIQHandler {
 
     @Override
-    protected boolean verifyNamespace(Stanza stanza) {
-        return verifyInnerNamespace(stanza, NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SESSION);
+    protected boolean verifyInnerElement(Stanza stanza) {
+        return verifyInnerElementWorker(stanza, "session") && verifyInnerNamespace(stanza, NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SESSION);
     }
 
     @Override
-    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza,
-            SessionContext sessionContext) {
-
-        switch (stanza.getIQType()) {
-
-        case SET:
-            return StanzaBuilder.createIQStanza(null, null, IQStanzaType.RESULT, stanza.getID()).addAttribute("from",
-                    sessionContext.getServerJID().getFullQualifiedName()).build();
-
-        case GET:
-        case ERROR:
-        default:
-            throw new RuntimeException("iq stanza type not supported: " + stanza.getIQType());
-        }
+    protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+        return StanzaBuilder.createIQStanza(null, null, IQStanzaType.RESULT, stanza.getID()).addAttribute("from",
+                sessionContext.getServerJID().getFullQualifiedName()).build();
     }
-
 }

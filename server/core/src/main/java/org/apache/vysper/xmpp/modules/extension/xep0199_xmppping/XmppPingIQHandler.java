@@ -57,10 +57,13 @@ public class XmppPingIQHandler extends DefaultIQHandler {
 
     @Override
     public boolean verify(Stanza stanza) {
+        if(stanza == null) return false;
+        
         boolean extension = super.verify(stanza);
         if(extension) {
             return true;
         } else {
+            // handle result stanzas, which does not contain the extension element
             String type = stanza.getAttributeValue("type");
             if(type != null && type.equals("result")) {
                 String id = stanza.getAttributeValue("id");
@@ -82,13 +85,8 @@ public class XmppPingIQHandler extends DefaultIQHandler {
     }
     
     @Override
-    protected boolean verifyNamespace(Stanza stanza) {
-        return verifyInnerNamespace(stanza, NamespaceURIs.URN_XMPP_PING);
-    }
-
-    @Override
     protected boolean verifyInnerElement(Stanza stanza) {
-        return verifyInnerElementWorker(stanza, "ping");
+        return verifyInnerElementWorker(stanza, "ping") && verifyInnerNamespace(stanza, NamespaceURIs.URN_XMPP_PING);
     }
 
     @Override

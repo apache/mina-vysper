@@ -19,50 +19,138 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0199_xmppping;
 
-import junit.framework.TestCase;
-
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.modules.extension.xep0199_xmppping.XmppPingIQHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 /**
  */
-public class XmppPingIQHandlerTestCase extends TestCase {
+public class XmppPingIQHandlerTestCase {
 
-    private static final String IQ_ID = "id1";
+    private static final String IQ_ID = "xmppping-1";
 
-    private TestSessionContext sessionContext;
+    private TestSessionContext sessionContext = TestSessionContext.createWithStanzaReceiverRelayAuthenticated();
 
-    protected Entity client;
+    protected Entity client = EntityImpl.parseUnchecked("tester@vysper.org");
 
     protected Entity boundClient;
 
     protected Entity server;
 
-    protected XmppPingIQHandler handler;
+    protected XmppPingIQHandler handler = new XmppPingIQHandler();
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-
-        client = EntityImpl.parse("tester@vysper.org");
-
-        sessionContext = TestSessionContext.createWithStanzaReceiverRelayAuthenticated();
+    @Before
+    public void before() throws Exception {
         sessionContext.setInitiatingEntity(client);
 
         boundClient = new EntityImpl(client, sessionContext.bindResource());
         server = sessionContext.getServerJID();
-
-        handler = new XmppPingIQHandler();
+    }
+    
+    private Stanza buildStanza() {
+        return buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "ping", NamespaceURIs.URN_XMPP_PING);
     }
 
-    public void testClientToServerPing() {
+    private Stanza buildStanza(String name, String namespaceUri) {
+        return buildStanza(name, namespaceUri, "ping", NamespaceURIs.URN_XMPP_PING);
+    }
+    
+    private Stanza buildStanza(String name, String namespaceUri, String innerName, String innerNamespaceUri) {
+        return new StanzaBuilder(name, namespaceUri)
+            .addAttribute("type", "get")
+            .addAttribute("id", "1")
+            .startInnerElement(innerName, innerNamespaceUri)
+            .build();
+    }
+    
+    @Test
+    public void nameMustBeIq() {
+        Assert.assertEquals("iq", handler.getName());
+    }
+
+    @Test
+    public void verifyNullStanza() {
+        Assert.assertFalse(handler.verify(null));
+    }
+
+    @Test
+    public void verifyInvalidName() {
+        Assert.assertFalse(handler.verify(buildStanza("dummy", NamespaceURIs.JABBER_CLIENT)));
+    }
+
+    @Test
+    public void verifyInvalidNamespace() {
+        Assert.assertFalse(handler.verify(buildStanza("iq", "dummy")));
+    }
+
+    @Test
+    public void verifyNullNamespace() {
+        Assert.assertFalse(handler.verify(buildStanza("iq", null)));
+    }
+
+    @Test
+    public void verifyNullInnerNamespace() {
+        Assert.assertFalse(handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "ping", null)));
+    }
+
+    @Test
+    public void verifyInvalidInnerNamespace() {
+        Assert.assertFalse(handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "ping", "dummy")));
+    }
+    
+    @Test
+    public void verifyInvalidInnerName() {
+        Assert.assertFalse(handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "dummy", NamespaceURIs.URN_XMPP_PING)));
+    }
+
+    @Test
+    public void verifyMissingInnerElement() {
+        Stanza stanza = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT).build();
+        Assert.assertFalse(handler.verify(stanza));
+    }
+    
+    @Test
+    public void verifyValidStanza() {
+        Assert.assertTrue(handler.verify(buildStanza()));
+    }
+
+    @Test
+    public void verifyValidResultStanza() {
+        Stanza stanza = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT)
+        .addAttribute("type", "result")
+        .addAttribute("id", "xmppping-1")
+        .build();
+
+        Assert.assertTrue(handler.verify(stanza));
+    }
+
+    @Test
+    public void verifyInvalidResultStanza() {
+        Stanza stanza = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT)
+        .addAttribute("type", "result")
+        .addAttribute("id", "dummy-1")
+        .build();
+        
+        Assert.assertFalse(handler.verify(stanza));
+    }
+    
+    @Test
+    public void sessionIsRequired() {
+        Assert.assertTrue(handler.isSessionRequired());
+    }
+
+
+    @Test
+    public void clientToServerPing() {
         // C: <iq from='juliet@capulet.lit/balcony' to='capulet.lit' id='c2s1' type='get'>
         //      <ping xmlns='urn:xmpp:ping'/>
         //    </iq>
@@ -77,14 +165,40 @@ public class XmppPingIQHandlerTestCase extends TestCase {
                 sessionContext, null);
 
         // we should always get a response
-        assertTrue(resp.hasResponse());
+        Assert.assertTrue(resp.hasResponse());
 
         Stanza respStanza = resp.getResponseStanza();
 
-        assertEquals("iq", respStanza.getName());
-        assertEquals(boundClient, respStanza.getTo());
-        assertEquals(server, respStanza.getFrom());
-        assertEquals(IQ_ID, respStanza.getAttributeValue("id"));
-        assertEquals("result", respStanza.getAttributeValue("type"));
+        Assert.assertEquals("iq", respStanza.getName());
+        Assert.assertEquals(boundClient, respStanza.getTo());
+        Assert.assertEquals(server, respStanza.getFrom());
+        Assert.assertEquals(IQ_ID, respStanza.getAttributeValue("id"));
+        Assert.assertEquals("result", respStanza.getAttributeValue("type"));
     }
+
+    @Test
+    public void handleResult() {
+        // S: <iq from='capulet.lit' to='juliet@capulet.lit/balcony' id='c2s1' type='result'/>
+
+        Stanza stanza = StanzaBuilder.createIQStanza(boundClient, server, IQStanzaType.RESULT, IQ_ID).build();
+
+        XmppPinger pinger1 = Mockito.mock(XmppPinger.class);
+        XmppPinger pinger2 = Mockito.mock(XmppPinger.class);
+        XmppPinger pinger3 = Mockito.mock(XmppPinger.class);
+        
+        handler.addPinger(pinger1);
+        handler.addPinger(pinger2);
+        handler.addPinger(pinger3);
+        handler.removePinger(pinger3);
+        
+        ResponseStanzaContainer resp = handler.execute(stanza, sessionContext.getServerRuntimeContext(), true,
+                sessionContext, null);
+
+        Assert.assertNull(resp);
+        
+        Mockito.verify(pinger1).pong(IQ_ID);
+        Mockito.verify(pinger1).pong(IQ_ID);
+        Mockito.verifyZeroInteractions(pinger3);
+    }
+
 }
