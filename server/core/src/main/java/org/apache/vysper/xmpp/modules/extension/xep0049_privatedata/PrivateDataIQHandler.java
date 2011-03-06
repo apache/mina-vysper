@@ -173,7 +173,7 @@ public class PrivateDataIQHandler extends DefaultIQHandler {
             }
         });
 
-        IoBuffer buffer = IoBuffer.wrap(xml.getBytes(Charset.forName("UTF-8")));
+        IoBuffer buffer = IoBuffer.wrap(xml.getBytes("UTF-8"));
         reader.parse(buffer, CharsetUtil.UTF8_DECODER);
 
         return documents.get(0);
