@@ -93,6 +93,14 @@
 					</execution>
 				</executions>
 			</plugin>
+		</plugins>
+	</build>
+	
+    <profiles>
+      <profile>
+        <id>apache-release</id>
+        <build>
+          <plugins>
             <plugin>
               <groupId>org.codehaus.mojo</groupId>
               <artifactId>rat-maven-plugin</artifactId>
@@ -112,7 +120,9 @@
   				</excludes>
   			</configuration>
             </plugin>
+          </plugins>
+        </build>
+      </profile>
+    </profiles>
 
-		</plugins>
-	</build>
 </project>
