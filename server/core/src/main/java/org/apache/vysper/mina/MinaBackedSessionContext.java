@@ -82,6 +82,7 @@ public class MinaBackedSessionContext extends AbstractSessionContext implements 
     }
     
     private void addSslFilter() {
+        
         minaSession.suspendRead();
         minaSession.suspendWrite();
         SslFilter filter = new SslFilter(getServerRuntimeContext().getSslContext());

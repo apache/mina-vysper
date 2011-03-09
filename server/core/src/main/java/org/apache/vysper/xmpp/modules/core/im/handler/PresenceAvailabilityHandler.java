@@ -261,7 +261,7 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
 		if (offlineProvider == null) {
 			logger.warn("No Offline Storage Provider configured");
 		} else {
-			Collection<Stanza> offlineStanzas = offlineProvider.getStanzasForBareJID(user.getBareJID().getFullQualifiedName());
+			Collection<Stanza> offlineStanzas = offlineProvider.getStanzasFor(user);
 			for (Stanza stanza : offlineStanzas) {
 				logger.debug("Sending out delayed offline stanza");
 				relayStanza(user, stanza, sessionContext);

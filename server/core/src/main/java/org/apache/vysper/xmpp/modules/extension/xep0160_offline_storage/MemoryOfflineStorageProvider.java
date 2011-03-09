@@ -27,6 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -35,104 +37,99 @@ import org.slf4j.LoggerFactory;
 
 public class MemoryOfflineStorageProvider extends AbstractOfflineStorageProvider {
 
-	final Logger logger = LoggerFactory.getLogger(MemoryOfflineStorageProvider.class);
+    final Logger logger = LoggerFactory.getLogger(MemoryOfflineStorageProvider.class);
 
-	private long timeout;
+    private long timeout;
 
-	private Map<String, List<Entry>> offlineStorageMap = new HashMap<String, List<Entry>>();
+    private Map<String, List<Entry>> offlineStorageMap = new HashMap<String, List<Entry>>();
 
-	public MemoryOfflineStorageProvider() {
+    public MemoryOfflineStorageProvider() {
         this(7 * 24 * 3600 * 1000); // default to seven days;
     }
-    
-	public MemoryOfflineStorageProvider(long timeout) {
-		this.timeout = timeout;
-		Thread checker = new Thread(new TimeoutChecker(), "OfflineTimeoutCheckerThread");
-		checker.start();
-	}
 
-	@Override
-	protected void storeStanza(Stanza stanza) {
-		Entity to = stanza.getTo();
-		String bareJID = to.getBareJID().getFullQualifiedName();
-		synchronized (offlineStorageMap) {
-			List<Entry> entriesForJID = offlineStorageMap.get(bareJID);
-			if (entriesForJID == null) {
-				entriesForJID = new ArrayList<Entry>();
-				offlineStorageMap.put(bareJID, entriesForJID);
-			}
-			entriesForJID.add(new Entry(stanza, new Date().getTime()));
-		}
-	}
+    public MemoryOfflineStorageProvider(long timeout) {
+        int delay = 60 * 100 * 1000;
+        int period = 60 * 100 * 1000;
 
-	public Collection<Stanza> getStanzasForBareJID(String bareJID) {
-		synchronized (offlineStorageMap) {
-			List<Entry> entries = offlineStorageMap.remove(bareJID);
-			if (entries == null) {
-				return Collections.emptyList();
-			} else {
-				
-				List<Stanza> stanzas = new ArrayList<Stanza>();
-				for (Entry entry : entries) {
-					// TODO add timestamp to messages
-					stanzas.add(entry.getStanza());
-				}
-				return stanzas;
-			}
-		}
-	}
+        this.timeout = timeout;
+        Timer timer = new Timer("OfflineTimeoutCheckerTimer", true);
+        timer.schedule(new TimeoutChecker(), delay, period);
+    }
 
-	private static class Entry {
+    @Override
+    protected void storeStanza(Stanza stanza) {
+        Entity to = stanza.getTo();
+        String bareJID = to.getBareJID().getFullQualifiedName();
+        synchronized (offlineStorageMap) {
+            List<Entry> entriesForJID = offlineStorageMap.get(bareJID);
+            if (entriesForJID == null) {
+                entriesForJID = new ArrayList<Entry>();
+                offlineStorageMap.put(bareJID, entriesForJID);
+            }
+            entriesForJID.add(new Entry(stanza, new Date().getTime()));
+        }
+    }
 
-		private Stanza stanza;
+    public Collection<Stanza> getStanzasFor(Entity jid) {
+        synchronized (offlineStorageMap) {
+            List<Entry> entries = offlineStorageMap.remove(jid.getBareJID().getFullQualifiedName());
+            if (entries == null) {
+                return Collections.emptyList();
+            } else {
 
-		public Entry(Stanza stanza, long timeStamp) {
-			super();
-			this.stanza = stanza;
-			this.timeStamp = timeStamp;
-		}
+                List<Stanza> stanzas = new ArrayList<Stanza>();
+                for (Entry entry : entries) {
+                    // TODO add timestamp to messages
+                    stanzas.add(entry.getStanza());
+                }
+                return stanzas;
+            }
+        }
+    }
 
-		private long timeStamp;
+    private static class Entry {
 
-		public long getTimeStamp() {
-			return timeStamp;
-		}
+        private Stanza stanza;
 
-		public Stanza getStanza() {
-			return stanza;
-		}
+        public Entry(Stanza stanza, long timeStamp) {
+            super();
+            this.stanza = stanza;
+            this.timeStamp = timeStamp;
+        }
 
-	}
+        private long timeStamp;
 
-	private class TimeoutChecker implements Runnable {
-		public void run() {
-			while (true) {
-				try {
-					Thread.sleep(60 * 100 * 1000);
-				} catch (InterruptedException e) {
-					logger.warn("Interrupted", e);
-				}
-				logger.debug("Running timeout checker for offline stanzas");
-				long timestamp = new Date().getTime() - timeout;
-				Set<String> jids = offlineStorageMap.keySet();
-				for (String jid : jids) {
-					synchronized (offlineStorageMap) {
-						List<Entry> entries = offlineStorageMap.get(jid);
-						if (entries != null) {
-							for (Iterator<Entry> it = entries.iterator(); it.hasNext();) {
-								Entry entry = it.next();
-								if (entry.getTimeStamp() < timestamp) {
-									logger.debug("Removed timed out offline stanza");
-									it.remove();
-								}
-							}
-						}
+        public long getTimeStamp() {
+            return timeStamp;
+        }
 
-					}
-				}
-			}
+        public Stanza getStanza() {
+            return stanza;
+        }
 
-		}
-	}
+    }
+
+    private class TimeoutChecker extends TimerTask {
+        public void run() {
+            logger.debug("Running timeout checker for offline stanzas");
+            long timestamp = new Date().getTime() - timeout;
+            Set<String> jids = offlineStorageMap.keySet();
+            for (String jid : jids) {
+                synchronized (offlineStorageMap) {
+                    List<Entry> entries = offlineStorageMap.get(jid);
+                    if (entries != null) {
+                        for (Iterator<Entry> it = entries.iterator(); it.hasNext();) {
+                            Entry entry = it.next();
+                            if (entry.getTimeStamp() < timestamp) {
+                                logger.debug("Removed timed out offline stanza");
+                                it.remove();
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+    }
 
 }
