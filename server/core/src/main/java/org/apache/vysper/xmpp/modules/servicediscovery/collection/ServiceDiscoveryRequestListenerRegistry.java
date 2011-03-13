@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.servicediscovery.collection;
 
+import org.apache.vysper.xmpp.modules.ServerRuntimeContextService;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ComponentInfoRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestListener;
@@ -32,7 +33,7 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequ
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public interface ServiceDiscoveryRequestListenerRegistry {
+public interface ServiceDiscoveryRequestListenerRegistry extends ServerRuntimeContextService {
 
     public static final String SERVICE_DISCOVERY_REQUEST_LISTENER_REGISTRY = "discoRequestListenerRegistry";
 

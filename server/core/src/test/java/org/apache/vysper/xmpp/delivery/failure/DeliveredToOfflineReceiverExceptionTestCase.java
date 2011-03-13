@@ -17,28 +17,19 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.protocol.exception;
+package org.apache.vysper.xmpp.delivery.failure;
 
-import org.apache.vysper.xmpp.protocol.ProtocolException;
+import org.apache.vysper.ExceptionAssert;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 /**
- *
- * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class BadXMLException extends ProtocolException {
-    public BadXMLException() {
-        super();
+public class DeliveredToOfflineReceiverExceptionTestCase {
+
+    @Test
+    public void constructors() throws Exception {
+        ExceptionAssert.assertConstructors(DeliveredToOfflineReceiverException.class);
     }
 
-    public BadXMLException(String string) {
-        super(string);
-    }
-
-    public BadXMLException(String string, Throwable throwable) {
-        super(string, throwable);
-    }
-
-    public BadXMLException(Throwable throwable) {
-        super(throwable);
-    }
 }

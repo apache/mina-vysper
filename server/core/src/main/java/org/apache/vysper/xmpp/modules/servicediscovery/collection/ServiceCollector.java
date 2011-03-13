@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.apache.vysper.xmpp.modules.ServerRuntimeContextService;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ComponentInfoRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
@@ -42,7 +41,7 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class ServiceCollector implements ServerRuntimeContextService, ServiceDiscoveryRequestListenerRegistry {
+public class ServiceCollector implements ServiceDiscoveryRequestListenerRegistry {
 
     private static final Feature DEFAULT_FEATURE = new Feature(NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO);
 

@@ -19,27 +19,27 @@
  */
 package org.apache.vysper.xmpp.delivery.failure;
 
+import static org.apache.vysper.xmpp.stanza.PresenceStanzaType.UNSUBSCRIBED;
+
 import java.util.Arrays;
-import java.util.Iterator;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
+import org.apache.vysper.StanzaAssert;
 import org.apache.vysper.compliance.SpecCompliant;
-import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.delivery.RecordingStanzaRelay;
-import org.apache.vysper.xmpp.delivery.RecordingStanzaRelay.Triple;
+import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.stanza.MessageStanza;
+import org.apache.vysper.xmpp.stanza.MessageStanzaType;
+import org.apache.vysper.xmpp.stanza.PresenceStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 /**
  */
-public class ReturnErrorToSenderFailureStrategyTestCase extends TestCase {
+public class ReturnErrorToSenderFailureStrategyTestCase extends Mockito {
 
     private static final Entity FROM = EntityImpl.parseUnchecked("from@vysper.org");
     private static final Entity TO = EntityImpl.parseUnchecked("to@vysper.org");
@@ -48,89 +48,143 @@ public class ReturnErrorToSenderFailureStrategyTestCase extends TestCase {
     private static final String BODY = "Hello world";
     private static final String ERROR_TEXT = "Error!";
     
+    private StanzaRelay stanzaRelay = mock(StanzaRelay.class);
+    private ReturnErrorToSenderFailureStrategy strategy = new ReturnErrorToSenderFailureStrategy(stanzaRelay);
+
+    
+    @Test
     @SpecCompliant(spec = "draft-ietf-xmpp-3920bis-22", section = "10.4.3", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
-    public void testSmartDeliveryException() throws Exception {
-        RecordingStanzaRelay relay = new RecordingStanzaRelay();
-        ReturnErrorToSenderFailureStrategy strategy = new ReturnErrorToSenderFailureStrategy(relay);
-        
-        Stanza stanza = XMPPCoreStanza.getWrapper(StanzaBuilder.createMessageStanza(FROM, TO, LANG, BODY).build());
+    public void smartDeliveryException() throws Exception {
+        Stanza stanza = StanzaBuilder.createMessageStanza(FROM, TO, LANG, BODY).build();
         
         strategy.process(stanza, Arrays.asList((DeliveryException)new RemoteServerNotFoundException(ERROR_TEXT)));
         
-        Iterator<Triple> triples = relay.iterator();
-        Triple triple = triples.next();
-        Assert.assertEquals(FROM, triple.getEntity());
-        MessageStanza errorStanza = (MessageStanza) XMPPCoreStanza.getWrapper(triple.getStanza());
-        Assert.assertEquals("error", errorStanza.getType());
-        Assert.assertEquals(FROM, errorStanza.getTo());
-        Assert.assertEquals(SERVER, errorStanza.getFrom());
-        
-        XMLElement errorElm = errorStanza.getSingleInnerElementsNamed("error", NamespaceURIs.JABBER_CLIENT);
-        Assert.assertEquals("cancel", errorElm.getAttributeValue("type"));
+        Stanza expected = StanzaBuilder.createMessageStanza(SERVER, FROM, MessageStanzaType.ERROR, null, BODY)
+            .startInnerElement("error", NamespaceURIs.JABBER_CLIENT)
+            .addAttribute("type", "cancel")
+            .startInnerElement("remote-server-not-found", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).endInnerElement()
+            .startInnerElement("text", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS)
+                .addAttribute(NamespaceURIs.XML, "lang", "en")
+                .addText(ERROR_TEXT)
+            .endInnerElement()
+            .build();
 
-        Assert.assertNotNull(errorElm.getSingleInnerElementsNamed("remote-server-not-found", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS));
-
-        XMLElement textElm = errorElm.getSingleInnerElementsNamed("text", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS);
-        Assert.assertEquals(ERROR_TEXT, textElm.getInnerText().getText());
-        
-        Assert.assertEquals(IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY, triple.getDeliveryFailureStrategy());
-        
-        Assert.assertFalse(triples.hasNext());
+        ArgumentCaptor<Stanza> stanzaCaptor = ArgumentCaptor.forClass(Stanza.class);
+        verify(stanzaRelay).relay(eq(FROM), stanzaCaptor.capture(), eq(IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY));
+        StanzaAssert.assertEquals(expected, stanzaCaptor.getValue());
     }
 
-    public void testNoException() throws Exception {
-        RecordingStanzaRelay relay = new RecordingStanzaRelay();
-        ReturnErrorToSenderFailureStrategy strategy = new ReturnErrorToSenderFailureStrategy(relay);
-        
-        Stanza stanza = XMPPCoreStanza.getWrapper(StanzaBuilder.createMessageStanza(FROM, TO, LANG, BODY).build());
+    @Test
+    public void noException() throws Exception {
+        Stanza stanza = StanzaBuilder.createMessageStanza(FROM, TO, LANG, BODY).build();
         
         strategy.process(stanza, null);
-        
-        Iterator<Triple> triples = relay.iterator();
-        Triple triple = triples.next();
-        Assert.assertEquals(FROM, triple.getEntity());
-        MessageStanza errorStanza = (MessageStanza) XMPPCoreStanza.getWrapper(triple.getStanza());
-        Assert.assertEquals("error", errorStanza.getType());
-        Assert.assertEquals(FROM, errorStanza.getTo());
-        Assert.assertEquals(SERVER, errorStanza.getFrom());
-        
-        XMLElement errorElm = errorStanza.getSingleInnerElementsNamed("error", NamespaceURIs.JABBER_CLIENT);
-        Assert.assertEquals("cancel", errorElm.getAttributeValue("type"));
-        Assert.assertNotNull(errorElm.getSingleInnerElementsNamed("service-unavailable", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS));
 
-        Assert.assertNotNull(errorElm.getSingleInnerElementsNamed("text", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS));
+        Stanza expected = StanzaBuilder.createMessageStanza(SERVER, FROM, MessageStanzaType.ERROR, null, BODY)
+            .startInnerElement("error", NamespaceURIs.JABBER_CLIENT)
+            .addAttribute("type", "cancel")
+            .startInnerElement("service-unavailable", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).endInnerElement()
+            .startInnerElement("text", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS)
+            .addAttribute(NamespaceURIs.XML, "lang", "en")
+            .addText("stanza could not be delivered")
+            .endInnerElement()
+            .build();
+
+        ArgumentCaptor<Stanza> stanzaCaptor = ArgumentCaptor.forClass(Stanza.class);
+        verify(stanzaRelay).relay(eq(FROM), stanzaCaptor.capture(), eq(IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY));
+        StanzaAssert.assertEquals(expected, stanzaCaptor.getValue());
         
-        Assert.assertEquals(IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY, triple.getDeliveryFailureStrategy());
-        
-        Assert.assertFalse(triples.hasNext());
     }
 
-    
-    public void testOnlyIgnoreErrorStanzas() throws Exception {
-        RecordingStanzaRelay relay = new RecordingStanzaRelay();
-        ReturnErrorToSenderFailureStrategy strategy = new ReturnErrorToSenderFailureStrategy(relay);
+    @Test
+    public void presenceSubscribe() throws Exception {
+        Stanza stanza = StanzaBuilder.createPresenceStanza(FROM, TO, null, PresenceStanzaType.SUBSCRIBE, null, null).build();
         
-        Stanza stanza = XMPPCoreStanza.getWrapper(StanzaBuilder.createMessageStanza(FROM, TO, LANG, BODY)
+        DeliveryException e = new NoSuchLocalUserException();
+        strategy.process(stanza, Arrays.asList(e));
+        
+        Stanza expected = StanzaBuilder.createPresenceStanza(TO, FROM, null, UNSUBSCRIBED, null, null).build();
+        
+        ArgumentCaptor<Stanza> stanzaCaptor = ArgumentCaptor.forClass(Stanza.class);
+        verify(stanzaRelay).relay(eq(FROM), stanzaCaptor.capture(), eq(IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY));
+        StanzaAssert.assertEquals(expected, stanzaCaptor.getValue());        
+    }
+    
+    @Test
+    public void ignorePresenceSubscribed() throws Exception {
+        PresenceStanzaType type = PresenceStanzaType.SUBSCRIBED;
+        assertPresenceIgnored(type);
+    }
+
+    @Test
+    public void ignorePresenceUnsubscribe() throws Exception {
+        PresenceStanzaType type = PresenceStanzaType.UNSUBSCRIBE;
+        assertPresenceIgnored(type);
+    }
+    
+    @Test
+    public void ignorePresenceUnsubscribed() throws Exception {
+        PresenceStanzaType type = PresenceStanzaType.UNSUBSCRIBED;
+        assertPresenceIgnored(type);
+    }
+    
+    @Test
+    public void ignorePresenceUnavailable() throws Exception {
+        PresenceStanzaType type = PresenceStanzaType.UNAVAILABLE;
+        assertPresenceIgnored(type);
+    }
+    
+    @Test
+    public void ignorePresenceError() throws Exception {
+        PresenceStanzaType type = PresenceStanzaType.ERROR;
+        assertPresenceIgnored(type);
+    }
+    
+    private void assertPresenceIgnored(PresenceStanzaType type) throws DeliveryException {
+        Stanza stanza = StanzaBuilder.createPresenceStanza(FROM, TO, null, type, null, null).build();
+        
+        DeliveryException e = new NoSuchLocalUserException();
+        strategy.process(stanza, Arrays.asList(e));
+
+        verifyZeroInteractions(stanzaRelay);
+    }
+    
+    @Test
+    public void ignoreErrorStanzas() throws Exception {
+        Stanza stanza = StanzaBuilder.createMessageStanza(FROM, TO, LANG, BODY)
             .addAttribute("type", "error")
-            .build());
+            .build();
 
         strategy.process(stanza, Arrays.asList((DeliveryException)new RemoteServerNotFoundException()));
 
-        Assert.assertFalse(relay.iterator().hasNext());
+        verifyZeroInteractions(stanzaRelay);
     }
     
-    public void testOnlyHandleCoreStanzas() throws Exception {
-        RecordingStanzaRelay relay = new RecordingStanzaRelay();
-        ReturnErrorToSenderFailureStrategy strategy = new ReturnErrorToSenderFailureStrategy(relay);
+    @Test
+    public void ignoreLocalRecipientOfflineException() throws Exception {
+        Stanza stanza = StanzaBuilder.createMessageStanza(FROM, TO, LANG, BODY)
+            .build();
         
+        strategy.process(stanza, Arrays.asList((DeliveryException)new LocalRecipientOfflineException()));
+        
+        // TODO Update when fully implemented
+        verifyZeroInteractions(stanzaRelay);
+    }
+    
+    @Test(expected=DeliveryException.class)
+    public void onlyHandleCoreStanzas() throws Exception {
+        Stanza stanza = new StanzaBuilder("dummy", NamespaceURIs.JABBER_CLIENT).build();
+        
+        strategy.process(stanza, Arrays.asList((DeliveryException)new RemoteServerNotFoundException()));
+    }
+
+    @Test(expected=RuntimeException.class)
+    public void multipleDeliveryExceptions() throws Exception {
         Stanza stanza = StanzaBuilder.createMessageStanza(FROM, TO, LANG, BODY).build();
         
-        try {
-            strategy.process(stanza, Arrays.asList((DeliveryException)new RemoteServerNotFoundException()));
-            fail("Must throw DeliveryException");
-        } catch(DeliveryException e) {
-            // OK
-        }
+        DeliveryException e = new RemoteServerNotFoundException();
+        
+        strategy.process(stanza, Arrays.asList(e, e));
     }
 
 }

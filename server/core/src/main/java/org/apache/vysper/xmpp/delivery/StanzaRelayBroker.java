@@ -65,7 +65,7 @@ public class StanzaRelayBroker implements StanzaRelay {
         boolean toServerTLD = receiver == null
                 || (!receiver.isNodeSet() && EntityUtils.isAddressingServer(receiver, serverRuntimeContext.getServerEnitity()));
         
-        boolean toComponent = EntityUtils.isAddressingServerComponent(receiver, serverRuntimeContext.getServerEnitity());
+        boolean toComponent = receiver != null && EntityUtils.isAddressingServerComponent(receiver, serverRuntimeContext.getServerEnitity());
         if (toServerTLD) {
             // TODO handle by server
 

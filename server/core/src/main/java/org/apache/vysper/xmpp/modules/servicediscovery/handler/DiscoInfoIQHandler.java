@@ -57,13 +57,8 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
     final Logger logger = LoggerFactory.getLogger(DiscoInfoIQHandler.class);
 
     @Override
-    protected boolean verifyNamespace(Stanza stanza) {
-        return verifyInnerNamespace(stanza, NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO);
-    }
-
-    @Override
     protected boolean verifyInnerElement(Stanza stanza) {
-        return verifyInnerElementWorker(stanza, "query");
+        return verifyInnerElementWorker(stanza, "query") && verifyInnerNamespace(stanza, NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO);
     }
 
     @Override
@@ -92,13 +87,13 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
         Entity to = stanza.getTo();
         boolean isServerInfoRequest = false;
         boolean isComponentInfoRequest = false;
-        Entity serviceEntity = serverRuntimeContext.getServerEnitity();
-        if (to == null || to.equals(serviceEntity)) {
+        Entity serverEntity = serverRuntimeContext.getServerEnitity();
+        if (to == null || to.equals(serverEntity)) {
             isServerInfoRequest = true; // this can only be meant to query the server
         } else if (serverRuntimeContext.getComponentStanzaProcessor(to) != null) {
             isComponentInfoRequest = true; // this is a query to a component
         } else if (!to.isNodeSet()) {
-            isServerInfoRequest = serviceEntity.equals(to);
+            isServerInfoRequest = serverEntity.equals(to);
             if (!isServerInfoRequest) {
                 return ServerErrorResponses.getStanzaError(StanzaErrorCondition.ITEM_NOT_FOUND, stanza,
                         StanzaErrorType.CANCEL,

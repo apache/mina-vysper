@@ -68,13 +68,13 @@ public class ReturnErrorToSenderFailureStrategy implements DeliveryFailureStrate
         StanzaErrorCondition stanzaErrorCondition = StanzaErrorCondition.SERVICE_UNAVAILABLE;
         StanzaErrorType errorType = StanzaErrorType.CANCEL;
 
-        // TODO would it be better to check for the correct stanzas instead of assuming the stanza is wrapped?
-        if (!(failedToDeliverStanza instanceof XMPPCoreStanza)) {
+        XMPPCoreStanza failedCoreStanza = XMPPCoreStanza.getWrapper(failedToDeliverStanza);
+        
+        // Not a core stanza
+        if (failedCoreStanza == null) {
             throw new DeliveryException("could not return to sender");
         }
         
-        
-        XMPPCoreStanza failedCoreStanza = (XMPPCoreStanza) failedToDeliverStanza;
         if ("error".equals(failedCoreStanza.getType())) {
             return; // do not answer these
         }
