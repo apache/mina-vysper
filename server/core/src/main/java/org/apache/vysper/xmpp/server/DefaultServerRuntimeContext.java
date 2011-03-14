@@ -97,7 +97,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     /**
      * 'input stream': receives stanzas issued by client sessions to be handled by the server
      */
-    private StanzaProcessor stanzaProcessor = new QueuedStanzaProcessor(new ProtocolWorker());
+    private StanzaProcessor stanzaProcessor = new ProtocolWorker();
 
     /**
      * 'output stream': receives stanzas issued by a session, which are going to other sessions/servers

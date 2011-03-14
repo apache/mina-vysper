@@ -21,9 +21,12 @@ package org.apache.vysper.mina;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.filter.executor.ExecutorFilter;
+import org.apache.mina.filter.executor.OrderedThreadPoolExecutor;
 import org.apache.mina.transport.socket.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.apache.vysper.mina.codec.XMPPProtocolCodecFactory;
@@ -51,6 +54,14 @@ public class TCPEndpoint implements Endpoint {
     public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
         this.serverRuntimeContext = serverRuntimeContext;
     }
+    
+    public int getPort() {
+        if(port != 0) {
+            return port;
+        } else {
+            return acceptor.getLocalAddress().getPort();
+        }
+    }
 
     public void setPort(int port) {
         this.port = port;
@@ -60,9 +71,13 @@ public class TCPEndpoint implements Endpoint {
         NioSocketAcceptor acceptor = new NioSocketAcceptor();
 
         DefaultIoFilterChainBuilder filterChainBuilder = new DefaultIoFilterChainBuilder();
-        //filterChainBuilder.addLast("executorFilter", new OrderedThreadPoolExecutor());
         filterChainBuilder.addLast("xmppCodec", new ProtocolCodecFilter(new XMPPProtocolCodecFactory()));
         filterChainBuilder.addLast("loggingFilter", new StanzaLoggingFilter());
+        
+        int coreThreadCount = 10;
+        int maxThreadCount = 20;
+        int threadTimeoutSeconds = 2 * 60;
+        filterChainBuilder.addLast("executorFilter", new ExecutorFilter(new OrderedThreadPoolExecutor(coreThreadCount, maxThreadCount, threadTimeoutSeconds, TimeUnit.SECONDS)));
         acceptor.setFilterChainBuilder(filterChainBuilder);
 
         XmppIoHandlerAdapter adapter = new XmppIoHandlerAdapter();
