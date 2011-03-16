@@ -82,7 +82,7 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
      * @return
      */
     public static TestSessionContext createWithStanzaReceiverRelay(SessionStateHolder sessionStateHolder) {
-        StanzaReceiverRelay relay = new org.apache.vysper.xmpp.delivery.StanzaReceiverRelay();
+        StanzaReceiverRelay relay = new StanzaReceiverRelay();
         DefaultServerRuntimeContext serverContext = new DefaultServerRuntimeContext(new EntityImpl(null, "test", null),
                 relay);
         relay.setServerRuntimeContext(serverContext);

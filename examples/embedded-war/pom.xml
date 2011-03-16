@@ -25,7 +25,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.apache.vysper.examples</groupId>
 	<artifactId>vysper-embedded-war</artifactId>
-	<name>Example of Apache Vysper embedded in a WAR</name>
+	<name>Apache Vysper Embedded in a WAR demo</name>
 	<version>0.7-SNAPSHOT</version>
 	<packaging>war</packaging>
 

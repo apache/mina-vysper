@@ -32,5 +32,6 @@
 
   <modules>
     <module>embedded-war</module>
+    <module>pubsub-client</module>
   </modules>
 </project>

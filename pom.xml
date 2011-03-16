@@ -430,7 +430,6 @@
     <module>server</module>
     <module>dist</module>
     <module>examples</module>
-    <module>demo/pubsub/client</module>
   </modules>
 
   <properties>
