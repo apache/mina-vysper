@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.XMPPServer;
 
 /**
  * a module plugs new functionality into the server, most probably an implementation for a XEP.
@@ -69,4 +70,10 @@ public interface Module {
      * first one.
      */
     void initialize(ServerRuntimeContext serverRuntimeContext);
+    
+    /**
+     * Allow for the module to release any resources held, for example database connections. The method
+     * will be called by {@link XMPPServer#stop()}.
+     */
+    void close();
 }

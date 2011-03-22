@@ -59,4 +59,8 @@ public abstract class DefaultModule implements Module {
     public void initialize(ServerRuntimeContext serverRuntimeContext) {
         // empty default implementation
     }
+
+    public void close() {
+        // empty default implementation
+    }
 }

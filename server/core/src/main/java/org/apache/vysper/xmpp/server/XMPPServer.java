@@ -157,6 +157,14 @@ public class XMPPServer {
             endpoint.stop();
         }
         
+        for(Module module : serverRuntimeContext.getModules()) {
+            try {
+                module.close();
+            } catch(RuntimeException e) {
+                // ignore
+            }
+        }
+        
         serverRuntimeContext.getServerConnectorRegistry().close();
     }
 
