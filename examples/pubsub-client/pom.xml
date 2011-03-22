@@ -29,13 +29,6 @@
   <name>Apache Vysper Publish-Subscribe demo</name>
   <version>0.7-SNAPSHOT</version>
 
-  <repositories>
-    <repository>
-      <id>smackx-pubsub-repo</id>
-      <url>http://people.apache.org/~ngn/vysper-repo/</url>
-    </repository>
-  </repositories>
-
   <dependencies>
     <dependency>
       <groupId>jivesoftware</groupId>
@@ -46,13 +39,11 @@
     <dependency>
       <groupId>jivesoftware</groupId>
       <artifactId>smack</artifactId>
-      <version>3.1.0</version>
     </dependency>
 
     <dependency>
       <groupId>jivesoftware</groupId>
       <artifactId>smackx</artifactId>
-      <version>3.1.0</version>
     </dependency>
   </dependencies>
 
