@@ -104,6 +104,8 @@ public class NamespaceURIs {
 
     public static final String XEP0060_PUBSUB_ERRORS = "http://jabber.org/protocol/pubsub#errors";
 
+    public static final String XEP0065_SOCKS5_BYTESTREAMS = "http://jabber.org/protocol/bytestreams";
+
     public static final String XEP0124_BOSH = "http://jabber.org/protocol/httpbind";
     
     public static final String XEP0133_SERVICE_ADMIN = "http://jabber.org/protocol/admin";
