@@ -232,7 +232,7 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay {
                 }
             } else if (IQStanza.isOfType(stanza)) {
                 // TODO handle on behalf of the user/client
-                throw new RuntimeException("inbound IQ not yet handled");
+                return relayToBestSessions(false);
             }
 
             return relayNotPossible();

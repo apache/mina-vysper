@@ -27,6 +27,8 @@ import junit.framework.Assert;
 import org.apache.vysper.StanzaAssert;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.delivery.StanzaRelay;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
 import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceCollector;
 import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceDiscoveryRequestListenerRegistry;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
@@ -44,6 +46,7 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
+import org.apache.vysper.xmpp.writer.StanzaWriter;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -56,10 +59,13 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
     private static final Entity SERVER = EntityImpl.parseUnchecked("vysper.org");
     private static final Entity COMPONENT = EntityImpl.parseUnchecked("comp.vysper.org");
     private static final Entity USER = EntityImpl.parseUnchecked("user@vysper.org");
+    private static final Entity USER_WITH_RESOURCE = EntityImpl.parseUnchecked("user@vysper.org/res1");
     
-    private ServerRuntimeContext serverRuntimeContext = Mockito.mock(ServerRuntimeContext.class);
-    private SessionContext sessionContext = Mockito.mock(SessionContext.class);
-    private ServiceCollector serviceCollector = Mockito.mock(ServiceCollector.class);
+    private ServerRuntimeContext serverRuntimeContext = mock(ServerRuntimeContext.class);
+    private SessionContext sessionContext = mock(SessionContext.class);
+    private ServiceCollector serviceCollector = mock(ServiceCollector.class);
+    private StanzaRelay stanzaRelay = mock(StanzaRelay.class);
+    private StanzaWriter stanzaWriter = mock(StanzaWriter.class);
 
     private IQStanza stanza = (IQStanza) IQStanza.getWrapper(buildStanza());
     
@@ -148,6 +154,8 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
             .thenReturn(serviceCollector);
         
         when(serverRuntimeContext.getServerEnitity()).thenReturn(SERVER);
+        when(serverRuntimeContext.getStanzaRelay()).thenReturn(stanzaRelay);
+        when(sessionContext.getResponseWriter()).thenReturn(stanzaWriter);
     }
 
     @Test
@@ -185,6 +193,32 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
         StanzaAssert.assertEquals(createExpectedResponse(USER), response);
     }
 
+    @Test
+    public void handleGetToUserWithResource() throws Exception {
+        when(sessionContext.getInitiatingEntity()).thenReturn(FROM);
+        
+        IQStanza stanza = createRequest(USER_WITH_RESOURCE);
+        
+        Stanza response = handler.handleGet(stanza, serverRuntimeContext, sessionContext);
+        
+        Assert.assertNull(response);
+        
+        verify(stanzaRelay).relay(eq(USER_WITH_RESOURCE), eq(stanza), any(DeliveryFailureStrategy.class));
+    }
+    
+    @Test
+    public void handleGetToUserWithResourceInbound() throws Exception {
+        when(sessionContext.getInitiatingEntity()).thenReturn(USER);
+        
+        IQStanza stanza = createRequest(USER_WITH_RESOURCE);
+        
+        Stanza response = handler.handleGet(stanza, serverRuntimeContext, sessionContext);
+        
+        Assert.assertNull(response);
+        
+        verify(stanzaWriter).write(stanza);
+    }
+    
     @Test
     public void handleGetToNonExistingComponent() throws Exception {
         IQStanza stanza = createRequest(COMPONENT);
@@ -253,6 +287,45 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
         StanzaAssert.assertEquals(expected, response);
     }
     
+    @Test
+    public void handleResultToUserWithResource() throws Exception {
+        when(sessionContext.getInitiatingEntity()).thenReturn(FROM);
+        
+        IQStanza stanza = createRequest(USER_WITH_RESOURCE, IQStanzaType.RESULT);
+        
+        Stanza response = handler.handleResult(stanza, serverRuntimeContext, sessionContext);
+        
+        Assert.assertNull(response);
+        
+        verify(stanzaRelay).relay(eq(USER_WITH_RESOURCE), eq(stanza), any(DeliveryFailureStrategy.class));
+    }
+    
+    @Test
+    public void handleResultToUserWithResourceInbound() throws Exception {
+        when(sessionContext.getInitiatingEntity()).thenReturn(USER);
+        
+        IQStanza stanza = createRequest(USER_WITH_RESOURCE, IQStanzaType.RESULT);
+        
+        Stanza response = handler.handleResult(stanza, serverRuntimeContext, sessionContext);
+        
+        Assert.assertNull(response);
+        
+        verify(stanzaWriter).write(stanza);
+    }
+    
+    @Test
+    public void handleResultToUser() throws Exception {
+        when(sessionContext.getInitiatingEntity()).thenReturn(FROM);
+        
+        IQStanza stanza = createRequest(USER, IQStanzaType.RESULT);
+        
+        Stanza response = handler.handleResult(stanza, serverRuntimeContext, sessionContext);
+        
+        Stanza expected = createErrorResponse(SERVER, "feature-not-implemented");
+        
+        StanzaAssert.assertEquals(expected, response);
+    }
+    
     private Stanza createErrorResponse(Entity from, String error) {
         Stanza expected = StanzaBuilder.createIQStanza(from, FROM, IQStanzaType.ERROR, "id1")
         .startInnerElement("query", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO)
@@ -266,7 +339,11 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
     }
     
     private IQStanza createRequest(Entity to) {
-        IQStanza stanza = (IQStanza) XMPPCoreStanza.getWrapper(StanzaBuilder.createIQStanza(FROM, to, IQStanzaType.GET, "id1")
+        return createRequest(to, IQStanzaType.GET);
+    }
+    
+    private IQStanza createRequest(Entity to, IQStanzaType type) {
+        IQStanza stanza = (IQStanza) XMPPCoreStanza.getWrapper(StanzaBuilder.createIQStanza(FROM, to, type, "id1")
                 .startInnerElement("query", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO)
                 .addAttribute("node", "n")
                 .build());

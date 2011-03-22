@@ -25,6 +25,8 @@ import org.apache.vysper.compliance.SpecCompliance;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
+import org.apache.vysper.xmpp.delivery.failure.ReturnErrorToSenderFailureStrategy;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
 import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceCollector;
 import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceDiscoveryRequestListenerRegistry;
@@ -58,7 +60,8 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
 
     @Override
     protected boolean verifyInnerElement(Stanza stanza) {
-        return verifyInnerElementWorker(stanza, "query") && verifyInnerNamespace(stanza, NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO);
+        return verifyInnerElementWorker(stanza, "query")
+                && verifyInnerNamespace(stanza, NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO);
     }
 
     @Override
@@ -78,8 +81,8 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
         }
 
         if (serviceCollector == null) {
-            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR,
-                    stanza, StanzaErrorType.CANCEL, "cannot retrieve IQ-get-info result from internal components",
+            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR, stanza,
+                    StanzaErrorType.CANCEL, "cannot retrieve IQ-get-info result from internal components",
                     getErrorLanguage(serverRuntimeContext, sessionContext), null);
         }
 
@@ -109,25 +112,30 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
         List<InfoElement> elements = null;
         try {
             Entity from = stanza.getFrom();
-            if (from == null) from = sessionContext.getInitiatingEntity(); 
+            if (from == null)
+                from = sessionContext.getInitiatingEntity();
             if (isServerInfoRequest) {
-                elements = serviceCollector.processServerInfoRequest(new InfoRequest(from, to, node, stanza
-                        .getID()));
+                elements = serviceCollector.processServerInfoRequest(new InfoRequest(from, to, node, stanza.getID()));
             } else if (isComponentInfoRequest) {
-                elements = serviceCollector.processComponentInfoRequest(new InfoRequest(from, to, node,
-                        stanza.getID()));
+                elements = serviceCollector
+                        .processComponentInfoRequest(new InfoRequest(from, to, node, stanza.getID()));
             } else {
-                elements = serviceCollector.processInfoRequest(new InfoRequest(from, to, node, stanza
-                        .getID()));
+                // "When an entity sends a disco#info request to a bare JID (<account@domain.tld>) hosted by a server, 
+                // the server itself MUST reply on behalf of the hosted account, either with an IQ-error or an IQ-result"
+                if (to.isResourceSet()) {
+                    relayOrWrite(stanza, serverRuntimeContext, sessionContext);
+                    return null;
+                } else {
+                    elements = serviceCollector.processInfoRequest(new InfoRequest(from, to, node, stanza.getID()));
+                }
             }
         } catch (ServiceDiscoveryRequestException e) {
             // the request yields an error
             StanzaErrorCondition stanzaErrorCondition = e.getErrorCondition();
             if (stanzaErrorCondition == null)
                 stanzaErrorCondition = StanzaErrorCondition.INTERNAL_SERVER_ERROR;
-            return ServerErrorResponses.getStanzaError(stanzaErrorCondition, stanza,
-                    StanzaErrorType.CANCEL, "disco info request failed.",
-                    getErrorLanguage(serverRuntimeContext, sessionContext), null);
+            return ServerErrorResponses.getStanzaError(stanzaErrorCondition, stanza, StanzaErrorType.CANCEL,
+                    "disco info request failed.", getErrorLanguage(serverRuntimeContext, sessionContext), null);
         }
 
         //TODO check that elementSet contains at least one identity element and on feature element!
@@ -145,5 +153,37 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
         stanzaBuilder.endInnerElement();
 
         return stanzaBuilder.build();
+    }
+
+    @Override
+    protected Stanza handleResult(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
+            SessionContext sessionContext) {
+
+        if (stanza.getTo().isResourceSet()) {
+            relayOrWrite(stanza, serverRuntimeContext, sessionContext);
+            return null;
+        } else {
+            return super.handleResult(stanza, serverRuntimeContext, sessionContext);
+        }
+    }
+
+    private void relayOrWrite(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+        boolean isOutbound = !sessionContext.getInitiatingEntity().equals(stanza.getTo().getBareJID());
+        if (isOutbound) {
+            try {
+                Entity from = stanza.getFrom();
+                if (from == null) {
+                    from = sessionContext.getInitiatingEntity();
+                }
+                Stanza forward = StanzaBuilder.createForwardStanza(stanza, from, null);
+
+                serverRuntimeContext.getStanzaRelay().relay(stanza.getTo(), forward,
+                        new ReturnErrorToSenderFailureStrategy(serverRuntimeContext.getStanzaRelay()));
+            } catch (DeliveryException e) {
+                logger.warn("relaying IQ failed", e);
+            }
+        } else {
+            sessionContext.getResponseWriter().write(stanza);
+        }
     }
 }
