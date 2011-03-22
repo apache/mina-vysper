@@ -51,4 +51,26 @@ public class Feature implements InfoElement {
         stanzaBuilder.startInnerElement("feature", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO).addAttribute("var",
                 var).endInnerElement();
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + var.hashCode();
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        
+        Feature other = (Feature) obj;
+        if (!var.equals(other.var)) return false;
+        
+        return true;
+    }
+    
+    
 }
