@@ -20,8 +20,10 @@
 package org.apache.vysper.xmpp.extension.xep0065_socks;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -50,92 +52,109 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-
 /**
  * Integration test for SOCKS5 mediated connections
  *
+ * This test requires that "vysper.org" and "socks.vysper.org" resolves to 127.0.0.1
+ * and is therefore disabled by default.
+ *  
+ * On Linux/OS X, add the following to /etc/hosts:
+ * 127.0.0.1   vysper.org
+ * 127.0.0.1   socks.vysper.org
+ *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class Runner {
+@Ignore("Requires host resolution configuration, see comment")
+public class Socks5IntegrationTest {
 
-    
     private static final String CHARSET = "ASCII";
-    private static final String HELLO_WORLD = "hello world";
+    private static final String TEST_DATA = "hello world";
 
     private XMPPServer server;
-    
-    private XMPPConnection requestor;    
+    private XMPPConnection requestor;
     private XMPPConnection target;
-    
+
     @Before
     public void before() throws Exception {
         server = startServer();
-        SmackConfiguration.setLocalSocks5ProxyEnabled(false);
 
         requestor = connectClient("user1@vysper.org");
-        
         target = connectClient("user2@vysper.org");
     }
-  
-    
-    /*
-     * This test requires that "vysper.org" and "socks.vysper.org" resolves to 127.0.0.1
-     * and is therefore disabled by default.
-     *  
-     * On Linux/OS X, add the following to /etc/hosts:
-     * 127.0.0.1   vysper.org
-     * 127.0.0.1   socks.vysper.org
-     */
+
     @Test
-    @Ignore("Requires host resolution configuration, see comment")
-    public void testTransfer() throws Exception {
-        final LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<String>();
-        
+    public void medidiatedConnectionTransfer() throws Exception {
+        // adding support for mediated connections
+        server.addModule(new Socks5Module("socks"));
+
+        // disabling direct connections
+        SmackConfiguration.setLocalSocks5ProxyEnabled(false);
+
+        assertTransfer();
+    }
+
+    @Test
+    public void directConnectionTransfer() throws Exception {
+        server.addModule(new Socks5Module("socks"));
+
+        assertTransfer();
+    }
+
+    private void assertTransfer() throws InterruptedException, XMPPException, IOException, UnsupportedEncodingException {
+        LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<String>();
+
         Socks5BytestreamManager mng2 = Socks5BytestreamManager.getBytestreamManager(target);
-        mng2.addIncomingBytestreamListener(new BytestreamListener() {
-            public void incomingBytestreamRequest(BytestreamRequest request) {
-                BytestreamSession session;
-                try {
-                    session = request.accept();
-                    
-                    byte[] b = new byte[HELLO_WORLD.getBytes(CHARSET).length];
-                    InputStream in = session.getInputStream();
-                    in.read(b);
-                    in.close();
-                    
-                    queue.put(new String(b));
-                } catch (Exception e) {
-                    Assert.fail(e.getMessage());
-                }
-            }
-        });
-        
+        mng2.addIncomingBytestreamListener(new TestByteStreamListener(queue));
+
         Thread.sleep(2000);
         System.out.println("##################");
         System.out.println("Starting SOCKS5 transfer");
         System.out.println("##################");
-        
+
         String targetJid = requestor.getRoster().getPresence("user2@vysper.org").getFrom();
-        
+
         Socks5BytestreamManager mng1 = Socks5BytestreamManager.getBytestreamManager(requestor);
         Socks5BytestreamSession session = mng1.establishSession(targetJid);
         OutputStream out = session.getOutputStream();
-        out.write(HELLO_WORLD.getBytes(CHARSET));
+        out.write(TEST_DATA.getBytes(CHARSET));
         out.flush();
         out.close();
-        
-        Assert.assertEquals(HELLO_WORLD, queue.poll(10000, TimeUnit.MILLISECONDS));
+
+        Assert.assertEquals(TEST_DATA, queue.poll(10000, TimeUnit.MILLISECONDS));
     }
 
+    private final class TestByteStreamListener implements BytestreamListener {
+        private final LinkedBlockingQueue<String> queue;
     
+        private TestByteStreamListener(LinkedBlockingQueue<String> queue) {
+            this.queue = queue;
+        }
+    
+        public void incomingBytestreamRequest(BytestreamRequest request) {
+            BytestreamSession session;
+            try {
+                session = request.accept();
+    
+                byte[] b = new byte[TEST_DATA.getBytes(CHARSET).length];
+                InputStream in = session.getInputStream();
+                in.read(b);
+                in.close();
+    
+                queue.put(new String(b));
+            } catch (Exception e) {
+                Assert.fail(e.getMessage());
+            }
+        }
+    }
+
     @After
     public void after() {
         requestor.disconnect();
         target.disconnect();
-        
+
         server.stop();
     }
-    
+
     private XMPPConnection connectClient(String username) throws XMPPException {
         ConnectionConfiguration config1 = new ConnectionConfiguration("vysper.org", 5222);
         XMPPConnection conn1 = new XMPPConnection(config1);
@@ -154,22 +173,21 @@ public class Runner {
         accountManagement.addUser(user1, "password");
         Entity user2 = EntityImpl.parse("user2@vysper.org");
         accountManagement.addUser(user2, "password");
-        
+
         XMPPServer server = new XMPPServer("vysper.org");
         server.addEndpoint(new TCPEndpoint());
         server.setStorageProviderRegistry(providerRegistry);
         server.setTLSCertificateInfo(new File("src/test/resources/bogus_mina_tls.cert"), "boguspw");
-        
+
         server.start();
         System.out.println("vysper server is running...");
 
-        RosterManager rosterManager = (RosterManager) server.getServerRuntimeContext().getStorageProvider(RosterManager.class);
+        RosterManager rosterManager = (RosterManager) server.getServerRuntimeContext().getStorageProvider(
+                RosterManager.class);
         rosterManager.addContact(user1, new RosterItem(user2, SubscriptionType.BOTH));
         rosterManager.addContact(user2, new RosterItem(user1, SubscriptionType.BOTH));
-        
-        server.addModule(new Socks5Module("socks"));
-        
+
         return server;
     }
-    
+
 }
