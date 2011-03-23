@@ -67,6 +67,13 @@ import org.junit.Test;
 @Ignore("Requires host resolution configuration, see comment")
 public class Socks5IntegrationTest {
 
+    private static final String SUBDOMAIN = "socks";
+    private static final String SERVER = "vysper.org";
+    private static final Entity USER1 = EntityImpl.parseUnchecked("user1@vysper.org");
+    private static final Entity USER2 = EntityImpl.parseUnchecked("user2@vysper.org");
+    private static final String PASSWORD = "password";
+
+    
     private static final String CHARSET = "ASCII";
     private static final String TEST_DATA = "hello world";
 
@@ -78,16 +85,16 @@ public class Socks5IntegrationTest {
     public void before() throws Exception {
         server = startServer();
 
-        requestor = connectClient("user1@vysper.org");
-        target = connectClient("user2@vysper.org");
+        requestor = connectClient(USER1);
+        target = connectClient(USER2);
     }
 
     @Test
     public void medidiatedConnectionTransfer() throws Exception {
-        // adding support for mediated connections
-        server.addModule(new Socks5Module("socks"));
+        // add support for mediated connections
+        server.addModule(new Socks5Module(SUBDOMAIN));
 
-        // disabling direct connections
+        // disable direct connections
         SmackConfiguration.setLocalSocks5ProxyEnabled(false);
 
         assertTransfer();
@@ -95,8 +102,10 @@ public class Socks5IntegrationTest {
 
     @Test
     public void directConnectionTransfer() throws Exception {
-        server.addModule(new Socks5Module("socks"));
+        // enable direct connections
+        SmackConfiguration.setLocalSocks5ProxyEnabled(true);
 
+        
         assertTransfer();
     }
 
@@ -106,12 +115,13 @@ public class Socks5IntegrationTest {
         Socks5BytestreamManager mng2 = Socks5BytestreamManager.getBytestreamManager(target);
         mng2.addIncomingBytestreamListener(new TestByteStreamListener(queue));
 
+        // allow for clients to initiate
         Thread.sleep(2000);
         System.out.println("##################");
         System.out.println("Starting SOCKS5 transfer");
         System.out.println("##################");
 
-        String targetJid = requestor.getRoster().getPresence("user2@vysper.org").getFrom();
+        String targetJid = requestor.getRoster().getPresence(USER2.getFullQualifiedName()).getFrom();
 
         Socks5BytestreamManager mng1 = Socks5BytestreamManager.getBytestreamManager(requestor);
         Socks5BytestreamSession session = mng1.establishSession(targetJid);
@@ -155,12 +165,12 @@ public class Socks5IntegrationTest {
         server.stop();
     }
 
-    private XMPPConnection connectClient(String username) throws XMPPException {
-        ConnectionConfiguration config1 = new ConnectionConfiguration("vysper.org", 5222);
-        XMPPConnection conn1 = new XMPPConnection(config1);
-        conn1.connect();
-        conn1.login(username, "password");
-        return conn1;
+    private XMPPConnection connectClient(Entity username) throws XMPPException {
+        ConnectionConfiguration config = new ConnectionConfiguration(SERVER, 5222);
+        XMPPConnection conn = new XMPPConnection(config);
+        conn.connect();
+        conn.login(username.getFullQualifiedName(), PASSWORD);
+        return conn;
     }
 
     private XMPPServer startServer() throws Exception {
@@ -169,12 +179,10 @@ public class Socks5IntegrationTest {
         final AccountManagement accountManagement = (AccountManagement) providerRegistry
                 .retrieve(AccountManagement.class);
 
-        Entity user1 = EntityImpl.parse("user1@vysper.org");
-        accountManagement.addUser(user1, "password");
-        Entity user2 = EntityImpl.parse("user2@vysper.org");
-        accountManagement.addUser(user2, "password");
+        accountManagement.addUser(USER1, PASSWORD);
+        accountManagement.addUser(USER2, PASSWORD);
 
-        XMPPServer server = new XMPPServer("vysper.org");
+        XMPPServer server = new XMPPServer(SERVER);
         server.addEndpoint(new TCPEndpoint());
         server.setStorageProviderRegistry(providerRegistry);
         server.setTLSCertificateInfo(new File("src/test/resources/bogus_mina_tls.cert"), "boguspw");
@@ -184,8 +192,8 @@ public class Socks5IntegrationTest {
 
         RosterManager rosterManager = (RosterManager) server.getServerRuntimeContext().getStorageProvider(
                 RosterManager.class);
-        rosterManager.addContact(user1, new RosterItem(user2, SubscriptionType.BOTH));
-        rosterManager.addContact(user2, new RosterItem(user1, SubscriptionType.BOTH));
+        rosterManager.addContact(USER1, new RosterItem(USER2, SubscriptionType.BOTH));
+        rosterManager.addContact(USER2, new RosterItem(USER1, SubscriptionType.BOTH));
 
         return server;
     }
