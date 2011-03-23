@@ -57,13 +57,13 @@ import org.apache.vysper.xmpp.server.components.ComponentStanzaProcessor;
  */
 public class Socks5Module extends DefaultDiscoAwareModule implements Component, ComponentInfoRequestListener, ItemRequestListener {
 
+    private static final String DEFAULT_SUBDOMAIN = "socks";
     private static final int DEFAULT_PORT = 5777;
     private static final int DEFAULT_IDLE_TIME = 120;
     
     private String subdomain;
     private Entity fullDomain;
-    private InetSocketAddress proxyAddress;
-    private int port =  DEFAULT_PORT;
+    private InetSocketAddress proxyAddress = new InetSocketAddress(DEFAULT_PORT);
     private int idleTimeInSeconds = DEFAULT_IDLE_TIME;
     
     private ComponentStanzaProcessor stanzaProcessor;
@@ -92,7 +92,9 @@ public class Socks5Module extends DefaultDiscoAwareModule implements Component, 
         Validate.isTrue(!subdomain.contains("."), "subdomain should only contain a subdomain name, not the full domain name");
         
         this.subdomain = subdomain;
-        this.proxyAddress = proxyAddress;
+        if(proxyAddress != null) {
+            this.proxyAddress = proxyAddress;
+        }
     }
 
     /**
@@ -104,6 +106,13 @@ public class Socks5Module extends DefaultDiscoAwareModule implements Component, 
     }
     
     /**
+     * Constructs a SOCK5 module with the default subdomain "socks" and the proxy listening on the default address
+     */
+    public Socks5Module() {
+        this(DEFAULT_SUBDOMAIN, null);
+    }
+    
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -112,15 +121,11 @@ public class Socks5Module extends DefaultDiscoAwareModule implements Component, 
         
         fullDomain = EntityUtils.createComponentDomain(subdomain, serverRuntimeContext);
         
-        if(proxyAddress == null) {
-            proxyAddress = new InetSocketAddress(fullDomain.getFullQualifiedName(), port);
-        }
-        
         stanzaProcessor = new ComponentStanzaProcessor(serverRuntimeContext);
         stanzaProcessor.addHandler(new Socks5IqHandler(fullDomain, proxyAddress, connectionsRegistry));
         
         try {
-            startProxy(port);
+            startProxy();
         } catch (Exception e) {
             throw new RuntimeException("Failed to start SOCKS5 proxy", e);
         }
@@ -133,10 +138,11 @@ public class Socks5Module extends DefaultDiscoAwareModule implements Component, 
         }
     }
 
-    private void startProxy(int port) throws Exception {
+    private void startProxy() throws Exception {
         acceptor = new NioSocketAcceptor();
         acceptor.setHandler(new Socks5AcceptorHandler(connectionsRegistry));
         acceptor.getSessionConfig().setBothIdleTime(idleTimeInSeconds);
+        System.out.println(proxyAddress);
         acceptor.bind(proxyAddress);
     }
 

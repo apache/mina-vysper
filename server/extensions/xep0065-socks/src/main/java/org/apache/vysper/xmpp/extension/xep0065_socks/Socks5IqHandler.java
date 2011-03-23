@@ -19,7 +19,9 @@
  */
 package org.apache.vysper.xmpp.extension.xep0065_socks;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.vysper.xml.fragment.XMLElement;
@@ -47,6 +49,13 @@ import org.slf4j.LoggerFactory;
  */
 public class Socks5IqHandler extends DefaultIQHandler {
 
+    private static InetAddress DEFAULT_ADDRESS;
+    static {
+        try {
+            DEFAULT_ADDRESS = InetAddress.getByAddress(new byte[]{0,0,0,0});
+        } catch (UnknownHostException ignore) {;}
+    }
+    
     final Logger logger = LoggerFactory.getLogger(Socks5IqHandler.class);
 
     private Entity jid;
@@ -88,13 +97,20 @@ public class Socks5IqHandler extends DefaultIQHandler {
                 </iq>
          */
         
-        return StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID())
+        StanzaBuilder builder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID())
             .startInnerElement("query", NamespaceURIs.XEP0065_SOCKS5_BYTESTREAMS)
-            .startInnerElement("streamhost", NamespaceURIs.XEP0065_SOCKS5_BYTESTREAMS)
-            .addAttribute("host", proxyAddress.getHostName())
-            .addAttribute("jid", jid.getFullQualifiedName())
-            .addAttribute("port", Integer.toString(proxyAddress.getPort()))
-            .build();
+            .startInnerElement("streamhost", NamespaceURIs.XEP0065_SOCKS5_BYTESTREAMS);
+        
+        // if an address is provided on the proxy address, use that, else use the JID
+        if(DEFAULT_ADDRESS.equals(proxyAddress.getAddress())) {
+            builder.addAttribute("host", jid.getFullQualifiedName());
+        } else {
+            builder.addAttribute("host", proxyAddress.getHostName());
+        }
+        builder.addAttribute("jid", jid.getFullQualifiedName())
+            .addAttribute("port", Integer.toString(proxyAddress.getPort()));
+        
+        return builder.build();
     }
 
     @Override

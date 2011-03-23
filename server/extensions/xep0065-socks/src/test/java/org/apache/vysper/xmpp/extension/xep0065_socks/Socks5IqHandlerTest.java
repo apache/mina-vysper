@@ -143,6 +143,25 @@ public class Socks5IqHandlerTest extends Mockito {
 
         StanzaAssert.assertEquals(expected, response);
     }
+    
+    @Test
+    public void handleGetDefaultAddress() throws BindException, XMLSemanticError {
+        proxyAddress = new InetSocketAddress(12345);
+        handler = new Socks5IqHandler(jid, proxyAddress, connectionsRegistry);
+        Stanza response = handler.handleGet(stanza, serverRuntimeContext, sessionContext);
+        
+        Stanza expected = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID())
+        .startInnerElement("query", NamespaceURIs.XEP0065_SOCKS5_BYTESTREAMS)
+        .startInnerElement("streamhost", NamespaceURIs.XEP0065_SOCKS5_BYTESTREAMS)
+        .addAttribute("host", jid.getFullQualifiedName())
+        .addAttribute("jid", jid.getFullQualifiedName())
+        .addAttribute("port", Integer.toString(proxyAddress.getPort()))
+        .build();
+        
+        StanzaAssert.assertEquals(expected, response);
+    }
+    
+    
 
     @Test
     public void handleSetActivate() throws BindException, XMLSemanticError {
