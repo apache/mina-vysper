@@ -89,13 +89,6 @@ public class ServerMain {
 
         server.setTLSCertificateInfo(new File("src/main/config/bogus_mina_tls.cert"), "boguspw");
 
-        try {
-            server.start();
-            System.out.println("vysper server is running...");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         server.addModule(new SoftwareVersionModule());
         server.addModule(new EntityTimeModule());
         server.addModule(new VcardTempModule());
@@ -112,6 +105,13 @@ public class ServerMain {
             for (Module module : listOfModules) {
                 server.addModule(module);
             }
+        }
+        
+        try {
+            server.start();
+            System.out.println("vysper server is running...");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

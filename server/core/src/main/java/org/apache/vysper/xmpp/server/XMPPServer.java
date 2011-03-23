@@ -73,6 +73,8 @@ public class XMPPServer {
     private String tlsCertificatePassword;
 
     private final List<Endpoint> endpoints = new ArrayList<Endpoint>();
+
+    private final List<Module> initialModules = new ArrayList<Module>();
     
 
     public XMPPServer(String domain) {
@@ -80,6 +82,10 @@ public class XMPPServer {
 
         // default list of SASL mechanisms
         saslMechanisms.add(new Plain());
+        
+        // add default modules
+        initialModules.add(new ServiceDiscoveryModule());
+        initialModules.add(new RosterModule());
     }
 
     public void setSASLMechanisms(List<SASLMechanism> validMechanisms) {
@@ -137,8 +143,9 @@ public class XMPPServer {
         serverRuntimeContext.setStorageProviderRegistry(storageProviderRegistry);
         serverRuntimeContext.setTlsContextFactory(tlsContextFactory);
 
-        serverRuntimeContext.addModule(new ServiceDiscoveryModule());
-        serverRuntimeContext.addModule(new RosterModule());
+        for(Module module : initialModules) {
+            serverRuntimeContext.addModule(module);
+        }
 
         stanzaRelayBroker.setServerRuntimeContext(serverRuntimeContext);
         internalStanzaRelay.setServerRuntimeContext(serverRuntimeContext);
@@ -169,7 +176,11 @@ public class XMPPServer {
     }
 
     public void addModule(Module module) {
-        serverRuntimeContext.addModule(module);
+        if(serverRuntimeContext != null) {
+            serverRuntimeContext.addModule(module);
+        } else {
+            initialModules.add(module);
+        }
     }
 
     private void addCoreDictionaries(List<HandlerDictionary> dictionaries) {
