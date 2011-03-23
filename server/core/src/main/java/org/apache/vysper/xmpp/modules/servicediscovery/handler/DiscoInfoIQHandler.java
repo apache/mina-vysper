@@ -159,7 +159,7 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
     protected Stanza handleResult(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
 
-        if (stanza.getTo().isResourceSet()) {
+        if (stanza.getTo().isNodeSet()) {
             relayOrWrite(stanza, serverRuntimeContext, sessionContext);
             return null;
         } else {
