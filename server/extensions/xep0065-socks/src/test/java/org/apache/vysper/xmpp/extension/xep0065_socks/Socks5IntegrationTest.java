@@ -105,7 +105,6 @@ public class Socks5IntegrationTest {
         // enable direct connections
         SmackConfiguration.setLocalSocks5ProxyEnabled(true);
 
-        
         assertTransfer();
     }
 

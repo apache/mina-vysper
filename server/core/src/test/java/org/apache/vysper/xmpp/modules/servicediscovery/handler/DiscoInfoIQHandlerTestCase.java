@@ -288,32 +288,6 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
     }
     
     @Test
-    public void handleResultToUserWithResource() throws Exception {
-        when(sessionContext.getInitiatingEntity()).thenReturn(FROM);
-        
-        IQStanza stanza = createRequest(USER_WITH_RESOURCE, IQStanzaType.RESULT);
-        
-        Stanza response = handler.handleResult(stanza, serverRuntimeContext, sessionContext);
-        
-        Assert.assertNull(response);
-        
-        verify(stanzaRelay).relay(eq(USER_WITH_RESOURCE), eq(stanza), any(DeliveryFailureStrategy.class));
-    }
-    
-    @Test
-    public void handleResultToUserWithResourceInbound() throws Exception {
-        when(sessionContext.getInitiatingEntity()).thenReturn(USER);
-        
-        IQStanza stanza = createRequest(USER_WITH_RESOURCE, IQStanzaType.RESULT);
-        
-        Stanza response = handler.handleResult(stanza, serverRuntimeContext, sessionContext);
-        
-        Assert.assertNull(response);
-        
-        verify(stanzaWriter).write(stanza);
-    }
-    
-    @Test
     public void handleResultToUser() throws Exception {
         when(sessionContext.getInitiatingEntity()).thenReturn(FROM);
         
@@ -321,9 +295,22 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
         
         Stanza response = handler.handleResult(stanza, serverRuntimeContext, sessionContext);
         
-        Stanza expected = createErrorResponse(SERVER, "feature-not-implemented");
+        Assert.assertNull(response);
         
-        StanzaAssert.assertEquals(expected, response);
+        verify(stanzaRelay).relay(eq(USER), eq(stanza), any(DeliveryFailureStrategy.class));
+    }
+    
+    @Test
+    public void handleResultToUserInbound() throws Exception {
+        when(sessionContext.getInitiatingEntity()).thenReturn(USER);
+        
+        IQStanza stanza = createRequest(USER, IQStanzaType.RESULT);
+        
+        Stanza response = handler.handleResult(stanza, serverRuntimeContext, sessionContext);
+        
+        Assert.assertNull(response);
+        
+        verify(stanzaWriter).write(stanza);
     }
     
     private Stanza createErrorResponse(Entity from, String error) {
