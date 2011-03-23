@@ -1,0 +1,53 @@
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
+	license agreements. See the NOTICE file distributed with this work for additional 
+	information regarding copyright ownership. The ASF licenses this file to 
+	you under the Apache License, Version 2.0 (the "License"); you may not use 
+	this file except in compliance with the License. You may obtain a copy of 
+	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
+<html>
+	<head>
+	<script>
+		// This is a very simple client just to demo the technology
+	
+		String.prototype.contains = function(it) { return this.indexOf(it) != -1; };
+	
+		var streamStart = "<stream:stream from='user1@vysper.org' to='user2@vysper.org' version='1.0' xml:lang='en' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams'>"
+	
+		var socket = new WebSocket("ws://localhost:8080/ws/ws", "xmpp");
+		socket.onopen = function(){
+			socket.send(streamStart)
+			
+		}  
+		socket.onmessage = function(msg){
+			var stanza = msg.data
+			
+			console.log(stanza)
+			if(stanza.contains("<stream:features")) {
+				if(stanza.contains("<mechanism>PLAIN</mechanism>")) {
+					// SASL
+					socket.send("<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='PLAIN'>AHVzZXIxQHZ5c3Blci5vcmcAcGFzc3dvcmQx</auth>")
+				} else if(stanza.contains("<bind")) {
+					// resource binding
+					socket.send("<iq id='tn281v37' type='set'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'/></iq>")
+				}
+			} else if(stanza.contains("<success")) {
+				// SASL success, restart stream
+				socket.send(streamStart)
+			} else if(stanza.contains("<iq")) {
+				if(stanza.contains("<bind")) {
+					// resource binding complete, off we go
+					// socket.send("<message to='protocol7@jabber.org'><body>Hello world</body></message>")
+					socket.close();
+				}
+			}
+		}  
+	
+	</script>
+	</head>
+<body>
+</body>
+</html>
