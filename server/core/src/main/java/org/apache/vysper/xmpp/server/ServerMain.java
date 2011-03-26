@@ -58,7 +58,7 @@ public class ServerMain {
      * 
      * @param args
      */
-    public static void main(String[] args) throws AccountCreationException, FileNotFoundException {
+    public static void main(String[] args) throws Exception {
 
         String domain = "vysper.org";
         
@@ -107,12 +107,8 @@ public class ServerMain {
             }
         }
         
-        try {
-            server.start();
-            System.out.println("vysper server is running...");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        server.start();
+        System.out.println("vysper server is running...");
     }
 
     private static List<Module> createModuleInstances(String[] moduleClassNames) {
