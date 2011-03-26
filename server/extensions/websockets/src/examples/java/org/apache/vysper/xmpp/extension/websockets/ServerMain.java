@@ -54,9 +54,8 @@ public class ServerMain {
      * using a runtime property, one or more modules can be specified, like this:
      * -Dvysper.add.module=org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PublishSubscribeModule,... more ...
      * 
-     * @param args
      */
-    public static void main(String[] args) throws AccountCreationException, EntityFormatException, FileNotFoundException {
+    public static void main(String[] args) throws Exception {
 
         String addedModuleProperty = System.getProperty("vysper.add.module");
         List<Module> listOfModules = null;
@@ -99,12 +98,8 @@ public class ServerMain {
 
         server.setTLSCertificateInfo(new File("src/test/resources/bogus_mina_tls.cert"), "boguspw");
 
-        try {
-            server.start();
-            System.out.println("vysper server is running...");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        server.start();
+        System.out.println("vysper server is running...");
 
         server.addModule(new SoftwareVersionModule());
         server.addModule(new EntityTimeModule());
