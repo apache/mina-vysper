@@ -142,7 +142,6 @@ public class Socks5Module extends DefaultDiscoAwareModule implements Component, 
         acceptor = new NioSocketAcceptor();
         acceptor.setHandler(new Socks5AcceptorHandler(connectionsRegistry));
         acceptor.getSessionConfig().setBothIdleTime(idleTimeInSeconds);
-        System.out.println(proxyAddress);
         acceptor.bind(proxyAddress);
     }
 
