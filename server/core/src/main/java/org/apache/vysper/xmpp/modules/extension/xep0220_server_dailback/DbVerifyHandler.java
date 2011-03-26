@@ -29,9 +29,8 @@ import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
-import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.server.SessionContext.SessionTerminationCause;
-import org.apache.vysper.xmpp.server.s2s.XMPPServerConnector;
+import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 

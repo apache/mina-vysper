@@ -20,8 +20,8 @@
 package org.apache.vysper.xmpp.server.components;
 
 import org.apache.vysper.xml.fragment.XMLElement;
-import org.apache.vysper.xmpp.protocol.DefaultHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.AbstractStanzaHandlerLookup;
+import org.apache.vysper.xmpp.protocol.DefaultHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.stanza.Stanza;
 

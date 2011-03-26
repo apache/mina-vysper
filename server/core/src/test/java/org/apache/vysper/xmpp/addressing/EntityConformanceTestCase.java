@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.addressing;
 import java.util.Arrays;
 
 import junit.framework.TestCase;
+
 import org.apache.vysper.xmpp.addressing.stringprep.StringPrepViolationException;
 
 public class EntityConformanceTestCase extends TestCase {

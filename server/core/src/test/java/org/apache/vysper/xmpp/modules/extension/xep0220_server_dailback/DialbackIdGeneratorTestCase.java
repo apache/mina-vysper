@@ -23,7 +23,6 @@ import junit.framework.TestCase;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DialbackIdGenerator;
 
 
 public class DialbackIdGeneratorTestCase extends TestCase {

@@ -19,11 +19,11 @@
 
 package org.apache.vysper.xmpp.server;
 
-import org.apache.commons.io.IOUtils;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+
+import org.apache.commons.io.IOUtils;
 
 /**
  * Provides the version of this release of the Vysper server

@@ -22,7 +22,6 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.vysper.xml.fragment.Attribute;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLElementBuilder;
 import org.apache.vysper.xml.fragment.XMLElementVerifier;

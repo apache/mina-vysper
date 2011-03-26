@@ -19,12 +19,12 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0133_service_administration.command;
 
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0050_adhoc_commands.AbstractAdhocCommandHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0050_adhoc_commands.Note;
-
-import java.util.List;
 
 /**
  */

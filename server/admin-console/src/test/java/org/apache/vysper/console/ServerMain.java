@@ -20,7 +20,6 @@
 package org.apache.vysper.console;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.Arrays;
 
 import org.apache.vysper.mina.TCPEndpoint;
@@ -28,7 +27,6 @@ import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.authorization.AccountCreationException;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
 import org.apache.vysper.xmpp.modules.extension.xep0049_privatedata.PrivateDataModule;
 import org.apache.vysper.xmpp.modules.extension.xep0050_adhoc_commands.AdhocCommandsModule;

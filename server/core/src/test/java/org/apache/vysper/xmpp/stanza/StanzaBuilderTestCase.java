@@ -22,7 +22,6 @@ package org.apache.vysper.xmpp.stanza;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.apache.derby.tools.sysinfo;
 import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLSemanticError;

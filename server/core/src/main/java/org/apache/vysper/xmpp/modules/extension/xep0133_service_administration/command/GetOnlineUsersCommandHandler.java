@@ -19,14 +19,14 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0133_service_administration.command;
 
+import java.util.List;
+
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.modules.extension.xep0050_adhoc_commands.AbstractAdhocCommandHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0050_adhoc_commands.Note;
 import org.apache.vysper.xmpp.stanza.dataforms.DataForm;
 import org.apache.vysper.xmpp.stanza.dataforms.Field;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
-
-import java.util.List;
 
 /**
  */

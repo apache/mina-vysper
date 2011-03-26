@@ -19,6 +19,12 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0050_adhoc_commands;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
@@ -37,12 +43,6 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * A module for <a href="http://xmpp.org/extensions/xep-0050.html">XEP-0050 Ad-hoc Commands</a>.

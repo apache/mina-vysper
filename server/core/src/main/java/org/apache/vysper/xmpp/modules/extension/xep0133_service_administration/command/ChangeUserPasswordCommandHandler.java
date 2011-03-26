@@ -19,20 +19,18 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0133_service_administration.command;
 
-import org.apache.commons.lang.StringUtils;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authorization.AccountCreationException;
 import org.apache.vysper.xmpp.authorization.AccountManagement;
-import org.apache.vysper.xmpp.modules.extension.xep0050_adhoc_commands.AbstractAdhocCommandHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0050_adhoc_commands.Note;
 import org.apache.vysper.xmpp.stanza.dataforms.DataForm;
 import org.apache.vysper.xmpp.stanza.dataforms.DataFormParser;
 import org.apache.vysper.xmpp.stanza.dataforms.Field;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  */

@@ -20,17 +20,16 @@
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.dataforms;
 
 import static org.apache.vysper.xmpp.stanza.dataforms.DataForm.Type.submit;
+import static org.apache.vysper.xmpp.stanza.dataforms.Field.Type.HIDDEN;
+import static org.apache.vysper.xmpp.stanza.dataforms.Field.Type.TEXT_SINGLE;
 
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.dataforms.DataForm;
 import org.apache.vysper.xmpp.stanza.dataforms.DataFormEncoder;
 import org.apache.vysper.xmpp.stanza.dataforms.Field;
 import org.apache.vysper.xmpp.stanza.dataforms.Field.Type;
-import static org.apache.vysper.xmpp.stanza.dataforms.Field.Type.HIDDEN;
-import static org.apache.vysper.xmpp.stanza.dataforms.Field.Type.TEXT_SINGLE;
 
 
 /**

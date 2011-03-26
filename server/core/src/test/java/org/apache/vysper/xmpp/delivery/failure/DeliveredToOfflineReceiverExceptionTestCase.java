@@ -21,7 +21,6 @@ package org.apache.vysper.xmpp.delivery.failure;
 
 import org.apache.vysper.ExceptionAssert;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 /**
  */

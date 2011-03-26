@@ -20,7 +20,6 @@
 package org.apache.vysper.xml.sax.impl;
 
 import java.util.Iterator;
-import java.util.Map.Entry;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.vysper.charset.CharsetUtil;

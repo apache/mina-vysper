@@ -19,9 +19,9 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0133_service_administration;
 
-import org.apache.vysper.xmpp.addressing.Entity;
-
 import java.util.Collection;
+
+import org.apache.vysper.xmpp.addressing.Entity;
 
 /**
  */

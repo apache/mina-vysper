@@ -22,8 +22,8 @@ package org.apache.vysper.xml.fragment;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Stack;
 import java.util.Map.Entry;
+import java.util.Stack;
 
 /**
  * Naive implementation, will be replaced in later stages of this change

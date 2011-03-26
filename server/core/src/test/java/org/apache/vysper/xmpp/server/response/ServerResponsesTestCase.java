@@ -23,8 +23,6 @@ package org.apache.vysper.xmpp.server.response;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;

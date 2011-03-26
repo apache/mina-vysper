@@ -38,8 +38,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import sun.swing.plaf.synth.StyleAssociation;
-
 /**
  */
 public class FeaturesHandlerTestCase {

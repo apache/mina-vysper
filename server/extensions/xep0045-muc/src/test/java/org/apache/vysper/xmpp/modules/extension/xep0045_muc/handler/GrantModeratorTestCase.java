@@ -21,8 +21,6 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 
 import static org.apache.vysper.xmpp.stanza.IQStanzaType.SET;
 
-import org.apache.vysper.xml.fragment.XMLElement;
-import org.apache.vysper.xml.fragment.XMLElementBuilder;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Affiliation;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
@@ -31,8 +29,6 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.IqAdminItem;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.MucUserItem;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ProtocolException;
-import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
 

@@ -19,12 +19,12 @@
  */
 package org.apache.vysper.xmpp.extension.xep0124;
 
-import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.handler.ContextHandlerCollection;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 
 /**
  * for having deploying only the BOSH context, but potentially other context

@@ -19,10 +19,10 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0050_adhoc_commands;
 
+import java.util.Collection;
+
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
-
-import java.util.Collection;
 
 /**
  * extension point for the ad-hoc command module to retrieve info about commands and invoke them.  

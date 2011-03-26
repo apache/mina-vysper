@@ -21,7 +21,6 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 
 import static org.apache.vysper.xmpp.stanza.IQStanzaType.SET;
 
-import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLElementBuilder;
 import org.apache.vysper.xmpp.addressing.EntityImpl;

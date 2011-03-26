@@ -19,16 +19,16 @@
  */
 package org.apache.vysper.spring;
 
-import org.apache.vysper.xmpp.modules.Module;
-import org.apache.vysper.xmpp.server.Endpoint;
-import org.apache.vysper.xmpp.server.XMPPServer;
-import org.springframework.core.io.Resource;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import org.apache.vysper.xmpp.modules.Module;
+import org.apache.vysper.xmpp.server.Endpoint;
+import org.apache.vysper.xmpp.server.XMPPServer;
+import org.springframework.core.io.Resource;
 
 /**
  * this class is able to boot a standalone XMPP server in a spring context.

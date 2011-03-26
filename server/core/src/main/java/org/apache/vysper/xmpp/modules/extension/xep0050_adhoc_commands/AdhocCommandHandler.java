@@ -19,9 +19,9 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0050_adhoc_commands;
 
-import org.apache.vysper.xml.fragment.XMLElement;
-
 import java.util.List;
+
+import org.apache.vysper.xml.fragment.XMLElement;
 
 /**
  * handles execution of a single specific command

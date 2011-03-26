@@ -27,7 +27,6 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 
 /**

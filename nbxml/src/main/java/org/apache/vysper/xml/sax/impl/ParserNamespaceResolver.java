@@ -21,8 +21,8 @@
 package org.apache.vysper.xml.sax.impl;
 
 import java.util.Map;
-import java.util.Stack;
 import java.util.Map.Entry;
+import java.util.Stack;
 
 import org.apache.vysper.xml.fragment.Namespaces;
 
