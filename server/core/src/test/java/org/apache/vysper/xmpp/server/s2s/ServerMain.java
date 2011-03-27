@@ -56,8 +56,9 @@ public class ServerMain {
      * -Dvysper.add.module=org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PublishSubscribeModule,... more ...
      * 
      * @param args
+     * @throws Exception 
      */
-    public static void main(String[] args) throws AccountCreationException, EntityFormatException, FileNotFoundException {
+    public static void main(String[] args) throws Exception {
         Entity localServer = EntityImpl.parseUnchecked(args[0]);
         Entity localUser = EntityImpl.parseUnchecked(args[1]);
         String keystorePath;
@@ -89,6 +90,7 @@ public class ServerMain {
 
         XMPPServer server = new XMPPServer(localServer.getFullQualifiedName());
 
+        
         // S2S endpoint
         server.addEndpoint(new S2SEndpoint());
 
@@ -100,24 +102,22 @@ public class ServerMain {
 
         server.setTLSCertificateInfo(new File(keystorePath), keystorePassword);
 
-        try {
-            server.start();
-            System.out.println("vysper server is running...");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         server.addModule(new SoftwareVersionModule());
         server.addModule(new EntityTimeModule());
         server.addModule(new VcardTempModule());
         server.addModule(new XmppPingModule());
         server.addModule(new PrivateDataModule());
-
+        
         if (listOfModules != null) {
             for (Module module : listOfModules) {
                 server.addModule(module);
             }
         }
+
+        server.start();
+        System.out.println("vysper server is running...");
+
+        server.getServerRuntimeContext().getServerFeatures().setRelayingToFederationServers(true);
     }
 
     private static List<Module> createModuleInstances(String[] moduleClassNames) {

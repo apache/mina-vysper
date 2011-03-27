@@ -49,7 +49,7 @@ public class ServerFeatures {
     /**
      * flag indicating whether stanzas are sent to remote servers or not
      */
-    private boolean relayToFederationServers = true;
+    private boolean relayToFederationServers = false;
 
     /**
      * counter, how many times a session can try authentication before session is terminated
