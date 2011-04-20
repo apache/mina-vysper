@@ -19,6 +19,8 @@
  */
 package org.apache.vysper.mina;
 
+import java.io.IOException;
+
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
@@ -135,6 +137,9 @@ public class XmppIoHandlerAdapter implements IoHandler {
                     sessionContext.getXMLLang(), "Stanza not well-formed", null);
         } else if(throwable instanceof WriteToClosedSessionException) {
             // ignore
+            return;
+        } else if(throwable instanceof IOException) {
+            logger.info("error caught on transportation layer", throwable);
             return;
         } else {
             logger.warn("error caught on transportation layer", throwable);
