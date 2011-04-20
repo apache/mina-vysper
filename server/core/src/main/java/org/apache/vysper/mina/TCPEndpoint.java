@@ -63,6 +63,10 @@ public class TCPEndpoint implements Endpoint {
     }
 
     public void setPort(int port) {
+        if(acceptor != null) {
+            throw new IllegalStateException("Endpoint started, can not set port");
+        }
+        
         this.port = port;
     }
 
