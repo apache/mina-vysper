@@ -216,9 +216,7 @@ public class RunS2SServers extends TestCase {
         }
 
         // S2S endpoint
-        TCPEndpoint s2sEndpoint = new TCPEndpoint();
-        s2sEndpoint.setPort(5269);
-        server.addEndpoint(s2sEndpoint);
+        server.addEndpoint(new S2SEndpoint());
         
         // C2S endpoint
         server.addEndpoint(new TCPEndpoint());
