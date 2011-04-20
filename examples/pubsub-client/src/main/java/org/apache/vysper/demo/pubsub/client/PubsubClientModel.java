@@ -96,7 +96,7 @@ public class PubsubClientModel {
     }
 
     private void discoverNodes(Map<String, PubsubNode> lookup) throws XMPPException {
-        DiscoverItems di = pubsubMgr.discoverNodes();
+        DiscoverItems di = pubsubMgr.discoverNodes(null);
         Iterator<Item> iIt = di.getItems();
         while (iIt.hasNext()) {
             Item i = iIt.next();

@@ -32,12 +32,6 @@
   <dependencies>
     <dependency>
       <groupId>jivesoftware</groupId>
-      <artifactId>smackx-pubsub</artifactId>
-      <version>1.0-20090813101732-vysper</version>
-    </dependency>
-
-    <dependency>
-      <groupId>jivesoftware</groupId>
       <artifactId>smack</artifactId>
     </dependency>
 

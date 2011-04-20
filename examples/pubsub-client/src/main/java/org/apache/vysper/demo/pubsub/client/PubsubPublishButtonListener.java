@@ -25,8 +25,9 @@ import java.awt.event.ActionListener;
 import javax.swing.JTextField;
 
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smackx.pubsub.Item;
+import org.jivesoftware.smackx.pubsub.LeafNode;
 import org.jivesoftware.smackx.pubsub.Node;
+import org.jivesoftware.smackx.pubsub.PayloadItem;
 import org.jivesoftware.smackx.pubsub.PubSubManager;
 import org.jivesoftware.smackx.pubsub.SimplePayload;
 
@@ -57,7 +58,7 @@ public class PubsubPublishButtonListener implements ActionListener {
 
         String message = getMessage();
 
-        Item<SimplePayload> item = createItem(message);
+        PayloadItem<SimplePayload> item = createItem(message);
 
         sendItem(node, item);
     }
@@ -68,18 +69,22 @@ public class PubsubPublishButtonListener implements ActionListener {
         return message;
     }
 
-    private void sendItem(Node node, Item<SimplePayload> item) {
+    private void sendItem(Node node, PayloadItem<SimplePayload> item) {
         try {
-            node.send(item);
+            if(node instanceof LeafNode) {
+                ((LeafNode)node).send(item);
+            } else {
+                throw new IllegalArgumentException("Can only send to leaf nodes");
+            }
         } catch (XMPPException e1) {
             System.err.println("Couldn't send an item to " + nodeID);
             e1.printStackTrace();
         }
     }
 
-    private Item<SimplePayload> createItem(String message) {
+    private PayloadItem<SimplePayload> createItem(String message) {
         String itemId = "demoID" + System.currentTimeMillis();
-        Item<SimplePayload> item = new Item<SimplePayload>(itemId, new SimplePayload(ELEMENT, NAMESPACE, message));
+        PayloadItem<SimplePayload> item = new PayloadItem<SimplePayload>(itemId, new SimplePayload(ELEMENT, NAMESPACE, message));
         return item;
     }
 

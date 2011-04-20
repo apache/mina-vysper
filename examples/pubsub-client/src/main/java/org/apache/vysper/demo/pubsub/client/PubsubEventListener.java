@@ -21,24 +21,24 @@ package org.apache.vysper.demo.pubsub.client;
 
 import javax.swing.DefaultListModel;
 
-import org.jivesoftware.smackx.pubsub.Item;
 import org.jivesoftware.smackx.pubsub.ItemPublishEvent;
+import org.jivesoftware.smackx.pubsub.PayloadItem;
 import org.jivesoftware.smackx.pubsub.SimplePayload;
 import org.jivesoftware.smackx.pubsub.listener.ItemEventListener;
 
-public class PubsubEventListener implements ItemEventListener {
+public class PubsubEventListener implements ItemEventListener<PayloadItem<SimplePayload>> {
     private PubsubClientModel parent;
 
     public PubsubEventListener(PubsubClientModel parent) {
         this.parent = parent;
     }
 
-    public void handlePublishedItems(ItemPublishEvent e) {
+    public void handlePublishedItems(ItemPublishEvent<PayloadItem<SimplePayload>> e) {
         DefaultListModel lm = parent.getListModel(e.getNodeId());
         System.out.println("Got something from " + e.getNodeId());
-        for (Item<SimplePayload> i : e.getItems()) {
+        
+        for (PayloadItem<SimplePayload> i : e.getItems()) {
             lm.add(0, i.getPayload().toXML()); //alwasy add to the top
         }
     }
-
 }
