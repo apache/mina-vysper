@@ -137,10 +137,9 @@ public class XmppIoHandlerAdapter implements IoHandler {
             // ignore
             return;
         } else {
-            logger.warn("error caught on transportation layer: {}", throwable);
+            logger.warn("error caught on transportation layer", throwable);
             errorStanza = ServerErrorResponses.getStreamError(StreamErrorCondition.UNDEFINED_CONDITION,
                     sessionContext.getXMLLang(), "Unknown error", null);
-
         }
         sessionContext.getResponseWriter().write(errorStanza);
         sessionContext.endSession(SessionContext.SessionTerminationCause.STREAM_ERROR);
