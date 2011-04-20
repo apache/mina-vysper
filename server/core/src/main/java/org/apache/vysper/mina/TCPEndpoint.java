@@ -51,8 +51,11 @@ public class TCPEndpoint implements Endpoint {
         this.serverRuntimeContext = serverRuntimeContext;
     }
     
+    /**
+     * Returns the configured port if one is provided (non-zero value).
+     */
     public int getPort() {
-        if(port != 0) {
+        if(port != 0 || acceptor == null) {
             return port;
         } else {
             return acceptor.getLocalAddress().getPort();
