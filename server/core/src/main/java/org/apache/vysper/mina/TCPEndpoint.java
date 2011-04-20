@@ -45,10 +45,6 @@ public class TCPEndpoint implements Endpoint {
 
     private SocketAcceptor acceptor;
 
-    private DefaultIoFilterChainBuilder filterChainBuilder;
-
-    public DefaultIoFilterChainBuilder getFilterChainBuilder() {
-        return filterChainBuilder;
     }
 
     public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
