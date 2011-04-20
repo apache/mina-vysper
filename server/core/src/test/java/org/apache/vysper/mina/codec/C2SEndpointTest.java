@@ -17,19 +17,21 @@
  *  under the License.
  *
  */
-package org.apache.vysper.mina;
+package org.apache.vysper.mina.codec;
+
+import org.apache.vysper.mina.C2SEndpoint;
+import org.apache.vysper.mina.TCPEndpoint;
 
 
 /**
- * Endpoint used for server-to-server (s2s) connections. Defaults
- * to listen on port 5269.
- *
- * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class S2SEndpoint extends TCPEndpoint {
+public class C2SEndpointTest extends TCPEndpointTestTemplate {
 
-    public S2SEndpoint() {
-        super(5269);
+    protected TCPEndpoint createEndpoint() {
+        return new C2SEndpoint();
     }
     
+    protected int getDefaultPort() {
+        return 5222;
+    }
 }

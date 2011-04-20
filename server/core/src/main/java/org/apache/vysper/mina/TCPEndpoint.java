@@ -44,7 +44,16 @@ public class TCPEndpoint implements Endpoint {
     private int port = 5222;
 
     private SocketAcceptor acceptor;
+    
+    /**
+     * @deprecated Use {@link C2SEndpoint} or {@link S2SEndpoint} instead. This class will
+     *          be made abstract in a future release.
+     */
+    public TCPEndpoint() {
+    }
 
+    protected TCPEndpoint(int port) {
+        this.port = port;
     }
 
     public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {

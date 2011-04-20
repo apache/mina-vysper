@@ -27,7 +27,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.vysper.mina.TCPEndpoint;
+import org.apache.vysper.mina.C2SEndpoint;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
@@ -182,7 +182,7 @@ public class Socks5IntegrationTest {
         accountManagement.addUser(USER2, PASSWORD);
 
         XMPPServer server = new XMPPServer(SERVER);
-        server.addEndpoint(new TCPEndpoint());
+        server.addEndpoint(new C2SEndpoint());
         server.setStorageProviderRegistry(providerRegistry);
         server.setTLSCertificateInfo(new File("src/test/resources/bogus_mina_tls.cert"), "boguspw");
 

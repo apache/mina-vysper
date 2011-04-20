@@ -22,7 +22,7 @@ package org.apache.vysper.demo.pubsub.client;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-import org.apache.vysper.mina.TCPEndpoint;
+import org.apache.vysper.mina.C2SEndpoint;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
@@ -77,7 +77,7 @@ public class ServerMain {
         }
 
         XMPPServer server = new XMPPServer("vysper.org");
-        server.addEndpoint(new TCPEndpoint());
+        server.addEndpoint(new C2SEndpoint());
         //server.addEndpoint(new StanzaSessionFactory());
         server.setStorageProviderRegistry(providerRegistry);
 

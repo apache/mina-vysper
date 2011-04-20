@@ -21,15 +21,15 @@ package org.apache.vysper.mina;
 
 
 /**
- * Endpoint used for server-to-server (s2s) connections. Defaults
- * to listen on port 5269.
+ * Endpoint used for client-to-server (c2s) connections. Defaults
+ * to listen on port 5222.
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class S2SEndpoint extends TCPEndpoint {
+public class C2SEndpoint extends TCPEndpoint {
 
-    public S2SEndpoint() {
-        super(5269);
+    public C2SEndpoint() {
+        super(5222);
     }
     
 }

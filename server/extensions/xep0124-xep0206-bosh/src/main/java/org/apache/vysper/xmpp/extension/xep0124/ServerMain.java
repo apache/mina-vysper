@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.vysper.mina.TCPEndpoint;
+import org.apache.vysper.mina.C2SEndpoint;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
@@ -88,7 +88,7 @@ public class ServerMain {
 
         XMPPServer server = new XMPPServer("vysper.org");
 
-        server.addEndpoint(new TCPEndpoint());
+        server.addEndpoint(new C2SEndpoint());
 
         BoshEndpoint boshEndpoint = new BoshEndpoint();
         boshEndpoint.setAccessControlAllowOrigin(Arrays.asList("*"));

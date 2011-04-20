@@ -22,7 +22,7 @@ package org.apache.vysper.xmpp.exemples.embeddedwar;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.apache.vysper.mina.TCPEndpoint;
+import org.apache.vysper.mina.C2SEndpoint;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
@@ -53,7 +53,7 @@ public class VysperListener implements ServletContextListener {
             }
     
             server = new XMPPServer(domain);
-            server.addEndpoint(new TCPEndpoint());
+            server.addEndpoint(new C2SEndpoint());
             server.setStorageProviderRegistry(providerRegistry);
     
             server.setTLSCertificateInfo(sce.getServletContext().getResourceAsStream("WEB-INF/bogus_mina_tls.cert"), "boguspw");

@@ -25,6 +25,7 @@ import java.net.ServerSocket;
 
 import junit.framework.TestCase;
 
+import org.apache.vysper.mina.C2SEndpoint;
 import org.apache.vysper.mina.TCPEndpoint;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
@@ -89,7 +90,7 @@ public abstract class AbstractIntegrationTestCase extends TestCase {
 
         server = new XMPPServer(SERVER_DOMAIN);
 
-        TCPEndpoint endpoint = new TCPEndpoint();
+        TCPEndpoint endpoint = new C2SEndpoint();
         endpoint.setPort(port);
         server.addEndpoint(endpoint);
         server.setStorageProviderRegistry(providerRegistry);

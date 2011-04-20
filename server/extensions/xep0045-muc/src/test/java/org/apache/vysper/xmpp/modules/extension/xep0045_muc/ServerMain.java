@@ -21,7 +21,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
 
 import java.io.File;
 
-import org.apache.vysper.mina.TCPEndpoint;
+import org.apache.vysper.mina.C2SEndpoint;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -54,7 +54,7 @@ public class ServerMain {
         accountManagement.addUser(EntityImpl.parseUnchecked("user2@vysper.org"), "password1");
 
         XMPPServer server = new XMPPServer("vysper.org");
-        server.addEndpoint(new TCPEndpoint());
+        server.addEndpoint(new C2SEndpoint());
         server.setStorageProviderRegistry(providerRegistry);
 
         server.setTLSCertificateInfo(new File("src/main/config/bogus_mina_tls.cert"), "boguspw");

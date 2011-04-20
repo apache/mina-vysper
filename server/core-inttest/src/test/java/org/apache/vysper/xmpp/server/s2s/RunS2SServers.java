@@ -31,7 +31,8 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.apache.vysper.mina.TCPEndpoint;
+import org.apache.vysper.mina.C2SEndpoint;
+import org.apache.vysper.mina.S2SEndpoint;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
@@ -219,7 +220,7 @@ public class RunS2SServers extends TestCase {
         server.addEndpoint(new S2SEndpoint());
         
         // C2S endpoint
-        server.addEndpoint(new TCPEndpoint());
+        server.addEndpoint(new C2SEndpoint());
         
         server.setStorageProviderRegistry(providerRegistry);
         server.setTLSCertificateInfo(new File(keystorePath), keystorePassword);

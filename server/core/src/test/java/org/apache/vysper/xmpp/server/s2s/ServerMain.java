@@ -23,8 +23,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.vysper.mina.C2SEndpoint;
 import org.apache.vysper.mina.S2SEndpoint;
-import org.apache.vysper.mina.TCPEndpoint;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
@@ -92,7 +92,7 @@ public class ServerMain {
         server.addEndpoint(new S2SEndpoint());
 
         // C2S endpoint
-        server.addEndpoint(new TCPEndpoint());
+        server.addEndpoint(new C2SEndpoint());
         
         //server.addEndpoint(new StanzaSessionFactory());
         server.setStorageProviderRegistry(providerRegistry);
