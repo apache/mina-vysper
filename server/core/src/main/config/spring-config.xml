@@ -44,7 +44,7 @@
         <property name="storageProviderRegistry" ref="storageRegistry" />
     </bean>
     
-    <bean id="tcpEndpoint" class="org.apache.vysper.mina.TCPEndpoint">
+    <bean id="tcpEndpoint" class="org.apache.vysper.mina.C2SEndpoint">
     </bean>
     
     <!-- for making the server available over HTTP transport, configure the BOSH endpoint
