@@ -132,7 +132,7 @@ public class XmppIoHandlerAdapter implements IoHandler {
 
         Stanza errorStanza;
         if(throwable.getCause() != null && throwable.getCause() instanceof SAXParseException) {
-            logger.info("Client sent not well-formed XML, closing session: {}", throwable);
+            logger.info("Client sent not well-formed XML, closing session", throwable);
             errorStanza = ServerErrorResponses.getStreamError(StreamErrorCondition.XML_NOT_WELL_FORMED,
                     sessionContext.getXMLLang(), "Stanza not well-formed", null);
         } else if(throwable instanceof WriteToClosedSessionException) {
