@@ -101,7 +101,7 @@ public class Plain implements SASLMechanism {
         }
 
         boolean authorized = sessionContext.getServerRuntimeContext().getUserAuthorization().verifyCredentials(
-                username, password, null);
+        		initiatingEntity, password, null);
 
         if (authorized) {
             sessionContext.setInitiatingEntity(initiatingEntity);

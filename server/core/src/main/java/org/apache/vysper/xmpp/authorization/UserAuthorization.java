@@ -31,12 +31,12 @@ import org.apache.vysper.xmpp.addressing.Entity;
 public interface UserAuthorization extends StorageProvider {
 
     /**
-     * {@link #verifyCredentials(String, String, Object)}
+     * checks if the supplied credentials are correct and match
      */
     boolean verifyCredentials(Entity jid, String passwordCleartext, Object credentials);
 
     /**
-     * checks if the supplied credentials are correct and match
+     * @deprecated Use {@link #verifyCredentials(Entity, String, Object)} instead
      */
     boolean verifyCredentials(String username, String passwordCleartext, Object credentials);
 
