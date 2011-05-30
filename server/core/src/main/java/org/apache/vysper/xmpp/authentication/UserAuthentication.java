@@ -24,7 +24,7 @@ import org.apache.vysper.storage.StorageProvider;
 import org.apache.vysper.xmpp.addressing.Entity;
 
 /**
- * interface describing a service for authorizing users
+ * interface describing a service for authenticating users
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
