@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.vysper.xmpp.authorization.SASLMechanism;
+import org.apache.vysper.xmpp.authentication.SASLMechanism;
 
 /**
  * switch configuration of optional server features

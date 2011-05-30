@@ -26,7 +26,7 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.vysper.storage.StorageProvider;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.authorization.UserAuthorization;
+import org.apache.vysper.xmpp.authentication.UserAuthentication;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.ServerRuntimeContextService;
@@ -60,7 +60,7 @@ public interface ServerRuntimeContext {
 
     SSLContext getSslContext();
 
-    UserAuthorization getUserAuthorization();
+    UserAuthentication getUserAuthentication();
 
     ResourceRegistry getResourceRegistry();
 

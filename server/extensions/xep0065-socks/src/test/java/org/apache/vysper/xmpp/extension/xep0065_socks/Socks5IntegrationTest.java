@@ -32,7 +32,7 @@ import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.authorization.AccountManagement;
+import org.apache.vysper.xmpp.authentication.AccountManagement;
 import org.apache.vysper.xmpp.modules.roster.RosterItem;
 import org.apache.vysper.xmpp.modules.roster.SubscriptionType;
 import org.apache.vysper.xmpp.modules.roster.persistence.RosterManager;

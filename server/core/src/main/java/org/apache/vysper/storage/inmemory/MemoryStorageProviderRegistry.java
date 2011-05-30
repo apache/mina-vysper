@@ -20,7 +20,7 @@
 package org.apache.vysper.storage.inmemory;
 
 import org.apache.vysper.storage.OpenStorageProviderRegistry;
-import org.apache.vysper.xmpp.authorization.SimpleUserAuthorization;
+import org.apache.vysper.xmpp.authentication.SimpleUserAuthentication;
 import org.apache.vysper.xmpp.modules.roster.persistence.MemoryRosterManager;
 
 /**
@@ -31,7 +31,7 @@ import org.apache.vysper.xmpp.modules.roster.persistence.MemoryRosterManager;
 public class MemoryStorageProviderRegistry extends OpenStorageProviderRegistry {
 
     public MemoryStorageProviderRegistry() {
-        add(new SimpleUserAuthorization());
+        add(new SimpleUserAuthentication());
         add(new MemoryRosterManager());
 
         // provider from external modules, low coupling, fail when modules are not present

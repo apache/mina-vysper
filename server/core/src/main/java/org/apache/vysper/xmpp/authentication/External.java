@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.authorization;
+package org.apache.vysper.xmpp.authentication;
 
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.PARTIAL;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.IN_PROGRESS;

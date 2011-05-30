@@ -28,8 +28,8 @@ import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.authorization.AccountCreationException;
-import org.apache.vysper.xmpp.authorization.AccountManagement;
+import org.apache.vysper.xmpp.authentication.AccountCreationException;
+import org.apache.vysper.xmpp.authentication.AccountManagement;
 
 /**
  * helper to inject user accounts on spring context creation

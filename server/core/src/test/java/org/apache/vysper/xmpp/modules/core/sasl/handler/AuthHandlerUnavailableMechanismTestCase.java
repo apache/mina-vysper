@@ -25,12 +25,12 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.vysper.xmpp.authorization.Plain;
-import org.apache.vysper.xmpp.authorization.SASLMechanism;
+import org.apache.vysper.xmpp.authentication.Plain;
+import org.apache.vysper.xmpp.authentication.SASLMechanism;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
-import org.apache.vysper.xmpp.protocol.exception.AuthorizationFailedException;
+import org.apache.vysper.xmpp.protocol.exception.AuthenticationFailedException;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -55,7 +55,7 @@ public class AuthHandlerUnavailableMechanismTestCase extends TestCase {
         sessionContext.getServerRuntimeContext().getServerFeatures().setAuthenticationMethods(methods);
     }
 
-    public void testAuthPlainWrongCase() throws AuthorizationFailedException {
+    public void testAuthPlainWrongCase() throws AuthenticationFailedException {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("auth", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
         stanzaBuilder.addAttribute("mechanism", "plain"); // 'PLAIN' would be correct
         Stanza authPlainStanza = stanzaBuilder.build();
@@ -71,7 +71,7 @@ public class AuthHandlerUnavailableMechanismTestCase extends TestCase {
         }
     }
 
-    public void testAuthPlainUnavailableMechanism() throws AuthorizationFailedException {
+    public void testAuthPlainUnavailableMechanism() throws AuthenticationFailedException {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("auth", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
         stanzaBuilder.addAttribute("mechanism", "EXTERNAL");
         Stanza authPlainStanza = stanzaBuilder.build();

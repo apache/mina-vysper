@@ -28,7 +28,7 @@ import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StreamErrorCondition;
-import org.apache.vysper.xmpp.protocol.exception.AuthorizationFailedException;
+import org.apache.vysper.xmpp.protocol.exception.AuthenticationFailedException;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
@@ -50,9 +50,9 @@ public abstract class AbstractSASLHandler implements StanzaHandler {
 
     public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
             boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder)
-            throws AuthorizationFailedException {
+            throws AuthenticationFailedException {
         if (!AuthorizationRetriesCounter.getFromSession(sessionContext).hasTriesLeft()) {
-            AuthorizationFailedException failedException = new AuthorizationFailedException("too many retries");
+            AuthenticationFailedException failedException = new AuthenticationFailedException("too many retries");
             failedException.setErrorStanza(ServerErrorResponses.getStreamError(
                     StreamErrorCondition.POLICY_VIOLATION, null, null, null));
             throw failedException;

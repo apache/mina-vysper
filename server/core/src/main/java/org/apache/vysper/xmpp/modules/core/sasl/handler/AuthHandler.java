@@ -21,7 +21,7 @@ package org.apache.vysper.xmpp.modules.core.sasl.handler;
 
 import java.util.List;
 
-import org.apache.vysper.xmpp.authorization.SASLMechanism;
+import org.apache.vysper.xmpp.authentication.SASLMechanism;
 import org.apache.vysper.xmpp.modules.core.sasl.AuthorizationRetriesCounter;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;

@@ -29,7 +29,7 @@ import java.util.Set;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.authorization.AccountManagement;
+import org.apache.vysper.xmpp.authentication.AccountManagement;
 import org.apache.vysper.xmpp.modules.DefaultModule;
 import org.apache.vysper.xmpp.modules.ServerRuntimeContextService;
 import org.apache.vysper.xmpp.modules.extension.xep0050_adhoc_commands.AdhocCommandHandler;

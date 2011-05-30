@@ -27,9 +27,9 @@ import org.apache.vysper.storage.jcr.JcrStorageException;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.authorization.AccountCreationException;
-import org.apache.vysper.xmpp.authorization.AccountManagement;
-import org.apache.vysper.xmpp.authorization.UserAuthorization;
+import org.apache.vysper.xmpp.authentication.AccountCreationException;
+import org.apache.vysper.xmpp.authentication.AccountManagement;
+import org.apache.vysper.xmpp.authentication.UserAuthentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class JcrUserManagement implements UserAuthorization, AccountManagement {
+public class JcrUserManagement implements UserAuthentication, AccountManagement {
 
     final Logger logger = LoggerFactory.getLogger(JcrUserManagement.class);
 

@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.authorization;
+package org.apache.vysper.xmpp.authentication;
 
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.PARTIAL;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.IN_PROGRESS;
@@ -47,7 +47,7 @@ import org.apache.vysper.xmpp.stanza.Stanza;
         @SpecCompliant(spec = "rfc3920bis-09", section = "15.6.", status = IN_PROGRESS, coverage = PARTIAL, comment = "PLAIN is mandatory now") })
 public class Plain implements SASLMechanism {
 
-    private static final AuthorizationResponses AUTHORIZATION_RESPONSES = new AuthorizationResponses();
+    private static final AuthenticationResponses AUTHENTICATION_RESPONSES = new AuthenticationResponses();
 
     public String getName() {
         return "PLAIN";
@@ -58,7 +58,7 @@ public class Plain implements SASLMechanism {
 
         List<XMLText> innerTexts = authStanza.getInnerTexts();
         if (innerTexts == null || innerTexts.isEmpty())
-            return AUTHORIZATION_RESPONSES.getFailureMalformedRequest();
+            return AUTHENTICATION_RESPONSES.getFailureMalformedRequest();
 
         // retrieve credential payload and decode from BASE64
         XMLText base64Encoded = innerTexts.get(0);
@@ -66,7 +66,7 @@ public class Plain implements SASLMechanism {
         try {
             decoded = Base64.decodeBase64(base64Encoded.getText().getBytes());
         } catch (Throwable e) {
-            return AUTHORIZATION_RESPONSES.getFailure(SASLFailureType.INCORRECT_ENCODING);
+            return AUTHENTICATION_RESPONSES.getFailure(SASLFailureType.INCORRECT_ENCODING);
         }
 
         // parse clear text, extract parts, which are separated by zeros
@@ -84,7 +84,7 @@ public class Plain implements SASLMechanism {
         }
 
         if (decodedParts.size() != 3) {
-            return AUTHORIZATION_RESPONSES.getFailureMalformedRequest();
+            return AUTHENTICATION_RESPONSES.getFailureMalformedRequest();
         }
 
         String alias = decodedParts.get(0); // "authorization identity (identity to act as)", currently unused
@@ -97,18 +97,18 @@ public class Plain implements SASLMechanism {
         try {
             initiatingEntity = EntityImpl.parse(username);
         } catch (EntityFormatException e) {
-            return AUTHORIZATION_RESPONSES.getFailureNotAuthorized();
+            return AUTHENTICATION_RESPONSES.getFailureNotAuthorized();
         }
 
-        boolean authorized = sessionContext.getServerRuntimeContext().getUserAuthorization().verifyCredentials(
+        boolean authorized = sessionContext.getServerRuntimeContext().getUserAuthentication().verifyCredentials(
         		initiatingEntity, password, null);
 
         if (authorized) {
             sessionContext.setInitiatingEntity(initiatingEntity);
             sessionStateHolder.setState(SessionState.AUTHENTICATED);
-            return AUTHORIZATION_RESPONSES.getSuccess();
+            return AUTHENTICATION_RESPONSES.getSuccess();
         } else {
-            return AUTHORIZATION_RESPONSES.getFailureNotAuthorized();
+            return AUTHENTICATION_RESPONSES.getFailureNotAuthorized();
         }
     }
 }

@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.authorization;
+package org.apache.vysper.xmpp.authentication;
 
 import org.apache.vysper.xmpp.modules.core.sasl.SASLFailureType;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
@@ -25,11 +25,11 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
 /**
- * responses used during SASL authorization
+ * responses used during SASL authentication
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class AuthorizationResponses {
+public class AuthenticationResponses {
 
     public Stanza getSuccess() {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("success", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);

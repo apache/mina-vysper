@@ -28,14 +28,14 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.vysper.storage.OpenStorageProviderRegistry;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.authorization.Plain;
-import org.apache.vysper.xmpp.authorization.SASLMechanism;
-import org.apache.vysper.xmpp.authorization.SimpleUserAuthorization;
+import org.apache.vysper.xmpp.authentication.Plain;
+import org.apache.vysper.xmpp.authentication.SASLMechanism;
+import org.apache.vysper.xmpp.authentication.SimpleUserAuthentication;
 import org.apache.vysper.xmpp.modules.core.sasl.AuthorizationRetriesCounter;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
-import org.apache.vysper.xmpp.protocol.exception.AuthorizationFailedException;
+import org.apache.vysper.xmpp.protocol.exception.AuthenticationFailedException;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.server.TestSessionContext;
@@ -59,7 +59,7 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
         methods.add(new Plain());
 
         sessionContext.getServerRuntimeContext().getServerFeatures().setAuthenticationMethods(methods);
-        SimpleUserAuthorization users = new SimpleUserAuthorization();
+        SimpleUserAuthentication users = new SimpleUserAuthentication();
         users.addUser(EntityImpl.parseUnchecked("user007@test"), "pass007");
         OpenStorageProviderRegistry providerRegistry = new OpenStorageProviderRegistry();
         providerRegistry.add(users);
@@ -67,7 +67,7 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
                 .setStorageProviderRegistry(providerRegistry);
     }
 
-    public void testAuthPlainNoInitialResponse() throws AuthorizationFailedException {
+    public void testAuthPlainNoInitialResponse() throws AuthenticationFailedException {
         StanzaBuilder stanzaBuilder = createAuthPlain();
         Stanza authPlainStanza = stanzaBuilder.build();
 
@@ -79,7 +79,7 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
         assertTrue(sessionStateHolder.getState() == SessionState.ENCRYPTED);
     }
 
-    public void testAuthPlainEmptyInitialResponse() throws AuthorizationFailedException {
+    public void testAuthPlainEmptyInitialResponse() throws AuthenticationFailedException {
         StanzaBuilder stanzaBuilder = createAuthPlain();
         stanzaBuilder.addText("=");
         Stanza authPlainStanza = stanzaBuilder.build();
@@ -92,7 +92,7 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
         assertTrue(sessionStateHolder.getState() == SessionState.ENCRYPTED);
     }
 
-    public void testAuthPlainAuthorizedCredentialsResponse() throws XMLSemanticError, AuthorizationFailedException {
+    public void testAuthPlainAuthorizedCredentialsResponse() throws XMLSemanticError, AuthenticationFailedException {
         StanzaBuilder stanzaBuilder = createAuthPlain();
         stanzaBuilder.addText(new String(Base64.encodeBase64("dummy\0user007\0pass007".getBytes())));
 
@@ -110,7 +110,7 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
         assertNull(sessionContext.getAttribute(AuthorizationRetriesCounter.SESSION_ATTRIBUTE_ABORTION_COUNTER));
     }
 
-    public void testAuthPlainWrongCredentialsResponse() throws XMLSemanticError, AuthorizationFailedException {
+    public void testAuthPlainWrongCredentialsResponse() throws XMLSemanticError, AuthenticationFailedException {
 
         executeWrongPlainAuthorization_3Times();
 
@@ -124,13 +124,13 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
             ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext
                     .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
             fail("should raise error - no tries left");
-        } catch (AuthorizationFailedException e) {
+        } catch (AuthenticationFailedException e) {
             // test succeeded
         }
 
     }
 
-    private void executeWrongPlainAuthorization_3Times() throws AuthorizationFailedException {
+    private void executeWrongPlainAuthorization_3Times() throws AuthenticationFailedException {
         Stanza responseStanza = executeWrongPlainAuthorization();
         assertTrue(responseStanza.getVerifier().nameEquals("failure"));
         assertTrue(sessionStateHolder.getState() == SessionState.ENCRYPTED);
@@ -147,7 +147,7 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
         assertEquals(0, AuthorizationRetriesCounter.getFromSession(sessionContext).getTriesLeft());
     }
 
-    private Stanza executeWrongPlainAuthorization() throws AuthorizationFailedException {
+    private Stanza executeWrongPlainAuthorization() throws AuthenticationFailedException {
         StanzaBuilder stanzaBuilder = createAuthPlain();
         stanzaBuilder.addText(new String(Base64.encodeBase64("dummy\0user008\0pass007".getBytes())));
 

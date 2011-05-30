@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.authorization;
+package org.apache.vysper.xmpp.authentication;
 
 /**
  *

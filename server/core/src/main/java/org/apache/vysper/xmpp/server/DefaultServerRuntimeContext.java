@@ -33,7 +33,7 @@ import org.apache.vysper.storage.StorageProvider;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityUtils;
-import org.apache.vysper.xmpp.authorization.UserAuthorization;
+import org.apache.vysper.xmpp.authentication.UserAuthentication;
 import org.apache.vysper.xmpp.cryptography.TLSContextFactory;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.Module;
@@ -219,10 +219,10 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     }
 
     /**
-     * @deprecated use getStorageProvider(UserAuthorization.class) instead 
+     * @deprecated use {@link #getStorageProvider(Class)} with {@link UserAuthentication}.class instead 
      */
-    public UserAuthorization getUserAuthorization() {
-        return (UserAuthorization) storageProviderRegistry.retrieve(UserAuthorization.class);
+    public UserAuthentication getUserAuthentication() {
+        return (UserAuthentication) storageProviderRegistry.retrieve(UserAuthentication.class);
     }
 
     public ResourceRegistry getResourceRegistry() {

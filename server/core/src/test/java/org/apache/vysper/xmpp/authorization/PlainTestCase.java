@@ -23,6 +23,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
+import org.apache.vysper.xmpp.authentication.Plain;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.SessionState;

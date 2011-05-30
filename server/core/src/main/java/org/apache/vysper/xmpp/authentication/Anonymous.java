@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.authorization;
+package org.apache.vysper.xmpp.authentication;
 
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.COMPLETE;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.FINISHED;
@@ -53,7 +53,7 @@ public class Anonymous implements SASLMechanism {
         sessionContext.setInitiatingEntity(initiatingEntity);
 
         sessionStateHolder.setState(SessionState.AUTHENTICATED);
-        return new AuthorizationResponses().getSuccess();
+        return new AuthenticationResponses().getSuccess();
     }
 
 }

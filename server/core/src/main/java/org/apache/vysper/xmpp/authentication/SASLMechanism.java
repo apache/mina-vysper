@@ -17,18 +17,28 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.protocol.exception;
+package org.apache.vysper.xmpp.authentication;
 
-import org.apache.vysper.ExceptionAssert;
-import org.junit.Test;
+import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
+ * describes a SASL mechanism. used to describe server-supported SASL mechanisms, as announced in a
+ * features/mechanism stanza and activated in a auth-stanza
+ *
+ * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class AuthorizationFailedExceptionTestCase {
+public interface SASLMechanism {
 
-    @Test
-    public void constructors() throws Exception {
-        ExceptionAssert.assertConstructors(AuthorizationFailedException.class);
-    }
+    /**
+     * name of the mechanism, used to uniquely identify the mechanism in server/client communication
+     */
+    String getName();
+
+    /**
+     * called by the server to handle mechanism specific logic as client issues a auth-stanza.
+     */
+    Stanza started(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza authStanza);
 
 }

@@ -25,7 +25,7 @@ import java.util.List;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLElementBuilder;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.authorization.SASLMechanism;
+import org.apache.vysper.xmpp.authentication.SASLMechanism;
 import org.apache.vysper.xmpp.modules.extension.xep0077_inbandreg.InBandRegistrationModule;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.SessionContext;

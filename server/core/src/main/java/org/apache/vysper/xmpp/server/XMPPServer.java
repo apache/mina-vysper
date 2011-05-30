@@ -28,9 +28,9 @@ import java.util.List;
 
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.authorization.AccountManagement;
-import org.apache.vysper.xmpp.authorization.Plain;
-import org.apache.vysper.xmpp.authorization.SASLMechanism;
+import org.apache.vysper.xmpp.authentication.AccountManagement;
+import org.apache.vysper.xmpp.authentication.Plain;
+import org.apache.vysper.xmpp.authentication.SASLMechanism;
 import org.apache.vysper.xmpp.cryptography.BogusTrustManagerFactory;
 import org.apache.vysper.xmpp.cryptography.InputStreamBasedTLSContextFactory;
 import org.apache.vysper.xmpp.delivery.OfflineStanzaReceiver;
@@ -49,7 +49,6 @@ import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
  * <code>
  * XMPPServer server = new XMPPServer("vysper.org");
  *
- * server.setUserAuthorization(...); // add user authorization class
  * server.addEndpoint(...); // add endpoints, at least one
  * server.setTLSCertificateInfo(...); //
  *

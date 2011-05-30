@@ -17,27 +17,22 @@
  *  under the License.
  *
  */
-
-package org.apache.vysper.xmpp.authorization;
+package org.apache.vysper.xmpp.authentication;
 
 import org.apache.vysper.storage.StorageProvider;
 import org.apache.vysper.xmpp.addressing.Entity;
 
 /**
- * interface describing a service for authorizing users
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public interface UserAuthorization extends StorageProvider {
+public interface AccountManagement extends StorageProvider {
+    void addUser(Entity username, String password) throws AccountCreationException;
+    
+    void changePassword(Entity username, String password) throws AccountCreationException;
 
     /**
-     * checks if the supplied credentials are correct and match
+     * checks if there is this jid is registered with the server
      */
-    boolean verifyCredentials(Entity jid, String passwordCleartext, Object credentials);
-
-    /**
-     * @deprecated Use {@link #verifyCredentials(Entity, String, Object)} instead
-     */
-    boolean verifyCredentials(String username, String passwordCleartext, Object credentials);
-
+    boolean verifyAccountExists(Entity jid);
 }

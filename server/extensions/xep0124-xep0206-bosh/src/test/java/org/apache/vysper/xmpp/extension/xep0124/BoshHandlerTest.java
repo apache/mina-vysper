@@ -34,7 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.authorization.SASLMechanism;
+import org.apache.vysper.xmpp.authentication.SASLMechanism;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;

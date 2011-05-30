@@ -25,20 +25,20 @@ import org.apache.vysper.xmpp.protocol.ProtocolException;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class AuthorizationFailedException extends ProtocolException {
-    public AuthorizationFailedException() {
+public class AuthenticationFailedException extends ProtocolException {
+    public AuthenticationFailedException() {
         super();
     }
 
-    public AuthorizationFailedException(String string) {
+    public AuthenticationFailedException(String string) {
         super(string);
     }
 
-    public AuthorizationFailedException(String string, Throwable throwable) {
+    public AuthenticationFailedException(String string, Throwable throwable) {
         super(string, throwable);
     }
 
-    public AuthorizationFailedException(Throwable throwable) {
+    public AuthenticationFailedException(Throwable throwable) {
         super(throwable);
     }
 }

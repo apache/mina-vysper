@@ -17,7 +17,7 @@
  *  under the License.
  *
  */
-package org.apache.vysper.xmpp.authorization;
+package org.apache.vysper.xmpp.authentication;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,19 +26,19 @@ import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 
 /**
- * very simple in-memory {@link org.apache.vysper.xmpp.authorization.UserAuthorization} service
+ * very simple in-memory {@link org.apache.vysper.xmpp.authentication.UserAuthentication} service
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class SimpleUserAuthorization implements UserAuthorization, AccountManagement {
+public class SimpleUserAuthentication implements UserAuthentication, AccountManagement {
 
     private final Map<Entity, String> userPasswordMap = new HashMap<Entity, String>();
 
-    public SimpleUserAuthorization() {
+    public SimpleUserAuthentication() {
         ; // empty
     }
 
-    public SimpleUserAuthorization(Map<Entity, String> userPasswordMap) {
+    public SimpleUserAuthentication(Map<Entity, String> userPasswordMap) {
         this.userPasswordMap.putAll(userPasswordMap);
     }
 
