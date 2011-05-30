@@ -34,10 +34,4 @@ public interface UserAuthentication extends StorageProvider {
      * checks if the supplied credentials are correct and match
      */
     boolean verifyCredentials(Entity jid, String passwordCleartext, Object credentials);
-
-    /**
-     * @deprecated Use {@link #verifyCredentials(Entity, String, Object)} instead
-     */
-    boolean verifyCredentials(String username, String passwordCleartext, Object credentials);
-
 }
