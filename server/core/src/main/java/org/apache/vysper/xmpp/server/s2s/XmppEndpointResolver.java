@@ -75,13 +75,7 @@ public class XmppEndpointResolver {
                     }
                 });
             } else {
-                if(domain.equals("vysper.org")) {
-                    addresses.add(new ResolvedAddress(domain, 5124, 0));
-                } else if(domain.equals("xmpp.protocol7.com")) {
-                    addresses.add(new ResolvedAddress(domain, 5123, 0));
-                } else {              
-                    addresses.add(new ResolvedAddress(domain, SERVER_PORT, 0));
-                }
+                addresses.add(new ResolvedAddress(domain, SERVER_PORT, 0));
             }
         } catch (TextParseException e) {
             // ignore
