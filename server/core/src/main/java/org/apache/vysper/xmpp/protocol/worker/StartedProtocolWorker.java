@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.protocol.worker;
 
+import org.apache.vysper.xmpp.modules.core.sasl.handler.AbstractSASLHandler;
 import org.apache.vysper.xmpp.modules.core.starttls.handler.StartTLSHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0077_inbandreg.InBandRegistrationHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbResultHandler;
@@ -46,6 +47,9 @@ public class StartedProtocolWorker extends AbstractStateAwareProtocolWorker {
             StanzaHandler stanzaHandler) {
 
         if (stanzaHandler instanceof StartTLSHandler) {
+            return true;
+        } else if (stanzaHandler instanceof AbstractSASLHandler && 
+            !sessionContext.getServerRuntimeContext().getServerFeatures().isStartTLSRequired()) {
             return true;
         } else if (stanzaHandler instanceof InBandRegistrationHandler) {
             return true;

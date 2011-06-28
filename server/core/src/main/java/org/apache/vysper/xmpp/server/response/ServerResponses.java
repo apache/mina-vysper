@@ -28,6 +28,7 @@ import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.authentication.SASLMechanism;
 import org.apache.vysper.xmpp.modules.extension.xep0077_inbandreg.InBandRegistrationModule;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.server.ServerFeatures;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.server.XMPPVersion;
@@ -125,12 +126,12 @@ public class ServerResponses {
     public Stanza getFeaturesForEncryption(SessionContext sessionContext) {
 
         StanzaBuilder stanzaBuilder = startFeatureStanza();
-        stanzaBuilder.startInnerElement("starttls", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS);
-        if (sessionContext.getServerRuntimeContext().getServerFeatures().isStartTLSRequired()) {
-            stanzaBuilder.startInnerElement("required", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS)
-                    .endInnerElement();
+        getFeatureStartTLS(sessionContext, stanzaBuilder);
+        final ServerFeatures serverFeatures = sessionContext.getServerRuntimeContext().getServerFeatures();
+        if (!serverFeatures.isStartTLSRequired()) {
+            // only add auth methods, if StartTLS is NOT REQUIRED (according to RFC6120.html#5.3.1
+            getFeaturesSASL(serverFeatures.getAuthenticationMethods(), stanzaBuilder);
         }
-        stanzaBuilder.endInnerElement();
         if(sessionContext.getServerRuntimeContext().getModule(InBandRegistrationModule.class) != null) {
             // In-band registration active, show as feature
             stanzaBuilder.startInnerElement("register", NamespaceURIs.JABBER_ORG_FEATURES_IQ_REGISTER);
@@ -139,17 +140,30 @@ public class ServerResponses {
         return stanzaBuilder.build();
     }
 
+    private void getFeatureStartTLS(SessionContext sessionContext, StanzaBuilder stanzaBuilder) {
+        stanzaBuilder.startInnerElement("starttls", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS);
+        if (sessionContext.getServerRuntimeContext().getServerFeatures().isStartTLSRequired()) {
+            stanzaBuilder.startInnerElement("required", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS)
+                    .endInnerElement();
+        }
+        stanzaBuilder.endInnerElement();
+    }
+
     public Stanza getFeaturesForAuthentication(List<SASLMechanism> authenticationMethods) {
 
         StanzaBuilder stanzaBuilder = startFeatureStanza();
+        getFeaturesSASL(authenticationMethods, stanzaBuilder);
+
+        return stanzaBuilder.build();
+    }
+
+    private void getFeaturesSASL(List<SASLMechanism> authenticationMethods, StanzaBuilder stanzaBuilder) {
         stanzaBuilder.startInnerElement("mechanisms", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
         for (SASLMechanism authenticationMethod : authenticationMethods) {
             stanzaBuilder.startInnerElement("mechanism", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL).addText(
                     authenticationMethod.getName()).endInnerElement();
         }
         stanzaBuilder.endInnerElement();
-
-        return stanzaBuilder.build();
     }
 
     public Stanza getFeaturesForSession() {

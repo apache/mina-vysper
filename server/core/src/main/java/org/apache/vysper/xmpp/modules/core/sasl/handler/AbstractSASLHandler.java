@@ -64,7 +64,12 @@ public abstract class AbstractSASLHandler implements StanzaHandler {
         if (!saslNamespace) {
             return respondSASLFailure();
         }
-        if (sessionStateHolder.getState() != SessionState.ENCRYPTED) {
+        // the session must be in status ENCRYPTED. HOWEVER, only if encryption is not required, SessionState.INITIATED
+        // is fine, too.
+        if (sessionStateHolder.getState() != SessionState.ENCRYPTED && 
+            !(sessionStateHolder.getState() != SessionState.INITIATED && 
+              !serverRuntimeContext.getServerFeatures().isStartTLSRequired())
+           ) {
             return respondSASLFailure();
         }
 
