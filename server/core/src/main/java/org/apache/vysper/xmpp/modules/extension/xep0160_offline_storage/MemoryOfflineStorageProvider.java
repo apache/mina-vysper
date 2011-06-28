@@ -16,7 +16,8 @@
  *  specific language governing permissions and limitations
  *  under the License.
  *
- */package org.apache.vysper.xmpp.modules.extension.xep0160_offline_storage;
+ */
+package org.apache.vysper.xmpp.modules.extension.xep0160_offline_storage;
 
 import java.util.ArrayList;
 import java.util.Collection;
