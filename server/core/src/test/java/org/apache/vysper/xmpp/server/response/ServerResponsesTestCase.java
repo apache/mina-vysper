@@ -32,6 +32,7 @@ import org.apache.vysper.xmpp.authentication.Plain;
 import org.apache.vysper.xmpp.authentication.SASLMechanism;
 import org.apache.vysper.xmpp.parser.ParsingException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.server.XMPPVersion;
@@ -60,13 +61,16 @@ public class ServerResponsesTestCase {
                 .endInnerElement().startInnerElement("mechanism", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
                 .addText("ANONYMOUS").endInnerElement().endInnerElement().build();
 
+        ServerRuntimeContext serverRuntimeContext = Mockito.mock(ServerRuntimeContext.class);
+        Mockito.when(sessionContext.getServerRuntimeContext()).thenReturn(serverRuntimeContext);
+        
         List<SASLMechanism> mechanismList = new ArrayList<SASLMechanism>();
         mechanismList.add(new External());
         mechanismList.add(new Plain());
         mechanismList.add(new Anonymous());
         // add others
         Assert.assertEquals("stanzas are identical", stanza.toString(), new ServerResponses().getFeaturesForAuthentication(
-                mechanismList).toString());
+                mechanismList, sessionContext).toString());
     }
     
     @Test
