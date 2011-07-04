@@ -40,6 +40,8 @@ public abstract class AbstractTLSContextFactory implements TLSContextFactory {
 
     private static final String DEFAULT_ALGORITHM = "SunX509";
 
+    private static final String DEFAULT_KEYSTORE_TYPE = "JKS";
+
     private static final String KEY_MANAGER_FACTORY_ALGORITHM;
 
     static {
@@ -52,6 +54,8 @@ public abstract class AbstractTLSContextFactory implements TLSContextFactory {
     private SSLContext sslContext = null;
 
     protected String password = null;
+    
+    private String keystoreType = DEFAULT_KEYSTORE_TYPE;
 
     protected TrustManagerFactory trustManagerFactory = new BogusTrustManagerFactory();
 
@@ -71,6 +75,10 @@ public abstract class AbstractTLSContextFactory implements TLSContextFactory {
         this.trustManagerFactory = trustManagerFactory;
     }
 
+    public void setKeyStoreType(String keyStoreType) {
+    	this.keystoreType = keyStoreType;
+    }
+    
     public SSLContext getSSLContext() throws GeneralSecurityException, IOException {
         if (sslContext == null)
             sslContext = createSSLContext();
@@ -79,7 +87,7 @@ public abstract class AbstractTLSContextFactory implements TLSContextFactory {
 
     private SSLContext createSSLContext() throws GeneralSecurityException, IOException {
         // Create keystore
-        KeyStore ks = KeyStore.getInstance("JKS");
+        KeyStore ks = KeyStore.getInstance(keystoreType);
         InputStream in = null;
         try {
             in = getCertificateInputStream();

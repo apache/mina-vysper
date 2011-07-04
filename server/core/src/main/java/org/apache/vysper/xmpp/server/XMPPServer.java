@@ -71,6 +71,8 @@ public class XMPPServer {
 
     private String tlsCertificatePassword;
 
+    private String tlsKeyStoreType;
+
     private final List<Endpoint> endpoints = new ArrayList<Endpoint>();
 
     private final List<Module> initialModules = new ArrayList<Module>();
@@ -101,10 +103,15 @@ public class XMPPServer {
     }
 
     public void setTLSCertificateInfo(InputStream certificate, String password) {
-        tlsCertificate = certificate;
-        tlsCertificatePassword = password;
+    	setTLSCertificateInfo(certificate, password, null);
     }
 
+    public void setTLSCertificateInfo(InputStream certificate, String password, String keyStoreType) {
+    	tlsCertificate = certificate;
+    	tlsCertificatePassword = password;
+    	tlsKeyStoreType = keyStoreType;
+    }
+    
     public void addEndpoint(Endpoint endpoint) {
         endpoints.add(endpoint);
     }
@@ -115,6 +122,9 @@ public class XMPPServer {
         InputStreamBasedTLSContextFactory tlsContextFactory = new InputStreamBasedTLSContextFactory(tlsCertificate);
         tlsContextFactory.setPassword(tlsCertificatePassword);
         tlsContextFactory.setTrustManagerFactory(bogusTrustManagerFactory);
+        if(tlsKeyStoreType != null) {
+        	tlsContextFactory.setKeyStoreType(tlsKeyStoreType);
+        }
 
         List<HandlerDictionary> dictionaries = new ArrayList<HandlerDictionary>();
         addCoreDictionaries(dictionaries);
