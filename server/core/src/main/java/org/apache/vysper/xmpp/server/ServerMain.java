@@ -92,10 +92,7 @@ public class ServerMain {
         server.addModule(new VcardTempModule());
         server.addModule(new XmppPingModule());
         server.addModule(new PrivateDataModule());
-        
-        // uncomment to enable in-band registrations (XEP-0077)
-        // server.addModule(new InBandRegistrationModule());
-        
+        server.addModule(new InBandRegistrationModule());
         server.addModule(new AdhocCommandsModule());
         final ServiceAdministrationModule serviceAdministrationModule = new ServiceAdministrationModule();
         // unless admin user account with a secure password is added, this will be not become effective

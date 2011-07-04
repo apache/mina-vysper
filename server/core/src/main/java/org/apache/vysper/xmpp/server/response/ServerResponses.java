@@ -51,7 +51,7 @@ public class ServerResponses {
             innerFeatureStanza = getFeaturesForEncryption(sessionContext);
         else if (sessionContext.getState() == SessionState.ENCRYPTED)
             innerFeatureStanza = getFeaturesForAuthentication(sessionContext.getServerRuntimeContext()
-                    .getServerFeatures().getAuthenticationMethods(), sessionContext);
+                    .getServerFeatures().getAuthenticationMethods());
         else if (sessionContext.getState() == SessionState.AUTHENTICATED) {
             sessionContext.setIsReopeningXMLStream();
             innerFeatureStanza = getFeaturesForSession();
@@ -132,6 +132,10 @@ public class ServerResponses {
             // only add auth methods, if StartTLS is NOT REQUIRED (according to RFC6120.html#5.3.1
             getFeaturesSASL(serverFeatures.getAuthenticationMethods(), stanzaBuilder);
         }
+        if(sessionContext.getServerRuntimeContext().getModule(InBandRegistrationModule.class) != null) {
+            // In-band registration active, show as feature
+            stanzaBuilder.startInnerElement("register", NamespaceURIs.JABBER_ORG_FEATURES_IQ_REGISTER);
+        }
 
         return stanzaBuilder.build();
     }
@@ -145,17 +149,11 @@ public class ServerResponses {
         stanzaBuilder.endInnerElement();
     }
 
-    public Stanza getFeaturesForAuthentication(List<SASLMechanism> authenticationMethods, SessionContext sessionContext) {
+    public Stanza getFeaturesForAuthentication(List<SASLMechanism> authenticationMethods) {
 
         StanzaBuilder stanzaBuilder = startFeatureStanza();
         getFeaturesSASL(authenticationMethods, stanzaBuilder);
 
-        if(sessionContext.getServerRuntimeContext().getModule(InBandRegistrationModule.class) != null) {
-            // In-band registration active, show as feature
-            stanzaBuilder.startInnerElement("register", NamespaceURIs.JABBER_ORG_FEATURES_IQ_REGISTER).endInnerElement();
-        }
-
-        
         return stanzaBuilder.build();
     }
 
