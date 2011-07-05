@@ -224,7 +224,7 @@ public class BoshHandler {
         body.addAttribute("ack", Long.toString(session.getHighestReadRid()));
 
         Stanza features = new ServerResponses().getFeaturesForAuthentication(serverRuntimeContext.getServerFeatures()
-                .getAuthenticationMethods());
+                .getAuthenticationMethods(), session);
         body.addPreparedElement(features);
         return body.build();
     }

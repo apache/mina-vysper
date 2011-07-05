@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authentication.SASLMechanism;
+import org.apache.vysper.xmpp.modules.extension.xep0077_inbandreg.InBandRegistrationModule;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
@@ -92,6 +93,7 @@ public class BoshHandlerTest {
         ServerFeatures serverFeatures = mocksControl.createMock(ServerFeatures.class);
         expect(serverRuntimeContext.getServerFeatures()).andReturn(serverFeatures);
         expect(serverFeatures.getAuthenticationMethods()).andReturn(Collections.<SASLMechanism> emptyList());
+        expect(serverRuntimeContext.getModule(InBandRegistrationModule.class)).andReturn(null);
 
         Capture<BoshResponse> captured = new Capture<BoshResponse>();
         continuation.setAttribute(eq("response"), EasyMock.<BoshResponse> capture(captured));
