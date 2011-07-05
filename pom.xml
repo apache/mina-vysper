@@ -27,7 +27,7 @@
   <groupId>org.apache.vysper</groupId>
   <artifactId>vysper-parent</artifactId>
   <name>Apache Vysper Parent</name>
-  <version>0.7-SNAPSHOT</version>
+  <version>0.8-SNAPSHOT</version>
   <packaging>pom</packaging>
   <url>http://mina.apache.org/vysper</url>
 

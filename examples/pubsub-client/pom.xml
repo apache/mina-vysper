@@ -21,13 +21,13 @@
   <parent>
     <artifactId>vysper-examples</artifactId>
     <groupId>org.apache.vysper.examples</groupId>
-    <version>0.7-SNAPSHOT</version>
+    <version>0.8-SNAPSHOT</version>
   </parent>
 
   <groupId>org.apache.vysper.examples</groupId>
   <artifactId>vysper-pubsub-demo</artifactId>
   <name>Apache Vysper Publish-Subscribe demo</name>
-  <version>0.7-SNAPSHOT</version>
+  <version>0.8-SNAPSHOT</version>
 
   <dependencies>
     <dependency>

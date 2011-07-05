@@ -15,13 +15,13 @@
 	<parent>
 		<artifactId>vysper-extensions</artifactId>
 		<groupId>org.apache.vysper</groupId>
-		<version>0.7-SNAPSHOT</version>
+		<version>0.8-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.apache.vysper.extensions</groupId>
 	<artifactId>xep0065-socks</artifactId>
 	<name>Apache Vysper XEP-0065 SOCKS5 Bytestreams</name>
-	<version>0.7-SNAPSHOT</version>
+	<version>0.8-SNAPSHOT</version>
 
 
 	<dependencies>
