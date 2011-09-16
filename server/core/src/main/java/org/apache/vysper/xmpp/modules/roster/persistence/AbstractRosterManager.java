@@ -45,7 +45,7 @@ public abstract class AbstractRosterManager implements RosterManager, ServerRunt
         if (jid == null)
             throw new RosterException("jid not provided");
         final Roster roster = retrieve(jid);
-        if (roster instanceof MutableRoster) throw new RosterException("roster is not mutable");
+        if (!(roster instanceof MutableRoster)) throw new RosterException("roster is not mutable");
         MutableRoster mutableRoster = (MutableRoster)roster;
         if (mutableRoster == null) {
             mutableRoster = (MutableRoster) addNewRosterInternal(jid);
