@@ -50,6 +50,7 @@ import org.apache.vysper.xmpp.server.s2s.XMPPServerConnectorRegistry;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.state.presence.LatestPresenceCache;
 import org.apache.vysper.xmpp.state.presence.SimplePresenceCache;
+import org.apache.vysper.xmpp.state.resourcebinding.DefaultResourceRegistry;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 import org.apache.vysper.xmpp.uuid.JVMBuiltinUUIDGenerator;
 import org.apache.vysper.xmpp.uuid.UUIDGenerator;
@@ -135,7 +136,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay) {
         this.serverEntity = serverEntity;
         this.stanzaRelay = stanzaRelay;
-        this.resourceRegistry = new ResourceRegistry();
+        this.resourceRegistry = new DefaultResourceRegistry();
         this.stanzaHandlerLookup = new StanzaHandlerLookup(this);
     }
 

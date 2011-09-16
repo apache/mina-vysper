@@ -31,7 +31,7 @@ import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
 import org.apache.vysper.xmpp.server.ServerFeatures;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
+import org.apache.vysper.xmpp.state.resourcebinding.DefaultResourceRegistry;
 import org.apache.vysper.xmpp.writer.DenseStanzaLogRenderer;
 
 /**
@@ -54,7 +54,7 @@ public class StanzaSessionTestCase extends TestCase {
         dictionaries.add(new org.apache.vysper.xmpp.modules.roster.RosterDictionary());
 
         DefaultServerRuntimeContext serverContext = new DefaultServerRuntimeContext(new EntityImpl(null, "test", null),
-                relay, new ServerFeatures(), dictionaries, new ResourceRegistry());
+                relay, new ServerFeatures(), dictionaries, new DefaultResourceRegistry());
 
         relay.setServerRuntimeContext(serverContext);
 

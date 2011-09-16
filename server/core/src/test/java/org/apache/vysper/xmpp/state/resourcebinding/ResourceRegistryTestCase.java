@@ -32,7 +32,7 @@ import org.apache.vysper.xmpp.server.TestSessionContext;
  */
 public class ResourceRegistryTestCase extends TestCase {
 
-    protected ResourceRegistry resourceRegistry = new ResourceRegistry();
+    protected DefaultResourceRegistry resourceRegistry = new DefaultResourceRegistry();
 
     public void testSessionNotWellDefinedForResourceBinding() {
         TestSessionContext sessionContext = TestSessionContext.createSessionContext(null);

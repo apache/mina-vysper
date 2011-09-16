@@ -42,6 +42,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0160_offline_storage.OfflineS
 import org.apache.vysper.xmpp.modules.roster.RosterModule;
 import org.apache.vysper.xmpp.modules.servicediscovery.ServiceDiscoveryModule;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
+import org.apache.vysper.xmpp.state.resourcebinding.DefaultResourceRegistry;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 
 /**
@@ -129,7 +130,7 @@ public class XMPPServer {
         List<HandlerDictionary> dictionaries = new ArrayList<HandlerDictionary>();
         addCoreDictionaries(dictionaries);
 
-        ResourceRegistry resourceRegistry = new ResourceRegistry();
+        ResourceRegistry resourceRegistry = new DefaultResourceRegistry();
 
         EntityImpl serverEntity = new EntityImpl(null, serverDomain, null);
 

@@ -35,13 +35,14 @@ import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.state.resourcebinding.BindException;
+import org.apache.vysper.xmpp.state.resourcebinding.DefaultResourceRegistry;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 
 /**
  */
 public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
 
-    protected ResourceRegistry resourceRegistry = new ResourceRegistry();
+    protected ResourceRegistry resourceRegistry = new DefaultResourceRegistry();
 
     protected AccountManagement accountVerification;
 
