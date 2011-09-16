@@ -26,7 +26,7 @@ import java.util.Map;
 import org.apache.vysper.xmpp.addressing.Entity;
 
 /**
- * a mutable roster implementation
+ * a mutable roster implementation, only holding items in memory
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
@@ -45,5 +45,9 @@ public class MutableRoster implements Roster {
         if (rosterItem == null || rosterItem.getJid() == null)
             throw new RuntimeException("roster item and item's jid must not be null.");
         items.put(rosterItem.getJid().getBareJID(), rosterItem);
+    }
+
+    public boolean removeItem(Entity contact) {
+        return items.remove(contact) != null;
     }
 }

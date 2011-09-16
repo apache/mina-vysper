@@ -44,7 +44,9 @@ public abstract class AbstractRosterManager implements RosterManager, ServerRunt
     public void addContact(Entity jid, RosterItem rosterItem) throws RosterException {
         if (jid == null)
             throw new RosterException("jid not provided");
-        MutableRoster mutableRoster = (MutableRoster) retrieve(jid);
+        final Roster roster = retrieve(jid);
+        if (roster instanceof MutableRoster) throw new RosterException("roster is not mutable");
+        MutableRoster mutableRoster = (MutableRoster)roster;
         if (mutableRoster == null) {
             mutableRoster = (MutableRoster) addNewRosterInternal(jid);
         }
@@ -66,6 +68,9 @@ public abstract class AbstractRosterManager implements RosterManager, ServerRunt
         Roster roster = retrieve(jidUser);
         if (roster == null)
             throw new RosterException("roster not available for jid = " + jidUser.getFullQualifiedName());
+        if (!(roster instanceof MutableRoster)) throw new RosterException("roster is not mutable");
+        MutableRoster mutableRoster = (MutableRoster)roster;
+        final boolean success = mutableRoster.removeItem(jidContact);
     }
 
     public String getServiceName() {
