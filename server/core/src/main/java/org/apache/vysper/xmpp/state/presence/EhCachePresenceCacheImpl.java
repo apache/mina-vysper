@@ -81,12 +81,14 @@ public class EhCachePresenceCacheImpl extends AbstractBaseCache {
         }
         URL configFileURL = getClass().getResource(configFile);
         if (configFileURL == null) {
-            throw new RuntimeException("ehcache configuration file ehcache.xml not found on classpath");
+            throw new RuntimeException(String.format("Ehcache configuration file %s not found on classpath", configFile));
         }
-        CacheManager.create();
+		
+		// use the provided config file
+        CacheManager cacheManager = CacheManager.create(configFileURL);
 
-        presenceCache = CacheManager.getInstance().getCache(PRESENCE_CACHE);
-        jidPresenceCache = CacheManager.getInstance().getCache(JID_PRESENCE_CACHE);
+        presenceCache = cacheManager.getCache(PRESENCE_CACHE);
+        jidPresenceCache = cacheManager.getCache(JID_PRESENCE_CACHE);
     }
 
     /**

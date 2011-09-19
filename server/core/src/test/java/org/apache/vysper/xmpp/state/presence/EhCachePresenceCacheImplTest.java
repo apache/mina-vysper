@@ -43,6 +43,19 @@ public class EhCachePresenceCacheImplTest extends LatestPresenceCacheTestCase {
     protected LatestPresenceCache getCache() {
         return presenceCache;
     }
+	
+	/**
+	 * Test the use of custom file other than ehcache.xml for creation of Ehcache
+	 */
+	public void testCreateCacheCustomFile() {
+		try {
+			LatestPresenceCache presenceTestCache = new EhCachePresenceCacheImpl("/ehcache-test.xml");
+			assertNotNull(presenceTestCache);
+		} catch (Exception exception) {
+			exception.printStackTrace();
+			fail("Cache creation should have successful");
+		}	    
+	}
 
     /**
      * Test Cache is created properly
