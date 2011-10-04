@@ -47,25 +47,25 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 /**
- * Specialized {@link SessionContext} for Websocket endpoints. 
+ * Specialized {@link SessionContext} for Websocket endpoints.
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class WebSocketBackedSessionContext extends AbstractSessionContext implements WebSocket, XMLElementListener, StanzaWriter {
+public class WebSocketBackedSessionContext extends AbstractSessionContext implements WebSocket, XMLElementListener, StanzaWriter, WebSocket.OnTextMessage {
 
     private final static Charset CHARSET = Charset.forName("UTF-8");
     private final static CharsetDecoder CHARSET_DECODER = CHARSET.newDecoder();
-    
+
     private final static Logger LOG = LoggerFactory.getLogger(WebSocketBackedSessionContext.class);
 
-    private Outbound outbound;
+    private Connection outbound;
     private NonBlockingXMLReader xmlReader = new DefaultNonBlockingXMLReader();
-    
+
     public WebSocketBackedSessionContext(ServerRuntimeContext serverRuntimeContext) {
         super(serverRuntimeContext, new SessionStateHolder());
         XMPPContentHandler contentHandler = new XMPPContentHandler(new StanzaBuilderFactory());
         contentHandler.setListener(this);
-        
+
         try {
             // we need to check the jabber:client/jabber:server NS declarations
             xmlReader.setFeature(DefaultNonBlockingXMLReader.FEATURE_NAMESPACE_PREFIXES, true);
@@ -104,37 +104,35 @@ public class WebSocketBackedSessionContext extends AbstractSessionContext implem
     /**
      * {@inheritDoc}
      */
-    public void onConnect(Outbound outbound) {
+    public void onOpen(Connection outbound) {
         LOG.info("WebSocket client connected");
         this.outbound = outbound;
-        
+
         // set to encrypted to skip TLS
         sessionStateHolder.setState(SessionState.ENCRYPTED);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void onMessage(byte frame, String data) {
-        LOG.info("< " + data);
-        try {
-            xmlReader.parse(IoBuffer.wrap(data.getBytes(CHARSET.name())), CHARSET_DECODER);
-        } catch (IOException e) {
-            // should never happen since we read from a string
-            throw new RuntimeException(e);
-        } catch (SAXException e) {
-            Stanza errorStanza = ServerErrorResponses.getStreamError(StreamErrorCondition.XML_NOT_WELL_FORMED,
-                    getXMLLang(), "Stanza not well-formed", null);
-            write(errorStanza);
-            endSession(SessionTerminationCause.STREAM_ERROR);
-        }
+
+    public void onMessage(String data) {
+    	 LOG.info("< " + data);
+         try {
+             xmlReader.parse(IoBuffer.wrap(data.getBytes(CHARSET.name())), CHARSET_DECODER);
+         } catch (IOException e) {
+             // should never happen since we read from a string
+             throw new RuntimeException(e);
+         } catch (SAXException e) {
+             Stanza errorStanza = ServerErrorResponses.getStreamError(StreamErrorCondition.XML_NOT_WELL_FORMED,
+                     getXMLLang(), "Stanza not well-formed", null);
+             write(errorStanza);
+             endSession(SessionTerminationCause.STREAM_ERROR);
+         }
     }
 
     /**
      * {@inheritDoc}
      */
-    public void onDisconnect() {
-        LOG.info("WebSocket client disconnected");
+    public void onClose(int closeCode, String message) {
+        LOG.info("WebSocket client disconnected with Code " + closeCode + " with " + message);
         endSession(SessionTerminationCause.CONNECTION_ABORT);
     }
 
@@ -153,7 +151,7 @@ public class WebSocketBackedSessionContext extends AbstractSessionContext implem
         // handle stream open
         Renderer renderer = new Renderer(stanza);
         if("stream".equals(stanza.getName()) && NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS.equals(stanza.getNamespaceURI())) {
-            // stream:stream and stream:features comes at the same time, split them 
+            // stream:stream and stream:features comes at the same time, split them
             send(renderer.getOpeningElement());
             send(renderer.getElementContent());
         } else {
@@ -178,17 +176,5 @@ public class WebSocketBackedSessionContext extends AbstractSessionContext implem
         // TODO how to handle?
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void onMessage(byte frame, byte[] data, int offset, int length) {
-        // binary data, should not happen, ignore
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void onFragment(boolean more, byte opcode, byte[] data, int offset, int length) {
-        // binary data, should not happen, ignore
-    }
 }

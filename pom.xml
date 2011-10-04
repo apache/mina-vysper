@@ -146,13 +146,13 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>1.5.3</version>
+        <version>1.6.1</version>
       </dependency>
 
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>jcl-over-slf4j</artifactId>
-        <version>1.5.3</version>
+        <version>1.6.1</version>
       </dependency>
 
       <dependency>
@@ -215,19 +215,19 @@
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-websocket</artifactId>
-        <version>7.2.1.v20101111</version>
+        <version>7.5.1.v20110908</version>
       </dependency>
 
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-servlet</artifactId>
-        <version>7.2.1.v20101111</version>
+        <version>7.5.1.v20110908</version>
       </dependency>
 
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-webapp</artifactId>
-        <version>7.2.1.v20101111</version>
+        <version>7.5.1.v20110908</version>
       </dependency>
 
       <!-- Test dependencies -->
@@ -252,7 +252,7 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-log4j12</artifactId>
-        <version>1.5.3</version>
+        <version>1.6.1</version>
       </dependency>
 
       <dependency>

@@ -82,7 +82,7 @@ public class XmppWebSocketServlet extends WebSocketServlet {
      * 
      * Will return null if the client does not provide the correct websocket sub protocol. "xmpp" is required.
      */
-    protected WebSocket doWebSocketConnect(HttpServletRequest request, String protocol) {
+    public WebSocket doWebSocketConnect(HttpServletRequest request, String protocol) {
         if(SUB_PROTOCOL.equals(protocol)) {
             WebSocketBackedSessionContext sessionContext = new WebSocketBackedSessionContext(serverRuntimeContext);
             return sessionContext;
