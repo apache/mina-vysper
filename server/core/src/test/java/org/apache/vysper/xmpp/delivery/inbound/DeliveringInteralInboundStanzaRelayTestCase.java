@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.delivery.inbound;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.apache.vysper.xml.fragment.XMLSemanticError;
@@ -29,6 +30,7 @@ import org.apache.vysper.xmpp.authentication.AccountCreationException;
 import org.apache.vysper.xmpp.authentication.AccountManagement;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
+import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.server.TestSessionContext;
@@ -38,9 +40,15 @@ import org.apache.vysper.xmpp.state.resourcebinding.BindException;
 import org.apache.vysper.xmpp.state.resourcebinding.DefaultResourceRegistry;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 /**
  */
 public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
+
+    protected static final EntityImpl TO_ENTITY = EntityImpl.parseUnchecked("userTo@vysper.org");
+    protected static final EntityImpl FROM_ENTITY = EntityImpl.parseUnchecked("userFrom@vysper.org");
 
     protected ResourceRegistry resourceRegistry = new DefaultResourceRegistry();
 
@@ -75,16 +83,14 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
         DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(null, null);
         stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
 
-        EntityImpl fromEntity = EntityImpl.parse("userFrom@vysper.org");
-        EntityImpl toEntity = EntityImpl.parse("userTo@vysper.org");
-        TestSessionContext sessionContext = TestSessionContext.createSessionContext(toEntity);
+        TestSessionContext sessionContext = TestSessionContext.createSessionContext(TO_ENTITY);
         sessionContext.setSessionState(SessionState.AUTHENTICATED);
         resourceRegistry.bindSession(sessionContext);
 
-        Stanza stanza = StanzaBuilder.createMessageStanza(fromEntity, toEntity, "en", "Hello").build();
+        Stanza stanza = StanzaBuilder.createMessageStanza(FROM_ENTITY, TO_ENTITY, "en", "Hello").build();
 
         try {
-            stanzaRelay.relay(toEntity, stanza, new IgnoreFailureStrategy());
+            stanzaRelay.relay(TO_ENTITY, stanza, new IgnoreFailureStrategy());
             Stanza recordedStanza = sessionContext.getNextRecordedResponse(1000);
             assertNotNull("stanza delivered", recordedStanza);
             assertEquals("Hello", recordedStanza.getSingleInnerElementsNamed("body").getSingleInnerText().getText());
@@ -94,17 +100,15 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
     }
 
     public void testSimpleRelayToUnboundSession() throws EntityFormatException, XMLSemanticError, DeliveryException {
-        EntityImpl fromEntity = EntityImpl.parse("userFrom@vysper.org");
-        EntityImpl toEntity = EntityImpl.parse("userTo@vysper.org");
-        TestSessionContext sessionContext = TestSessionContext.createSessionContext(toEntity);
+        TestSessionContext sessionContext = TestSessionContext.createSessionContext(TO_ENTITY);
         String resource = resourceRegistry.bindSession(sessionContext);
         boolean noResourceRemains = resourceRegistry.unbindResource(resource);
         assertTrue(noResourceRemains);
 
-        Stanza stanza = StanzaBuilder.createMessageStanza(fromEntity, toEntity, "en", "Hello").build();
+        Stanza stanza = StanzaBuilder.createMessageStanza(FROM_ENTITY, TO_ENTITY, "en", "Hello").build();
 
         try {
-            stanzaRelay.relay(toEntity, stanza, new IgnoreFailureStrategy());
+            stanzaRelay.relay(TO_ENTITY, stanza, new IgnoreFailureStrategy());
             Stanza recordedStanza = sessionContext.getNextRecordedResponse(1000);
             assertNull("stanza not delivered to unbound", recordedStanza);
         } catch (DeliveryException e) {
@@ -121,26 +125,22 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
 
         stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
 
-        EntityImpl fromEntity = EntityImpl.parse("userFrom@vysper.org");
+        TestSessionContext sessionContextTO_ENTITY_1_prio3 = createSessionForTo(TO_ENTITY, 3); // NON-NEGATIVE
+        TestSessionContext sessionContextTO_ENTITY_2_prio0 = createSessionForTo(TO_ENTITY, 0); // NON-NEGATIVE
+        TestSessionContext sessionContextTO_ENTITY_3_prio3 = createSessionForTo(TO_ENTITY, 3); // NON-NEGATIVE
+        TestSessionContext sessionContextTO_ENTITY_4_prioMinus = createSessionForTo(TO_ENTITY, -1); // not receiving, negative
 
-        EntityImpl toEntity = EntityImpl.parse("userTo@vysper.org");
-
-        TestSessionContext sessionContextToEntity_1_prio3 = createSessionForTo(toEntity, 3); // NON-NEGATIVE
-        TestSessionContext sessionContextToEntity_2_prio0 = createSessionForTo(toEntity, 0); // NON-NEGATIVE
-        TestSessionContext sessionContextToEntity_3_prio3 = createSessionForTo(toEntity, 3); // NON-NEGATIVE
-        TestSessionContext sessionContextToEntity_4_prioMinus = createSessionForTo(toEntity, -1); // not receiving, negative
-
-        Stanza stanza = StanzaBuilder.createMessageStanza(fromEntity, toEntity, "en", "Hello").build();
+        Stanza stanza = StanzaBuilder.createMessageStanza(FROM_ENTITY, TO_ENTITY, "en", "Hello").build();
 
         try {
-            stanzaRelay.relay(toEntity, stanza, new IgnoreFailureStrategy());
-            Stanza recordedStanza_1 = sessionContextToEntity_1_prio3.getNextRecordedResponse(100);
+            stanzaRelay.relay(TO_ENTITY, stanza, new IgnoreFailureStrategy());
+            Stanza recordedStanza_1 = sessionContextTO_ENTITY_1_prio3.getNextRecordedResponse(100);
             assertNotNull("stanza 1 delivered", recordedStanza_1);
-            Stanza recordedStanza_2 = sessionContextToEntity_2_prio0.getNextRecordedResponse(100);
+            Stanza recordedStanza_2 = sessionContextTO_ENTITY_2_prio0.getNextRecordedResponse(100);
             assertNotNull("stanza 2 delivered", recordedStanza_2);
-            Stanza recordedStanza_3 = sessionContextToEntity_3_prio3.getNextRecordedResponse(100);
+            Stanza recordedStanza_3 = sessionContextTO_ENTITY_3_prio3.getNextRecordedResponse(100);
             assertNotNull("stanza 3 delivered", recordedStanza_3);
-            Stanza recordedStanza_4 = sessionContextToEntity_4_prioMinus.getNextRecordedResponse(100);
+            Stanza recordedStanza_4 = sessionContextTO_ENTITY_4_prioMinus.getNextRecordedResponse(100);
             assertNull("stanza 4 delivered", recordedStanza_4);
         } catch (DeliveryException e) {
             throw e;
@@ -157,26 +157,22 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
 
         stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
 
-        EntityImpl fromEntity = EntityImpl.parse("userFrom@vysper.org");
+        TestSessionContext sessionContextTO_ENTITY_1_prio3 = createSessionForTo(TO_ENTITY, 3); // HIGHEST PRIO
+        TestSessionContext sessionContextTO_ENTITY_2_prio0 = createSessionForTo(TO_ENTITY, 1); // not receiving
+        TestSessionContext sessionContextTO_ENTITY_3_prio3 = createSessionForTo(TO_ENTITY, 3); // HIGHEST PRIO
+        TestSessionContext sessionContextTO_ENTITY_4_prioMinus = createSessionForTo(TO_ENTITY, -1); // not receiving
 
-        EntityImpl toEntity = EntityImpl.parse("userTo@vysper.org");
-
-        TestSessionContext sessionContextToEntity_1_prio3 = createSessionForTo(toEntity, 3); // HIGHEST PRIO
-        TestSessionContext sessionContextToEntity_2_prio0 = createSessionForTo(toEntity, 1); // not receiving
-        TestSessionContext sessionContextToEntity_3_prio3 = createSessionForTo(toEntity, 3); // HIGHEST PRIO
-        TestSessionContext sessionContextToEntity_4_prioMinus = createSessionForTo(toEntity, -1); // not receiving
-
-        Stanza stanza = StanzaBuilder.createMessageStanza(fromEntity, toEntity, "en", "Hello").build();
+        Stanza stanza = StanzaBuilder.createMessageStanza(FROM_ENTITY, TO_ENTITY, "en", "Hello").build();
 
         try {
-            stanzaRelay.relay(toEntity, stanza, new IgnoreFailureStrategy());
-            Stanza recordedStanza_1 = sessionContextToEntity_1_prio3.getNextRecordedResponse(100);
+            stanzaRelay.relay(TO_ENTITY, stanza, new IgnoreFailureStrategy());
+            Stanza recordedStanza_1 = sessionContextTO_ENTITY_1_prio3.getNextRecordedResponse(100);
             assertNotNull("stanza 1 delivered", recordedStanza_1);
-            Stanza recordedStanza_2 = sessionContextToEntity_2_prio0.getNextRecordedResponse(100);
+            Stanza recordedStanza_2 = sessionContextTO_ENTITY_2_prio0.getNextRecordedResponse(100);
             assertNull("stanza 2 not delivered", recordedStanza_2);
-            Stanza recordedStanza_3 = sessionContextToEntity_3_prio3.getNextRecordedResponse(100);
+            Stanza recordedStanza_3 = sessionContextTO_ENTITY_3_prio3.getNextRecordedResponse(100);
             assertNotNull("stanza 3 delivered", recordedStanza_3);
-            Stanza recordedStanza_4 = sessionContextToEntity_4_prioMinus.getNextRecordedResponse(100);
+            Stanza recordedStanza_4 = sessionContextTO_ENTITY_4_prioMinus.getNextRecordedResponse(100);
             assertNull("stanza 4 not delivered", recordedStanza_4);
         } catch (DeliveryException e) {
             throw e;
@@ -184,12 +180,30 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
 
     }
 
-    private TestSessionContext createSessionForTo(EntityImpl toEntity, final int priority) {
-        TestSessionContext sessionContextToEntity = TestSessionContext.createSessionContext(toEntity);
-        sessionContextToEntity.setSessionState(SessionState.AUTHENTICATED);
-        String toEntityRes = resourceRegistry.bindSession(sessionContextToEntity);
-        resourceRegistry.setResourcePriority(toEntityRes, priority);
-        return sessionContextToEntity;
+    private TestSessionContext createSessionForTo(EntityImpl TO_ENTITY, final int priority) {
+        TestSessionContext sessionContextTO_ENTITY = TestSessionContext.createSessionContext(TO_ENTITY);
+        sessionContextTO_ENTITY.setSessionState(SessionState.AUTHENTICATED);
+        String TO_ENTITYRes = resourceRegistry.bindSession(sessionContextTO_ENTITY);
+        resourceRegistry.setResourcePriority(TO_ENTITYRes, priority);
+        return sessionContextTO_ENTITY;
     }
 
+    public void testShutdown() throws DeliveryException {
+        final ExecutorService testExecutorService = Executors.newFixedThreadPool(1);
+        DeliveringInternalInboundStanzaRelay relay = new DeliveringInternalInboundStanzaRelay(testExecutorService);
+
+        Assert.assertTrue(relay.isRelaying());
+        relay.stop();
+        Assert.assertFalse(relay.isRelaying());
+        Assert.assertTrue(testExecutorService.isShutdown());
+        
+        Stanza stanza = StanzaBuilder.createMessageStanza(FROM_ENTITY, TO_ENTITY, "en", "Hello").build();
+        try {
+            relay.relay(TO_ENTITY, stanza, null);
+            Assert.fail("ServiceNotAvailableException expected");
+        } catch (ServiceNotAvailableException e) {
+            // test succeeds
+        }
+    }
+    
 }

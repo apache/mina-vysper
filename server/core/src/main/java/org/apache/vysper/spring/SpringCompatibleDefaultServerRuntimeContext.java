@@ -25,6 +25,7 @@ import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
+import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
 import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
@@ -46,7 +47,18 @@ public class SpringCompatibleDefaultServerRuntimeContext extends DefaultServerRu
 
         public void relay(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy)
                 throws DeliveryException {
+            if (!isRelaying()) {
+                throw new ServiceNotAvailableException("relay is not relaying");
+            }
             stanzaRelay.relay(receiver, stanza, deliveryFailureStrategy);
+        }
+
+        public boolean isRelaying() {
+            return stanzaRelay.isRelaying();
+        }
+
+        public void stop() {
+            stanzaRelay.stop();
         }
     }
 

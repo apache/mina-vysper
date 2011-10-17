@@ -67,6 +67,8 @@ public class XMPPServer {
     private DefaultServerRuntimeContext serverRuntimeContext;
 
     private StorageProviderRegistry storageProviderRegistry;
+    
+    private StanzaRelayBroker stanzaRelayBroker;
 
     private InputStream tlsCertificate;
 
@@ -141,7 +143,7 @@ public class XMPPServer {
                 resourceRegistry, accountManagement,offlineReceiver);
         DeliveringExternalInboundStanzaRelay externalStanzaRelay = new DeliveringExternalInboundStanzaRelay();
 
-        StanzaRelayBroker stanzaRelayBroker = new StanzaRelayBroker();
+        stanzaRelayBroker = new StanzaRelayBroker();
         stanzaRelayBroker.setInternalRelay(internalStanzaRelay);
         stanzaRelayBroker.setExternalRelay(externalStanzaRelay);
 
@@ -182,6 +184,7 @@ public class XMPPServer {
             }
         }
         
+        stanzaRelayBroker.stop();
         serverRuntimeContext.getServerConnectorRegistry().close();
     }
 

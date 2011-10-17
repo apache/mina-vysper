@@ -25,7 +25,9 @@ import junit.framework.TestCase;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.RemoteServerNotFoundException;
+import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.s2s.XMPPServerConnector;
@@ -35,6 +37,9 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  */
@@ -102,5 +107,22 @@ public class DeliveringExternalInboundStanzaRelayTestCase extends TestCase {
         Assert.assertEquals(NamespaceURIs.JABBER_SERVER, writtenStanza.getNamespaceURI());
         Assert.assertEquals(FROM, writtenStanza.getFrom());
         Assert.assertEquals(TO, writtenStanza.getTo());
+    }
+
+    public void testShutdown() throws DeliveryException {
+        final ExecutorService testExecutorService = Executors.newFixedThreadPool(1);
+        DeliveringExternalInboundStanzaRelay relay = new DeliveringExternalInboundStanzaRelay(testExecutorService);
+
+        Assert.assertTrue(relay.isRelaying());
+        relay.stop();
+        Assert.assertFalse(relay.isRelaying());
+        Assert.assertTrue(testExecutorService.isShutdown());
+
+        try {
+            relay.relay(TO, STANZA, null);
+            Assert.fail("ServiceNotAvailableException expected");
+        } catch (ServiceNotAvailableException e) {
+            // test succeeds
+        }
     }
 }

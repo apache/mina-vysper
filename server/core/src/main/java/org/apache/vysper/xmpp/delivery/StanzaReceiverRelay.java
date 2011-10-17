@@ -21,11 +21,13 @@ package org.apache.vysper.xmpp.delivery;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
 import org.apache.vysper.xmpp.delivery.failure.LocalRecipientOfflineException;
+import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
@@ -46,7 +48,9 @@ public class StanzaReceiverRelay implements StanzaRelay {
     private int countFailed = 0;
 
     private int countDelivered = 0;
-
+    
+    private final AtomicBoolean acceptingMode = new AtomicBoolean(true);
+    
     public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
         this.serverRuntimeContext = serverRuntimeContext;
     }
@@ -60,6 +64,9 @@ public class StanzaReceiverRelay implements StanzaRelay {
 
     public void relay(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy)
             throws DeliveryException {
+        if (!isRelaying()) {
+            throw new ServiceNotAvailableException("relay is not relaying");
+        }
         countRelayed++;
         if (receiver == null)
             throw new DeliveryException("receiver cannot be NULL");
@@ -76,6 +83,14 @@ public class StanzaReceiverRelay implements StanzaRelay {
 
         countDelivered++;
         receiverMap.get(receiver).deliver(stanza);
+    }
+
+    public boolean isRelaying() {
+        return acceptingMode.get();
+    }
+
+    public void stop() {
+        acceptingMode.set(false);
     }
 
     public int getCountRelayed() {

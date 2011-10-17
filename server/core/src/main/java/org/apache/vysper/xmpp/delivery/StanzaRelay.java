@@ -37,9 +37,19 @@ public interface StanzaRelay {
      * @param receiver the stanza receiver
      * @param stanza the payload
      * @param deliveryFailureStrategy what to do in case of errors
-     * @throws DeliveryException relaying failed
+     * @throws ServiceNotAvailableException relaying is stopped
+     * @throws DeliveryException error while relaying
      */
     public void relay(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy)
             throws DeliveryException;
 
+    /**
+     * @return TRUE iff the relay is live (started and not stopped)
+     */
+    public boolean isRelaying();
+    
+    /**
+     * Shutdown this relay and prevent it from accepting any further stanzas.
+     */
+    public void stop();
 }

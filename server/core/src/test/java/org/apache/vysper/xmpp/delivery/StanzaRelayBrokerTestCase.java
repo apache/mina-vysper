@@ -19,11 +19,13 @@
  */
 package org.apache.vysper.xmpp.delivery;
 
+import junit.framework.Assert;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
+import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
 import org.apache.vysper.xmpp.server.ServerFeatures;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -122,5 +124,20 @@ public class StanzaRelayBrokerTestCase extends Mockito {
     public void toNullReceiver() throws DeliveryException {
         broker.relay(null, stanza, failureStrategy);
     }
-    
+
+    @Test
+    public void shutdown() {
+        Assert.assertTrue(broker.isRelaying());
+        broker.stop();
+        Assert.assertFalse(broker.isRelaying());
+        
+        try {
+            broker.relay(INTERNAL, stanza, null);
+            Assert.fail("ServiceNotAvailableException expected");
+        } catch (ServiceNotAvailableException e) {
+            // test succeeds
+        } catch (DeliveryException e) {
+            Assert.fail("unexpected delivery exception");
+        }
+    }   
 }

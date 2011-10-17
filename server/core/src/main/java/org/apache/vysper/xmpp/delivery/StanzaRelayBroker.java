@@ -23,8 +23,11 @@ import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityUtils;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
+import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * central component for delivering stanzas.
@@ -40,6 +43,8 @@ public class StanzaRelayBroker implements StanzaRelay {
     protected StanzaRelay externalRelay;
 
     protected ServerRuntimeContext serverRuntimeContext;
+    
+    protected final AtomicBoolean isRelaying = new AtomicBoolean(true);
 
     /**
      * a StanzaRelay receiving stanzas which are targeted to server-local JIDs
@@ -61,6 +66,10 @@ public class StanzaRelayBroker implements StanzaRelay {
 
     public void relay(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy)
             throws DeliveryException {
+        
+        if (!isRelaying()) {
+            throw new ServiceNotAvailableException("relay is not relaying");
+        }
 
         boolean toServerTLD = receiver == null
                 || (!receiver.isNodeSet() && EntityUtils.isAddressingServer(receiver, serverRuntimeContext.getServerEnitity()));
@@ -88,4 +97,14 @@ public class StanzaRelayBroker implements StanzaRelay {
         }
     }
 
+    public boolean isRelaying() {
+        return isRelaying.get();
+    }
+
+    public void stop() {
+        if (isRelaying.compareAndSet(true, false)) {
+            this.internalRelay.stop();
+            this.externalRelay.stop();
+        }
+    }
 }

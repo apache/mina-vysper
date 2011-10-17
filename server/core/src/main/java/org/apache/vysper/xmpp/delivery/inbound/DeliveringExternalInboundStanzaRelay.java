@@ -33,6 +33,7 @@ import org.apache.vysper.xmpp.delivery.OfflineStanzaReceiver;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
+import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.s2s.XMPPServerConnector;
@@ -68,7 +69,7 @@ public class DeliveringExternalInboundStanzaRelay implements StanzaRelay {
                 new LinkedBlockingQueue<Runnable>());
     }
 
-    public DeliveringExternalInboundStanzaRelay(ExecutorService executor) {
+    /*package*/ DeliveringExternalInboundStanzaRelay(ExecutorService executor) {
         this.executor = executor;
     }
 
@@ -79,6 +80,10 @@ public class DeliveringExternalInboundStanzaRelay implements StanzaRelay {
     public void relay(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy)
             throws DeliveryException {
         
+        if (!isRelaying()) {
+            throw new ServiceNotAvailableException("external inbound relay is not relaying");
+        }
+        
         // rewrite the namespace into the jabber:server namespace
         stanza = StanzaBuilder.rewriteNamespace(stanza, NamespaceURIs.JABBER_CLIENT, NamespaceURIs.JABBER_SERVER);
         XMPPCoreStanza coreStanza = XMPPCoreStanza.getWrapper(stanza);
@@ -88,6 +93,14 @@ public class DeliveringExternalInboundStanzaRelay implements StanzaRelay {
         } else {
             // ignore non-core stanzas
         }
+    }
+
+    public boolean isRelaying() {
+        return !executor.isShutdown();
+    }
+
+    public void stop() {
+        this.executor.shutdown();
     }
     
     private class OutboundRelayCallable implements Callable<RelayResult> {

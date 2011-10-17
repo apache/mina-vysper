@@ -21,10 +21,12 @@ package org.apache.vysper.xmpp.delivery;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
+import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
@@ -38,13 +40,20 @@ public class RecordingStanzaRelay implements StanzaRelay {
 
     private final ArrayList<Triple> entityStanzaPairs = new ArrayList<Triple>();
 
-    private boolean acceptingMode = true;
+    protected final AtomicBoolean isRelaying = new AtomicBoolean(true);
 
     public void relay(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy)
             throws DeliveryException {
-        if (!acceptingMode)
-            return;
+        if (!isRelaying()) throw new ServiceNotAvailableException("recording stanza relay is not relaying");
         entityStanzaPairs.add(new Triple(receiver, stanza, deliveryFailureStrategy));
+    }
+
+    public boolean isRelaying() {
+        return isRelaying.get();
+    }
+
+    public void stop() {
+        this.isRelaying.set(false);
     }
 
     public Iterator<Triple> iterator() {
@@ -59,8 +68,8 @@ public class RecordingStanzaRelay implements StanzaRelay {
      * to easily set mode to accept all receivers (default) or to decline all
      * this is useful for setting the behavior when testing
      */
-    public void setAcceptingMode(boolean accepting) {
-        this.acceptingMode = accepting;
+    public void setRelaying(boolean accepting) {
+        this.isRelaying.set(accepting);
     }
 
     public static class Triple {

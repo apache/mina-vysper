@@ -105,13 +105,29 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay {
                 new LinkedBlockingQueue<Runnable>());
     }
 
+    /*package*/ DeliveringInternalInboundStanzaRelay(ExecutorService executor) {
+        this.executor = executor;
+    }
+
     public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
         this.serverRuntimeContext = serverRuntimeContext;
     }
 
     public void relay(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy)
             throws DeliveryException {
+        if (!isRelaying()) {
+            throw new ServiceNotAvailableException("internal inbound relay is not relaying");
+        }
+        
         Future<RelayResult> resultFuture = executor.submit(new Relay(receiver, stanza, deliveryFailureStrategy));
+    }
+
+    public boolean isRelaying() {
+        return !executor.isShutdown();
+    }
+
+    public void stop() {
+        this.executor.shutdown();
     }
 
     private class Relay implements Callable<RelayResult> {
