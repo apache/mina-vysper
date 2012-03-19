@@ -34,7 +34,7 @@ import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class XMPPDecoder extends CumulativeProtocolDecoder {
-
+    
     private static final String XML_DECL = "<?xml";
 
     private static final String STREAM_STREAM = "<stream:stream";
@@ -53,6 +53,7 @@ public class XMPPDecoder extends CumulativeProtocolDecoder {
 
     public static class MinaStanzaListener implements XMLElementListener {
         private ProtocolDecoderOutput protocolDecoder;
+        private boolean closed = false;
 
         public MinaStanzaListener(ProtocolDecoderOutput protocolDecoder) {
             this.protocolDecoder = protocolDecoder;
@@ -64,6 +65,14 @@ public class XMPPDecoder extends CumulativeProtocolDecoder {
             }
 
             protocolDecoder.write(element);
+        }
+        
+        public void close() {
+            this.closed = true;
+        }
+        
+        public boolean isClosed() {
+            return this.closed;
         }
     }
 
@@ -90,11 +99,17 @@ public class XMPPDecoder extends CumulativeProtocolDecoder {
         }
 
         XMPPContentHandler contentHandler = (XMPPContentHandler) reader.getContentHandler();
-        contentHandler.setListener(new MinaStanzaListener(out));
+        XMLElementListener listener = new MinaStanzaListener(out);
+        contentHandler.setListener(listener);
 
         reader.parse(in, CharsetUtil.UTF8_DECODER);
-
-        // we have parsed what we got, invoke again when more data is available
-        return false;
+        
+        if (listener.isClosed()) {
+            session.close(true);
+            return true;
+        } else {
+            // we have parsed what we got, invoke again when more data is available
+            return false;
+        }
     }
 }

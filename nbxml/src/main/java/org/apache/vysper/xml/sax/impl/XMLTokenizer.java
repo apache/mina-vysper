@@ -55,7 +55,6 @@ public class XMLTokenizer {
     /**
      * @param byteBuffer
      * @param charsetDecoder
-     * @return the new particle or NULL, if the buffer was exhausted before the particle was completed
      * @throws Exception
      */
     public void parse(IoBuffer byteBuffer, CharsetDecoder decoder) throws SAXException {
@@ -66,6 +65,8 @@ public class XMLTokenizer {
                 if (c == '<') {
                     emit(c, byteBuffer);
                     state = State.IN_TAG;
+                } else if (Character.isWhitespace(c)) {
+                    // ignore
                 } else {
                     state = State.IN_TEXT;
                     buffer.put((byte) c);

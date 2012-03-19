@@ -60,6 +60,7 @@ public class WebSocketBackedSessionContext extends AbstractSessionContext implem
 
     private Connection outbound;
     private NonBlockingXMLReader xmlReader = new DefaultNonBlockingXMLReader();
+    private boolean closed = false;
 
     public WebSocketBackedSessionContext(ServerRuntimeContext serverRuntimeContext) {
         super(serverRuntimeContext, new SessionStateHolder());
@@ -174,7 +175,13 @@ public class WebSocketBackedSessionContext extends AbstractSessionContext implem
      */
     public void close() {
         // TODO how to handle?
+    	closed = true;
     }
-
-
+    
+    /**
+     * Implementation for XMLElementListener.
+     */
+    public boolean isClosed() {
+    	return closed;
+    }
 }

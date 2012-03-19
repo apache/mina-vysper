@@ -41,7 +41,7 @@ public class XMLParserUtil {
 
     /**
      * Parses a complete XML document. If the XML string contains errors, a
-     * {@link SAXException} will be trown. If the XML string is not a complete
+     * {@link SAXException} will be thrown. If the XML string is not a complete
      * XML document, null will be returned
      * @param xml A string with a complete XML document
      * @return
@@ -60,6 +60,8 @@ public class XMLParserUtil {
             public void element(XMLElement element) {
                 documents.add(element);
             }
+            public void close() {}
+            public boolean isClosed() { return false; }
         });
 
         IoBuffer buffer = IoBuffer.wrap(xml.getBytes("UTF-8"));

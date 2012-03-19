@@ -31,6 +31,7 @@ import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StreamErrorCondition;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.SessionContext.SessionTerminationCause;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.slf4j.Logger;
@@ -47,6 +48,8 @@ public class XmppIoHandlerAdapter implements IoHandler {
 
     public static final String ATTRIBUTE_VYSPER_SESSIONSTATEHOLDER = "vysperSessionStateHolder";
 
+    public static final String ATTRIBUTE_VYSPER_TERMINATE_REASON = "vysperTerminateReason";
+    
     final Logger logger = LoggerFactory.getLogger(XmppIoHandlerAdapter.class);
 
     private ServerRuntimeContext serverRuntimeContext;
@@ -106,6 +109,7 @@ public class XmppIoHandlerAdapter implements IoHandler {
         SessionContext sessionContext = new MinaBackedSessionContext(serverRuntimeContext, stateHolder, ioSession);
         ioSession.setAttribute(ATTRIBUTE_VYSPER_SESSION, sessionContext);
         ioSession.setAttribute(ATTRIBUTE_VYSPER_SESSIONSTATEHOLDER, stateHolder);
+        ioSession.setAttribute(ATTRIBUTE_VYSPER_TERMINATE_REASON, SessionTerminationCause.CLIENT_BYEBYE);
     }
 
     public void sessionOpened(IoSession ioSession) throws Exception {
@@ -114,10 +118,11 @@ public class XmppIoHandlerAdapter implements IoHandler {
 
     public void sessionClosed(IoSession ioSession) throws Exception {
         SessionContext sessionContext = extractSession(ioSession);
+        SessionTerminationCause cause = (SessionTerminationCause) ioSession.getAttribute(ATTRIBUTE_VYSPER_TERMINATE_REASON);
         String sessionId = "UNKNOWN";
         if (sessionContext != null) {
             sessionId = sessionContext.getSessionId();
-            sessionContext.endSession(SessionContext.SessionTerminationCause.CONNECTION_ABORT);
+            sessionContext.endSession(cause);
         }
         logger.info("session {} has been closed", sessionId);
     }
@@ -129,12 +134,17 @@ public class XmppIoHandlerAdapter implements IoHandler {
 
     public void exceptionCaught(IoSession ioSession, Throwable throwable) throws Exception {
         SessionContext sessionContext = extractSession(ioSession);
-
+        
+        // Assume that the connection was aborted for now. Might be different depending on 
+        // cause of exception determined below.
+        ioSession.setAttribute(ATTRIBUTE_VYSPER_TERMINATE_REASON, SessionTerminationCause.CONNECTION_ABORT);
+        
         Stanza errorStanza;
         if(throwable.getCause() != null && throwable.getCause() instanceof SAXParseException) {
             logger.info("Client sent not well-formed XML, closing session", throwable);
             errorStanza = ServerErrorResponses.getStreamError(StreamErrorCondition.XML_NOT_WELL_FORMED,
                     sessionContext.getXMLLang(), "Stanza not well-formed", null);
+            ioSession.setAttribute(ATTRIBUTE_VYSPER_TERMINATE_REASON, SessionTerminationCause.STREAM_ERROR);
         } else if(throwable instanceof WriteToClosedSessionException) {
             // ignore
             return;
@@ -145,8 +155,8 @@ public class XmppIoHandlerAdapter implements IoHandler {
             logger.warn("error caught on transportation layer", throwable);
             errorStanza = ServerErrorResponses.getStreamError(StreamErrorCondition.UNDEFINED_CONDITION,
                     sessionContext.getXMLLang(), "Unknown error", null);
+            ioSession.setAttribute(ATTRIBUTE_VYSPER_TERMINATE_REASON, SessionTerminationCause.STREAM_ERROR);
         }
         sessionContext.getResponseWriter().write(errorStanza);
-        sessionContext.endSession(SessionContext.SessionTerminationCause.STREAM_ERROR);
     }
 }

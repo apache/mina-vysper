@@ -83,8 +83,7 @@ public class XMPPContentHandler implements ContentHandler {
             // complete stanza, emit
             emit();
         } else if (depth == 0) {
-            // end stream:stream element
-            // TODO handle
+            // End of stream. Handled in endDocument().
         } else {
             builder.endInnerElement();
         }
@@ -137,9 +136,10 @@ public class XMPPContentHandler implements ContentHandler {
     }
 
     /**
-     * {@inheritDoc}
+     * End of the XMPP stream. Tell the XML listener we're done.
      */
-    public void endDocument() throws SAXException { /* ignore */
+    public void endDocument() throws SAXException { 
+        this.listener.close();
     }
 
     /**
