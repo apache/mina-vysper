@@ -46,6 +46,13 @@ import org.slf4j.LoggerFactory;
 public class BoshHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BoshHandler.class);
+    
+    /**
+     * the empty BOSH response.
+     * <p>
+     * Looks like <code>&lt;body xmlns='http://jabber.org/protocol/httpbind'/&gt;</code>
+     */
+    protected static final Stanza EMPTY_BOSH_RESPONSE = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH).build();
 
     private ServerRuntimeContext serverRuntimeContext;
 
@@ -143,7 +150,7 @@ public class BoshHandler {
         } else if (session.getState() == SessionState.AUTHENTICATED) {
             if ("true".equals(br.getBody().getAttributeValue(NamespaceURIs.URN_XMPP_XBOSH, "restart"))) {
                 // restart request
-                session.write0(getRestartResponse());
+                session.writeBOSHResponse(getRestartResponse());
             } else {
                 // any other request
                 for (XMLElement element : br.getBody().getInnerElements()) {
@@ -160,7 +167,7 @@ public class BoshHandler {
 
     private void terminateSession(BoshBackedSessionContext session) {
         sessions.remove(session.getSessionId());
-        session.write0(getTerminateResponse());
+        session.writeBOSHResponse(getTerminateResponse());
         session.close();
     }
 
@@ -203,7 +210,7 @@ public class BoshHandler {
         session.insertRequest(br);
         sessions.put(session.getSessionId(), session);
 
-        session.write0(getSessionCreationResponse(session));
+        session.writeBOSHResponse(getSessionCreationResponse(session));
     }
 
     private Stanza getSessionCreationResponse(BoshBackedSessionContext session) {
@@ -227,17 +234,6 @@ public class BoshHandler {
                 .getAuthenticationMethods(), session);
         body.addPreparedElement(features);
         return body.build();
-    }
-
-    /**
-     * Creates an empty BOSH response.
-     * <p>
-     * The empty BOSH response looks like <code>&lt;body xmlns='http://jabber.org/protocol/httpbind'/&gt;</code>
-     * @return the empty BOSH response
-     */
-    public Stanza getEmptyResponse() {
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH);
-        return stanzaBuilder.build();
     }
 
     /**

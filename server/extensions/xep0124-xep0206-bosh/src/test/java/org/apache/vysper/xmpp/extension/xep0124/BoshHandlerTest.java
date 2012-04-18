@@ -155,7 +155,7 @@ public class BoshHandlerTest {
 
     @Test
     public void testGetEmptyResponse() {
-        Stanza response = boshHandler.getEmptyResponse();
+        Stanza response = BoshHandler.EMPTY_BOSH_RESPONSE;
         assertNotNull(response);
         assertEquals("body", response.getName());
         assertEquals(NamespaceURIs.XEP0124_BOSH, response.getNamespaceURI());

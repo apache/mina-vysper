@@ -52,7 +52,7 @@ public class BoshServlet extends HttpServlet {
 
     private static final String INFO_GET = "This is an XMPP BOSH connection manager, only POST is allowed";
 
-    private static final String SERVER_IDENTIFICATION = "Vysper/0.5";
+    private static final String SERVER_IDENTIFICATION = "Vysper/0.8";
 
     private final Logger logger = LoggerFactory.getLogger(BoshServlet.class);
 

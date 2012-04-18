@@ -88,7 +88,7 @@ public class BoshBackedSessionContextTest {
         BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(boshHandler, serverRuntimeContext, inactivityChecker);
         Stanza body = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH).build();
         boshBackedSessionContext.insertRequest(new BoshRequest(httpServletRequest, body, 1L));
-        boshBackedSessionContext.write0(body);
+        boshBackedSessionContext.writeBOSHResponse(body);
         mocksControl.verify();
         
         BoshResponse boshResponse = captured.getValue();
@@ -116,7 +116,7 @@ public class BoshBackedSessionContextTest {
 
     @Test
     public void testRequestExpired() {
-        Stanza body = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH).build();
+        Stanza emtpyStanza = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH).build();
 
         // addRequest
         HttpServletRequest httpServletRequest = mocksControl.createMock(HttpServletRequest.class);
@@ -130,15 +130,12 @@ public class BoshBackedSessionContextTest {
         Capture<ContinuationListener> listenerCaptured = new Capture<ContinuationListener>();
         continuation.addContinuationListener(EasyMock.<ContinuationListener> capture(listenerCaptured));
         
-        BoshRequest br = new BoshRequest(httpServletRequest, body, 1L);
+        BoshRequest br = new BoshRequest(httpServletRequest, emtpyStanza, 1L);
 
         // requestExpired
         expect(continuation.getAttribute("request")).andReturn(br);
         Capture<BoshResponse> responseCaptured = new Capture<BoshResponse>();
         continuation.setAttribute(eq("response"), EasyMock.<BoshResponse> capture(responseCaptured));
-
-        expect(boshHandler.getEmptyResponse()).andReturn(body);
-        expectLastCall().atLeastOnce();
 
         // write0
         continuation.resume();
@@ -150,7 +147,7 @@ public class BoshBackedSessionContextTest {
         listenerCaptured.getValue().onTimeout(continuation);
         mocksControl.verify();
 
-        assertEquals(new Renderer(body).getComplete(), new String(responseCaptured.getValue().getContent()));
+        assertEquals(new Renderer(emtpyStanza).getComplete(), new String(responseCaptured.getValue().getContent()));
         assertEquals(BoshServlet.XML_CONTENT_TYPE, responseCaptured.getValue().getContentType());
     }
 
@@ -191,7 +188,7 @@ public class BoshBackedSessionContextTest {
         // consecutive writes with RID 1 and 2
         boshBackedSessionContext.insertRequest(new BoshRequest(httpServletRequest1, body, 1L));
         boshBackedSessionContext.insertRequest(new BoshRequest(httpServletRequest2, body, 2L));
-        boshBackedSessionContext.write0(body);
+        boshBackedSessionContext.writeBOSHResponse(body);
         mocksControl.verify();
         
         assertEquals(httpServletRequest1, br1.getValue().getHttpServletRequest());
@@ -227,8 +224,8 @@ public class BoshBackedSessionContextTest {
 
         BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(boshHandler,
                 serverRuntimeContext, inactivityChecker);
-        boshBackedSessionContext.write0(body1);
-        boshBackedSessionContext.write0(body2);
+        boshBackedSessionContext.writeBOSHResponse(body1);
+        boshBackedSessionContext.writeBOSHResponse(body2);
         boshBackedSessionContext.insertRequest(new BoshRequest(httpServletRequest, body, 1L));
         mocksControl.verify();
     }
