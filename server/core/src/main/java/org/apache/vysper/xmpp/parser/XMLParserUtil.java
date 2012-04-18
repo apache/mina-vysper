@@ -60,8 +60,6 @@ public class XMLParserUtil {
             public void element(XMLElement element) {
                 documents.add(element);
             }
-            public void close() {}
-            public boolean isClosed() { return false; }
         });
 
         IoBuffer buffer = IoBuffer.wrap(xml.getBytes("UTF-8"));

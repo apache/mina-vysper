@@ -99,7 +99,7 @@ public class XMPPDecoder extends CumulativeProtocolDecoder {
         }
 
         XMPPContentHandler contentHandler = (XMPPContentHandler) reader.getContentHandler();
-        XMLElementListener listener = new MinaStanzaListener(out);
+        MinaStanzaListener listener = new MinaStanzaListener(out);
         contentHandler.setListener(listener);
 
         reader.parse(in, CharsetUtil.UTF8_DECODER);

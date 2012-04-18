@@ -39,14 +39,10 @@ public class XMPPContentHandlerTestCase extends TestCase {
 
     private static class TestListener implements XMLElementListener {
         public List<XMLElement> elements = new ArrayList<XMLElement>();
-        private boolean closed = false;
 
         public void element(XMLElement element) {
             elements.add(element);
         }
-        
-        public void close() { closed = true; }
-        public boolean isClosed() { return closed; }
     }
 
     public void test() throws Exception {
@@ -67,7 +63,6 @@ public class XMPPContentHandlerTestCase extends TestCase {
         assertEquals("stanza", actual.next().getName());
         assertEquals("message", actual.next().getName());
         assertEquals("iq", actual.next().getName());
-        assertTrue(listener.isClosed());
     }
 
     private void parse(NonBlockingXMLReader reader, String xml) throws Exception {

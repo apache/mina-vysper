@@ -177,11 +177,4 @@ public class WebSocketBackedSessionContext extends AbstractSessionContext implem
         // TODO how to handle?
     	closed = true;
     }
-    
-    /**
-     * Implementation for XMLElementListener.
-     */
-    public boolean isClosed() {
-    	return closed;
-    }
 }

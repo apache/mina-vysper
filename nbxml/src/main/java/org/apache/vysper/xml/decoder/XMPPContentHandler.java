@@ -139,7 +139,7 @@ public class XMPPContentHandler implements ContentHandler {
      * End of the XMPP stream. Tell the XML listener we're done.
      */
     public void endDocument() throws SAXException { 
-        this.listener.close();
+        /* nothing to do */
     }
 
     /**
