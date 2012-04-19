@@ -19,10 +19,16 @@
  */
 package org.apache.vysper.xmpp.extension.xep0124;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
+import javax.servlet.AsyncContext;
+import javax.servlet.AsyncEvent;
+import javax.servlet.AsyncListener;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.vysper.xml.fragment.Renderer;
@@ -33,9 +39,6 @@ import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.writer.StanzaWriter;
-import org.eclipse.jetty.continuation.Continuation;
-import org.eclipse.jetty.continuation.ContinuationListener;
-import org.eclipse.jetty.continuation.ContinuationSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -246,10 +249,9 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
                 }
             }
         }
-        
-        Continuation continuation = ContinuationSupport.getContinuation(req.getHttpServletRequest());
-        continuation.setAttribute("response", boshResponse);
-        continuation.resume();
+
+        final AsyncContext asyncContext = this.saveResponse(req, boshResponse);
+        asyncContext.dispatch();
         latestWriteTimestamp = System.currentTimeMillis();
         updateInactivityChecker();
     }
@@ -287,9 +289,9 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("rid = {} - BOSH writing response: {}", rid, new String(boshResponse.getContent()));
         }
-        Continuation continuation = ContinuationSupport.getContinuation(req.getHttpServletRequest());
-        continuation.setAttribute("response", boshResponse);
-        continuation.resume();
+
+        final AsyncContext asyncContext = this.saveResponse(req, boshResponse);
+        asyncContext.dispatch();
         close();
     }
 
@@ -305,9 +307,10 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("rid = {} - BOSH writing response: {}", req.getRid(), new String(boshResponse.getContent()));
             }
-            Continuation continuation = ContinuationSupport.getContinuation(req.getHttpServletRequest());
-            continuation.setAttribute("response", boshResponse);
-            continuation.resume();
+
+            final AsyncContext asyncContext =
+                    this.saveResponse(req, boshResponse);
+            asyncContext.dispatch();
         }
         
         serverRuntimeContext.getResourceRegistry().unbindSession(this);
@@ -461,10 +464,12 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      * The synchronization on the session object ensures that there will be no concurrent writes or other concurrent
      * expirations for the BOSH client while the current request expires.
      */
-    synchronized private void requestExpired(Continuation continuation) {
-        BoshRequest req = (BoshRequest) continuation.getAttribute("request");
+    private synchronized void requestExpired(final AsyncContext context) {
+        final BoshRequest req =
+                (BoshRequest) context.getRequest().getAttribute("request");
         if (req == null) {
-            LOGGER.warn("Continuation expired without having an associated request!");
+            LOGGER.warn("Continuation expired without having "
+                    + "an associated request!");
             return;
         }
         LOGGER.debug("rid = {} - BOSH request expired", req.getRid());
@@ -487,11 +492,10 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         // reset the inactivity
         currentInactivity = inactivity;
         
-        Continuation continuation = ContinuationSupport.getContinuation(br.getHttpServletRequest());
-        addContinuationExpirationListener(continuation);
-        continuation.setTimeout(wait * 1000);
-        continuation.setAttribute("request", br);
-        continuation.suspend();
+        final AsyncContext context = br.getHttpServletRequest().startAsync();
+        this.addContinuationExpirationListener(context);
+        context.setTimeout(this.wait * 1000);
+        br.getHttpServletRequest().setAttribute("request", br);
 
         final int currentRequests = requests;
         synchronized (requestsWindow) {
@@ -614,7 +618,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         }
     }
     
-    private void respondToPause(int pause) {
+    protected void respondToPause(int pause) {
         LOGGER.debug("Setting inactivity period to {}", pause);
         currentInactivity = pause;
         for (;;) {
@@ -626,29 +630,36 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         }
     }
     
-    private void sendBrokenConnectionReport(long report, long delta) {
+    protected void sendBrokenConnectionReport(long report, long delta) {
         Stanza body = boshHandler.getTerminateResponse();
         body = boshHandler.addAttribute(body, "report", Long.toString(report));
         body = boshHandler.addAttribute(body, "time", Long.toString(delta));
         writeBOSHResponse(body);
     }
     
-    private void addContinuationExpirationListener(Continuation continuation) {
+    protected void addContinuationExpirationListener(final AsyncContext context) {
         // listen the continuation to be notified when the request expires
-        continuation.addContinuationListener(new ContinuationListener() {
+        context.addListener(new AsyncListener() {
 
-            public void onTimeout(Continuation continuation) {
-                requestExpired(continuation);
+            public void onTimeout(AsyncEvent event) throws IOException {
+                BoshBackedSessionContext.this.requestExpired(context);
             }
 
-            public void onComplete(Continuation continuation) {
+            public void onStartAsync(AsyncEvent event) throws IOException {
                 // ignore
             }
 
+            public void onError(AsyncEvent event) throws IOException {
+                LOGGER.warn("Async error", event.getThrowable());
+            }
+
+            public void onComplete(AsyncEvent event) throws IOException {
+                // ignore
+            }
         });
     }
-    
-    private void resendResponse(BoshRequest br) {
+
+    protected void resendResponse(BoshRequest br) {
         final Long rid = br.getRid();
         BoshResponse boshResponse = sentResponses.get(rid);
         if (boshResponse == null) {
@@ -658,14 +669,14 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("rid = {} - BOSH writing response (resending): {}", rid, new String(boshResponse.getContent()));
         }
-        Continuation continuation = ContinuationSupport.getContinuation(br.getHttpServletRequest());
-        continuation.setAttribute("response", boshResponse);
-        continuation.resume();
-        latestWriteTimestamp = System.currentTimeMillis();
-        updateInactivityChecker();
+
+        final AsyncContext asyncContext = this.saveResponse(br, boshResponse);
+        asyncContext.dispatch();
+        this.latestWriteTimestamp = System.currentTimeMillis();
+        this.updateInactivityChecker();
     }
 
-    private BoshResponse getBoshResponse(Stanza stanza, Long ack) {
+    protected BoshResponse getBoshResponse(Stanza stanza, Long ack) {
         if (ack != null) {
             stanza = boshHandler.addAttribute(stanza, "ack", ack.toString());
         }
@@ -695,4 +706,10 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         }
     }
 
+    protected AsyncContext saveResponse(final BoshRequest boshRequest, final BoshResponse boshResponse) {
+        final HttpServletRequest request = boshRequest.getHttpServletRequest();
+        final AsyncContext asyncContext = request.getAsyncContext();
+        request.setAttribute("response", boshResponse);
+        return asyncContext;
+    }
 }

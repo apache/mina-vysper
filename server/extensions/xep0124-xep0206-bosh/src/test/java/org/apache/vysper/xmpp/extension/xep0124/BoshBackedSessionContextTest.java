@@ -26,6 +26,11 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
+
+import javax.servlet.AsyncContext;
+import javax.servlet.AsyncEvent;
+import javax.servlet.AsyncListener;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.vysper.xml.fragment.Renderer;
@@ -37,8 +42,6 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import org.eclipse.jetty.continuation.Continuation;
-import org.eclipse.jetty.continuation.ContinuationListener;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,17 +75,19 @@ public class BoshBackedSessionContextTest {
 
     @Test
     public void testWrite0() {
-        Continuation continuation = mocksControl.createMock(Continuation.class);
         HttpServletRequest httpServletRequest = mocksControl.createMock(HttpServletRequest.class);
-        expect(httpServletRequest.getAttribute(Continuation.ATTRIBUTE)).andReturn(continuation);
+        AsyncContext asyncContext = mocksControl.createMock(AsyncContext.class);
+        expect(httpServletRequest.startAsync()).andReturn(asyncContext);
         expectLastCall().atLeastOnce();
-        continuation.setTimeout(anyLong());
-        continuation.setAttribute(eq("request"), EasyMock.<BoshRequest> notNull());
-        continuation.suspend();
-        continuation.resume();
-        continuation.addContinuationListener(EasyMock.<ContinuationListener> anyObject());
+        expect(httpServletRequest.getAsyncContext()).andReturn(asyncContext);
+        expectLastCall().atLeastOnce();
+        asyncContext.setTimeout(anyLong());
+        asyncContext.dispatch();
+        expectLastCall().atLeastOnce();
+        httpServletRequest.setAttribute(eq("request"), EasyMock.<BoshRequest> notNull());
+        asyncContext.addListener(EasyMock.<AsyncListener> anyObject());
         Capture<BoshResponse> captured = new Capture<BoshResponse>();
-        continuation.setAttribute(eq("response"), EasyMock.<BoshResponse> capture(captured));
+        httpServletRequest.setAttribute(eq("response"), EasyMock.<BoshResponse> capture(captured));
         mocksControl.replay();
 
         BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(boshHandler, serverRuntimeContext, inactivityChecker);
@@ -115,36 +120,39 @@ public class BoshBackedSessionContextTest {
     }
 
     @Test
-    public void testRequestExpired() {
+    public void testRequestExpired() throws IOException {
         Stanza emtpyStanza = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH).build();
 
         // addRequest
         HttpServletRequest httpServletRequest = mocksControl.createMock(HttpServletRequest.class);
-        Continuation continuation = mocksControl.createMock(Continuation.class);
-        expect(httpServletRequest.getAttribute(Continuation.ATTRIBUTE)).andReturn(continuation);
-        expectLastCall().atLeastOnce();
-        continuation.setTimeout(anyLong());
-        continuation.suspend();
-        continuation.setAttribute(eq("request"), EasyMock.<BoshRequest> notNull());
+        AsyncContext asyncContext = mocksControl.createMock(AsyncContext.class);
+        expect(httpServletRequest.startAsync()).andReturn(asyncContext).atLeastOnce();
+        expect(httpServletRequest.getAsyncContext()).andReturn(asyncContext).atLeastOnce();
+        asyncContext.setTimeout(anyLong());
+        httpServletRequest.setAttribute(eq("request"), EasyMock.<BoshRequest> notNull());
 
-        Capture<ContinuationListener> listenerCaptured = new Capture<ContinuationListener>();
-        continuation.addContinuationListener(EasyMock.<ContinuationListener> capture(listenerCaptured));
-        
+        expect(asyncContext.getRequest()).andReturn(httpServletRequest).atLeastOnce();
+        asyncContext.dispatch();
+        expectLastCall().atLeastOnce();
+
+        Capture<AsyncListener> listenerCaptured = new Capture<AsyncListener>();
+        asyncContext.addListener(EasyMock.<AsyncListener> capture(listenerCaptured));
+
+        AsyncEvent asyncEvent = mocksControl.createMock(AsyncEvent.class);
+
         BoshRequest br = new BoshRequest(httpServletRequest, emtpyStanza, 1L);
 
         // requestExpired
-        expect(continuation.getAttribute("request")).andReturn(br);
+        expect(httpServletRequest.getAttribute("request")).andReturn(br);
         Capture<BoshResponse> responseCaptured = new Capture<BoshResponse>();
-        continuation.setAttribute(eq("response"), EasyMock.<BoshResponse> capture(responseCaptured));
+        httpServletRequest.setAttribute(eq("response"), EasyMock.<BoshResponse> capture(responseCaptured));
 
         // write0
-        continuation.resume();
-
         mocksControl.replay();
         BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(boshHandler, serverRuntimeContext, inactivityChecker);
         
         boshBackedSessionContext.insertRequest(br);
-        listenerCaptured.getValue().onTimeout(continuation);
+        listenerCaptured.getValue().onTimeout(asyncEvent);
         mocksControl.verify();
 
         assertEquals(new Renderer(emtpyStanza).getComplete(), new String(responseCaptured.getValue().getContent()));
@@ -156,30 +164,35 @@ public class BoshBackedSessionContextTest {
         // addRequest
         HttpServletRequest httpServletRequest1 = mocksControl.createMock(HttpServletRequest.class);
         HttpServletRequest httpServletRequest2 = mocksControl.createMock(HttpServletRequest.class);
-        Continuation continuation1 = mocksControl.createMock(Continuation.class);
-        Continuation continuation2 = mocksControl.createMock(Continuation.class);
-        expect(httpServletRequest1.getAttribute(Continuation.ATTRIBUTE)).andReturn(continuation1);
-        expectLastCall().atLeastOnce();
-        expect(httpServletRequest2.getAttribute(Continuation.ATTRIBUTE)).andReturn(continuation2);
-        expectLastCall().atLeastOnce();
-        continuation1.setTimeout(anyLong());
-        continuation1.suspend();
+        AsyncContext asyncContext1 = mocksControl.createMock(AsyncContext.class);
+        AsyncContext asyncContext2 = mocksControl.createMock(AsyncContext.class);
+
+        expect(httpServletRequest1.startAsync()).andReturn(asyncContext1).atLeastOnce();
+        expect(httpServletRequest1.getAsyncContext()).andReturn(asyncContext1).atLeastOnce();
+
+        expect(httpServletRequest2.startAsync()).andReturn(asyncContext2).atLeastOnce();
+        expect(httpServletRequest2.getAsyncContext()).andReturn(asyncContext2).anyTimes();
+
+        asyncContext1.setTimeout(anyLong());
         Capture<BoshRequest> br1 = new Capture<BoshRequest>();
-        continuation1.setAttribute(eq("request"), EasyMock.<BoshRequest> capture(br1));
-        continuation2.setTimeout(anyLong());
-        continuation2.suspend();
+        httpServletRequest1.setAttribute(eq("request"), EasyMock.<BoshRequest> capture(br1));
+
+        asyncContext2.setTimeout(anyLong());
         Capture<BoshRequest> br2 = new Capture<BoshRequest>();
-        continuation2.setAttribute(eq("request"), EasyMock.<BoshRequest> capture(br2));
-        continuation1.addContinuationListener(EasyMock.<ContinuationListener> anyObject());
-        continuation2.addContinuationListener(EasyMock.<ContinuationListener> anyObject());
-        
+        httpServletRequest2.setAttribute(eq("request"), EasyMock.<BoshRequest> capture(br2));
+
+        asyncContext1.addListener(EasyMock.<AsyncListener> anyObject());
+        asyncContext2.addListener(EasyMock.<AsyncListener> anyObject());
+
+        asyncContext1.dispatch();
+        expectLastCall().atLeastOnce();
+
         Stanza body = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH).build();
         expect(boshHandler.addAttribute(eq(body), eq("ack"), Long.toString(EasyMock.anyLong()))).andReturn(body);
 
         // write0
         Capture<BoshResponse> captured = new Capture<BoshResponse>();
-        continuation1.setAttribute(eq("response"), EasyMock.<BoshResponse> capture(captured));
-        continuation1.resume();
+        httpServletRequest1.setAttribute(eq("response"), EasyMock.<BoshResponse> capture(captured));
 
         mocksControl.replay();
         BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(boshHandler, serverRuntimeContext, inactivityChecker);
@@ -190,7 +203,7 @@ public class BoshBackedSessionContextTest {
         boshBackedSessionContext.insertRequest(new BoshRequest(httpServletRequest2, body, 2L));
         boshBackedSessionContext.writeBOSHResponse(body);
         mocksControl.verify();
-        
+
         assertEquals(httpServletRequest1, br1.getValue().getHttpServletRequest());
         assertEquals(httpServletRequest2, br2.getValue().getHttpServletRequest());
 
@@ -201,14 +214,16 @@ public class BoshBackedSessionContextTest {
     @Test
     public void testAddRequestWithDelayedResponses() {
         HttpServletRequest httpServletRequest = mocksControl.createMock(HttpServletRequest.class);
-        Continuation continuation = mocksControl.createMock(Continuation.class);
-        expect(httpServletRequest.getAttribute(Continuation.ATTRIBUTE)).andReturn(continuation);
-        expectLastCall().atLeastOnce();
-        continuation.setTimeout(anyLong());
-        continuation.suspend();
-        continuation.setAttribute(eq("request"), EasyMock.<BoshRequest> notNull());
+        AsyncContext asyncContext = mocksControl.createMock(AsyncContext.class);
+        expect(httpServletRequest.startAsync()).andReturn(asyncContext).atLeastOnce();
+        expect(httpServletRequest.getAsyncContext()).andReturn(asyncContext).atLeastOnce();
+        asyncContext.setTimeout(anyLong());
+        httpServletRequest.setAttribute(eq("request"), EasyMock.<BoshRequest> notNull());
 
-        continuation.addContinuationListener(EasyMock.<ContinuationListener> anyObject());
+        asyncContext.addListener(EasyMock.<AsyncListener> anyObject());
+
+        asyncContext.dispatch();
+        expectLastCall().atLeastOnce();
 
         Stanza body1 = mocksControl.createMock(Stanza.class);
         Stanza body2 = mocksControl.createMock(Stanza.class);
@@ -217,8 +232,7 @@ public class BoshBackedSessionContextTest {
                 .andReturn(body);
         expectLastCall().times(2);
 
-        continuation.setAttribute(eq("response"), EasyMock.<BoshResponse> anyObject());
-        continuation.resume();
+        httpServletRequest.setAttribute(eq("response"), EasyMock.<BoshResponse> anyObject());
 
         mocksControl.replay();
 
@@ -229,5 +243,4 @@ public class BoshBackedSessionContextTest {
         boshBackedSessionContext.insertRequest(new BoshRequest(httpServletRequest, body, 1L));
         mocksControl.verify();
     }
-
 }

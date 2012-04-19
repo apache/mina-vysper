@@ -25,11 +25,12 @@ import static org.easymock.EasyMock.anyLong;
 import static org.easymock.EasyMock.createControl;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
 
 import java.io.IOException;
 import java.util.Collections;
 
+import javax.servlet.AsyncContext;
+import javax.servlet.AsyncListener;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.vysper.xml.fragment.XMLElement;
@@ -47,8 +48,6 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import org.eclipse.jetty.continuation.Continuation;
-import org.eclipse.jetty.continuation.ContinuationListener;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -81,14 +80,14 @@ public class BoshHandlerTest {
         expect(serverRuntimeContext.getNextSessionId()).andReturn("200");
         expect(serverRuntimeContext.getServerEnitity()).andReturn(new EntityImpl(null, "vysper.org", null));
         expect(serverRuntimeContext.getDefaultXMLLang()).andReturn("en");
-        Continuation continuation = mocksControl.createMock(Continuation.class);
-        expect(httpServletRequest.getAttribute(Continuation.ATTRIBUTE)).andReturn(continuation);
-        expectLastCall().atLeastOnce();
-        continuation.setTimeout(anyLong());
+        AsyncContext asyncContext = mocksControl.createMock(AsyncContext.class);
+        expect(httpServletRequest.startAsync()).andReturn(asyncContext).atLeastOnce();
+        expect(httpServletRequest.getAsyncContext()).andReturn(asyncContext).atLeastOnce();
+        asyncContext.setTimeout(anyLong());
         Capture<BoshRequest> br = new Capture<BoshRequest>();
-        continuation.setAttribute(eq("request"), EasyMock.<BoshRequest> capture(br));
-        continuation.addContinuationListener(EasyMock.<ContinuationListener> anyObject());
-        continuation.suspend();
+        httpServletRequest.setAttribute(eq("request"), EasyMock.<BoshRequest> capture(br));
+        asyncContext.addListener(EasyMock.<AsyncListener> anyObject());
+        asyncContext.dispatch();
 
         ServerFeatures serverFeatures = mocksControl.createMock(ServerFeatures.class);
         expect(serverRuntimeContext.getServerFeatures()).andReturn(serverFeatures);
@@ -96,8 +95,7 @@ public class BoshHandlerTest {
         expect(serverRuntimeContext.getModule(InBandRegistrationModule.class)).andReturn(null);
 
         Capture<BoshResponse> captured = new Capture<BoshResponse>();
-        continuation.setAttribute(eq("response"), EasyMock.<BoshResponse> capture(captured));
-        continuation.resume();
+        httpServletRequest.setAttribute(eq("response"), EasyMock.<BoshResponse> capture(captured));
         mocksControl.replay();
 
         Stanza boshRequest = createSessionRequest();
@@ -127,12 +125,11 @@ public class BoshHandlerTest {
 
         // test session retrieval, retrieves the session above identified by sid=200
         mocksControl.reset();
-        expect(httpServletRequest.getAttribute(Continuation.ATTRIBUTE)).andReturn(continuation);
-        expectLastCall().atLeastOnce();
-        continuation.setTimeout(anyLong());
-        continuation.suspend();
-        continuation.setAttribute(eq("request"), EasyMock.<BoshRequest> capture(br));
-        continuation.addContinuationListener(EasyMock.<ContinuationListener> anyObject());
+        expect(httpServletRequest.startAsync()).andReturn(asyncContext).atLeastOnce();
+        expect(httpServletRequest.getAsyncContext()).andReturn(asyncContext).anyTimes();
+        asyncContext.setTimeout(anyLong());
+        httpServletRequest.setAttribute(eq("request"), EasyMock.<BoshRequest> capture(br));
+        asyncContext.addListener(EasyMock.<AsyncListener> anyObject());
         StanzaProcessor stanzaProcessor = mocksControl.createMock(StanzaProcessor.class);
         expect(serverRuntimeContext.getStanzaProcessor()).andReturn(stanzaProcessor);
         Capture<Stanza> stanzaCaptured = new Capture<Stanza>();
