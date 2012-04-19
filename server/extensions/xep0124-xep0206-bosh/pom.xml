@@ -41,11 +41,18 @@
 			<artifactId>vysper-core</artifactId>
 		</dependency>
 
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+
 		<dependency>
+            <!-- only needed for BoshEndpoint -->
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-servlet</artifactId>
 		</dependency>
-
+        
 		<!-- Test dependencies -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
