@@ -19,11 +19,7 @@
  */
 package org.apache.vysper.xmpp.extension.xep0124;
 
-import static org.easymock.EasyMock.anyLong;
-import static org.easymock.EasyMock.createControl;
-import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.*;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
@@ -33,6 +29,7 @@ import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
@@ -84,16 +81,16 @@ public class BoshBackedSessionContextTest {
         asyncContext.setTimeout(anyLong());
         asyncContext.dispatch();
         expectLastCall().atLeastOnce();
-        httpServletRequest.setAttribute(eq("request"), EasyMock.<BoshRequest> notNull());
-        asyncContext.addListener(EasyMock.<AsyncListener> anyObject());
+        httpServletRequest.setAttribute(eq("request"), EasyMock.<BoshRequest>notNull());
+        asyncContext.addListener(EasyMock.<AsyncListener>anyObject());
         Capture<BoshResponse> captured = new Capture<BoshResponse>();
         httpServletRequest.setAttribute(eq("response"), EasyMock.<BoshResponse> capture(captured));
         mocksControl.replay();
 
         BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(boshHandler, serverRuntimeContext, inactivityChecker);
-        Stanza body = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH).build();
+        Stanza body = BoshStanzaUtils.EMPTY_BOSH_RESPONSE;
         boshBackedSessionContext.insertRequest(new BoshRequest(httpServletRequest, body, 1L));
-        boshBackedSessionContext.writeBOSHResponse(body);
+        boshBackedSessionContext.writeBoshResponse(body);
         mocksControl.verify();
         
         BoshResponse boshResponse = captured.getValue();
@@ -121,7 +118,7 @@ public class BoshBackedSessionContextTest {
 
     @Test
     public void testRequestExpired() throws IOException {
-        Stanza emtpyStanza = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH).build();
+        Stanza emtpyStanza = BoshStanzaUtils.EMPTY_BOSH_RESPONSE;
 
         // addRequest
         HttpServletRequest httpServletRequest = mocksControl.createMock(HttpServletRequest.class);
@@ -129,7 +126,7 @@ public class BoshBackedSessionContextTest {
         expect(httpServletRequest.startAsync()).andReturn(asyncContext).atLeastOnce();
         expect(httpServletRequest.getAsyncContext()).andReturn(asyncContext).atLeastOnce();
         asyncContext.setTimeout(anyLong());
-        httpServletRequest.setAttribute(eq("request"), EasyMock.<BoshRequest> notNull());
+        httpServletRequest.setAttribute(eq("request"), EasyMock.<BoshRequest>notNull());
 
         expect(asyncContext.getRequest()).andReturn(httpServletRequest).atLeastOnce();
         asyncContext.dispatch();
@@ -166,6 +163,7 @@ public class BoshBackedSessionContextTest {
         HttpServletRequest httpServletRequest2 = mocksControl.createMock(HttpServletRequest.class);
         AsyncContext asyncContext1 = mocksControl.createMock(AsyncContext.class);
         AsyncContext asyncContext2 = mocksControl.createMock(AsyncContext.class);
+        BoshStanzaUtils boshStanzaUtils = mocksControl.createMock(BoshStanzaUtils.class);
 
         expect(httpServletRequest1.startAsync()).andReturn(asyncContext1).atLeastOnce();
         expect(httpServletRequest1.getAsyncContext()).andReturn(asyncContext1).atLeastOnce();
@@ -179,16 +177,15 @@ public class BoshBackedSessionContextTest {
 
         asyncContext2.setTimeout(anyLong());
         Capture<BoshRequest> br2 = new Capture<BoshRequest>();
-        httpServletRequest2.setAttribute(eq("request"), EasyMock.<BoshRequest> capture(br2));
+        httpServletRequest2.setAttribute(eq("request"), EasyMock.<BoshRequest>capture(br2));
 
         asyncContext1.addListener(EasyMock.<AsyncListener> anyObject());
-        asyncContext2.addListener(EasyMock.<AsyncListener> anyObject());
+        asyncContext2.addListener(EasyMock.<AsyncListener>anyObject());
 
         asyncContext1.dispatch();
         expectLastCall().atLeastOnce();
 
-        Stanza body = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH).build();
-        expect(boshHandler.addAttribute(eq(body), eq("ack"), Long.toString(EasyMock.anyLong()))).andReturn(body);
+        Stanza body = BoshStanzaUtils.EMPTY_BOSH_RESPONSE;
 
         // write0
         Capture<BoshResponse> captured = new Capture<BoshResponse>();
@@ -199,15 +196,18 @@ public class BoshBackedSessionContextTest {
 
         boshBackedSessionContext.setHold(2);
         // consecutive writes with RID 1 and 2
+        long maxRID = 2L;
         boshBackedSessionContext.insertRequest(new BoshRequest(httpServletRequest1, body, 1L));
-        boshBackedSessionContext.insertRequest(new BoshRequest(httpServletRequest2, body, 2L));
-        boshBackedSessionContext.writeBOSHResponse(body);
+        boshBackedSessionContext.insertRequest(new BoshRequest(httpServletRequest2, body, maxRID));
+        boshBackedSessionContext.writeBoshResponse(body);
         mocksControl.verify();
 
         assertEquals(httpServletRequest1, br1.getValue().getHttpServletRequest());
         assertEquals(httpServletRequest2, br2.getValue().getHttpServletRequest());
 
-        assertEquals(new Renderer(body).getComplete(), new String(captured.getValue().getContent()));
+        // expect ack for newest/largest RID
+        final Stanza ackedResponse = BoshStanzaUtils.addAttribute(body, "ack", Long.toString(maxRID));
+        assertEquals(new Renderer(ackedResponse).getComplete(), new String(captured.getValue().getContent()));
         assertEquals(BoshServlet.XML_CONTENT_TYPE, captured.getValue().getContentType());
     }
 
@@ -218,29 +218,30 @@ public class BoshBackedSessionContextTest {
         expect(httpServletRequest.startAsync()).andReturn(asyncContext).atLeastOnce();
         expect(httpServletRequest.getAsyncContext()).andReturn(asyncContext).atLeastOnce();
         asyncContext.setTimeout(anyLong());
-        httpServletRequest.setAttribute(eq("request"), EasyMock.<BoshRequest> notNull());
+        httpServletRequest.setAttribute(eq("request"), EasyMock.<BoshRequest>notNull());
 
-        asyncContext.addListener(EasyMock.<AsyncListener> anyObject());
+        asyncContext.addListener(EasyMock.<AsyncListener>anyObject());
 
         asyncContext.dispatch();
         expectLastCall().atLeastOnce();
 
-        Stanza body1 = mocksControl.createMock(Stanza.class);
-        Stanza body2 = mocksControl.createMock(Stanza.class);
-        Stanza body = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH).build();
-        expect(boshHandler.mergeResponses(EasyMock.<Stanza> anyObject(), EasyMock.<Stanza> anyObject()))
-                .andReturn(body);
-        expectLastCall().times(2);
-
-        httpServletRequest.setAttribute(eq("response"), EasyMock.<BoshResponse> anyObject());
+        Stanza body = BoshStanzaUtils.createBoshStanzaBuilder().startInnerElement("presence").endInnerElement().build();
+        
+        Capture<BoshResponse> captured = new Capture<BoshResponse>();
+        httpServletRequest.setAttribute(eq("response"), EasyMock.<BoshResponse> capture(captured));
 
         mocksControl.replay();
 
         BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(boshHandler,
                 serverRuntimeContext, inactivityChecker);
-        boshBackedSessionContext.writeBOSHResponse(body1);
-        boshBackedSessionContext.writeBOSHResponse(body2);
+        boshBackedSessionContext.writeBoshResponse(body); // queued for merging
+        boshBackedSessionContext.writeBoshResponse(body); // queued for merging
+        boshBackedSessionContext.writeBoshResponse(body); // queued for merging
         boshBackedSessionContext.insertRequest(new BoshRequest(httpServletRequest, body, 1L));
+
         mocksControl.verify();
+
+        final String mergedAllBodiesStanza = new String(captured.getValue().getContent());
+        assertEquals(3, StringUtils.countMatches(mergedAllBodiesStanza, "<presence"));
     }
 }

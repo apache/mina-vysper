@@ -23,9 +23,11 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.vysper.xml.fragment.Attribute;
+import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -46,13 +48,6 @@ import org.slf4j.LoggerFactory;
 public class BoshHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BoshHandler.class);
-    
-    /**
-     * the empty BOSH response.
-     * <p>
-     * Looks like <code>&lt;body xmlns='http://jabber.org/protocol/httpbind'/&gt;</code>
-     */
-    protected static final Stanza EMPTY_BOSH_RESPONSE = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH).build();
 
     private ServerRuntimeContext serverRuntimeContext;
 
@@ -115,9 +110,12 @@ public class BoshHandler {
                 return;
             }
         } else {
-            BoshBackedSessionContext session = sessions.get(body.getAttributeValue("sid"));
+            final String sid = body.getAttributeValue("sid");
+            BoshBackedSessionContext session = null;
+            if (sid != null) session = sessions.get(sid);
             if (session == null) {
-                LOGGER.warn("Received an invalid 'sid'!");
+                LOGGER.warn("Received an invalid sid = '{}', should terminating connection", sid);
+                // TODO terminate connection
                 return;
             }
             synchronized (session) {
@@ -137,37 +135,40 @@ public class BoshHandler {
     }
     
     private void processSession(BoshBackedSessionContext session, BoshRequest br) {
+        final Stanza stanza = br.getBody();
         if (session.getState() == SessionState.ENCRYPTED) {
-            if (br.getBody().getInnerElements().isEmpty()) {
+            if (stanza.getInnerElements().isEmpty()) {
                 // session needs authentication
                 return;
             }
-            for (XMLElement element : br.getBody().getInnerElements()) {
+            for (XMLElement element : stanza.getInnerElements()) {
                 if (element.getNamespaceURI().equals(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)) {
                     processStanza(session, element);
                 }
             }
         } else if (session.getState() == SessionState.AUTHENTICATED) {
-            if ("true".equals(br.getBody().getAttributeValue(NamespaceURIs.URN_XMPP_XBOSH, "restart"))) {
+            if ("true".equals(stanza.getAttributeValue(NamespaceURIs.URN_XMPP_XBOSH, "restart"))) {
                 // restart request
-                session.writeBOSHResponse(getRestartResponse());
+                session.writeBoshResponse(BoshStanzaUtils.RESTART_BOSH_RESPONSE);
             } else {
                 // any other request
-                for (XMLElement element : br.getBody().getInnerElements()) {
+                for (XMLElement element : stanza.getInnerElements()) {
                     processStanza(session, element);
                 }
                 
                 // if the client solicited the session termination
-                if ("terminate".equals(br.getBody().getAttributeValue("type"))) {
+                if ("terminate".equals(stanza.getAttributeValue("type"))) {
                     terminateSession(session);
                 }
             }
+        } else {
+            LOGGER.debug("processing session while in state = " + session.getState());
         }
     }
 
     private void terminateSession(BoshBackedSessionContext session) {
         sessions.remove(session.getSessionId());
-        session.writeBOSHResponse(getTerminateResponse());
+        session.writeBoshResponse(BoshStanzaUtils.TERMINATE_BOSH_RESPONSE);
         session.close();
     }
 
@@ -184,37 +185,55 @@ public class BoshHandler {
     }
 
     private void createSession(BoshRequest br) throws IOException {
+        final Stanza stanza = br.getBody();
+
         BoshBackedSessionContext session = new BoshBackedSessionContext(this, serverRuntimeContext, inactivityChecker);
-        if (br.getBody().getAttribute("content") != null) {
-            session.setContentType(br.getBody().getAttributeValue("content"));
-        }
-        if (br.getBody().getAttribute("wait") != null) {
-            int wait = Integer.parseInt(br.getBody().getAttributeValue("wait"));
+        
+        final String contentAttribute = stanza.getAttributeValue("content");
+        if (contentAttribute != null) session.setContentType(contentAttribute);
+        
+        String waitAttribute = null;
+        try {
+            waitAttribute = stanza.getAttributeValue("wait");
+            final int wait = Integer.parseInt(waitAttribute);
             session.setWait(wait);
+        } catch (NumberFormatException e) {
+            LOGGER.warn("wait value is expected to be an Integer, not {}", waitAttribute);
         }
-        if (br.getBody().getAttribute("hold") != null) {
-            int hold = Integer.parseInt(br.getBody().getAttributeValue("hold"));
+
+        final String holdAttribute = stanza.getAttributeValue("hold");
+        try {
+            int hold = Integer.parseInt(holdAttribute);
             session.setHold(hold);
+        } catch (NumberFormatException e) {
+            LOGGER.warn("hold value is expected to be an Integer, not {}", waitAttribute);
         }
-        if (br.getBody().getAttribute("ver") != null) {
-            String ver = br.getBody().getAttributeValue("ver");
-            session.setBoshVersion(ver);
+
+        final String versionAttribute = stanza.getAttributeValue("ver");
+        if (versionAttribute != null) {
+            try {
+                session.setBoshVersion(versionAttribute);
+            } catch (NumberFormatException e) {
+                LOGGER.warn("bosh version is expected to be of form nn.mm, not {}", waitAttribute);
+            }
         }
-        if (br.getBody().getAttribute(NamespaceURIs.XML, "lang") != null) {
-            String lang = br.getBody().getAttributeValue(NamespaceURIs.XML, "lang");
-            session.setXMLLang(lang);
-        }
-        if ("1".equals(br.getBody().getAttributeValue("ack"))) {
+
+        final String langAttribute = stanza.getAttributeValue(NamespaceURIs.XML, "lang");
+        if (langAttribute != null) session.setXMLLang(langAttribute);
+        
+        if ("1".equals(stanza.getAttributeValue("ack"))) {
             session.setClientAcknowledgements(true);
         }
         session.insertRequest(br);
         sessions.put(session.getSessionId(), session);
 
-        session.writeBOSHResponse(getSessionCreationResponse(session));
+        LOGGER.info("BOSH session created with session id = {}", session.getSessionId());
+
+        session.writeBoshResponse(getSessionCreationResponse(session));
     }
 
     private Stanza getSessionCreationResponse(BoshBackedSessionContext session) {
-        StanzaBuilder body = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH);
+        StanzaBuilder body = BoshStanzaUtils.createBoshStanzaBuilder();
         body.addAttribute("wait", Integer.toString(session.getWait()));
         body.addAttribute("inactivity", Integer.toString(session.getInactivity()));
         body.addAttribute("polling", Integer.toString(session.getPolling()));
@@ -234,71 +253,11 @@ public class BoshHandler {
                 .getAuthenticationMethods(), session);
         body.addPreparedElement(features);
         return body.build();
+
     }
 
-    /**
-     * Creates a BOSH response by wrapping a stanza in a &lt;body/&gt; element
-     * @param stanza the XMPP stanza to wrap
-     * @return the BOSH response
-     */
-    public Stanza wrapStanza(Stanza stanza) {
-        StanzaBuilder body = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH);
-        body.addPreparedElement(stanza);
-        return body.build();
-    }
-    
-    /**
-     * Creates a BOSH response by merging 2 other BOSH responses, this is useful when sending more than one message as
-     * a response to a HTTP request.
-     * @param response1 the first BOSH response to merge
-     * @param response2 the second BOSH response to merge
-     * @return the merged BOSH response
-     */
-    public Stanza mergeResponses(Stanza response1, Stanza response2) {
-        if (response1 == null && response2 == null) {
-            return null;
-        }
-        if (response1 == null) {
-            return response2;
-        }
-        if (response2 == null) {
-            return response1;
-        }
-        StanzaBuilder body = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH);
-        for (XMLElement element : response1.getInnerElements()) {
-            body.addPreparedElement(element);
-        }
-        for (XMLElement element : response2.getInnerElements()) {
-            body.addPreparedElement(element);
-        }
-        return body.build();
-    }
-    
-    private Stanza getRestartResponse() {
-        Stanza features = new ServerResponses().getFeaturesForSession();
-        return wrapStanza(features);
-    }
-    
-    /**
-     * Creates a session termination BOSH response
-     * @return the termination BOSH body
-    */
-    public Stanza getTerminateResponse() {
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH);
-        stanzaBuilder.addAttribute("type", "terminate");
-        return stanzaBuilder.build();
-    }
-    
-    /**
-     * Adds a custom attribute to a BOSH body.
-     * 
-     * @param stanza the BOSH body
-     * @param attributeName the name of the attribute
-     * @param attributeValue the value of the attribute
-     * @return a new BOSH body identical with the one provided except it also has the newly added attribute
-     */
     public Stanza addAttribute(Stanza stanza, String attributeName, String attributeValue) {
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH);
+        StanzaBuilder stanzaBuilder = BoshStanzaUtils.createBoshStanzaBuilder();
         for (Attribute attr : stanza.getAttributes()) {
             stanzaBuilder.addAttribute(attr);
         }
@@ -308,5 +267,4 @@ public class BoshHandler {
         }
         return stanzaBuilder.build();
     }
-
 }

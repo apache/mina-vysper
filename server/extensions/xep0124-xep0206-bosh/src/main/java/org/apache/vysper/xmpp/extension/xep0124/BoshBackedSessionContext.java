@@ -20,6 +20,7 @@
 package org.apache.vysper.xmpp.extension.xep0124;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.SortedMap;
@@ -201,7 +202,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     synchronized public void write(Stanza stanza) {
         if (stanza == null) throw new IllegalArgumentException("stanza must not be null.");
         LOGGER.debug("adding server stanza for writing to BOSH client");
-        writeBOSHResponse(boshHandler.wrapStanza(stanza));
+        writeBoshResponse(BoshStanzaUtils.wrapStanza(stanza));
     }
 
     /**
@@ -212,9 +213,9 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      * 
      * @param responseStanza The BOSH response to write
      */
-    /*package*/ void writeBOSHResponse(Stanza responseStanza) {
+    /*package*/ void writeBoshResponse(Stanza responseStanza) {
         if (responseStanza == null) throw new IllegalArgumentException();
-        final boolean isEmtpyResponse = responseStanza == BoshHandler.EMPTY_BOSH_RESPONSE;
+        final boolean isEmtpyResponse = responseStanza == BoshStanzaUtils.EMPTY_BOSH_RESPONSE;
         
         BoshRequest req;
         BoshResponse boshResponse;
@@ -283,8 +284,8 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         final Long rid = br.getRid();
         requestsWindow.put(rid, br);
         BoshRequest req = requestsWindow.remove(requestsWindow.firstKey());
-        Stanza body = boshHandler.getTerminateResponse();
-        body = boshHandler.addAttribute(body, "condition", condition);
+        Stanza body = BoshStanzaUtils.TERMINATE_BOSH_RESPONSE;
+        body = BoshStanzaUtils.addAttribute(body, "condition", condition);
         BoshResponse boshResponse = getBoshResponse(body, null);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("rid = {} - BOSH writing response: {}", rid, new String(boshResponse.getContent()));
@@ -302,7 +303,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         // respond to all the queued HTTP requests with termination responses
         while (!requestsWindow.isEmpty()) {
             BoshRequest req = requestsWindow.remove(requestsWindow.firstKey());
-            Stanza body = boshHandler.getTerminateResponse();
+            Stanza body = BoshStanzaUtils.TERMINATE_BOSH_RESPONSE;
             BoshResponse boshResponse = getBoshResponse(body, null);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("rid = {} - BOSH writing response: {}", req.getRid(), new String(boshResponse.getContent()));
@@ -411,19 +412,23 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      * specified by the client in its request, whichever is lower.
      * @param version the BOSH version
      */
-    public void setBoshVersion(String version) {
-        String[] v = boshVersion.split("\\.");
-        int major = Integer.parseInt(v[0]);
-        int minor = Integer.parseInt(v[1]);
-        v = version.split("\\.");
+    public void setBoshVersion(String version) throws NumberFormatException {
+        try {
+            String[] v = boshVersion.split("\\.");
+            int major = Integer.parseInt(v[0]);
+            int minor = Integer.parseInt(v[1]);
+            v = version.split("\\.");
 
-        if (v.length == 2) {
-            int clientMajor = Integer.parseInt(v[0]);
-            int clientMinor = Integer.parseInt(v[1]);
-
-            if (clientMajor < major || (clientMajor == major && clientMinor < minor)) {
-                boshVersion = version;
+            if (v.length == 2) {
+                int clientMajor = Integer.parseInt(v[0]);
+                int clientMinor = Integer.parseInt(v[1]);
+    
+                if (clientMajor < major || (clientMajor == major && clientMinor < minor)) {
+                    boshVersion = version;
+                }
             }
+        } catch (NumberFormatException e) {
+            throw e;
         }
     }
 
@@ -474,7 +479,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         }
         LOGGER.debug("rid = {} - BOSH request expired", req.getRid());
         while (!requestsWindow.isEmpty() && requestsWindow.firstKey() <= req.getRid()) {
-            writeBOSHResponse(BoshHandler.EMPTY_BOSH_RESPONSE);
+            writeBoshResponse(BoshStanzaUtils.EMPTY_BOSH_RESPONSE);
         }
     }
 
@@ -484,8 +489,9 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      * 
      * @param req the HTTP request
      */
-    public void insertRequest(BoshRequest br) {
+    public void insertRequest(final BoshRequest br) {
 
+        final Stanza stanza = br.getBody();
         final Long rid = br.getRid();
         LOGGER.debug("rid = {} - inserting new BOSH request", rid);
         
@@ -517,14 +523,14 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
                 }
                 return;
             }
-            if (requestsWindow.size() + 1 > currentRequests && !"terminate".equals(br.getBody().getAttributeValue("type"))
-                    && br.getBody().getAttributeValue("pause") == null) {
+            if (requestsWindow.size() + 1 > currentRequests && !"terminate".equals(stanza.getAttributeValue("type"))
+                    && stanza.getAttributeValue("pause") == null) {
                 LOGGER.warn("BOSH Overactivity: Too many simultaneous requests");
                 error(br, "policy-violation");
                 return;
             }
-            if (requestsWindow.size() + 1 == currentRequests && !"terminate".equals(br.getBody().getAttributeValue("type"))
-                    && br.getBody().getAttributeValue("pause") == null && br.getBody().getInnerElements().isEmpty()) {
+            if (requestsWindow.size() + 1 == currentRequests && !"terminate".equals(stanza.getAttributeValue("type"))
+                    && stanza.getAttributeValue("pause") == null && stanza.getInnerElements().isEmpty()) {
                 if (!requestsWindow.isEmpty()
                         && br.getTimestamp() - requestsWindow.get(requestsWindow.lastKey()).getTimestamp() < polling * 1000) {
                     LOGGER.warn("BOSH Overactivity: Too frequent requests");
@@ -532,7 +538,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
                     return;
                 }
             }
-            if ((wait == 0 || hold == 0) && br.getBody().getInnerElements().isEmpty()) {
+            if ((wait == 0 || hold == 0) && stanza.getInnerElements().isEmpty()) {
                 if (latestEmptyPollingRequest != null && br.getTimestamp() - latestEmptyPollingRequest.getTimestamp() < polling * 1000) {
                     LOGGER.warn("BOSH Overactivity for polling: Too frequent requests");
                     error(br, "policy-violation");
@@ -561,7 +567,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
 
         if (isClientAcknowledgements()) {
             synchronized (sentResponses) {
-                if (br.getBody().getAttribute("ack") == null) {
+                if (stanza.getAttribute("ack") == null) {
                     // if there is no ack attribute present then the client confirmed it received all the responses to all the previous requests
                     // and we clear the cache
                     sentResponses.clear();
@@ -570,7 +576,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
                     // the connection manager MAY inform the client of the situation. In this case it SHOULD include a 'report' attribute set
                     // to one greater than the 'ack' attribute it received from the client, and a 'time' attribute set to the number of milliseconds
                     // since it sent the response associated with the 'report' attribute.
-                    long ack = Long.parseLong(br.getBody().getAttributeValue("ack"));
+                    long ack = Long.parseLong(stanza.getAttributeValue("ack"));
                     if (ack < sentResponses.lastKey() && sentResponses.containsKey(ack + 1)) {
                         long delta = System.currentTimeMillis() - sentResponses.get(ack + 1).getTimestamp();
                         if (delta >= brokenConnectionReportTimeout) {
@@ -585,15 +591,17 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         // we cannot pause if there are missing requests, this is tested with
         // br.getRid().equals(requestsWindow.lastKey()) && highestReadRid.equals(br.getRid())
         synchronized (requestsWindow) {
-            if (br.getBody().getAttribute("pause") != null && rid.equals(requestsWindow.lastKey()) && highestReadRid.equals(rid)) {
-                int pause = Integer.parseInt(br.getBody().getAttributeValue("pause"));
-                if (pause > maxpause) {
-                    // do not allow to pause more than maxpause
-                    pause = maxpause;
+            final String pauseAttribute = stanza.getAttributeValue("pause");
+            if (pauseAttribute != null && rid.equals(requestsWindow.lastKey()) && highestReadRid.equals(rid)) {
+                int pause;
+                try {
+                    pause = Integer.parseInt(pauseAttribute);
+                } catch (NumberFormatException e) {
+                    error(br, "bad-request");
+                    return;
                 }
-                if (pause < 0) {
-                    pause = 0;
-                }
+                pause = Math.max(0, pause);
+                pause = Math.min(pause, maxpause);
                 respondToPause(pause);
                 return;
             }
@@ -602,19 +610,21 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         // If there are delayed responses waiting to be sent to the BOSH client, then we wrap them all in
         // a <body/> element and send them as a HTTP response to the current HTTP request.
         Stanza delayedResponse;
-        Stanza mergedResponse = null;
+        ArrayList<Stanza> mergeCandidates = null; // do not create until there is a delayed response
         while ((delayedResponse = delayedResponseQueue.poll()) != null) {
-            mergedResponse = boshHandler.mergeResponses(mergedResponse, delayedResponse);
+            if (mergeCandidates == null) mergeCandidates = new ArrayList<Stanza>();
+            mergeCandidates.add(delayedResponse);
         }
+        Stanza mergedResponse = BoshStanzaUtils.mergeResponses(mergeCandidates);
         if (mergedResponse != null) {
-            writeBOSHResponse(mergedResponse);
+            writeBoshResponse(mergedResponse);
             return;
         }
 
         // If there are more suspended enqueued requests than it is allowed by the BOSH 'hold' parameter,
         // than we release the oldest one by sending an empty response.
         if (requestsWindow.size() > hold) {
-            writeBOSHResponse(BoshHandler.EMPTY_BOSH_RESPONSE);
+            writeBoshResponse(BoshStanzaUtils.EMPTY_BOSH_RESPONSE);
         }
     }
     
@@ -626,15 +636,15 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
             if (boshRequest == null) {
                 break;
             }
-            writeBOSHResponse(BoshHandler.EMPTY_BOSH_RESPONSE);
+            writeBoshResponse(BoshStanzaUtils.EMPTY_BOSH_RESPONSE);
         }
     }
     
     protected void sendBrokenConnectionReport(long report, long delta) {
-        Stanza body = boshHandler.getTerminateResponse();
-        body = boshHandler.addAttribute(body, "report", Long.toString(report));
-        body = boshHandler.addAttribute(body, "time", Long.toString(delta));
-        writeBOSHResponse(body);
+        Stanza body = BoshStanzaUtils.TERMINATE_BOSH_RESPONSE;
+        body = BoshStanzaUtils.addAttribute(body, "report", Long.toString(report));
+        body = BoshStanzaUtils.addAttribute(body, "time", Long.toString(delta));
+        writeBoshResponse(body);
     }
     
     protected void addContinuationExpirationListener(final AsyncContext context) {
@@ -678,7 +688,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
 
     protected BoshResponse getBoshResponse(Stanza stanza, Long ack) {
         if (ack != null) {
-            stanza = boshHandler.addAttribute(stanza, "ack", ack.toString());
+            stanza = BoshStanzaUtils.addAttribute(stanza, "ack", ack.toString());
         }
         byte[] content = new Renderer(stanza).getComplete().getBytes();
         return new BoshResponse(contentType, content);

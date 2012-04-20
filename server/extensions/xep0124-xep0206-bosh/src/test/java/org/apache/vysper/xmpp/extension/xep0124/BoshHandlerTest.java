@@ -27,6 +27,7 @@ import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 
 import javax.servlet.AsyncContext;
@@ -152,7 +153,7 @@ public class BoshHandlerTest {
 
     @Test
     public void testGetEmptyResponse() {
-        Stanza response = BoshHandler.EMPTY_BOSH_RESPONSE;
+        Stanza response = BoshStanzaUtils.EMPTY_BOSH_RESPONSE;
         assertNotNull(response);
         assertEquals("body", response.getName());
         assertEquals(NamespaceURIs.XEP0124_BOSH, response.getNamespaceURI());
@@ -164,7 +165,7 @@ public class BoshHandlerTest {
     public void testWrapStanza() {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT);
         Stanza stanza = stanzaBuilder.build();
-        Stanza body = boshHandler.wrapStanza(stanza);
+        Stanza body = BoshStanzaUtils.wrapStanza(stanza);
         assertNotNull(body);
         assertEquals("body", body.getName());
         assertEquals(NamespaceURIs.XEP0124_BOSH, body.getNamespaceURI());
@@ -177,9 +178,9 @@ public class BoshHandlerTest {
     public void testMergeResponses() {
         Stanza response1 = createPingStanzaResponse("vysper.org", "user1@vysper.org/resource", "100");
         Stanza response2 = createPingStanzaResponse("vysper.org", "user1@vysper.org/resource", "101");
-        assertEquals(response1, boshHandler.mergeResponses(response1, null));
-        assertEquals(response1, boshHandler.mergeResponses(null, response1));
-        Stanza merged = boshHandler.mergeResponses(response1, response2);
+        assertEquals(response1, BoshStanzaUtils.mergeResponses(Arrays.asList(response1, null)));
+        assertEquals(response1, BoshStanzaUtils.mergeResponses(Arrays.asList(null, response1)));
+        Stanza merged = BoshStanzaUtils.mergeResponses(Arrays.asList(response1, response2));
         assertNotNull(merged);
         assertEquals("body", merged.getName());
         assertEquals(NamespaceURIs.XEP0124_BOSH, merged.getNamespaceURI());
@@ -189,7 +190,7 @@ public class BoshHandlerTest {
     }
 
     private Stanza createSessionRequest() {
-        StanzaBuilder body = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH);
+        StanzaBuilder body = BoshStanzaUtils.createBoshStanzaBuilder();
         body.addAttribute("rid", "100");
         body.addAttribute("to", "vysper.org");
         body.addAttribute(NamespaceURIs.XML, "lang", "en");
@@ -201,7 +202,7 @@ public class BoshHandlerTest {
     }
 
     private Stanza createSaslRequest() {
-        StanzaBuilder body = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH);
+        StanzaBuilder body = BoshStanzaUtils.createBoshStanzaBuilder();
         body.addAttribute("rid", "101");
         body.addAttribute("sid", "200");
         body.startInnerElement("auth", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL)
@@ -210,7 +211,7 @@ public class BoshHandlerTest {
     }
 
     private static Stanza createPingStanzaResponse(String from, String to, String id) {
-        StanzaBuilder body = new StanzaBuilder("body", NamespaceURIs.XEP0124_BOSH);
+        StanzaBuilder body = BoshStanzaUtils.createBoshStanzaBuilder();
         body.startInnerElement("iq", NamespaceURIs.JABBER_CLIENT).addAttribute("from", from)
                 .addAttribute("type", "result").addAttribute("to", to).addAttribute("id", id);
         body.endInnerElement();

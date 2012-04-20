@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Allows HTTP clients to communicate via the BOSH protocol with Vysper.
+ * This endpoint creates an (embedded) servlet container answering HTTP.
  * <p>
  * See http://xmpp.org/extensions/xep-0124.html and
  * http://xmpp.org/extensions/xep-0206.html

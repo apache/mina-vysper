@@ -68,18 +68,15 @@ public class BoshRequest implements Comparable<BoshRequest> {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         BoshRequest other = (BoshRequest) obj;
         if (rid == null) {
-            if (other.rid != null)
-                return false;
-        } else if (!rid.equals(other.rid))
-            return false;
+            if (other.rid != null) return false;
+        } else {
+            if (!rid.equals(other.rid)) return false;
+        }
         return true;
     }
 
