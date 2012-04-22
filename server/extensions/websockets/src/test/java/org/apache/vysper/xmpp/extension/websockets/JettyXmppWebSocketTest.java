@@ -36,7 +36,7 @@ import org.mockito.Mockito;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class XmppWebSocketBackedSessionContextTest {
+public class JettyXmppWebSocketTest {
 
     private StanzaProcessor stanzaProcessor = Mockito.mock(StanzaProcessor.class);
     private ServerRuntimeContext serverRuntimeContext = Mockito.mock(ServerRuntimeContext.class);
@@ -49,7 +49,7 @@ public class XmppWebSocketBackedSessionContextTest {
 
     @Test
     public void onMessage() {
-        WebSocketBackedSessionContext context = new WebSocketBackedSessionContext(serverRuntimeContext);
+      JettyXmppWebSocket context = new JettyXmppWebSocket(serverRuntimeContext);
         context.onMessage("<test></test>");
 
         Stanza expected = new StanzaBuilder("test").build();
@@ -58,11 +58,10 @@ public class XmppWebSocketBackedSessionContextTest {
 
     @Test
     public void write() throws IOException {
-        WebSocketBackedSessionContext context = new WebSocketBackedSessionContext(serverRuntimeContext);
+        JettyXmppWebSocket context = new JettyXmppWebSocket(serverRuntimeContext);
         context.onOpen(outbound);
 
-        Stanza stanza = new StanzaBuilder("test").build();
-        context.write(stanza);
+        context.write("<test></test>");
 
         Mockito.verify(outbound).sendMessage("<test></test>");
     }

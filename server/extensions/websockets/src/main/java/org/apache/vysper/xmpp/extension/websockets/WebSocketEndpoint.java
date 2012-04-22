@@ -66,7 +66,7 @@ public class WebSocketEndpoint implements Endpoint {
     }
 
     /**
-     * Set the port on which the endpoint will listen for incoming traffic. 
+     * Set the port on which the endpoint will listen for incoming traffic.
      * Defaults to 8080.
      * @param port The TCP/IP listener port
      */
@@ -77,7 +77,7 @@ public class WebSocketEndpoint implements Endpoint {
     /**
      * Configures the SSL keystore
      * <p>
-     * Required if SSL is enabled. Also, setting the keystore password is 
+     * Required if SSL is enabled. Also, setting the keystore password is
      * required.
      * @param keystorePath The path to the Java keystore
      * @param password The password for the Java keystore
@@ -100,14 +100,14 @@ public class WebSocketEndpoint implements Endpoint {
 
     /**
      * Determines the context URI where the websocket transport will be accessible.
-     * The default is as 'root context' under '/'. 
+     * The default is as 'root context' under '/'.
      * @param contextPath
      */
     public void setContextPath(String contextPath) {
         if (contextPath == null) contextPath = "/";
         this.contextPath = contextPath;
     }
-    
+
     /**
      * create a basic Jetty server including a connector on the configured port
      * override in subclass to create a different kind of setup or to reuse an existing instance
@@ -132,31 +132,31 @@ public class WebSocketEndpoint implements Endpoint {
     }
 
     /**
-     * create handler for XMPP over websockets. 
+     * create handler for XMPP over websockets.
      * for a different handler setup, override in a subclass.
      * for more than one handler, add them to a org.eclipse.jetty.server.handler.ContextHandlerCollection
-     * and return the collection 
+     * and return the collection
      * @return
      */
     protected Handler createHandler() {
         ServletContextHandler servletContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
         servletContext.setContextPath(contextPath);
 
-        XmppWebSocketServlet wsServlet = new XmppWebSocketServlet(serverRuntimeContext);
+        JettyXmppWebSocketServlet wsServlet = new JettyXmppWebSocketServlet(serverRuntimeContext);
         servletContext.addServlet(new ServletHolder(wsServlet), "/ws");
-        
+
         return servletContext;
     }
-    
+
     /**
      * {@inheritDoc}
-     * 
+     *
      * @throws RuntimeException a wrapper of the possible {@link java.lang.Exception} that Jetty can throw at start-up
      */
     public void start() throws IOException {
         server = createJettyServer();
         Handler wsHandler = createHandler();
-        
+
         Handler existingHandler = server.getHandler();
         if(existingHandler != null && existingHandler instanceof HandlerCollection) {
             ((HandlerCollection)existingHandler).addHandler(wsHandler);

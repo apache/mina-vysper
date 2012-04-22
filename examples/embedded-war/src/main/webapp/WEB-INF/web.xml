@@ -24,11 +24,11 @@
 		<listener-class>org.apache.vysper.xmpp.exemples.embeddedwar.VysperListener</listener-class>
 	</listener>
 
-<!-- 
+<!--
 	Only works when deployed on Jetty. 
 	<servlet>
 		<servlet-name>WebSocket Servlet</servlet-name>
-		<servlet-class>org.apache.vysper.xmpp.extension.websockets.XmppWebSocketServlet</servlet-class>
+		<servlet-class>org.apache.vysper.xmpp.extension.websockets.JettyXmppWebSocketServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	<servlet-mapping>
@@ -36,6 +36,20 @@
 		<url-pattern>/ws</url-pattern>
 	</servlet-mapping>
  -->
+
+<!--
+	Only works when deployed on Tomcat 7.0.27 or later.
+	<servlet>
+		<servlet-name>WebSocket Servlet</servlet-name>
+		<servlet-class>org.apache.vysper.xmpp.extension.websockets.TomcatXmppWebSocketServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>WebSocket Servlet</servlet-name>
+		<url-pattern>/ws</url-pattern>
+	</servlet-mapping>
+ -->
+
 	<servlet>
 		<servlet-name>Status</servlet-name>
 		<servlet-class>org.apache.vysper.xmpp.exemples.embeddedwar.StatusServlet</servlet-class>

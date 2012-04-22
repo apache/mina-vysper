@@ -19,22 +19,15 @@
  */
 package org.apache.vysper.xmpp.extension.websockets;
 
-import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import java.io.IOException;
 
 
 /**
- * @deprecated
- * @see JettyXmppWebSocketServlet
+ * Generalized outbound web socket
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class XmppWebSocketServlet extends JettyXmppWebSocketServlet {
+public interface Outbound {
 
-  public XmppWebSocketServlet() {
-    super();
-  }
-
-  public XmppWebSocketServlet(ServerRuntimeContext serverRuntimeContext) {
-    super(serverRuntimeContext);
-  }
+  void write(String data) throws IOException;
 }

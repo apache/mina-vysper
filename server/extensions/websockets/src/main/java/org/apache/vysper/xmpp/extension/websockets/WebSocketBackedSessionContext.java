@@ -41,9 +41,6 @@ import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.writer.StanzaWriter;
-import org.eclipse.jetty.websocket.WebSocket;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 /**
@@ -51,19 +48,19 @@ import org.xml.sax.SAXException;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class WebSocketBackedSessionContext extends AbstractSessionContext implements WebSocket, XMLElementListener, StanzaWriter, WebSocket.OnTextMessage {
+public class WebSocketBackedSessionContext extends AbstractSessionContext implements XMLElementListener, StanzaWriter {
 
     private final static Charset CHARSET = Charset.forName("UTF-8");
     private final static CharsetDecoder CHARSET_DECODER = CHARSET.newDecoder();
 
-    private final static Logger LOG = LoggerFactory.getLogger(WebSocketBackedSessionContext.class);
-
-    private Connection outbound;
     private NonBlockingXMLReader xmlReader = new DefaultNonBlockingXMLReader();
-    private boolean closed = false;
+    private Outbound outbound;
 
-    public WebSocketBackedSessionContext(ServerRuntimeContext serverRuntimeContext) {
+    public WebSocketBackedSessionContext(ServerRuntimeContext serverRuntimeContext, Outbound outbound) {
         super(serverRuntimeContext, new SessionStateHolder());
+
+        this.outbound = outbound;
+
         XMPPContentHandler contentHandler = new XMPPContentHandler(new StanzaBuilderFactory());
         contentHandler.setListener(this);
 
@@ -105,44 +102,32 @@ public class WebSocketBackedSessionContext extends AbstractSessionContext implem
     /**
      * {@inheritDoc}
      */
-    public void onOpen(Connection outbound) {
-        LOG.info("WebSocket client connected");
-        this.outbound = outbound;
+    public void element(XMLElement element) {
+        // on parsed stanzas
+        serverRuntimeContext.getStanzaProcessor().processStanza(serverRuntimeContext, this, (Stanza) element, sessionStateHolder);
+    }
 
+    public void onOpen() {
         // set to encrypted to skip TLS
         sessionStateHolder.setState(SessionState.ENCRYPTED);
     }
 
-
     public void onMessage(String data) {
-    	 LOG.info("< " + data);
-         try {
-             xmlReader.parse(IoBuffer.wrap(data.getBytes(CHARSET.name())), CHARSET_DECODER);
-         } catch (IOException e) {
-             // should never happen since we read from a string
-             throw new RuntimeException(e);
-         } catch (SAXException e) {
-             Stanza errorStanza = ServerErrorResponses.getStreamError(StreamErrorCondition.XML_NOT_WELL_FORMED,
-                     getXMLLang(), "Stanza not well-formed", null);
-             write(errorStanza);
-             endSession(SessionTerminationCause.STREAM_ERROR);
-         }
+        try {
+            xmlReader.parse(IoBuffer.wrap(data.getBytes(CHARSET.name())), CHARSET_DECODER);
+        } catch (IOException e) {
+            // should never happen since we read from a string
+            throw new RuntimeException(e);
+        } catch (SAXException e) {
+            Stanza errorStanza = ServerErrorResponses.getStreamError(StreamErrorCondition.XML_NOT_WELL_FORMED,
+                getXMLLang(), "Stanza not well-formed", null);
+            write(errorStanza);
+            endSession(SessionTerminationCause.STREAM_ERROR);
+        }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void onClose(int closeCode, String message) {
-        LOG.info("WebSocket client disconnected with Code " + closeCode + " with " + message);
+    public void onClose() {
         endSession(SessionTerminationCause.CONNECTION_ABORT);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void element(XMLElement element) {
-        // on parsed stanzas
-        serverRuntimeContext.getStanzaProcessor().processStanza(serverRuntimeContext, this, (Stanza) element, sessionStateHolder);
     }
 
     /**
@@ -153,17 +138,16 @@ public class WebSocketBackedSessionContext extends AbstractSessionContext implem
         Renderer renderer = new Renderer(stanza);
         if("stream".equals(stanza.getName()) && NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS.equals(stanza.getNamespaceURI())) {
             // stream:stream and stream:features comes at the same time, split them
-            send(renderer.getOpeningElement());
-            send(renderer.getElementContent());
+            write(renderer.getOpeningElement());
+            write(renderer.getElementContent());
         } else {
-            send(renderer.getComplete());
+            write(renderer.getComplete());
         }
     }
 
-    private void send(String xml) {
+    private void write(String xml) {
         try {
-            LOG.info("> " + xml);
-            outbound.sendMessage(xml);
+            outbound.write(xml);
         } catch (IOException e) {
             // communication with client broken, close session
             endSession(SessionTerminationCause.CONNECTION_ABORT);
@@ -175,6 +159,5 @@ public class WebSocketBackedSessionContext extends AbstractSessionContext implem
      */
     public void close() {
         // TODO how to handle?
-    	closed = true;
     }
 }
