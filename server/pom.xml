@@ -33,16 +33,25 @@
   <modules>
     <module>core</module>
     <module>extensions</module>
-    <module>admin-console</module>
   </modules>
 
   <profiles>
-	<profile>
+    <profile>
+      <!-- admin-console uses Jetty, which requires Java 1.6 -->
+      <activation>
+        <jdk>[1.6,)</jdk>
+      </activation>
+      <modules>
+        <module>core</module>
+        <module>extensions</module>
+        <module>admin-console</module>
+      </modules>
+    </profile>
+    <profile>
       <id>inttest</id>
       <modules>
-    	<module>core</module>
-    	<module>core-inttest</module>
-    	<module>admin-console</module>
+        <module>core</module>
+        <module>core-inttest</module>
         <module>extensions</module>
       </modules>
     </profile>
