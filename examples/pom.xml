@@ -31,7 +31,21 @@
    <packaging>pom</packaging>
 
   <modules>
-    <module>embedded-war</module>
     <module>pubsub-client</module>
   </modules>
+
+  <profiles>
+    <profile>
+      <!-- embedded war uses Jetty, which requires Java 1.6 -->
+      <activation>
+        <jdk>[1.6,)</jdk>
+      </activation>
+      <modules>
+       <module>embedded-war</module>
+        <module>pubsub-client</module>
+      </modules>
+    </profile>
+  </profiles>
+
+
 </project>
