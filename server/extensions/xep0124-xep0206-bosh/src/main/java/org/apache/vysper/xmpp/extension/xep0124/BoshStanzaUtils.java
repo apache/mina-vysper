@@ -22,7 +22,7 @@ public class BoshStanzaUtils {
     
     protected static final Stanza RESTART_BOSH_RESPONSE = wrapStanza(new ServerResponses().getFeaturesForSession());
     
-    protected static final Stanza TERMINATE_BOSH_RESPONSE = createTerminateResponse();
+    protected static final Stanza TERMINATE_BOSH_RESPONSE = createTerminateResponse(null).build();
 
     /**
      * Creates a new BOSH response builder
@@ -65,16 +65,26 @@ public class BoshStanzaUtils {
 
     /**
      * Creates a session termination BOSH response
-     * @return the termination BOSH body
     */
-    private static Stanza createTerminateResponse() {
+    public static StanzaBuilder createTerminateResponse(String condition) {
         StanzaBuilder stanzaBuilder = createBoshStanzaBuilder();
         stanzaBuilder.addAttribute("type", "terminate");
-        return stanzaBuilder.build();
+        if (condition != null) stanzaBuilder.addAttribute("condition", condition);
+        return stanzaBuilder;
     }
 
     /**
-     * Adds a custom attribute to a BOSH body.
+     * Creates a session termination BOSH response signalling a broken session
+    */
+    public static StanzaBuilder createBrokenSessionReport(long report, long delta) {
+        StanzaBuilder stanzaBuilder = createTerminateResponse(null);
+        stanzaBuilder = stanzaBuilder.addAttribute("report", Long.toString(report));
+        stanzaBuilder = stanzaBuilder.addAttribute("time", Long.toString(delta));
+        return stanzaBuilder;
+    }
+
+    /**
+     * Adds a top-level custom attribute to a BOSH body after the stanza is already built.
      * 
      * @param stanza the BOSH body
      * @param attributeName the name of the attribute

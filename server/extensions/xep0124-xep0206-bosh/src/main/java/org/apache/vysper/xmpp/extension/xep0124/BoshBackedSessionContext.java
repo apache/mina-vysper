@@ -39,6 +39,7 @@ import org.apache.vysper.xmpp.server.AbstractSessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.stanza.Stanza;
+import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.writer.StanzaWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -284,8 +285,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         final Long rid = br.getRid();
         requestsWindow.put(rid, br);
         BoshRequest req = requestsWindow.remove(requestsWindow.firstKey());
-        Stanza body = BoshStanzaUtils.TERMINATE_BOSH_RESPONSE;
-        body = BoshStanzaUtils.addAttribute(body, "condition", condition);
+        Stanza body = BoshStanzaUtils.createTerminateResponse(condition).build();
         BoshResponse boshResponse = getBoshResponse(body, null);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("rid = {} - BOSH writing response: {}", rid, new String(boshResponse.getContent()));
@@ -641,10 +641,8 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     }
     
     protected void sendBrokenConnectionReport(long report, long delta) {
-        Stanza body = BoshStanzaUtils.TERMINATE_BOSH_RESPONSE;
-        body = BoshStanzaUtils.addAttribute(body, "report", Long.toString(report));
-        body = BoshStanzaUtils.addAttribute(body, "time", Long.toString(delta));
-        writeBoshResponse(body);
+        StanzaBuilder stanzaBuilder = BoshStanzaUtils.createBrokenSessionReport(report, delta);
+        writeBoshResponse(stanzaBuilder.build());
     }
     
     protected void addContinuationExpirationListener(final AsyncContext context) {

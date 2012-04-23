@@ -100,7 +100,24 @@ public class BoshHandler {
             LOGGER.error("Invalid request that does not have a request identifier (rid) attribute!");
             return;
         }
-        BoshRequest br = new BoshRequest(httpRequest, body, Long.parseLong(body.getAttributeValue("rid")));
+        final long rid;
+        try {
+            rid = Long.parseLong(body.getAttributeValue("rid"));
+        } catch (NumberFormatException e) {
+            LOGGER.error("not a valid RID: " + body.getAttributeValue("rid"));
+            // TODO handle properly by returning an error response
+            throw new RuntimeException(e);
+        }
+        if (rid <= 0L) {
+            LOGGER.warn("rid is not positive: " + rid);
+            // TODO handle properly by returning an error response
+            throw new RuntimeException("BOSH rid must be a positive, large number, not " + rid);
+        }
+        if (rid > 9007199254740991L) {
+            LOGGER.warn("rid too large: " + rid);
+            // continue anyway, this is not a problem with this implementation
+        }
+        BoshRequest br = new BoshRequest(httpRequest, body, rid);
         if (body.getAttribute("sid") == null) {
             // the session creation request (first request) does not have a "sid" attribute
             try {
