@@ -23,4 +23,5 @@ import org.apache.vysper.xml.fragment.XMLElement;
 
 public interface XMLElementListener {
     void element(XMLElement element);
+    void close();
 }

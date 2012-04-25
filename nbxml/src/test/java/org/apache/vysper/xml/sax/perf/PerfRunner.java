@@ -39,6 +39,8 @@ public class PerfRunner {
         public void element(XMLElement element) {
             counter++;
         }
+        
+        public void close() {}
     }
 
     private static final String SINGLE_LEVEL_XML = "<child att='foo' att2='bar'></child>";
