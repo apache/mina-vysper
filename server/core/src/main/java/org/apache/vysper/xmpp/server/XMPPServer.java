@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.vysper.storage.StorageProviderRegistry;
+import org.apache.vysper.storage.logstanzas.LogStorageProvider;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authentication.AccountManagement;
 import org.apache.vysper.xmpp.authentication.Plain;
@@ -163,8 +164,11 @@ public class XMPPServer {
         internalStanzaRelay.setServerRuntimeContext(serverRuntimeContext);
         externalStanzaRelay.setServerRuntimeContext(serverRuntimeContext);
 
-        if (endpoints.size() == 0)
-            throw new IllegalStateException("server must have at least one endpoint");
+        final LogStorageProvider logStorageProvider =
+                (LogStorageProvider) this.storageProviderRegistry.retrieve(LogStorageProvider.class);
+        if (logStorageProvider != null) internalStanzaRelay.setLogStorageProvider(logStorageProvider);
+
+        if (endpoints.size() == 0) throw new IllegalStateException("server must have at least one endpoint");
         for (Endpoint endpoint : endpoints) {
             endpoint.setServerRuntimeContext(serverRuntimeContext);
             endpoint.start();

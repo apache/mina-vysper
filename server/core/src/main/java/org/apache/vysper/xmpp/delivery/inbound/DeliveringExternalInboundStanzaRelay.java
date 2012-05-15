@@ -147,7 +147,7 @@ public class DeliveringExternalInboundStanzaRelay implements StanzaRelay {
                 XMPPServerConnector connector = serverRuntimeContext.getServerConnectorRegistry().connect(EntityImpl.parseUnchecked(stanza.getTo().getDomain()));
                 
                 connector.write(stanza);
-                return relayResult;
+                return relayResult.setProcessed();
             } catch (DeliveryException e) {
                 return new RelayResult(e);
             }

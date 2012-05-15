@@ -27,6 +27,7 @@ import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 
 public class RelayResult {
     private List<DeliveryException> processingErrors = new ArrayList<DeliveryException>();
+    protected boolean processed = false;
 
     public RelayResult() {
         // empty
@@ -34,8 +35,14 @@ public class RelayResult {
 
     public RelayResult(DeliveryException processingError) {
         addProcessingError(processingError);
+        setProcessed();
     }
 
+    public RelayResult setProcessed() {
+        processed = true;
+        return this;
+    }
+    
     public void addProcessingError(DeliveryException processingError) {
         processingErrors.add(processingError);
     }

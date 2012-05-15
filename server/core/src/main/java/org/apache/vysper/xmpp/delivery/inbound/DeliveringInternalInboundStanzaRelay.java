@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.storage.StorageProviderRegistry;
+import org.apache.vysper.storage.logstanzas.LogStorageProvider;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityUtils;
 import org.apache.vysper.xmpp.authentication.AccountManagement;
@@ -85,6 +86,8 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay {
     protected Entity serverEntity;
 
     protected ServerRuntimeContext serverRuntimeContext = null;
+    
+    protected LogStorageProvider logStorageProvider = null;
 
     public DeliveringInternalInboundStanzaRelay(Entity serverEntity, ResourceRegistry resourceRegistry,
             StorageProviderRegistry storageProviderRegistry) {
@@ -113,6 +116,10 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay {
         this.serverRuntimeContext = serverRuntimeContext;
     }
 
+    public final void setLogStorageProvider(final LogStorageProvider logStorageProvider) {
+        this.logStorageProvider = logStorageProvider;
+    }
+
     public void relay(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy)
             throws DeliveryException {
         if (!isRelaying()) {
@@ -120,6 +127,9 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay {
         }
         
         Future<RelayResult> resultFuture = executor.submit(new Relay(receiver, stanza, deliveryFailureStrategy));
+        if (this.logStorageProvider != null) {
+            this.logStorageProvider.logStanza(receiver, stanza);
+        }
     }
 
     public boolean isRelaying() {
@@ -201,7 +211,7 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay {
                     }
 
                     processor.processStanza(serverRuntimeContext, null, stanza, null);
-                    return new RelayResult();
+                    return new RelayResult().setProcessed();
                 }
 
                 if (receiver.isResourceSet()) {
@@ -329,7 +339,7 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay {
                 }
 
             }
-            return relayResult;
+            return relayResult.setProcessed();
         }
 
         protected RelayResult relayToAllSessions() {
@@ -365,7 +375,7 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay {
                 }
             }
 
-            return relayResult; // return success result
+            return relayResult.setProcessed(); // return success result
         }
     }
 
