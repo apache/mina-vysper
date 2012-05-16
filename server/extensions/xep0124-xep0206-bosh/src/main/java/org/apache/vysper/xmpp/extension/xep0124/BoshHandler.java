@@ -27,7 +27,6 @@ import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.vysper.xml.fragment.Attribute;
-import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -131,8 +130,10 @@ public class BoshHandler {
             BoshBackedSessionContext session = null;
             if (sid != null) session = sessions.get(sid);
             if (session == null) {
-                LOGGER.warn("Received an invalid sid = '{}', should terminating connection", sid);
-                // TODO terminate connection
+                LOGGER.warn("Received an invalid sid = '{}', terminating connection", sid);
+                final AsyncContext context = br.getHttpServletRequest().startAsync();
+                // create temporary session to be able to reuse the code
+                new BoshBackedSessionContext(this, serverRuntimeContext, inactivityChecker).error(br, "invalid session id");
                 return;
             }
             synchronized (session) {

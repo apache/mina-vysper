@@ -40,29 +40,29 @@ import org.xml.sax.SAXException;
  */
 public class BoshServlet extends HttpServlet {
 
+    private static final Logger logger = LoggerFactory.getLogger(BoshServlet.class);
+
+    private static final long serialVersionUID = 1979722775762481476L;
+
     public static final String TXT_CONTENT_TYPE = "text/plain";
 
     public static final String HTML_CONTENT_TYPE = "text/html; charset=UTF-8";
 
     public static final String XML_CONTENT_TYPE = "text/xml; charset=UTF-8";
 
-    private static final long serialVersionUID = 1979722775762481476L;
+    protected static final String FLASH_CROSS_DOMAIN_POLICY_URI = "/crossdomain.xml";
 
-    private static final String FLASH_CROSS_DOMAIN_POLICY_URI = "/crossdomain.xml";
+    protected static final String INFO_GET = "This is an XMPP BOSH connection manager, only POST is allowed";
 
-    private static final String INFO_GET = "This is an XMPP BOSH connection manager, only POST is allowed";
+    protected static final String SERVER_IDENTIFICATION = "Vysper/0.8";
 
-    private static final String SERVER_IDENTIFICATION = "Vysper/0.8";
+    protected final BoshHandler boshHandler = new BoshHandler();
 
-    private final Logger logger = LoggerFactory.getLogger(BoshServlet.class);
+    protected List<String> accessControlAllowOrigin;
 
-    private final BoshHandler boshHandler = new BoshHandler();
+    protected String accessControlMaxAge = "86400"; // one day in seconds
 
-    private List<String> accessControlAllowOrigin;
-
-    private String accessControlMaxAge = "86400"; // one day in seconds
-
-    private String accessControlAllowMethods = "GET, POST, OPTIONS";
+    protected String accessControlAllowMethods = "GET, POST, OPTIONS";
 
     /**
      * Setter for the {@link ServerRuntimeContext}

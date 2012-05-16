@@ -229,7 +229,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
                             requestsWindow.firstKey(), delayedResponseQueue.size());
                     // TODO do not silently drop this stanza
                 }
-                return;
+                return;            
             }
             req = requestsWindow.remove(requestsWindow.firstKey());
             boshResponse = getBoshResponse(responseStanza, req.getRid().equals(highestReadRid) ? null : highestReadRid);
@@ -281,7 +281,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      * @param br 
      * @param condition the error condition
      */
-    private void error(BoshRequest br, String condition) {
+    public void error(BoshRequest br, String condition) {
         final Long rid = br.getRid();
         requestsWindow.put(rid, br);
         BoshRequest req = requestsWindow.remove(requestsWindow.firstKey());
