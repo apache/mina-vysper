@@ -26,6 +26,7 @@ import org.apache.vysper.xml.fragment.XMLElementBuilder;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.StanzaAssert;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Affiliation;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.ConferenceTestUtils;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
@@ -47,7 +48,7 @@ import org.junit.Assert;
 public class BanUserTestCase extends AbstractAffiliationTestCase {
 
     public void testBanUser() throws Exception {
-        Room room = conference.findOrCreateRoom(ROOM2_JID, "Room 2");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM2_JID, "Room 2");
         Occupant occ1 = room.addOccupant(OCCUPANT1_JID, "nick");
         occ1.setRole(Role.Moderator);
         room.getAffiliations().add(OCCUPANT1_JID, Affiliation.Admin);
@@ -75,7 +76,7 @@ public class BanUserTestCase extends AbstractAffiliationTestCase {
     }
 
     public void testNonAdmin() throws Exception {
-        Room room = conference.findOrCreateRoom(ROOM2_JID, "Room 2");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM2_JID, "Room 2");
         Occupant occupant1 = room.addOccupant(OCCUPANT1_JID, "nick");
         occupant1.setRole(Role.Moderator);
         room.getAffiliations().add(OCCUPANT1_JID, Affiliation.Member);
@@ -86,7 +87,7 @@ public class BanUserTestCase extends AbstractAffiliationTestCase {
     }
 
     public void testAdminBanningOwner() throws Exception {
-        Room room = conference.findOrCreateRoom(ROOM2_JID, "Room 2");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM2_JID, "Room 2");
         Occupant occupant1 = room.addOccupant(OCCUPANT1_JID, "nick");
         occupant1.setRole(Role.Moderator);
         room.getAffiliations().add(OCCUPANT1_JID, Affiliation.Admin);
@@ -98,7 +99,7 @@ public class BanUserTestCase extends AbstractAffiliationTestCase {
     }
 
     public void testGetBanList() throws Exception {
-        Room room = conference.findOrCreateRoom(ROOM2_JID, "Room 2");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM2_JID, "Room 2");
         Occupant occ1 = room.addOccupant(OCCUPANT1_JID, "nick");
         occ1.setRole(Role.Moderator);
         room.getAffiliations().add(OCCUPANT1_JID, Affiliation.Admin);
@@ -123,7 +124,7 @@ public class BanUserTestCase extends AbstractAffiliationTestCase {
     }
 
     public void testGetBanListNonAdmin() throws Exception {
-        Room room = conference.findOrCreateRoom(ROOM2_JID, "Room 2");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM2_JID, "Room 2");
         room.getAffiliations().add(OCCUPANT1_JID, Affiliation.Member);
         
         // send message to room
@@ -138,7 +139,7 @@ public class BanUserTestCase extends AbstractAffiliationTestCase {
     }
 
     public void testSetBanList() throws Exception {
-        Room room = conference.findOrCreateRoom(ROOM2_JID, "Room 2");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM2_JID, "Room 2");
         Occupant occ1 = room.addOccupant(OCCUPANT1_JID, "nick");
         occ1.setRole(Role.Moderator);
         room.getAffiliations().add(OCCUPANT1_JID, Affiliation.Admin);

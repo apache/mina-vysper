@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler.AbstractMUCHandlerTestCase;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.ConferenceTestUtils;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceCollector;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
@@ -64,7 +65,7 @@ public abstract class AbstractMUCOccupantDiscoTestCase extends AbstractMUCHandle
 
     public void testDisco() throws Exception {
         // add occupants to the room
-        Room room = conference.findOrCreateRoom(ROOM1_JID, "Room 1");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM1_JID, "Room 1");
         room.addOccupant(OCCUPANT1_JID, "nick");
         room.addOccupant(OCCUPANT2_JID, "Nick 2");
 

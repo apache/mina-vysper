@@ -83,6 +83,7 @@ public class DiscussionHistory {
 
             if (maxchars == 0 || maxstanzas == 0 || seconds == 0) {
                 // quick return for no-stanza requests
+                return Collections.emptyList();
             } else {
                 int counter = 0;
                 int totalChars = 0;

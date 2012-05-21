@@ -23,6 +23,7 @@ import static org.apache.vysper.xmpp.stanza.IQStanzaType.SET;
 
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Affiliation;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.ConferenceTestUtils;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
@@ -40,7 +41,7 @@ import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
 public class RevokeMembershipTestCase extends AbstractAffiliationTestCase {
 
     public void testRevokeMembershipByNick() throws Exception {
-        Room room = conference.findOrCreateRoom(ROOM2_JID, "Room 2", RoomType.MembersOnly);
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM2_JID, "Room 2", RoomType.MembersOnly);
         room.getAffiliations().add(OCCUPANT1_JID, Affiliation.Admin);
         
         Occupant occ1 = room.addOccupant(OCCUPANT1_JID, "nick");
@@ -67,7 +68,7 @@ public class RevokeMembershipTestCase extends AbstractAffiliationTestCase {
 
     // Test granting membership for a user which is not currently in the room
     public void testRevokeMembershipByJid() throws Exception {
-        Room room = conference.findOrCreateRoom(ROOM2_JID, "Room 2");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM2_JID, "Room 2");
         Occupant occ1 = room.addOccupant(OCCUPANT1_JID, "nick");
         occ1.setRole(Role.Moderator);
         room.getAffiliations().add(OCCUPANT1_JID, Affiliation.Admin);
@@ -88,7 +89,7 @@ public class RevokeMembershipTestCase extends AbstractAffiliationTestCase {
     }
 
     public void testNonAdmin() throws Exception {
-        Room room = conference.findOrCreateRoom(ROOM2_JID, "Room 2");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM2_JID, "Room 2");
         Occupant occupant1 = room.addOccupant(OCCUPANT1_JID, "nick");
         occupant1.setRole(Role.Moderator);
         room.getAffiliations().add(OCCUPANT1_JID, Affiliation.Member);

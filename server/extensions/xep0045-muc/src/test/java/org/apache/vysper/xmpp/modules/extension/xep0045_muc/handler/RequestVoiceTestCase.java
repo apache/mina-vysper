@@ -25,6 +25,7 @@ import static org.apache.vysper.xmpp.stanza.dataforms.Field.Type.TEXT_SINGLE;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.dataforms.VoiceRequestForm;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Affiliation;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.ConferenceTestUtils;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
@@ -39,7 +40,7 @@ import org.apache.vysper.xmpp.stanza.dataforms.Field;
 public class RequestVoiceTestCase extends AbstractMUCMessageHandlerTestCase {
 
     public void testRequestVoice() throws Exception {
-        Room room = conference.findOrCreateRoom(ROOM1_JID, "Room 1");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM1_JID, "Room 1");
         Occupant moderator = room.addOccupant(OCCUPANT1_JID, "nick");
         moderator.setRole(Role.Moderator);
         
@@ -59,7 +60,7 @@ public class RequestVoiceTestCase extends AbstractMUCMessageHandlerTestCase {
     }
 
     public void testGrantVoice() throws Exception {
-        Room room = conference.findOrCreateRoom(ROOM1_JID, "Room 1");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM1_JID, "Room 1");
         Occupant moderator = room.addOccupant(OCCUPANT1_JID, "nick");
         moderator.setRole(Role.Moderator);
         

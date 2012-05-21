@@ -23,6 +23,7 @@ import static org.apache.vysper.xmpp.stanza.IQStanzaType.SET;
 
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Affiliation;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.ConferenceTestUtils;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
@@ -39,7 +40,7 @@ import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
 public class ModeratorKickOccupantTestCase extends AbstractGrantRevokeTestCase {
 
     public void testKickUser() throws Exception {
-        Room room = conference.findOrCreateRoom(ROOM2_JID, "Room 2");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM2_JID, "Room 2");
         room.addOccupant(OCCUPANT1_JID, "nick").setRole(Role.Moderator);
         room.addOccupant(OCCUPANT2_JID, "Nick 2");
 
@@ -63,7 +64,7 @@ public class ModeratorKickOccupantTestCase extends AbstractGrantRevokeTestCase {
     }
 
     public void testMemberAttemptKickAdmin() throws Exception {
-        Room room = conference.findOrCreateRoom(ROOM2_JID, "Room 2");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM2_JID, "Room 2");
         Occupant occupant1 = room.addOccupant(OCCUPANT1_JID, "nick");
         room.getAffiliations().add(OCCUPANT1_JID, Affiliation.Member);
         occupant1.setRole(Role.Moderator);
@@ -75,7 +76,7 @@ public class ModeratorKickOccupantTestCase extends AbstractGrantRevokeTestCase {
     }
 
     public void testMemberAttemptKickOwner() throws Exception {
-        Room room = conference.findOrCreateRoom(ROOM2_JID, "Room 2");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM2_JID, "Room 2");
         Occupant occupant1 = room.addOccupant(OCCUPANT1_JID, "nick");
         room.getAffiliations().add(OCCUPANT1_JID, Affiliation.Member);
         occupant1.setRole(Role.Moderator);
@@ -87,7 +88,7 @@ public class ModeratorKickOccupantTestCase extends AbstractGrantRevokeTestCase {
     }
 
     public void testAdminAttemptKickOwner() throws Exception {
-        Room room = conference.findOrCreateRoom(ROOM2_JID, "Room 2");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM2_JID, "Room 2");
         Occupant occupant1 = room.addOccupant(OCCUPANT1_JID, "nick");
         room.getAffiliations().add(OCCUPANT1_JID, Affiliation.Admin);
         occupant1.setRole(Role.Moderator);
@@ -99,7 +100,7 @@ public class ModeratorKickOccupantTestCase extends AbstractGrantRevokeTestCase {
     }
 
     public void testToKickYourself() throws Exception {
-        Room room = conference.findOrCreateRoom(ROOM2_JID, "Room 2");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM2_JID, "Room 2");
         Occupant occupant1 = room.addOccupant(OCCUPANT1_JID, "nick");
         room.getAffiliations().add(OCCUPANT1_JID, Affiliation.Admin);
         occupant1.setRole(Role.Moderator);

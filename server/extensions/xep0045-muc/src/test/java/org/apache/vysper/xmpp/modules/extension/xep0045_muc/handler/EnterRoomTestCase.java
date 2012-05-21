@@ -28,6 +28,7 @@ import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.TestSessionContext;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Affiliation;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.ConferenceTestUtils;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
@@ -235,7 +236,7 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
     public void testEnterRoomWithRelays() throws Exception {
 
         // add one occupant to the room
-        Room room = conference.findOrCreateRoom(ROOM1_JID, "Room 1");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM1_JID, "Room 1");
         room.addOccupant(OCCUPANT2_JID, "Some nick");
 
         // now, let user 1 enter room
@@ -279,7 +280,7 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
 
     public void testDiscussionHistory() throws Exception {
         // add some messages
-        Room room = conference.findOrCreateRoom(ROOM1_JID, "Room 1");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM1_JID, "Room 1");
         room.getHistory().append(
                 StanzaBuilder.createMessageStanza(OCCUPANT2_JID, ROOM1_JID, MessageStanzaType.GROUPCHAT, null, "Body")
                         .build(), new Occupant(OCCUPANT2_JID, "nick2", room, Role.Participant));

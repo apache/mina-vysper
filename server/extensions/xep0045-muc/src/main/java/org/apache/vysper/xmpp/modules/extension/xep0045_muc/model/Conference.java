@@ -21,6 +21,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.vysper.xmpp.addressing.Entity;
@@ -60,15 +61,14 @@ public class Conference implements ServerInfoRequestListener, ItemRequestListene
 
     public void initialize() {
         roomStorageProvider.initialize();
-        if (occupantStorageProvider != null)
-            occupantStorageProvider.initialize();
+        if (occupantStorageProvider != null) occupantStorageProvider.initialize();
     }
 
-    public Collection<Room> getAllRooms() {
-        return roomStorageProvider.getAllRooms();
+    /*package*/ Collection<Room> getAllRooms() {
+        return Collections.unmodifiableCollection(roomStorageProvider.getAllRooms());
     }
 
-    public Room createRoom(Entity jid, String name, RoomType... types) {
+    public synchronized Room createRoom(Entity jid, String name, RoomType... types) {
         if (roomStorageProvider.roomExists(jid)) {
             throw new IllegalArgumentException("Room already exists with JID: " + jid);
         }
@@ -78,19 +78,10 @@ public class Conference implements ServerInfoRequestListener, ItemRequestListene
 
     public void deleteRoom(Entity jid) {
         roomStorageProvider.deleteRoom(jid);
-
     }
 
     public Room findRoom(Entity jid) {
         return roomStorageProvider.findRoom(jid);
-    }
-
-    public Room findOrCreateRoom(Entity jid, String name, RoomType... types) {
-        Room room = findRoom(jid);
-        if (room == null) {
-            room = createRoom(jid, name, types);
-        }
-        return room;
     }
 
     public OccupantStorageProvider getOccupantStorageProvider() {

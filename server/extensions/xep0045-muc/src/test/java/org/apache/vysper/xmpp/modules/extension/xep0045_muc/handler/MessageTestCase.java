@@ -24,6 +24,7 @@ import static org.apache.vysper.xmpp.stanza.MessageStanzaType.GROUPCHAT;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLElementBuilder;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.ConferenceTestUtils;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
@@ -42,7 +43,7 @@ import org.apache.vysper.xmpp.stanza.StanzaErrorType;
 public class MessageTestCase extends AbstractMUCMessageHandlerTestCase {
 
     public void testMessageWithNoVoice() throws Exception {
-        Room room = conference.findOrCreateRoom(ROOM1_JID, "Room 1");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM1_JID, "Room 1");
         Occupant occupant = room.addOccupant(OCCUPANT1_JID, "nick");
         // make sure the occupant has no voice
         occupant.setRole(Role.Visitor);
@@ -51,7 +52,7 @@ public class MessageTestCase extends AbstractMUCMessageHandlerTestCase {
     }
 
     public void testMessageUserNotOccupant() throws Exception {
-        Room room = conference.findOrCreateRoom(ROOM1_JID, "Room 1");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM1_JID, "Room 1");
         // do not add user to room
 
         testNotAllowedMessage(room, StanzaErrorCondition.NOT_ACCEPTABLE);
@@ -61,7 +62,7 @@ public class MessageTestCase extends AbstractMUCMessageHandlerTestCase {
         String body = "Message body";
 
         // add occupants to the room
-        Room room = conference.findOrCreateRoom(ROOM1_JID, "Room 1");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM1_JID, "Room 1");
         room.addOccupant(OCCUPANT1_JID, "nick");
         room.addOccupant(OCCUPANT2_JID, "Nick 2");
 
@@ -77,7 +78,7 @@ public class MessageTestCase extends AbstractMUCMessageHandlerTestCase {
         String body = "Message body";
 
         // add occupants to the room
-        Room room = conference.findOrCreateRoom(ROOM1_JID, "Room 1");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM1_JID, "Room 1");
         room.addOccupant(OCCUPANT1_JID, "nick");
         room.addOccupant(OCCUPANT2_JID, "Nick 2");
 
@@ -91,7 +92,7 @@ public class MessageTestCase extends AbstractMUCMessageHandlerTestCase {
 
     public void testGroupChatMessageToOccupant() throws Exception {
         // add occupants to the room
-        Room room = conference.findOrCreateRoom(ROOM1_JID, "Room 1");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM1_JID, "Room 1");
         room.addOccupant(OCCUPANT1_JID, "nick");
         room.addOccupant(OCCUPANT2_JID, "Nick 2");
 
@@ -112,7 +113,7 @@ public class MessageTestCase extends AbstractMUCMessageHandlerTestCase {
         String reason = "Join me!";
 
         // add occupants to the room
-        Room room = conference.findOrCreateRoom(ROOM1_JID, "Room 1");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM1_JID, "Room 1");
         room.setPassword("secret");
         room.addOccupant(OCCUPANT1_JID, "nick");
 
@@ -130,7 +131,7 @@ public class MessageTestCase extends AbstractMUCMessageHandlerTestCase {
         String reason = "No way";
 
         // add occupants to the room
-        Room room = conference.findOrCreateRoom(ROOM1_JID, "Room 1");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM1_JID, "Room 1");
         room.addOccupant(OCCUPANT2_JID, "nick");
 
         Decline decline = new Decline(null, OCCUPANT2_JID, reason);

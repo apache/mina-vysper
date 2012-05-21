@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 import static org.apache.vysper.xmpp.stanza.MessageStanzaType.GROUPCHAT;
 
 import org.apache.vysper.xml.fragment.XMLElementBuilder;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.ConferenceTestUtils;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
@@ -36,7 +37,7 @@ public class ChangeSubjectTestCase extends AbstractMUCMessageHandlerTestCase {
     private static final String SUBJECT = "Subject";
 
     public void testChangeSubjectNonModeratorAllowed() throws Exception {
-        Room room = conference.findOrCreateRoom(ROOM2_JID, "Room 2", RoomType.OpenSubject);
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM2_JID, "Room 2", RoomType.OpenSubject);
         room.addOccupant(OCCUPANT1_JID, "nick");
         room.addOccupant(OCCUPANT2_JID, "Nick 2");
 
@@ -51,7 +52,7 @@ public class ChangeSubjectTestCase extends AbstractMUCMessageHandlerTestCase {
     }
 
     public void testChangeSubject() throws Exception {
-        Room room = conference.findOrCreateRoom(ROOM2_JID, "Room 2");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM2_JID, "Room 2");
         room.addOccupant(OCCUPANT1_JID, "nick").setRole(Role.Moderator);
         room.addOccupant(OCCUPANT2_JID, "Nick 2");
 
@@ -66,7 +67,7 @@ public class ChangeSubjectTestCase extends AbstractMUCMessageHandlerTestCase {
     }
 
     public void testChangeSubjectNonModerator() throws Exception {
-        Room room = conference.findOrCreateRoom(ROOM2_JID, "Room 2");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM2_JID, "Room 2");
         room.addOccupant(OCCUPANT1_JID, "nick");
         room.addOccupant(OCCUPANT2_JID, "Nick 2");
 

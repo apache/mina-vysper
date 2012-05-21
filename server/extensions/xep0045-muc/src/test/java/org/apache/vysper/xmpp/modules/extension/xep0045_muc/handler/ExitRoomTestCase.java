@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.ConferenceTestUtils;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
@@ -108,7 +109,7 @@ public class ExitRoomTestCase extends AbstractMUCHandlerTestCase {
 
     public void testExitRoomWithRelays() throws Exception {
         // add occupants to the room
-        Room room = conference.findOrCreateRoom(ROOM1_JID, "Room 1");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM1_JID, "Room 1");
         room.addOccupant(OCCUPANT1_JID, "Nick 1");
         room.addOccupant(OCCUPANT2_JID, "Nick 2");
 
@@ -124,7 +125,7 @@ public class ExitRoomTestCase extends AbstractMUCHandlerTestCase {
         String statusMessage = "Custom status";
 
         // add occupants to the room
-        Room room = conference.findOrCreateRoom(ROOM1_JID, "Room 1");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM1_JID, "Room 1");
         room.addOccupant(OCCUPANT1_JID, "Nick 1");
         room.addOccupant(OCCUPANT2_JID, "Nick 2");
 

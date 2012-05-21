@@ -23,6 +23,7 @@ import static org.apache.vysper.xmpp.stanza.IQStanzaType.SET;
 
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Affiliation;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.ConferenceTestUtils;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
@@ -37,7 +38,7 @@ import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
 public class GrantOwnershipTestCase extends AbstractAffiliationTestCase {
 
     public void testGrantOwnershipByNick() throws Exception {
-        Room room = conference.findOrCreateRoom(ROOM2_JID, "Room 2");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM2_JID, "Room 2");
         Occupant occ1 = room.addOccupant(OCCUPANT1_JID, "nick");
         occ1.setRole(Role.Moderator);
         room.getAffiliations().add(OCCUPANT1_JID, Affiliation.Owner);
@@ -62,7 +63,7 @@ public class GrantOwnershipTestCase extends AbstractAffiliationTestCase {
 
     // Test granting membership for a user which is not currently in the room
     public void testGrantMembershipByJid() throws Exception {
-        Room room = conference.findOrCreateRoom(ROOM2_JID, "Room 2");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM2_JID, "Room 2");
         Occupant occ1 = room.addOccupant(OCCUPANT1_JID, "nick");
         occ1.setRole(Role.Moderator);
         room.getAffiliations().add(OCCUPANT1_JID, Affiliation.Owner);
@@ -81,7 +82,7 @@ public class GrantOwnershipTestCase extends AbstractAffiliationTestCase {
     }
 
     public void testNonOwner() throws Exception {
-        Room room = conference.findOrCreateRoom(ROOM2_JID, "Room 2");
+        Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM2_JID, "Room 2");
         Occupant occupant1 = room.addOccupant(OCCUPANT1_JID, "nick");
         occupant1.setRole(Role.Moderator);
         room.getAffiliations().add(OCCUPANT1_JID, Affiliation.Admin);
