@@ -52,7 +52,7 @@ public class MUCRoomItemsDiscoTestCase extends AbstractItemsDiscoTestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        Conference conference = new Conference("Foo");
+        Conference conference = new Conference("Foo", new MUCFeatures());
         Room room = conference.createRoom(ROOM_JID, "room1");
         room.addOccupant(USER1_JID, "Nick 1");
         room.addOccupant(USER2_JID, "Nick 2");

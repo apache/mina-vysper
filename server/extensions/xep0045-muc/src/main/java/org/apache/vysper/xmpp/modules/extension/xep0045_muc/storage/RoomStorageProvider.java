@@ -23,6 +23,7 @@ import java.util.Collection;
 
 import org.apache.vysper.storage.StorageProvider;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.MUCFeatures;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
 
@@ -30,7 +31,7 @@ public interface RoomStorageProvider extends StorageProvider {
 
     void initialize();
 
-    Room createRoom(Entity jid, String name, RoomType... roomTypes);
+    Room createRoom(MUCFeatures mucFeatures, Entity jid, String name, RoomType... roomTypes);
 
     Collection<Room> getAllRooms();
 

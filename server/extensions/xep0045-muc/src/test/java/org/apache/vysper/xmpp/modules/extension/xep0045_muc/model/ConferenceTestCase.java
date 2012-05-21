@@ -27,6 +27,7 @@ import junit.framework.TestCase;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.MUCFeatures;
 
 /**
  * 
@@ -39,13 +40,15 @@ public class ConferenceTestCase extends TestCase {
     private Entity jid2 = EntityImpl.parseUnchecked("jid2@vysper.org");
 
     public void testGetName() {
-        Conference conference = new Conference("foo");
+        final MUCFeatures mucFeatures = new MUCFeatures();
+        mucFeatures.setMaxRoomHistoryItems(20);
+        Conference conference = new Conference("foo", mucFeatures);
         assertEquals("foo", conference.getName());
     }
 
     public void testConstructNullName() {
         try {
-            new Conference(null);
+            new Conference(null, new MUCFeatures());
             fail("Expecting IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // ok
@@ -54,7 +57,7 @@ public class ConferenceTestCase extends TestCase {
 
     public void testConstructEmptyName() {
         try {
-            new Conference("");
+            new Conference("", new MUCFeatures());
             fail("Expecting IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // ok
@@ -63,7 +66,7 @@ public class ConferenceTestCase extends TestCase {
 
     public void testConstructWhitespaceName() {
         try {
-            new Conference("\t ");
+            new Conference("\t ", new MUCFeatures());
             fail("Expecting IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // ok
@@ -71,7 +74,7 @@ public class ConferenceTestCase extends TestCase {
     }
 
     public void testCreateGetRooms() {
-        Conference conference = new Conference("foo");
+        Conference conference = new Conference("foo", new MUCFeatures());
         conference.createRoom(jid1, "room1");
         conference.createRoom(jid2, "room2");
 
@@ -86,7 +89,7 @@ public class ConferenceTestCase extends TestCase {
     }
 
     public void testCreateDuplicateRooms() throws Exception {
-        Conference conference = new Conference("foo");
+        Conference conference = new Conference("foo", new MUCFeatures());
         conference.createRoom(jid1, "room1");
         try {
             // make sure we use a different JID instance

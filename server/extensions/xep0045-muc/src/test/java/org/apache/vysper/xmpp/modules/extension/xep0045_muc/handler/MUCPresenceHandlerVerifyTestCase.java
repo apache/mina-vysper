@@ -23,6 +23,7 @@ import junit.framework.TestCase;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.MUCFeatures;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -39,7 +40,7 @@ public class MUCPresenceHandlerVerifyTestCase extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        Conference conference = new Conference("foo");
+        Conference conference = new Conference("foo", new MUCFeatures());
         presenceHandler = new MUCPresenceHandler(conference);
     }
 

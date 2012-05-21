@@ -59,16 +59,20 @@ public class DiscussionHistory {
             }
 
             // check if size is over limits
-            if (getSize() > maxItems) {
-                items.remove(0);
+            while (maxItems != -1 && getSize() > maxItems) {
+                items.remove(0); // oldest
             }
         }
     }
 
+    public void setMaxItems(int maxItems) {
+        if (maxItems < -1) maxItems = -1;
+        this.maxItems = maxItems;
+    }
+
     private int getSize() {
         int size = items.size();
-        if (subjectMessage != null)
-            size++;
+        if (subjectMessage != null) size++;
         return size;
     }
 

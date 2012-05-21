@@ -116,6 +116,10 @@ public class Room implements InfoRequestListener, ItemRequestListener {
         this.rewriteDuplicateNick = rewriteDuplicateNick;
     }
 
+    public void setMaxRoomHistoryItems(int maxItems) {
+        history.setMaxItems(maxItems);
+    }
+
     public Occupant addOccupant(Entity occupantJid, String name) {
         Affiliation affiliation = affiliations.getAffiliation(occupantJid);
 

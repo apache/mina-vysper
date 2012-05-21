@@ -59,9 +59,11 @@ import org.slf4j.LoggerFactory;
 public class MUCModule extends DefaultDiscoAwareModule implements Component, ComponentInfoRequestListener,
         ItemRequestListener {
 
-    private String subdomain = "chat";
+    private final MUCFeatures mucFeatures = new MUCFeatures();
+    
+    private final String subdomain;
 
-    private Conference conference;
+    private final Conference conference;
 
     private Entity fullDomain;
 
@@ -72,15 +74,17 @@ public class MUCModule extends DefaultDiscoAwareModule implements Component, Com
     private ComponentStanzaProcessor stanzaProcessor;
 
     public MUCModule(String subdomain) {
-        this(subdomain, new Conference("Conference"));
+        this(subdomain, null);
     }
 
     public MUCModule() {
-        this.conference = new Conference("Conference");
+        this(null, null);
     }
 
     public MUCModule(String subdomain, Conference conference) {
+        if (subdomain == null) subdomain = "chat";
         this.subdomain = subdomain;
+        if (conference == null) conference = new Conference("Conference", mucFeatures);
         this.conference = conference;
     }
 
@@ -129,6 +133,10 @@ public class MUCModule extends DefaultDiscoAwareModule implements Component, Com
     @Override
     public String getVersion() {
         return "1.24";
+    }
+
+    public MUCFeatures getFeatures() {
+        return mucFeatures;
     }
 
     /**

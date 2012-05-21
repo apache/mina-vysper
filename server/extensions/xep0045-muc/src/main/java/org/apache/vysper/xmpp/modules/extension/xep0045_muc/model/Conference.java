@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.MUCFeatures;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.storage.InMemoryOccupantStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.storage.InMemoryRoomStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.storage.OccupantStorageProvider;
@@ -45,18 +46,21 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
  */
 public class Conference implements ServerInfoRequestListener, ItemRequestListener {
 
-    private String name;
+    protected String name;
 
+    protected final MUCFeatures mucFeatures;
+    
     private RoomStorageProvider roomStorageProvider = new InMemoryRoomStorageProvider();
 
     private OccupantStorageProvider occupantStorageProvider = new InMemoryOccupantStorageProvider();
 
-    public Conference(String name) {
+    public Conference(String name, MUCFeatures mucFeatures) {
         if (name == null || name.trim().length() == 0) {
             throw new IllegalArgumentException("Name must not be null or empty");
         }
-
         this.name = name;
+
+        this.mucFeatures = mucFeatures;
     }
 
     public void initialize() {
@@ -73,7 +77,7 @@ public class Conference implements ServerInfoRequestListener, ItemRequestListene
             throw new IllegalArgumentException("Room already exists with JID: " + jid);
         }
 
-        return roomStorageProvider.createRoom(jid, name, types);
+        return roomStorageProvider.createRoom(mucFeatures, jid, name, types);
     }
 
     public void deleteRoom(Entity jid) {

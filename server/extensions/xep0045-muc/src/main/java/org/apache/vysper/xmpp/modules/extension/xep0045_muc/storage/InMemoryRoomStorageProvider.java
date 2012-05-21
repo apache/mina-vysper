@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.MUCFeatures;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
 
@@ -40,8 +41,10 @@ public class InMemoryRoomStorageProvider implements RoomStorageProvider {
         // do nothing
     }
 
-    public Room createRoom(Entity jid, String name, RoomType... roomTypes) {
+    public Room createRoom(MUCFeatures mucFeatures, Entity jid, String name, RoomType... roomTypes) {
         Room room = new Room(jid, name, roomTypes);
+        room.setRewriteDuplicateNick(mucFeatures.isRewriteDuplicateNick());
+        room.setMaxRoomHistoryItems(mucFeatures.getMaxRoomHistoryItems());
         rooms.put(jid, room);
         return room;
     }

@@ -32,6 +32,7 @@ import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverQueue;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.MUCFeatures;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.TestSessionContext;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.MucUserItem;
@@ -81,7 +82,7 @@ public abstract class AbstractMUCHandlerTestCase extends TestCase {
 
     protected StanzaHandler handler;
 
-    protected Conference conference = new Conference("foo");
+    protected Conference conference;
 
     protected StanzaReceiverQueue occupant1Queue = new StanzaReceiverQueue();
 
@@ -89,6 +90,8 @@ public abstract class AbstractMUCHandlerTestCase extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
+        conference = new Conference("foo", new MUCFeatures());
+        
         sessionContext = TestSessionContext.createWithStanzaReceiverRelayAuthenticated();
         sessionContext.setInitiatingEntity(OCCUPANT1_JID);
 

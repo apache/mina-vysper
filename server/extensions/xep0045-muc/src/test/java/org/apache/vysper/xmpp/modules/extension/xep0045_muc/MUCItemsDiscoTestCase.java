@@ -44,7 +44,7 @@ public class MUCItemsDiscoTestCase extends AbstractItemsDiscoTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        Conference conference = new Conference("Foo");
+        Conference conference = new Conference("Foo", new MUCFeatures());
         conference.createRoom(ROOM1_JID, "room1");
         conference.createRoom(ROME2_JID, "room2");
 

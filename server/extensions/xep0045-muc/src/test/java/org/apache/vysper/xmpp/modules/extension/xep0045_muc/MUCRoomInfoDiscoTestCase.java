@@ -44,7 +44,7 @@ public class MUCRoomInfoDiscoTestCase extends AbstractInfoDiscoTestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        Conference conference = new Conference("Foo");
+        Conference conference = new Conference("Foo", new MUCFeatures());
         conference.createRoom(ROOM_JID, "Room1", RoomType.Hidden, RoomType.PasswordProtected);
         module = new MUCModule(SUBDOMAIN, conference);
         module.initialize(serverRuntimeContext);

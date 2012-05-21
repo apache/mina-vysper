@@ -39,7 +39,9 @@ public class MUCComponentInfoDiscoTestCase extends AbstractComponentInfoDiscoTes
     protected void setUp() throws Exception {
         super.setUp();
 
-        Conference conference = new Conference("Foo");
+        final MUCFeatures mucFeatures = new MUCFeatures();
+        mucFeatures.setMaxRoomHistoryItems(20);
+        Conference conference = new Conference("Foo", mucFeatures);
         module = new MUCModule(SUBDOMAIN, conference);
         module.initialize(serverRuntimeContext);
     }
