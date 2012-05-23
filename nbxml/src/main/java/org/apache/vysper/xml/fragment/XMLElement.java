@@ -283,8 +283,7 @@ public class XMLElement implements XMLFragment {
      * @exception no language attribute may occur more than once for the same element
      */
     public Map<String, XMLElement> getInnerElementsByXMLLangNamed(String name) throws XMLSemanticError {
-        if (name == null)
-            return null;
+        if (name == null) return null;
 
         List<XMLElement> innerElements = getInnerElementsNamed(name);
         Map<String, XMLElement> langMap = new HashMap<String, XMLElement>();

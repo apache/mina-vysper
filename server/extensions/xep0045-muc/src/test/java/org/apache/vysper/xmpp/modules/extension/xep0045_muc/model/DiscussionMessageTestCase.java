@@ -30,8 +30,6 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.datetime.DateTimeProfile;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.MessageStanza;
-import org.apache.vysper.xmpp.stanza.MessageStanzaType;
-import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
 /**
@@ -59,8 +57,9 @@ public class DiscussionMessageTestCase extends TestCase {
     public void testSubjectMessage() {
         StanzaBuilder builder = StanzaBuilder.createMessageStanza(FROM, ROOM_JID, null, null);
         builder.startInnerElement("subject", NamespaceURIs.JABBER_CLIENT).addText(SUBJECT).endInnerElement();
+        final MessageStanza messageStanza = ConferenceTestUtils.toMessageStanza(builder.build());
 
-        DiscussionMessage item = new DiscussionMessage(builder.build(), FROM_OCCUPANT, TIMESTAMP);
+        DiscussionMessage item = new DiscussionMessage(messageStanza, FROM_OCCUPANT, TIMESTAMP);
         assertEquals(NICK, item.getNick());
         assertEquals(TIMESTAMP, item.getTimestamp());
         assertFalse(item.hasBody());
@@ -68,9 +67,9 @@ public class DiscussionMessageTestCase extends TestCase {
     }
 
     public void testBodyMessage() {
-        StanzaBuilder builder = StanzaBuilder.createMessageStanza(FROM, ROOM_JID, null, BODY);
+        MessageStanza messageStanza = ConferenceTestUtils.createMessageStanza(FROM, ROOM_JID, BODY);
 
-        DiscussionMessage item = new DiscussionMessage(builder.build(), FROM_OCCUPANT, TIMESTAMP);
+        DiscussionMessage item = new DiscussionMessage(messageStanza, FROM_OCCUPANT, TIMESTAMP);
         assertEquals(NICK, item.getNick());
         assertEquals(TIMESTAMP, item.getTimestamp());
         assertTrue(item.hasBody());
@@ -78,14 +77,12 @@ public class DiscussionMessageTestCase extends TestCase {
     }
 
     public void testCreateStanza() throws Exception {
-        StanzaBuilder builder = StanzaBuilder.createMessageStanza(FROM, ROOM_JID, MessageStanzaType.GROUPCHAT, null,
-                BODY);
-        Stanza inStanza = builder.build();
+        final MessageStanza inStanza = ConferenceTestUtils.createMessageStanza(FROM, ROOM_JID, BODY);
         DiscussionMessage item = new DiscussionMessage(inStanza, FROM_OCCUPANT, TIMESTAMP);
 
         Entity to = EntityImpl.parseUnchecked("user2@vysper.org/res");
         Occupant toOccupant = new Occupant(to, "nick 2", ROOM, Role.Visitor);
-        MessageStanza outStanza = (MessageStanza) MessageStanza.getWrapper(item.createStanza(toOccupant, true));
+        MessageStanza outStanza = (MessageStanza)MessageStanza.getWrapper(item.createStanza(toOccupant, true));
 
         assertEquals(to, outStanza.getTo());
         assertEquals(new EntityImpl(ROOM_JID, NICK), outStanza.getFrom());

@@ -22,11 +22,13 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc.model;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
 import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.History;
+import org.apache.vysper.xmpp.stanza.MessageStanza;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
@@ -34,7 +36,7 @@ import org.apache.vysper.xmpp.stanza.Stanza;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class DiscussionHistory {
+public class DiscussionHistory implements Iterable<DiscussionMessage> {
 
     public static final int DEFAULT_HISTORY_SIZE = 20;
 
@@ -44,13 +46,13 @@ public class DiscussionHistory {
 
     private List<DiscussionMessage> items = new ArrayList<DiscussionMessage>();
 
-    public void append(Stanza stanza, Occupant sender) {
-        append(stanza, sender, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+    public void append(MessageStanza message, Occupant sender) {
+        append(message, sender, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
     }
 
-    public void append(Stanza stanza, Occupant sender, Calendar timestamp) {
+    public void append(MessageStanza message, Occupant sender, Calendar timestamp) {
         synchronized (items) {
-            DiscussionMessage discMsg = new DiscussionMessage(stanza, sender, timestamp);
+            DiscussionMessage discMsg = new DiscussionMessage(message, sender, timestamp);
 
             if (discMsg.hasSubject() && !discMsg.hasBody()) {
                 subjectMessage = discMsg;
@@ -60,7 +62,7 @@ public class DiscussionHistory {
 
             // check if size is over limits
             while (maxItems != -1 && getSize() > maxItems) {
-                items.remove(0); // oldest
+                items.remove(0) ; // oldest
             }
         }
     }
@@ -144,5 +146,9 @@ public class DiscussionHistory {
             Collections.reverse(stanzas);
             return stanzas;
         }
+    }
+
+    public Iterator<DiscussionMessage> iterator() {
+        return items.iterator();
     }
 }

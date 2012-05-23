@@ -25,23 +25,24 @@ import java.util.TimeZone;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Delay;
+import org.apache.vysper.xmpp.stanza.MessageStanza;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
 public class DiscussionMessage {
 
-    private Stanza message;
+    private MessageStanza message;
 
     private String fromNick;
 
     private Calendar timestamp;
 
-    public DiscussionMessage(Stanza stanza, Occupant from) {
-        this(stanza, from, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+    public DiscussionMessage(MessageStanza message, Occupant from) {
+        this(message, from, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
     }
 
-    public DiscussionMessage(Stanza stanza, Occupant from, Calendar timestamp) {
-        this.message = stanza;
+    public DiscussionMessage(MessageStanza message, Occupant from, Calendar timestamp) {
+        this.message = message;
         this.fromNick = from.getNick();
 
         this.timestamp = (Calendar) timestamp.clone();
@@ -53,6 +54,10 @@ public class DiscussionMessage {
 
     public String getNick() {
         return fromNick;
+    }
+
+    public MessageStanza getMessage() {
+        return message;
     }
 
     public Stanza createStanza(Occupant receiver, boolean includeJid) {

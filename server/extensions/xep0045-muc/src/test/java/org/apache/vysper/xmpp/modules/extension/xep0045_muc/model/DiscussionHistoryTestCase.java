@@ -73,14 +73,14 @@ public class DiscussionHistoryTestCase extends TestCase {
         // add some messages to the history, one more than is handled
         int maxStanzas = DiscussionHistory.DEFAULT_HISTORY_SIZE + 1;
         for (int i = 0; i < maxStanzas; i++) {
-            history.append(StanzaBuilder.createMessageStanza(FROM, ROOM_JID, MessageStanzaType.GROUPCHAT, null,
-                    BODY + i).build(), FROM_OCCUPANT, createTimestamp(maxStanzas - i));
+            history.append(ConferenceTestUtils.createMessageStanza(FROM, ROOM_JID, BODY + i), 
+                           FROM_OCCUPANT, createTimestamp(maxStanzas - i));
         }
 
         // add a subject message
-        history.append(StanzaBuilder.createMessageStanza(FROM, ROOM_JID, MessageStanzaType.GROUPCHAT, null, null)
-                .startInnerElement("subject", NamespaceURIs.JABBER_CLIENT).addText(SUBJECT).endInnerElement().build(),
-                FROM_OCCUPANT);
+        final Stanza stanza = StanzaBuilder.createMessageStanza(FROM, ROOM_JID, MessageStanzaType.GROUPCHAT, null, null)
+                .startInnerElement("subject", NamespaceURIs.JABBER_CLIENT).addText(SUBJECT).endInnerElement().build();
+        history.append(ConferenceTestUtils.toMessageStanza(stanza), FROM_OCCUPANT);
     }
 
     public void testGetAllStanzas() throws Exception {

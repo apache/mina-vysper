@@ -42,7 +42,6 @@ import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.MessageStanza;
-import org.apache.vysper.xmpp.stanza.MessageStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
@@ -281,15 +280,9 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
     public void testDiscussionHistory() throws Exception {
         // add some messages
         Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM1_JID, "Room 1");
-        room.getHistory().append(
-                StanzaBuilder.createMessageStanza(OCCUPANT2_JID, ROOM1_JID, MessageStanzaType.GROUPCHAT, null, "Body")
-                        .build(), new Occupant(OCCUPANT2_JID, "nick2", room, Role.Participant));
-        room.getHistory().append(
-                StanzaBuilder.createMessageStanza(OCCUPANT2_JID, ROOM1_JID, MessageStanzaType.GROUPCHAT, null, "Body2")
-                        .build(), new Occupant(OCCUPANT2_JID, "nick2", room, Role.Participant));
-        room.getHistory().append(
-                StanzaBuilder.createMessageStanza(OCCUPANT2_JID, ROOM1_JID, MessageStanzaType.GROUPCHAT, null, "Body3")
-                        .build(), new Occupant(OCCUPANT2_JID, "nick2", room, Role.Participant));
+        room.getHistory().append(createMessageStanza("Body"), new Occupant(OCCUPANT2_JID, "nick2", room, Role.Participant));
+        room.getHistory().append(createMessageStanza("Body2"), new Occupant(OCCUPANT2_JID, "nick2", room, Role.Participant));
+        room.getHistory().append(createMessageStanza("Body3"), new Occupant(OCCUPANT2_JID, "nick2", room, Role.Participant));
 
         // now, let user 1 enter room
         enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK, null, new History(2, null, null, null), false);
@@ -315,6 +308,10 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
 
         // we only requested two messages
         assertNull(occupant1Queue.getNext());
+    }
+
+    protected MessageStanza createMessageStanza(final String body) {
+        return ConferenceTestUtils.createMessageStanza(OCCUPANT2_JID, ROOM1_JID, body);
     }
 
 }
