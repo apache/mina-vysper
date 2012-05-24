@@ -51,6 +51,7 @@
             <!-- only needed for BoshEndpoint -->
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-servlet</artifactId>
+            <scope>compile</scope>
 		</dependency>
         
 		<!-- Test dependencies -->

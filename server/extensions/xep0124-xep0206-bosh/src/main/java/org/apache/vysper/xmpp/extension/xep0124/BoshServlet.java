@@ -84,9 +84,11 @@ public class BoshServlet extends HttpServlet {
         this.accessControlAllowOrigin = accessControlAllowOrigin;
     }
 
-
-
-    private byte[] createFlashCrossDomainPolicy() {
+    /**
+     * crossdomain.xml is needed when flhxr is used.
+     * @return
+     */
+    protected byte[] createFlashCrossDomainPolicy() {
         StringBuffer crossDomain = new StringBuffer();
         crossDomain.append("<?xml version='1.0'?>"); 
         crossDomain.append("<!DOCTYPE cross-domain-policy SYSTEM 'http://www.macromedia.com/xml/dtds/cross-domain-policy.dtd'>");
@@ -104,7 +106,7 @@ public class BoshServlet extends HttpServlet {
         }
     }
 
-    private String createAccessControlAllowOrigin() {
+    protected String createAccessControlAllowOrigin() {
         StringBuffer crossDomain = new StringBuffer();
         boolean first = true;
         for(String domain : accessControlAllowOrigin) {
@@ -122,7 +124,8 @@ public class BoshServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.addDateHeader("Date", System.currentTimeMillis());
         resp.addHeader("Server", SERVER_IDENTIFICATION);
-        if (FLASH_CROSS_DOMAIN_POLICY_URI.equals(req.getRequestURI())){
+        if (FLASH_CROSS_DOMAIN_POLICY_URI.equals(req.getRequestURI() /*mapped to '/'*/ ) || 
+            FLASH_CROSS_DOMAIN_POLICY_URI.equals(req.getPathInfo()) /*mapped to '/foo' */) {
             if(accessControlAllowOrigin != null) {
                 resp.setContentType(XML_CONTENT_TYPE);
                 byte[] flashCrossDomainPolicy = createFlashCrossDomainPolicy();
@@ -182,7 +185,7 @@ public class BoshServlet extends HttpServlet {
         resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, INFO_GET);
     }
 
-    private void writeResponse(HttpServletResponse resp, BoshResponse respData) throws IOException {
+    protected void writeResponse(HttpServletResponse resp, BoshResponse respData) throws IOException {
         resp.addDateHeader("Date", System.currentTimeMillis());
         resp.addHeader("Server", SERVER_IDENTIFICATION);
         resp.setContentType(respData.getContentType());

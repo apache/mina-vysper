@@ -40,6 +40,7 @@ import org.junit.Test;
 
 public class AllowedOriginIntegrationTest extends IntegrationTestTemplate {
 
+    @Override
     protected BoshEndpoint processBoshEndpoint(BoshEndpoint endpoint) {
         List<String> allowedDomains = new ArrayList<String>();
         allowedDomains.add("example.com");
