@@ -68,6 +68,7 @@ public abstract class AbstractItemsDiscoTestCase extends AbstractDiscoTestCase {
     private void assertItems(XMLElement queryElement) throws Exception {
         List<XMLElement> itemElements = queryElement.getInnerElementsNamed("item");
         List<Item> expectedItems = new ArrayList<Item>(getExpectedItems());
+        assertEquals(itemElements.size(), expectedItems.size());
         // order is random, check that all namespaces are present
         for (Item item : expectedItems) {
             String expectedJID = item.getJid().getFullQualifiedName();

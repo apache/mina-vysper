@@ -27,6 +27,7 @@ import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
 
 /**
@@ -47,6 +48,7 @@ public class MUCItemsDiscoTestCase extends AbstractItemsDiscoTestCase {
         Conference conference = new Conference("Foo", new MUCFeatures());
         conference.createRoom(ROOM1_JID, "room1");
         conference.createRoom(ROME2_JID, "room2");
+        conference.createRoom(EntityImpl.parseUnchecked("hidden@" + MODULE_JID), "roomHidden", RoomType.Hidden);
 
         module = new MUCModule(SUBDOMAIN, conference);
         module.initialize(serverRuntimeContext);

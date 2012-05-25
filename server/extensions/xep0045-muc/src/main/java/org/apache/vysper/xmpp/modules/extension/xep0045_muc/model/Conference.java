@@ -122,6 +122,7 @@ public class Conference implements ServerInfoRequestListener, ItemRequestListene
         Collection<Room> rooms = getAllRooms();
 
         for (Room room : rooms) {
+            if (room.isRoomType(RoomType.Hidden)) continue;
             items.add(new Item(room.getJID(), room.getName()));
         }
 

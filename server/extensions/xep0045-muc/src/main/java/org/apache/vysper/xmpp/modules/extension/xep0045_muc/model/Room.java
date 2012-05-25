@@ -210,16 +210,18 @@ public class Room implements InfoRequestListener, ItemRequestListener {
     }
 
     public List<Item> getItemsFor(InfoRequest request) throws ServiceDiscoveryRequestException {
-        // List of users
-        List<Item> items = new ArrayList<Item>();
 
         // TODO is this the right way to determine if the room is private?
         if (isRoomType(RoomType.FullyAnonymous) || isRoomType(RoomType.SemiAnonymous)) {
             // private room, return empty list
-        } else {
-            for (Occupant occupant : getOccupants()) {
-                items.add(new Item(new EntityImpl(getJID(), occupant.getNick())));
-            }
+            return Collections.emptyList();
+        }
+
+        // List of users
+        List<Item> items = new ArrayList<Item>();
+        
+        for (Occupant occupant : getOccupants()) {
+            items.add(new Item(new EntityImpl(getJID(), occupant.getNick())));
         }
         return items;
     }
