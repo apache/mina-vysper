@@ -136,11 +136,16 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
                 return handleInboundPresenceProbe(presenceStanza, serverRuntimeContext, sessionContext, registry,
                         rosterManager);
             } else if (type == ERROR) {
-                throw new RuntimeException("not implemented yet");
+                return handleInboundPresenceError(presenceStanza, serverRuntimeContext, sessionContext, registry);
             } else {
                 throw new RuntimeException("unhandled inbound presence case " + type.value());
             }
         }
+    }
+
+    protected Stanza handleInboundPresenceError(PresenceStanza stanza, ServerRuntimeContext serverRuntimeContext, 
+                                              SessionContext sessionContext, ResourceRegistry registry) {
+        return stanza; // send to client
     }
 
     @SpecCompliance(compliant = { @SpecCompliant(spec = "RFC3921bis-08", section = "4.5.2", status = IN_PROGRESS) })
