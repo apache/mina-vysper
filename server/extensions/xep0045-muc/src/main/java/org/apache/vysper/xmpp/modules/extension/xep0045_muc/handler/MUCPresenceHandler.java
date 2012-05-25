@@ -139,6 +139,11 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
             newRoom = true;
         }
 
+        if (room == null) {
+            // room not existing or access not allowed
+            return createPresenceErrorStanza(roomJid, newOccupantJid, stanza.getID(), "auth", "not-authorized");
+        }
+
         if (room.isInRoom(newOccupantJid)) {
             // user is already in room, change nick
             logger.debug("{} has requested to change nick in room {}", newOccupantJid, roomJid);
@@ -191,6 +196,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
             }
                 
             if (nickConflict) {
+                logger.debug("persistent nick confict for {} entering {}", newOccupantJid, roomJid);
                 // user with this nick is already in room
                 return createPresenceErrorStanza(roomJid, newOccupantJid, stanza.getID(), "cancel", "conflict");
             }
@@ -204,6 +210,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
                 }
 
                 if (password == null || !password.equals(room.getPassword())) {
+                    logger.debug("{} is not allowed to enter room {}", newOccupantJid, roomJid);
                     // password missing or not matching
                     return createPresenceErrorStanza(roomJid, newOccupantJid, stanza.getID(), "auth", "not-authorized");
                 }
@@ -213,7 +220,9 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
             try {
                 newOccupant = room.addOccupant(newOccupantJid, nick);
             } catch(RuntimeException e) {
-                return createPresenceErrorStanza(roomJid, newOccupantJid, stanza.getID(), "auth", e.getMessage());
+                final String message = e.getMessage();
+                logger.debug("{} has not been added as occupant to room {}, reason: " + message, newOccupantJid, roomJid);
+                return createPresenceErrorStanza(roomJid, newOccupantJid, stanza.getID(), "auth", message);
             }
             
             if(newRoom) {
