@@ -105,7 +105,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         }
 
         String type = stanza.getType();
-        if (type == null) {
+        if (type == null || type.equals("available")) {
             return available(stanza, roomJid, occupantJid, nick, serverRuntimeContext);
         } else if (type.equals("unavailable")) {
             return unavailable(stanza, roomJid, occupantJid, nick, serverRuntimeContext);
@@ -145,18 +145,17 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         }
 
         if (room.isInRoom(newOccupantJid)) {
-            // user is already in room, change nick
-            logger.debug("{} has requested to change nick in room {}", newOccupantJid, roomJid);
-
             // occupant is already in room
             Occupant occupant = room.findOccupantByJID(newOccupantJid);
             if (nick.equals(occupant.getNick())) {
                 // nick unchanged, change show and status
+                logger.debug("{} has updated presence in room {}", newOccupantJid, roomJid);
                 for (Occupant receiver : room.getOccupants()) {
                     sendChangeShowStatus(occupant, receiver, room, getInnerElementText(stanza, "show"),
                             getInnerElementText(stanza, "status"), serverRuntimeContext);
                 }
             } else {
+                logger.debug("{} has requested to change nick in room {}", newOccupantJid, roomJid);
                 if (room.isInRoom(nick)) {
                     // user with this nick is already in room
                     return createPresenceErrorStanza(roomJid, newOccupantJid, stanza.getID(), "cancel", "conflict");
