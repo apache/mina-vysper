@@ -292,7 +292,7 @@ public class MUCIqAdminHandler extends DefaultIQHandler {
             
             MucUserItem presenceItem = new MucUserItem(target, null, newAffiliation, Role.None);
             for (Occupant occupant : room.getOccupants()) {
-                StanzaBuilder builder = MUCStanzaBuilder.createMessageStanza(room.getJID(), occupant.getJid(), null, null);
+                StanzaBuilder builder = StanzaBuilder.createMessageStanza(room.getJID(), occupant.getJid(), null, null);
                 builder.addPreparedElement(presenceItem);
 
                 relayStanza(occupant.getJid(), builder.build(), serverRuntimeContext);

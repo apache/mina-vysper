@@ -115,6 +115,25 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
 
     }
 
+    /**
+     * creates a presence available stanza, consisting of a combination of
+     * a. information about the occupant in the room, (in the http://jabber.org/protocol/muc#user namespace)
+     * b. information he sent with his latest presence message, e.g. show and status
+     */
+    private Stanza createPresenceStanzaFromLatest(Entity from, Entity to, String lang, PresenceStanzaType type,
+                                                  PresenceStanza templatePresence,
+                                                  String xNamespaceUri, XMLElement... innerElms) {
+        String show = null;
+        String status = null;
+        if (templatePresence != null) {
+            show = getInnerElementText(templatePresence, "show");
+            status = getInnerElementText(templatePresence, "status");
+            if (lang == null) lang = templatePresence.getXMLLang();
+        }
+        final StanzaBuilder presenceStanza = MUCStanzaBuilder.createPresenceStanza(from, to, lang, type, show, status, xNamespaceUri, innerElms);
+        return presenceStanza.build();
+    }
+    
     private String getInnerElementText(XMLElement element, String childName) {
         try {
             XMLElement childElm = element.getSingleInnerElementsNamed(childName);
@@ -144,9 +163,10 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
             return createPresenceErrorStanza(roomJid, newOccupantJid, stanza.getID(), "auth", "not-authorized");
         }
 
-        if (room.isInRoom(newOccupantJid)) {
+        final Occupant occupant = room.findOccupantByJID(newOccupantJid);
+        if (occupant != null) {
             // occupant is already in room
-            Occupant occupant = room.findOccupantByJID(newOccupantJid);
+            room.recordLatestPresence(newOccupantJid, stanza);
             if (nick.equals(occupant.getNick())) {
                 // nick unchanged, change show and status
                 logger.debug("{} has updated presence in room {}", newOccupantJid, roomJid);
@@ -218,6 +238,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
             Occupant newOccupant;
             try {
                 newOccupant = room.addOccupant(newOccupantJid, nick);
+                room.recordLatestPresence(newOccupantJid, stanza);
             } catch(RuntimeException e) {
                 final String message = e.getMessage();
                 logger.debug("{} has not been added as occupant to room {}, reason: " + message, newOccupantJid, roomJid);
@@ -242,13 +263,14 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
             }
             
             // relay presence of all existing room occupants to the now joined occupant
-            for (Occupant occupant : room.getOccupants()) {
-                sendExistingOccupantToNewOccupant(newOccupant, occupant, room, serverRuntimeContext);
+            for (Occupant existingOccupant : room.getOccupants()) {
+                sendOccupantPresenceToNewOccupant(newOccupant, existingOccupant, room, serverRuntimeContext);
             }
 
             // relay presence of the newly added occupant to all existing occupants
-            for (Occupant occupant : room.getOccupants()) {
-                sendNewOccupantPresenceToExisting(newOccupant, occupant, room, serverRuntimeContext, nickRewritten);
+            for (Occupant existingOccupant : room.getOccupants()) {
+                sendNewOccupantPresenceToExisting(newOccupant, existingOccupant, room, serverRuntimeContext,
+                                                  stanza, nickRewritten);
             }
 
             // send discussion history to user
@@ -300,8 +322,8 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         return null;
     }
 
-    private void sendExistingOccupantToNewOccupant(Occupant newOccupant, Occupant existingOccupant, Room room,
-            ServerRuntimeContext serverRuntimeContext) {
+    private void sendOccupantPresenceToNewOccupant(Occupant newOccupant, Occupant existingOccupant, Room room,
+                                                   ServerRuntimeContext serverRuntimeContext) {
         //            <presence
         //            from='darkcave@chat.shakespeare.lit/firstwitch'
         //            to='hag66@shakespeare.lit/pda'>
@@ -315,17 +337,21 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
             return;
         }
 
-        Entity roomAndOccupantNick = new EntityImpl(room.getJID(), existingOccupant.getNick());
-        Stanza presenceToNewOccupant = MUCStanzaBuilder.createPresenceStanza(roomAndOccupantNick, newOccupant.getJid(),
-                null, NamespaceURIs.XEP0045_MUC_USER, new MucUserItem(existingOccupant.getAffiliation(),
-                        existingOccupant.getRole()));
+        final PresenceStanza latestPresence = room.getLatestPresence(existingOccupant.getJid());
 
+        Entity roomAndOccupantNick = new EntityImpl(room.getJID(), existingOccupant.getNick());
+        final MucUserItem mucUserItem = new MucUserItem(existingOccupant.getAffiliation(), existingOccupant.getRole());
+        
+        Stanza presenceToNewOccupant = createPresenceStanzaFromLatest(roomAndOccupantNick, newOccupant.getJid(),
+                null, null, latestPresence, NamespaceURIs.XEP0045_MUC_USER, mucUserItem);
+        
         logger.debug("Room presence from {} sent to {}", newOccupant, roomAndOccupantNick);
         relayStanza(newOccupant.getJid(), presenceToNewOccupant, serverRuntimeContext);
     }
 
     private void sendNewOccupantPresenceToExisting(Occupant newOccupant, Occupant existingOccupant, Room room,
-                                                   ServerRuntimeContext serverRuntimeContext, boolean nickRewritten) {
+                                                   ServerRuntimeContext serverRuntimeContext, 
+                                                   PresenceStanza presence, boolean nickRewritten) {
         Entity roomAndNewUserNick = new EntityImpl(room.getJID(), newOccupant.getNick());
 
         List<XMLElement> inner = new ArrayList<XMLElement>();
@@ -350,8 +376,11 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         Stanza presenceToExisting = MUCStanzaBuilder.createPresenceStanza(roomAndNewUserNick,
                 existingOccupant.getJid(), null, NamespaceURIs.XEP0045_MUC_USER, inner);
 
+        Stanza presenceToExistingX = createPresenceStanzaFromLatest(roomAndNewUserNick, existingOccupant.getJid(),
+                null, null, presence, NamespaceURIs.XEP0045_MUC_USER, inner.toArray(new XMLElement[0]));
+        
         logger.debug("Room presence from {} sent to {}", roomAndNewUserNick, existingOccupant);
-        relayStanza(existingOccupant.getJid(), presenceToExisting, serverRuntimeContext);
+        relayStanza(existingOccupant.getJid(), presenceToExistingX, serverRuntimeContext);
     }
 
     private void sendChangeNickUnavailable(Occupant changer, String oldNick, Occupant receiver, Room room,

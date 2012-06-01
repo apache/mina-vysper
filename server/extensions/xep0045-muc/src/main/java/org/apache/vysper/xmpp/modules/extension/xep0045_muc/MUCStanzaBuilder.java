@@ -19,23 +19,21 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
 
-import java.util.List;
-
-import org.apache.vysper.xml.fragment.Attribute;
 import org.apache.vysper.xml.fragment.XMLElement;
-import org.apache.vysper.xml.fragment.XMLFragment;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;
 import org.apache.vysper.xmpp.stanza.PresenceStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
+import java.util.List;
+
 /**
  * Specialized {@link StanzaBuilder} for MUC
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class MUCStanzaBuilder extends StanzaBuilder {
+public class MUCStanzaBuilder {
 
     public static Stanza createPresenceStanza(Entity from, Entity to, PresenceStanzaType type, String xNamespaceUri,
             List<XMLElement> innerElms) {
@@ -44,18 +42,16 @@ public class MUCStanzaBuilder extends StanzaBuilder {
 
     public static Stanza createPresenceStanza(Entity from, Entity to, PresenceStanzaType type, String xNamespaceUri,
             XMLElement... innerElms) {
-        StanzaBuilder builder = StanzaBuilder.createPresenceStanza(from, to, null, type, null, null);
+        return createPresenceStanza(from, to, null, type, null, null, xNamespaceUri, innerElms).build();
+    }
+
+    public static StanzaBuilder createPresenceStanza(Entity from, Entity to, String lang, PresenceStanzaType type, 
+                                              String show, String status, 
+                                              String xNamespaceUri, XMLElement... innerElms) {
+        StanzaBuilder builder = StanzaBuilder.createPresenceStanza(from, to, lang, type, show, status);
         builder.addPreparedElement(new X(xNamespaceUri, innerElms));
 
-        return builder.build();
+        return builder;
     }
 
-    public MUCStanzaBuilder(String stanzaName, String namespaceURI, List<Attribute> attributes,
-            List<XMLFragment> innerFragments) {
-        super(stanzaName, namespaceURI, null, attributes, innerFragments);
-    }
-
-    public MUCStanzaBuilder(String stanzaName, String namespaceURI) {
-        super(stanzaName, namespaceURI);
-    }
 }

@@ -40,6 +40,7 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.stanza.PresenceStanza;
 
 /**
  * A chat room
@@ -64,6 +65,8 @@ public class Room implements InfoRequestListener, ItemRequestListener {
 
     // keep in a map to allow for quick access
     private Map<Entity, Occupant> occupants = new ConcurrentHashMap<Entity, Occupant>();
+    
+    private Map<Entity, PresenceStanza> occupantsLatestPresence = new ConcurrentHashMap<Entity, PresenceStanza>(); 
 
     public Room(Entity jid, String name, RoomType... types) {
         if (jid == null) {
@@ -150,13 +153,23 @@ public class Room implements InfoRequestListener, ItemRequestListener {
 
     public Occupant findOccupantByNick(String nick) {
         for (Occupant occupant : getOccupants()) {
-            if (occupant.getNick().equals(nick))
-                return occupant;
+            if (occupant.getNick().equals(nick)) return occupant;
         }
 
         return null;
     }
 
+    public void recordLatestPresence(Entity occupantJid, PresenceStanza presenceStanza) {
+        if (!isInRoom(occupantJid)) return;
+        occupantsLatestPresence.put(occupantJid, presenceStanza);
+    }
+
+    public PresenceStanza getLatestPresence(Entity occupantJid) {
+        final PresenceStanza lastPresence = occupantsLatestPresence.get(occupantJid);
+        if (lastPresence == null || !isInRoom(occupantJid)) return null;
+        return lastPresence;
+    }
+    
     public Set<Occupant> getModerators() {
         return getByRole(Role.Moderator);
     }
@@ -164,8 +177,7 @@ public class Room implements InfoRequestListener, ItemRequestListener {
     private Set<Occupant> getByRole(Role role) {
         Set<Occupant> matches = new HashSet<Occupant>();
         for (Occupant occupant : getOccupants()) {
-            if (role.equals(occupant.getRole()))
-                matches.add(occupant);
+            if (role.equals(occupant.getRole())) matches.add(occupant);
         }
         return matches;
     }
@@ -180,6 +192,7 @@ public class Room implements InfoRequestListener, ItemRequestListener {
 
     public void removeOccupant(Entity occupantJid) {
         occupants.remove(occupantJid);
+        occupantsLatestPresence.remove(occupantJid);
     }
 
     public int getOccupantCount() {
