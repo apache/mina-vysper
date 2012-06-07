@@ -42,6 +42,8 @@ public class InMemoryRoomStorageProvider implements RoomStorageProvider {
     }
 
     public Room createRoom(MUCFeatures mucFeatures, Entity jid, String name, RoomType... roomTypes) {
+        if (roomExists(jid)) throw new IllegalStateException();
+
         Room room = new Room(jid, name, roomTypes);
         room.setRewriteDuplicateNick(mucFeatures.isRewriteDuplicateNick());
         room.setMaxRoomHistoryItems(mucFeatures.getMaxRoomHistoryItems());
