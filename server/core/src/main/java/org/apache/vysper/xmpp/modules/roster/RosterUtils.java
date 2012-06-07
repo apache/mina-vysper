@@ -53,7 +53,6 @@ public class RosterUtils {
      * are needed and then all TO items - but the roster is only iterated once. 
      */
     public static Map<SubscriptionType, List<RosterItem>> getRosterItemsByState(RosterManager rosterManager, Entity user) {
-        if (rosterManager == null) return Collections.emptyMap();
         
         Map<SubscriptionType, List<RosterItem>> rosterItemMap = new HashMap<SubscriptionType, List<RosterItem>>();
 
@@ -63,6 +62,8 @@ public class RosterUtils {
         rosterItemMap.put(SubscriptionType.REMOVE, new ArrayList<RosterItem>());
         rosterItemMap.put(SubscriptionType.NONE, new ArrayList<RosterItem>());
 
+        if (rosterManager == null) return rosterItemMap;
+        
         Roster roster;
         try {
             roster = rosterManager.retrieve(user);
