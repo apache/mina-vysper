@@ -64,7 +64,7 @@ public class Conference implements ServerInfoRequestListener, ItemRequestListene
     }
 
     public void initialize() {
-        roomStorageProvider.initialize();
+        if (roomStorageProvider != null) roomStorageProvider.initialize();
         if (occupantStorageProvider != null) occupantStorageProvider.initialize();
     }
 
@@ -77,7 +77,9 @@ public class Conference implements ServerInfoRequestListener, ItemRequestListene
             throw new IllegalArgumentException("Room already exists with JID: " + jid);
         }
 
-        return roomStorageProvider.createRoom(mucFeatures, jid, name, types);
+        final Room room = roomStorageProvider.createRoom(mucFeatures, jid, name, types);
+        if (occupantStorageProvider != null) room.setOccupantStorageProvider(occupantStorageProvider);
+        return room;
     }
 
     public void deleteRoom(Entity jid) {

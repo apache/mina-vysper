@@ -19,6 +19,9 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.storage;
 
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
+
 /**
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
@@ -26,6 +29,14 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc.storage;
 public class InMemoryOccupantStorageProvider implements OccupantStorageProvider {
 
     public void initialize() {
+        // do nothing
+    }
+
+    public void occupantAdded(Room room, Occupant occupant) {
+        // do nothing
+    }
+
+    public void occupantRemoved(Room room, Occupant occupant) {
         // do nothing
     }
 

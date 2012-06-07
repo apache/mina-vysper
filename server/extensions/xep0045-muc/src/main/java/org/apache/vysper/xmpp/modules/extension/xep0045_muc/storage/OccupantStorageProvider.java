@@ -20,9 +20,14 @@
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.storage;
 
 import org.apache.vysper.storage.StorageProvider;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 
 public interface OccupantStorageProvider extends StorageProvider {
 
     void initialize();
 
+    void occupantAdded(Room room, Occupant occupant);
+    
+    void occupantRemoved(Room room, Occupant occupant);
 }

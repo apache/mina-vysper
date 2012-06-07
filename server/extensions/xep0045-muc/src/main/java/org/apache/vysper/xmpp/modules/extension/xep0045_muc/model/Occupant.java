@@ -80,7 +80,9 @@ public class Occupant {
     }
 
     public boolean hasVoice() {
-        return role == Role.Moderator || role == Role.Participant;
+        if (role == Role.Moderator || role == Role.Participant) return true;
+        if (room.isRoomType(RoomType.Unmoderated) && room.doVisitorsHaveVoice()) return true;
+        return false;
     }
 
     @Override

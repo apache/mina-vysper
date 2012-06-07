@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.storage.OccupantStorageProvider;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Identity;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
@@ -58,6 +59,8 @@ public class Room implements InfoRequestListener, ItemRequestListener {
     private String password;
     
     private boolean rewriteDuplicateNick = true;
+    
+    private boolean visitorsHaveVoice = false;
 
     private DiscussionHistory history = new DiscussionHistory();
 
@@ -66,7 +69,9 @@ public class Room implements InfoRequestListener, ItemRequestListener {
     // keep in a map to allow for quick access
     private Map<Entity, Occupant> occupants = new ConcurrentHashMap<Entity, Occupant>();
     
-    private Map<Entity, PresenceStanza> occupantsLatestPresence = new ConcurrentHashMap<Entity, PresenceStanza>(); 
+    private Map<Entity, PresenceStanza> occupantsLatestPresence = new ConcurrentHashMap<Entity, PresenceStanza>();
+    
+    protected OccupantStorageProvider occupantStorageProvider;
 
     public Room(Entity jid, String name, RoomType... types) {
         if (jid == null) {
@@ -95,6 +100,10 @@ public class Room implements InfoRequestListener, ItemRequestListener {
         this.roomTypes = RoomType.complement(potentialTypes);
     }
 
+    public void setOccupantStorageProvider(OccupantStorageProvider occupantStorageProvider) {
+        this.occupantStorageProvider = occupantStorageProvider;
+    }
+    
     public Entity getJID() {
         return jid;
     }
@@ -123,6 +132,14 @@ public class Room implements InfoRequestListener, ItemRequestListener {
         history.setMaxItems(maxItems);
     }
 
+    public boolean doVisitorsHaveVoice() {
+        return visitorsHaveVoice;
+    }
+
+    public void setVisitorsHaveVoice(boolean visitorsHaveVoice) {
+        this.visitorsHaveVoice = visitorsHaveVoice;
+    }
+
     public Occupant addOccupant(Entity occupantJid, String name) {
         Affiliation affiliation = affiliations.getAffiliation(occupantJid);
 
@@ -144,6 +161,7 @@ public class Room implements InfoRequestListener, ItemRequestListener {
         } else {
             occupants.put(occupantJid, occupant);
         }
+        if (occupantStorageProvider != null) occupantStorageProvider.occupantAdded(this, occupant);
         return occupant;
     }
 
@@ -191,8 +209,9 @@ public class Room implements InfoRequestListener, ItemRequestListener {
     }
 
     public void removeOccupant(Entity occupantJid) {
-        occupants.remove(occupantJid);
+        final Occupant removed = occupants.remove(occupantJid);
         occupantsLatestPresence.remove(occupantJid);
+        if (occupantStorageProvider != null) occupantStorageProvider.occupantRemoved(this, removed);
     }
 
     public int getOccupantCount() {
