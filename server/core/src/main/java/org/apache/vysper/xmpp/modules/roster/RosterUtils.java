@@ -24,6 +24,7 @@ import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.PART
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.FINISHED;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,8 @@ public class RosterUtils {
      * are needed and then all TO items - but the roster is only iterated once. 
      */
     public static Map<SubscriptionType, List<RosterItem>> getRosterItemsByState(RosterManager rosterManager, Entity user) {
+        if (rosterManager == null) return Collections.emptyMap();
+        
         Map<SubscriptionType, List<RosterItem>> rosterItemMap = new HashMap<SubscriptionType, List<RosterItem>>();
 
         rosterItemMap.put(SubscriptionType.FROM, new ArrayList<RosterItem>());
