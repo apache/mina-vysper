@@ -56,13 +56,21 @@ public class BoshServlet extends HttpServlet {
 
     protected static final String SERVER_IDENTIFICATION = "Vysper/0.8";
 
-    protected final BoshHandler boshHandler = new BoshHandler();
+    protected BoshHandler boshHandler;
 
     protected List<String> accessControlAllowOrigin;
 
     protected String accessControlMaxAge = "86400"; // one day in seconds
 
     protected String accessControlAllowMethods = "GET, POST, OPTIONS";
+
+    public BoshServlet() {
+        initBoshHandler();
+    }
+
+    protected void initBoshHandler() {
+        boshHandler = new BoshHandler();
+    }
 
     /**
      * Setter for the {@link ServerRuntimeContext}

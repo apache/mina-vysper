@@ -87,7 +87,7 @@ public class BoshBackedSessionContextTest {
         httpServletRequest.setAttribute(eq("response"), EasyMock.<BoshResponse> capture(captured));
         mocksControl.replay();
 
-        BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(boshHandler, serverRuntimeContext, inactivityChecker);
+        BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(serverRuntimeContext, inactivityChecker);
         Stanza body = BoshStanzaUtils.EMPTY_BOSH_RESPONSE;
         boshBackedSessionContext.insertRequest(new BoshRequest(httpServletRequest, body, 1L));
         boshBackedSessionContext.writeBoshResponse(body);
@@ -101,7 +101,7 @@ public class BoshBackedSessionContextTest {
     @Test
     public void testSetBoshVersion1() {
         mocksControl.replay();
-        BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(boshHandler, serverRuntimeContext, inactivityChecker);
+        BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(serverRuntimeContext, inactivityChecker);
         boshBackedSessionContext.setBoshVersion("1.8");
         assertEquals("1.8", boshBackedSessionContext.getBoshVersion());
         mocksControl.verify();
@@ -110,7 +110,7 @@ public class BoshBackedSessionContextTest {
     @Test
     public void testSetBoshVersion2() {
         mocksControl.replay();
-        BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(boshHandler, serverRuntimeContext, inactivityChecker);
+        BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(serverRuntimeContext, inactivityChecker);
         boshBackedSessionContext.setBoshVersion("2.0");
         assertEquals("1.9", boshBackedSessionContext.getBoshVersion());
         mocksControl.verify();
@@ -146,7 +146,7 @@ public class BoshBackedSessionContextTest {
 
         // write0
         mocksControl.replay();
-        BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(boshHandler, serverRuntimeContext, inactivityChecker);
+        BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(serverRuntimeContext, inactivityChecker);
         
         boshBackedSessionContext.insertRequest(br);
         listenerCaptured.getValue().onTimeout(asyncEvent);
@@ -192,7 +192,7 @@ public class BoshBackedSessionContextTest {
         httpServletRequest1.setAttribute(eq("response"), EasyMock.<BoshResponse> capture(captured));
 
         mocksControl.replay();
-        BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(boshHandler, serverRuntimeContext, inactivityChecker);
+        BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(serverRuntimeContext, inactivityChecker);
 
         boshBackedSessionContext.setHold(2);
         // consecutive writes with RID 1 and 2
@@ -232,7 +232,7 @@ public class BoshBackedSessionContextTest {
 
         mocksControl.replay();
 
-        BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(boshHandler,
+        BoshBackedSessionContext boshBackedSessionContext = new BoshBackedSessionContext(
                 serverRuntimeContext, inactivityChecker);
         boshBackedSessionContext.writeBoshResponse(body); // queued for merging
         boshBackedSessionContext.writeBoshResponse(body); // queued for merging

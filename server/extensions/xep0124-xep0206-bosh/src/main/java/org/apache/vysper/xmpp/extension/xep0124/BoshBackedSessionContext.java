@@ -53,7 +53,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
 
     private final static Logger LOGGER = LoggerFactory.getLogger(BoshBackedSessionContext.class);
 
-    private final BoshHandler boshHandler;
+    public final static String HTTP_SESSION_ATTRIBUTE = "org.apache.vysper.xmpp.extension.xep0124.BoshBackedSessionContext"; 
     
     private final int maxpause = 120;
 
@@ -138,20 +138,19 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     private Long lastInactivityExpireTime;
     
     private boolean isWatchedByInactivityChecker;
+    
+    private boolean propagateSessionContextToHTTPSession = false;
 
     /**
      * Creates a new context for a session
-     * @param boshHandler
      * @param serverRuntimeContext
      * @param inactivityChecker
      */
-    public BoshBackedSessionContext(BoshHandler boshHandler, ServerRuntimeContext serverRuntimeContext, InactivityChecker inactivityChecker) {
+    public BoshBackedSessionContext(ServerRuntimeContext serverRuntimeContext, InactivityChecker inactivityChecker) {
         super(serverRuntimeContext, new SessionStateHolder());
 
         // in BOSH we jump directly to the encrypted state
         sessionStateHolder.setState(SessionState.ENCRYPTED);
-
-        this.boshHandler = boshHandler;
 
         this.inactivityChecker = inactivityChecker;
         updateInactivityChecker();
@@ -197,9 +196,17 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         // and this is done in BoshHandler when the client requests it
     }
 
-    /*
-     * This method is synchronized on the session object to prevent concurrent writes to the same BOSH client
+    /**
+     * true, iff this session context will be stored to the related BOSH HTTP session.
+     * @return
      */
+    public boolean propagateSessionContext() {
+        return propagateSessionContextToHTTPSession;
+    }
+
+    /*
+    * This method is synchronized on the session object to prevent concurrent writes to the same BOSH client
+    */
     synchronized public void write(Stanza stanza) {
         if (stanza == null) throw new IllegalArgumentException("stanza must not be null.");
         LOGGER.debug("adding server stanza for writing to BOSH client");
@@ -207,8 +214,9 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     }
 
     /**
-     * Writes a BOSH response (that is wrapped in a &lt;body/&gt; element) if there are available HTTP requests
-     * to respond to, otherwise the response is queued to be sent later (when a HTTP request will be available).
+     * Writes a server-to-client XMPP stanza as a BOSH response (wrapped in a &lt;body/&gt; element) if there are 
+     * available HTTP requests to respond to, otherwise the response is queued to be sent later 
+     * (when a HTTP request becomes available).
      * <p>
      * (package access)
      * 

@@ -19,14 +19,6 @@
  */
 package org.apache.vysper.xmpp.extension.xep0124;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.servlet.AsyncContext;
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.vysper.xml.fragment.Attribute;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -36,6 +28,13 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.AsyncContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Processes the BOSH requests from the clients
@@ -72,6 +71,10 @@ public class BoshHandler {
         return serverRuntimeContext;
     }
 
+    protected InactivityChecker getInactivityChecker() {
+        return inactivityChecker;
+    }
+
     /**
      * Setter for the {@link ServerRuntimeContext}
      * @param serverRuntimeContext
@@ -80,8 +83,12 @@ public class BoshHandler {
         this.serverRuntimeContext = serverRuntimeContext;
     }
 
+    protected BoshBackedSessionContext createSessionContext() {
+        return new BoshBackedSessionContext(serverRuntimeContext, inactivityChecker);
+    }
+
     /**
-     * Processes BOSH requests
+     * Processes incoming BOSH requests
      * @param httpRequest the HTTP request
      * @param body the decoded BOSH request
      */
@@ -117,42 +124,46 @@ public class BoshHandler {
             // continue anyway, this is not a problem with this implementation
         }
         BoshRequest br = new BoshRequest(httpRequest, body, rid);
+
+        // session creation request (first request). does not have a "sid" attribute
         if (body.getAttribute("sid") == null) {
-            // the session creation request (first request) does not have a "sid" attribute
             try {
                 createSession(br);
             } catch (IOException e) {
                 LOGGER.error("Exception thrown while processing the session creation request", e);
-                return;
             }
-        } else {
-            final String sid = body.getAttributeValue("sid");
-            BoshBackedSessionContext session = null;
-            if (sid != null) session = sessions.get(sid);
-            if (session == null) {
-                LOGGER.warn("Received an invalid sid = '{}', terminating connection", sid);
-                final AsyncContext context = br.getHttpServletRequest().startAsync();
-                // create temporary session to be able to reuse the code
-                new BoshBackedSessionContext(this, serverRuntimeContext, inactivityChecker).error(br, "invalid session id");
-                return;
-            }
-            synchronized (session) {
-                session.insertRequest(br);
-                for (;;) {
-                    // When a request from the user comes in, it is possible that the request fills a gap
-                    // created by previous lost request, and it could be possible to process more than the current request
-                    // continuing with all the adjacent requests.
-                    br = session.getNextRequest();
-                    if (br == null) {
-                        break;
-                    }
-                    processSession(session, br);
+            return;
+        } 
+
+        // in-session request, now find the server-side session
+        final String sid = body.getAttributeValue("sid");
+        BoshBackedSessionContext session = null;
+        if (sid != null) session = sessions.get(sid);
+        if (session == null) {
+            LOGGER.warn("Received an invalid sid = '{}', terminating connection", sid);
+            final AsyncContext context = br.getHttpServletRequest().startAsync();
+            // create temporary session to be able to reuse the code
+            createSessionContext().error(br, "invalid session id");
+            return;
+        }
+        
+        // process request for the session
+        synchronized (session) {
+            session.insertRequest(br);
+            for (;;) {
+                // When a request from the user comes in, it is possible that the request fills a gap
+                // created by previous lost request, and it could be possible to process more than the current request
+                // continuing with all the adjacent requests.
+                br = session.getNextRequest();
+                if (br == null) {
+                    break;
                 }
+                processSession(session, br);
             }
         }
     }
     
-    private void processSession(BoshBackedSessionContext session, BoshRequest br) {
+    protected void processSession(BoshBackedSessionContext session, BoshRequest br) {
         final Stanza stanza = br.getBody();
         if (session.getState() == SessionState.ENCRYPTED) {
             if (stanza.getInnerElements().isEmpty()) {
@@ -184,13 +195,13 @@ public class BoshHandler {
         }
     }
 
-    private void terminateSession(BoshBackedSessionContext session) {
+    protected void terminateSession(BoshBackedSessionContext session) {
         sessions.remove(session.getSessionId());
         session.writeBoshResponse(BoshStanzaUtils.TERMINATE_BOSH_RESPONSE);
         session.close();
     }
 
-    private void processStanza(BoshBackedSessionContext session, XMLElement element) {
+    protected void processStanza(BoshBackedSessionContext session, XMLElement element) {
         Stanza stanza;
         if (element instanceof Stanza) {
             stanza = (Stanza) element;
@@ -202,10 +213,14 @@ public class BoshHandler {
                 session.getStateHolder());
     }
 
-    private void createSession(BoshRequest br) throws IOException {
+    protected void createSession(BoshRequest br) throws IOException {
         final Stanza stanza = br.getBody();
 
-        BoshBackedSessionContext session = new BoshBackedSessionContext(this, serverRuntimeContext, inactivityChecker);
+        BoshBackedSessionContext session = createSessionContext();
+        if (session.propagateSessionContext() && br.getHttpServletRequest() != null) {
+            final HttpSession httpSession = br.getHttpServletRequest().getSession(true);
+            httpSession.setAttribute(BoshBackedSessionContext.HTTP_SESSION_ATTRIBUTE, session);
+        }
         
         final String contentAttribute = stanza.getAttributeValue("content");
         if (contentAttribute != null) session.setContentType(contentAttribute);
@@ -250,7 +265,7 @@ public class BoshHandler {
         session.writeBoshResponse(getSessionCreationResponse(session));
     }
 
-    private Stanza getSessionCreationResponse(BoshBackedSessionContext session) {
+    protected Stanza getSessionCreationResponse(BoshBackedSessionContext session) {
         StanzaBuilder body = BoshStanzaUtils.createBoshStanzaBuilder();
         body.addAttribute("wait", Integer.toString(session.getWait()));
         body.addAttribute("inactivity", Integer.toString(session.getInactivity()));
@@ -272,17 +287,5 @@ public class BoshHandler {
         body.addPreparedElement(features);
         return body.build();
 
-    }
-
-    public Stanza addAttribute(Stanza stanza, String attributeName, String attributeValue) {
-        StanzaBuilder stanzaBuilder = BoshStanzaUtils.createBoshStanzaBuilder();
-        for (Attribute attr : stanza.getAttributes()) {
-            stanzaBuilder.addAttribute(attr);
-        }
-        stanzaBuilder.addAttribute(attributeName, attributeValue);
-        for (XMLElement element : stanza.getInnerElements()) {
-            stanzaBuilder.addPreparedElement(element);
-        }
-        return stanzaBuilder.build();
     }
 }
