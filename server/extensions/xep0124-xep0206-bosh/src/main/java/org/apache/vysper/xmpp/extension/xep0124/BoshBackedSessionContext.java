@@ -55,11 +55,11 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
 
     public final static String HTTP_SESSION_ATTRIBUTE = "org.apache.vysper.xmpp.extension.xep0124.BoshBackedSessionContext"; 
     
-    private final int maxpause = 120;
+    private final int maxpauseSeconds = 120;
 
-    private final int inactivity = 60;
+    private final int inactivitySeconds = 60;
 
-    private final int polling = 15;
+    private final int pollingSeconds = 15;
     
     private final int maximumSentResponses = 10;
     
@@ -67,7 +67,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      * The number of milliseconds that will have to pass for a response to be reported missing to the client by
      * responding with a report and time attributes. See Response Acknowledgements in XEP-0124.
      */
-    private final int brokenConnectionReportTimeout = 1000;
+    private final int brokenConnectionReportTimeoutMillis = 1000;
     
     /*
      * Keeps the suspended HTTP requests (does not respond to them) until the server has an asynchronous message
@@ -99,7 +99,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
 
     private int hold = 1;
     
-    private int currentInactivity = inactivity;
+    private int currentInactivitySeconds = inactivitySeconds;
     
     /*
      * The highest RID that can be read and processed, this is the highest (rightmost) contiguous RID.
@@ -163,7 +163,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     private synchronized void updateInactivityChecker() {
         Long newInactivityExpireTime = null;
         if (requestsWindow.isEmpty()) {
-            newInactivityExpireTime = latestWriteTimestamp + currentInactivity * 1000;
+            newInactivityExpireTime = latestWriteTimestamp + currentInactivitySeconds * 1000;
             if (newInactivityExpireTime.equals(lastInactivityExpireTime)) {
                 return;
             }
@@ -262,10 +262,14 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
 
         final AsyncContext asyncContext = this.saveResponse(req, boshResponse);
         asyncContext.dispatch();
-        latestWriteTimestamp = System.currentTimeMillis();
+        setLatestWriteTimestamp();
         updateInactivityChecker();
     }
-    
+
+    private void setLatestWriteTimestamp() {
+        latestWriteTimestamp = System.currentTimeMillis();
+    }
+
     private static boolean isResponseSavable(BoshRequest req, Stanza response) {
         // responses to pause requests are not saved
         if (req.getBody().getAttributeValue("pause") != null) {
@@ -322,9 +326,6 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
             asyncContext.dispatch();
         }
         
-        serverRuntimeContext.getResourceRegistry().unbindSession(this);
-        sessionStateHolder.setState(SessionState.CLOSED);
-        
         inactivityChecker.updateExpireTime(this, lastInactivityExpireTime, null);
         lastInactivityExpireTime = null;
         
@@ -357,7 +358,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      * @return
      */
     public int getMaxPause() {
-        return maxpause;
+        return maxpauseSeconds;
     }
 
     /**
@@ -453,7 +454,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      * @return the BOSH 'inactivity' parameter
      */
     public int getInactivity() {
-        return inactivity;
+        return inactivitySeconds;
     }
 
     /**
@@ -461,7 +462,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      * @return the BOSH 'polling' parameter
      */
     public int getPolling() {
-        return polling;
+        return pollingSeconds;
     }
 
     /**
@@ -504,7 +505,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         LOGGER.debug("rid = {} - inserting new BOSH request", rid);
         
         // reset the inactivity
-        currentInactivity = inactivity;
+        currentInactivitySeconds = inactivitySeconds;
         
         final AsyncContext context = br.getHttpServletRequest().startAsync();
         this.addContinuationExpirationListener(context);
@@ -540,14 +541,14 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
             if (requestsWindow.size() + 1 == currentRequests && !"terminate".equals(stanza.getAttributeValue("type"))
                     && stanza.getAttributeValue("pause") == null && stanza.getInnerElements().isEmpty()) {
                 if (!requestsWindow.isEmpty()
-                        && br.getTimestamp() - requestsWindow.get(requestsWindow.lastKey()).getTimestamp() < polling * 1000) {
+                        && br.getTimestamp() - requestsWindow.get(requestsWindow.lastKey()).getTimestamp() < pollingSeconds * 1000) {
                     LOGGER.warn("BOSH Overactivity: Too frequent requests");
                     error(br, "policy-violation");
                     return;
                 }
             }
             if ((wait == 0 || hold == 0) && stanza.getInnerElements().isEmpty()) {
-                if (latestEmptyPollingRequest != null && br.getTimestamp() - latestEmptyPollingRequest.getTimestamp() < polling * 1000) {
+                if (latestEmptyPollingRequest != null && br.getTimestamp() - latestEmptyPollingRequest.getTimestamp() < pollingSeconds * 1000) {
                     LOGGER.warn("BOSH Overactivity for polling: Too frequent requests");
                     error(br, "policy-violation");
                     return;
@@ -587,7 +588,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
                     long ack = Long.parseLong(stanza.getAttributeValue("ack"));
                     if (ack < sentResponses.lastKey() && sentResponses.containsKey(ack + 1)) {
                         long delta = System.currentTimeMillis() - sentResponses.get(ack + 1).getTimestamp();
-                        if (delta >= brokenConnectionReportTimeout) {
+                        if (delta >= brokenConnectionReportTimeoutMillis) {
                             sendBrokenConnectionReport(ack + 1, delta);
                             return;
                         }
@@ -609,7 +610,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
                     return;
                 }
                 pause = Math.max(0, pause);
-                pause = Math.min(pause, maxpause);
+                pause = Math.min(pause, maxpauseSeconds);
                 respondToPause(pause);
                 return;
             }
@@ -638,7 +639,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     
     protected void respondToPause(int pause) {
         LOGGER.debug("Setting inactivity period to {}", pause);
-        currentInactivity = pause;
+        currentInactivitySeconds = pause;
         for (;;) {
             BoshRequest boshRequest = getNextRequest();
             if (boshRequest == null) {
@@ -688,7 +689,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
 
         final AsyncContext asyncContext = this.saveResponse(br, boshResponse);
         asyncContext.dispatch();
-        this.latestWriteTimestamp = System.currentTimeMillis();
+        setLatestWriteTimestamp();
         this.updateInactivityChecker();
     }
 

@@ -19,15 +19,14 @@
  */
 package org.apache.vysper.xmpp.extension.xep0124;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
+import org.apache.vysper.xmpp.server.SessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * Periodically checks the BOSH sessions to see if there are inactive sessions,
@@ -49,10 +48,19 @@ public class InactivityChecker extends Thread {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(InactivityChecker.class);
 
+    /**
+     * reduces the key resolution to 10th of a second
+     * @param timestampMillis
+     * @return timestampDeci
+     */
+    public static long convertToKey(long timestampMillis) {
+        return timestampMillis / 100;
+    }
+    
     /*
      * The interval in milliseconds between two consecutive inactivity checks.
      */
-    private final int CHECKING_INTERVAL = 1000;
+    private final int CHECKING_INTERVAL_MILLIS = 1000;
 
     /*
      * Keeps the BOSH sessions sorted according to the time they expire (the key of the map).
@@ -60,12 +68,12 @@ public class InactivityChecker extends Thread {
      * The value associated with a key in the map can be a BoshBackedSessionContext
      * or a Set<BoshBackedSessionContext> (in case more than one session expires at the same time).
      */
-    private final SortedMap<Long, Object> sessions;
+    private final ListMultimap<Long, BoshBackedSessionContext> sessions = ArrayListMultimap.create();
+
 
     public InactivityChecker() {
         setName(InactivityChecker.class.getSimpleName());
         setDaemon(true);
-        sessions = new TreeMap<Long, Object>();
     }
 
     /**
@@ -86,45 +94,31 @@ public class InactivityChecker extends Thread {
      * then the session will be removed from the inactivity checker)
      * @return true if the inactivity checker is watching the session (to detect inactivity), false otherwise
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"rawtypes"})
     public boolean updateExpireTime(BoshBackedSessionContext session, Long oldExpireTime, Long newExpireTime) {
         boolean ret = session.isWatchedByInactivityChecker();
-        if ((oldExpireTime == null && newExpireTime == null)
-                || (newExpireTime != null && newExpireTime.equals(oldExpireTime))) {
+        if (oldExpireTime == null && newExpireTime == null) {
+            return ret;
+        }
+        Long oldExpireTimeKey = oldExpireTime == null ? null : InactivityChecker.convertToKey(oldExpireTime);
+        Long newExpireTimeKey = newExpireTime == null ? null : InactivityChecker.convertToKey(newExpireTime);
+        if (newExpireTimeKey != null && newExpireTimeKey.equals(oldExpireTimeKey)) {
+            // do not update the key, if it didn't change
             return ret;
         }
         synchronized (sessions) {
-            if (oldExpireTime != null) {
-                Object oldValue = sessions.get(oldExpireTime);
-                if (oldValue instanceof Set) {
-                    ((Set) oldValue).remove(session);
-                    if (((Set) oldValue).isEmpty()) {
-                        sessions.remove(oldExpireTime);
-                    }
-                } else if (oldValue != null) {
-                    sessions.remove(oldExpireTime);
-                }
+            if (oldExpireTimeKey != null) {
+                sessions.remove(oldExpireTimeKey, session);
                 ret = false;
             }
-            if (newExpireTime != null) {
-                Object value = sessions.get(newExpireTime);
-                if (value instanceof Set) {
-                    ((Set) value).add(session);
-                } else if (value == null) {
-                    sessions.put(newExpireTime, session);
-                } else {
-                    Set<BoshBackedSessionContext> set = new HashSet<BoshBackedSessionContext>();
-                    sessions.put(newExpireTime, set);
-                    set.add((BoshBackedSessionContext) value);
-                    set.add(session);
-                }
+            if (newExpireTimeKey != null) {
+                sessions.put(newExpireTimeKey, session);
                 ret = true;
             }
         }
         return ret;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void run() {
         for (;;) {
@@ -134,48 +128,28 @@ public class InactivityChecker extends Thread {
 
             synchronized (this) {
                 try {
-                    wait(CHECKING_INTERVAL);
+                    wait(CHECKING_INTERVAL_MILLIS);
                 } catch (InterruptedException e) {
                     break;
                 }
             }
 
-            long time = System.currentTimeMillis();
+            long nowKey = convertToKey(System.currentTimeMillis());
 
-            // the inactive sessions are saved in a list to close them after the synchronized block to prevent a deadlock
-            // that could happen when trying to close the sessions inside the synchronized block 
-            List<BoshBackedSessionContext> inactiveSessions = null;
-
+            final HashSet<Long> keys;
             synchronized (sessions) {
-                // get the oldest key
-                Long expireTime = sessions.isEmpty() ? null : sessions.firstKey();
-
-                while (expireTime != null) {
-                    // as long as we find expired sessions we save them in the list and remove them from our sorted map
-                    if (time >= expireTime) {
-                        if (inactiveSessions == null) {
-                            inactiveSessions = new ArrayList<BoshBackedSessionContext>();
-                        }
-                        Object value = sessions.get(expireTime);
-                        if (value instanceof Set) {
-                            inactiveSessions.addAll((Set<BoshBackedSessionContext>) value);
-                        } else if (value != null) {
-                            inactiveSessions.add((BoshBackedSessionContext) value);
-                        }
-                        sessions.remove(expireTime);
-                        expireTime = sessions.isEmpty() ? null : sessions.firstKey();
-                    } else {
-                        // at the first non-expired session, we know that all the next sessions are more recent and cannot
-                        // be expired if the current session is Ok, so we break the loop 
-                        break;
-                    }
-                }
+                // get all keys
+                keys = new HashSet<Long>(sessions.keySet());
             }
 
-            if (inactiveSessions != null) {
-                for (BoshBackedSessionContext session : inactiveSessions) {
-                    LOGGER.error("BOSH session {} reached maximum inactivity period, closing session...", session);
-                    session.close();
+            for (Long expireTime : keys) {
+                // expire old sessions 
+                if (nowKey >= expireTime) {
+                    final List<BoshBackedSessionContext> inactiveSessions = sessions.removeAll(expireTime);
+                    for (BoshBackedSessionContext session : inactiveSessions) {
+                        LOGGER.error("BOSH session {} reached maximum inactivity period, closing session...", session);
+                        session.endSession(SessionContext.SessionTerminationCause.CONNECTION_ABORT);
+                    }
                 }
             }
         }
