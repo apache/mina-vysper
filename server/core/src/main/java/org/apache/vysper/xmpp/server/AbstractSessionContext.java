@@ -155,7 +155,7 @@ public abstract class AbstractSessionContext implements SessionContext {
             // TODO find a solution for informing the contacts without breaking test cases
             // but do nothing for now
         } else {
-            throw new IllegalArgumentException("endSession() not implemented for termination cause");
+            throw new IllegalArgumentException("endSession() not implemented for termination cause = " + terminationCause);
         }
 
         // unbind session and remove from registry

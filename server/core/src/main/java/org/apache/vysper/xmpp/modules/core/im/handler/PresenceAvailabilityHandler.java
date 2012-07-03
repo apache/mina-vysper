@@ -196,6 +196,7 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
         // broadcast unavailable to all directed-presence contacts
         Set<Entity> entitySet = getDirectedPresenceMap(sessionContext, user);
         if (entitySet != null) {
+            logger.debug("sending unavailable info to " + entitySet.size() + " directed presence contacts for " + user);
             contacts.addAll(entitySet);
             entitySet.clear(); // and un-record them
         }
@@ -349,9 +350,12 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
 
         if (unvailable) {
             dpMap.remove(to);
+            logger.debug("removed directed presence between " + from + " and " + to);
         } else {
-            if (!isFromContact || !IsTOAvailable)
+            if (!isFromContact || !IsTOAvailable) {
                 dpMap.add(to);
+                logger.debug("established directed presence between " + from + " and " + to);
+            }
         }
 
         try {
