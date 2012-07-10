@@ -94,7 +94,6 @@ public class InactivityChecker extends Thread {
      * then the session will be removed from the inactivity checker)
      * @return true if the inactivity checker is watching the session (to detect inactivity), false otherwise
      */
-    @SuppressWarnings({"rawtypes"})
     public boolean updateExpireTime(BoshBackedSessionContext session, Long oldExpireTime, Long newExpireTime) {
         boolean ret = session.isWatchedByInactivityChecker();
         if (oldExpireTime == null && newExpireTime == null) {
@@ -126,12 +125,10 @@ public class InactivityChecker extends Thread {
                 break;
             }
 
-            synchronized (this) {
-                try {
-                    wait(CHECKING_INTERVAL_MILLIS);
-                } catch (InterruptedException e) {
-                    break;
-                }
+            try {
+                wait(CHECKING_INTERVAL_MILLIS);
+            } catch (InterruptedException e) {
+                break;
             }
 
             long nowKey = convertToKey(System.currentTimeMillis());
@@ -153,6 +150,7 @@ public class InactivityChecker extends Thread {
                 }
             }
         }
+        LOGGER.error("inactivity checker watcher thread terminates");
     }
 
 }

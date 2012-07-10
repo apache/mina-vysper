@@ -288,4 +288,8 @@ public class BoshHandler {
         return body.build();
 
     }
+
+    public int getActiveSessionsCount() {
+        return sessions.size();
+    }
 }
