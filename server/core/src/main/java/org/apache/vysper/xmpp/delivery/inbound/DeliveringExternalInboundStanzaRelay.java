@@ -19,10 +19,13 @@
  */
 package org.apache.vysper.xmpp.delivery.inbound;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -36,6 +39,8 @@ import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
 import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.resources.ManagedThreadPool;
+import org.apache.vysper.xmpp.server.resources.ManagedThreadPoolUtil;
 import org.apache.vysper.xmpp.server.s2s.XMPPServerConnector;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -51,22 +56,41 @@ import org.slf4j.LoggerFactory;
  *  
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class DeliveringExternalInboundStanzaRelay implements StanzaRelay {
+public class DeliveringExternalInboundStanzaRelay implements StanzaRelay, ManagedThreadPool {
 
     final Logger logger = LoggerFactory.getLogger(DeliveringExternalInboundStanzaRelay.class);
 
+    private static class RejectedDeliveryHandler implements RejectedExecutionHandler {
+        
+        DeliveringExternalInboundStanzaRelay relay;
+        Logger logger;
+
+        private RejectedDeliveryHandler(DeliveringExternalInboundStanzaRelay relay, Logger logger) {
+            this.relay = relay;
+            this.logger = logger;
+        }
+
+        public void rejectedExecution(Runnable runnable, ThreadPoolExecutor threadPoolExecutor) {
+            logger.info("relaying of external inbound stanza has been rejected");
+        }
+    }
+    
+    
     protected ExecutorService executor;
 
     protected OfflineStanzaReceiver offlineStanzaReceiver = null;
 
     protected ServerRuntimeContext serverRuntimeContext = null;
+    
+    protected long lastCompleted = 0;
+    protected long lastDumpTimestamp = 0;
 
     public DeliveringExternalInboundStanzaRelay() {
         int coreThreadCount = 10;
         int maxThreadCount = 20;
-        int threadTimeoutSeconds = 2 * 60 * 1000;
+        int threadTimeoutSeconds = 2 * 60;
         this.executor = new ThreadPoolExecutor(coreThreadCount, maxThreadCount, threadTimeoutSeconds, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>());
+                new LinkedBlockingQueue<Runnable>(), new RejectedDeliveryHandler(this, logger));
     }
 
     /*package*/ DeliveringExternalInboundStanzaRelay(ExecutorService executor) {
@@ -75,6 +99,41 @@ public class DeliveringExternalInboundStanzaRelay implements StanzaRelay {
 
     public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
         this.serverRuntimeContext = serverRuntimeContext;
+    }
+
+    public void setMaxThreadCount(int maxThreadPoolCount) {
+        if (!(executor instanceof ThreadPoolExecutor)) {
+            throw new IllegalStateException("cannot set max thread count for " + executor.getClass());
+        }
+        ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor)executor;
+        threadPoolExecutor.setCorePoolSize(maxThreadPoolCount);
+        threadPoolExecutor.setMaximumPoolSize(2*maxThreadPoolCount);
+    }
+    
+    public void setThreadTimeoutSeconds(int threadTimeoutSeconds) {
+        if (!(executor instanceof ThreadPoolExecutor)) {
+            throw new IllegalStateException("cannot set thread timeout for " + executor.getClass());
+        }
+        ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor)executor;
+        threadPoolExecutor.setKeepAliveTime(threadTimeoutSeconds, TimeUnit.SECONDS);
+    }
+    
+    public void dumpThreadPoolInfo(Writer writer) throws IOException {
+        if (!(executor instanceof ThreadPoolExecutor)) {
+            throw new IllegalStateException("cannot dump info for " + executor.getClass());
+        }
+        ThreadPoolExecutor pool = (ThreadPoolExecutor)executor;
+
+        final long now = System.currentTimeMillis();
+        writer.append("==== externalRelay:").append("\n");
+        ManagedThreadPoolUtil.writeThreadPoolInfo(writer, pool);
+        final long completedTaskCount = pool.getCompletedTaskCount();
+        if (lastDumpTimestamp > 0) {
+            writer.append("throughput=\t").append(Long.toString(completedTaskCount - lastCompleted))
+                                          .append(" per ").append(Long.toString(now - lastDumpTimestamp)).append("\n");
+        }
+        lastDumpTimestamp = now;
+        lastCompleted = completedTaskCount;
     }
 
     public void relay(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy)

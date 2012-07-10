@@ -80,7 +80,10 @@ public class XMPPServer {
     private final List<Endpoint> endpoints = new ArrayList<Endpoint>();
 
     private final List<Module> initialModules = new ArrayList<Module>();
+ 
+    private int maxInternalRelayThreads = -1;
     
+    private int maxExternalRelayThreads = -1;
 
     public XMPPServer(String domain) {
         this.serverDomain = domain;
@@ -115,7 +118,15 @@ public class XMPPServer {
     	tlsCertificatePassword = password;
     	tlsKeyStoreType = keyStoreType;
     }
-    
+
+    public void setMaxInternalRelayThreads(int maxInternalRelayThreads) {
+        this.maxInternalRelayThreads = maxInternalRelayThreads;
+    }
+
+    public void setMaxExternalRelayThreads(int maxExternalRelayThreads) {
+        this.maxExternalRelayThreads = maxExternalRelayThreads;
+    }
+
     public void addEndpoint(Endpoint endpoint) {
         endpoints.add(endpoint);
     }
@@ -143,6 +154,9 @@ public class XMPPServer {
         DeliveringInternalInboundStanzaRelay internalStanzaRelay = new DeliveringInternalInboundStanzaRelay(serverEntity,
                 resourceRegistry, accountManagement,offlineReceiver);
         DeliveringExternalInboundStanzaRelay externalStanzaRelay = new DeliveringExternalInboundStanzaRelay();
+        
+        if (maxInternalRelayThreads >= 0) internalStanzaRelay.setMaxThreadCount(maxInternalRelayThreads);
+        if (maxExternalRelayThreads >= 0) externalStanzaRelay.setMaxThreadCount(maxExternalRelayThreads);
 
         stanzaRelayBroker = new StanzaRelayBroker();
         stanzaRelayBroker.setInternalRelay(internalStanzaRelay);

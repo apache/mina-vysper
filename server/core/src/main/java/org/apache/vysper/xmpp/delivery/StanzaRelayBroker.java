@@ -25,8 +25,11 @@ import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
 import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.resources.ManagedThreadPool;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -105,6 +108,23 @@ public class StanzaRelayBroker implements StanzaRelay {
         if (isRelaying.compareAndSet(true, false)) {
             this.internalRelay.stop();
             this.externalRelay.stop();
+        }
+    }
+
+    /**
+     * writes statistics about internal and external relays to the given writer, 
+     * if the relays implement ManagedThreadPool (which is the common case). 
+     * @param writer
+     * @throws IOException
+     */
+    public void dumpRelayStatistics(Writer writer) throws IOException {
+        if (internalRelay != null && internalRelay instanceof ManagedThreadPool) {
+            final ManagedThreadPool relay = (ManagedThreadPool)internalRelay;
+            relay.dumpThreadPoolInfo(writer);
+        }
+        if (externalRelay != null && externalRelay instanceof ManagedThreadPool) {
+            final ManagedThreadPool relay = (ManagedThreadPool)externalRelay;
+            relay.dumpThreadPoolInfo(writer);
         }
     }
 }
