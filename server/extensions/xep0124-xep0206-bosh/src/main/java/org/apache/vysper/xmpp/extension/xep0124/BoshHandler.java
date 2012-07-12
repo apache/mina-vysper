@@ -234,6 +234,8 @@ public class BoshHandler implements ServerRuntimeContextService {
         final Stanza stanza = br.getBody();
 
         if (stanza.getInnerElements().size() > 0) {
+            // we can see this behavior when the server-side session is aborted, but 
+            // the client keeps sending stanzas
             LOGGER.error("session creation request has content.");
             throw new IOException("session creation request has content.");
         }
