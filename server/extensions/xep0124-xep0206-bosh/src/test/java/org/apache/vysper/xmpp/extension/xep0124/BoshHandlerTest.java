@@ -21,10 +21,9 @@ package org.apache.vysper.xmpp.extension.xep0124;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static org.easymock.EasyMock.anyLong;
-import static org.easymock.EasyMock.createControl;
-import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.expect;
+import static org.apache.vysper.xmpp.extension.xep0124.BoshBackedSessionContext.BOSH_REQUEST_ATTRIBUTE;
+import static org.apache.vysper.xmpp.extension.xep0124.BoshBackedSessionContext.BOSH_RESPONSE_ATTRIBUTE;
+import static org.easymock.EasyMock.*;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -86,7 +85,7 @@ public class BoshHandlerTest {
         expect(httpServletRequest.getAsyncContext()).andReturn(asyncContext).atLeastOnce();
         asyncContext.setTimeout(anyLong());
         Capture<BoshRequest> br = new Capture<BoshRequest>();
-        httpServletRequest.setAttribute(eq("request"), EasyMock.<BoshRequest> capture(br));
+        httpServletRequest.setAttribute(eq(BOSH_REQUEST_ATTRIBUTE), EasyMock.<BoshRequest>capture(br));
         asyncContext.addListener(EasyMock.<AsyncListener> anyObject());
         asyncContext.dispatch();
 
@@ -96,7 +95,7 @@ public class BoshHandlerTest {
         expect(serverRuntimeContext.getModule(InBandRegistrationModule.class)).andReturn(null);
 
         Capture<BoshResponse> captured = new Capture<BoshResponse>();
-        httpServletRequest.setAttribute(eq("response"), EasyMock.<BoshResponse> capture(captured));
+        httpServletRequest.setAttribute(eq(BOSH_RESPONSE_ATTRIBUTE), EasyMock.<BoshResponse> capture(captured));
         mocksControl.replay();
 
         Stanza boshRequest = createSessionRequest();
@@ -129,7 +128,7 @@ public class BoshHandlerTest {
         expect(httpServletRequest.startAsync()).andReturn(asyncContext).atLeastOnce();
         expect(httpServletRequest.getAsyncContext()).andReturn(asyncContext).anyTimes();
         asyncContext.setTimeout(anyLong());
-        httpServletRequest.setAttribute(eq("request"), EasyMock.<BoshRequest> capture(br));
+        httpServletRequest.setAttribute(eq(BOSH_REQUEST_ATTRIBUTE), EasyMock.<BoshRequest> capture(br));
         asyncContext.addListener(EasyMock.<AsyncListener> anyObject());
         StanzaProcessor stanzaProcessor = mocksControl.createMock(StanzaProcessor.class);
         expect(serverRuntimeContext.getStanzaProcessor()).andReturn(stanzaProcessor);
