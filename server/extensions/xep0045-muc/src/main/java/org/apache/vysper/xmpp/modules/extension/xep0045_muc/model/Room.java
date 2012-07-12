@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -72,6 +73,10 @@ public class Room implements InfoRequestListener, ItemRequestListener {
     private Map<Entity, PresenceStanza> occupantsLatestPresence = new ConcurrentHashMap<Entity, PresenceStanza>();
     
     protected OccupantStorageProvider occupantStorageProvider;
+    
+    protected long createdTimestamp;
+    
+    protected long lastActivity = -1;
 
     public Room(Entity jid, String name, RoomType... types) {
         if (jid == null) {
@@ -85,6 +90,7 @@ public class Room implements InfoRequestListener, ItemRequestListener {
 
         this.jid = jid;
         this.name = name;
+        this.createdTimestamp = System.currentTimeMillis();
 
         EnumSet<RoomType> potentialTypes;
         if (types != null && types.length > 0) {
@@ -274,4 +280,21 @@ public class Room implements InfoRequestListener, ItemRequestListener {
         return affiliations;
     }
 
+    /**
+     * @return time stamp in milliseconds when the room has been created
+     */
+    public long getCreatedTimestamp() {
+        return createdTimestamp;
+    }
+
+    public void updateLastActivity() {
+        this.lastActivity =  Math.max(lastActivity, System.currentTimeMillis());
+    }
+
+    /**
+     * @return time stamp in milliseconds when the last message was sent or a occupant joined/left
+     */
+    public long getLastActivity() {
+        return lastActivity;
+    }
 }

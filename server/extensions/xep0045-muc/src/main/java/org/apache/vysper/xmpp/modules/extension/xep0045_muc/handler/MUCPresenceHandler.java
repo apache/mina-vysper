@@ -196,6 +196,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
                 }
 
             }
+            room.updateLastActivity();
         } else {
             logger.debug("{} has requested to enter room {}", newOccupantJid, roomJid);
 
@@ -273,6 +274,8 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
                                                   stanza, nickRewritten);
             }
 
+            room.updateLastActivity();
+            
             // send discussion history to user
             boolean includeJid = room.isRoomType(RoomType.NonAnonymous);
             List<Stanza> history = room.getHistory().createStanzas(newOccupant, includeJid, History.fromStanza(stanza));
@@ -316,6 +319,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
                 if (room.isRoomType(RoomType.Temporary) && room.isEmpty()) {
                     conference.deleteRoom(roomJid);
                 }
+                room.updateLastActivity();
             }
         }
 
