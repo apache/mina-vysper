@@ -47,6 +47,8 @@ import java.util.List;
 public class InactivityChecker extends Thread {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(InactivityChecker.class);
+    
+    protected BoshHandler boshHandler;
 
     /**
      * reduces the key resolution to 10th of a second
@@ -60,7 +62,7 @@ public class InactivityChecker extends Thread {
     /*
      * The interval in milliseconds between two consecutive inactivity checks.
      */
-    private final int CHECKING_INTERVAL_MILLIS = 1000;
+    private final int CHECKING_INTERVAL_MILLIS = 10*1000;
 
     /*
      * Keeps the BOSH sessions sorted according to the time they expire (the key of the map).
@@ -71,7 +73,8 @@ public class InactivityChecker extends Thread {
     private final ListMultimap<Long, BoshBackedSessionContext> sessions = ArrayListMultimap.create();
 
 
-    public InactivityChecker() {
+    public InactivityChecker(BoshHandler boshHandler) {
+        this.boshHandler = boshHandler;
         setName(InactivityChecker.class.getSimpleName());
         setDaemon(true);
     }
@@ -121,36 +124,49 @@ public class InactivityChecker extends Thread {
     @Override
     public void run() {
         for (;;) {
-            if (Thread.interrupted()) {
-                break;
-            }
-
             try {
-                wait(CHECKING_INTERVAL_MILLIS);
-            } catch (InterruptedException e) {
-                break;
+                if (Thread.interrupted()) {
+                    break;
+                }
+
+                try {
+                    Thread.sleep(CHECKING_INTERVAL_MILLIS);
+                } catch (InterruptedException e) {
+                    break;
+                }
+
+                runWorker();
+            } catch (Throwable e) {
+                LOGGER.error("inactivity checker exception", e);
             }
+        }
+        LOGGER.info("inactivity checker watcher thread terminates");
+    }
 
-            long nowKey = convertToKey(System.currentTimeMillis());
+    protected void runWorker() {
+        long nowKey = convertToKey(System.currentTimeMillis());
 
-            final HashSet<Long> keys;
-            synchronized (sessions) {
-                // get all keys
-                keys = new HashSet<Long>(sessions.keySet());
-            }
+        final HashSet<Long> keys;
+        synchronized (sessions) {
+            // get all keys
+            keys = new HashSet<Long>(sessions.keySet());
+        }
 
-            for (Long expireTime : keys) {
-                // expire old sessions 
-                if (nowKey >= expireTime) {
-                    final List<BoshBackedSessionContext> inactiveSessions = sessions.removeAll(expireTime);
-                    for (BoshBackedSessionContext session : inactiveSessions) {
-                        LOGGER.error("BOSH session {} reached maximum inactivity period, closing session...", session);
+        for (Long expireTime : keys) {
+            // expire old sessions 
+            if (nowKey >= expireTime) {
+                final List<BoshBackedSessionContext> inactiveSessions = sessions.removeAll(expireTime);
+                for (BoshBackedSessionContext session : inactiveSessions) {
+                    LOGGER.info("BOSH session {} reached maximum inactivity period, closing session...", session.getSessionId());
+                    try {
                         session.endSession(SessionContext.SessionTerminationCause.CONNECTION_ABORT);
+                        final boolean removed = boshHandler.removeSession(session.getSessionId());
+                    } catch (Throwable e) {
+                        LOGGER.warn("BOSH session {}: error when closing session", e);
                     }
                 }
             }
         }
-        LOGGER.error("inactivity checker watcher thread terminates");
     }
 
 }

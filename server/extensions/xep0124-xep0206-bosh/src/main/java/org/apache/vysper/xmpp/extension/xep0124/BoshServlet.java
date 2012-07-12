@@ -33,6 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+import static org.apache.vysper.xmpp.extension.xep0124.BoshBackedSessionContext.BOSH_RESPONSE_ATTRIBUTE;
+
 /**
  * Receives BOSH requests from HTTP clients.
  *
@@ -78,6 +80,7 @@ public class BoshServlet extends HttpServlet {
      */
     public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
         boshHandler.setServerRuntimeContext(serverRuntimeContext);
+        serverRuntimeContext.registerServerRuntimeContextService(boshHandler);
     }
     
     
@@ -166,7 +169,7 @@ public class BoshServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        BoshResponse boshResponse = (BoshResponse) req.getAttribute("response");
+        BoshResponse boshResponse = (BoshResponse) req.getAttribute(BOSH_RESPONSE_ATTRIBUTE);
         if (boshResponse != null) {
             // if the continuation is resumed or expired
             writeResponse(resp, boshResponse);

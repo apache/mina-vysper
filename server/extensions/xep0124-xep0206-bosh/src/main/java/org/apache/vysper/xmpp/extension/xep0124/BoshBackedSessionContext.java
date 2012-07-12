@@ -29,6 +29,8 @@ import java.util.TreeMap;
 import javax.servlet.AsyncContext;
 import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
@@ -53,8 +55,11 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
 
     private final static Logger LOGGER = LoggerFactory.getLogger(BoshBackedSessionContext.class);
 
-    public final static String HTTP_SESSION_ATTRIBUTE = "org.apache.vysper.xmpp.extension.xep0124.BoshBackedSessionContext"; 
+    public final static String HTTP_SESSION_ATTRIBUTE = "org.apache.vysper.xmpp.extension.xep0124.BoshBackedSessionContext";
     
+    public final static String BOSH_REQUEST_ATTRIBUTE = "boshRequest";
+    public final static String BOSH_RESPONSE_ATTRIBUTE = "boshResponse";
+
     private final int maxpauseSeconds = 120;
 
     private final int inactivitySeconds = 60;
@@ -146,7 +151,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      * @param serverRuntimeContext
      * @param inactivityChecker
      */
-    public BoshBackedSessionContext(ServerRuntimeContext serverRuntimeContext, InactivityChecker inactivityChecker) {
+    public BoshBackedSessionContext(ServerRuntimeContext serverRuntimeContext, BoshHandler boshHandler, InactivityChecker inactivityChecker) {
         super(serverRuntimeContext, new SessionStateHolder());
 
         // in BOSH we jump directly to the encrypted state
@@ -155,7 +160,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         this.inactivityChecker = inactivityChecker;
         updateInactivityChecker();
     }
-    
+
     public boolean isWatchedByInactivityChecker() {
         return isWatchedByInactivityChecker;
     }
@@ -209,7 +214,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     */
     synchronized public void write(Stanza stanza) {
         if (stanza == null) throw new IllegalArgumentException("stanza must not be null.");
-        LOGGER.debug("adding server stanza for writing to BOSH client");
+        LOGGER.debug("SID = " + getSessionId() + " - adding server stanza for writing to BOSH client");
         writeBoshResponse(BoshStanzaUtils.wrapStanza(stanza));
     }
 
@@ -233,7 +238,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
                 if (isEmtpyResponse) return; // do not delay empty responses
                 final boolean accepted = delayedResponseQueue.offer(responseStanza);
                 if (!accepted) {
-                    LOGGER.debug("rid = {} - request not queued. BOSH delayedResponseQueue is full: {}", 
+                    LOGGER.debug("SID = " + getSessionId() + " - rid = {} - request not queued. BOSH delayedResponseQueue is full: {}", 
                             requestsWindow.firstKey(), delayedResponseQueue.size());
                     // TODO do not silently drop this stanza
                 }
@@ -243,7 +248,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
             boshResponse = getBoshResponse(responseStanza, req.getRid().equals(highestReadRid) ? null : highestReadRid);
             if (LOGGER.isDebugEnabled()) {
                 String emptyHint = isEmtpyResponse ? "empty " : StringUtils.EMPTY;
-                LOGGER.debug("rid = " + req.getRid() + " - BOSH writing {}response: {}", emptyHint, new String(boshResponse.getContent()));
+                LOGGER.debug("SID = " + getSessionId() + " - rid = " + req.getRid() + " - BOSH writing {}response: {}", emptyHint, new String(boshResponse.getContent()));
             }
         }
 
@@ -300,7 +305,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         Stanza body = BoshStanzaUtils.createTerminateResponse(condition).build();
         BoshResponse boshResponse = getBoshResponse(body, null);
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("rid = {} - BOSH writing response: {}", rid, new String(boshResponse.getContent()));
+            LOGGER.debug("SID = " + getSessionId() + " - rid = {} - BOSH writing response: {}", rid, new String(boshResponse.getContent()));
         }
 
         final AsyncContext asyncContext = this.saveResponse(req, boshResponse);
@@ -318,7 +323,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
             Stanza body = BoshStanzaUtils.TERMINATE_BOSH_RESPONSE;
             BoshResponse boshResponse = getBoshResponse(body, null);
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("rid = {} - BOSH writing response: {}", req.getRid(), new String(boshResponse.getContent()));
+                LOGGER.debug("SID = " + getSessionId() + " - rid = {} - BOSH writing response: {}", req.getRid(), new String(boshResponse.getContent()));
             }
 
             final AsyncContext asyncContext =
@@ -329,7 +334,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         inactivityChecker.updateExpireTime(this, lastInactivityExpireTime, null);
         lastInactivityExpireTime = null;
         
-        LOGGER.info("BOSH session {} closed", getSessionId());
+        LOGGER.info("SID = " + getSessionId() + " - session closed");
     }
 
     public void switchToTLS(boolean delayed, boolean clientTls) {
@@ -480,13 +485,13 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      */
     private synchronized void requestExpired(final AsyncContext context) {
         final BoshRequest req =
-                (BoshRequest) context.getRequest().getAttribute("request");
+                (BoshRequest) context.getRequest().getAttribute(BOSH_REQUEST_ATTRIBUTE);
         if (req == null) {
-            LOGGER.warn("Continuation expired without having "
+            LOGGER.warn("SID = " + getSessionId() + " - Continuation expired without having "
                     + "an associated request!");
             return;
         }
-        LOGGER.debug("rid = {} - BOSH request expired", req.getRid());
+        LOGGER.debug("SID = " + getSessionId() + " - rid = {} - BOSH request expired", req.getRid());
         while (!requestsWindow.isEmpty() && requestsWindow.firstKey() <= req.getRid()) {
             writeBoshResponse(BoshStanzaUtils.EMPTY_BOSH_RESPONSE);
         }
@@ -502,20 +507,20 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
 
         final Stanza stanza = br.getBody();
         final Long rid = br.getRid();
-        LOGGER.debug("rid = {} - inserting new BOSH request", rid);
+        LOGGER.debug("SID = " + getSessionId() + " - rid = {} - inserting new BOSH request", rid);
         
         // reset the inactivity
         currentInactivitySeconds = inactivitySeconds;
         
+        br.getHttpServletRequest().setAttribute(BOSH_REQUEST_ATTRIBUTE, br);
         final AsyncContext context = br.getHttpServletRequest().startAsync();
         this.addContinuationExpirationListener(context);
         context.setTimeout(this.wait * 1000);
-        br.getHttpServletRequest().setAttribute("request", br);
 
         final int currentRequests = requests;
         synchronized (requestsWindow) {
             if (highestReadRid != null && highestReadRid + currentRequests < rid) {
-                LOGGER.warn("rid = {} - received RID >= the permitted window of concurrent requests ({})",
+                LOGGER.warn("SID = " + getSessionId() + " - rid = {} - received RID >= the permitted window of concurrent requests ({})",
                         rid, highestReadRid);
                 error(br, "item-not-found");
                 return;
@@ -526,15 +531,22 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
                         // Resending the old response
                         resendResponse(br);
                     } else {
-                        LOGGER.warn("rid = {} - BOSH response not in buffer error");
-                        error(br, "item-not-found");
+                        // rid not in sent responses.
+                        final BoshRequest boshRequest = requestsWindow.get(rid);
+                        if (boshRequest == null) {
+                            LOGGER.warn("SID = " + getSessionId() + " - rid = {} - BOSH response not in buffer error", rid);
+                            error(br, "item-not-found");
+                        } else {
+                            LOGGER.warn("SID = " + getSessionId() + " - rid = {} - BOSH response still in requests window ", rid);
+                            // tolerate
+                        }
                     }
                 }
                 return;
             }
             if (requestsWindow.size() + 1 > currentRequests && !"terminate".equals(stanza.getAttributeValue("type"))
                     && stanza.getAttributeValue("pause") == null) {
-                LOGGER.warn("BOSH Overactivity: Too many simultaneous requests");
+                LOGGER.warn("SID = " + getSessionId() + " - BOSH Overactivity: Too many simultaneous requests");
                 error(br, "policy-violation");
                 return;
             }
@@ -542,14 +554,14 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
                     && stanza.getAttributeValue("pause") == null && stanza.getInnerElements().isEmpty()) {
                 if (!requestsWindow.isEmpty()
                         && br.getTimestamp() - requestsWindow.get(requestsWindow.lastKey()).getTimestamp() < pollingSeconds * 1000) {
-                    LOGGER.warn("BOSH Overactivity: Too frequent requests");
+                    LOGGER.warn("SID = " + getSessionId() + " - BOSH Overactivity: Too frequent requests");
                     error(br, "policy-violation");
                     return;
                 }
             }
             if ((wait == 0 || hold == 0) && stanza.getInnerElements().isEmpty()) {
                 if (latestEmptyPollingRequest != null && br.getTimestamp() - latestEmptyPollingRequest.getTimestamp() < pollingSeconds * 1000) {
-                    LOGGER.warn("BOSH Overactivity for polling: Too frequent requests");
+                    LOGGER.warn("SID = " + getSessionId() + " - BOSH Overactivity for polling: Too frequent requests");
                     error(br, "policy-violation");
                     return;
                 }
@@ -562,14 +574,10 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
             if (highestReadRid == null) {
                 highestReadRid = rid;
             }
-            for (;;) {
+            while (requestsWindow.containsKey(highestReadRid + 1)) {
                 // update the highestReadRid to the latest value
                 // it is possible to have higher RIDs than the highestReadRid with a gap between them (e.g. lost client request)
-                if (requestsWindow.containsKey(highestReadRid + 1)) {
-                    highestReadRid++;
-                } else {
-                    break;
-                }
+                highestReadRid++;
             }
         }
 
@@ -638,7 +646,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     }
     
     protected void respondToPause(int pause) {
-        LOGGER.debug("Setting inactivity period to {}", pause);
+        LOGGER.debug("SID = " + getSessionId() + " - Setting inactivity period to {}", pause);
         currentInactivitySeconds = pause;
         for (;;) {
             BoshRequest boshRequest = getNextRequest();
@@ -659,7 +667,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         context.addListener(new AsyncListener() {
 
             public void onTimeout(AsyncEvent event) throws IOException {
-                BoshBackedSessionContext.this.requestExpired(context);
+                requestExpired(context);
             }
 
             public void onStartAsync(AsyncEvent event) throws IOException {
@@ -667,7 +675,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
             }
 
             public void onError(AsyncEvent event) throws IOException {
-                LOGGER.warn("Async error", event.getThrowable());
+                handleAsyncEventError(event);
             }
 
             public void onComplete(AsyncEvent event) throws IOException {
@@ -676,15 +684,24 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         });
     }
 
+    protected void handleAsyncEventError(AsyncEvent event) {
+        final ServletRequest suppliedRequest = event.getSuppliedRequest();
+        final ServletResponse suppliedResponse = event.getSuppliedResponse();
+        BoshRequest boshRequest = (BoshRequest)suppliedRequest.getAttribute(BOSH_REQUEST_ATTRIBUTE);
+        BoshResponse boshResponse = (BoshResponse)suppliedRequest.getAttribute(BOSH_RESPONSE_ATTRIBUTE);
+        final Long rid = boshRequest == null ? null : boshRequest.getRid();
+        LOGGER.warn("SID = " + getSessionId() + " - JID = " + getInitiatingEntity() + " - RID = " + rid + " - async error on event ", event.getClass(), event.getThrowable());
+    }
+
     protected void resendResponse(BoshRequest br) {
         final Long rid = br.getRid();
         BoshResponse boshResponse = sentResponses.get(rid);
         if (boshResponse == null) {
-            LOGGER.debug("rid = {} - BOSH response could not (no longer) be retrieved for resending.", rid);
+            LOGGER.debug("SID = " + getSessionId() + " - rid = {} - BOSH response could not (no longer) be retrieved for resending.", rid);
             return;
         }
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("rid = {} - BOSH writing response (resending): {}", rid, new String(boshResponse.getContent()));
+            LOGGER.debug("SID = " + getSessionId() + " - rid = {} - BOSH writing response (resending): {}", rid, new String(boshResponse.getContent()));
         }
 
         final AsyncContext asyncContext = this.saveResponse(br, boshResponse);
@@ -726,7 +743,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     protected AsyncContext saveResponse(final BoshRequest boshRequest, final BoshResponse boshResponse) {
         final HttpServletRequest request = boshRequest.getHttpServletRequest();
         final AsyncContext asyncContext = request.getAsyncContext();
-        request.setAttribute("response", boshResponse);
+        request.setAttribute(BOSH_RESPONSE_ATTRIBUTE, boshResponse);
         return asyncContext;
     }
 }

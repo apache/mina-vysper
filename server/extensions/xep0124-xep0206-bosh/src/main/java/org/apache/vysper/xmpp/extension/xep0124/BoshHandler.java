@@ -20,6 +20,7 @@
 package org.apache.vysper.xmpp.extension.xep0124;
 
 import org.apache.vysper.xml.fragment.XMLElement;
+import org.apache.vysper.xmpp.modules.ServerRuntimeContextService;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionState;
@@ -30,7 +31,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.AsyncContext;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Map;
@@ -43,7 +46,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class BoshHandler {
+public class BoshHandler implements ServerRuntimeContextService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BoshHandler.class);
 
@@ -58,7 +61,7 @@ public class BoshHandler {
         // Although the operations on specific sessions are synchronized, the session creation and retrieval need the memory
         // consistency guarantee too.
         sessions = new ConcurrentHashMap<String, BoshBackedSessionContext>();
-        inactivityChecker = new InactivityChecker();
+        inactivityChecker = new InactivityChecker(this);
         inactivityChecker.start();
     }
 
@@ -84,7 +87,7 @@ public class BoshHandler {
     }
 
     protected BoshBackedSessionContext createSessionContext() {
-        return new BoshBackedSessionContext(serverRuntimeContext, inactivityChecker);
+        return new BoshBackedSessionContext(serverRuntimeContext, this, inactivityChecker);
     }
 
     /**
@@ -130,7 +133,21 @@ public class BoshHandler {
             try {
                 createSession(br);
             } catch (IOException e) {
-                LOGGER.error("Exception thrown while processing the session creation request", e);
+                LOGGER.error("Exception thrown while processing the session creation request: " + e.getMessage());
+                final AsyncContext context = br.getHttpServletRequest().startAsync();
+                final ServletResponse response = context.getResponse();
+                if (response instanceof HttpServletResponse) {
+                    HttpServletResponse httpServletResponse = (HttpServletResponse)response;
+                    try {
+                        httpServletResponse.sendError(400, "bad-request");
+                        return;
+                    } catch (IOException ioe) {
+                        ioe.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                    }
+                } else {
+                    // create temporary session to be able to reuse the code
+                    createSessionContext().error(br, "bad-request");
+                }
             }
             return;
         } 
@@ -196,7 +213,7 @@ public class BoshHandler {
     }
 
     protected void terminateSession(BoshBackedSessionContext session) {
-        sessions.remove(session.getSessionId());
+        removeSession(session.getSessionId());
         session.writeBoshResponse(BoshStanzaUtils.TERMINATE_BOSH_RESPONSE);
         session.close();
     }
@@ -216,6 +233,11 @@ public class BoshHandler {
     protected void createSession(BoshRequest br) throws IOException {
         final Stanza stanza = br.getBody();
 
+        if (stanza.getInnerElements().size() > 0) {
+            LOGGER.error("session creation request has content.");
+            throw new IOException("session creation request has content.");
+        }
+        
         BoshBackedSessionContext session = createSessionContext();
         if (session.propagateSessionContext() && br.getHttpServletRequest() != null) {
             final HttpSession httpSession = br.getHttpServletRequest().getSession(true);
@@ -224,22 +246,25 @@ public class BoshHandler {
         
         final String contentAttribute = stanza.getAttributeValue("content");
         if (contentAttribute != null) session.setContentType(contentAttribute);
-        
-        String waitAttribute = null;
-        try {
-            waitAttribute = stanza.getAttributeValue("wait");
-            final int wait = Integer.parseInt(waitAttribute);
-            session.setWait(wait);
-        } catch (NumberFormatException e) {
-            LOGGER.warn("wait value is expected to be an Integer, not {}", waitAttribute);
+
+        String waitAttribute = stanza.getAttributeValue("wait");
+        if (waitAttribute != null) {
+            try {
+                final int wait = Integer.parseInt(waitAttribute);
+                session.setWait(wait);
+            } catch (NumberFormatException e) {
+                LOGGER.warn("wait value is expected to be an Integer, not {}", waitAttribute);
+            }
         }
 
         final String holdAttribute = stanza.getAttributeValue("hold");
-        try {
-            int hold = Integer.parseInt(holdAttribute);
-            session.setHold(hold);
-        } catch (NumberFormatException e) {
-            LOGGER.warn("hold value is expected to be an Integer, not {}", waitAttribute);
+        if (holdAttribute != null) {
+            try {
+                int hold = Integer.parseInt(holdAttribute);
+                session.setHold(hold);
+            } catch (NumberFormatException e) {
+                LOGGER.warn("hold value is expected to be an Integer, not {}", holdAttribute);
+            }
         }
 
         final String versionAttribute = stanza.getAttributeValue("ver");
@@ -247,24 +272,37 @@ public class BoshHandler {
             try {
                 session.setBoshVersion(versionAttribute);
             } catch (NumberFormatException e) {
-                LOGGER.warn("bosh version is expected to be of form nn.mm, not {}", waitAttribute);
+                LOGGER.warn("bosh version is expected to be of form nn.mm, not {}", versionAttribute);
             }
         }
 
         final String langAttribute = stanza.getAttributeValue(NamespaceURIs.XML, "lang");
         if (langAttribute != null) session.setXMLLang(langAttribute);
+
+        final String ackAttribute = stanza.getAttributeValue("ack");
+        final boolean clientAcknowledgements = "1".equals(ackAttribute);
+        session.setClientAcknowledgements(clientAcknowledgements);
         
-        if ("1".equals(stanza.getAttributeValue("ack"))) {
-            session.setClientAcknowledgements(true);
-        }
         session.insertRequest(br);
         sessions.put(session.getSessionId(), session);
 
-        LOGGER.info("BOSH session created with session id = {}", session.getSessionId());
+        if (LOGGER.isInfoEnabled()) {
+            StringBuilder logMsg = new StringBuilder();
+            logMsg.append("BOSH session created with session id = ").append(session.getSessionId());
+            logMsg.append(", ver = ").append(session.getBoshVersion()).append(" (").append(versionAttribute).append(")");
+            logMsg.append(", hold = ").append(session.getHold()).append(" (").append(holdAttribute).append(")");
+            logMsg.append(", wait = ").append(session.getWait()).append(" (").append(waitAttribute).append(")");
+            logMsg.append(", ack = ").append(session.isClientAcknowledgements()).append(" (").append(ackAttribute).append(")");
+            LOGGER.info(logMsg.toString());
+        }
 
         session.writeBoshResponse(getSessionCreationResponse(session));
     }
 
+    public boolean removeSession(String sessionId) {
+        return sessions.remove(sessionId) != null;
+    }
+    
     protected Stanza getSessionCreationResponse(BoshBackedSessionContext session) {
         StanzaBuilder body = BoshStanzaUtils.createBoshStanzaBuilder();
         body.addAttribute("wait", Integer.toString(session.getWait()));
@@ -291,5 +329,9 @@ public class BoshHandler {
 
     public int getActiveSessionsCount() {
         return sessions.size();
+    }
+
+    public String getServiceName() {
+        return this.getClass().getName();
     }
 }
