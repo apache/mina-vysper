@@ -134,19 +134,23 @@ public class BoshHandler implements ServerRuntimeContextService {
                 createSession(br);
             } catch (IOException e) {
                 LOGGER.error("Exception thrown while processing the session creation request: " + e.getMessage());
-                final AsyncContext context = br.getHttpServletRequest().startAsync();
-                final ServletResponse response = context.getResponse();
-                if (response instanceof HttpServletResponse) {
-                    HttpServletResponse httpServletResponse = (HttpServletResponse)response;
-                    try {
-                        httpServletResponse.sendError(400, "bad-request");
-                        return;
-                    } catch (IOException ioe) {
-                        ioe.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                try {
+                    final AsyncContext context = br.getHttpServletRequest().startAsync();
+                    final ServletResponse response = context.getResponse();
+                    if (response instanceof HttpServletResponse) {
+                        HttpServletResponse httpServletResponse = (HttpServletResponse)response;
+                        try {
+                            httpServletResponse.sendError(400, "bad-request");
+                            return;
+                        } catch (IOException ioe) {
+                            ioe.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                        }
+                    } else {
+                        // create temporary session to be able to reuse the code
+                        createSessionContext().error(br, "bad-request");
                     }
-                } else {
-                    // create temporary session to be able to reuse the code
-                    createSessionContext().error(br, "bad-request");
+                } catch (Exception exe) {
+                    LOGGER.warn("exception in async processing", exe);
                 }
             }
             return;
@@ -158,9 +162,13 @@ public class BoshHandler implements ServerRuntimeContextService {
         if (sid != null) session = sessions.get(sid);
         if (session == null) {
             LOGGER.warn("Received an invalid sid = '{}', terminating connection", sid);
-            final AsyncContext context = br.getHttpServletRequest().startAsync();
-            // create temporary session to be able to reuse the code
-            createSessionContext().error(br, "invalid session id");
+            try {
+                final AsyncContext context = br.getHttpServletRequest().startAsync();
+                // create temporary session to be able to reuse the code
+                createSessionContext().error(br, "invalid session id");
+            } catch (Exception exe) {
+                LOGGER.warn("exception in async processing", exe);
+            }
             return;
         }
         

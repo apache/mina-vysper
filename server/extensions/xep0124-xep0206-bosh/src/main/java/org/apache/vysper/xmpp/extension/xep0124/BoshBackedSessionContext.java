@@ -244,7 +244,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
                 }
                 return;            
             }
-            req = requestsWindow.remove(requestsWindow.firstKey());
+            req = getFirstRequest();
             boshResponse = getBoshResponse(responseStanza, req.getRid().equals(highestReadRid) ? null : highestReadRid);
             if (LOGGER.isDebugEnabled()) {
                 String emptyHint = isEmtpyResponse ? "empty " : StringUtils.EMPTY;
@@ -265,10 +265,21 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
             }
         }
 
-        final AsyncContext asyncContext = this.saveResponse(req, boshResponse);
-        asyncContext.dispatch();
+        try {
+            final AsyncContext asyncContext = saveResponse(req, boshResponse);
+            asyncContext.dispatch();
+        } catch (Exception e) {
+            LOGGER.warn("exception in async processing", e);
+        }
         setLatestWriteTimestamp();
         updateInactivityChecker();
+    }
+
+    private BoshRequest getFirstRequest() {
+        synchronized (requestsWindow) {
+            final Long firstKey = requestsWindow.firstKey();
+            return requestsWindow.remove(firstKey);
+        }
     }
 
     private void setLatestWriteTimestamp() {
@@ -301,15 +312,19 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     public void error(BoshRequest br, String condition) {
         final Long rid = br.getRid();
         requestsWindow.put(rid, br);
-        BoshRequest req = requestsWindow.remove(requestsWindow.firstKey());
+        BoshRequest req = getFirstRequest();
         Stanza body = BoshStanzaUtils.createTerminateResponse(condition).build();
         BoshResponse boshResponse = getBoshResponse(body, null);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("SID = " + getSessionId() + " - rid = {} - BOSH writing response: {}", rid, new String(boshResponse.getContent()));
         }
 
-        final AsyncContext asyncContext = this.saveResponse(req, boshResponse);
-        asyncContext.dispatch();
+        try {
+            final AsyncContext asyncContext = saveResponse(req, boshResponse);
+            asyncContext.dispatch();
+        } catch (Exception e) {
+            LOGGER.warn("exception in async processing", e);
+        }
         close();
     }
 
@@ -319,16 +334,19 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     synchronized public void close() {
         // respond to all the queued HTTP requests with termination responses
         while (!requestsWindow.isEmpty()) {
-            BoshRequest req = requestsWindow.remove(requestsWindow.firstKey());
+            BoshRequest req = getFirstRequest();
             Stanza body = BoshStanzaUtils.TERMINATE_BOSH_RESPONSE;
             BoshResponse boshResponse = getBoshResponse(body, null);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("SID = " + getSessionId() + " - rid = {} - BOSH writing response: {}", req.getRid(), new String(boshResponse.getContent()));
             }
 
-            final AsyncContext asyncContext =
-                    this.saveResponse(req, boshResponse);
-            asyncContext.dispatch();
+            try {
+                final AsyncContext asyncContext = saveResponse(req, boshResponse);
+                asyncContext.dispatch();
+            } catch (Exception e) {
+                LOGGER.warn("exception in async processing", e);
+            }
         }
         
         inactivityChecker.updateExpireTime(this, lastInactivityExpireTime, null);
@@ -511,10 +529,11 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         
         // reset the inactivity
         currentInactivitySeconds = inactivitySeconds;
-        
-        br.getHttpServletRequest().setAttribute(BOSH_REQUEST_ATTRIBUTE, br);
-        final AsyncContext context = br.getHttpServletRequest().startAsync();
-        this.addContinuationExpirationListener(context);
+
+        final HttpServletRequest request = br.getHttpServletRequest();
+        request.setAttribute(BOSH_REQUEST_ATTRIBUTE, br);
+        final AsyncContext context = request.startAsync();
+        addContinuationExpirationListener(context);
         context.setTimeout(this.wait * 1000);
 
         final int currentRequests = requests;
@@ -689,8 +708,13 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         final ServletResponse suppliedResponse = event.getSuppliedResponse();
         BoshRequest boshRequest = (BoshRequest)suppliedRequest.getAttribute(BOSH_REQUEST_ATTRIBUTE);
         BoshResponse boshResponse = (BoshResponse)suppliedRequest.getAttribute(BOSH_RESPONSE_ATTRIBUTE);
+
+        // works at least for jetty:
+        final Exception exceptionObject = (Exception)suppliedRequest.getAttribute("javax.servlet.error.exception");
+        final Throwable throwable = event.getThrowable() != null ? event.getThrowable() : exceptionObject;
+
         final Long rid = boshRequest == null ? null : boshRequest.getRid();
-        LOGGER.warn("SID = " + getSessionId() + " - JID = " + getInitiatingEntity() + " - RID = " + rid + " - async error on event ", event.getClass(), event.getThrowable());
+        LOGGER.warn("SID = " + getSessionId() + " - JID = " + getInitiatingEntity() + " - RID = " + rid + " - async error on event ", event.getClass(), throwable);
     }
 
     protected void resendResponse(BoshRequest br) {
@@ -704,10 +728,14 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
             LOGGER.debug("SID = " + getSessionId() + " - rid = {} - BOSH writing response (resending): {}", rid, new String(boshResponse.getContent()));
         }
 
-        final AsyncContext asyncContext = this.saveResponse(br, boshResponse);
-        asyncContext.dispatch();
+        try {
+            final AsyncContext asyncContext = saveResponse(br, boshResponse);
+            asyncContext.dispatch();
+        } catch (Exception e) {
+            LOGGER.warn("exception in async processing", e);
+        }
         setLatestWriteTimestamp();
-        this.updateInactivityChecker();
+        updateInactivityChecker();
     }
 
     protected BoshResponse getBoshResponse(Stanza stanza, Long ack) {
@@ -741,6 +769,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     }
 
     protected AsyncContext saveResponse(final BoshRequest boshRequest, final BoshResponse boshResponse) {
+        if (boshResponse == null) throw new IllegalArgumentException("boshResponse cannot be null");
         final HttpServletRequest request = boshRequest.getHttpServletRequest();
         final AsyncContext asyncContext = request.getAsyncContext();
         request.setAttribute(BOSH_RESPONSE_ATTRIBUTE, boshResponse);

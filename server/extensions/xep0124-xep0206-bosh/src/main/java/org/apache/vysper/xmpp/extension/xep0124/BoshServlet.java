@@ -170,21 +170,23 @@ public class BoshServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         BoshResponse boshResponse = (BoshResponse) req.getAttribute(BOSH_RESPONSE_ATTRIBUTE);
-        if (boshResponse != null) {
+        if (boshResponse == null) {
+            // incoming new request
+            try {
+                BoshDecoder decoder = new BoshDecoder(boshHandler, req);
+                decoder.decode();
+            } catch (Throwable e) {
+                logger.error("Exception thrown while decoding XML", e);
+            }
+        } else {
             // if the continuation is resumed or expired
-            writeResponse(resp, boshResponse);
-            return;
-        }
-
-        BoshDecoder decoder = new BoshDecoder(boshHandler, req);
-        try {
-            decoder.decode();
-        } catch (SAXException e) {
-            logger.error("Exception thrown while decoding XML", e);
+            try {
+                writeResponse(resp, boshResponse);
+            } catch (Throwable e) {
+                logger.error("Exception while dispatching request", e);
+            }
         }
     }
-    
-    
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
