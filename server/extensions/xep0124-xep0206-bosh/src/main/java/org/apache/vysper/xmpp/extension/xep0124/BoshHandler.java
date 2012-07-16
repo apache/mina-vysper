@@ -126,16 +126,16 @@ public class BoshHandler implements ServerRuntimeContextService {
             LOGGER.warn("rid too large: " + rid);
             // continue anyway, this is not a problem with this implementation
         }
-        BoshRequest br = new BoshRequest(httpRequest, body, rid);
+        BoshRequest newBoshRequest = new BoshRequest(httpRequest, body, rid);
 
         // session creation request (first request). does not have a "sid" attribute
         if (body.getAttribute("sid") == null) {
             try {
-                createSession(br);
+                createSession(newBoshRequest);
             } catch (IOException e) {
                 LOGGER.error("Exception thrown while processing the session creation request: " + e.getMessage());
                 try {
-                    final AsyncContext context = br.getHttpServletRequest().startAsync();
+                    final AsyncContext context = newBoshRequest.getHttpServletRequest().startAsync();
                     final ServletResponse response = context.getResponse();
                     if (response instanceof HttpServletResponse) {
                         HttpServletResponse httpServletResponse = (HttpServletResponse)response;
@@ -147,7 +147,7 @@ public class BoshHandler implements ServerRuntimeContextService {
                         }
                     } else {
                         // create temporary session to be able to reuse the code
-                        createSessionContext().error(br, "bad-request");
+                        createSessionContext().sendError("bad-request");
                     }
                 } catch (Exception exe) {
                     LOGGER.warn("exception in async processing", exe);
@@ -163,9 +163,9 @@ public class BoshHandler implements ServerRuntimeContextService {
         if (session == null) {
             LOGGER.warn("Received an invalid sid = '{}', terminating connection", sid);
             try {
-                final AsyncContext context = br.getHttpServletRequest().startAsync();
+                final AsyncContext context = newBoshRequest.getHttpServletRequest().startAsync();
                 // create temporary session to be able to reuse the code
-                createSessionContext().error(br, "invalid session id");
+                createSessionContext().sendError("invalid session id");
             } catch (Exception exe) {
                 LOGGER.warn("exception in async processing", exe);
             }
@@ -174,22 +174,12 @@ public class BoshHandler implements ServerRuntimeContextService {
         
         // process request for the session
         synchronized (session) {
-            session.insertRequest(br);
-            for (;;) {
-                // When a request from the user comes in, it is possible that the request fills a gap
-                // created by previous lost request, and it could be possible to process more than the current request
-                // continuing with all the adjacent requests.
-                br = session.getNextRequest();
-                if (br == null) {
-                    break;
-                }
-                processSession(session, br);
-            }
+            session.insertRequest(newBoshRequest);
+            processIncomingClientStanzas(session, newBoshRequest.getBody());
         }
     }
     
-    protected void processSession(BoshBackedSessionContext session, BoshRequest br) {
-        final Stanza stanza = br.getBody();
+    protected void processIncomingClientStanzas(BoshBackedSessionContext session, Stanza stanza) {
         if (session.getState() == SessionState.ENCRYPTED) {
             if (stanza.getInnerElements().isEmpty()) {
                 // session needs authentication
@@ -328,7 +318,7 @@ public class BoshHandler implements ServerRuntimeContextService {
         
         // adding the ack attribute here is needed because when responding to o request with the same RID (as is the case here)
         // the ack would not be included on BoshBackedSessionContext#write0, but this first ack is required.
-        body.addAttribute("ack", Long.toString(session.getHighestReadRid()));
+        body.addAttribute("ack", Long.toString(session.getHighestContinuousRid()));
 
         Stanza features = new ServerResponses().getFeaturesForAuthentication(serverRuntimeContext.getServerFeatures()
                 .getAuthenticationMethods(), session);

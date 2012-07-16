@@ -19,20 +19,19 @@
  */
 package org.apache.vysper.xmpp.extension.xep0124;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.List;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.List;
 
-import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
-
+import static org.apache.vysper.xmpp.extension.xep0124.BoshBackedSessionContext.BOSH_REQUEST_ATTRIBUTE;
 import static org.apache.vysper.xmpp.extension.xep0124.BoshBackedSessionContext.BOSH_RESPONSE_ATTRIBUTE;
 
 /**
@@ -181,6 +180,11 @@ public class BoshServlet extends HttpServlet {
         } else {
             // if the continuation is resumed or expired
             try {
+                final BoshRequest boshRequest = (BoshRequest)req.getAttribute(BOSH_REQUEST_ATTRIBUTE);
+                if (boshRequest != null) {
+                    final Long rid = boshRequest.getRid();
+                    logger.debug("writing to rid = " + rid);
+                }
                 writeResponse(resp, boshResponse);
             } catch (Throwable e) {
                 logger.error("Exception while dispatching request", e);

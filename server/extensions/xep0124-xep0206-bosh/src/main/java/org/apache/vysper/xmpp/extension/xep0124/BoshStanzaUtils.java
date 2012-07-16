@@ -53,6 +53,10 @@ public class BoshStanzaUtils {
         if (mergeCandidates == null || mergeCandidates.size() == 0) {
             return null;
         }
+        if (mergeCandidates.size() == 1) {
+            // nothing to merge with only one mergee. return unmerged
+            return mergeCandidates.iterator().next();
+        }
         StanzaBuilder body = createBoshStanzaBuilder();
         for (Stanza mergee : mergeCandidates) {
             if (mergee == null) continue;
