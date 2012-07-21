@@ -181,13 +181,11 @@ public class BoshServlet extends HttpServlet {
             // if the continuation is resumed or expired
             try {
                 final BoshRequest boshRequest = (BoshRequest)req.getAttribute(BOSH_REQUEST_ATTRIBUTE);
-                if (boshRequest != null) {
-                    final Long rid = boshRequest.getRid();
-                    logger.debug("writing to rid = " + rid);
-                }
+                final String rid = boshRequest != null ? Long.toString(boshRequest.getRid()) : "unknown";
+                logger.debug("writing to rid = " + rid);
                 writeResponse(resp, boshResponse);
             } catch (Throwable e) {
-                logger.error("Exception while dispatching request", e);
+                logger.error("Exception while dispatching request: " + e);
             }
         }
     }

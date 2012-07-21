@@ -127,6 +127,7 @@ public class BoshHandler implements ServerRuntimeContextService {
             // continue anyway, this is not a problem with this implementation
         }
         BoshRequest newBoshRequest = new BoshRequest(httpRequest, body, rid);
+        LOGGER.debug("SID = " + body.getAttributeValue("sid") + " - new BoshRequest created for RID = " + rid);
 
         // session creation request (first request). does not have a "sid" attribute
         if (body.getAttribute("sid") == null) {
@@ -318,7 +319,7 @@ public class BoshHandler implements ServerRuntimeContextService {
         
         // adding the ack attribute here is needed because when responding to o request with the same RID (as is the case here)
         // the ack would not be included on BoshBackedSessionContext#write0, but this first ack is required.
-        body.addAttribute("ack", Long.toString(session.getHighestContinuousRid()));
+        body.addAttribute("ack", Long.toString(session.requestsWindow.getHighestContinuousRid()));
 
         Stanza features = new ServerResponses().getFeaturesForAuthentication(serverRuntimeContext.getServerFeatures()
                 .getAuthenticationMethods(), session);

@@ -66,8 +66,8 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
 
     private final int pollingSeconds = 15;
     
-    private final int maximumSentResponses = 10;
-    
+    private final int maximumSentResponses = 100;
+        
     /*
      * The number of milliseconds that will have to pass for a response to be reported missing to the client by
      * responding with a report and time attributes. See Response Acknowledgements in XEP-0124.
@@ -80,7 +80,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      * 
      * The BOSH requests are sorted by their RIDs.
      */
-    private final SortedMap<Long, BoshRequest> requestsWindow = new TreeMap<Long, BoshRequest>();
+    protected final RequestsWindow requestsWindow;
 
     /*
      * Keeps the asynchronous messages sent from server that cannot be delivered to the client because there are
@@ -106,25 +106,10 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     
     private int currentInactivitySeconds = inactivitySeconds;
     
-    /*
-     * The highest RID that can be read and processed, this is the highest (rightmost) contiguous RID.
-     * The requests from the client can come theoretically with missing updates:
-     * rid_1, rid_2, rid_4 (missing rid_3, highestContinuousRid is rid_2)
-     * 
-     * must be synchronized along with requestsWindow 
-     */
-    private Long highestContinuousRid = null;
-
-    /**
-     * 
-     * must be synchronized along with requestsWindow 
-     */
-    private long currentProcessingRequest = -1;
-
     /**
      * must be synchronized along with requestsWindow 
      */
-    private BoshRequest latestEmptyPollingRequest = null;
+    private Long latestEmptyPollingRequestTimestamp = 0L;
     
     /*
      * Indicate if the BOSH client will use acknowledgements throughout the session and that the absence of an 'ack'
@@ -157,6 +142,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         // in BOSH we jump directly to the encrypted state
         sessionStateHolder.setState(SessionState.ENCRYPTED);
 
+        requestsWindow = new RequestsWindow(getSessionId());
         this.inactivityChecker = inactivityChecker;
         updateInactivityChecker();
     }
@@ -179,15 +165,6 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         lastInactivityExpireTime = newInactivityExpireTime;
     }
     
-    /**
-     * Returns the highest RID that is received in a continuous (uninterrupted) sequence of RIDs.
-     * Higher RIDs can exist with gaps separating them from the highestContinuousRid.
-     * @return the highest continuous RID received so far
-     */
-    public long getHighestContinuousRid() {
-        return highestContinuousRid;
-    }
-
     public SessionStateHolder getStateHolder() {
         return sessionStateHolder;
     }
@@ -231,34 +208,49 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         if (responseStanza == null) throw new IllegalArgumentException();
         final boolean isEmtpyResponse = responseStanza == BoshStanzaUtils.EMPTY_BOSH_RESPONSE;
         
-        BoshRequest req;
+        final ArrayList<BoshRequest> boshRequestsForRID = new ArrayList<BoshRequest>(1);
         BoshResponse boshResponse;
+        final Long rid;
         synchronized (requestsWindow) {
-            if (requestsWindow.isEmpty() || requestsWindow.firstKey() > highestContinuousRid) {
+            if (requestsWindow.isEmpty() || requestsWindow.firstRid() > requestsWindow.getHighestContinuousRid()) {
                 if (isEmtpyResponse) return; // do not delay empty responses
                 final boolean accepted = delayedResponseQueue.offer(responseStanza);
                 if (!accepted) {
                     LOGGER.debug("SID = " + getSessionId() + " - rid = {} - request not queued. BOSH delayedResponseQueue is full: {}", 
-                            requestsWindow.firstKey(), delayedResponseQueue.size());
+                            requestsWindow.firstRid(), delayedResponseQueue.size());
                     // TODO do not silently drop this stanza
                 }
                 return;            
             }
-            req = getNextRequest(false);
+            BoshRequest req = requestsWindow.getNextRequest(false);
             if (req == null) {
-                LOGGER.debug("no request for sending"); 
+                LOGGER.error("SID = " + getSessionId() + " - no request for sending"); 
                 return;
             }
-            boshResponse = getBoshResponse(responseStanza, req.getRid().equals(highestContinuousRid) ? null : highestContinuousRid);
+
+            rid = req.getRid();
+            // in rare cases, we have same RID in two separate requests
+            boshRequestsForRID.add(req);
+            
+            // collect more requests for this RID
+            while (rid.equals(requestsWindow.firstRid())) {
+                final BoshRequest sameRidRequest = requestsWindow.getNextRequest(false);
+                boshRequestsForRID.add(sameRidRequest);
+                LOGGER.warn("SID = " + getSessionId() + " - rid = {} - multi requests ({}) per RID.", rid, boshRequestsForRID.size());
+            }
+            
+            long highestContinuousRid = requestsWindow.getHighestContinuousRid();
+            final Long ack = rid.equals(highestContinuousRid) ? null : highestContinuousRid;
+            boshResponse = getBoshResponse(responseStanza, ack);
             if (LOGGER.isDebugEnabled()) {
                 String emptyHint = isEmtpyResponse ? "empty " : StringUtils.EMPTY;
-                LOGGER.debug("SID = " + getSessionId() + " - rid = " + req.getRid() + " - BOSH writing {}response: {}", emptyHint, new String(boshResponse.getContent()));
+                LOGGER.debug("SID = " + getSessionId() + " - rid = " + rid + " - BOSH writing {}response: {}", emptyHint, new String(boshResponse.getContent()));
             }
         }
 
-        if (isResponseSavable(req, responseStanza)) {
-            synchronized (sentResponses) {
-                sentResponses.put(req.getRid(), boshResponse);
+        synchronized (sentResponses) {
+            if (isResponseSavable(boshRequestsForRID.get(0), responseStanza)) {
+                sentResponses.put(rid, boshResponse);
                 // The number of responses to non-pause requests kept in the buffer SHOULD be either the same as the maximum
                 // number of simultaneous requests allowed or, if Acknowledgements are being used, the number of responses
                 // that have not yet been acknowledged (this part is handled in insertRequest(BoshRequest)), or 
@@ -268,15 +260,31 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
                 }
             }
         }
+        
+        if (sentResponses.size() > maximumSentResponses + 10) {
+            synchronized (sentResponses) {
+                LOGGER.warn("stored sent responses ({}) exeeds maximum ({}). purging.", sentResponses.size(), maximumSentResponses);
+                while (sentResponses.size() > maximumSentResponses) {
+                    sentResponses.remove(sentResponses.firstKey());
+                }
+            }
+        }
 
-        try {
-            final AsyncContext asyncContext = saveResponse(req, boshResponse);
-            asyncContext.dispatch();
-        } catch (Exception e) {
-            LOGGER.warn("exception in async processing", e);
+        for (BoshRequest boshRequest : boshRequestsForRID) {
+            try {
+                final AsyncContext asyncContext = saveResponse(boshRequest, boshResponse);
+                asyncContext.dispatch();
+            } catch (Exception e) {
+                LOGGER.warn("SID = " + getSessionId() + " - exception in async processing rid = {}", boshRequest.getRid(), e);
+            }
         }
         setLatestWriteTimestamp();
         updateInactivityChecker();
+    }
+
+    private String logRIDSequence() {
+        final String logMsg = requestsWindow.logRequestWindow();
+        return logMsg + ", sent buffer = " + sentResponses.size();
     }
 
     private void setLatestWriteTimestamp() {
@@ -301,14 +309,19 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         return true;
     }
     
+    public void sendError(String condition) {
+        sendError(null, condition);
+    }
+
     /**
      * Writes an error to the client and closes the connection
      * @param condition the error condition
      */
-    public void sendError(String condition) {
-        BoshRequest req = getNextRequest(false);
+    protected void sendError(BoshRequest req, String condition) {
+        req = req == null ? requestsWindow.getNextRequest(false) : req;
         if (req == null) {
-            LOGGER.warn("no request for sending BOSH error " + condition);
+            LOGGER.warn("SID = " + getSessionId() + " - no request for sending BOSH error " + condition);
+            endSession(SessionTerminationCause.CONNECTION_ABORT);
             return;
         }
         final Long rid = req.getRid();
@@ -322,7 +335,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
             final AsyncContext asyncContext = saveResponse(req, boshResponse);
             asyncContext.dispatch();
         } catch (Exception e) {
-            LOGGER.warn("exception in async processing", e);
+            LOGGER.warn("SID = " + getSessionId() + " - exception in async processing", e);
         }
         close();
     }
@@ -330,27 +343,29 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     /*
      * Terminates the BOSH session
      */
-    synchronized public void close() {
+    public void close() {
         // respond to all the queued HTTP requests with termination responses
-        while (!requestsWindow.isEmpty()) {
-            BoshRequest req = requestsWindow.get(requestsWindow.firstKey());
-            Stanza body = BoshStanzaUtils.TERMINATE_BOSH_RESPONSE;
-            BoshResponse boshResponse = getBoshResponse(body, null);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("SID = " + getSessionId() + " - rid = {} - BOSH writing response: {}", req.getRid(), new String(boshResponse.getContent()));
+        synchronized (requestsWindow) {
+            BoshRequest next;
+            while ((next = requestsWindow.getNextRequest(false)) != null) {
+                Stanza body = BoshStanzaUtils.TERMINATE_BOSH_RESPONSE;
+                BoshResponse boshResponse = getBoshResponse(body, null);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("SID = " + getSessionId() + " - rid = {} - BOSH writing response: {}", next.getRid(), new String(boshResponse.getContent()));
+                }
+    
+                try {
+                    final AsyncContext asyncContext = saveResponse(next, boshResponse);
+                    asyncContext.dispatch();
+                } catch (Exception e) {
+                    LOGGER.warn("SID = " + getSessionId() + " - exception in async processing", e);
+                }
             }
 
-            try {
-                final AsyncContext asyncContext = saveResponse(req, boshResponse);
-                asyncContext.dispatch();
-            } catch (Exception e) {
-                LOGGER.warn("exception in async processing", e);
-            }
+            inactivityChecker.updateExpireTime(this, lastInactivityExpireTime, null);
+            lastInactivityExpireTime = null;
         }
-        
-        inactivityChecker.updateExpireTime(this, lastInactivityExpireTime, null);
-        lastInactivityExpireTime = null;
-        
+
         LOGGER.info("SID = " + getSessionId() + " - session closed");
     }
 
@@ -509,7 +524,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
             return;
         }
         LOGGER.debug("SID = " + getSessionId() + " - rid = {} - BOSH request expired", req.getRid());
-        while (!requestsWindow.isEmpty() && requestsWindow.firstKey() <= req.getRid()) {
+        while (!requestsWindow.isEmpty() && requestsWindow.firstRid() <= req.getRid()) {
             writeBoshResponse(BoshStanzaUtils.EMPTY_BOSH_RESPONSE);
         }
     }
@@ -535,66 +550,74 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         addContinuationExpirationListener(context);
         context.setTimeout(this.wait * 1000);
 
-        final int maxParallelRequests = parallelRequestsCount;
+        // allow two more parallel request, be generous in what you receive
+        final int maxToleratedParallelRequests = parallelRequestsCount + 2;
         synchronized (requestsWindow) {
-            // only allow 'parallelRequestsCount' request to be queued 
-            if (highestContinuousRid != null && highestContinuousRid + maxParallelRequests < rid) {
+
+            // only allow 'parallelRequestsCount' request to be queued
+            final long highestContinuousRid = requestsWindow.getHighestContinuousRid();
+            if (highestContinuousRid != -1 && rid > highestContinuousRid + maxToleratedParallelRequests) {
                 LOGGER.warn("SID = " + getSessionId() + " - rid = {} - received RID >= the permitted window of concurrent requests ({})",
                         rid, highestContinuousRid);
-                queueRequest(br);
-                sendError("item-not-found");
+                // don't queue // queueRequest(br);
+                sendError(br, "item-not-found");
                 return;
             }
+            
             // resend missed responses
-            if (highestContinuousRid != null && rid <= highestContinuousRid) {
+            final boolean resend = rid <= requestsWindow.getCurrentProcessingRequest();
+            if (resend) {
+            // OLD: if (highestContinuousRid != null && rid <= highestContinuousRid) {                
                 synchronized (sentResponses) {
-                    LOGGER.info("SID = " + getSessionId() + " - rid = {} - requested rid has already been sent (highestContinuousRid = {})", rid, highestContinuousRid);
+                    final String ridSeq = logRIDSequence();
+                    LOGGER.info("SID = " + getSessionId() + " - rid = {} - resend request. current buffer: {}", rid, ridSeq);
                     if (sentResponses.containsKey(rid)) {
+                        LOGGER.info("SID = " + getSessionId() + " - rid = {} (re-sending)", rid);
                         // Resending the old response
                         resendResponse(br);
                     } else {
-                        // rid not in sent responses.
-                        final BoshRequest boshRequest = requestsWindow.get(rid);
-                        if (boshRequest == null) {
+                        // rid not in sent responses. check to see if rid is still in requests window
+                        // to give a more qualified error
+                        boolean inRequestsWindow = requestsWindow.containsRid(rid);
+                        if (!inRequestsWindow) {
                             LOGGER.warn("SID = " + getSessionId() + " - rid = {} - BOSH response not in buffer error", rid);
-                            queueRequest(br);
-                            sendError("item-not-found");
                         } else {
                             LOGGER.warn("SID = " + getSessionId() + " - rid = {} - BOSH response still in requests window ", rid);
-                            // tolerate
                         }
+                        sendError(br, "item-not-found");
                     }
                 }
                 return;
             }
             // check for too many parallel requests
-            if (requestsWindow.size() + 1 > maxParallelRequests && !"terminate".equals(boshOuterBody.getAttributeValue("type"))
-                    && boshOuterBody.getAttributeValue("pause") == null) {
-                LOGGER.warn("SID = " + getSessionId() + " - BOSH Overactivity: Too many simultaneous requests");
-                queueRequest(br);
-                sendError("policy-violation");
+            final boolean terminate = "terminate".equals(boshOuterBody.getAttributeValue("type"));
+            final boolean pause = boshOuterBody.getAttributeValue("pause") != null;
+            final boolean bodyIsEmpty = boshOuterBody.getInnerElements().isEmpty();
+            final int distinctRIDs = requestsWindow.getDistinctRIDs();
+            
+            if (distinctRIDs >= maxToleratedParallelRequests && !terminate && !pause) {
+                LOGGER.warn("SID = " + getSessionId() + " - rid = {} - BOSH Overactivity: Too many simultaneous requests, max = {} " + logRIDSequence(), rid, maxToleratedParallelRequests);
+                sendError(br, "policy-violation");
                 return;
             }
             // check for new request comes early
-            if (requestsWindow.size() + 1 == maxParallelRequests && !"terminate".equals(boshOuterBody.getAttributeValue("type"))
-                    && boshOuterBody.getAttributeValue("pause") == null && boshOuterBody.getInnerElements().isEmpty()) {
-                if (!requestsWindow.isEmpty()
-                        && br.getTimestamp() - requestsWindow.get(requestsWindow.lastKey()).getTimestamp() < pollingSeconds * 1000) {
-                    LOGGER.warn("SID = " + getSessionId() + " - BOSH Overactivity: Too frequent requests");
-                    queueRequest(br);
-                    sendError("policy-violation");
+            if (distinctRIDs + 1 == maxToleratedParallelRequests && !terminate && !pause && bodyIsEmpty) {
+                final long millisSinceLastCalls = Math.abs(br.getTimestamp() - requestsWindow.getLatestAddionTimestamp());
+                if (millisSinceLastCalls < pollingSeconds * 1000 && !rid.equals(requestsWindow.getLatestRID())) {
+                    LOGGER.warn("SID = " + getSessionId() + " - rid = {} - BOSH Overactivity: Too frequent requests, millis since requests = {}, " + logRIDSequence(), rid, millisSinceLastCalls);
+                    sendError(br, "policy-violation");
                     return;
                 }
             }
             // check 
-            if ((wait == 0 || hold == 0) && boshOuterBody.getInnerElements().isEmpty()) {
-                if (latestEmptyPollingRequest != null && br.getTimestamp() - latestEmptyPollingRequest.getTimestamp() < pollingSeconds * 1000) {
-                    LOGGER.warn("SID = " + getSessionId() + " - BOSH Overactivity for polling: Too frequent requests");
-                    queueRequest(br);
-                    sendError("policy-violation");
+            if ((wait == 0 || hold == 0) && bodyIsEmpty) {
+                final long millisBetweenEmptyReqs = Math.abs(br.getTimestamp() - latestEmptyPollingRequestTimestamp);
+                if (millisBetweenEmptyReqs < pollingSeconds * 1000 && !rid.equals(requestsWindow.getLatestRID())) {
+                    LOGGER.warn("SID = " + getSessionId() + " - rid = {} - BOSH Overactivity for polling: Too frequent requests, millis since requests = {}, " + logRIDSequence(), rid, millisBetweenEmptyReqs);
+                    sendError(br, "policy-violation");
                     return;
                 }
-                latestEmptyPollingRequest = br;
+                latestEmptyPollingRequestTimestamp = br.getTimestamp();
             }
 
             queueRequest(br);
@@ -628,7 +651,9 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         // br.getRid().equals(requestsWindow.lastKey()) && highestContinuousRid.equals(br.getRid())
         synchronized (requestsWindow) {
             final String pauseAttribute = boshOuterBody.getAttributeValue("pause");
-            if (pauseAttribute != null && rid.equals(requestsWindow.lastKey()) && highestContinuousRid.equals(rid)) {
+            if (pauseAttribute != null && 
+                    rid.equals(requestsWindow.getLatestRID()) && 
+                    rid.equals(requestsWindow.getHighestContinuousRid())) {
                 int pause;
                 try {
                     pause = Integer.parseInt(pauseAttribute);
@@ -654,7 +679,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         }
         Stanza mergedResponse = BoshStanzaUtils.mergeResponses(mergeCandidates);
         if (mergedResponse != null) {
-            LOGGER.debug("writing merged response. stanzas merged = " + mergeCandidates.size());
+            LOGGER.debug("SID = " + getSessionId() + " - writing merged response. stanzas merged = " + mergeCandidates.size());
             writeBoshResponse(mergedResponse);
             return;
         }
@@ -669,7 +694,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     protected void respondToPause(int pause) {
         LOGGER.debug("SID = " + getSessionId() + " - Setting inactivity period to {}", pause);
         currentInactivitySeconds = pause;
-        while (getNextRequest(true) != null) {
+        while (requestsWindow.getNextRequest(true) != null) {
             writeBoshResponse(BoshStanzaUtils.EMPTY_BOSH_RESPONSE);
         }
     }
@@ -730,7 +755,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
             final AsyncContext asyncContext = saveResponse(br, boshResponse);
             asyncContext.dispatch();
         } catch (Exception e) {
-            LOGGER.warn("exception in async processing", e);
+            LOGGER.warn("SID = " + getSessionId() + " - exception in async processing", e);
         }
         setLatestWriteTimestamp();
         updateInactivityChecker();
@@ -745,46 +770,8 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     }
 
     protected void queueRequest(BoshRequest br) {
-        synchronized (requestsWindow) {
-            Long rid = br.getRid();
-            if (requestsWindow.containsKey(rid)) {
-                throw new IllegalStateException("queuing duplicated rid in requests window: " + rid);
-            }
-            requestsWindow.put(rid, br);
-            updateInactivityChecker();
-
-            if (highestContinuousRid == null) {
-                highestContinuousRid = rid;
-            }
-            while (requestsWindow.containsKey(highestContinuousRid + 1)) {
-                // update the highestContinuousRid to the latest value
-                // it is possible to have higher RIDs than the highestContinuousRid with a gap between them (e.g. lost client request)
-                // those missing request may come late, and fill the gap, which is tracked here 
-                highestContinuousRid++;
-            }
-            LOGGER.debug("queuing new request having rid = {}, highest continuous rid = {}", rid, highestContinuousRid);
-        }
-    }
-
-    /**
-     * Returns the next BOSH body to process.
-     * It is possible to have more than one BOSH body to process in the case where a lost request is resent by the client.
-     * @return the next (by RID order) body to process
-     * @param peek TRUE: request is not removed from request window
-     */
-    public BoshRequest getNextRequest(boolean peek) {
-        synchronized (requestsWindow) {
-            if (requestsWindow.isEmpty()) return null;
-            
-            currentProcessingRequest = Math.max(currentProcessingRequest, requestsWindow.firstKey());
-            if (currentProcessingRequest > highestContinuousRid) {
-                return null; 
-            } 
-            
-            if (peek) return requestsWindow.get(currentProcessingRequest);
-
-            return requestsWindow.remove(currentProcessingRequest);
-        }
+        requestsWindow.queueRequest(br);
+        updateInactivityChecker();
     }
 
     protected AsyncContext saveResponse(final BoshRequest boshRequest, final BoshResponse boshResponse) {
