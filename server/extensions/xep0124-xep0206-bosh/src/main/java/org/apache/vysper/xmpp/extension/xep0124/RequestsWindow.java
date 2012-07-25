@@ -113,21 +113,19 @@ public class RequestsWindow {
      * @return the next (by RID order) body to process
      * @param peek TRUE: request is not removed from request window
      */
-    public synchronized BoshRequest getNextRequest(boolean peek) {
+    public synchronized BoshRequest pollNext() {
         if (queue.isEmpty()) return null;
         
         String ridSeq = logRequestWindow();
     
         currentProcessingRequest = Math.max(currentProcessingRequest, queue.peek().getRid());
         if (currentProcessingRequest > highestContinuousRid) {
-            LOGGER.debug("SID = " + sessionId + " -  <= NULL, not current = " + currentProcessingRequest + " " + ridSeq);
+            LOGGER.debug("SID = " + sessionId + " -  using RID = NULL, not current = " + currentProcessingRequest + " " + ridSeq);
             return null; 
         }
 
-        if (peek) return queue.peek();
-
         final BoshRequest nextRequest = queue.poll();
-        LOGGER.debug("SID = " + sessionId + " - " + (nextRequest == null ? " <= NULL" : "<= " + currentProcessingRequest) + " " + ridSeq);
+        LOGGER.debug("SID = " + sessionId + " - using RID = " + (nextRequest == null ? "NULL" : Long.toString(currentProcessingRequest)) + " " + ridSeq);
         return nextRequest;
     }
     

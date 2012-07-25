@@ -21,6 +21,7 @@ package org.apache.vysper.xmpp.extension.xep0124;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.SortedMap;
@@ -90,10 +91,16 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     
     /*
      * A cache of sent responses to the BOSH client, kept in the event of delivery failure and retransmission requests.
+     * these sent responses are moved to the sentResponsesBacklog when the client acks their receival.
      * See Broken Connections in XEP-0124.
      */
     private final SortedMap<Long, BoshResponse> sentResponses = new TreeMap<Long, BoshResponse>();
 
+    /**
+     * backlog of sent responses which have been acked by the client (and thus shouldn't ever been needed to be resent.
+     */
+    private final ResponsesBuffer sentResponsesBacklog = new ResponsesBuffer();
+    
     private int parallelRequestsCount = 2;
 
     private String boshVersion = "1.9";
@@ -222,7 +229,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
                 }
                 return;            
             }
-            BoshRequest req = requestsWindow.getNextRequest(false);
+            BoshRequest req = requestsWindow.pollNext();
             if (req == null) {
                 LOGGER.error("SID = " + getSessionId() + " - no request for sending"); 
                 return;
@@ -234,7 +241,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
             
             // collect more requests for this RID
             while (rid.equals(requestsWindow.firstRid())) {
-                final BoshRequest sameRidRequest = requestsWindow.getNextRequest(false);
+                final BoshRequest sameRidRequest = requestsWindow.pollNext();
                 boshRequestsForRID.add(sameRidRequest);
                 LOGGER.warn("SID = " + getSessionId() + " - rid = {} - multi requests ({}) per RID.", rid, boshRequestsForRID.size());
             }
@@ -256,7 +263,8 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
                 // that have not yet been acknowledged (this part is handled in insertRequest(BoshRequest)), or 
                 // the hard limit maximumSentResponses (not in the specification) that prevents excessive memory consumption.
                 if (sentResponses.size() > maximumSentResponses || (!isClientAcknowledgements() && sentResponses.size() > parallelRequestsCount)) {
-                    sentResponses.remove(sentResponses.firstKey());
+                    final Long key = sentResponses.firstKey();
+                    sentResponsesBacklog.add(key, sentResponses.remove(key));
                 }
             }
         }
@@ -265,7 +273,8 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
             synchronized (sentResponses) {
                 LOGGER.warn("stored sent responses ({}) exeeds maximum ({}). purging.", sentResponses.size(), maximumSentResponses);
                 while (sentResponses.size() > maximumSentResponses) {
-                    sentResponses.remove(sentResponses.firstKey());
+                    final Long key = sentResponses.firstKey();
+                    sentResponsesBacklog.add(key, sentResponses.remove(key));
                 }
             }
         }
@@ -318,7 +327,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      * @param condition the error condition
      */
     protected void sendError(BoshRequest req, String condition) {
-        req = req == null ? requestsWindow.getNextRequest(false) : req;
+        req = req == null ? requestsWindow.pollNext() : req;
         if (req == null) {
             LOGGER.warn("SID = " + getSessionId() + " - no request for sending BOSH error " + condition);
             endSession(SessionTerminationCause.CONNECTION_ABORT);
@@ -347,7 +356,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         // respond to all the queued HTTP requests with termination responses
         synchronized (requestsWindow) {
             BoshRequest next;
-            while ((next = requestsWindow.getNextRequest(false)) != null) {
+            while ((next = requestsWindow.pollNext()) != null) {
                 Stanza body = BoshStanzaUtils.TERMINATE_BOSH_RESPONSE;
                 BoshResponse boshResponse = getBoshResponse(body, null);
                 if (LOGGER.isDebugEnabled()) {
@@ -569,20 +578,37 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
             if (resend) {
             // OLD: if (highestContinuousRid != null && rid <= highestContinuousRid) {                
                 synchronized (sentResponses) {
-                    final String ridSeq = logRIDSequence();
-                    LOGGER.info("SID = " + getSessionId() + " - rid = {} - resend request. current buffer: {}", rid, ridSeq);
+                    if (LOGGER.isInfoEnabled()) {
+                        final String pendingRids = requestsWindow.logRequestWindow();
+                        final String sentRids = logSentResponsesBuffer();
+                        LOGGER.info("SID = " + getSessionId() + " - rid = {} - resend request. sent buffer: {} - req.win.: " + pendingRids, rid, sentRids);
+                    }
                     if (sentResponses.containsKey(rid)) {
                         LOGGER.info("SID = " + getSessionId() + " - rid = {} (re-sending)", rid);
                         // Resending the old response
                         resendResponse(br);
                     } else {
-                        // rid not in sent responses. check to see if rid is still in requests window
-                        // to give a more qualified error
+                        // not in sent responses, try alternatives: backlog and requestWindow
+                        
+                        final BoshResponse response = sentResponsesBacklog.lookup(rid);
+                        if (response != null) {
+                            LOGGER.warn("SID = " + getSessionId() + " - rid = {} - BOSH response retrieved from sentResponsesBacklog", rid);
+                            resendResponse(br, rid, response);
+                            return; // no error
+                        }
+
+                        // rid not in sent responses, nor backlog. check to see if rid is still in requests window
                         boolean inRequestsWindow = requestsWindow.containsRid(rid);
                         if (!inRequestsWindow) {
-                            LOGGER.warn("SID = " + getSessionId() + " - rid = {} - BOSH response not in buffer error", rid);
+                            if (LOGGER.isWarnEnabled()) {
+                                final String sentRids = logSentResponsesBuffer();
+                                LOGGER.warn("SID = " + getSessionId() + " - rid = {} - BOSH response not in buffer error - " + sentRids, rid);
+                            }
                         } else {
-                            LOGGER.warn("SID = " + getSessionId() + " - rid = {} - BOSH response still in requests window ", rid);
+                            if (LOGGER.isWarnEnabled()) {
+                                final String sentRids = logSentResponsesBuffer();
+                                LOGGER.warn("SID = " + getSessionId() + " - rid = {} - BOSH response still in requests window - " + sentRids, rid);
+                            }
                         }
                         sendError(br, "item-not-found");
                     }
@@ -629,6 +655,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
                 if (boshOuterBody.getAttribute("ack") == null) {
                     // if there is no ack attribute present then the client confirmed it received all the responses to all the previous requests
                     // and we clear the cache
+                    sentResponsesBacklog.addAll(sentResponses);
                     sentResponses.clear();
                 } else if (!sentResponses.isEmpty()) {
                     // After receiving a request with an 'ack' value less than the 'rid' of the last request that it has already responded to,
@@ -690,11 +717,22 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
             writeBoshResponse(BoshStanzaUtils.EMPTY_BOSH_RESPONSE);
         }
     }
+
+    public String logSentResponsesBuffer() {
+        final StringBuffer logMsg = new StringBuffer("sent = [");
+        for (Iterator<Long> iterator = sentResponses.keySet().iterator(); iterator.hasNext(); ) {
+            Long sentRid = iterator.next();
+            logMsg.append(sentRid);
+            if (iterator.hasNext()) logMsg.append(", ");
+        }
+        logMsg.append("]");
+        return logMsg.toString();
+    }
     
     protected void respondToPause(int pause) {
         LOGGER.debug("SID = " + getSessionId() + " - Setting inactivity period to {}", pause);
         currentInactivitySeconds = pause;
-        while (requestsWindow.getNextRequest(true) != null) {
+        while (!requestsWindow.isEmpty()) {
             writeBoshResponse(BoshStanzaUtils.EMPTY_BOSH_RESPONSE);
         }
     }
@@ -743,6 +781,10 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     protected void resendResponse(BoshRequest br) {
         final Long rid = br.getRid();
         BoshResponse boshResponse = sentResponses.get(rid);
+        resendResponse(br, rid, boshResponse);
+    }
+
+    protected void resendResponse(BoshRequest br, Long rid, BoshResponse boshResponse) {
         if (boshResponse == null) {
             LOGGER.debug("SID = " + getSessionId() + " - rid = {} - BOSH response could not (no longer) be retrieved for resending.", rid);
             return;
