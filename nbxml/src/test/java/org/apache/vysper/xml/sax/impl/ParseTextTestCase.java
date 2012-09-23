@@ -65,11 +65,11 @@ public class ParseTextTestCase extends AbstractAsyncXMLReaderTestCase {
     }
 
     public void testUnicodeEscape() throws Exception {
-        Iterator<TestEvent> events = parse("<root>t&#251;ext</root>").iterator();
+        Iterator<TestEvent> events = parse("<root>t&#4689;ext</root>").iterator();
 
         assertStartDocument(events.next());
         assertStartElement("", "root", "root", events.next());
-        assertText("tûext", events.next());
+        assertText("t\u1251ext", events.next());
         assertEndElement("", "root", "root", events.next());
         assertEndDocument(events.next());
 
@@ -77,11 +77,11 @@ public class ParseTextTestCase extends AbstractAsyncXMLReaderTestCase {
     }
 
     public void testUnicodeHexEscape() throws Exception {
-        Iterator<TestEvent> events = parse("<root>t&#xFB;ext</root>").iterator();
+        Iterator<TestEvent> events = parse("<root>t&#x1251;ext</root>").iterator();
 
         assertStartDocument(events.next());
         assertStartElement("", "root", "root", events.next());
-        assertText("tûext", events.next());
+        assertText("t\u1251ext", events.next());
         assertEndElement("", "root", "root", events.next());
         assertEndDocument(events.next());
 

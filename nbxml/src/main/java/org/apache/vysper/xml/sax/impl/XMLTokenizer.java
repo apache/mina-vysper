@@ -19,6 +19,8 @@
  */
 package org.apache.vysper.xml.sax.impl;
 
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 
@@ -59,76 +61,76 @@ public class XMLTokenizer {
      */
     public void parse(IoBuffer byteBuffer, CharsetDecoder decoder) throws SAXException {
         while (byteBuffer.hasRemaining() && state != State.CLOSED) {
-            char c = (char) byteBuffer.get();
+            byte c = byteBuffer.get();
 
             if (state == State.START) {
                 if (c == '<') {
-                    emit(c, byteBuffer);
+                    emit(c);
                     state = State.IN_TAG;
                 } else if (Character.isWhitespace(c)) {
                     // ignore
                 } else {
                     state = State.IN_TEXT;
-                    buffer.put((byte) c);
+                    buffer.put(c);
                 }
             } else if (state == State.IN_TEXT) {
                 if (c == '<') {
-                    emit(byteBuffer, decoder);
-                    emit(c, byteBuffer);
+                    emit(decoder);
+                    emit(c);
                     state = State.IN_TAG;
                 } else {
-                    buffer.put((byte) c);
+                    buffer.put(c);
                 }
             } else if (state == State.IN_TAG) {
                 if (c == '>') {
-                    emit(c, byteBuffer);
+                    emit(c);
                     state = State.START;
                 } else if (c == '"') {
-                    emit(c, byteBuffer);
+                    emit(c);
                     state = State.IN_DOUBLE_ATTRIBUTE_VALUE;
                 } else if (c == '\'') {
-                    emit(c, byteBuffer);
+                    emit(c);
                     state = State.IN_SINGLE_ATTRIBUTE_VALUE;
                 } else if (c == '-') {
-                    emit(c, byteBuffer);
+                    emit(c);
                 } else if (isControlChar(c)) {
-                    emit(c, byteBuffer);
+                    emit(c);
                 } else if (Character.isWhitespace(c)) {
                     buffer.clear();
                 } else {
                     state = State.IN_STRING;
-                    buffer.put((byte) c);
+                    buffer.put(c);
                 }
             } else if (state == State.IN_STRING) {
                 if (c == '>') {
-                    emit(byteBuffer, CharsetUtil.UTF8_DECODER);
-                    emit(c, byteBuffer);
+                    emit(CharsetUtil.UTF8_DECODER);
+                    emit(c);
                     state = State.START;
                 } else if (isControlChar(c)) {
-                    emit(byteBuffer, CharsetUtil.UTF8_DECODER);
-                    emit(c, byteBuffer);
+                    emit(CharsetUtil.UTF8_DECODER);
+                    emit(c);
                     state = State.IN_TAG;
                 } else if (Character.isWhitespace(c)) {
-                    emit(byteBuffer, CharsetUtil.UTF8_DECODER);
+                    emit(CharsetUtil.UTF8_DECODER);
                     state = State.IN_TAG;
                 } else {
-                    buffer.put((byte) c);
+                    buffer.put(c);
                 }
             } else if (state == State.IN_DOUBLE_ATTRIBUTE_VALUE) {
                 if (c == '"') {
-                    emit(byteBuffer, decoder);
-                    emit(c, byteBuffer);
+                    emit(decoder);
+                    emit(c);
                     state = State.IN_TAG;
                 } else {
-                    buffer.put((byte) c);
+                    buffer.put(c);
                 }
             } else if (state == State.IN_SINGLE_ATTRIBUTE_VALUE) {
                 if (c == '\'') {
-                    emit(byteBuffer, decoder);
-                    emit(c, byteBuffer);
+                    emit(decoder);
+                    emit(c);
                     state = State.IN_TAG;
                 } else {
-                    buffer.put((byte) c);
+                    buffer.put(c);
                 }
             }
         }
@@ -143,18 +145,20 @@ public class XMLTokenizer {
         buffer.clear();
     }
 
-    private boolean isControlChar(char c) {
+    private boolean isControlChar(byte c) {
         return c == '<' || c == '>' || c == '!' || c == '/' || c == '?' || c == '=';
     }
 
-    private void emit(char token, IoBuffer byteBuffer) throws SAXException {
-        listener.token(token, null);
+    private void emit(byte token) throws SAXException {
+        // method will only be called for control chars, thus the cast to char should be safe
+        listener.token((char)token, null);
     }
 
-    private void emit(IoBuffer byteBuffer, CharsetDecoder decoder) throws SAXException {
+    private void emit(CharsetDecoder decoder) throws SAXException {
         try {
             buffer.flip();
-            listener.token(NO_CHAR, buffer.getString(decoder));
+            CharBuffer charBuffer = decoder.decode(buffer.buf());
+            listener.token(NO_CHAR, charBuffer.toString());
             buffer.clear();
         } catch (CharacterCodingException e) {
             throw new SAXException(e);

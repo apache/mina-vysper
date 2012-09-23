@@ -24,6 +24,7 @@ import java.util.Iterator;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.vysper.charset.CharsetUtil;
 import org.apache.vysper.xml.sax.NonBlockingXMLReader;
+import org.apache.vysper.xml.sax.impl.TestHandler.CharacterEvent;
 import org.apache.vysper.xml.sax.impl.TestHandler.TestEvent;
 
 /**
@@ -120,7 +121,7 @@ public class ParseElementsTestCase extends AbstractAsyncXMLReaderTestCase {
 
         assertNoMoreevents(events);
     }
-    
+
     public void testInvalidUnicodeInName() throws Exception {
         Iterator<TestEvent> events = parse("<r\u2190oot />").iterator();
 
@@ -169,7 +170,7 @@ public class ParseElementsTestCase extends AbstractAsyncXMLReaderTestCase {
 
         assertNoMoreevents(events);
     }
-    
+
     public void testSplitBuffers() throws Exception {
         TestHandler handler = new TestHandler();
         NonBlockingXMLReader reader = new DefaultNonBlockingXMLReader();
@@ -177,16 +178,24 @@ public class ParseElementsTestCase extends AbstractAsyncXMLReaderTestCase {
         reader.setContentHandler(handler);
         reader.setErrorHandler(handler);
 
-        String xml1 = "<root></r";
-        String xml2 = "oot>";
-        
-        reader.parse(IoBuffer.wrap(xml1.getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
-        reader.parse(IoBuffer.wrap(xml2.getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
+        String s = "<root>\u1251</root>";
+
+        // split in the middle of the Unicode char
+        byte[] xml = s.getBytes("UTF-8");
+        byte[] xml1 = new byte[8];
+        byte[] xml2 = new byte[8];
+
+        System.arraycopy(xml, 0, xml1, 0, 8);
+        System.arraycopy(xml, 8, xml2, 0, 8);
+
+        reader.parse(IoBuffer.wrap(xml1), CharsetUtil.UTF8_DECODER);
+        reader.parse(IoBuffer.wrap(xml2), CharsetUtil.UTF8_DECODER);
 
         Iterator<TestEvent> events = handler.getEvents().iterator();
- 
+
         assertStartDocument(events.next());
         assertStartElement("", "root", "root", events.next());
+        assertText("\u1251", events.next());
         assertEndElement("", "root", "root", events.next());
         assertEndDocument(events.next());
 
