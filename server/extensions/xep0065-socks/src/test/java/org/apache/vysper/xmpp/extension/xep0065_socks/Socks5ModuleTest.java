@@ -159,19 +159,23 @@ public class Socks5ModuleTest extends Mockito {
     
     @Test
     public void proxyDefaultAddress() throws Exception {
-        module = new Socks5Module("socks");
+        int port = findFreePort();
+
+        module = new Socks5Module("socks", new InetSocketAddress(port));
         module.initialize(serverRuntimeContext);
         
         Thread.sleep(200);
-        
-        assertSocket(5777);
+
+        assertSocket(port);
     }
 
     @Test(expected=RuntimeException.class)
     public void proxyAddressInUse() throws Exception {
-        ServerSocket ss = new ServerSocket(5777);
-        
-        module = new Socks5Module("socks");
+        int port = findFreePort();
+
+        ServerSocket ss = new ServerSocket(port);
+
+        module = new Socks5Module("socks", new InetSocketAddress(port));
         module.initialize(serverRuntimeContext);
         
         module.close();
