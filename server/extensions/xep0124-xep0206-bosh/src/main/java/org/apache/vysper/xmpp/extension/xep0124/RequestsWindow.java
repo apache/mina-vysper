@@ -111,7 +111,6 @@ public class RequestsWindow {
      * Returns the next BOSH body to process.
      * It is possible to have more than one BOSH body to process in the case where a lost request is resent by the client.
      * @return the next (by RID order) body to process
-     * @param peek TRUE: request is not removed from request window
      */
     public synchronized BoshRequest pollNext() {
         if (queue.isEmpty()) return null;
