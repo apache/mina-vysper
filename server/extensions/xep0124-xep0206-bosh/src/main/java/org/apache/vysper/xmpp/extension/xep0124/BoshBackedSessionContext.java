@@ -20,6 +20,7 @@
 package org.apache.vysper.xmpp.extension.xep0124;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -61,6 +62,8 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     public final static String BOSH_REQUEST_ATTRIBUTE = "boshRequest";
     public final static String BOSH_RESPONSE_ATTRIBUTE = "boshResponse";
 
+    protected static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
+    
     private final int maxpauseSeconds = 120;
 
     private final int inactivitySeconds = 60;
@@ -807,7 +810,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         if (ack != null) {
             stanza = BoshStanzaUtils.addAttribute(stanza, "ack", ack.toString());
         }
-        byte[] content = new Renderer(stanza).getComplete().getBytes();
+        byte[] content = new Renderer(stanza).getComplete().getBytes(UTF8_CHARSET);
         return new BoshResponse(contentType, content);
     }
 
