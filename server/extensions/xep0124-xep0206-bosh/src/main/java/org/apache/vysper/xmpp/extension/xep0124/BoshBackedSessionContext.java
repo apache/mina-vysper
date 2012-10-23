@@ -222,20 +222,17 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
         BoshResponse boshResponse;
         final Long rid;
         synchronized (requestsWindow) {
-            if (requestsWindow.isEmpty() || requestsWindow.firstRid() > requestsWindow.getHighestContinuousRid()) {
-                if (isEmtpyResponse) return; // do not delay empty responses
+            BoshRequest req = requestsWindow.pollNext();
+            if (req == null) {
+                if (isEmtpyResponse) return; // do not delay empty responses, everything's good.
+                // delay sending until request comes available
                 final boolean accepted = delayedResponseQueue.offer(responseStanza);
                 if (!accepted) {
-                    LOGGER.debug("SID = " + getSessionId() + " - rid = {} - request not queued. BOSH delayedResponseQueue is full: {}", 
-                            requestsWindow.firstRid(), delayedResponseQueue.size());
+                    LOGGER.debug("SID = " + getSessionId() + " - stanza not queued. BOSH delayedResponseQueue is full: {}", 
+                            delayedResponseQueue.size());
                     // TODO do not silently drop this stanza
                 }
                 return;            
-            }
-            BoshRequest req = requestsWindow.pollNext();
-            if (req == null) {
-                LOGGER.error("SID = " + getSessionId() + " - no request for sending"); 
-                return;
             }
 
             rid = req.getRid();
@@ -527,7 +524,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      * The synchronization on the session object ensures that there will be no concurrent writes or other concurrent
      * expirations for the BOSH client while the current request expires.
      */
-    private synchronized void requestExpired(final AsyncContext context) {
+    private void requestExpired(final AsyncContext context) {
         final BoshRequest req =
                 (BoshRequest) context.getRequest().getAttribute(BOSH_REQUEST_ATTRIBUTE);
         if (req == null) {
