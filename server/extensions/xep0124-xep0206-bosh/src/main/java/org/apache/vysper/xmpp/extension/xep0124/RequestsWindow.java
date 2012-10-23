@@ -22,9 +22,10 @@ package org.apache.vysper.xmpp.extension.xep0124;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.PriorityQueue;
-import java.util.Queue;
+import java.util.List;
 
 /**
  */
@@ -47,8 +48,16 @@ public class RequestsWindow {
      */
     private long currentProcessingRequest = -1;
 
-    
-    protected final Queue<BoshRequest> queue = new PriorityQueue<BoshRequest>();
+    /**
+     * queue holding all BoshRequests, sorted ascendingly by RID.
+     * 
+     * NOTE: the list does not enforce the order itself, it must be sorted when adding a new request!
+     * but the list always iterates ordered over Requests (which is the advantage over PriorityQueue, which 
+     * needs additional object creation and CPU cycles on iteration time for ordered processing).
+     * since this queue normally only holds 0, 1, 2 or only a handful of elements, and normally new additions 
+     * are in-order, sorting is cheap.
+     */
+    protected final List<BoshRequest> queue = new ArrayList<BoshRequest>();
 
     protected String sessionId;
     
@@ -83,9 +92,10 @@ public class RequestsWindow {
             LOGGER.warn("SID = " + sessionId + " - " + "queueing duplicated rid in requests window: " + rid);
         }
         queue.add(br);
+        Collections.sort(queue);
         latestAddionTimestamp = System.currentTimeMillis();
 
-        if (highestContinuousRid < 0) {
+        if (highestContinuousRid < 0 || queue.size() == 1) {
             highestContinuousRid = rid;
         }
         while (containsRid(highestContinuousRid + 1)) {
@@ -102,8 +112,8 @@ public class RequestsWindow {
     }
     
     public synchronized Long firstRid() {
-        final BoshRequest first = queue.peek();
-        if (first == null) return null;
+        if (queue.isEmpty()) return null;
+        final BoshRequest first = queue.get(0);
         return first.getRid();
     }
 
@@ -116,18 +126,39 @@ public class RequestsWindow {
         if (queue.isEmpty()) return null;
         
         String ridSeq = logRequestWindow();
-    
-        currentProcessingRequest = Math.max(currentProcessingRequest, queue.peek().getRid());
+
+        final Long lowestRid = queue.get(0).getRid();
+        currentProcessingRequest = Math.max(currentProcessingRequest, lowestRid);
+        if (currentProcessingRequest > highestContinuousRid) {
+            reinitHCRFromQueue();
+        }
+        // still a problem?
         if (currentProcessingRequest > highestContinuousRid) {
             LOGGER.debug("SID = " + sessionId + " -  using RID = NULL, not current = " + currentProcessingRequest + " " + ridSeq);
             return null; 
         }
 
-        final BoshRequest nextRequest = queue.poll();
+        final BoshRequest nextRequest = queue.remove(0);
         LOGGER.debug("SID = " + sessionId + " - using RID = " + (nextRequest == null ? "NULL" : Long.toString(currentProcessingRequest)) + " " + ridSeq);
         return nextRequest;
     }
-    
+
+    private synchronized void reinitHCRFromQueue() {
+        highestContinuousRid = -1;
+        if (queue.isEmpty()) return;
+
+        final Iterator<BoshRequest> iterator = queue.iterator();
+        while (iterator.hasNext()) {
+            BoshRequest boshRequest = iterator.next();            
+            final Long rid = boshRequest.getRid();
+            if (highestContinuousRid == -1) {
+                highestContinuousRid = rid;
+            } else if (highestContinuousRid + 1 == rid) {
+                highestContinuousRid = rid;
+            }
+        }
+    }
+
     public synchronized boolean containsRid(Long rid) {
         for (BoshRequest item : queue) {
             if (rid.equals(item.getRid())) return true;

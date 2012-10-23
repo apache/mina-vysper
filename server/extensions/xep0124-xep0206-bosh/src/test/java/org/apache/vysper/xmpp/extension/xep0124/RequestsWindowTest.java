@@ -37,6 +37,17 @@ public class RequestsWindowTest extends TestCase {
 
         queueNewRequest(2L); // 2 after 3
         assertHighestContinuous(3); // HCR is correct
+        
+        assertRID(1L, requestsWindow.pollNext());
+        assertRID(2L, requestsWindow.pollNext());
+        assertRID(3L, requestsWindow.pollNext());
+    }
+    
+    public void testAllowDuplicateRIDs() {
+        requestsWindow = new RequestsWindow("1");
+        queueNewRequest(100L);
+        queueNewRequest(100L); // another 100
+        assertEquals(2, requestsWindow.size());
     }
 
     public void testRequestGap() {
@@ -49,9 +60,47 @@ public class RequestsWindowTest extends TestCase {
 
         // now, 3 is highest continous, 4 is missing, 5 is highest: [3 HCR, GAP, 5]
         
-        final BoshRequest boshRequest = requestsWindow.pollNext();
-        assertHighestContinuous(3); // BUG! should go to 5
-        System.out.println("reqWin = " + requestsWindow.logRequestWindow()); // HCR is not in line
+        // now, fetch 3
+        final BoshRequest boshRequest3 = requestsWindow.pollNext();
+        assertRID(3L, boshRequest3);
+        final BoshRequest boshRequest5 = requestsWindow.pollNext();
+        assertHighestContinuous(5);
+        System.out.println("reqWin = " + requestsWindow.logRequestWindow());
+    }
+    
+    public void testRequest2Gaps() {
+        requestsWindow = new RequestsWindow("1");
+        queueNewRequest(3L);
+        assertHighestContinuous(3);
+
+        queueNewRequest(5L);
+        queueNewRequest(6L);
+        assertHighestContinuous(3);
+
+        queueNewRequest(8L);
+        queueNewRequest(9L);
+        queueNewRequest(10L);
+        assertHighestContinuous(3);
+
+        // now we have request [3, 5, 6, 8, 9, 10]
+        
+        // now, fetch 3
+        final BoshRequest boshRequest3 = requestsWindow.pollNext();
+        assertRID(3L, boshRequest3);
+
+        assertRID(5L, requestsWindow.pollNext());
+        assertRID(6L, requestsWindow.pollNext());
+        assertHighestContinuous(6);
+
+        assertRID(8L, requestsWindow.pollNext());
+        assertRID(9L, requestsWindow.pollNext());
+        assertRID(10L, requestsWindow.pollNext());
+        assertHighestContinuous(10);
+        
+    }
+
+    private void assertRID(final long expectedRid, BoshRequest boshRequest) {
+        assertEquals(expectedRid, (long)boshRequest.getRid());
     }
 
     private void assertHighestContinuous(final int expected) {
