@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.authentication;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.PARTIAL;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.IN_PROGRESS;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,6 +49,7 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 public class Plain implements SASLMechanism {
 
     private static final AuthenticationResponses AUTHENTICATION_RESPONSES = new AuthenticationResponses();
+    private static final Charset CHARSET_UTF8 = Charset.forName("UTF-8");
 
     public String getName() {
         return "PLAIN";
@@ -64,7 +66,7 @@ public class Plain implements SASLMechanism {
         XMLText base64Encoded = innerTexts.get(0);
         byte[] decoded;
         try {
-            decoded = Base64.decodeBase64(base64Encoded.getText().getBytes());
+            decoded = Base64.decodeBase64(base64Encoded.getText().getBytes(CHARSET_UTF8));
         } catch (Throwable e) {
             return AUTHENTICATION_RESPONSES.getFailure(SASLFailureType.INCORRECT_ENCODING);
         }
