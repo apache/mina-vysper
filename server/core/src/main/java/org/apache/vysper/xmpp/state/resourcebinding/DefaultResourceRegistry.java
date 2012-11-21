@@ -136,7 +136,7 @@ public class DefaultResourceRegistry implements ResourceRegistry {
      * @param resourceId
      */
     public boolean unbindResource(String resourceId) {
-        boolean noResourceRemainsForSession = false;
+        boolean noResourceRemainsForSession;
         synchronized (boundResources) {
             synchronized (entityResources) {
                 synchronized (sessionResources) {
@@ -144,9 +144,12 @@ public class DefaultResourceRegistry implements ResourceRegistry {
 
                     // remove from entity's list of resources
                     List<String> resourceListForEntity = getResourceList(sessionContext.getInitiatingEntity());
-                    resourceListForEntity.remove(resourceId);
-                    if (resourceListForEntity.isEmpty())
-                        entityResources.remove(sessionContext.getInitiatingEntity());
+                    if (resourceListForEntity != null) {
+                        resourceListForEntity.remove(resourceId);
+                        if (resourceListForEntity.isEmpty()) {
+                            entityResources.remove(sessionContext.getInitiatingEntity());
+                        }
+                    }
 
                     // remove from session's list of resources
                     List<String> resourceListForSession = sessionResources.get(sessionContext);
@@ -411,6 +414,8 @@ public class DefaultResourceRegistry implements ResourceRegistry {
     public List<String> getInterestedResources(Entity entity) {
         List<String> resources = getResourceList(entity);
         List<String> result = new ArrayList<String>();
+        if (resources == null) return result;
+        
         for (String resource : resources) {
             ResourceState resourceState = getResourceState(resource);
             if (ResourceState.isInterested(resourceState))
@@ -426,6 +431,8 @@ public class DefaultResourceRegistry implements ResourceRegistry {
     public List<String> getAvailableResources(Entity entity) {
         List<String> resources = getResourceList(entity);
         List<String> result = new ArrayList<String>();
+        if (resources == null) return result;
+
         for (String resource : resources) {
             ResourceState resourceState = getResourceState(resource);
             if (resourceState == AVAILABLE || resourceState == AVAILABLE_INTERESTED) {
