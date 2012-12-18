@@ -40,8 +40,10 @@ import org.apache.vysper.xmpp.state.resourcebinding.BindException;
 import org.apache.vysper.xmpp.state.resourcebinding.DefaultResourceRegistry;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  */
@@ -204,6 +206,59 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
         } catch (ServiceNotAvailableException e) {
             // test succeeds
         }
+    }
+
+    public void testSequentialDeliveryOneThread() throws DeliveryException, XMLSemanticError, EntityFormatException {
+
+        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(null, null);
+
+        stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
+        stanzaRelay.setMaxThreadCount(1);
+
+        TestSessionContext sessionContext = createSessionForTo(TO_ENTITY, 1);
+
+        final int STANZA_COUNT = 1000;
+        
+        for (int i = 0; i < STANZA_COUNT; i++) {
+            Stanza stanza = StanzaBuilder.createMessageStanza(FROM_ENTITY, TO_ENTITY, "en", "" + i).build();
+            stanzaRelay.relay(TO_ENTITY, stanza, null);
+        }
+        for (int i = 0; i < STANZA_COUNT; i++) {
+            final Stanza nextResponse = sessionContext.getNextRecordedResponse(100);
+            assertEquals("" + i, nextResponse.getSingleInnerElementsNamed("body").getSingleInnerText().getText());
+        }
+        
+    } 
+    
+    public void testSequentialDeliveryManyThreads() throws DeliveryException, XMLSemanticError, EntityFormatException {
+
+        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(null, null);
+
+        stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
+        stanzaRelay.setMaxThreadCount(10);
+
+        TestSessionContext sessionContext = createSessionForTo(TO_ENTITY, 1);
+
+        final int STANZA_COUNT = 1000;
+        
+        for (int i = 0; i < STANZA_COUNT; i++) {
+            Stanza stanza = StanzaBuilder.createMessageStanza(FROM_ENTITY, TO_ENTITY, "en", "" + i).build();
+            stanzaRelay.relay(TO_ENTITY, stanza, null);
+        }
+
+        /*
+        our handling currently does not enforce strict ordered delivery (for example by session). 
+        If stanzas A and B enter the Relay's queue in that order, we only ensure that processing is started in 
+        that order. However, it might as well happen that B is processed in parallel to A, and even exits 
+        before A.
+        */
+
+        for (int i = 0; i < STANZA_COUNT; i++) {
+            final Stanza nextResponse = sessionContext.getNextRecordedResponse(100);
+            boolean matches = ("" + i).equals(nextResponse.getSingleInnerElementsNamed("body").getSingleInnerText().getText());
+            if (!matches) return; // succeed
+        }
+        Assert.fail("delivered in sequence is unexpected, see VYSPER-337");
     }
     
 }
