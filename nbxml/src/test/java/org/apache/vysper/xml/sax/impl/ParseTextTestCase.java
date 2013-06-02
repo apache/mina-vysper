@@ -88,6 +88,18 @@ public class ParseTextTestCase extends AbstractAsyncXMLReaderTestCase {
         assertFalse(events.hasNext());
     }
 
+    public void testConsecutiveUnicodeEscape() throws Exception {
+        Iterator<TestEvent> events = parse("<root>&#160;&#160;&#160;&#160;</root>").iterator();
+
+        assertStartDocument(events.next());
+        assertStartElement("", "root", "root", events.next());
+        assertText("\u00A0\u00A0\u00A0\u00A0", events.next());
+        assertEndElement("", "root", "root", events.next());
+        assertEndDocument(events.next());
+
+        assertFalse(events.hasNext());
+    }
+
     public void testTextOnly() throws Exception {
         Iterator<TestEvent> events = parse("text</root>").iterator();
 

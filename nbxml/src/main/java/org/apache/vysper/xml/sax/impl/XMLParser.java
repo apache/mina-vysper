@@ -54,7 +54,7 @@ public class XMLParser implements TokenListener {
 
     public static final Pattern NAME_PREFIX_PATTERN = Pattern.compile("^xml", Pattern.CASE_INSENSITIVE);
 
-    public static final Pattern UNESCAPE_UNICODE_PATTERN = Pattern.compile("\\&\\#(x?)(.+);");
+    public static final Pattern UNESCAPE_UNICODE_PATTERN = Pattern.compile("\\&\\#(x?)([0-9a-fA-F]++);");
 
     private ContentHandler contentHandler;
 
