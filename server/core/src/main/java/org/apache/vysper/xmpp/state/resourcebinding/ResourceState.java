@@ -73,8 +73,18 @@ public enum ResourceState {
     }
 
     public static ResourceState makeInterested(ResourceState inState) {
-        if (inState == AVAILABLE)
-            return AVAILABLE_INTERESTED;
-        return CONNECTED_INTERESTED;
+        if (inState == null) return null; // cannot transfer to 'interested'
+        switch (inState) {
+            case CONNECTED:
+            case CONNECTED_INTERESTED:
+                return CONNECTED_INTERESTED;
+            case AVAILABLE:
+            case AVAILABLE_INTERESTED:
+                return AVAILABLE_INTERESTED;
+            case UNAVAILABLE:
+                return UNAVAILABLE;
+            default:
+                throw new IllegalStateException("unknown ResourceState in makeInterested(): " + inState);
+        }
     }
 }
