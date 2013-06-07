@@ -23,6 +23,9 @@ package org.apache.vysper.xml.fragment;
 import java.util.Collection;
 import java.util.List;
 
+import static org.apache.vysper.xml.fragment.Namespaces.XMLNS;
+import static org.apache.vysper.xml.fragment.Namespaces.XMLNS_AND_COLON;
+
 /**
  * provides common tools to check a element against its specification or
  * semantical context this classes instances are immutual.
@@ -143,7 +146,7 @@ public class XMLElementVerifier {
         }
 
         for (Attribute attribute : element.getAttributes()) {
-            if (attribute.getName().startsWith("xmlns") && attribute.getValue().equals(namespaceURI)) {
+            if (attribute.getName().startsWith(XMLNS) && attribute.getValue().equals(namespaceURI)) {
                 return true;
             }
         }
@@ -162,16 +165,15 @@ public class XMLElementVerifier {
      */
     public String getNamespaceIdentifier(String namespace) {
         for (Attribute attribute : element.getAttributes()) {
-            if (attribute.getValue().equals(namespace) && attribute.getName().startsWith(Namespaces.XMLNS_AND_COLON)) {
-                return attribute.getName().substring(Namespaces.XMLNS_AND_COLON.length());
+            if (attribute.getValue().equals(namespace) && attribute.getName().startsWith(XMLNS_AND_COLON)) {
+                return attribute.getName().substring(XMLNS_AND_COLON.length());
             }
         }
         return null;
     }
 
     private boolean isNamespaceAttribute(Attribute attribute) {
-        return (attribute.getName().equalsIgnoreCase(Namespaces.XMLNS) || attribute.getName().startsWith(
-                Namespaces.XMLNS_AND_COLON));
+        return (attribute.getName().equalsIgnoreCase(XMLNS) || attribute.getName().startsWith(XMLNS_AND_COLON));
     }
 
     public String getUniqueXMLNSValue() {
