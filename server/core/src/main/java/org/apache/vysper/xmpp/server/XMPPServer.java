@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.logstanzas.LogStorageProvider;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -134,6 +135,9 @@ public class XMPPServer {
     public void start() throws Exception {
 
         BogusTrustManagerFactory bogusTrustManagerFactory = new BogusTrustManagerFactory();
+        if (StringUtils.isNotEmpty(tlsCertificatePassword) && tlsCertificate == null) {
+            throw new IllegalStateException("no TLS certificate loaded for the configured password");
+        }
         InputStreamBasedTLSContextFactory tlsContextFactory = new InputStreamBasedTLSContextFactory(tlsCertificate);
         tlsContextFactory.setPassword(tlsCertificatePassword);
         tlsContextFactory.setTrustManagerFactory(bogusTrustManagerFactory);
