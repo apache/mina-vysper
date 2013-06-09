@@ -47,6 +47,10 @@ public abstract class AbstractIntegrationTestCase extends TestCase {
 
     private final Logger logger = LoggerFactory.getLogger(AbstractIntegrationTestCase.class);
 
+    protected static final String TLS_CERTIFICATE_PATH = "src/main/config/bogus_mina_tls.cert";
+
+    protected static final String TLS_CERTIFICATE_PASSWORD = "boguspw";
+    
     protected static final String SERVER_DOMAIN = "vysper.org";
 
     protected static final String TEST_USERNAME1 = "test1@vysper.org";
@@ -95,7 +99,7 @@ public abstract class AbstractIntegrationTestCase extends TestCase {
         server.addEndpoint(endpoint);
         server.setStorageProviderRegistry(providerRegistry);
 
-        server.setTLSCertificateInfo(new File("src/main/config/bogus_mina_tls.cert"), "boguspw");
+        server.setTLSCertificateInfo(new File(TLS_CERTIFICATE_PATH), TLS_CERTIFICATE_PASSWORD);
 
         server.start();
 
@@ -111,9 +115,9 @@ public abstract class AbstractIntegrationTestCase extends TestCase {
         connectionConfiguration.setSecurityMode(ConnectionConfiguration.SecurityMode.required);
         connectionConfiguration.setSASLAuthenticationEnabled(true);
         connectionConfiguration.setDebuggerEnabled(false);
-        connectionConfiguration.setKeystorePath("src/main/config/bogus_mina_tls.cert");
-        connectionConfiguration.setTruststorePath("src/main/config/bogus_mina_tls.cert");
-        connectionConfiguration.setTruststorePassword("boguspw");
+        connectionConfiguration.setKeystorePath(TLS_CERTIFICATE_PATH);
+        connectionConfiguration.setTruststorePath(TLS_CERTIFICATE_PATH);
+        connectionConfiguration.setTruststorePassword(TLS_CERTIFICATE_PASSWORD);
 
         XMPPConnection.DEBUG_ENABLED = true;
         XMPPConnection client = new XMPPConnection(connectionConfiguration);

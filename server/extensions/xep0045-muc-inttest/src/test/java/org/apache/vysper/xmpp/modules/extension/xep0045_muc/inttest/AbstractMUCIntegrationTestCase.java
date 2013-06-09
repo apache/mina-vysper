@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.inttest;
 
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.MUCFeatures;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.MUCModule;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.server.XMPPServer;
@@ -27,7 +28,7 @@ import org.jivesoftware.smackx.muc.MultiUserChat;
 
 /**
  */
-public class AbstractMUCIntegrationTestCase extends AbstractIntegrationTestCase {
+public abstract class AbstractMUCIntegrationTestCase extends AbstractIntegrationTestCase {
 
     protected static final String NICK1 = "Nick";
 
@@ -37,7 +38,7 @@ public class AbstractMUCIntegrationTestCase extends AbstractIntegrationTestCase 
 
     protected static final String ROOM_JID = "room@chat.vysper.org";
 
-    protected Conference conference = new Conference("test conference");
+    protected Conference conference = new Conference("test conference", new MUCFeatures());
 
     protected XMPPConnection client2;
 
