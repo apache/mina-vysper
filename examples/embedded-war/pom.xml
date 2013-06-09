@@ -95,4 +95,21 @@
 		</dependency>
 	</dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <version>8.0.0.RC0</version>
+                <configuration>
+                    <connectors>
+                       <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+                         <port>8080</port>
+                         <maxIdleTime>2000</maxIdleTime>
+                       </connector>
+                     </connectors>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

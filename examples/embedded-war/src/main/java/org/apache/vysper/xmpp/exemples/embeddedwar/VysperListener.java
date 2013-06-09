@@ -55,8 +55,9 @@ public class VysperListener implements ServletContextListener {
             server = new XMPPServer(domain);
             server.addEndpoint(new C2SEndpoint());
             server.setStorageProviderRegistry(providerRegistry);
-    
-            server.setTLSCertificateInfo(sce.getServletContext().getResourceAsStream("WEB-INF/bogus_mina_tls.cert"), "boguspw");
+
+            final String pathToTLSCertificate = "/WEB-INF/bogus_mina_tls.cert";
+            server.setTLSCertificateInfo(sce.getServletContext().getResourceAsStream(pathToTLSCertificate), "boguspw");
     
             try {
                 server.start();
