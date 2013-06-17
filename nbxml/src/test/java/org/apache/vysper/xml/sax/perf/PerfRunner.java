@@ -60,10 +60,10 @@ public class PerfRunner {
 
         StopWatch watch = new StopWatch();
 
-        reader.parse(opening, CharsetUtil.UTF8_DECODER);
+        reader.parse(opening, CharsetUtil.getDecoder());
         for (int i = 0; i < 10000; i++) {
             buffer.position(0);
-            reader.parse(buffer, CharsetUtil.UTF8_DECODER);
+            reader.parse(buffer, CharsetUtil.getDecoder());
         }
         watch.stop();
 

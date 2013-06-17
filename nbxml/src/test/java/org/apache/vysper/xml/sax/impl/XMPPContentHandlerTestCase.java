@@ -76,7 +76,7 @@ public class XMPPContentHandlerTestCase extends TestCase {
     }
 
     private void parse(NonBlockingXMLReader reader, String xml) throws Exception {
-        reader.parse(IoBuffer.wrap(xml.getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
+        reader.parse(IoBuffer.wrap(xml.getBytes("UTF-8")), CharsetUtil.getDecoder());
     }
 
 }

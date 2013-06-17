@@ -102,7 +102,7 @@ public class XMPPDecoder extends CumulativeProtocolDecoder {
         MinaStanzaListener listener = new MinaStanzaListener(out);
         contentHandler.setListener(listener);
 
-        reader.parse(in, CharsetUtil.UTF8_DECODER);
+        reader.parse(in, CharsetUtil.getDecoder());
         
         if (listener.isClosed()) {
             session.close(true);

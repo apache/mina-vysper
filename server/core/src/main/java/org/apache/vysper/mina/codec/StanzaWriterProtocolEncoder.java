@@ -78,7 +78,7 @@ public class StanzaWriterProtocolEncoder implements ProtocolEncoder {
     }
 
     public CharsetEncoder getSessionEncoder() {
-        return CharsetUtil.UTF8_ENCODER;
+        return CharsetUtil.getEncoder();
     }
 
 }

@@ -39,11 +39,11 @@ public class DefaultAsyncXMLReaderTestCase extends AbstractAsyncXMLReaderTestCas
         reader.setErrorHandler(handler);
 
         // causes a fatal error
-        reader.parse(IoBuffer.wrap("<root></error>".getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
+        reader.parse(IoBuffer.wrap("<root></error>".getBytes("UTF-8")), CharsetUtil.getDecoder());
 
         try {
             // not allowed to parse after an error
-            reader.parse(IoBuffer.wrap("<root>".getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
+            reader.parse(IoBuffer.wrap("<root>".getBytes("UTF-8")), CharsetUtil.getDecoder());
             fail("Must throw SAXException");
         } catch (SAXException e) {
             // OK
@@ -57,11 +57,11 @@ public class DefaultAsyncXMLReaderTestCase extends AbstractAsyncXMLReaderTestCas
         reader.setErrorHandler(handler);
 
         // causes a fatal error
-        reader.parse(IoBuffer.wrap("<root></root>".getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
+        reader.parse(IoBuffer.wrap("<root></root>".getBytes("UTF-8")), CharsetUtil.getDecoder());
 
         try {
             // not allowed to parse after end of document
-            reader.parse(IoBuffer.wrap("<root>".getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
+            reader.parse(IoBuffer.wrap("<root>".getBytes("UTF-8")), CharsetUtil.getDecoder());
             fail("Must throw SAXException");
         } catch (SAXException e) {
             // OK
@@ -135,7 +135,7 @@ public class DefaultAsyncXMLReaderTestCase extends AbstractAsyncXMLReaderTestCas
 
     public void testSetFeatureDuringParse() throws Exception {
         DefaultNonBlockingXMLReader reader = new DefaultNonBlockingXMLReader();
-        reader.parse(IoBuffer.wrap("<foo />".getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
+        reader.parse(IoBuffer.wrap("<foo />".getBytes("UTF-8")), CharsetUtil.getDecoder());
         try {
             reader.setFeature("http://xml.org/sax/features/namespaces", true);
             fail("Must throw SAXNotSupportedException");

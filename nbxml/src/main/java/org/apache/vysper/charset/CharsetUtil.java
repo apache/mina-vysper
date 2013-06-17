@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.charset;
 
+import java.lang.ref.SoftReference;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
@@ -30,13 +31,36 @@ import java.nio.charset.CharsetEncoder;
  */
 public class CharsetUtil {
 
-    /**
-     * Charset decoder for UTF-8
-     */
-    public static final CharsetDecoder UTF8_DECODER = Charset.forName("UTF-8").newDecoder();
+    private static final Charset UTF8 = Charset.forName("UTF-8");
 
-    /**
-     * Charset encoder for UTF-8
-     */
-    public static final CharsetEncoder UTF8_ENCODER = Charset.forName("UTF-8").newEncoder();
+    private static ThreadLocal<CharsetDecoder> decoderCache = new ThreadLocal<CharsetDecoder>();
+    private static ThreadLocal<CharsetEncoder> encoderCache = new ThreadLocal<CharsetEncoder>();
+
+    private static Object getReference(ThreadLocal threadLocal) {
+        SoftReference reference = (SoftReference) threadLocal.get();
+        if (reference != null) return reference.get();
+        return null;
+    }
+
+    private static void setReference(ThreadLocal threadLocal, Object object) {
+        threadLocal.set(new SoftReference(object));
+    }
+
+    public static CharsetEncoder getEncoder() {
+        CharsetEncoder encoder = (CharsetEncoder) getReference(encoderCache);
+        if (encoder == null) {
+            encoder = UTF8.newEncoder();
+            setReference(encoderCache, encoder);
+        }
+        return encoder;
+    }
+
+    public static CharsetDecoder getDecoder() {
+        CharsetDecoder decoder = (CharsetDecoder) getReference(decoderCache);
+        if (decoder == null) {
+            decoder = UTF8.newDecoder();
+            setReference(decoderCache, decoder);
+        }
+        return decoder;
+    }
 }

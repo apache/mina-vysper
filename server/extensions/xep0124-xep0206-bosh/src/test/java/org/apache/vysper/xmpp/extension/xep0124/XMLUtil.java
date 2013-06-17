@@ -81,7 +81,7 @@ public class XMLUtil implements ContentHandler {
     }
 
     public Stanza parse() throws IOException, SAXException {
-        reader.parse(input, CharsetUtil.UTF8_DECODER);
+        reader.parse(input, CharsetUtil.getDecoder());
         return retStanza;
     }
 

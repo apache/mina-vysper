@@ -1,4 +1,5 @@
 /*
+/*
  *  Licensed to the Apache Software Foundation (ASF) under one
  *  or more contributor license agreements.  See the NOTICE file
  *  distributed with this work for additional information
@@ -144,7 +145,7 @@ public abstract class AbstractAsyncXMLReaderTestCase extends TestCase {
         reader.setContentHandler(handler);
         reader.setErrorHandler(handler);
 
-        reader.parse(IoBuffer.wrap(xml.getBytes("UTF-8")), CharsetUtil.UTF8_DECODER);
+        reader.parse(IoBuffer.wrap(xml.getBytes("UTF-8")), CharsetUtil.getDecoder());
 
         return handler.getEvents();
     }

@@ -64,7 +64,7 @@ public class XMLParserUtil {
         });
 
         IoBuffer buffer = IoBuffer.wrap(xml.getBytes("UTF-8"));
-        reader.parse(buffer, CharsetUtil.UTF8_DECODER);
+        reader.parse(buffer, CharsetUtil.getDecoder());
 
         if(!documents.isEmpty()) {
             return documents.get(0);

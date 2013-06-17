@@ -72,7 +72,7 @@ public class StanzaWriterProtocolEncoderTestCase {
         Mockito.verify(output).write(bufferCaptor.capture());
         
         IoBuffer buffer = bufferCaptor.getValue();
-        String actual = buffer.getString(CharsetUtil.UTF8_DECODER);
+        String actual = buffer.getString(CharsetUtil.getDecoder());
         
         Assert.assertEquals(prolog + opening + content + closing, actual);
     }
@@ -88,7 +88,7 @@ public class StanzaWriterProtocolEncoderTestCase {
         Mockito.verify(output).write(bufferCaptor.capture());
         
         IoBuffer buffer = bufferCaptor.getValue();
-        String actual = buffer.getString(CharsetUtil.UTF8_DECODER);
+        String actual = buffer.getString(CharsetUtil.getDecoder());
         
         Assert.assertEquals(prolog + opening + content, actual);
     }

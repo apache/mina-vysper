@@ -78,7 +78,7 @@ public class BoshDecoder {
             ioBuf.put(buf, 0, i);
         }
         ioBuf.flip();
-        reader.parse(ioBuf, CharsetUtil.UTF8_DECODER);
+        reader.parse(ioBuf, CharsetUtil.getDecoder());
     }
 
 }

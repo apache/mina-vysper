@@ -103,15 +103,15 @@ public class XMLTokenizer {
                 }
             } else if (state == State.IN_STRING) {
                 if (c == '>') {
-                    emit(CharsetUtil.UTF8_DECODER);
+                    emit(CharsetUtil.getDecoder());
                     emit(c);
                     state = State.START;
                 } else if (isControlChar(c)) {
-                    emit(CharsetUtil.UTF8_DECODER);
+                    emit(CharsetUtil.getDecoder());
                     emit(c);
                     state = State.IN_TAG;
                 } else if (Character.isWhitespace(c)) {
-                    emit(CharsetUtil.UTF8_DECODER);
+                    emit(CharsetUtil.getDecoder());
                     state = State.IN_TAG;
                 } else {
                     buffer.put(c);

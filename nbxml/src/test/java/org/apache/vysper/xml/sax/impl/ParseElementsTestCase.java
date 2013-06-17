@@ -188,8 +188,8 @@ public class ParseElementsTestCase extends AbstractAsyncXMLReaderTestCase {
         System.arraycopy(xml, 0, xml1, 0, 8);
         System.arraycopy(xml, 8, xml2, 0, 8);
 
-        reader.parse(IoBuffer.wrap(xml1), CharsetUtil.UTF8_DECODER);
-        reader.parse(IoBuffer.wrap(xml2), CharsetUtil.UTF8_DECODER);
+        reader.parse(IoBuffer.wrap(xml1), CharsetUtil.getDecoder());
+        reader.parse(IoBuffer.wrap(xml2), CharsetUtil.getDecoder());
 
         Iterator<TestEvent> events = handler.getEvents().iterator();
 
