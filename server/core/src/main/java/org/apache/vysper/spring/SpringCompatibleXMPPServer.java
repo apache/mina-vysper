@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.server.Endpoint;
+import org.apache.vysper.xmpp.server.ServerFeatures;
 import org.apache.vysper.xmpp.server.XMPPServer;
 import org.springframework.core.io.Resource;
 
@@ -41,6 +42,8 @@ public class SpringCompatibleXMPPServer extends XMPPServer {
     protected final List<Module> listOfModules = new ArrayList<Module>();
     protected File certificateFile = null;
     protected String certificatePassword = null;
+    
+    protected boolean enableFederationFeature = false;
 
     public SpringCompatibleXMPPServer(String domain) {
         super(domain);
@@ -63,7 +66,18 @@ public class SpringCompatibleXMPPServer extends XMPPServer {
     public void setModules(Collection<Module> modules) {
         listOfModules.addAll(modules);
     }
-    
+
+    public void setEnableFederationFeature(boolean enableFederationFeature) {
+        this.enableFederationFeature = enableFederationFeature;
+    }
+
+    @Override
+    protected ServerFeatures createServerFeatures() {
+        final ServerFeatures serverFeatures = super.createServerFeatures();
+        serverFeatures.setRelayingToFederationServers(enableFederationFeature);
+        return serverFeatures;
+    }
+
     public void init() throws Exception {
         setTLSCertificateInfo(certificateFile, certificatePassword);
         start();

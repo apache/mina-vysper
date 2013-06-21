@@ -166,7 +166,7 @@ public class XMPPServer {
         stanzaRelayBroker.setInternalRelay(internalStanzaRelay);
         stanzaRelayBroker.setExternalRelay(externalStanzaRelay);
 
-        ServerFeatures serverFeatures = new ServerFeatures();
+        ServerFeatures serverFeatures = createServerFeatures();
         serverFeatures.setAuthenticationMethods(saslMechanisms);
 
         serverRuntimeContext = new DefaultServerRuntimeContext(serverEntity, stanzaRelayBroker, serverFeatures,
@@ -191,6 +191,10 @@ public class XMPPServer {
             endpoint.setServerRuntimeContext(serverRuntimeContext);
             endpoint.start();
         }
+    }
+
+    protected ServerFeatures createServerFeatures() {
+        return new ServerFeatures();
     }
 
     public void stop() {
