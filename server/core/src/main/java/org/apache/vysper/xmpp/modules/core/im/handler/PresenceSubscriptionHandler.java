@@ -80,7 +80,15 @@ public class PresenceSubscriptionHandler extends AbstractPresenceSpecializedHand
         // (initiatingEntity)
         // or in case of multiple resources, use the from attribute or return an
         // error if the from attribute is not present.
-        Entity initiatingEntity = sessionContext == null ? null : sessionContext.getInitiatingEntity();
+        Entity initiatingEntity = null;
+        if (sessionContext != null) {
+            if (sessionContext.isServerToServer()) {
+                initiatingEntity = presenceStanza.getFrom();
+            } else {
+                initiatingEntity = sessionContext.getInitiatingEntity();
+            }
+        }
+        
         XMPPCoreStanzaVerifier verifier = presenceStanza.getCoreVerifier();
         ResourceRegistry registry = serverRuntimeContext.getResourceRegistry();
 
