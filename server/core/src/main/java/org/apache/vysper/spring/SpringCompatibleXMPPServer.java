@@ -44,6 +44,7 @@ public class SpringCompatibleXMPPServer extends XMPPServer {
     protected String certificatePassword = null;
     
     protected boolean enableFederationFeature = false;
+    protected boolean disableFederationServerCertificateChecks = false;
 
     public SpringCompatibleXMPPServer(String domain) {
         super(domain);
@@ -71,10 +72,15 @@ public class SpringCompatibleXMPPServer extends XMPPServer {
         this.enableFederationFeature = enableFederationFeature;
     }
 
+    public void setDisableFederationServerCertificateChecks(boolean disable) {
+        this.disableFederationServerCertificateChecks = disable;
+    }
+
     @Override
     protected ServerFeatures createServerFeatures() {
         final ServerFeatures serverFeatures = super.createServerFeatures();
         serverFeatures.setRelayingToFederationServers(enableFederationFeature);
+        serverFeatures.setCheckFederationServerCertificates(!disableFederationServerCertificateChecks);
         return serverFeatures;
     }
 

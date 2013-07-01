@@ -35,6 +35,7 @@ import org.apache.vysper.xmpp.authentication.Plain;
 import org.apache.vysper.xmpp.authentication.SASLMechanism;
 import org.apache.vysper.xmpp.cryptography.NonCheckingX509TrustManagerFactory;
 import org.apache.vysper.xmpp.cryptography.InputStreamBasedTLSContextFactory;
+import org.apache.vysper.xmpp.cryptography.TrustManagerFactory;
 import org.apache.vysper.xmpp.delivery.OfflineStanzaReceiver;
 import org.apache.vysper.xmpp.delivery.StanzaRelayBroker;
 import org.apache.vysper.xmpp.delivery.inbound.DeliveringExternalInboundStanzaRelay;
@@ -134,13 +135,21 @@ public class XMPPServer {
 
     public void start() throws Exception {
 
-        NonCheckingX509TrustManagerFactory bogusTrustManagerFactory = new NonCheckingX509TrustManagerFactory();
+        ServerFeatures serverFeatures = createServerFeatures();
+        serverFeatures.setAuthenticationMethods(saslMechanisms);
+
+        TrustManagerFactory trustManagerFactory = null; // default, check certificates strictly
+        if (!serverFeatures.isCheckingFederationServerCertificates()) {
+            // switch to accepting *any* certificate 
+            trustManagerFactory = new NonCheckingX509TrustManagerFactory();
+        }
+
         if (StringUtils.isNotEmpty(tlsCertificatePassword) && tlsCertificate == null) {
             throw new IllegalStateException("no TLS certificate loaded for the configured password");
         }
         InputStreamBasedTLSContextFactory tlsContextFactory = new InputStreamBasedTLSContextFactory(tlsCertificate);
         tlsContextFactory.setPassword(tlsCertificatePassword);
-        tlsContextFactory.setTrustManagerFactory(bogusTrustManagerFactory);
+        tlsContextFactory.setTrustManagerFactory(trustManagerFactory);
         if(tlsKeyStoreType != null) {
         	tlsContextFactory.setKeyStoreType(tlsKeyStoreType);
         }
@@ -165,9 +174,6 @@ public class XMPPServer {
         stanzaRelayBroker = new StanzaRelayBroker();
         stanzaRelayBroker.setInternalRelay(internalStanzaRelay);
         stanzaRelayBroker.setExternalRelay(externalStanzaRelay);
-
-        ServerFeatures serverFeatures = createServerFeatures();
-        serverFeatures.setAuthenticationMethods(saslMechanisms);
 
         serverRuntimeContext = new DefaultServerRuntimeContext(serverEntity, stanzaRelayBroker, serverFeatures,
                 dictionaries, resourceRegistry);

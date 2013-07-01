@@ -52,6 +52,13 @@ public class ServerFeatures {
     private boolean relayToFederationServers = false;
 
     /**
+     * flag saying if other server's certificates should be checked (chain-of-trust, validity etc.)
+     * if this flag is set to false, a secure connection is established, but the other end of the 
+     * connection might be any server.
+     */
+    private boolean checkFederationServerCertificates = true;
+
+    /**
      * counter, how many times a session can try authentication before session is terminated
      */
     private int authenticationRetries = 3;
@@ -112,6 +119,14 @@ public class ServerFeatures {
 
     public void setRelayingToFederationServers(boolean relayToFederationServers) {
         this.relayToFederationServers = relayToFederationServers;
+    }
+
+    public boolean isCheckingFederationServerCertificates() {
+        return checkFederationServerCertificates;
+    }
+
+    public void setCheckFederationServerCertificates(boolean checkFederationServerCertificates) {
+        this.checkFederationServerCertificates = checkFederationServerCertificates;
     }
 
     public boolean isDeliveringMessageToHighestPriorityResourcesOnly() {
