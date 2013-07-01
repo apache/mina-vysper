@@ -27,6 +27,7 @@ import java.security.Security;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
 
 /**
  * derived from MINA's BogusSSLContextFactory.
@@ -57,9 +58,9 @@ public abstract class AbstractTLSContextFactory implements TLSContextFactory {
     
     private String keystoreType = DEFAULT_KEYSTORE_TYPE;
 
-    protected TrustManagerFactory trustManagerFactory = new BogusTrustManagerFactory();
+    protected TrustManagerFactory trustManagerFactory = null;
 
-    // NOTE: The keystore was generated using keytool:
+    // NOTE: The keystore 'bogus_mina_tls.cert' was generated using keytool:
     //   keytool -genkey -alias bogus -keysize 512 -validity 3650
     //           -keyalg RSA -dname "CN=bogus.com, OU=XXX CA,
     //               O=BogusTrustManagerFactory Inc, L=Stockholm, S=Stockholm, C=SE"
@@ -108,7 +109,13 @@ public abstract class AbstractTLSContextFactory implements TLSContextFactory {
 
         // Initialize the SSLContext to work with our key managers.
         SSLContext sslContext = SSLContext.getInstance(PROTOCOL);
-        sslContext.init(kmf.getKeyManagers(), trustManagerFactory.getTrustManagers(), null);
+        
+        TrustManager[] trustManagers = null; // this is the default
+        if  (trustManagerFactory != null) {
+            // override the default with configured ones 
+            trustManagers = trustManagerFactory.getTrustManagers();
+        }
+        sslContext.init(kmf.getKeyManagers(), trustManagers, null);
 
         return sslContext;
     }
