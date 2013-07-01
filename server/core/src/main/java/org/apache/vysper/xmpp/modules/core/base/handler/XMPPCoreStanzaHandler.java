@@ -61,7 +61,8 @@ public abstract class XMPPCoreStanzaHandler implements StanzaHandler {
     protected abstract boolean verifyType(Stanza stanza);
 
     protected boolean verifyNamespace(Stanza stanza) {
-        return NamespaceURIs.JABBER_CLIENT.equals(stanza.getNamespaceURI());
+        return NamespaceURIs.JABBER_CLIENT.equals(stanza.getNamespaceURI()) || 
+               NamespaceURIs.JABBER_SERVER.equals(stanza.getNamespaceURI());
     }
 
     public ResponseStanzaContainer execute(Stanza anyStanza, ServerRuntimeContext serverRuntimeContext,
