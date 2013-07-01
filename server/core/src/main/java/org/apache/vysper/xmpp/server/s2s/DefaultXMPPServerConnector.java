@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.server.s2s;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.channels.UnresolvedAddressException;
 import java.util.Arrays;
 import java.util.List;
@@ -113,14 +114,16 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
         Throwable lastException = null;
         
         if(!addresses.isEmpty()) {
+            LOG.info("resolved {} address(es) for {}", addresses.size(), otherServer);
             for(ResolvedAddress address : addresses) {
-                LOG.info("Connecting to XMPP server {} at {}", otherServer, address.getAddress());
+                final InetSocketAddress ipAddress = address.getAddress();
+                LOG.info("Connecting to XMPP server {} at {}", otherServer, ipAddress);
                 
                 connector = createConnector(authenticatedLatch);
-                ConnectFuture connectFuture = connector.connect(address.getAddress());
+                ConnectFuture connectFuture = connector.connect(ipAddress);
                 if(connectFuture.awaitUninterruptibly(connectTimeout) && connectFuture.isConnected()) {
                     // success on the TCP/IP level, now wait for the XMPP handshake
-    
+                    LOG.info("XMPP server {} connected at {}", otherServer, ipAddress);
                     try {
                         if(authenticatedLatch.await(xmppHandshakeTimeout, TimeUnit.MILLISECONDS)) {
                             // success, break out of connect loop
@@ -128,7 +131,7 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
                             break;
                         } else {
                             // attempt next
-                            LOG.warn("XMPP handshake with {} at () timed out", otherServer, address.getAddress());
+                            LOG.warn("XMPP handshake with {} at {} timed out", otherServer, ipAddress);
                         }
                     } catch (InterruptedException e) {
                         throw new RemoteServerTimeoutException("Connection to " + otherServer + " was interrupted", e);
@@ -136,9 +139,8 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
                 } 
 
                 lastException = connectFuture.getException();
-                LOG.warn("Failed connecting to XMPP server " + otherServer + " at " + address.getAddress(), connectFuture.getException());
-                connector.dispose();
-                connector = null;
+                LOG.warn("Failed connecting to XMPP server " + otherServer + " at " + ipAddress, connectFuture.getException());
+                disposeAndNullifyConnector();
             }
         } else {
             // should never happen
@@ -156,7 +158,14 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
             
         }
     }
-    
+
+    private void disposeAndNullifyConnector() {
+        IoConnector localConnector = connector;
+        if (localConnector == null) return;
+        localConnector.dispose();
+        connector = null;
+    }
+
     private NioSocketConnector createConnector(CountDownLatch authenticatedLatch) {
         NioSocketConnector connector = new NioSocketConnector();
         DefaultIoFilterChainBuilder filterChainBuilder = new DefaultIoFilterChainBuilder();
@@ -186,14 +195,16 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
      * {@inheritDoc}
      */
     public void close() {
-        closed = true;
-        if(!closed) {
-            LOG.info("XMPP server connector to {} closing", otherServer);
-            sessionContext.close();
-            
-            connector.dispose();
-            pingTimer.cancel();
-            LOG.info("XMPP server connector to {} closed", otherServer);
+        try {
+            if(!closed) {
+                LOG.info("XMPP server connector to {} closing", otherServer);
+                if (pingTimer != null) pingTimer.cancel();
+                sessionContext.close();
+                disposeAndNullifyConnector();
+                LOG.info("XMPP server connector to {} closed", otherServer);
+            }
+        } finally {
+            closed = true;
         }
     }
 
@@ -240,17 +251,23 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
          */
         @Override
         public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
-            if(cause instanceof IOException) {
-                // socket closed
+            if (cause instanceof IOException) {
+                if (cause instanceof javax.net.ssl.SSLHandshakeException) {
+                    LOG.warn("failed to complete SSL handshake with server {}: {}", otherServer, cause.getMessage());
+                } else if (cause instanceof javax.net.ssl.SSLException) {
+                    LOG.warn("failure in SSL with server {}: {}", otherServer, cause.getMessage());
+                } else {
+                    LOG.info("I/O exception with server {}: {}", otherServer, cause.getMessage());
+                }
                 close();
             } else {
-                LOG.warn("Exception thrown by XMPP server connector to " + otherServer + ", probably a bug in Vysper", cause);
+                LOG.warn("Exception {} thrown by XMPP server connector to " + otherServer + ", probably a bug in Vysper: {}", cause.getClass().getName(), cause.getMessage());
             }
         }
 
         private StanzaHandler lookupHandler(Stanza stanza) {
-            for(StanzaHandler handler : handlers) {
-                if(handler.verify(stanza)) {
+            for (StanzaHandler handler : handlers) {
+                if (handler.verify(stanza)) {
                     return handler;
                 }
             }
@@ -325,6 +342,7 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
                     }
                 } else {
                     // TODO other stanzas coming here?
+                    if (message != null) LOG.warn("unhandled stanza in S2S ConnectorIoHandler: " + message);
                 }
             } else {
                 throw new RuntimeException("Only handles SSL events and stanzas, got: " + message.getClass());
@@ -346,6 +364,7 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
          */
         @Override
         public void sessionOpened(IoSession session) throws Exception {
+            LOG.info("XMPP server session opened to {}", otherServer);
             sessionContext = new MinaBackedSessionContext(serverRuntimeContext, sessionStateHolder, session);
             sessionStateHolder.setState(SessionState.INITIATED);
             Stanza opener = new ServerResponses().getStreamOpenerForServerConnector(serverRuntimeContext.getServerEnitity(), otherServer, XMPPVersion.VERSION_1_0, sessionContext);
@@ -357,6 +376,7 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
     private class PingTask extends TimerTask {
         public void run() {
             XmppPingModule pingModule = serverRuntimeContext.getModule(XmppPingModule.class);
+            LOG.info("pinging federated XMPP server {}", otherServer);
             pingModule.ping(DefaultXMPPServerConnector.this, serverRuntimeContext.getServerEnitity(), otherServer, pingTimeout, DefaultXMPPServerConnector.this);
         }
     }
