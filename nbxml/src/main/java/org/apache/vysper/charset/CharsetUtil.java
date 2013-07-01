@@ -38,8 +38,8 @@ public class CharsetUtil {
 
     private static Object getReference(ThreadLocal threadLocal) {
         SoftReference reference = (SoftReference) threadLocal.get();
-        if (reference != null) return reference.get();
-        return null;
+        if (reference == null) return null; 
+        return reference.get();
     }
 
     private static void setReference(ThreadLocal threadLocal, Object object) {
