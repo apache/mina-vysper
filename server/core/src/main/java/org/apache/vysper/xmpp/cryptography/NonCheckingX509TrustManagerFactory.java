@@ -19,6 +19,9 @@
  */
 package org.apache.vysper.xmpp.cryptography;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -31,20 +34,25 @@ import javax.net.ssl.TrustManagerFactorySpi;
 import javax.net.ssl.X509TrustManager;
 
 /**
- * BogusTrustManagerFactory trust manager factory. Creates BogusX509TrustManager
+ * NonCheckingTrustManagerFactory trust manager factory, uses an X509TrustManager implementation under the hood which 
+ * will not actually do any checks.
  * 
  * nearly verbose copy from project MINA.
  * see http://svn.apache.org/viewvc/mina/branches/1.0/example/src/main/java/org/apache/mina/example/echoserver/ssl/BogusTrustManagerFactory.java?view=markup
  *
  * @author The Apache Directory Project (mina-dev@directory.apache.org)
  */
-public class BogusTrustManagerFactory extends TrustManagerFactorySpi implements TrustManagerFactory {
+public class NonCheckingX509TrustManagerFactory extends TrustManagerFactorySpi implements TrustManagerFactory {
 
+    static final Logger logger = LoggerFactory.getLogger(NonCheckingX509TrustManagerFactory.class);
+    
     static final X509TrustManager X509 = new X509TrustManager() {
         public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+            logger.error("this XMPP Vysper instance uses NonCheckingTrustManagerFactory, clients certificates are not checked");
         }
 
         public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+            logger.error("this XMPP Vysper instance uses NonCheckingTrustManagerFactory, server certificates are not checked");
         }
 
         public X509Certificate[] getAcceptedIssuers() {
@@ -54,7 +62,7 @@ public class BogusTrustManagerFactory extends TrustManagerFactorySpi implements 
 
     private static final TrustManager[] X509_MANAGERS = new TrustManager[] { X509 };
 
-    public BogusTrustManagerFactory() {
+    public NonCheckingX509TrustManagerFactory() {
     }
 
     @Override

@@ -33,7 +33,7 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authentication.AccountManagement;
 import org.apache.vysper.xmpp.authentication.Plain;
 import org.apache.vysper.xmpp.authentication.SASLMechanism;
-import org.apache.vysper.xmpp.cryptography.BogusTrustManagerFactory;
+import org.apache.vysper.xmpp.cryptography.NonCheckingX509TrustManagerFactory;
 import org.apache.vysper.xmpp.cryptography.InputStreamBasedTLSContextFactory;
 import org.apache.vysper.xmpp.delivery.OfflineStanzaReceiver;
 import org.apache.vysper.xmpp.delivery.StanzaRelayBroker;
@@ -134,7 +134,7 @@ public class XMPPServer {
 
     public void start() throws Exception {
 
-        BogusTrustManagerFactory bogusTrustManagerFactory = new BogusTrustManagerFactory();
+        NonCheckingX509TrustManagerFactory bogusTrustManagerFactory = new NonCheckingX509TrustManagerFactory();
         if (StringUtils.isNotEmpty(tlsCertificatePassword) && tlsCertificate == null) {
             throw new IllegalStateException("no TLS certificate loaded for the configured password");
         }
