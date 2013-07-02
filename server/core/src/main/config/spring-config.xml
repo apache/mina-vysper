@@ -59,7 +59,13 @@
         <property name="contextPath" value="/bosh" />
     </bean>
     -->
+
+    <bean id="s2sEndpoint" class="org.apache.vysper.mina.S2SEndpoint">
+    </bean>
     
+    <!--
+       main server configuration, all is coming together here:
+    -->
     <bean id="server" class="org.apache.vysper.spring.SpringCompatibleXMPPServer"
           init-method="init" destroy-method="destroy">
         <!-- TODO change domain name to your domain -->
@@ -67,12 +73,25 @@
         <property name="endpoints">
             <list>
                 <ref bean="tcpEndpoint"/>
-                <!--<ref bean="boshEndpoint"/>-->
+                <!--<ref bean="boshEndpoint"/>--><!-- enables a BOSH endpoint -->
+                <!--<ref bean="s2sEndpoint"/>--><!-- enables a server-to-server endpoint -->
             </list>
         </property>
+        <!-- choose the kind of persistent storage which is used -->
         <property name="storageProviderRegistry" ref="storageRegistry" />
+        <!-- TLS certificate for this server -->
         <property name="certificateFile" value="classpath:bogus_mina_tls.cert" />
+        <!-- TLS certificate secret matching the given certificate -->
         <property name="certificatePassword" value="boguspw" />
+        <!-- enable server-to-server federation -->
+        <property name="enableFederationFeature" value="false"/>
+        <!-- disable strict checks on remote server certificates (not recommended) -->
+        <property name="disableFederationServerCertificateChecks" value="false"/>
+        <!--<property name="SASLMechanisms">
+            <list>
+            </list>
+        </property>-->
+        <!-- extension modules -->
         <property name="modules" >
             <list>
                 <bean class="org.apache.vysper.xmpp.modules.extension.xep0092_software_version.SoftwareVersionModule"/>
@@ -86,11 +105,11 @@
                         <list><value>admin@vysper.org</value></list>
                     </property>
                 </bean>
-                <!-- below some more modules which are available as separately-built jars. 
-                     make sure they are on the classpath when enabling them or remove the beans below, 
+                <!-- below some more modules which are available as separately-built JARs. 
+                     make sure these JARs are on the classpath when enabling the modules or remove the beans below, 
                      depending on the features your server should expose -->
                 <!--<bean class="org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PublishSubscribeModule" />-->
-                <bean class="org.apache.vysper.xmpp.modules.extension.xep0045_muc.MUCModule" />
+                <!--<bean class="org.apache.vysper.xmpp.modules.extension.xep0045_muc.MUCModule" />-->
             </list>
         </property>
     </bean>
