@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.server.s2s;
 
+import org.apache.mina.core.session.IoSession;
 import org.apache.vysper.xmpp.delivery.failure.RemoteServerNotFoundException;
 import org.apache.vysper.xmpp.delivery.failure.RemoteServerTimeoutException;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -49,4 +50,9 @@ public interface XMPPServerConnector extends StanzaWriter {
      */
     void write(Stanza stanza);
 
+    void handleReceivedStanza(Stanza stanza);
+
+    void handleSessionSecured();
+
+    void handleSessionOpened(IoSession session);
 }

@@ -28,6 +28,8 @@ import org.apache.vysper.xmpp.delivery.failure.RemoteServerTimeoutException;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Default implementation of {@link XMPPServerConnectorRegistry} 
@@ -36,6 +38,8 @@ import org.apache.vysper.xmpp.server.SessionContext;
  */
 public class DefaultXMPPServerConnectorRegistry implements XMPPServerConnectorRegistry {
 
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultXMPPServerConnectorRegistry.class);
+    
     private ServerRuntimeContext serverRuntimeContext;
     private Map<Entity, XMPPServerConnector> connectors = new ConcurrentHashMap<Entity, XMPPServerConnector>();
     
@@ -56,10 +60,14 @@ public class DefaultXMPPServerConnectorRegistry implements XMPPServerConnectorRe
         } 
         
         if(connector == null) {
+            LOG.debug("starting s2s connector to " + server);
             connector = createConnector(server, serverRuntimeContext, null, null);
-            connector.start();
+            // TODO start async, because we are in a synchronized method
+            connector.start(); // this can take some time to complete
+            LOG.debug("started s2s connector to " + server);
 
             connectors.put(server, connector);
+            LOG.debug("s2s connector registry size is now " + connectors.size());
         }
         
         return connector;        
@@ -67,8 +75,10 @@ public class DefaultXMPPServerConnectorRegistry implements XMPPServerConnectorRe
     
     @SpecCompliant(spec = "draft-ietf-xmpp-3920bis-22", section = "10.4", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
     public synchronized XMPPServerConnector connectForDialback(Entity server, SessionContext orginalSessionContext, SessionStateHolder originalSessionStateHolder) throws RemoteServerNotFoundException, RemoteServerTimeoutException {
+        LOG.debug("starting s2s connector for dialback to " + server);
         XMPPServerConnector connector = createConnector(server, serverRuntimeContext, orginalSessionContext, originalSessionStateHolder);
         connector.start();
+        LOG.debug("started s2s connector for dialback to " + server);
         return connector;
     }
     
@@ -79,9 +89,14 @@ public class DefaultXMPPServerConnectorRegistry implements XMPPServerConnectorRe
     /* (non-Javadoc)
      * @see org.apache.vysper.xmpp.server.s2s.XMPPServerConnectorRegistry#close()
      */
-    public void close() {
+    public synchronized void close() {
+        LOG.debug("closing now all {} s2s connectors", connectors.size());
         for(XMPPServerConnector connector : connectors.values()) {
-            connector.close();
+            try {
+                connector.close();
+            } catch (Throwable e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
         }
     }
 

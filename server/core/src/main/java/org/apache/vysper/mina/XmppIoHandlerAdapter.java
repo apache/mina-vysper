@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXParseException;
 
 /**
- *
+ * handler for client-to-server sessions
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class XmppIoHandlerAdapter implements IoHandler {
