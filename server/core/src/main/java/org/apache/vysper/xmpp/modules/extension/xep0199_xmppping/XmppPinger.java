@@ -28,12 +28,16 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.writer.StanzaWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class XmppPinger {
+
+    private static final Logger LOG = LoggerFactory.getLogger(XmppPinger.class);
 
     private String id = "xmppping-" + UUID.randomUUID().toString();
     private XmppPingIQHandler handler;
@@ -58,8 +62,10 @@ public class XmppPinger {
         
         try {
             if(pingQueue.poll(timeoutMillis, TimeUnit.MILLISECONDS) != null) {
+                LOG.debug("pong received from " + to + " for ping id = " + id);
                 listener.pong();
             } else {
+                LOG.debug("no pong received for " + timeoutMillis + "msec from " + to + " for ping id = " + id);
                 listener.timeout();
             }
         } catch (InterruptedException e) {

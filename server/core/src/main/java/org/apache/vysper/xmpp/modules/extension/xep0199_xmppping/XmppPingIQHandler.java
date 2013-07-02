@@ -31,6 +31,8 @@ import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of <a href="http://xmpp.org/extensions/xep-0199.html">XEP-0199 XMPP Ping</a>.
@@ -50,7 +52,9 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 @SpecCompliant(spec = "xep-0199", status = SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.PARTIAL)
 public class XmppPingIQHandler extends DefaultIQHandler {
 
-    private List<XmppPinger> pingers = new ArrayList<XmppPinger>();
+    private static final Logger LOG = LoggerFactory.getLogger(XmppPingIQHandler.class);
+    
+    private final List<XmppPinger> pingers = new ArrayList<XmppPinger>();
     
     public XmppPingIQHandler() {
     }
@@ -101,10 +105,16 @@ public class XmppPingIQHandler extends DefaultIQHandler {
     @Override
     protected Stanza handleResult(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
-        for(XmppPinger pinger : pingers) {
-            pinger.pong(stanza.getID());
+        List<XmppPinger> pingersCopy = new ArrayList<XmppPinger>(pingers);
+        for (XmppPinger pinger : pingersCopy) {
+            try {
+                pinger.pong(stanza.getID());
+            } catch (Throwable e) {
+                LOG.warn("ponging the pinger produced problem: " + e.getMessage());
+                LOG.debug("ponging the pinger produced problem. ", e);
+            }
         }
-        
+
         return null;
     }
     
