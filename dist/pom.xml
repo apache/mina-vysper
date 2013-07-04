@@ -62,6 +62,11 @@
     </dependency>
 
     <dependency>
+      <groupId>org.apache.vysper.storage</groupId>
+      <artifactId>vysper-jcr</artifactId>
+    </dependency>
+      
+    <dependency>
       <groupId>javax.jcr</groupId>
       <artifactId>jcr</artifactId>
     </dependency>

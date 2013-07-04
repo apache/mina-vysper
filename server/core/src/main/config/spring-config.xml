@@ -23,7 +23,8 @@
 
     <bean id="inmemoryStorageRegistry" class="org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry" />
 
-    <bean id="jcrStorageRegistry" class="org.apache.vysper.storage.jcr.JcrStorageProviderRegistry" />
+    <!-- enable storage in JCR, needs vysper-jcr-<VERSION>.jar on the classpath -->
+    <!-- <bean id="jcrStorageRegistry" class="org.apache.vysper.storage.jcr.JcrStorageProviderRegistry" />-->
 
     <!-- choose one of the storage registries -->
     <alias name="inmemoryStorageRegistry" alias="storageRegistry" />

@@ -25,7 +25,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.vysper.storage</groupId>
   <artifactId>vysper-jcr</artifactId>
-  <name>Apache Vysper JCR Storage Bindung (Jackrabbit)</name>
+  <name>Apache Vysper JCR Storage Binding (Jackrabbit)</name>
   <version>0.8-SNAPSHOT</version>
   
   
