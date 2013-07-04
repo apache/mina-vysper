@@ -33,6 +33,7 @@
 
   <modules>
     <module>jcr</module>
+    <module>hbase</module>
   </modules>
 
   <profiles>
