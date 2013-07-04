@@ -67,6 +67,7 @@
       <artifactId>mina-core</artifactId>
     </dependency>
 
+<!-- TODO remove... -->      
     <dependency>
       <groupId>javax.jcr</groupId>
       <artifactId>jcr</artifactId>
@@ -78,6 +79,7 @@
       <artifactId>jackrabbit-core</artifactId>
       <optional>true</optional>
     </dependency>
+<!-- ...TODO remove -->      
 
     <dependency>
       <groupId>commons-codec</groupId>

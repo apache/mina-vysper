@@ -19,48 +19,23 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
-        <artifactId>vysper-parent</artifactId>
+        <artifactId>vysper-server</artifactId>
         <groupId>org.apache.vysper</groupId>
         <version>0.8-SNAPSHOT</version>
     </parent>
   <modelVersion>4.0.0</modelVersion>
+  
   <groupId>org.apache.vysper</groupId>
-  <artifactId>vysper-server</artifactId>
-  <name>Apache Vysper Server</name>
+  <artifactId>vysper-storage</artifactId>
+  <name>Apache Vysper Storage Bindings</name>
   <version>0.8-SNAPSHOT</version>
    <packaging>pom</packaging>
 
   <modules>
-    <module>core</module>
-    <module>extensions</module>
-    <module>storage</module>
+    <module>jcr</module>
   </modules>
 
   <profiles>
-    <profile>
-      <!-- admin-console uses Jetty, which requires Java 1.6 -->
-      <activation>
-        <jdk>[1.6,)</jdk>
-      </activation>
-      <modules>
-        <module>core</module>
-        <module>extensions</module>
-        <module>admin-console</module>
-      </modules>
-    </profile>
-    <profile>
-      <id>inttest</id>
-      <modules>
-        <module>core</module>
-        <module>core-inttest</module>
-        <module>extensions</module>
-      </modules>
-    </profile>
   </profiles>
 
-  <properties>
-    <maven.compile.source>1.5</maven.compile.source>
-    <maven.compile.target>1.5</maven.compile.target>
-    <vysper.server.version>${project.version}</vysper.server.version>
-  </properties>
 </project>
