@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.security.MessageDigest;
+import java.util.Arrays;
 
 import static org.apache.vysper.storage.hbase.HBaseStorage.COLUMN_FAMILY_NAME_BASIC;
 import static org.apache.vysper.storage.hbase.HBaseUtils.entityAsBytes;
@@ -72,15 +73,15 @@ public class HBaseUserManagement implements UserAuthentication, AccountManagemen
             final Result entityRow = hBaseStorage.getEntityRow(jid, COLUMN_FAMILY_NAME_BASIC);
             if (entityRow == null) return false;
 
-            final String encryptedGivenPassword = encryptPassword(passwordCleartext);
+            final byte[] encryptedGivenPassword = encryptPassword(passwordCleartext);
             final byte[] passwordSavedBytes = entityRow.getValue(COLUMN_FAMILY_NAME_BASIC.getBytes(), PASSWORD_COLUMN);
-            return new String(passwordSavedBytes, "UTF-8").equals(encryptedGivenPassword);
+            return Arrays.equals(passwordSavedBytes, encryptedGivenPassword);
         } catch (Exception e) {
             return false;
         }
     }
 
-    protected String encryptPassword(String passwordCleartext) {
+    protected byte[] encryptPassword(String passwordCleartext) {
         if (passwordCleartext == null) passwordCleartext = "";
         try {
             passwordCleartext = passwordCleartext + encryptionSalt;
@@ -91,7 +92,7 @@ public class HBaseUserManagement implements UserAuthentication, AccountManagemen
             for (int i = 0; i < rounds; i++) {
                 pwdBytes = digest.digest(pwdBytes);
             }
-            return new String(pwdBytes, "UTF-8");
+            return pwdBytes;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -129,7 +130,7 @@ public class HBaseUserManagement implements UserAuthentication, AccountManagemen
 
     private void setPasswordInHBase(Entity username, String password) throws IOException {
         final Put put = new Put(entityAsBytes(username));
-        put.add(COLUMN_FAMILY_NAME_BASIC.getBytes(), PASSWORD_COLUMN, encryptPassword(password).getBytes("UTF-8"));
+        put.add(COLUMN_FAMILY_NAME_BASIC.getBytes(), PASSWORD_COLUMN, encryptPassword(password));
         hBaseStorage.getTable(HBaseStorage.TABLE_NAME_USER).put(put);
     }
 

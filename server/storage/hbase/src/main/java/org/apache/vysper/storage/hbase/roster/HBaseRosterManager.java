@@ -72,6 +72,8 @@ public class HBaseRosterManager extends AbstractRosterManager {
         MutableRoster roster = new MutableRoster();
 
         final NavigableMap<byte[],byte[]> contacts = entityRow.getFamilyMap(COLUMN_FAMILY_NAME_CONTACT_BYTES);
+        if (contacts == null) return roster;
+        
         for (byte[] contactBytes : contacts.keySet()) {
             String contactAsString = null;
             EntityImpl contactJID = null;
