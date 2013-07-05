@@ -206,11 +206,22 @@
       </dependency>
 
       <dependency>
-        <groupId>org.apache.vysper</groupId>
-        <artifactId>vysper-admin-console</artifactId>
+        <groupId>org.apache.vysper.storage</groupId>
+        <artifactId>vysper-jcr</artifactId>
         <version>${project.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.apache.vysper.storage</groupId>
+        <artifactId>vysper-hbase</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.vysper.extensions</groupId>
+        <artifactId>vysper-websockets</artifactId>
+        <version>${project.version}</version>
+      </dependency>
 
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
