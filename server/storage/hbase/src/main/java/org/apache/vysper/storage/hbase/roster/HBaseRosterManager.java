@@ -25,7 +25,6 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.vysper.storage.hbase.HBaseStorage;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.roster.AskSubscriptionType;
 import org.apache.vysper.xmpp.modules.roster.MutableRoster;
@@ -58,6 +57,7 @@ public class HBaseRosterManager extends AbstractRosterManager {
     public static final String COLUMN_PREFIX_NAME = "n:";
     public static final String COLUMN_PREFIX_TYPE = "t:";
     public static final String COLUMN_PREFIX_ASKTYPE = "a:";
+    public static final String COLUMN_PREFIX_GROUP = "g:";
 
     protected HBaseStorage hBaseStorage;
 
@@ -67,7 +67,7 @@ public class HBaseRosterManager extends AbstractRosterManager {
 
     @Override
     protected Roster retrieveRosterInternal(Entity bareJid) {
-        final Result entityRow = hBaseStorage.getEntityRow(bareJid);
+        final Result entityRow = hBaseStorage.getEntityRow(bareJid, COLUMN_FAMILY_NAME_CONTACT, COLUMN_FAMILY_NAME_ROSTER);
 
         MutableRoster roster = new MutableRoster();
 
@@ -108,7 +108,15 @@ public class HBaseRosterManager extends AbstractRosterManager {
             }
 
             List<RosterGroup> groups = new ArrayList<RosterGroup>();
-            // TODO read groups
+            int i = 1;
+            while (true) {
+                String columnName = COLUMN_PREFIX_GROUP + i + ":" + contactAsString;
+                String groupName = toStr(contactDetails.get(asBytes(columnName)));
+                if (groupName == null) break;
+
+                groups.add(new RosterGroup(groupName));
+                i++;
+            }
 
             RosterItem item = new RosterItem(contactJID, name, subscriptionType, askSubscriptionType, groups);
             LOG.info("item loaded for " + bareJid.getFullQualifiedName() + ": " + item.toString());
@@ -138,6 +146,12 @@ public class HBaseRosterManager extends AbstractRosterManager {
         put.add(COLUMN_FAMILY_NAME_ROSTER_BYTES, asBytes(COLUMN_PREFIX_NAME + contactIdentifier), asBytes(rosterItem.getName()));
         put.add(COLUMN_FAMILY_NAME_ROSTER_BYTES, asBytes(COLUMN_PREFIX_TYPE + contactIdentifier), asBytes(rosterItem.getSubscriptionType().value()));
         put.add(COLUMN_FAMILY_NAME_ROSTER_BYTES, asBytes(COLUMN_PREFIX_ASKTYPE + contactIdentifier), asBytes(rosterItem.getAskSubscriptionType().value()));
+        int i = 1;
+        for (RosterGroup rosterGroup : rosterItem.getGroups()) {
+            String columnName = COLUMN_PREFIX_GROUP + i + ":" + contactIdentifier; 
+            put.add(COLUMN_FAMILY_NAME_ROSTER_BYTES, asBytes(columnName), asBytes(rosterGroup.getName()));
+            i++;
+        }
 
         final HTableInterface userTable = hBaseStorage.getTable(TABLE_NAME_USER);
         try {
