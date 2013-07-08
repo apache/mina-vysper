@@ -26,6 +26,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.vysper.storage.hbase.HBaseStorage;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0049_privatedata.PrivateDataPersistenceManager;
+import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,14 +42,16 @@ public class HBasePrivateDataPersistenceManager implements PrivateDataPersistenc
 
     final Logger logger = LoggerFactory.getLogger(HBasePrivateDataPersistenceManager.class);
 
-    public static final String COLUMN_PREFIX_NAME = "xep_priv_data:";
-    
     protected HBaseStorage hbaseStorage;
 
     public HBasePrivateDataPersistenceManager(HBaseStorage hbaseStorage) {
         this.hbaseStorage = hbaseStorage;
     }
 
+    protected String getNamespace() {
+        return NamespaceURIs.PRIVATE_DATA;
+    }
+    
     public boolean isAvailable() {
         HTableInterface table = null;
         try {
@@ -62,10 +65,14 @@ public class HBasePrivateDataPersistenceManager implements PrivateDataPersistenc
     public String getPrivateData(Entity entity, String key) {
         final Result entityRow = hbaseStorage.getEntityRow(entity, COLUMN_FAMILY_NAME_XEP);
 
-        String column = COLUMN_PREFIX_NAME + key;
+        String column = getColumnForKey(key);
         String value = toStr(entityRow.getValue(COLUMN_FAMILY_NAME_XEP_BYTES, asBytes(column)));
         
         return value;
+    }
+
+    protected String getColumnForKey(String key) {
+        return getNamespace() + "#"+ key;
     }
 
     public boolean setPrivateData(Entity entity, String key, String xml) {
@@ -73,7 +80,7 @@ public class HBasePrivateDataPersistenceManager implements PrivateDataPersistenc
         if (key == null || StringUtils.isBlank(key)) {
             throw new IllegalArgumentException("private data key must not be blank");
         }
-        String column = COLUMN_PREFIX_NAME + key;
+        String column = getColumnForKey(key);
         
         final Put put = new Put(entityAsBytes(entity.getBareJID()));
         put.add(COLUMN_FAMILY_NAME_XEP_BYTES, asBytes(column), asBytes(xml));
