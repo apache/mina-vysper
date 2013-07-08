@@ -33,7 +33,7 @@ public class EntityUtils {
      * @return TRUE iff toVerify JID equals the server's JID
      */
     public static boolean isAddressingServer(Entity toVerify, Entity serverJID) {
-        return toVerify.getDomain().equals(serverJID.getDomain());
+        return toVerify.getDomain().toLowerCase().equals(serverJID.getDomain().toLowerCase());
     }
     
     /**

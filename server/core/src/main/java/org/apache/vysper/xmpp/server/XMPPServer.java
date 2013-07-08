@@ -29,6 +29,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.logstanzas.LogStorageProvider;
+import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authentication.AccountManagement;
 import org.apache.vysper.xmpp.authentication.Plain;
@@ -88,6 +89,17 @@ public class XMPPServer {
     private int maxExternalRelayThreads = -1;
 
     public XMPPServer(String domain) {
+        if (StringUtils.isBlank(domain)) {
+            throw new IllegalArgumentException("server domain cannot be blank, empty or NULL");
+        }
+        if (!domain.equals(domain.toLowerCase())) {
+            throw new IllegalArgumentException("server domain must be given in all lower-case letters, but was: " + domain);
+        }
+        try {
+            EntityImpl.parse(domain);
+        } catch (EntityFormatException e) {
+            throw new IllegalArgumentException("server domain must be a valid domain name, but was: " + domain);
+        }
         this.serverDomain = domain;
 
         // default list of SASL mechanisms

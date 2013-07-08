@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityUtils;
 import org.apache.vysper.xmpp.modules.extension.xep0077_inbandreg.InBandRegistrationHandler;
 import org.apache.vysper.xmpp.protocol.exception.TLSException;
 import org.apache.vysper.xmpp.protocol.worker.AuthenticatedProtocolWorker;
@@ -125,7 +126,7 @@ public class ProtocolWorker implements StanzaProcessor {
                             coreStanza, StanzaErrorType.MODIFY, "Missing from attribute", null, null);
                     ResponseWriter.writeResponse(sessionContext, errorStanza);
                     return;
-                } else if(!from.getDomain().equals(sessionContext.getInitiatingEntity().getDomain())) {
+                } else if(!EntityUtils.isAddressingServer(sessionContext.getInitiatingEntity(), from)) {
                     // make sure the from attribute refers to the correct remote server
                     
                         Stanza errorStanza = ServerErrorResponses.getStanzaError(StanzaErrorCondition.UNKNOWN_SENDER,
@@ -141,7 +142,7 @@ public class ProtocolWorker implements StanzaProcessor {
                             coreStanza, StanzaErrorType.MODIFY, "Missing to attribute", null, null);
                     ResponseWriter.writeResponse(sessionContext, errorStanza);
                     return;                    
-                } else if(!to.getDomain().equals(serverRuntimeContext.getServerEnitity().getDomain())) {
+                } else if(!EntityUtils.isAddressingServer(serverRuntimeContext.getServerEnitity(), to)) {
                     // TODO what's the appropriate error? StreamErrorCondition.IMPROPER_ADDRESSING?
                     Stanza errorStanza = ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST,
                             coreStanza, StanzaErrorType.MODIFY, "Invalid to attribute", null, null);

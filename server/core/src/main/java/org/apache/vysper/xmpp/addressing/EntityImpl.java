@@ -159,7 +159,7 @@ public class EntityImpl implements Entity {
 
         final Entity that = (Entity) o;
 
-        if (domain != null ? !domain.equals(that.getDomain()) : that.getDomain() != null)
+        if (!checkDomainsEqual(that))
             return false;
         if (isNodeSet() != that.isNodeSet())
             return false;
@@ -175,6 +175,11 @@ public class EntityImpl implements Entity {
         }
 
         return true;
+    }
+
+    public boolean checkDomainsEqual(Entity that) {
+        if (domain == null) return that.getDomain() == null;
+        return domain.toLowerCase().equals(that.getDomain().toLowerCase());
     }
 
     @Override

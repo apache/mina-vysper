@@ -42,6 +42,22 @@ public class EntityUtilsTestCase extends TestCase {
         assertAddressingServer("bar@vysper.org/xyz");
         assertNotAddressingServer("foovysper.org");
         assertNotAddressingServer("foo.org");
+    
+    }
+    
+    public void testIsMixedCasing() {
+        assertAddressingServer("vYsper.org");
+        assertAddressingServer("VYSPER.ORG");
+        assertAddressingServer("vysper.org");
+        assertAddressingServer("vysper.ORG");
+        assertAddressingServer("Vysper.ORG");
+        assertAddressingServer("Vysper.Org");
+        assertNotAddressingServer("foo.vYsper.org");
+        assertAddressingServer("bar@vYsper.oRg");
+        assertAddressingServer("bar@vYsper.ORG/xyz");
+        assertNotAddressingServer("foovYsper.org");
+        assertNotAddressingServer("foo.org");
+        assertNotAddressingServer("fOO.org");
     }
 
     

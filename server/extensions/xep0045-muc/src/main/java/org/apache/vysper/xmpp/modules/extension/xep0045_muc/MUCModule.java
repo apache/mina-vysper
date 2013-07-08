@@ -148,7 +148,7 @@ public class MUCModule extends DefaultDiscoAwareModule implements Component, Com
     }
 
     public List<InfoElement> getComponentInfosFor(InfoRequest request) throws ServiceDiscoveryRequestException {
-        if (!fullDomain.getDomain().equals(request.getTo().getDomain()))
+        if (!EntityUtils.isAddressingServer(fullDomain, request.getTo()))
             return null;
 
         if (request.getTo().getNode() == null) {
@@ -198,7 +198,7 @@ public class MUCModule extends DefaultDiscoAwareModule implements Component, Com
                 return componentItem;
             }
             return null;
-        } else if (fullDomain.getDomain().equals(to.getDomain())) {
+        } else if (EntityUtils.isAddressingServer(fullDomain, to)) {
             // might be an items request on a room
             Room room = conference.findRoom(to.getBareJID());
             if (room != null) {

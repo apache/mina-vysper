@@ -25,6 +25,7 @@ import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.addressing.EntityUtils;
 import org.apache.vysper.xmpp.authentication.AccountCreationException;
 import org.apache.vysper.xmpp.authentication.AccountManagement;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
@@ -128,7 +129,7 @@ public class InBandRegistrationHandler extends DefaultIQHandler {
                 Entity user;
                 if(username.contains("@")) {
                     user = EntityImpl.parse(username);
-                    if(!serverRuntimeContext.getServerEnitity().getDomain().equals(user.getDomain())) {
+                    if(!EntityUtils.isAddressingServer(serverRuntimeContext.getServerEnitity(), user)) {
                         throw new XMLSemanticError("Username must be in the same domain as the server");
                     }
                 } else {

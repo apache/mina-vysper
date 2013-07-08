@@ -171,7 +171,7 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements C
      * @see ComponentInfoRequestListener#getComponentInfosFor(org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest) 
      */
     public List<InfoElement> getComponentInfosFor(InfoRequest request) throws ServiceDiscoveryRequestException {
-        if (!fullDomain.getDomain().equals(request.getTo().getDomain()))
+        if (!EntityUtils.isAddressingServer(fullDomain, request.getTo()))
             return null;
 
         CollectionNode root = serviceConfiguration.getRootNode();
