@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.storage.hbase.roster;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Put;
@@ -99,11 +100,12 @@ public class HBaseRosterManager extends AbstractRosterManager {
 
             AskSubscriptionType askSubscriptionType = AskSubscriptionType.NOT_SET;
             try {
-                if (askTypeString != null)
+                if (StringUtils.isNotBlank(askTypeString)) {
                     askSubscriptionType = AskSubscriptionType.valueOf(askTypeString);
+                }
             } catch (IllegalArgumentException e) {
                 LOG.warn("when loading roster for user " + bareJid.getFullQualifiedName() + ", contact "
-                        + contactJID.getFullQualifiedName() + ", the ask subscription type is unparsable. skipping!");
+                        + contactJID.getFullQualifiedName() + ", the ask subscription type '" + askTypeString + "' is unparsable. skipping!");
                 continue; // don't return it, don't set a default!
             }
 
@@ -144,8 +146,8 @@ public class HBaseRosterManager extends AbstractRosterManager {
         final Put put = new Put(entityAsBytes(jid.getBareJID()));
         put.add(COLUMN_FAMILY_NAME_CONTACT_BYTES, asBytes(contactIdentifier), asBytes(rosterItem.getSubscriptionType().value()));
         put.add(COLUMN_FAMILY_NAME_ROSTER_BYTES, asBytes(COLUMN_PREFIX_NAME + contactIdentifier), asBytes(rosterItem.getName()));
-        put.add(COLUMN_FAMILY_NAME_ROSTER_BYTES, asBytes(COLUMN_PREFIX_TYPE + contactIdentifier), asBytes(rosterItem.getSubscriptionType().value()));
-        put.add(COLUMN_FAMILY_NAME_ROSTER_BYTES, asBytes(COLUMN_PREFIX_ASKTYPE + contactIdentifier), asBytes(rosterItem.getAskSubscriptionType().value()));
+        put.add(COLUMN_FAMILY_NAME_ROSTER_BYTES, asBytes(COLUMN_PREFIX_TYPE + contactIdentifier), asBytes(rosterItem.getSubscriptionType().name()));
+        put.add(COLUMN_FAMILY_NAME_ROSTER_BYTES, asBytes(COLUMN_PREFIX_ASKTYPE + contactIdentifier), asBytes(rosterItem.getAskSubscriptionType().name()));
         int i = 1;
         for (RosterGroup rosterGroup : rosterItem.getGroups()) {
             String columnName = COLUMN_PREFIX_GROUP + i + ":" + contactIdentifier; 
@@ -153,8 +155,9 @@ public class HBaseRosterManager extends AbstractRosterManager {
             i++;
         }
 
-        final HTableInterface userTable = hBaseStorage.getTable(TABLE_NAME_USER);
+        HTableInterface userTable = null;
         try {
+            userTable = hBaseStorage.getTable(TABLE_NAME_USER);
             userTable.put(put);
             LOG.info("contact {} saved to HBase for user {}", rosterItem.getJid(), jid);
         } catch (IOException e) {
@@ -179,8 +182,9 @@ public class HBaseRosterManager extends AbstractRosterManager {
         delete.deleteColumns(COLUMN_FAMILY_NAME_ROSTER_BYTES, asBytes(COLUMN_PREFIX_TYPE + contactIdentifier));
         delete.deleteColumns(COLUMN_FAMILY_NAME_ROSTER_BYTES, asBytes(COLUMN_PREFIX_ASKTYPE + contactIdentifier));
         
-        final HTableInterface userTable = hBaseStorage.getTable(TABLE_NAME_USER);
+        HTableInterface userTable = null;
         try {
+            userTable = hBaseStorage.getTable(TABLE_NAME_USER);
             userTable.delete(delete);
             LOG.info("contact {} removed from HBase for user {}", jidContact, jidUser);
         } catch (IOException e) {

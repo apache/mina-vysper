@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.storage.hbase.user;
 
+import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.vysper.storage.hbase.HBaseStorage;
@@ -131,7 +132,13 @@ public class HBaseUserManagement implements UserAuthentication, AccountManagemen
     private void setPasswordInHBase(Entity username, String password) throws IOException {
         final Put put = new Put(entityAsBytes(username));
         put.add(COLUMN_FAMILY_NAME_BASIC.getBytes(), PASSWORD_COLUMN, encryptPassword(password));
-        hBaseStorage.getTable(HBaseStorage.TABLE_NAME_USER).put(put);
+        HTableInterface table = null;
+        try {
+            table = hBaseStorage.getTable(HBaseStorage.TABLE_NAME_USER);
+            table.put(put);
+        } finally {
+            hBaseStorage.putTable(table);
+        }
     }
 
     public void changePassword(Entity username, String password) throws AccountCreationException {
