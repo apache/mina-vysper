@@ -17,39 +17,40 @@
  *  under the License.
  *
  */
-package org.apache.vysper.storage.hbase.privatedata;
+package org.apache.vysper.storage.hbase.vcard;
 
 import org.apache.vysper.storage.hbase.HBaseGenericXEPDataManager;
 import org.apache.vysper.storage.hbase.HBaseStorage;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.modules.extension.xep0049_privatedata.PrivateDataPersistenceManager;
+import org.apache.vysper.xmpp.modules.extension.xep0054_vcardtemp.VcardTempPersistenceManager;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class HBasePrivateDataPersistenceManager extends HBaseGenericXEPDataManager implements PrivateDataPersistenceManager {
+public class HBaseVcardTempPersistenceManager extends HBaseGenericXEPDataManager implements VcardTempPersistenceManager {
 
-    final Logger logger = LoggerFactory.getLogger(HBasePrivateDataPersistenceManager.class);
+    final Logger logger = LoggerFactory.getLogger(HBaseVcardTempPersistenceManager.class);
+    
+    private static final String KEY = "vcard";
 
-    public HBasePrivateDataPersistenceManager(HBaseStorage hbaseStorage) {
+    public HBaseVcardTempPersistenceManager(HBaseStorage hbaseStorage) {
         super(hbaseStorage);
     }
 
     @Override
     protected String getNamespace() {
-        return NamespaceURIs.PRIVATE_DATA;
+        return NamespaceURIs.VCARD_TEMP;
     }
 
-    public String getPrivateData(Entity entity, String key) {
-        String value = getValue(entity, key);
-        return value;
+    public String getVcard(Entity entity) {
+        return getValue(entity, KEY);
     }
 
-    public boolean setPrivateData(Entity entity, String key, String xml) {
-        return setValue(entity, key, xml);
+    public boolean setVcard(Entity entity, String xml) {
+        return setValue(entity, KEY, xml);
     }
-
 }

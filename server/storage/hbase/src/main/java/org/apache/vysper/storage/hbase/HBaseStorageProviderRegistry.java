@@ -23,6 +23,7 @@ import org.apache.vysper.storage.OpenStorageProviderRegistry;
 import org.apache.vysper.storage.hbase.privatedata.HBasePrivateDataPersistenceManager;
 import org.apache.vysper.storage.hbase.roster.HBaseRosterManager;
 import org.apache.vysper.storage.hbase.user.HBaseUserManagement;
+import org.apache.vysper.storage.hbase.vcard.HBaseVcardTempPersistenceManager;
 
 /**
  *
@@ -34,6 +35,7 @@ public class HBaseStorageProviderRegistry extends OpenStorageProviderRegistry {
         add(new HBaseUserManagement(HBaseStorage.getInstance()));
         add(new HBaseRosterManager(HBaseStorage.getInstance()));
         add(new HBasePrivateDataPersistenceManager(HBaseStorage.getInstance()));
+        add(new HBaseVcardTempPersistenceManager(HBaseStorage.getInstance()));
     }
 
 }
