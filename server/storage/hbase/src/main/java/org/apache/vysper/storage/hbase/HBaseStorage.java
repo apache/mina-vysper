@@ -39,6 +39,10 @@ import static org.apache.vysper.storage.hbase.HBaseUtils.*;
 
 /**
  * back-end adaptor for HBase
+ * 
+ * prepare HBase by creating table vysper_user:
+ * create 'vysper_user', {NAME => 'bsc', VERSIONS => 1}, {NAME => 'cct', VERSIONS => 1}, {NAME => 'rst', VERSIONS => 1}, {NAME => 'xep', VERSIONS => 5}
+ * 
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class HBaseStorage {
@@ -51,6 +55,8 @@ public class HBaseStorage {
     public static final byte[] COLUMN_FAMILY_NAME_CONTACT_BYTES = COLUMN_FAMILY_NAME_CONTACT.getBytes();
     public static final String COLUMN_FAMILY_NAME_ROSTER = "rst";
     public static final byte[] COLUMN_FAMILY_NAME_ROSTER_BYTES = COLUMN_FAMILY_NAME_ROSTER.getBytes();
+    public static final String COLUMN_FAMILY_NAME_XEP = "xep";
+    public static final byte[] COLUMN_FAMILY_NAME_XEP_BYTES = COLUMN_FAMILY_NAME_XEP.getBytes();
     
     protected static HBaseStorage hbaseStorageSingleton;
 
@@ -111,8 +117,9 @@ public class HBaseStorage {
             columnFamilyNames = new String[]{COLUMN_FAMILY_NAME_CONTACT};
         }
 
-        final HTableInterface userTable = getTable(TABLE_NAME_USER);
+        HTableInterface userTable = null;
         try {
+            userTable = getTable(TABLE_NAME_USER);
             final Get get = new Get(entityAsBytes(entity.getBareJID()));
             for (String columnFamilyName : columnFamilyNames) {
                 get.addFamily(asBytes(columnFamilyName));
