@@ -74,9 +74,9 @@
   </mailingLists>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/mina/vysper/trunk</connection>
-    <developerConnection> scm:svn:https://svn.apache.org/repos/asf/mina/vysper/trunk</developerConnection>
-    <url>http://svn.apache.org/viewvc/mina/vysper/trunk</url>
+    <connection>scm:svn:http://git-wip-us.apache.org/repos/asf/mina-vysper.git</connection>
+    <developerConnection>scm:svn:https://git-wip-us.apache.org/repos/asf/mina-vysper.git</developerConnection>
+    <url>https://git-wip-us.apache.org/repos/asf?p=mina-vysper.git;a=summary</url>
   </scm>
 
   <dependencyManagement>
