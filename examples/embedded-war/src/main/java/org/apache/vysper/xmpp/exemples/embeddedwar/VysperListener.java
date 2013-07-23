@@ -23,15 +23,18 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import org.apache.vysper.mina.C2SEndpoint;
+import org.apache.vysper.mina.S2SEndpoint;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authentication.AccountManagement;
+import org.apache.vysper.xmpp.extension.xep0124.BoshEndpoint;
 import org.apache.vysper.xmpp.modules.extension.xep0054_vcardtemp.VcardTempModule;
 import org.apache.vysper.xmpp.modules.extension.xep0092_software_version.SoftwareVersionModule;
 import org.apache.vysper.xmpp.modules.extension.xep0199_xmppping.XmppPingModule;
 import org.apache.vysper.xmpp.modules.extension.xep0202_entity_time.EntityTimeModule;
+import org.apache.vysper.xmpp.server.ServerFeatures;
 import org.apache.vysper.xmpp.server.XMPPServer;
 
 public class VysperListener implements ServletContextListener {
@@ -51,12 +54,24 @@ public class VysperListener implements ServletContextListener {
             if (!accountManagement.verifyAccountExists(user1)) {
                 accountManagement.addUser(user1, "password1");
             }
-    
-            server = new XMPPServer(domain);
-            server.addEndpoint(new C2SEndpoint());
-            server.setStorageProviderRegistry(providerRegistry);
 
             final String pathToTLSCertificate = "/WEB-INF/bogus_mina_tls.cert";
+
+            server = new XMPPServer(domain);
+            // enable classic TCP bases access
+            server.addEndpoint(new C2SEndpoint());
+            
+            // enable bosh
+            final BoshEndpoint boshEndpoint = new BoshEndpoint();
+            boshEndpoint.setContextPath("/bosh");
+            boshEndpoint.setPort(8090);
+            server.addEndpoint(boshEndpoint);
+
+            // allow XMPP federation
+            server.addEndpoint(new S2SEndpoint());
+            
+            server.setStorageProviderRegistry(providerRegistry);
+
             server.setTLSCertificateInfo(sce.getServletContext().getResourceAsStream(pathToTLSCertificate), "boguspw");
     
             try {
@@ -65,7 +80,11 @@ public class VysperListener implements ServletContextListener {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-    
+
+            final ServerFeatures serverFeatures = server.getServerRuntimeContext().getServerFeatures();
+            serverFeatures.setRelayingToFederationServers(true);
+            serverFeatures.setCheckFederationServerCertificates(false);
+            
             server.addModule(new SoftwareVersionModule());
             server.addModule(new EntityTimeModule());
             server.addModule(new VcardTempModule());

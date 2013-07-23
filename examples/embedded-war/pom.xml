@@ -23,8 +23,7 @@
 		<version>0.8-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.apache.vysper.examples</groupId>
-	<artifactId>vysper-embedded-war</artifactId>
+    <artifactId>vysper-embedded-war</artifactId>
 	<name>Apache Vysper Embedded in a WAR demo</name>
 	<version>0.8-SNAPSHOT</version>
 	<packaging>war</packaging>
@@ -35,13 +34,12 @@
 			<artifactId>vysper-core</artifactId>
 		</dependency>
 
-<!--
-	Only works when deployed on Jetty. 
 		<dependency>
 			<groupId>org.apache.vysper.extensions</groupId>
 			<artifactId>vysper-websockets</artifactId>
 		</dependency>
 
+<!--
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-websocket</artifactId>
@@ -77,6 +75,12 @@
 		</dependency>
  -->
 
+        <!-- for having a BOSH endpoint -->
+        <dependency>
+            <groupId>org.apache.vysper.extensions</groupId>
+       	    <artifactId>xep0124-xep0206-bosh</artifactId>
+        </dependency>
+        
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
