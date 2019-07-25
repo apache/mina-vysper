@@ -28,26 +28,16 @@
   <artifactId>vysper-server</artifactId>
   <name>Apache Vysper Server</name>
   <version>0.8-SNAPSHOT</version>
-   <packaging>pom</packaging>
+  <packaging>pom</packaging>
 
   <modules>
     <module>core</module>
     <module>extensions</module>
     <module>storage</module>
+    <module>admin-console</module>
   </modules>
 
   <profiles>
-    <profile>
-      <!-- admin-console uses Jetty, which requires Java 1.6 -->
-      <activation>
-        <jdk>[1.6,)</jdk>
-      </activation>
-      <modules>
-        <module>core</module>
-        <module>extensions</module>
-        <module>admin-console</module>
-      </modules>
-    </profile>
     <profile>
       <id>inttest</id>
       <modules>
@@ -59,8 +49,8 @@
   </profiles>
 
   <properties>
-    <maven.compile.source>1.5</maven.compile.source>
-    <maven.compile.target>1.5</maven.compile.target>
+    <maven.compile.source>1.8</maven.compile.source>
+    <maven.compile.target>1.8</maven.compile.target>
     <vysper.server.version>${project.version}</vysper.server.version>
   </properties>
 </project>
