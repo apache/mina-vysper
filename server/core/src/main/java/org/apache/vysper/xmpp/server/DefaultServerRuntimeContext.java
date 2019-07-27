@@ -184,6 +184,10 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     public StanzaProcessor getStanzaProcessor() {
         return stanzaProcessor;
     }
+    
+    public void setStanzaProcessor(StanzaProcessor stanzaProcessor){
+        this.stanzaProcessor = stanzaProcessor;
+    }
 
     public StanzaRelay getStanzaRelay() {
         return stanzaRelay;

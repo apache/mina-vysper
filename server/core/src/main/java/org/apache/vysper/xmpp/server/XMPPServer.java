@@ -46,8 +46,11 @@ import org.apache.vysper.xmpp.modules.extension.xep0160_offline_storage.OfflineS
 import org.apache.vysper.xmpp.modules.roster.RosterModule;
 import org.apache.vysper.xmpp.modules.servicediscovery.ServiceDiscoveryModule;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.state.resourcebinding.DefaultResourceRegistry;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
+
+import static java.util.Optional.ofNullable;
 
 /**
  * this class is able to boot a standalone XMPP server.
@@ -73,7 +76,9 @@ public class XMPPServer {
     private StorageProviderRegistry storageProviderRegistry;
     
     private StanzaRelayBroker stanzaRelayBroker;
-
+    
+    private StanzaProcessor stanzaProcessor;
+    
     private InputStream tlsCertificate;
 
     private String tlsCertificatePassword;
@@ -116,6 +121,10 @@ public class XMPPServer {
 
     public void setStorageProviderRegistry(StorageProviderRegistry storageProviderRegistry) {
         this.storageProviderRegistry = storageProviderRegistry;
+    }
+
+    public void setStanzaProcessor(StanzaProcessor stanzaProcessor) {
+        this.stanzaProcessor = stanzaProcessor;
     }
 
     public void setTLSCertificateInfo(File certificate, String password) throws FileNotFoundException {
@@ -191,6 +200,7 @@ public class XMPPServer {
                 dictionaries, resourceRegistry);
         serverRuntimeContext.setStorageProviderRegistry(storageProviderRegistry);
         serverRuntimeContext.setTlsContextFactory(tlsContextFactory);
+        ofNullable(stanzaProcessor).ifPresent(serverRuntimeContext::setStanzaProcessor);
 
         for(Module module : initialModules) {
             serverRuntimeContext.addModule(module);
