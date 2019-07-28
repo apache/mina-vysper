@@ -45,14 +45,15 @@ public class StartedProtocolWorker extends AbstractStateAwareProtocolWorker {
     protected boolean checkState(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
             StanzaHandler stanzaHandler) {
 
-        if (stanzaHandler instanceof StartTLSHandler) {
+        Class<?> handlerUnwrappedType = stanzaHandler.unwrapType();
+        if (StartTLSHandler.class.isAssignableFrom(handlerUnwrappedType)) {
             return true;
-        } else if (stanzaHandler instanceof AbstractSASLHandler && 
-            !sessionContext.getServerRuntimeContext().getServerFeatures().isStartTLSRequired()) {
+        } else if (AbstractSASLHandler.class.isAssignableFrom(handlerUnwrappedType)
+                && !sessionContext.getServerRuntimeContext().getServerFeatures().isStartTLSRequired()) {
             return true;
-        } else if (sessionContext.isServerToServer() && stanzaHandler instanceof DbVerifyHandler) {
+        } else if (sessionContext.isServerToServer() && DbVerifyHandler.class.isAssignableFrom(handlerUnwrappedType)) {
             return true;
-        } else if (sessionContext.isServerToServer() && stanzaHandler instanceof DbResultHandler) {
+        } else if (sessionContext.isServerToServer() && DbResultHandler.class.isAssignableFrom(handlerUnwrappedType)) {
             return true;
         }
         ResponseWriter.writeUnsupportedStanzaError(sessionContext);

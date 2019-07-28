@@ -42,9 +42,10 @@ public class InitiatedProtocolWorker extends AbstractStateAwareProtocolWorker {
     @Override
     protected boolean checkState(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
             StanzaHandler stanzaHandler) {
-        if (stanzaHandler instanceof XMLPrologHandler)
+        Class<?> handlerUnwrappedType = stanzaHandler.unwrapType();
+        if (XMLPrologHandler.class.isAssignableFrom(handlerUnwrappedType))
             return true;
-        if (stanzaHandler instanceof StreamStartHandler)
+        if (StreamStartHandler.class.isAssignableFrom(handlerUnwrappedType))
             return true;
         ResponseWriter.writeUnsupportedStanzaError(sessionContext);
         return false;
