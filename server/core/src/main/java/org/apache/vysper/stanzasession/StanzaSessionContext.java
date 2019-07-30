@@ -53,8 +53,7 @@ public class StanzaSessionContext extends AbstractSessionContext implements Stan
     }
 
     public void switchToTLS(boolean delayed, boolean clientTls) {
-        if (sessionStateHolder.getState() == SessionState.ENCRYPTION_STARTED)
-            sessionStateHolder.setState(SessionState.ENCRYPTED);
+        sessionStateHolder.setState(SessionState.ENCRYPTED);
     }
 
     public void setIsReopeningXMLStream() {
