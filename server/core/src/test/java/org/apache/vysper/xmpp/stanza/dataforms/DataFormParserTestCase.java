@@ -134,14 +134,14 @@ public class DataFormParserTestCase {
 
     private void assertMultiValue(String type, List<String> values, List<Object> expectedValues) {
         XMLElementBuilder builder = new XMLElementBuilder("x", NamespaceURIs.JABBER_X_DATA)
-        .startInnerElement("field", NamespaceURIs.JABBER_X_DATA)
+        .startInnerElement("field")
         .addAttribute("var", "fie1");
         
         if(type != null) builder.addAttribute("type", type);
         
         
         for(String value : values) {
-            builder.startInnerElement("value", NamespaceURIs.JABBER_X_DATA);
+            builder.startInnerElement("value");
             builder.addText(value);
             builder.endInnerElement();
         }

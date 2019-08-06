@@ -20,6 +20,7 @@
 
 package org.apache.vysper.xmpp.modules.core.base.handler;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.vysper.xml.fragment.Attribute;
@@ -42,6 +43,7 @@ import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class MessageHandler extends XMPPCoreStanzaHandler {
+
     public String getName() {
         return "message";
     }
@@ -90,12 +92,6 @@ public class MessageHandler extends XMPPCoreStanzaHandler {
         // TODO inspect all BODY elements and make sure they conform to the spec
 
         if (isOutboundStanza) {
-            // check if message reception is turned of either globally or locally
-            if (!serverRuntimeContext.getServerFeatures().isRelayingMessages()
-                    || (sessionContext != null && sessionContext
-                            .getAttribute(SessionContext.SESSION_ATTRIBUTE_MESSAGE_STANZA_NO_RECEIVE) != null)) {
-                return null;
-            }
 
             Entity from = stanza.getFrom();
             if (from == null || !from.isResourceSet()) {
@@ -118,6 +114,13 @@ public class MessageHandler extends XMPPCoreStanzaHandler {
                 stanza = XMPPCoreStanza.getWrapper(stanzaBuilder.build());
             }
 
+            // check if message reception is turned of either globally or locally
+            if (!serverRuntimeContext.getServerFeatures().isRelayingMessages()
+                    || (sessionContext != null && sessionContext
+                            .getAttribute(SessionContext.SESSION_ATTRIBUTE_MESSAGE_STANZA_NO_RECEIVE) != null)) {
+                return Collections.emptyList();
+            }
+
             try {
                 stanzaBroker.write(stanza.getTo(), stanza, new ReturnErrorToSenderFailureStrategy(stanzaBroker));
             } catch (Exception e) {
@@ -127,6 +130,6 @@ public class MessageHandler extends XMPPCoreStanzaHandler {
         } else {
             stanzaBroker.writeToSession(stanza);
         }
-        return null;
+        return Collections.emptyList();
     }
 }

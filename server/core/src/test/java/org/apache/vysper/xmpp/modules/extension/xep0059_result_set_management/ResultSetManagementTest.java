@@ -31,19 +31,19 @@ public class ResultSetManagementTest {
 
     @Test
     public void parse() throws XMLSemanticError {
-        Set tested = Set.builder().after("after-value").before("before-value").count(5)
-                .index(10).last("last-value").max(15).startFirst().index(20).value("first-value").endFirst().build();
+        Set tested = Set.builder().after("after-value").before("before-value").count(5L).index(10L).last("last-value")
+                .max(15L).startFirst().index(20L).value("first-value").endFirst().build();
 
         assertEquals("after-value", tested.getAfter().get());
         assertEquals("before-value", tested.getBefore().get());
-        assertEquals(5, tested.getCount().getAsInt());
-        assertEquals(10, tested.getIndex().getAsInt());
+        assertEquals(5L, (long) tested.getCount().orElse(0L));
+        assertEquals(10L, (long) tested.getIndex().orElse(0L));
         assertEquals("last-value", tested.getLast().get());
-        assertEquals(15, tested.getMax().getAsInt());
+        assertEquals(15L, (long) tested.getMax().orElse(0L));
 
         Set.First first = tested.getFirst().get();
         assertEquals("first-value", first.getValue());
-        assertEquals(20, first.getIndex().getAsInt());
+        assertEquals(20L, (long) first.getIndex().orElse(0L));
     }
 
 }

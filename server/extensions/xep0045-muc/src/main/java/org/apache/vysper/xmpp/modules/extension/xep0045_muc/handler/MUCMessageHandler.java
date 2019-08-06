@@ -101,7 +101,7 @@ public class MUCMessageHandler extends DefaultMessageHandler {
         Entity roomJid = roomWithNickJid.getBareJID();
 
         MessageStanzaType type = stanza.getMessageType();
-        if (type != null && type == MessageStanzaType.GROUPCHAT) {
+        if (type == MessageStanzaType.GROUPCHAT) {
             // groupchat, message to a room
 
             // must not have a nick

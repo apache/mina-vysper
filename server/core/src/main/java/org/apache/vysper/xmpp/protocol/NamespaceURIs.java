@@ -111,4 +111,8 @@ public class NamespaceURIs {
     public static final String XEP0133_SERVICE_ADMIN = "http://jabber.org/protocol/admin";
     
     public static final String XEP0059_RESULT_SET_MANAGEMENT = "http://jabber.org/protocol/rsm";
+    
+    public static final String XEP0297_STANZA_FORWARDING = "urn:xmpp:forward:0";
+
+    public static final String XEP0359_STANZA_IDS = "urn:xmpp:sid:0";
 }

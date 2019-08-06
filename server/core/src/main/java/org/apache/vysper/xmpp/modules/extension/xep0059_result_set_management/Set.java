@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.OptionalInt;
 
 import org.apache.vysper.xml.fragment.Attribute;
 import org.apache.vysper.xml.fragment.XMLElement;
@@ -44,7 +43,7 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
  */
 public class Set {
 
-    private static final String ELEMENT_NAME = "set";
+    public static final String ELEMENT_NAME = "set";
 
     private static final String FIRST = "first";
 
@@ -64,6 +63,15 @@ public class Set {
         this.element = element;
     }
 
+    public static Set empty() {
+        return new Set(new XMLElement(NamespaceURIs.XEP0059_RESULT_SET_MANAGEMENT, ELEMENT_NAME, null,
+                Collections.emptyList(), Collections.emptyList()));
+    }
+
+    public XMLElement element() {
+        return element;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -76,33 +84,47 @@ public class Set {
         return getElementText("before");
     }
 
-    public OptionalInt getCount() throws XMLSemanticError {
-        return getElementInt("count");
+    public Optional<Long> getCount() throws XMLSemanticError {
+        return getElementLong("count");
     }
 
     public Optional<First> getFirst() throws XMLSemanticError {
         return ofNullable(element.getSingleInnerElementsNamed(FIRST)).map(First::new);
     }
 
-    public OptionalInt getIndex() throws XMLSemanticError {
-        return getElementInt(INDEX);
+    public Optional<Long> getIndex() throws XMLSemanticError {
+        return getElementLong(INDEX);
     }
 
     public Optional<String> getLast() throws XMLSemanticError {
         return getElementText("last");
     }
 
-    public OptionalInt getMax() throws XMLSemanticError {
-        return getElementInt("max");
+    public Optional<Long> getMax() throws XMLSemanticError {
+        return getElementLong("max");
     }
 
     private Optional<String> getElementText(String elementName) throws XMLSemanticError {
-        return ofNullable(element.getSingleInnerElementsNamed(elementName)).map(XMLElement::getInnerText)
-                .map(XMLText::getText);
+        XMLElement xmlElement = element.getSingleInnerElementsNamed(elementName);
+        if (xmlElement == null) {
+            return Optional.empty();
+        }
+
+        XMLText xmlText = xmlElement.getInnerText();
+        if (xmlText == null) {
+            return Optional.of("");
+        }
+
+        String text = xmlText.getText();
+        if (text == null) {
+            return Optional.of("");
+        }
+
+        return Optional.of(text);
     }
 
-    private OptionalInt getElementInt(String elementName) throws XMLSemanticError {
-        return getElementText(elementName).map(Integer::parseInt).map(OptionalInt::of).orElse(OptionalInt.empty());
+    private Optional<Long> getElementLong(String elementName) throws XMLSemanticError {
+        return getElementText(elementName).map(Long::parseLong);
     }
 
     public static class First {
@@ -121,9 +143,8 @@ public class Set {
             return element.getInnerText().getText();
         }
 
-        public OptionalInt getIndex() {
-            return ofNullable(element.getAttributeValue(INDEX)).map(Integer::parseInt).map(OptionalInt::of)
-                    .orElse(OptionalInt.empty());
+        public Optional<Long> getIndex() {
+            return ofNullable(element.getAttributeValue(INDEX)).map(Long::parseLong);
         }
 
     }
@@ -134,15 +155,15 @@ public class Set {
 
         private String before;
 
-        private Integer count;
+        private Long count;
 
         private First first;
 
-        private Integer index;
+        private Long index;
 
         private String last;
 
-        private Integer max;
+        private Long max;
 
         private Builder() {
 
@@ -158,7 +179,7 @@ public class Set {
             return this;
         }
 
-        public Builder count(Integer count) {
+        public Builder count(Long count) {
             this.count = count;
             return this;
         }
@@ -167,7 +188,7 @@ public class Set {
             return new FirstBuilder(this);
         }
 
-        public Builder index(Integer index) {
+        public Builder index(Long index) {
             this.index = index;
             return this;
         }
@@ -177,7 +198,7 @@ public class Set {
             return this;
         }
 
-        public Builder max(Integer max) {
+        public Builder max(Long max) {
             this.max = max;
             return this;
         }
@@ -209,7 +230,7 @@ public class Set {
 
         private String value;
 
-        private Integer index;
+        private Long index;
 
         private FirstBuilder(Builder builder) {
             this.builder = requireNonNull(builder);
@@ -220,7 +241,7 @@ public class Set {
             return this;
         }
 
-        public FirstBuilder index(Integer index) {
+        public FirstBuilder index(Long index) {
             this.index = index;
             return this;
         }

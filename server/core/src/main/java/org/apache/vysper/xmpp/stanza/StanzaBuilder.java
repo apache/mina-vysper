@@ -55,7 +55,9 @@ public class StanzaBuilder extends AbstractXMLElementBuilder<StanzaBuilder, Stan
 
     public static StanzaBuilder createMessageStanza(Entity from, Entity to, String lang, String body) {
         StanzaBuilder stanzaBuilder = new StanzaBuilder("message", NamespaceURIs.JABBER_CLIENT);
-        stanzaBuilder.addAttribute("from", from.getFullQualifiedName());
+        if (from != null) {
+            stanzaBuilder.addAttribute("from", from.getFullQualifiedName());
+        }
         stanzaBuilder.addAttribute("to", to.getFullQualifiedName());
         if (lang != null)
             stanzaBuilder.addAttribute(NamespaceURIs.XML, "lang", lang);

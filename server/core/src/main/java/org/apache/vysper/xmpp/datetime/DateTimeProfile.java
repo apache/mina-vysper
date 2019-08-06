@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.datetime;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.COMPLETE;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.IN_PROGRESS;
 
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -80,6 +81,10 @@ public class DateTimeProfile {
     public String getDateTimeInUTC(Date time) {
         return utcDateTimeFormatter.format(time);
     }
+    
+    public String getDateTimeInUTC(ZonedDateTime dateTime){
+        return getDateTimeInUTC(Date.from(dateTime.toInstant()));
+    }
 
     public String getDateInUTC(Date time) {
         return utcDateFormatter.format(time);
@@ -121,6 +126,11 @@ public class DateTimeProfile {
         } else {
             throw new IllegalArgumentException("Invalid date time: " + time);
         }
+    }
+    
+    public ZonedDateTime fromZonedDateTime(String time){
+        Calendar calendar = fromDateTime(time);
+        return ZonedDateTime.ofInstant(calendar.toInstant(), calendar.getTimeZone().toZoneId());
     }
 
     /**

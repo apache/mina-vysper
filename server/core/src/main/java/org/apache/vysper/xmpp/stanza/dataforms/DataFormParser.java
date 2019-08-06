@@ -76,7 +76,7 @@ public class DataFormParser {
     public Map<String, Object> extractFieldValues() throws IllegalArgumentException {
         Map<String,Object> map = new LinkedHashMap<String, Object>();
 
-        for (XMLElement fields : form.getInnerElementsNamed("field", NamespaceURIs.JABBER_X_DATA)) {
+        for (XMLElement fields : form.getInnerElementsNamed("field")) {
             final String varName = fields.getAttributeValue("var");
             final String typeName = fields.getAttributeValue("type");
             String valueAsString = null;
@@ -93,7 +93,7 @@ public class DataFormParser {
             boolean isMulti = Field.Type.isMulti(fieldType);
 
             List<Object> values = isMulti ? new ArrayList<Object>() : null;
-            for (XMLElement valueCandidates : fields.getInnerElementsNamed("value", NamespaceURIs.JABBER_X_DATA)) {
+            for (XMLElement valueCandidates : fields.getInnerElementsNamed("value")) {
                 final XMLText firstInnerText = valueCandidates.getFirstInnerText();
                 if (firstInnerText != null) valueAsString = firstInnerText.getText();
                 Object value;

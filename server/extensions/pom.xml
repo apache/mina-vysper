@@ -37,6 +37,7 @@
     <module>xep0065-socks</module>
     <module>xep0124-xep0206-bosh</module>
     <module>websockets</module>
+    <module>xep0313-mam</module>
   </modules>
 
 </project>

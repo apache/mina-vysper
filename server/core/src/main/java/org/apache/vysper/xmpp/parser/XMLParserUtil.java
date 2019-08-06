@@ -33,6 +33,8 @@ import org.apache.vysper.xml.sax.NonBlockingXMLReader;
 import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
 import org.xml.sax.SAXException;
 
+import static java.util.Optional.ofNullable;
+
 /**
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
@@ -73,5 +75,8 @@ public class XMLParserUtil {
         }
     }
 
+    public static XMLElement parseRequiredDocument(String xml) throws IOException, SAXException {
+        return ofNullable(parseDocument(xml)).orElseThrow(() -> new IllegalStateException("Parsed element should not be null"));
+    }
     
 }
