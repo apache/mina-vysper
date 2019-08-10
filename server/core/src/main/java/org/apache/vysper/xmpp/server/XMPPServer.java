@@ -42,6 +42,7 @@ import org.apache.vysper.xmpp.delivery.StanzaRelayBroker;
 import org.apache.vysper.xmpp.delivery.inbound.DeliveringExternalInboundStanzaRelay;
 import org.apache.vysper.xmpp.delivery.inbound.DeliveringInternalInboundStanzaRelay;
 import org.apache.vysper.xmpp.modules.Module;
+import org.apache.vysper.xmpp.modules.extension.xep0059_result_set_management.ResultSetManagementModule;
 import org.apache.vysper.xmpp.modules.extension.xep0160_offline_storage.OfflineStorageProvider;
 import org.apache.vysper.xmpp.modules.roster.RosterModule;
 import org.apache.vysper.xmpp.modules.servicediscovery.ServiceDiscoveryModule;
@@ -108,6 +109,7 @@ public class XMPPServer {
         // add default modules
         initialModules.add(new ServiceDiscoveryModule());
         initialModules.add(new RosterModule());
+        initialModules.add(new ResultSetManagementModule());
     }
 
     public void setSASLMechanisms(List<SASLMechanism> validMechanisms) {
