@@ -24,6 +24,7 @@ import java.util.List;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.vysper.event.EventBus;
 import org.apache.vysper.storage.StorageProvider;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.authentication.UserAuthentication;
@@ -83,4 +84,6 @@ public interface ServerRuntimeContext {
     <T> T getModule(Class<T> clazz);
     
     void addModule(Module module);
+    
+    EventBus getEventBus();
 }

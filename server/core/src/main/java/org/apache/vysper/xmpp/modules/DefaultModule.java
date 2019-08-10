@@ -21,7 +21,9 @@ package org.apache.vysper.xmpp.modules;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import org.apache.vysper.event.EventListenerDictionary;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 
@@ -44,6 +46,11 @@ public abstract class DefaultModule implements Module {
 
     protected void addHandlerDictionaries(List<HandlerDictionary> dictionary) {
         // empty default implementation
+    }
+
+    @Override
+    public Optional<EventListenerDictionary> getEventListenerDictionary() {
+        return Optional.empty();
     }
 
     public List<ServerRuntimeContextService> getServerServices() {
