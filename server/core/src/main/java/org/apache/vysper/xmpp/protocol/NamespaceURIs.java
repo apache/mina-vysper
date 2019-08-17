@@ -109,4 +109,6 @@ public class NamespaceURIs {
     public static final String XEP0124_BOSH = "http://jabber.org/protocol/httpbind";
     
     public static final String XEP0133_SERVICE_ADMIN = "http://jabber.org/protocol/admin";
+    
+    public static final String XEP0059_RESULT_SET_MANAGEMENT = "http://jabber.org/protocol/rsm";
 }
