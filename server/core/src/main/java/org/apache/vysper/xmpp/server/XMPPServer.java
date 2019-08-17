@@ -34,8 +34,8 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authentication.AccountManagement;
 import org.apache.vysper.xmpp.authentication.Plain;
 import org.apache.vysper.xmpp.authentication.SASLMechanism;
-import org.apache.vysper.xmpp.cryptography.NonCheckingX509TrustManagerFactory;
 import org.apache.vysper.xmpp.cryptography.InputStreamBasedTLSContextFactory;
+import org.apache.vysper.xmpp.cryptography.NonCheckingX509TrustManagerFactory;
 import org.apache.vysper.xmpp.cryptography.TrustManagerFactory;
 import org.apache.vysper.xmpp.delivery.OfflineStanzaReceiver;
 import org.apache.vysper.xmpp.delivery.StanzaRelayBroker;
@@ -68,7 +68,7 @@ public class XMPPServer {
 
     private String serverDomain;
 
-    private DefaultServerRuntimeContext serverRuntimeContext;
+    private ServerRuntimeContext serverRuntimeContext;
 
     private StorageProviderRegistry storageProviderRegistry;
     
@@ -187,12 +187,9 @@ public class XMPPServer {
         stanzaRelayBroker.setInternalRelay(internalStanzaRelay);
         stanzaRelayBroker.setExternalRelay(externalStanzaRelay);
 
-        serverRuntimeContext = new DefaultServerRuntimeContext(serverEntity, stanzaRelayBroker, serverFeatures,
-                dictionaries, resourceRegistry);
-        serverRuntimeContext.setStorageProviderRegistry(storageProviderRegistry);
-        serverRuntimeContext.setTlsContextFactory(tlsContextFactory);
-
-        for(Module module : initialModules) {
+        serverRuntimeContext = createServerRuntimeContext(serverFeatures, tlsContextFactory, dictionaries,
+                resourceRegistry, serverEntity);
+        for (Module module : initialModules) {
             serverRuntimeContext.addModule(module);
         }
 
@@ -209,6 +206,17 @@ public class XMPPServer {
             endpoint.setServerRuntimeContext(serverRuntimeContext);
             endpoint.start();
         }
+    }
+
+    protected ServerRuntimeContext createServerRuntimeContext(ServerFeatures serverFeatures,
+            InputStreamBasedTLSContextFactory tlsContextFactory, List<HandlerDictionary> dictionaries,
+            ResourceRegistry resourceRegistry, EntityImpl serverEntity) {
+        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(serverEntity,
+                stanzaRelayBroker, serverFeatures, dictionaries, resourceRegistry);
+        serverRuntimeContext.setStorageProviderRegistry(storageProviderRegistry);
+        serverRuntimeContext.setTlsContextFactory(tlsContextFactory);
+
+        return serverRuntimeContext;
     }
 
     protected ServerFeatures createServerFeatures() {

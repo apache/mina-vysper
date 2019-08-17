@@ -81,4 +81,6 @@ public interface ServerRuntimeContext {
     List<Module> getModules();
 
     <T> T getModule(Class<T> clazz);
+    
+    void addModule(Module module);
 }
