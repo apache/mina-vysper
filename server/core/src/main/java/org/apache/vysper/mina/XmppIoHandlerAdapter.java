@@ -104,6 +104,11 @@ public class XmppIoHandlerAdapter implements IoHandler {
         // TODO implement
     }
 
+    @Override
+    public void inputClosed(IoSession ioSession) throws Exception {
+        ioSession.closeNow();
+    }
+
     public void sessionCreated(IoSession ioSession) throws Exception {
         SessionStateHolder stateHolder = new SessionStateHolder();
         SessionContext sessionContext = new MinaBackedSessionContext(serverRuntimeContext, stateHolder, ioSession);
