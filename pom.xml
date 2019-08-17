@@ -21,7 +21,7 @@
   <parent>
     <artifactId>apache</artifactId>
     <groupId>org.apache</groupId>
-    <version>7</version>
+    <version>21</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.vysper</groupId>
