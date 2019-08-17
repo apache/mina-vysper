@@ -68,7 +68,7 @@ public class DbVerifyHandlerTestCase extends TestCase {
         .addText(token)
         .build();
         
-        Stanza response = handler.execute(stanza, serverRuntimeContext, false, null, null).getResponseStanza();
+        Stanza response = handler.execute(stanza, serverRuntimeContext, false, null, null).getUniqueResponseStanza();
         
         Assert.assertNotNull(response);
         Assert.assertEquals(TO, response.getFrom());

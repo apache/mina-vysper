@@ -37,6 +37,8 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
 import org.apache.vysper.xmpp.server.TestSessionContext;
@@ -82,12 +84,13 @@ public class ExtendedDiscoInfoTestCase extends TestCase {
 
         IQStanza finalStanza = (IQStanza) XMPPCoreStanza.getWrapper(request.build());
 
-        Stanza resultStanza = infoIQHandler.handleGet(finalStanza, runtimeContext, new TestSessionContext(
+        List<Stanza> resultStanza = infoIQHandler.handleGet(finalStanza, runtimeContext, new TestSessionContext(
                 runtimeContext, new SessionStateHolder()));
 
-        assertTrue(resultStanza.getVerifier().onlySubelementEquals("query",
+        ResponseStanzaContainer responseStanzaContainer = new ResponseStanzaContainerImpl(resultStanza);
+        assertTrue(responseStanzaContainer.getUniqueResponseStanza().getVerifier().onlySubelementEquals("query",
                 NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO));
-        XMLElement queryElement = resultStanza.getFirstInnerElement();
+        XMLElement queryElement = responseStanzaContainer.getUniqueResponseStanza().getFirstInnerElement();
         XMLElementVerifier queryVerifier = queryElement.getVerifier();
         assertTrue(queryVerifier.subElementsPresentExact(4));
         List<XMLElement> innerElements = queryElement.getInnerElements();

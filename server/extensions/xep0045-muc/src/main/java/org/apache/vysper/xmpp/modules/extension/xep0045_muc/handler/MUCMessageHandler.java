@@ -20,6 +20,7 @@
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.vysper.compliance.SpecCompliance;
@@ -82,14 +83,14 @@ public class MUCMessageHandler extends DefaultMessageHandler {
         return true;
     }
 
-    private Stanza createMessageErrorStanza(Entity from, Entity to, String id, StanzaErrorType type,
+    private List<Stanza> createMessageErrorStanza(Entity from, Entity to, String id, StanzaErrorType type,
             StanzaErrorCondition errorCondition, Stanza stanza) {
-        return MUCHandlerHelper.createErrorStanza("message", NamespaceURIs.JABBER_CLIENT, from, to, id, type.value(),
-                errorCondition.value(), stanza.getInnerElements());
+        return Collections.singletonList(MUCHandlerHelper.createErrorStanza("message", NamespaceURIs.JABBER_CLIENT, from, to, id, type.value(),
+                errorCondition.value(), stanza.getInnerElements()));
     }
 
     @Override
-    protected Stanza executeMessageLogic(MessageStanza stanza, ServerRuntimeContext serverRuntimeContext,
+    protected List<Stanza> executeMessageLogic(MessageStanza stanza, ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
 
         logger.debug("Received message for MUC");
@@ -212,10 +213,10 @@ public class MUCMessageHandler extends DefaultMessageHandler {
             }
         }
 
-        return null;
+        return Collections.emptyList();
     }
 
-    private Stanza handleInvites(MessageStanza stanza, Entity from, Occupant sendingOccupant, Room room,
+    private List<Stanza> handleInvites(MessageStanza stanza, Entity from, Occupant sendingOccupant, Room room,
             ServerRuntimeContext serverRuntimeContext) {
         X x = X.fromStanza(stanza);
         if (x != null && x.getInvite() != null) {
@@ -249,7 +250,7 @@ public class MUCMessageHandler extends DefaultMessageHandler {
                     StanzaErrorCondition.UNEXPECTED_REQUEST, stanza);
         }
         
-        return null;
+        return Collections.emptyList();
     }
 
     private void handleVoiceRequest(Entity from, Occupant sendingOccupant, Room room, Stanza stanza,

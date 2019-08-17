@@ -20,6 +20,7 @@
 package org.apache.vysper.xmpp.modules.extension.xep0199_xmppping;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.vysper.compliance.SpecCompliant;
@@ -94,16 +95,16 @@ public class XmppPingIQHandler extends DefaultIQHandler {
     }
 
     @Override
-    protected Stanza handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
 
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(),
                 IQStanzaType.RESULT, stanza.getID());
 
-        return stanzaBuilder.build();
+        return Collections.singletonList(stanzaBuilder.build());
     }
     
     @Override
-    protected Stanza handleResult(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
+    protected List<Stanza> handleResult(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
         List<XmppPinger> pingersCopy = new ArrayList<XmppPinger>(pingers);
         for (XmppPinger pinger : pingersCopy) {
@@ -115,7 +116,7 @@ public class XmppPingIQHandler extends DefaultIQHandler {
             }
         }
 
-        return null;
+        return Collections.emptyList();
     }
     
     

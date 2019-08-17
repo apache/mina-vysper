@@ -34,6 +34,8 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 
+import java.util.List;
+
 /**
  * handling message stanzas
  *
@@ -50,8 +52,8 @@ public class MessageHandler extends XMPPCoreStanzaHandler {
     }
 
     @Override
-    protected Stanza executeCore(XMPPCoreStanza stanza, ServerRuntimeContext serverRuntimeContext,
-            boolean isOutboundStanza, SessionContext sessionContext) {
+    protected List<Stanza> executeCore(XMPPCoreStanza stanza, ServerRuntimeContext serverRuntimeContext,
+                                       boolean isOutboundStanza, SessionContext sessionContext) {
 
         // (try to) read thread id
         String threadId = null;

@@ -41,6 +41,9 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
 import org.apache.vysper.xmpp.stanza.StanzaErrorType;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Implementation of <a href="http://xmpp.org/extensions/xep-0077.html">XEP-0077 In-Band Registration</a>.
  *  
@@ -63,19 +66,7 @@ public class InBandRegistrationHandler extends DefaultIQHandler {
     }
 
     @Override
-    protected Stanza handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
-        //        <iq type='result' id='reg1'>
-        //        <query xmlns='jabber:iq:register'>
-        //          <instructions>
-        //            Choose a username and password for use with this service.
-        //            Please also provide your email address.
-        //          </instructions>
-        //          <username/>
-        //          <password/>
-        //          <email/>
-        //        </query>
-        //      </iq>
-
+    protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         if(sessionContext.getState().equals(SessionState.STARTED)
                 || sessionContext.getState().equals(SessionState.ENCRYPTED) 
                 || sessionContext.getState().equals(SessionState.AUTHENTICATED)) {
@@ -94,14 +85,14 @@ public class InBandRegistrationHandler extends DefaultIQHandler {
                     stanzaBuilder.startInnerElement("username", NamespaceURIs.JABBER_IQ_REGISTER).endInnerElement()
                         .startInnerElement("password", NamespaceURIs.JABBER_IQ_REGISTER).endInnerElement();
                 }
-                return stanzaBuilder.build();
+                return Collections.singletonList(stanzaBuilder.build());
         } else {
-            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE, stanza, StanzaErrorType.CANCEL, null, null, null);
+            return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE, stanza, StanzaErrorType.CANCEL, null, null, null));
         }
     }
     
     @Override
-    protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         //        <iq type='set' id='reg2'>
         //        <query xmlns='jabber:iq:register'>
         //          <username>bill</username>
@@ -151,26 +142,17 @@ public class InBandRegistrationHandler extends DefaultIQHandler {
                         accountManagement.addUser(user, password);
                     }
                 }
-                return StanzaBuilder.createDirectReply(stanza, true, IQStanzaType.RESULT).build();
+                return Collections.singletonList(StanzaBuilder.createDirectReply(stanza, true, IQStanzaType.RESULT).build());
                 
             } catch (XMLSemanticError e) {
-                //        <iq type='error' id='reg2'>
-                //            <query xmlns='jabber:iq:register'>
-                //              <username>bill</username>
-                //              <password>Calliope</password>
-                //            </query>
-                //            <error code='406' type='modify'>
-                //              <not-acceptable xmlns='urn:ietf:params:xml:ns:xmpp-stanzas'/>
-                //            </error>
-                //          </iq>
-                return ServerErrorResponses.getStanzaError(StanzaErrorCondition.NOT_ACCEPTABLE, stanza, StanzaErrorType.MODIFY, 406, null, null, null);
+                return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.NOT_ACCEPTABLE, stanza, StanzaErrorType.MODIFY, 406, null, null, null));
             } catch (EntityFormatException e) {
-                return ServerErrorResponses.getStanzaError(StanzaErrorCondition.NOT_ACCEPTABLE, stanza, StanzaErrorType.MODIFY, 406, null, null, null);
+                return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.NOT_ACCEPTABLE, stanza, StanzaErrorType.MODIFY, 406, null, null, null));
             } catch (AccountCreationException e) {
-                return ServerErrorResponses.getStanzaError(StanzaErrorCondition.CONFLICT, stanza, StanzaErrorType.CANCEL, 409, e.getMessage(), null, null);
+                return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.CONFLICT, stanza, StanzaErrorType.CANCEL, 409, e.getMessage(), null, null));
             }
         } else {
-            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE, stanza, StanzaErrorType.CANCEL, null, null, null);
+            return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE, stanza, StanzaErrorType.CANCEL, null, null, null));
         }
     }
   

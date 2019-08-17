@@ -272,7 +272,7 @@ public abstract class AbstractMUCHandlerTestCase extends TestCase {
         ResponseStanzaContainer container = handler.execute(iqStanza, sessionContext.getServerRuntimeContext(), true,
                 sessionContext, null);
         if (container != null) {
-            return container.getResponseStanza();
+            return container.getUniqueResponseStanza();
         } else {
             return null;
         }

@@ -26,6 +26,7 @@ import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.IN_PRO
 import static org.apache.vysper.xmpp.modules.roster.SubscriptionType.NONE;
 import static org.apache.vysper.xmpp.modules.roster.SubscriptionType.REMOVE;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.vysper.compliance.SpecCompliance;
@@ -85,7 +86,7 @@ public class RosterIQHandler extends DefaultIQHandler {
             @SpecCompliant(spec = "rfc3921bis-08", section = "2.1.5", status = FINISHED, coverage = PARTIAL),
             @SpecCompliant(spec = "rfc3921bis-08", section = "2.2", status = FINISHED, coverage = COMPLETE) })
     @Override
-    protected Stanza handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
 
         ResourceRegistry registry = serverRuntimeContext.getResourceRegistry();
         RosterManager rosterManager = (RosterManager) serverRuntimeContext.getStorageProvider(RosterManager.class);
@@ -96,10 +97,10 @@ public class RosterIQHandler extends DefaultIQHandler {
 
         Entity from = extractUniqueSenderJID(stanza, sessionContext);
         if (from == null || !from.isResourceSet()) {
-            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.UNKNOWN_SENDER, stanza,
+            return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.UNKNOWN_SENDER, stanza,
                     StanzaErrorType.MODIFY,
                     "sender info insufficient: " + ((from == null) ? "no from" : from.getFullQualifiedName()), null,
-                    null);
+                    null));
         }
         String resourceId = from.getResource();
 
@@ -120,7 +121,7 @@ public class RosterIQHandler extends DefaultIQHandler {
         // from becomes to
         StanzaBuilder stanzaBuilder = RosterStanzaUtils.createRosterItemsIQ(from, stanza.getID(), IQStanzaType.RESULT,
                 roster);
-        return stanzaBuilder.build();
+        return Collections.singletonList(stanzaBuilder.build());
     }
 
     @SpecCompliance(compliant = {
@@ -129,7 +130,7 @@ public class RosterIQHandler extends DefaultIQHandler {
             @SpecCompliant(spec = "rfc3921bis-08", section = "2.1.6", status = FINISHED, coverage = PARTIAL, comment = "only set-related content applies"),
             @SpecCompliant(spec = "rfc3921bis-08", section = "2.5", status = FINISHED, coverage = COMPLETE, comment = "only calling from here") })
     @Override
-    protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         RosterManager rosterManager = (RosterManager) serverRuntimeContext.getStorageProvider(RosterManager.class);
 
         if (rosterManager == null) {
@@ -138,21 +139,21 @@ public class RosterIQHandler extends DefaultIQHandler {
 
         Entity user = extractUniqueSenderJID(stanza, sessionContext);
         if (user == null || !user.isResourceSet()) {
-            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.UNKNOWN_SENDER, stanza,
+            return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.UNKNOWN_SENDER, stanza,
                     StanzaErrorType.MODIFY,
                     "sender info insufficient: " + ((user == null) ? "no from" : user.getFullQualifiedName()), null,
-                    null);
+                    null));
         }
 
         RosterItem setRosterItem;
         try {
             setRosterItem = RosterUtils.parseRosterItem(stanza);
         } catch (RosterBadRequestException e) {
-            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
-                    StanzaErrorType.MODIFY, e.getMessage(), null, null);
+            return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
+                    StanzaErrorType.MODIFY, e.getMessage(), null, null));
         } catch (RosterNotAcceptableException e) {
-            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.NOT_ACCEPTABLE, stanza,
-                    StanzaErrorType.MODIFY, e.getMessage(), null, null);
+            return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.NOT_ACCEPTABLE, stanza,
+                    StanzaErrorType.MODIFY, e.getMessage(), null, null));
         }
 
         Entity contactJid = setRosterItem.getJid().getBareJID();
@@ -185,17 +186,17 @@ public class RosterIQHandler extends DefaultIQHandler {
             // update contact persistently
             rosterManager.addContact(user.getBareJID(), existingItem);
         } catch (RosterException e) {
-            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
-                    StanzaErrorType.CANCEL, "roster item contact not (yet) in roster: " + contactJid, null, null);
+            return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
+                    StanzaErrorType.CANCEL, "roster item contact not (yet) in roster: " + contactJid, null, null));
         }
 
         pushRosterItemToInterestedResources(sessionContext, user, existingItem);
 
-        return RosterStanzaUtils.createRosterItemIQ(user, stanza.getID(), IQStanzaType.RESULT, existingItem);
+        return Collections.singletonList(RosterStanzaUtils.createRosterItemIQ(user, stanza.getID(), IQStanzaType.RESULT, existingItem));
     }
 
     @SpecCompliant(spec = "rfc3921bis-08", section = "2.5", status = IN_PROGRESS, coverage = COMPLETE, comment = "actual implementation")
-    private Stanza rosterItemRemove(IQStanza stanza, SessionContext sessionContext, RosterManager rosterManager,
+    private List<Stanza> rosterItemRemove(IQStanza stanza, SessionContext sessionContext, RosterManager rosterManager,
             Entity user, Entity contactJid, RosterItem existingItem) {
         // rfc3921bis-08/2.5
         Stanza unsubscribedStanza = null;
@@ -215,8 +216,8 @@ public class RosterIQHandler extends DefaultIQHandler {
         try {
             rosterManager.removeContact(user.getBareJID(), contactJid);
         } catch (RosterException e) {
-            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.ITEM_NOT_FOUND, stanza,
-                    StanzaErrorType.CANCEL, "roster item contact not in roster: " + contactJid, null, null);
+            return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.ITEM_NOT_FOUND, stanza,
+                    StanzaErrorType.CANCEL, "roster item contact not in roster: " + contactJid, null, null));
         }
 
         if (unsubscribedStanza != null) {
@@ -240,7 +241,7 @@ public class RosterIQHandler extends DefaultIQHandler {
         pushRosterItemToInterestedResources(sessionContext, user, new RosterItem(contactJid, REMOVE));
 
         // return success
-        return StanzaBuilder.createIQStanza(null, user, IQStanzaType.RESULT, stanza.getID()).build();
+        return Collections.singletonList(StanzaBuilder.createIQStanza(null, user, IQStanzaType.RESULT, stanza.getID()).build());
     }
 
     private void pushRosterItemToInterestedResources(SessionContext sessionContext, Entity user, RosterItem rosterItem) {
@@ -254,7 +255,7 @@ public class RosterIQHandler extends DefaultIQHandler {
         }
     }
 
-    protected Stanza handleCannotRetrieveRoster(IQStanza stanza, SessionContext sessionContext) {
+    protected List<Stanza> handleCannotRetrieveRoster(IQStanza stanza, SessionContext sessionContext) {
         throw new RuntimeException("gracefully handling roster management problem not implemented");
     }
 

@@ -54,8 +54,8 @@ public class ResponseWriter {
      * @param responseStanzaContainer
      */
     public static void writeResponse(SessionContext sessionContext, ResponseStanzaContainer responseStanzaContainer) {
-        Stanza responseStanza = responseStanzaContainer.getResponseStanza();
-        writeResponse(sessionContext, responseStanza);
+        responseStanzaContainer.getResponseStanzas()
+                .forEach(stanza -> writeResponse(sessionContext, stanza));
     }
 
     /**

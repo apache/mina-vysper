@@ -20,7 +20,9 @@
 package org.apache.vysper.xmpp.modules.extension.xep0202_entity_time;
 
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.datetime.DateTimeProfile;
@@ -49,7 +51,7 @@ public class EntityTimeIQHandler extends DefaultIQHandler {
     }
 
     @Override
-    protected Stanza handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
 
         Date now = new Date();
 
@@ -66,6 +68,6 @@ public class EntityTimeIQHandler extends DefaultIQHandler {
 
         endInnerElement();
 
-        return stanzaBuilder.build();
+        return Collections.singletonList(stanzaBuilder.build());
     }
 }

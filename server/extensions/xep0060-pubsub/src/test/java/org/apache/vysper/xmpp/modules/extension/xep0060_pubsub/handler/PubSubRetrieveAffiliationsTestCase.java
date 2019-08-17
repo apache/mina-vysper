@@ -74,7 +74,7 @@ public class PubSubRetrieveAffiliationsTestCase extends AbstractPublishSubscribe
 
         assertTrue(result.hasResponse());
 
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
         XMLElement sub = response.getFirstInnerElement().getFirstInnerElement();
         assertEquals("affiliations", sub.getName());
@@ -89,7 +89,7 @@ public class PubSubRetrieveAffiliationsTestCase extends AbstractPublishSubscribe
 
         assertTrue(result.hasResponse());
 
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
         XMLElement sub = response.getFirstInnerElement().getFirstInnerElement();
         assertEquals("affiliations", sub.getName());

@@ -63,7 +63,7 @@ public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
         node.subscribe("id", client);
         ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsubService, "id123", "news"), true);
         assertTrue(result.hasResponse());
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
 
         assertEquals("id123", response.getAttributeValue("id")); // IDs must match
@@ -100,7 +100,7 @@ public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
         // verify response
         assertTrue(result.hasResponse());
 
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
 
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
 
@@ -128,7 +128,7 @@ public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
         ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsubWrongNode, "id123", "doesnotexist"),
                 true);
         assertTrue(result.hasResponse());
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
         assertEquals(IQStanzaType.ERROR.value(), response.getType());
         assertFalse(node.isSubscribed(client));
 
@@ -151,7 +151,7 @@ public class PubSubPublishTestCase extends AbstractPublishSubscribeTestCase {
         ResponseStanzaContainer result = sendStanza(sg.getStanza(yodaNotSubscribed, pubsubService, "id123", "news"),
                 true);
         assertTrue(result.hasResponse());
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
         assertEquals(IQStanzaType.ERROR.value(), response.getType());
         assertFalse(node.isSubscribed(client));
         assertEquals(0, node.countSubscriptions(client));

@@ -32,6 +32,8 @@ import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 
+import java.util.List;
+
 /**
  */
 public class ComponentStanzaProcessor implements StanzaProcessor {
@@ -76,14 +78,17 @@ public class ComponentStanzaProcessor implements StanzaProcessor {
             e.printStackTrace();
         }
 
-        if (responseStanzaContainer != null && responseStanzaContainer.getResponseStanza() != null) {
-            Stanza responseStanza = responseStanzaContainer.getResponseStanza();
-            try {
-                IgnoreFailureStrategy failureStrategy = IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY; // TODO call back module
+        if (responseStanzaContainer == null) {
+            return;
+        }
+        List<Stanza> responseStanzas = responseStanzaContainer.getResponseStanzas();
+        try {
+            IgnoreFailureStrategy failureStrategy = IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY; // TODO call back module
+            for (Stanza responseStanza: responseStanzas) {
                 serverRuntimeContext.getStanzaRelay().relay(responseStanza.getTo(), responseStanza, failureStrategy);
-            } catch (DeliveryException e) {
-                throw new RuntimeException(e);
             }
+        } catch (DeliveryException e) {
+            throw new RuntimeException(e);
         }
 
     }

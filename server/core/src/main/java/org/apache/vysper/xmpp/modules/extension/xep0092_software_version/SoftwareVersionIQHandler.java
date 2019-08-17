@@ -30,6 +30,9 @@ import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
@@ -48,7 +51,7 @@ public class SoftwareVersionIQHandler extends DefaultIQHandler {
     }
 
     @Override
-    protected Stanza handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
 
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(),
                 IQStanzaType.RESULT, stanza.getID()).startInnerElement("query", NamespaceURIs.JABBER_IQ_VERSION).
@@ -60,6 +63,6 @@ public class SoftwareVersionIQHandler extends DefaultIQHandler {
 
                 endInnerElement();
 
-        return stanzaBuilder.build();
+        return Collections.singletonList(stanzaBuilder.build());
     }
 }

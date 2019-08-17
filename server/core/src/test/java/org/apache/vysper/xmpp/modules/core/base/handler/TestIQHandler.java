@@ -28,6 +28,9 @@ import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
+import java.util.Collections;
+import java.util.List;
+
 public class TestIQHandler extends IQHandler {
 
     String name = null;
@@ -55,8 +58,8 @@ public class TestIQHandler extends IQHandler {
     }
 
     @Override
-    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza,
-            SessionContext sessionContext) {
+    protected List<Stanza> executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza,
+                                          SessionContext sessionContext) {
         incomingStanza = stanza;
 
         StanzaBuilder responseBuilder = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT, stanza
@@ -66,7 +69,7 @@ public class TestIQHandler extends IQHandler {
 
         responseBuilder.addAttribute("type", IQStanzaType.RESULT.value());
 
-        return responseBuilder.build();
+        return Collections.singletonList(responseBuilder.build());
     }
 
     public IQStanza getIncomingStanza() {

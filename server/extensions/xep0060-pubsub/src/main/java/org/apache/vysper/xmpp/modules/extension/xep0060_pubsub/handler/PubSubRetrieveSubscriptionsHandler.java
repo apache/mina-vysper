@@ -68,7 +68,7 @@ public class PubSubRetrieveSubscriptionsHandler extends AbstractPubSubGeneralHan
      * @return the appropriate response stanza
      */
     @Override
-    protected Stanza handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         Entity serverJID = serviceConfiguration.getDomainJID();
         CollectionNode root = serviceConfiguration.getRootNode();
 
@@ -84,7 +84,7 @@ public class PubSubRetrieveSubscriptionsHandler extends AbstractPubSubGeneralHan
         buildSuccessStanza(sb, nodeName, subscriptions);
 
         sb.endInnerElement(); // pubsub
-        return new IQStanza(sb.build());
+        return Collections.singletonList(new IQStanza(sb.build()));
     }
 
     /**

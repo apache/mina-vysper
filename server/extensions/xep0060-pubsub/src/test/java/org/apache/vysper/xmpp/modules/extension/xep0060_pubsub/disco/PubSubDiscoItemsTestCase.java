@@ -55,7 +55,7 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
 
         ResponseStanzaContainer result = sendStanza(stanza, true);
         assertTrue(result.hasResponse());
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
 
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
 
@@ -80,7 +80,7 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
 
         ResponseStanzaContainer result = sendStanza(stanza, true);
         assertTrue(result.hasResponse());
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
 
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
 
@@ -123,7 +123,7 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
 
         ResponseStanzaContainer result = sendStanza(stanza, true);
         assertTrue(result.hasResponse());
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
 
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
 
@@ -159,7 +159,7 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
 
         ResponseStanzaContainer result = sendStanza(stanza, true);
         assertTrue(result.hasResponse());
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
 
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
 

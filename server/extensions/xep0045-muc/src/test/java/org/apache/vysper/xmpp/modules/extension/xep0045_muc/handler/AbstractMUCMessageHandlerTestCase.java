@@ -64,7 +64,7 @@ public abstract class AbstractMUCMessageHandlerTestCase extends AbstractMUCHandl
         ResponseStanzaContainer container = handler.execute(messageStanza, sessionContext.getServerRuntimeContext(),
                 true, sessionContext, null);
         if (container != null) {
-            return container.getResponseStanza();
+            return container.getUniqueResponseStanza();
         } else {
             return null;
         }

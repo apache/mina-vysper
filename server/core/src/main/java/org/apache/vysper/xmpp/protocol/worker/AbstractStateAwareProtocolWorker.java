@@ -57,13 +57,14 @@ public abstract class AbstractStateAwareProtocolWorker implements StateAwareProt
     }
 
     protected void writeResponse(SessionContext sessionContext, ResponseStanzaContainer responseStanzaContainer) {
-        if (responseStanzaContainer != null && responseStanzaContainer.getResponseStanza() != null) {
-            if (sessionContext == null) {
-                throw new IllegalStateException("no session context to write stanza to: "
-                        + responseStanzaContainer.getResponseStanza());
-            }
-            ResponseWriter.writeResponse(sessionContext, responseStanzaContainer);
+        if (responseStanzaContainer == null) {
+            return;
         }
+        if (sessionContext == null) {
+            throw new IllegalStateException("no session context to write stanza to: "
+                    + responseStanzaContainer.getResponseStanzas());
+        }
+        ResponseWriter.writeResponse(sessionContext, responseStanzaContainer);
     }
 
     protected ResponseStanzaContainer executeHandler(SessionContext sessionContext,

@@ -161,7 +161,7 @@ public class VcardTempIQHandlerTestCase {
             .addPreparedElement(VCARD)
             .build();
         
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getResponseStanza();
+        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
 
         Stanza expected = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.RESULT, "id1")
             .addPreparedElement(VCARD)
@@ -178,7 +178,7 @@ public class VcardTempIQHandlerTestCase {
         .startInnerElement("vCard", NamespaceURIs.VCARD_TEMP)
         .build();
         
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getResponseStanza();
+        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
         
         Stanza expected = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.RESULT, "id1")
         .startInnerElement("vCard", NamespaceURIs.VCARD_TEMP)
@@ -193,7 +193,7 @@ public class VcardTempIQHandlerTestCase {
             .startInnerElement("vCard", NamespaceURIs.VCARD_TEMP)
             .build();
         
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getResponseStanza();
+        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
         
         Stanza expected = StanzaBuilder.createIQStanza(OTHER, FROM, IQStanzaType.RESULT, "id1")
         .addPreparedElement(OTHER_VCARD)
@@ -210,7 +210,7 @@ public class VcardTempIQHandlerTestCase {
         .startInnerElement("vCard", NamespaceURIs.VCARD_TEMP)
         .build();
         
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getResponseStanza();
+        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
         
         Stanza expected = StanzaBuilder.createIQStanza(TO, FROM, IQStanzaType.ERROR, "id1")
         .startInnerElement("vCard", NamespaceURIs.VCARD_TEMP).endInnerElement()
@@ -230,7 +230,7 @@ public class VcardTempIQHandlerTestCase {
             .addPreparedElement(VCARD)
             .build();
         
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getResponseStanza();
+        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
 
         Stanza expected = StanzaBuilder.createIQStanza(null, FROM, IQStanzaType.RESULT, "id1")
             .build();
@@ -248,7 +248,7 @@ public class VcardTempIQHandlerTestCase {
             .addPreparedElement(VCARD)
             .build();
         
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getResponseStanza();
+        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
 
         Stanza expected = StanzaBuilder.createIQStanza(TO, FROM, IQStanzaType.ERROR, "id1")
             .addPreparedElement(VCARD)
@@ -266,7 +266,7 @@ public class VcardTempIQHandlerTestCase {
             .startInnerElement("dummy", NamespaceURIs.VCARD_TEMP)
             .build();
         
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getResponseStanza();
+        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
 
         Stanza expected = StanzaBuilder.createIQStanza(TO, FROM, IQStanzaType.ERROR, "id1")
             .startInnerElement("dummy", NamespaceURIs.VCARD_TEMP)
@@ -285,7 +285,7 @@ public class VcardTempIQHandlerTestCase {
             .addPreparedElement(OTHER_VCARD)
             .build();
         
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getResponseStanza();
+        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
         
         Stanza expected = StanzaBuilder.createIQStanza(TO, FROM, IQStanzaType.ERROR, "id1")
             .addPreparedElement(OTHER_VCARD)
@@ -305,7 +305,7 @@ public class VcardTempIQHandlerTestCase {
             .addPreparedElement(VCARD)
             .build();
         
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getResponseStanza();
+        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
 
         Stanza expected = StanzaBuilder.createIQStanza(null, FROM, IQStanzaType.ERROR, "id1")
             .build();

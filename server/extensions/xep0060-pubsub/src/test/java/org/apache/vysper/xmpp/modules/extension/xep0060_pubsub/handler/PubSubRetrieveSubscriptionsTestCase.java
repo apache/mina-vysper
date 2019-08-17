@@ -71,7 +71,7 @@ public class PubSubRetrieveSubscriptionsTestCase extends AbstractPublishSubscrib
 
         assertTrue(result.hasResponse());
 
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
         XMLElement sub = response.getFirstInnerElement().getFirstInnerElement();
         assertEquals("subscriptions", sub.getName());
@@ -91,7 +91,7 @@ public class PubSubRetrieveSubscriptionsTestCase extends AbstractPublishSubscrib
 
         assertTrue(result.hasResponse());
 
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
         XMLElement sub = response.getFirstInnerElement().getFirstInnerElement();
         assertEquals("subscriptions", sub.getName());
@@ -111,7 +111,7 @@ public class PubSubRetrieveSubscriptionsTestCase extends AbstractPublishSubscrib
 
         assertTrue(result.hasResponse());
 
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
         XMLElement sub = response.getFirstInnerElement().getFirstInnerElement();
         assertEquals("subscriptions", sub.getName());

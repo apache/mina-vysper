@@ -51,7 +51,7 @@ public class ChangeNickTestCase extends AbstractMUCHandlerTestCase {
         ResponseStanzaContainer container = handler.execute(presenceStanza, sessionContext.getServerRuntimeContext(),
                 true, sessionContext, null);
         if (container != null) {
-            return container.getResponseStanza();
+            return container.getUniqueResponseStanza();
         } else {
             return null;
         }

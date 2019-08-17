@@ -37,6 +37,9 @@ import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
 import org.apache.vysper.xmpp.stanza.StanzaErrorType;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
@@ -55,7 +58,7 @@ public class PrivateDataIQHandler extends DefaultIQHandler {
     }
 
     @Override
-    protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         // Get From
         Entity to = stanza.getTo();
         Entity from = stanza.getFrom();
@@ -65,8 +68,8 @@ public class PrivateDataIQHandler extends DefaultIQHandler {
 
         // Not null, and not addressed to itself
         if (to != null && !to.getBareJID().equals(sessionContext.getInitiatingEntity().getBareJID())) {
-            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.FORBIDDEN, stanza,
-                    StanzaErrorType.CANCEL, 403, "Private data only modifiable by the owner", null, null);
+            return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.FORBIDDEN, stanza,
+                    StanzaErrorType.CANCEL, 403, "Private data only modifiable by the owner", null, null));
         }
 
         XMLElement queryElement = stanza.getFirstInnerElement();
@@ -74,16 +77,16 @@ public class PrivateDataIQHandler extends DefaultIQHandler {
         // Example 4: http://xmpp.org/extensions/xep-0049.html
         // Query element must have a child element with a non-null namespace
         if (queryElement.getInnerElements().size() != 1) {
-            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.NOT_ACCEPTABLE, stanza,
-                    StanzaErrorType.MODIFY, "query's child element is missing", null, null);
+            return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.NOT_ACCEPTABLE, stanza,
+                    StanzaErrorType.MODIFY, "query's child element is missing", null, null));
         }
         XMLElement x = queryElement.getFirstInnerElement();
         String ns = x.getNamespaceURI();
 
         // No persistance Manager
         if (persistenceManager == null) {
-            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR,
-                    stanza, StanzaErrorType.WAIT, "internal storage inaccessible", null, null);
+            return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR,
+                    stanza, StanzaErrorType.WAIT, "internal storage inaccessible", null, null));
         }
 
         String queryKey = getKey(x);
@@ -91,14 +94,14 @@ public class PrivateDataIQHandler extends DefaultIQHandler {
         boolean success = persistenceManager.setPrivateData(from, queryKey, queryContent);
 
         if (success) {
-            return StanzaBuilder.createIQStanza(null, from, IQStanzaType.RESULT, stanza.getID()).build();
+            return Collections.singletonList(StanzaBuilder.createIQStanza(null, from, IQStanzaType.RESULT, stanza.getID()).build());
         } else {
-            return StanzaBuilder.createIQStanza(null, from, IQStanzaType.ERROR, stanza.getID()).build();
+            return Collections.singletonList(StanzaBuilder.createIQStanza(null, from, IQStanzaType.ERROR, stanza.getID()).build());
         }
     }
 
     @Override
-    protected Stanza handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         Entity to = stanza.getTo();
         Entity from = stanza.getFrom();
         if (from == null) {
@@ -107,15 +110,15 @@ public class PrivateDataIQHandler extends DefaultIQHandler {
 
         // Not null, and not addressed to itself
         if (to != null && !to.getBareJID().equals(sessionContext.getInitiatingEntity().getBareJID())) {
-            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.FORBIDDEN, stanza,
-                    StanzaErrorType.CANCEL, 403, "can only view your data", null, null);
+            return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.FORBIDDEN, stanza,
+                    StanzaErrorType.CANCEL, 403, "can only view your data", null, null));
         }
 
         XMLElement queryElement = stanza.getFirstInnerElement();
         XMLElement x = queryElement.getFirstInnerElement();
         if (x == null) {
-            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.NOT_ACCEPTABLE, stanza,
-                    StanzaErrorType.MODIFY, "query's child element missing", null, null);
+            return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.NOT_ACCEPTABLE, stanza,
+                    StanzaErrorType.MODIFY, "query's child element missing", null, null));
         }
 
         // No persistancy Manager
@@ -140,12 +143,12 @@ public class PrivateDataIQHandler extends DefaultIQHandler {
         } else {
             stanzaBuilder.addPreparedElement(x);
         }
-        return stanzaBuilder.build();
+        return Collections.singletonList(stanzaBuilder.build());
     }
     
-    private Stanza buildInteralStorageError(XMPPCoreStanza stanza) {
-        return ServerErrorResponses.getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR,
-                stanza, StanzaErrorType.WAIT, "internal storage inaccessible", null, null);
+    private List<Stanza> buildInteralStorageError(XMPPCoreStanza stanza) {
+        return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR,
+                stanza, StanzaErrorType.WAIT, "internal storage inaccessible", null, null));
     }
 
     

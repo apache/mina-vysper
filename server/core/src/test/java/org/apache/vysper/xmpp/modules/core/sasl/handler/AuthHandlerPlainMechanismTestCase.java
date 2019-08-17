@@ -75,7 +75,7 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
         ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext
                 .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
 
-        assertTrue(responseContainer.getResponseStanza().getVerifier().nameEquals("failure"));
+        assertTrue(responseContainer.getUniqueResponseStanza().getVerifier().nameEquals("failure"));
         assertTrue(sessionStateHolder.getState() == SessionState.ENCRYPTED);
     }
 
@@ -88,7 +88,7 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
         ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext
                 .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
 
-        assertTrue(responseContainer.getResponseStanza().getVerifier().nameEquals("failure"));
+        assertTrue(responseContainer.getUniqueResponseStanza().getVerifier().nameEquals("failure"));
         assertTrue(sessionStateHolder.getState() == SessionState.ENCRYPTED);
     }
 
@@ -103,7 +103,7 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
         AuthHandler authHandler = new AuthHandler();
         ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext
                 .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
-        Stanza responseStanza = responseContainer.getResponseStanza();
+        Stanza responseStanza = responseContainer.getUniqueResponseStanza();
 
         assertTrue(responseStanza.getVerifier().nameEquals("success"));
         assertTrue(sessionStateHolder.getState() == SessionState.AUTHENTICATED);
@@ -156,7 +156,7 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
         AuthHandler authHandler = new AuthHandler();
         ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext
                 .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
-        Stanza responseStanza = responseContainer.getResponseStanza();
+        Stanza responseStanza = responseContainer.getUniqueResponseStanza();
         return responseStanza;
     }
 

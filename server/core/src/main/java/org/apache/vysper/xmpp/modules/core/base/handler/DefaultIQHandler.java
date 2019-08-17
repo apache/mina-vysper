@@ -19,6 +19,9 @@
  */
 package org.apache.vysper.xmpp.modules.core.base.handler;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
@@ -55,8 +58,8 @@ public abstract class DefaultIQHandler extends IQHandler {
     }
 
     @Override
-    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza,
-            SessionContext sessionContext) {
+    protected List<Stanza> executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
+            boolean outboundStanza, SessionContext sessionContext) {
 
         switch (stanza.getIQType()) {
         case ERROR:
@@ -73,34 +76,40 @@ public abstract class DefaultIQHandler extends IQHandler {
         }
     }
 
-    protected Stanza handleResult(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
+    protected List<Stanza> handleResult(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
-        logger.warn("IQ 'result' stanza not handled by {}: {}", getClass().getCanonicalName(), DenseStanzaLogRenderer
-                .render(stanza));
-        return ServerErrorResponses.getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
-                StanzaErrorType.CANCEL, "iq stanza of type 'result' is not handled for this namespace",
-                getErrorLanguage(serverRuntimeContext, sessionContext), null);
+        logger.warn("IQ 'result' stanza not handled by {}: {}", getClass().getCanonicalName(),
+                DenseStanzaLogRenderer.render(stanza));
+        return Collections
+                .singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
+                        StanzaErrorType.CANCEL, "iq stanza of type 'result' is not handled for this namespace",
+                        getErrorLanguage(serverRuntimeContext, sessionContext), null));
     }
 
-    protected Stanza handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
-        logger.warn("IQ 'get' stanza not handled by {}: {}", getClass().getCanonicalName(), DenseStanzaLogRenderer
-                .render(stanza));
-        return ServerErrorResponses.getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
-                StanzaErrorType.CANCEL, "iq stanza of type 'get' is not handled for this namespace",
-                getErrorLanguage(serverRuntimeContext, sessionContext), null);
+    protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
+            SessionContext sessionContext) {
+        logger.warn("IQ 'get' stanza not handled by {}: {}", getClass().getCanonicalName(),
+                DenseStanzaLogRenderer.render(stanza));
+        return Collections
+                .singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
+                        StanzaErrorType.CANCEL, "iq stanza of type 'get' is not handled for this namespace",
+                        getErrorLanguage(serverRuntimeContext, sessionContext), null));
     }
 
-    protected void handleError(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
-        logger.warn("IQ 'error' stanza not handled by {}: {}", getClass().getCanonicalName(), DenseStanzaLogRenderer
-                .render(stanza));
+    protected void handleError(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
+            SessionContext sessionContext) {
+        logger.warn("IQ 'error' stanza not handled by {}: {}", getClass().getCanonicalName(),
+                DenseStanzaLogRenderer.render(stanza));
         throw new RuntimeException("iq stanza type ERROR not yet handled");
     }
 
-    protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
-        logger.warn("IQ 'set' stanza not handled by {}: {}", getClass().getCanonicalName(), DenseStanzaLogRenderer
-                .render(stanza));
-        return ServerErrorResponses.getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
-                StanzaErrorType.CANCEL, "iq stanza of type 'set' is not handled for this namespace",
-                getErrorLanguage(serverRuntimeContext, sessionContext), null);
+    protected List<Stanza> handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
+            SessionContext sessionContext) {
+        logger.warn("IQ 'set' stanza not handled by {}: {}", getClass().getCanonicalName(),
+                DenseStanzaLogRenderer.render(stanza));
+        return Collections
+                .singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
+                        StanzaErrorType.CANCEL, "iq stanza of type 'set' is not handled for this namespace",
+                        getErrorLanguage(serverRuntimeContext, sessionContext), null));
     }
 }

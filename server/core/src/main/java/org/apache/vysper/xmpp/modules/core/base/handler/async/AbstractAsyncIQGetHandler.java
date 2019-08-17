@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.core.base.handler.async;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
@@ -50,8 +51,8 @@ abstract public class AbstractAsyncIQGetHandler extends IQHandler {
             ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext);
 
     @Override
-    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza,
-            SessionContext sessionContext) {
+    protected List<Stanza> executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza,
+                                          SessionContext sessionContext) {
         switch (stanza.getIQType()) {
         case GET:
             executeGetIQLogicAsync(stanza, serverRuntimeContext, sessionContext);
@@ -79,7 +80,7 @@ abstract public class AbstractAsyncIQGetHandler extends IQHandler {
      * override this method, if you want to handle other types than get.
      * @return error stanza
      */
-    protected Stanza executeNonGetIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
+    protected List<Stanza> executeNonGetIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
         throw new RuntimeException("iq stanza type not supported: " + stanza.getIQType().value());
     }

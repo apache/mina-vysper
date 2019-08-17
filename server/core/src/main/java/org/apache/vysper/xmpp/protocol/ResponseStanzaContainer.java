@@ -19,6 +19,8 @@
  */
 package org.apache.vysper.xmpp.protocol;
 
+import java.util.List;
+
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
@@ -27,7 +29,15 @@ import org.apache.vysper.xmpp.stanza.Stanza;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public interface ResponseStanzaContainer {
-    Stanza getResponseStanza();
+
+    List<Stanza> getResponseStanzas();
+
+    /**
+     * @return If there is exactly one response, the unique response. If there is no
+     *         response it will return null. If there is more than one response, it
+     *         will throw an exception.
+     */
+    Stanza getUniqueResponseStanza();
 
     boolean hasResponse();
 

@@ -32,6 +32,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import static org.junit.Assert.assertFalse;
+
 /**
  */
 public class XmppPingIQHandlerTestCase {
@@ -79,43 +81,43 @@ public class XmppPingIQHandlerTestCase {
 
     @Test
     public void verifyNullStanza() {
-        Assert.assertFalse(handler.verify(null));
+        assertFalse(handler.verify(null));
     }
 
     @Test
     public void verifyInvalidName() {
-        Assert.assertFalse(handler.verify(buildStanza("dummy", NamespaceURIs.JABBER_CLIENT)));
+        assertFalse(handler.verify(buildStanza("dummy", NamespaceURIs.JABBER_CLIENT)));
     }
 
     @Test
     public void verifyInvalidNamespace() {
-        Assert.assertFalse(handler.verify(buildStanza("iq", "dummy")));
+        assertFalse(handler.verify(buildStanza("iq", "dummy")));
     }
 
     @Test
     public void verifyNullNamespace() {
-        Assert.assertFalse(handler.verify(buildStanza("iq", null)));
+        assertFalse(handler.verify(buildStanza("iq", null)));
     }
 
     @Test
     public void verifyNullInnerNamespace() {
-        Assert.assertFalse(handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "ping", null)));
+        assertFalse(handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "ping", null)));
     }
 
     @Test
     public void verifyInvalidInnerNamespace() {
-        Assert.assertFalse(handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "ping", "dummy")));
+        assertFalse(handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "ping", "dummy")));
     }
     
     @Test
     public void verifyInvalidInnerName() {
-        Assert.assertFalse(handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "dummy", NamespaceURIs.URN_XMPP_PING)));
+        assertFalse(handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "dummy", NamespaceURIs.URN_XMPP_PING)));
     }
 
     @Test
     public void verifyMissingInnerElement() {
         Stanza stanza = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT).build();
-        Assert.assertFalse(handler.verify(stanza));
+        assertFalse(handler.verify(stanza));
     }
     
     @Test
@@ -140,7 +142,7 @@ public class XmppPingIQHandlerTestCase {
         .addAttribute("id", "dummy-1")
         .build();
         
-        Assert.assertFalse(handler.verify(stanza));
+        assertFalse(handler.verify(stanza));
     }
     
     @Test
@@ -167,7 +169,7 @@ public class XmppPingIQHandlerTestCase {
         // we should always get a response
         Assert.assertTrue(resp.hasResponse());
 
-        Stanza respStanza = resp.getResponseStanza();
+        Stanza respStanza = resp.getUniqueResponseStanza();
 
         Assert.assertEquals("iq", respStanza.getName());
         Assert.assertEquals(boundClient, respStanza.getTo());
@@ -194,7 +196,7 @@ public class XmppPingIQHandlerTestCase {
         ResponseStanzaContainer resp = handler.execute(stanza, sessionContext.getServerRuntimeContext(), true,
                 sessionContext, null);
 
-        Assert.assertNull(resp);
+        assertFalse(resp.hasResponse());
         
         Mockito.verify(pinger1).pong(IQ_ID);
         Mockito.verify(pinger1).pong(IQ_ID);

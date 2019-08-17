@@ -21,6 +21,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0050_adhoc_commands;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +64,7 @@ public class AdhocCommandIQHandler extends DefaultIQHandler {
     }
 
     @Override
-    protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         Entity from = stanza.getFrom();
         if (from == null) {
             from = sessionContext.getInitiatingEntity();
@@ -77,8 +78,8 @@ public class AdhocCommandIQHandler extends DefaultIQHandler {
         try {
             XMLElement commandElement = stanza.getSingleInnerElementsNamed("command");
             if (commandElement == null) {
-                return ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
-                        StanzaErrorType.MODIFY, "command is missing", null, null);
+                return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
+                        StanzaErrorType.MODIFY, "command is missing", null, null));
             }
             commandNode = commandElement.getAttributeValue("node");
             requestedSessionId = commandElement.getAttributeValue("sessionid");
@@ -95,14 +96,14 @@ public class AdhocCommandIQHandler extends DefaultIQHandler {
             } else {
                 commandHandler = runningCommands.get(requestedSessionId);
                 if (commandHandler == null) {
-                    return ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
-                            StanzaErrorType.CANCEL, "command session id not found: " + requestedSessionId, null, null);
+                    return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
+                            StanzaErrorType.CANCEL, "command session id not found: " + requestedSessionId, null, null));
                 }
             }
             commandElements = commandElement.getInnerElements();
         } catch (XMLSemanticError xmlSemanticError) {
-            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
-                    StanzaErrorType.MODIFY, "command is not well-formed", null, null);
+            return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
+                    StanzaErrorType.MODIFY, "command is not well-formed", null, null));
         }
 
         if ("cancel".equals(action)) {
@@ -112,8 +113,8 @@ public class AdhocCommandIQHandler extends DefaultIQHandler {
 
         // handle unauthorized access (or command does not exist at all)
         if (commandHandler == null) {
-            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.FORBIDDEN, stanza,
-                    StanzaErrorType.CANCEL, "command is not available", null, null);
+            return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.FORBIDDEN, stanza,
+                    StanzaErrorType.CANCEL, "command is not available", null, null));
         }
 
         List<Note> notes = new ArrayList<Note>();
@@ -122,18 +123,17 @@ public class AdhocCommandIQHandler extends DefaultIQHandler {
         final String sessionId = commandHandler.getSessionId();
         final boolean isExecuting = commandHandler.isExecuting();
 
-        final Stanza response = buildResponse(stanza, from, commandNode, sessionId, 
+        return buildResponse(stanza, from, commandNode, sessionId, 
                                              isExecuting ? "executing" : "completed", result, notes,
                                               commandHandler.isPrevAllowed(), commandHandler.isNextAllowed());
-        return response;
     }
 
-    private Stanza buildResponse(IQStanza stanza, Entity from, String commandNode, String sessionId, 
+    private List<Stanza> buildResponse(IQStanza stanza, Entity from, String commandNode, String sessionId, 
                                  final String status) {
         return buildResponse(stanza, from, commandNode, sessionId, status, null, null, false, false);
     }
     
-    private Stanza buildResponse(IQStanza stanza, Entity from, String commandNode, String sessionId,
+    private List<Stanza> buildResponse(IQStanza stanza, Entity from, String commandNode, String sessionId,
                                  final String status, XMLElement result,
                                  List<Note> notes, boolean isPrevAllowed, boolean isNextAllowed) {
         final StanzaBuilder iqStanza = StanzaBuilder.createIQStanza(null, from, IQStanzaType.RESULT, stanza.getID());
@@ -161,7 +161,7 @@ public class AdhocCommandIQHandler extends DefaultIQHandler {
         }
         iqStanza.endInnerElement();
 
-        return iqStanza.build();
+        return Collections.singletonList(iqStanza.build());
     }
 /*
 <iq from='shakespeare.lit'
@@ -207,7 +207,7 @@ public class AdhocCommandIQHandler extends DefaultIQHandler {
     
 
     @Override
-    protected Stanza handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
 
         Entity to = stanza.getTo();
         Entity from = stanza.getFrom();
@@ -218,6 +218,6 @@ public class AdhocCommandIQHandler extends DefaultIQHandler {
 
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(),
                 IQStanzaType.RESULT, stanza.getID());
-        return stanzaBuilder.build();
+        return Collections.singletonList(stanzaBuilder.build());
     }
 }

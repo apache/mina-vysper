@@ -32,6 +32,9 @@ import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * This handler is responsible for dealing with the "create" requests (in the pubsub namespace).
  * Even though this sounds like a "owner" action, it actually lies within the general "pubsub" namespace.
@@ -68,7 +71,7 @@ public class PubSubCreateNodeHandler extends AbstractPubSubGeneralHandler {
             @SpecCompliant(spec = "xep-0060", section = "8.1.1", status = SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.PARTIAL),
             @SpecCompliant(spec = "xep-0060", section = "8.1.2", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED),
             @SpecCompliant(spec = "xep-0060", section = "8.1.3", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED) })
-    protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         Entity serverJID = serviceConfiguration.getDomainJID();
         CollectionNode root = serviceConfiguration.getRootNode();
 
@@ -79,12 +82,12 @@ public class PubSubCreateNodeHandler extends AbstractPubSubGeneralHandler {
         String nodeName = extractNodeName(stanza);
 
         if (root.find(nodeName) != null) {
-            return errorStanzaGenerator.generateDuplicateNodeErrorStanza(sender, serverJID, stanza);
+            return Collections.singletonList(errorStanzaGenerator.generateDuplicateNodeErrorStanza(sender, serverJID, stanza));
         }
 
         LeafNode node = new LeafNode(serviceConfiguration, nodeName, sender);
         root.add(node);
 
-        return new IQStanza(sb.build());
+        return Collections.singletonList(new IQStanza(sb.build()));
     }
 }

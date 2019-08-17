@@ -23,6 +23,7 @@ package org.apache.vysper.xmpp.modules.core.base.handler;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceCoverage.PARTIAL;
 import static org.apache.vysper.compliance.SpecCompliant.ComplianceStatus.FINISHED;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.vysper.compliance.SpecCompliance;
@@ -72,42 +73,42 @@ public class IQHandler extends XMPPCoreStanzaHandler {
             @SpecCompliant(spec = "rfc3920", section = "9.2.3", status = FINISHED, coverage = PARTIAL, comment = "covers points 1, 2, 5 and 6"),
             @SpecCompliant(spec = "rfc3920bis-09", section = "9.2.3", status = FINISHED, coverage = PARTIAL, comment = "covers points 1, 2, 5 and 6") })
     @Override
-    protected Stanza executeCore(XMPPCoreStanza coreStanza, ServerRuntimeContext serverRuntimeContext,
-            boolean isOutboundStanza, SessionContext sessionContext) {
+    protected List<Stanza> executeCore(XMPPCoreStanza coreStanza, ServerRuntimeContext serverRuntimeContext,
+                                 boolean isOutboundStanza, SessionContext sessionContext) {
         IQStanza stanza = (IQStanza) coreStanza;
 
         // rfc3920/9.2.3/1.
         String id = stanza.getID();
         if (id == null) {
-            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
+            return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
                     StanzaErrorType.MODIFY, "iq-stanza requires 'id' attribute to be present",
-                    getErrorLanguage(serverRuntimeContext, sessionContext), null);
+                    getErrorLanguage(serverRuntimeContext, sessionContext), null));
         }
 
         // rfc3920/9.2.3/2.
         IQStanzaType iqType = stanza.getIQType();
         if (iqType == null) {
             // missing or unknown type
-            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
+            return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
                     StanzaErrorType.MODIFY, "iq-stanza requires a valid 'type' attribute to be present",
-                    getErrorLanguage(serverRuntimeContext, sessionContext), null);
+                    getErrorLanguage(serverRuntimeContext, sessionContext), null));
         }
 
         if (iqType == IQStanzaType.GET || iqType == IQStanzaType.SET) {
             // assure, set or get contain one and only one element
             // rfc3920/9.2.3/5.
             if (!coreStanza.getVerifier().subElementsPresentExact(1)) {
-                return ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
+                return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
                         StanzaErrorType.MODIFY, "iq stanza of type get or set require exactly one child",
-                        getErrorLanguage(serverRuntimeContext, sessionContext), null);
+                        getErrorLanguage(serverRuntimeContext, sessionContext), null));
             }
         } else if (iqType == IQStanzaType.RESULT) {
             // assure, result contains zero or one element
             // rfc3920/9.2.3/6.
             if (!coreStanza.getVerifier().subElementsPresentAtMost(1)) {
-                return ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
+                return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza,
                         StanzaErrorType.MODIFY, "iq stanza of type result may not have more than one child",
-                        getErrorLanguage(serverRuntimeContext, sessionContext), null);
+                        getErrorLanguage(serverRuntimeContext, sessionContext), null));
             }
 
         } else if (iqType == IQStanzaType.ERROR) {
@@ -126,11 +127,11 @@ public class IQHandler extends XMPPCoreStanzaHandler {
     /**
      * must be overridden by specialized IQ handlers
      */
-    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza,
+    protected List<Stanza> executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza,
             SessionContext sessionContext) {
         // this is default behavior and must be replaced by overrider
-        return ServerErrorResponses.getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
-                StanzaErrorType.CANCEL, null, null, null);
+        return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
+                StanzaErrorType.CANCEL, null, null, null));
     }
 
 }

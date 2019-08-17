@@ -138,7 +138,7 @@ public class SessionIQHandlerTestCase {
             .startInnerElement("session", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SESSION)
             .build();
         
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getResponseStanza();
+        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
 
         Stanza expected = StanzaBuilder.createIQStanza(TO, null, IQStanzaType.RESULT, "id1").build();
         

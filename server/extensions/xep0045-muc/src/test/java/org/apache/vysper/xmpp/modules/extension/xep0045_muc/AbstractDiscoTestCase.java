@@ -85,7 +85,7 @@ public abstract class AbstractDiscoTestCase extends TestCase {
 
         ResponseStanzaContainer resultStanzaContainer = infoIQHandler.execute(request.build(), serverRuntimeContext,
                 false, new TestSessionContext(serverRuntimeContext, new SessionStateHolder()), null);
-        Stanza resultStanza = resultStanzaContainer.getResponseStanza();
+        Stanza resultStanza = resultStanzaContainer.getUniqueResponseStanza();
 
         assertEquals("Disco request must not return error", "result", resultStanza.getAttributeValue("type"));
         XMLElement queryElement = resultStanza.getFirstInnerElement();

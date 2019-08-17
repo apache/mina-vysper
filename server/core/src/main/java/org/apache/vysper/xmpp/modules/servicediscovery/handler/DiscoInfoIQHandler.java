@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.servicediscovery.handler;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.vysper.compliance.SpecCompliance;
@@ -65,7 +66,7 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
     }
 
     @Override
-    protected Stanza handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         ServiceCollector serviceCollector = null;
 
         // TODO if the target entity does not exist, return error/cancel/item-not-found
@@ -81,9 +82,9 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
         }
 
         if (serviceCollector == null) {
-            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR, stanza,
+            return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR, stanza,
                     StanzaErrorType.CANCEL, "cannot retrieve IQ-get-info result from internal components",
-                    getErrorLanguage(serverRuntimeContext, sessionContext), null);
+                    getErrorLanguage(serverRuntimeContext, sessionContext), null));
         }
 
         // if "vysper.org" is the server entity, 'to' can either be "vysper.org", "node@vysper.org", "service.vysper.org".
@@ -98,10 +99,10 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
         } else if (!to.isNodeSet()) {
             isServerInfoRequest = serverEntity.equals(to);
             if (!isServerInfoRequest) {
-                return ServerErrorResponses.getStanzaError(StanzaErrorCondition.ITEM_NOT_FOUND, stanza,
+                return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.ITEM_NOT_FOUND, stanza,
                         StanzaErrorType.CANCEL,
                         "server does not handle info query requests for " + to.getFullQualifiedName(),
-                        getErrorLanguage(serverRuntimeContext, sessionContext), null);
+                        getErrorLanguage(serverRuntimeContext, sessionContext), null));
             }
         }
 
@@ -134,8 +135,8 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
             StanzaErrorCondition stanzaErrorCondition = e.getErrorCondition();
             if (stanzaErrorCondition == null)
                 stanzaErrorCondition = StanzaErrorCondition.INTERNAL_SERVER_ERROR;
-            return ServerErrorResponses.getStanzaError(stanzaErrorCondition, stanza, StanzaErrorType.CANCEL,
-                    "disco info request failed.", getErrorLanguage(serverRuntimeContext, sessionContext), null);
+            return Collections.singletonList(ServerErrorResponses.getStanzaError(stanzaErrorCondition, stanza, StanzaErrorType.CANCEL,
+                    "disco info request failed.", getErrorLanguage(serverRuntimeContext, sessionContext), null));
         }
 
         //TODO check that elementSet contains at least one identity element and on feature element!
@@ -152,11 +153,11 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
 
         stanzaBuilder.endInnerElement();
 
-        return stanzaBuilder.build();
+        return Collections.singletonList(stanzaBuilder.build());
     }
 
     @Override
-    protected Stanza handleResult(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
+    protected List<Stanza> handleResult(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
 
         if (stanza.getTo().isNodeSet()) {

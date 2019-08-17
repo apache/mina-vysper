@@ -30,6 +30,9 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
 import org.apache.vysper.xmpp.stanza.StanzaErrorType;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * handles jabber:iq:auth request - by returning "service unavailable"
  *
@@ -44,8 +47,8 @@ public class AuthCompatibilityIQHandler extends IQHandler {
     }
 
     @Override
-    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza,
-            SessionContext sessionContext) {
+    protected List<Stanza> executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza,
+                                          SessionContext sessionContext) {
 
         // from XEP 78 - http://www.xmpp.org/extensions/xep-0078.html:
         // If the server does not support non-SASL authentication (e.g., because it supports only SASL authentication
@@ -57,8 +60,8 @@ public class AuthCompatibilityIQHandler extends IQHandler {
 
         case GET:
         case SET:
-            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE, stanza,
-                    StanzaErrorType.CANCEL, "jabber:iq:auth not supported", "en", null);
+            return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE, stanza,
+                    StanzaErrorType.CANCEL, "jabber:iq:auth not supported", "en", null));
 
         case RESULT:
         case ERROR:

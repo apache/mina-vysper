@@ -37,6 +37,8 @@ import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 /**
  * foundation for the three core protocol stanzas: iq, message, presence
  *
@@ -114,17 +116,13 @@ public abstract class XMPPCoreStanzaHandler implements StanzaHandler {
             // TODO ensure, that RFC3920 9.1.1 "If the value of the 'to' attribute is invalid or cannot be contacted..." is enforced
         }
 
-        Stanza responseStanza = executeCore(stanza, serverRuntimeContext, isOutboundStanza, sessionContext);
-
-        if (responseStanza != null)
-            return new ResponseStanzaContainerImpl(responseStanza);
-
-        return null;
+        List<Stanza> responseStanzas = executeCore(stanza, serverRuntimeContext, isOutboundStanza, sessionContext);
+        return new ResponseStanzaContainerImpl(responseStanzas);
     }
 
-    protected abstract Stanza executeCore(XMPPCoreStanza stanza, ServerRuntimeContext serverRuntimeContext,
-            boolean isOutboundStanza, SessionContext sessionContext);
-
+    protected abstract List<Stanza> executeCore(XMPPCoreStanza stanza, ServerRuntimeContext serverRuntimeContext,
+                                                boolean isOutboundStanza, SessionContext sessionContext);
+    
     /**
      * Extracts the from address either from the "from" attribute of the stanza, if this isn't given
      * retracts to using the address of the initiating entity plus the resource of the sessionContext (if available).

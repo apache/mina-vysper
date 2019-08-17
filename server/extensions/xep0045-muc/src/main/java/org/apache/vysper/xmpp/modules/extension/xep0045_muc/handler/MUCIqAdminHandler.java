@@ -20,6 +20,7 @@
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.vysper.xml.fragment.XMLElement;
@@ -81,7 +82,7 @@ public class MUCIqAdminHandler extends DefaultIQHandler {
     }
 
     @Override
-    protected Stanza handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         try {
             Entity roomEntity = stanza.getTo();
             Room room = conference.findRoom(roomEntity);
@@ -99,11 +100,11 @@ public class MUCIqAdminHandler extends DefaultIQHandler {
                 // check access
                 if(affiliation == Affiliation.Outcast || affiliation == Affiliation.Member) {
                     if(fromAffiliation.compareTo(Affiliation.Admin) > 0) {
-                        return MUCHandlerHelper.createErrorReply(stanza, StanzaErrorType.CANCEL, StanzaErrorCondition.NOT_ALLOWED);
+                        return Collections.singletonList(MUCHandlerHelper.createErrorReply(stanza, StanzaErrorType.CANCEL, StanzaErrorCondition.NOT_ALLOWED));
                     }
                 } else if(affiliation == Affiliation.Owner || affiliation == Affiliation.Admin) {
                     if(fromAffiliation.compareTo(Affiliation.Owner) > 0) {
-                        return MUCHandlerHelper.createErrorReply(stanza, StanzaErrorType.CANCEL, StanzaErrorCondition.NOT_ALLOWED);
+                        return Collections.singletonList(MUCHandlerHelper.createErrorReply(stanza, StanzaErrorType.CANCEL, StanzaErrorCondition.NOT_ALLOWED));
                     }
                 }
 
@@ -117,20 +118,20 @@ public class MUCIqAdminHandler extends DefaultIQHandler {
                 }
             }
             
-            return result.build();
+            return Collections.singletonList(result.build());
             
         } catch (XMLSemanticError e) {
             logger.debug("Invalid MUC admin stanza", e);
-            return createBadRequestError(stanza, serverRuntimeContext, sessionContext,
-                    "Invalid IQ stanza");
+            return Collections.singletonList(createBadRequestError(stanza, serverRuntimeContext, sessionContext,
+                    "Invalid IQ stanza"));
         } catch (EntityFormatException e) {
-            return createBadRequestError(stanza, serverRuntimeContext, sessionContext,
-                    "Invalid JID");
+            return Collections.singletonList(createBadRequestError(stanza, serverRuntimeContext, sessionContext,
+                    "Invalid JID"));
         }
     }
 
     @Override
-    protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         logger.debug("Received MUC admin stanza");
         
         Room room = conference.findRoom(stanza.getTo());
@@ -142,7 +143,7 @@ public class MUCIqAdminHandler extends DefaultIQHandler {
             // only moderators are allowed to continue
             logger.debug("Only moderators are allowed to issue admin stanzas");
             
-            return MUCHandlerHelper.createErrorReply(stanza, StanzaErrorType.AUTH, StanzaErrorCondition.FORBIDDEN);
+            return Collections.singletonList(MUCHandlerHelper.createErrorReply(stanza, StanzaErrorType.AUTH, StanzaErrorCondition.FORBIDDEN));
         }
         try {
             XMLElement query = stanza.getSingleInnerElementsNamed("query", NamespaceURIs.XEP0045_MUC_ADMIN);
@@ -154,8 +155,8 @@ public class MUCIqAdminHandler extends DefaultIQHandler {
                 try {
                     item = IqAdminItem.getWrapper(itemElement);
                 } catch (EntityFormatException e) {
-                    return createBadRequestError(stanza, serverRuntimeContext, sessionContext,
-                        "Invalid JID");
+                    return Collections.singletonList(createBadRequestError(stanza, serverRuntimeContext, sessionContext,
+                        "Invalid JID"));
                 }
     
                 
@@ -167,19 +168,19 @@ public class MUCIqAdminHandler extends DefaultIQHandler {
                     result = changeAffiliation(stanza, serverRuntimeContext, sessionContext, item, room, moderator);
                 } else {
                     logger.debug("Invalid MUC admin stanza");
-                    return createBadRequestError(stanza, serverRuntimeContext, sessionContext, "Unknown IQ stanza");
+                    return Collections.singletonList(createBadRequestError(stanza, serverRuntimeContext, sessionContext, "Unknown IQ stanza"));
                 }
 
                 // give up on error
                 if("error".equals(result.getAttributeValue("type"))) {
-                    return result;
+                    return Collections.singletonList(result);
                 }
             }
-            return result;
+            return Collections.singletonList(result);
         } catch (XMLSemanticError e) {
             logger.debug("Invalid MUC admin stanza", e);
-            return createBadRequestError(stanza, serverRuntimeContext, sessionContext,
-                    "Invalid IQ stanza");
+            return Collections.singletonList(createBadRequestError(stanza, serverRuntimeContext, sessionContext,
+                    "Invalid IQ stanza"));
         }
     }
 

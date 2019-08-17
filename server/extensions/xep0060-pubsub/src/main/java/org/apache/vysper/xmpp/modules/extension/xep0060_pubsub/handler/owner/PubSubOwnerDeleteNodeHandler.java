@@ -37,6 +37,9 @@ import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * This class is responsible for handling all "delete" stanzas within the pubsub#owner namespace.
  * 
@@ -70,7 +73,7 @@ public class PubSubOwnerDeleteNodeHandler extends AbstractPubSubOwnerHandler {
             @SpecCompliant(spec = "xep-0060", section = "8.4.2", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE),
             @SpecCompliant(spec = "xep-0060", section = "8.4.3.1", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE),
             @SpecCompliant(spec = "xep-0060", section = "8.4.3.2", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE) })
-    protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         Entity serverJID = serviceConfiguration.getDomainJID();
         CollectionNode root = serviceConfiguration.getRootNode();
 
@@ -81,17 +84,17 @@ public class PubSubOwnerDeleteNodeHandler extends AbstractPubSubOwnerHandler {
         LeafNode node = root.find(nodeName);
 
         if (node == null) {
-            return errorStanzaGenerator.generateNoNodeErrorStanza(sender, serverJID, stanza);
+            return Collections.singletonList(errorStanzaGenerator.generateNoNodeErrorStanza(sender, serverJID, stanza));
         }
 
         if (!node.isAuthorized(sender, PubSubPrivilege.DELETE)) {
-            return errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, serverJID, stanza);
+            return Collections.singletonList(errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, serverJID, stanza));
         }
 
         sendDeleteNotifications(serverRuntimeContext, sender, nodeName, node);
         root.deleteNode(nodeName);
 
-        return new IQStanza(sb.build());
+        return Collections.singletonList(new IQStanza(sb.build()));
     }
 
     /**

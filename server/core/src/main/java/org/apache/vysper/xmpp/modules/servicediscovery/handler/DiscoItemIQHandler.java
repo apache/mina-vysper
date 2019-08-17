@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.servicediscovery.handler;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.vysper.compliance.SpecCompliant;
@@ -64,7 +65,7 @@ public class DiscoItemIQHandler extends DefaultIQHandler {
     }
 
     @Override
-    protected Stanza handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         ServiceCollector serviceCollector = null;
 
         // retrieve the service collector
@@ -77,9 +78,9 @@ public class DiscoItemIQHandler extends DefaultIQHandler {
         }
 
         if (serviceCollector == null) {
-            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR,
+            return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR,
                     stanza, StanzaErrorType.CANCEL, "cannot retrieve IQ-get-items result from internal components",
-                    getErrorLanguage(serverRuntimeContext, sessionContext), null);
+                    getErrorLanguage(serverRuntimeContext, sessionContext), null));
         }
 
         Entity to = stanza.getTo();
@@ -91,10 +92,10 @@ public class DiscoItemIQHandler extends DefaultIQHandler {
             isServerInfoRequest = serverRuntimeContext.getServerEnitity().equals(to);
             isComponentInfoRequest = serverRuntimeContext.getComponentStanzaProcessor(to) != null;
             if (!isServerInfoRequest && !isComponentInfoRequest) {
-                return ServerErrorResponses.getStanzaError(StanzaErrorCondition.ITEM_NOT_FOUND, stanza,
+                return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.ITEM_NOT_FOUND, stanza,
                         StanzaErrorType.CANCEL,
                         "server does not handle items query requests for " + to.getFullQualifiedName(),
-                        getErrorLanguage(serverRuntimeContext, sessionContext), null);
+                        getErrorLanguage(serverRuntimeContext, sessionContext), null));
             }
         }
 
@@ -113,9 +114,9 @@ public class DiscoItemIQHandler extends DefaultIQHandler {
             StanzaErrorCondition stanzaErrorCondition = e.getErrorCondition();
             if (stanzaErrorCondition == null)
                 stanzaErrorCondition = StanzaErrorCondition.INTERNAL_SERVER_ERROR;
-            return ServerErrorResponses.getStanzaError(stanzaErrorCondition, stanza,
+            return Collections.singletonList(ServerErrorResponses.getStanzaError(stanzaErrorCondition, stanza,
                     StanzaErrorType.CANCEL, "disco info request failed.",
-                    getErrorLanguage(serverRuntimeContext, sessionContext), null);
+                    getErrorLanguage(serverRuntimeContext, sessionContext), null));
         }
 
         // render the stanza with information collected
@@ -129,6 +130,6 @@ public class DiscoItemIQHandler extends DefaultIQHandler {
         }
         stanzaBuilder.endInnerElement();
 
-        return stanzaBuilder.build();
+        return Collections.singletonList(stanzaBuilder.build());
     }
 }

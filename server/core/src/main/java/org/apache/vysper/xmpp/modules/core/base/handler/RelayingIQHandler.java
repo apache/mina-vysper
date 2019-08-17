@@ -37,25 +37,26 @@ import org.apache.vysper.xmpp.stanza.StanzaErrorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * most IQ are targeted to the server. but sometimes, IQs are only routed through the server to another client.
  * this is the handler dealing with that. 
  */
 public class RelayingIQHandler extends IQHandler {
 
-    final Logger logger = LoggerFactory.getLogger(RelayingIQHandler.class);
-
     @Override
-    protected Stanza executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza,
-            SessionContext sessionContext) {
+    protected List<Stanza> executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza,
+                                          SessionContext sessionContext) {
         // only handle IQs which are not directed to the server (vysper.org).
         // in the case where an IQ is send to the server, StanzaHandlerLookup.getIQHandler is responsible for
         // looking it up and we shouldn't have been come here in the first place.
         // but we might will relay to a component (chat.vysper.org)
         Entity to = stanza.getTo();
         if (to == null || to.equals(sessionContext.getServerJID())) {
-            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED,
-                    stanza, StanzaErrorType.CANCEL, null, null, null);
+            return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED,
+                    stanza, StanzaErrorType.CANCEL, null, null, null));
         }
 
         RosterManager rosterManager = RosterManagerUtils.getRosterInstance(serverRuntimeContext, sessionContext);
@@ -82,8 +83,8 @@ public class RelayingIQHandler extends IQHandler {
                 }
                 // deny relaying if neither isFromContact nor toComponent
                 if (!isFromContact && !toComponent) {
-                    return ServerErrorResponses.getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE,
-                            stanza, StanzaErrorType.CANCEL, null, null, null);
+                    return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE,
+                            stanza, StanzaErrorType.CANCEL, null, null, null));
                 }
 
                 Stanza forwardedStanza = StanzaBuilder.createForward(stanza, from, null).build();
@@ -110,8 +111,8 @@ public class RelayingIQHandler extends IQHandler {
             }
             // ...otherwise relaying is denied
             if (!isToContact && !fromComponent) {
-                return ServerErrorResponses.getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE,
-                        stanza, StanzaErrorType.CANCEL, null, null, null);
+                return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE,
+                        stanza, StanzaErrorType.CANCEL, null, null, null));
             }
 
             sessionContext.getResponseWriter().write(stanza);

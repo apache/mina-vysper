@@ -112,7 +112,7 @@ public class FeaturesHandlerTestCase {
         
         Stanza expectedResponse = new StanzaBuilder("starttls", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS).build();
         
-        StanzaAssert.assertEquals(expectedResponse, response.getResponseStanza());
+        StanzaAssert.assertEquals(expectedResponse, response.getUniqueResponseStanza());
     }
 
     @Test
@@ -126,7 +126,7 @@ public class FeaturesHandlerTestCase {
         
         ResponseStanzaContainer response = handler.execute(stanza, serverRuntimeContext, true, sessionContext, sessionStateHolder);
         
-        assertDialbackStanza(response.getResponseStanza());
+        assertDialbackStanza(response.getUniqueResponseStanza());
     }
 
     @Test
@@ -137,7 +137,7 @@ public class FeaturesHandlerTestCase {
         
         ResponseStanzaContainer response = handler.execute(stanza, serverRuntimeContext, true, sessionContext, sessionStateHolder);
         
-        assertDialbackStanza(response.getResponseStanza());
+        assertDialbackStanza(response.getUniqueResponseStanza());
     }
 
     @Test

@@ -36,6 +36,9 @@ import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * This class handles the "subscribe" use cases for the "pubsub" namespace.
  * 
@@ -80,7 +83,7 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
             @SpecCompliant(spec = "xep-0060", section = "6.1.3.9", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED),
             @SpecCompliant(spec = "xep-0060", section = "6.1.3.10", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED),
             @SpecCompliant(spec = "xep-0060", section = "6.1.3.11", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE) })
-    protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         Entity serverJID = serviceConfiguration.getDomainJID();
         CollectionNode root = serviceConfiguration.getRootNode();
 
@@ -96,12 +99,12 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
         try {
             subJID = EntityImpl.parse(strSubJID);
         } catch (EntityFormatException e) {
-            return errorStanzaGenerator.generateJIDMalformedErrorStanza(sender, serverJID, stanza);
+            return Collections.singletonList(errorStanzaGenerator.generateJIDMalformedErrorStanza(sender, serverJID, stanza));
         }
 
         if (!sender.getBareJID().equals(subJID.getBareJID())) {
             // error condition 1 (6.1.3)
-            return errorStanzaGenerator.generateJIDDontMatchErrorStanza(sender, serverJID, stanza);
+            return Collections.singletonList(errorStanzaGenerator.generateJIDDontMatchErrorStanza(sender, serverJID, stanza));
         }
 
         String nodeName = extractNodeName(stanza);
@@ -109,7 +112,7 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
 
         if (node == null) {
             // no such node (error condition 11 (6.1.3))
-            return errorStanzaGenerator.generateNoNodeErrorStanza(sender, serverJID, stanza);
+            return Collections.singletonList(errorStanzaGenerator.generateNoNodeErrorStanza(sender, serverJID, stanza));
         }
 
         String id = idGenerator.create();
@@ -118,7 +121,7 @@ public class PubSubSubscribeHandler extends AbstractPubSubGeneralHandler {
         buildSuccessStanza(sb, nodeName, strSubJID, id);
 
         sb.endInnerElement(); // pubsub
-        return new IQStanza(sb.build());
+        return Collections.singletonList(new IQStanza(sb.build()));
     }
 
     /**

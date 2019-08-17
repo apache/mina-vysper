@@ -59,7 +59,7 @@ public class IQHandlerTestCase extends TestCase {
         TestIQHandler iqHandler = new TestIQHandler();
         ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanzaBuilder.build(), sessionContext
                 .getServerRuntimeContext(), true, sessionContext, null);
-        Stanza responseStanza = responseStanzaContainer.getResponseStanza();
+        Stanza responseStanza = responseStanzaContainer.getUniqueResponseStanza();
         XMLElementVerifier verifier = responseStanza.getVerifier();
         assertTrue("error", verifier.nameEquals("error"));
     }
@@ -78,7 +78,7 @@ public class IQHandlerTestCase extends TestCase {
         IQHandler iqHandler = new IQHandler();
         ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanza, sessionContext
                 .getServerRuntimeContext(), true, sessionContext, null);
-        Stanza responseStanza = responseStanzaContainer.getResponseStanza();
+        Stanza responseStanza = responseStanzaContainer.getUniqueResponseStanza();
         XMLElementVerifier verifier = responseStanza.getVerifier();
         assertTrue("error", verifier.nameEquals("error")); // response is _not_ IQ stanza
     }
@@ -87,7 +87,7 @@ public class IQHandlerTestCase extends TestCase {
         TestIQHandler iqHandler = new TestIQHandler();
         ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanza, sessionContext
                 .getServerRuntimeContext(), true, sessionContext, null);
-        Stanza responseStanza = responseStanzaContainer.getResponseStanza();
+        Stanza responseStanza = responseStanzaContainer.getUniqueResponseStanza();
         XMLElementVerifier verifier = responseStanza.getVerifier();
         assertTrue("iq", verifier.nameEquals("iq"));
         assertTrue("error type", verifier.attributeEquals("type", IQStanzaType.ERROR.value()));
@@ -159,7 +159,7 @@ public class IQHandlerTestCase extends TestCase {
         assertTrue("iq-type-get", verifier.attributeEquals("type", "get"));
 
         // response is "result"
-        Stanza responseStanza = responseStanzaContainer.getResponseStanza();
+        Stanza responseStanza = responseStanzaContainer.getUniqueResponseStanza();
         XMLElementVerifier responseVerifier = responseStanza.getVerifier();
         assertTrue("iq", responseVerifier.nameEquals("iq"));
         assertTrue("iq-id", responseVerifier.attributeEquals("id", "1"));

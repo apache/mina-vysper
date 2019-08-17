@@ -115,7 +115,7 @@ public class AbortHandlerTestCase extends TestCase {
         AbortHandler abortHandler = new AbortHandler();
         ResponseStanzaContainer responseContainer = abortHandler.execute(abortStanza, sessionContext
                 .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
-        Stanza responseStanza = responseContainer.getResponseStanza();
+        Stanza responseStanza = responseContainer.getUniqueResponseStanza();
         return responseStanza;
     }
 

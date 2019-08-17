@@ -28,6 +28,9 @@ import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * handles session requests
  *
@@ -41,8 +44,8 @@ public class SessionIQHandler extends DefaultIQHandler {
     }
 
     @Override
-    protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
-        return StanzaBuilder.createIQStanza(null, null, IQStanzaType.RESULT, stanza.getID()).addAttribute("from",
-                sessionContext.getServerJID().getFullQualifiedName()).build();
+    protected List<Stanza> handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+        return Collections.singletonList(StanzaBuilder.createIQStanza(null, null, IQStanzaType.RESULT, stanza.getID()).addAttribute("from",
+                sessionContext.getServerJID().getFullQualifiedName()).build());
     }
 }

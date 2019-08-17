@@ -39,7 +39,7 @@ public abstract class AbstractMUCOccupantDiscoTestCase extends AbstractMUCHandle
         ResponseStanzaContainer container = handler.execute(stanza, sessionContext.getServerRuntimeContext(), true,
                 sessionContext, null);
         if (container != null) {
-            return container.getResponseStanza();
+            return container.getUniqueResponseStanza();
         } else {
             return null;
         }

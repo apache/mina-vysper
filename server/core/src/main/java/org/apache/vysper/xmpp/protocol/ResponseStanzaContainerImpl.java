@@ -19,6 +19,14 @@
  */
 package org.apache.vysper.xmpp.protocol;
 
+import static java.util.Optional.ofNullable;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
@@ -26,18 +34,32 @@ import org.apache.vysper.xmpp.stanza.Stanza;
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class ResponseStanzaContainerImpl implements ResponseStanzaContainer {
-    private Stanza response;
+    private final List<Stanza> responses;
 
     public ResponseStanzaContainerImpl(Stanza stanza) {
-        this.response = stanza;
+        this(Collections.singletonList(stanza));
     }
 
-    public Stanza getResponseStanza() {
-        return response;
+    public ResponseStanzaContainerImpl(List<Stanza> stanzas) {
+        this.responses = ofNullable(stanzas).orElse(Collections.emptyList()).stream().filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Stanza> getResponseStanzas() {
+        return new ArrayList<>(responses);
+    }
+
+    @Override
+    public Stanza getUniqueResponseStanza() {
+        if (responses.size() > 1) {
+            throw new IllegalStateException("Found more than one response");
+        }
+        return responses.stream().findFirst().orElse(null);
     }
 
     public boolean hasResponse() {
-        return response != null;
+        return !responses.isEmpty();
     }
 
     public boolean hasNoResponse() {

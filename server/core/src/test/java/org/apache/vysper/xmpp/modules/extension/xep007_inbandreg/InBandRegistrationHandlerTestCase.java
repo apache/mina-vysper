@@ -73,7 +73,7 @@ public class InBandRegistrationHandlerTestCase {
         Stanza get = StanzaBuilder.createIQStanza(FROM, SERVER, IQStanzaType.GET, IQ_ID)
             .startInnerElement("query", NamespaceURIs.JABBER_IQ_REGISTER).build();
         
-        Stanza response = handler.execute(get, serverRuntimeContext, true, sessionContext, sessionStateHolder).getResponseStanza();
+        Stanza response = handler.execute(get, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
 
         //        <iq type='result' id='reg1'>
         //            <query xmlns='jabber:iq:register'>
@@ -110,7 +110,7 @@ public class InBandRegistrationHandlerTestCase {
         Mockito.when(sessionContext.getState()).thenReturn(SessionState.AUTHENTICATED);
         Mockito.when(sessionContext.getInitiatingEntity()).thenReturn(EXISTING);
 
-        Stanza response = handler.execute(get, serverRuntimeContext, true, sessionContext, sessionStateHolder).getResponseStanza();
+        Stanza response = handler.execute(get, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
 
         //        <iq type='result' id='reg1'>
         //            <query xmlns='jabber:iq:register'>
@@ -149,7 +149,7 @@ public class InBandRegistrationHandlerTestCase {
             .endInnerElement()
             .build();
         
-        Stanza response = handler.execute(set, serverRuntimeContext, true, sessionContext, sessionStateHolder).getResponseStanza();
+        Stanza response = handler.execute(set, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
 
         //        <iq type='result' id='reg2'/>
         Assert.assertNotNull(response);
@@ -180,7 +180,7 @@ public class InBandRegistrationHandlerTestCase {
             .endInnerElement()
             .build();
         
-        Stanza response = handler.execute(set, serverRuntimeContext, true, sessionContext, sessionStateHolder).getResponseStanza();
+        Stanza response = handler.execute(set, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
 
         //        <iq type='error' id='reg2'>
         //            <query xmlns='jabber:iq:register'>
@@ -227,7 +227,7 @@ public class InBandRegistrationHandlerTestCase {
             .endInnerElement()
             .build();
         
-        Stanza response = handler.execute(set, serverRuntimeContext, true, sessionContext, sessionStateHolder).getResponseStanza();
+        Stanza response = handler.execute(set, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
 
         //        <iq type='error' id='reg2'>
         //            <query xmlns='jabber:iq:register'>
@@ -277,7 +277,7 @@ public class InBandRegistrationHandlerTestCase {
         Mockito.when(sessionContext.getInitiatingEntity()).thenReturn(EXISTING);
 
         Stanza response = handler.execute(set, serverRuntimeContext, true, sessionContext, sessionStateHolder)
-                .getResponseStanza();
+                .getUniqueResponseStanza();
 
         //        <iq type='result' id='reg2'/>
         Assert.assertNotNull(response);

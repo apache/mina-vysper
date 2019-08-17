@@ -20,6 +20,7 @@
 
 package org.apache.vysper.xmpp.modules.core.base.handler;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.vysper.xml.fragment.XMLElement;
@@ -60,8 +61,8 @@ public class DefaultPresenceHandler extends XMPPCoreStanzaHandler {
     }
 
     @Override
-    protected Stanza executeCore(XMPPCoreStanza coreStanza, ServerRuntimeContext serverRuntimeContext,
-            boolean isOutboundStanza, SessionContext sessionContext) {
+    protected List<Stanza> executeCore(XMPPCoreStanza coreStanza, ServerRuntimeContext serverRuntimeContext,
+                                 boolean isOutboundStanza, SessionContext sessionContext) {
         PresenceStanza stanza = (PresenceStanza) coreStanza;
 
         return executePresenceLogic(stanza, serverRuntimeContext, sessionContext);
@@ -70,11 +71,11 @@ public class DefaultPresenceHandler extends XMPPCoreStanzaHandler {
     /**
      * must be overridden by specialized presence handlers
      */
-    protected Stanza executePresenceLogic(PresenceStanza stanza, ServerRuntimeContext serverRuntimeContext,
+    protected List<Stanza> executePresenceLogic(PresenceStanza stanza, ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
         // this is default behavior and must be replaced by overrider
-        return ServerErrorResponses.getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
-                StanzaErrorType.CANCEL, null, null, null);
+        return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
+                StanzaErrorType.CANCEL, null, null, null));
     }
 
 }

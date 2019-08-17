@@ -20,6 +20,7 @@
 package org.apache.vysper.xmpp.protocol.worker;
 
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.ResponseWriter;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -44,12 +45,9 @@ public class InboundStanzaProtocolWorker extends AbstractStateAwareProtocolWorke
 
     @Override
     protected void writeResponse(SessionContext sessionContext, ResponseStanzaContainer responseStanzaContainer) {
-        if (responseStanzaContainer != null && responseStanzaContainer.getResponseStanza() != null) {
-            Stanza responseStanza = responseStanzaContainer.getResponseStanza();
-
-            sessionContext.getResponseWriter().write(responseStanza);
+        if (responseStanzaContainer == null) {
             return;
         }
-        // there was nothing to write
+        ResponseWriter.writeResponse(sessionContext, responseStanzaContainer);
     }
 }

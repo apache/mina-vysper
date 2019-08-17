@@ -128,12 +128,12 @@ public class AuthCompatibilityIQHandlerTestCase {
     
     @Test
     public void handleResult() throws BindException {
-        Assert.assertNull(handler.execute(stanzaWithResult, serverRuntimeContext, false, sessionContext, sessionStateHolder));
+        Assert.assertFalse(handler.execute(stanzaWithResult, serverRuntimeContext, false, sessionContext, sessionStateHolder).hasResponse());
     }
     
     @Test
     public void handleError() throws BindException {
-        Assert.assertNull(handler.execute(stanzaWithError, serverRuntimeContext, false, sessionContext, sessionStateHolder));
+        Assert.assertFalse(handler.execute(stanzaWithError, serverRuntimeContext, false, sessionContext, sessionStateHolder).hasResponse());
     }
     
     
@@ -151,7 +151,7 @@ public class AuthCompatibilityIQHandlerTestCase {
             .addText("jabber:iq:auth not supported")
             .build();
         
-        StanzaAssert.assertEquals(expectedResponse, response.getResponseStanza());
+        StanzaAssert.assertEquals(expectedResponse, response.getUniqueResponseStanza());
     }
 
 }

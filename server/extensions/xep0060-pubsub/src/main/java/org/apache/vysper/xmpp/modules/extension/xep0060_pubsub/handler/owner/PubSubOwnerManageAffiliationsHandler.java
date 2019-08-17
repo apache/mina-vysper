@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.owner;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.vysper.compliance.SpecCompliance;
@@ -81,7 +82,7 @@ public class PubSubOwnerManageAffiliationsHandler extends AbstractPubSubOwnerHan
             @SpecCompliant(spec = "xep-0060", section = "8.9.2.2", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED),
             @SpecCompliant(spec = "xep-0060", section = "8.9.2.3.3", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED),
             @SpecCompliant(spec = "xep-0060", section = "8.9.2.3.4", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED) })
-    protected Stanza handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         Entity serverJID = serviceConfiguration.getDomainJID();
         CollectionNode root = serviceConfiguration.getRootNode();
 
@@ -94,18 +95,18 @@ public class PubSubOwnerManageAffiliationsHandler extends AbstractPubSubOwnerHan
         LeafNode node = root.find(nodeName);
 
         if (node == null) {
-            return errorStanzaGenerator.generateNoNodeErrorStanza(sender, serverJID, stanza);
+            return Collections.singletonList(errorStanzaGenerator.generateNoNodeErrorStanza(sender, serverJID, stanza));
         }
 
         if (!node.isAuthorized(sender, PubSubPrivilege.MANAGE_AFFILIATIONS)) {
-            return errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, serverJID, stanza);
+            return Collections.singletonList(errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, serverJID, stanza));
         }
 
         List<AffiliationItem> affiliations = collectAllAffiliations(node);
         buildSuccessStanza(sb, node, affiliations);
 
         sb.endInnerElement();
-        return new IQStanza(sb.build());
+        return Collections.singletonList(new IQStanza(sb.build()));
     }
 
     /**
@@ -118,7 +119,7 @@ public class PubSubOwnerManageAffiliationsHandler extends AbstractPubSubOwnerHan
             @SpecCompliant(spec = "xep-0060", section = "8.9.2.2", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.PARTIAL),
             @SpecCompliant(spec = "xep-0060", section = "8.9.2.3.3", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE),
             @SpecCompliant(spec = "xep-0060", section = "8.9.2.3.4", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE) })
-    protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         Entity serverJID = serviceConfiguration.getDomainJID();
         CollectionNode root = serviceConfiguration.getRootNode();
         Entity sender = extractSenderJID(stanza, sessionContext);
@@ -130,17 +131,17 @@ public class PubSubOwnerManageAffiliationsHandler extends AbstractPubSubOwnerHan
         LeafNode node = root.find(nodeName);
 
         if (node == null) {
-            return errorStanzaGenerator.generateNoNodeErrorStanza(sender, serverJID, stanza);
+            return Collections.singletonList(errorStanzaGenerator.generateNoNodeErrorStanza(sender, serverJID, stanza));
         }
 
         if (!node.isAuthorized(sender, PubSubPrivilege.MANAGE_AFFILIATIONS)) {
-            return errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, serverJID, stanza);
+            return Collections.singletonList(errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, serverJID, stanza));
         }
 
         XMLElement affiliationElement = null;
         try {
             if (stanza.getFirstInnerElement().getFirstInnerElement().getInnerElements().size() != 1) {
-                return errorStanzaGenerator.generateNotAcceptableErrorStanza(serverJID, sender, stanza);
+                return Collections.singletonList(errorStanzaGenerator.generateNotAcceptableErrorStanza(serverJID, sender, stanza));
             }
 
             affiliationElement = stanza.getFirstInnerElement().getFirstInnerElement().getFirstInnerElement();
@@ -149,7 +150,7 @@ public class PubSubOwnerManageAffiliationsHandler extends AbstractPubSubOwnerHan
             try {
                 userJID = EntityImpl.parse(affiliationElement.getAttributeValue("jid"));
             } catch (EntityFormatException e) {
-                return errorStanzaGenerator.generateJIDMalformedErrorStanza(serverJID, sender, stanza); // TODO not defined in the standard(?)
+                return Collections.singletonList(errorStanzaGenerator.generateJIDMalformedErrorStanza(serverJID, sender, stanza)); // TODO not defined in the standard(?)
             }
 
             PubSubAffiliation newAffiliation = PubSubAffiliation.get(affiliationElement
@@ -157,13 +158,13 @@ public class PubSubOwnerManageAffiliationsHandler extends AbstractPubSubOwnerHan
             node.setAffiliation(userJID, newAffiliation);
         } catch (LastOwnerResignedException e) {
             // if the last owner tries to resign.
-            return errorStanzaGenerator.generateNotAcceptableErrorStanza(serverJID, sender, stanza);
+            return Collections.singletonList(errorStanzaGenerator.generateNotAcceptableErrorStanza(serverJID, sender, stanza));
         } catch (Throwable t) { // possible null-pointer
-            return errorStanzaGenerator.generateBadRequestErrorStanza(serverJID, sender, stanza); // TODO not defined in the standard(?)
+            return Collections.singletonList(errorStanzaGenerator.generateBadRequestErrorStanza(serverJID, sender, stanza)); // TODO not defined in the standard(?)
         }
 
         sb.endInnerElement();
-        return new IQStanza(sb.build());
+        return Collections.singletonList(new IQStanza(sb.build()));
     }
 
     /**

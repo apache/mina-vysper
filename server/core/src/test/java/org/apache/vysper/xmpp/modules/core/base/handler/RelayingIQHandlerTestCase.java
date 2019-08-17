@@ -39,7 +39,7 @@ public class RelayingIQHandlerTestCase extends PresenceHandlerBaseTestCase {
 
         ResponseStanzaContainer stanzaContainer = relayingIQHandler.execute(iqStanza, sessionContext
                 .getServerRuntimeContext(), true, sessionContext, null /*don't we have as sessionStateHolder?*/);
-        XMPPCoreStanza response = XMPPCoreStanza.getWrapper(stanzaContainer.getResponseStanza());
+        XMPPCoreStanza response = XMPPCoreStanza.getWrapper(stanzaContainer.getUniqueResponseStanza());
         assertNotNull(response);
         assertTrue(response.isError());
     }
@@ -50,7 +50,7 @@ public class RelayingIQHandlerTestCase extends PresenceHandlerBaseTestCase {
 
         ResponseStanzaContainer stanzaContainer = relayingIQHandler.execute(iqStanza, sessionContext
                 .getServerRuntimeContext(), true, sessionContext, null /*don't we have as sessionStateHolder?*/);
-        assertNull(stanzaContainer);
+        assertFalse(stanzaContainer.hasResponse());
         Stanza deliveredStanza = subscribed_FROM.getNextStanza();
         assertTrue(deliveredStanza.getVerifier().onlySubelementEquals("mandatory", NamespaceURIs.JABBER_CLIENT));
         assertEquals(subscribed_FROM.getEntityFQ(), deliveredStanza.getTo());
@@ -62,7 +62,7 @@ public class RelayingIQHandlerTestCase extends PresenceHandlerBaseTestCase {
 
         ResponseStanzaContainer stanzaContainer = relayingIQHandler.execute(iqStanza, sessionContext
                 .getServerRuntimeContext(), false, sessionContext, null /*don't we have as sessionStateHolder?*/);
-        XMPPCoreStanza response = XMPPCoreStanza.getWrapper(stanzaContainer.getResponseStanza());
+        XMPPCoreStanza response = XMPPCoreStanza.getWrapper(stanzaContainer.getUniqueResponseStanza());
         assertNotNull(response);
         assertTrue(response.isError());
     }
@@ -73,7 +73,7 @@ public class RelayingIQHandlerTestCase extends PresenceHandlerBaseTestCase {
 
         ResponseStanzaContainer stanzaContainer = relayingIQHandler.execute(iqStanza, sessionContext
                 .getServerRuntimeContext(), false, sessionContext, null /*don't we have as sessionStateHolder?*/);
-        assertNull(stanzaContainer);
+        assertFalse(stanzaContainer.hasResponse());
         Stanza deliveredStanza = sessionContext.getNextRecordedResponse();
         assertTrue(deliveredStanza.getVerifier().onlySubelementEquals("mandatory", NamespaceURIs.JABBER_CLIENT));
         assertEquals(initiatingUser.getEntityFQ(), deliveredStanza.getTo());

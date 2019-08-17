@@ -39,6 +39,9 @@ import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * This class handles the "publish" use cases for the "pubsub" namespace.
  * 
@@ -80,7 +83,7 @@ public class PubSubPublishHandler extends AbstractPubSubGeneralHandler {
             @SpecCompliant(spec = "xep-0060", section = "7.1.3.4", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED),
             @SpecCompliant(spec = "xep-0060", section = "7.1.3.5", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED),
             @SpecCompliant(spec = "xep-0060", section = "7.1.3.6", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED) })
-    protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         Entity serverJID = serviceConfiguration.getDomainJID();
         CollectionNode root = serviceConfiguration.getRootNode();
 
@@ -99,12 +102,12 @@ public class PubSubPublishHandler extends AbstractPubSubGeneralHandler {
 
         if (node == null) {
             // node does not exist - error condition 3 (7.1.3)
-            return errorStanzaGenerator.generateNoNodeErrorStanza(sender, serverJID, stanza);
+            return Collections.singletonList(errorStanzaGenerator.generateNoNodeErrorStanza(sender, serverJID, stanza));
         }
 
         if (!node.isAuthorized(sender, PubSubPrivilege.PUBLISH)) {
             // not enough privileges to publish - error condition 1 (7.1.3)
-            return errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, serverJID, stanza);
+            return Collections.singletonList(errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, serverJID, stanza));
         }
 
         StanzaRelay relay = serverRuntimeContext.getStanzaRelay();
@@ -129,7 +132,7 @@ public class PubSubPublishHandler extends AbstractPubSubGeneralHandler {
         buildSuccessStanza(sb, nodeName, strID);
 
         sb.endInnerElement(); // pubsub
-        return new IQStanza(sb.build());
+        return Collections.singletonList(new IQStanza(sb.build()));
     }
 
     /**

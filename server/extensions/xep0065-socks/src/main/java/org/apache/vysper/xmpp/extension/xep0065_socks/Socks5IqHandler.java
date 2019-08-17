@@ -22,6 +22,8 @@ package org.apache.vysper.xmpp.extension.xep0065_socks;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.vysper.xml.fragment.XMLElement;
@@ -75,7 +77,7 @@ public class Socks5IqHandler extends DefaultIQHandler {
     }
 
     @Override
-    protected Stanza handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         /*
             C: <iq from='requester@example.com/foo'
                     id='uj2c15z9'
@@ -110,11 +112,11 @@ public class Socks5IqHandler extends DefaultIQHandler {
         builder.addAttribute("jid", jid.getFullQualifiedName())
             .addAttribute("port", Integer.toString(proxyAddress.getPort()));
         
-        return builder.build();
+        return Collections.singletonList(builder.build());
     }
 
     @Override
-    protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         /*
             C: <iq from='requester@example.com/foo'
                     id='oqx6t1c9'
@@ -149,12 +151,12 @@ public class Socks5IqHandler extends DefaultIQHandler {
             
             if(connections.activate(hash)) {
                 Stanza result = StanzaBuilder.createIQStanza(jid, requester, IQStanzaType.RESULT, stanza.getID()).build();
-                return result;
+                return Collections.singletonList(result);
             } else {
                 throw new RuntimeException("Pair not found");
             }
         } catch(Exception e) {
-            return ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza, StanzaErrorType.CANCEL, null, null, null);
+            return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST, stanza, StanzaErrorType.CANCEL, null, null, null));
         }
     }
 }

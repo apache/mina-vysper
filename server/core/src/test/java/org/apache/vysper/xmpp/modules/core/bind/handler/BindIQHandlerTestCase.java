@@ -25,6 +25,8 @@ import org.apache.vysper.StanzaAssert;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -35,6 +37,8 @@ import org.apache.vysper.xmpp.state.resourcebinding.BindException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import java.util.List;
 
 /**
  */
@@ -128,30 +132,32 @@ public class BindIQHandlerTestCase {
     public void handleSet() throws BindException {
         Mockito.when(sessionContext.bindResource()).thenReturn("res");
         
-        Stanza response = handler.handleSet(stanza, serverRuntimeContext, sessionContext);
+        List<Stanza> responses = handler.handleSet(stanza, serverRuntimeContext, sessionContext);
         
         Stanza expectedResponse = StanzaBuilder.createIQStanza(null, null, IQStanzaType.RESULT, stanza.getID())
             .startInnerElement("bind", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND)
             .startInnerElement("jid",  NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND)
             .addText(new EntityImpl(FROM, "res").getFullQualifiedName())
             .build();
-        
-        StanzaAssert.assertEquals(expectedResponse, response);
+
+        ResponseStanzaContainer responseStanzaContainer = new ResponseStanzaContainerImpl(responses);
+        StanzaAssert.assertEquals(expectedResponse, responseStanzaContainer.getUniqueResponseStanza());
     }
 
     @Test
     public void handleSetWithBindException() throws BindException {
         Mockito.when(sessionContext.bindResource()).thenThrow(new BindException());
-        
-        Stanza response = handler.handleSet(stanza, serverRuntimeContext, sessionContext);
+
+        List<Stanza> responses = handler.handleSet(stanza, serverRuntimeContext, sessionContext);
         
         Stanza expectedResponse = StanzaBuilder.createIQStanza(null, null, IQStanzaType.ERROR, stanza.getID())
             .startInnerElement("error", NamespaceURIs.JABBER_CLIENT)
             .addAttribute("type", "cancel")
             .startInnerElement("not-allowed", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS)
             .build();
-        
-        StanzaAssert.assertEquals(expectedResponse, response);
+
+        ResponseStanzaContainer responseStanzaContainer = new ResponseStanzaContainerImpl(responses);
+        StanzaAssert.assertEquals(expectedResponse, responseStanzaContainer.getUniqueResponseStanza());
     }
 
 }

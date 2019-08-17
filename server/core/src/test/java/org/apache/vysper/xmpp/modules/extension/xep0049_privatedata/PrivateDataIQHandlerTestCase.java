@@ -149,7 +149,7 @@ public class PrivateDataIQHandlerTestCase {
             .startInnerElement("foo", NS)
             .build();
         
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getResponseStanza();
+        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
 
         Stanza expected = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.RESULT, "id1")
             .startInnerElement("query", NamespaceURIs.PRIVATE_DATA)
@@ -167,7 +167,7 @@ public class PrivateDataIQHandlerTestCase {
         .addAttribute("attr", "attrval")
         .build();
         
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getResponseStanza();
+        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
         
         Stanza expected = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.RESULT, "id1")
         .startInnerElement("query", NamespaceURIs.PRIVATE_DATA)
@@ -184,7 +184,7 @@ public class PrivateDataIQHandlerTestCase {
             .startInnerElement("query", NamespaceURIs.PRIVATE_DATA)
             .build();
         
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getResponseStanza();
+        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
 
         Stanza expected = StanzaBuilder.createIQStanza(TO, FROM, IQStanzaType.ERROR, "id1")
             .startInnerElement("query", NamespaceURIs.PRIVATE_DATA).endInnerElement()
@@ -204,7 +204,7 @@ public class PrivateDataIQHandlerTestCase {
             .startInnerElement("query", NamespaceURIs.PRIVATE_DATA)
             .build();
         
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getResponseStanza();
+        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
         
         Stanza expected = StanzaBuilder.createIQStanza(TO, FROM, IQStanzaType.ERROR, "id1")
         .startInnerElement("query", NamespaceURIs.PRIVATE_DATA).endInnerElement()
@@ -226,7 +226,7 @@ public class PrivateDataIQHandlerTestCase {
         .startInnerElement("foo", NS)
         .build();
         
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getResponseStanza();
+        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
         
         Stanza expected = StanzaBuilder.createIQStanza(TO, FROM, IQStanzaType.ERROR, "id1")
         .startInnerElement("query", NamespaceURIs.PRIVATE_DATA)
@@ -255,7 +255,7 @@ public class PrivateDataIQHandlerTestCase {
             .addPreparedElement(stored)
             .build();
         
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getResponseStanza();
+        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
 
         Stanza expected = StanzaBuilder.createIQStanza(null, FROM, IQStanzaType.RESULT, "id1")
             .build();
@@ -274,7 +274,7 @@ public class PrivateDataIQHandlerTestCase {
             .startInnerElement("foo", NS)
             .build();
         
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getResponseStanza();
+        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
 
         Stanza expected = StanzaBuilder.createIQStanza(TO, FROM, IQStanzaType.ERROR, "id1")
             .startInnerElement("query", NamespaceURIs.PRIVATE_DATA)
@@ -297,7 +297,7 @@ public class PrivateDataIQHandlerTestCase {
             .startInnerElement("foo", NS)
             .build();
         
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getResponseStanza();
+        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
         
         Stanza expected = StanzaBuilder.createIQStanza(TO, FROM, IQStanzaType.ERROR, "id1")
         .startInnerElement("query", NamespaceURIs.PRIVATE_DATA)
@@ -318,7 +318,7 @@ public class PrivateDataIQHandlerTestCase {
             .startInnerElement("query", NamespaceURIs.PRIVATE_DATA)
             .build();
         
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getResponseStanza();
+        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
 
         Stanza expected = StanzaBuilder.createIQStanza(TO, FROM, IQStanzaType.ERROR, "id1")
             .startInnerElement("query", NamespaceURIs.PRIVATE_DATA)
@@ -340,7 +340,7 @@ public class PrivateDataIQHandlerTestCase {
             .startInnerElement("foo", NS)
             .build();
         
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getResponseStanza();
+        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
 
         Stanza expected = StanzaBuilder.createIQStanza(null, FROM, IQStanzaType.ERROR, "id1")
             .build();

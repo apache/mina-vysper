@@ -119,7 +119,7 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
 
         // check subscription and response stanza
         assertTrue(result.hasResponse());
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
         assertFalse(node.isSubscribed(client));
     }
@@ -133,7 +133,7 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
 
         ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsubService, "id123", "news"), true);
         assertTrue(result.hasResponse());
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
         assertEquals(IQStanzaType.ERROR.value(), response.getType());
         assertTrue(node.isSubscribed(client));
         assertEquals(2, node.countSubscriptions(client));
@@ -159,7 +159,7 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
         assertFalse(node.isSubscribed(client));
         ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsubService, "id123", "news"), true);
         assertTrue(result.hasResponse());
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
         assertEquals(IQStanzaType.ERROR.value(), response.getType());
         assertFalse(node.isSubscribed(client));
         assertEquals(0, node.countSubscriptions(client));
@@ -188,7 +188,7 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
 
         ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsubService, "id123", "news"), true);
         assertTrue(result.hasResponse());
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
         assertEquals(IQStanzaType.ERROR.value(), response.getType());
         assertFalse(node.isSubscribed(client));
         assertEquals(0, node.countSubscriptions(client));
@@ -212,7 +212,7 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
         ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsubWrongNode, "id123", "doesnotexsist"),
                 true);
         assertTrue(result.hasResponse());
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
         assertEquals(IQStanzaType.ERROR.value(), response.getType());
         assertFalse(node.isSubscribed(client));
 
@@ -238,7 +238,7 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
 
         ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsubService, "id123", "news"), true);
         assertTrue(result.hasResponse());
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
         assertEquals(IQStanzaType.ERROR.value(), response.getType());
         assertTrue(node.isSubscribed(client));
         assertEquals(2, node.countSubscriptions(client)); // still 2 subscriptions
@@ -264,7 +264,7 @@ public class PubSubUnsubscribeTestCase extends AbstractPublishSubscribeTestCase 
 
         ResponseStanzaContainer result = sendStanza(sg.getStanza(client, pubsubService, "id123", "news"), true);
         assertTrue(result.hasResponse());
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
         assertEquals(IQStanzaType.ERROR.value(), response.getType());
         assertFalse(node.isSubscribed(client));
 

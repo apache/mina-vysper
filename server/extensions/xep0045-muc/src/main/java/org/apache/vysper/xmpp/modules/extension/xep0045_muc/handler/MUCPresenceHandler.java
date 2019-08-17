@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0045_muc.handler;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.vysper.compliance.SpecCompliant;
@@ -79,17 +80,17 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         return true;
     }
 
-    private Stanza createPresenceErrorStanza(Entity from, Entity to, String id, String type, String errorName) {
+    private List<Stanza> createPresenceErrorStanza(Entity from, Entity to, String id, String type, String errorName) {
         // "Note: If an error occurs in relation to joining a room, the service SHOULD include 
         // the MUC child element (i.e., <x xmlns='http://jabber.org/protocol/muc'/>) in the 
         // <presence/> stanza of type "error"."
 
-        return MUCHandlerHelper.createErrorStanza("presence", NamespaceURIs.JABBER_CLIENT, from, to, id, type,
-                errorName, Arrays.asList((XMLElement) new X()));
+        return Collections.singletonList(MUCHandlerHelper.createErrorStanza("presence", NamespaceURIs.JABBER_CLIENT, from, to, id, type,
+                errorName, Arrays.asList((XMLElement) new X())));
     }
 
     @Override
-    protected Stanza executePresenceLogic(PresenceStanza stanza, ServerRuntimeContext serverRuntimeContext,
+    protected List<Stanza> executePresenceLogic(PresenceStanza stanza, ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext) {
         // TODO handle null
         Entity roomAndNick = stanza.getTo();
@@ -147,7 +148,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         }
     }
 
-    private Stanza available(PresenceStanza stanza, Entity roomJid, Entity newOccupantJid, String nick,
+    private List<Stanza> available(PresenceStanza stanza, Entity roomJid, Entity newOccupantJid, String nick,
             ServerRuntimeContext serverRuntimeContext) {
 
         boolean newRoom = false;
@@ -286,7 +287,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
         return null;
     }
 
-    private Stanza unavailable(PresenceStanza stanza, Entity roomJid, Entity occupantJid, String nick,
+    private List<Stanza> unavailable(PresenceStanza stanza, Entity roomJid, Entity occupantJid, String nick,
             ServerRuntimeContext serverRuntimeContext) {
         Room room = conference.findRoom(roomJid);
 

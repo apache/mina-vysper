@@ -24,6 +24,9 @@ import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  */
 public class CallTestStanzaHandlerResponse extends CallTestStanzaHandler implements ResponseStanzaContainer {
@@ -38,14 +41,19 @@ public class CallTestStanzaHandlerResponse extends CallTestStanzaHandler impleme
             boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder)
             throws ProtocolException {
         super.execute(stanza, serverRuntimeContext, true, sessionContext, null);
-        return new ResponseStanzaContainerImpl(getResponseStanza());
+        return new ResponseStanzaContainerImpl(getResponseStanzas());
     }
 
     public void setResponseStanza(Stanza response) {
         this.response = response;
     }
 
-    public Stanza getResponseStanza() {
+    public List<Stanza> getResponseStanzas() {
+        return Collections.singletonList(response);
+    }
+
+    @Override
+    public Stanza getUniqueResponseStanza() {
         return response;
     }
 

@@ -20,6 +20,7 @@
 package org.apache.vysper.xmpp.extension.xep0065_socks;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 
 import junit.framework.Assert;
 
@@ -28,6 +29,7 @@ import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -131,7 +133,8 @@ public class Socks5IqHandlerTest extends Mockito {
 
     @Test
     public void handleGet() throws BindException, XMLSemanticError {
-        Stanza response = handler.handleGet(stanza, serverRuntimeContext, sessionContext);
+        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext);
+        Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
         
         Stanza expected = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID())
             .startInnerElement("query", NamespaceURIs.XEP0065_SOCKS5_BYTESTREAMS)
@@ -148,7 +151,8 @@ public class Socks5IqHandlerTest extends Mockito {
     public void handleGetDefaultAddress() throws BindException, XMLSemanticError {
         proxyAddress = new InetSocketAddress(12345);
         handler = new Socks5IqHandler(jid, proxyAddress, connectionsRegistry);
-        Stanza response = handler.handleGet(stanza, serverRuntimeContext, sessionContext);
+        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext);
+        Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
         
         Stanza expected = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID())
         .startInnerElement("query", NamespaceURIs.XEP0065_SOCKS5_BYTESTREAMS)
@@ -175,7 +179,8 @@ public class Socks5IqHandlerTest extends Mockito {
         String hash = DigestUtils.shaHex("sid1" + FROM.getFullQualifiedName() + TARGET.getFullQualifiedName());
         when(connectionsRegistry.activate(hash)).thenReturn(true);
         
-        Stanza response = handler.handleSet(request, serverRuntimeContext, sessionContext);
+        List<Stanza> responses = handler.handleSet(request, serverRuntimeContext, sessionContext);
+        Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
         
         Stanza expected = StanzaBuilder.createIQStanza(TO, FROM, IQStanzaType.RESULT, "id1")
             .build();

@@ -79,7 +79,7 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
         ResponseStanzaContainer container = handler.execute(presenceStanza, userSessionContext
                 .getServerRuntimeContext(), true, userSessionContext, null);
         if (container != null) {
-            return container.getResponseStanza();
+            return container.getUniqueResponseStanza();
         } else {
             return null;
         }

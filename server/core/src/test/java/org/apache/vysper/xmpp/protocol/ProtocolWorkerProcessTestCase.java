@@ -119,7 +119,7 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
         stanzaHandler.setResponseStanza(null);
         protocolWorker.processStanza(sessionContext.getServerRuntimeContext(), sessionContext, stanza,
                 sessionStateHolder);
-        assertNull("handler emmitted null as response", stanzaHandler.getResponseStanza());
+        assertNull("handler emmitted null as response", stanzaHandler.getUniqueResponseStanza());
 
     }
 

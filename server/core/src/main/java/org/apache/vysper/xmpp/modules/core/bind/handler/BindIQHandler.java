@@ -31,6 +31,9 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.state.resourcebinding.BindException;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * handles bind requests
  *
@@ -45,7 +48,7 @@ public class BindIQHandler extends DefaultIQHandler {
     }
 
     @Override
-    protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
 
         // As per RFC3920.7, the client may propose a resource id to the server:
         //
@@ -71,15 +74,15 @@ public class BindIQHandler extends DefaultIQHandler {
                         NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND).addText(entity.getFullQualifiedName())
                 .endInnerElement().endInnerElement();
 
-        return stanzaBuilder.build();
+        return Collections.singletonList(stanzaBuilder.build());
     }
 
-    private Stanza bindError(IQStanza stanza, SessionContext sessionContext) {
+    private List<Stanza> bindError(IQStanza stanza, SessionContext sessionContext) {
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(null, null, IQStanzaType.ERROR, stanza.getID())
                 .startInnerElement("error", NamespaceURIs.JABBER_CLIENT).addAttribute("type", "cancel")
                 .startInnerElement("not-allowed", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).endInnerElement();
 
-        return stanzaBuilder.build();
+        return Collections.singletonList(stanzaBuilder.build());
     }
 
 }

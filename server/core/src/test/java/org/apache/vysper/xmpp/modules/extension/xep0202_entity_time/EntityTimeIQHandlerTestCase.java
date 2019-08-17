@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0202_entity_time;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 import junit.framework.Assert;
@@ -26,6 +27,8 @@ import junit.framework.Assert;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -119,7 +122,8 @@ public class EntityTimeIQHandlerTestCase {
 
     @Test
     public void handleGet() throws BindException, XMLSemanticError {
-        Stanza response = handler.handleGet(stanza, serverRuntimeContext, sessionContext);
+        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext);
+        Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
         
         Assert.assertNotNull(response);
         Assert.assertEquals("iq", response.getName());

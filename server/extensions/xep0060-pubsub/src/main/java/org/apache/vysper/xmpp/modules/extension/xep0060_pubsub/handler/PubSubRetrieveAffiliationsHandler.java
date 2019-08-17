@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.vysper.compliance.SpecCompliant;
@@ -66,7 +67,7 @@ public class PubSubRetrieveAffiliationsHandler extends AbstractPubSubGeneralHand
      * @return the appropriate response stanza
      */
     @Override
-    protected Stanza handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         Entity serverJID = serviceConfiguration.getDomainJID();
         CollectionNode root = serviceConfiguration.getRootNode();
 
@@ -81,7 +82,7 @@ public class PubSubRetrieveAffiliationsHandler extends AbstractPubSubGeneralHand
         buildSuccessStanza(sb, subscriptions);
 
         sb.endInnerElement(); // pubsub
-        return new IQStanza(sb.build());
+        return Collections.singletonList(new IQStanza(sb.build()));
     }
 
     /**

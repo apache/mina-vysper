@@ -211,7 +211,7 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
                 return;
             }
             if(container != null && container.hasResponse()) {
-                sessionContext.write(container.getResponseStanza());
+                container.getResponseStanzas().forEach(sessionContext::write);
             }
             
             if(sessionStateHolder.getState() == SessionState.AUTHENTICATED) {

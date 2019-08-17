@@ -78,7 +78,7 @@ public class PubSubOwnerModifyAffiliationsTestCase extends AbstractPublishSubscr
 
         assertTrue(result.hasResponse());
 
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
         assertEquals(IQStanzaType.ERROR.value(), response.getType());
 
         assertEquals("id123", response.getAttributeValue("id")); // IDs must match
@@ -102,7 +102,7 @@ public class PubSubOwnerModifyAffiliationsTestCase extends AbstractPublishSubscr
         Stanza stanza = sg.getStanza(client, pubsubService, "id123", testNode);
         ResponseStanzaContainer result = sendStanza(stanza, true);
         assertTrue(result.hasResponse());
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
         assertEquals(IQStanzaType.ERROR.value(), response.getType());
 
         assertEquals("id123", response.getAttributeValue("id")); // IDs must match
@@ -129,7 +129,7 @@ public class PubSubOwnerModifyAffiliationsTestCase extends AbstractPublishSubscr
 
         assertTrue(result.hasResponse());
 
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
         assertEquals("4711", response.getAttributeValue("id")); // IDs must match
 
@@ -151,7 +151,7 @@ public class PubSubOwnerModifyAffiliationsTestCase extends AbstractPublishSubscr
 
         assertTrue(result.hasResponse());
 
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
         assertEquals("4711", response.getAttributeValue("id")); // IDs must match
 
@@ -173,7 +173,7 @@ public class PubSubOwnerModifyAffiliationsTestCase extends AbstractPublishSubscr
 
         assertTrue(result.hasResponse());
 
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
         assertEquals(IQStanzaType.ERROR.value(), response.getType());
 
         assertEquals("4711", response.getAttributeValue("id")); // IDs must match

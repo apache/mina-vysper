@@ -37,6 +37,9 @@ import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * This class handles the "unsubscribe" use cases for the "pubsub" namespace.
  * 
@@ -75,7 +78,7 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
             @SpecCompliant(spec = "xep-0060", section = "6.2.3.3", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE),
             @SpecCompliant(spec = "xep-0060", section = "6.2.3.4", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE),
             @SpecCompliant(spec = "xep-0060", section = "6.2.3.5", status = SpecCompliant.ComplianceStatus.FINISHED, coverage = SpecCompliant.ComplianceCoverage.COMPLETE) })
-    protected Stanza handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
         Entity serverJID = serviceConfiguration.getDomainJID();
         CollectionNode root = serviceConfiguration.getRootNode();
 
@@ -93,12 +96,12 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
             subJID = EntityImpl.parse(strSubJID);
         } catch (EntityFormatException e) {
             // return error stanza... (general error)
-            return errorStanzaGenerator.generateJIDMalformedErrorStanza(sender, serverJID, stanza);
+            return Collections.singletonList(errorStanzaGenerator.generateJIDMalformedErrorStanza(sender, serverJID, stanza));
         }
 
         if (!sender.getBareJID().equals(subJID.getBareJID())) {
             // insufficient privileges (error condition 3 (6.2.3))
-            return errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, serverJID, stanza);
+            return Collections.singletonList(errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, serverJID, stanza));
         }
 
         String nodeName = extractNodeName(stanza);
@@ -106,28 +109,28 @@ public class PubSubUnsubscribeHandler extends AbstractPubSubGeneralHandler {
 
         if (node == null) {
             // no such node (error condition 4 (6.2.3))
-            return errorStanzaGenerator.generateNoNodeErrorStanza(sender, serverJID, stanza);
+            return Collections.singletonList(errorStanzaGenerator.generateNoNodeErrorStanza(sender, serverJID, stanza));
         }
 
         if (strSubID == null) {
             try {
                 if (!node.unsubscribe(subJID)) {
                     // has no subscription (6.2.3.2)
-                    return errorStanzaGenerator.generateNoSuchSubscriberErrorStanza(sender, serverJID, stanza);
+                    return Collections.singletonList(errorStanzaGenerator.generateNoSuchSubscriberErrorStanza(sender, serverJID, stanza));
                 }
             } catch (MultipleSubscriptionException e) {
                 // error case 6.2.3.1
-                return errorStanzaGenerator.generateSubIDRequiredErrorStanza(sender, serverJID, stanza);
+                return Collections.singletonList(errorStanzaGenerator.generateSubIDRequiredErrorStanza(sender, serverJID, stanza));
             }
         } else {
             if (!node.unsubscribe(strSubID, subJID)) {
                 // subID not valid (6.2.3.5)
-                return errorStanzaGenerator.generateSubIDNotValidErrorStanza(sender, serverJID, stanza);
+                return Collections.singletonList(errorStanzaGenerator.generateSubIDNotValidErrorStanza(sender, serverJID, stanza));
             }
         }
 
         sb.endInnerElement(); // pubsub
-        return new IQStanza(sb.build());
+        return Collections.singletonList(new IQStanza(sb.build()));
     }
 
 }

@@ -74,7 +74,7 @@ public class PubSubOwnerRetrieveAffiliationsTestCase extends AbstractPublishSubs
 
         assertTrue(result.hasResponse());
 
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
         assertEquals(IQStanzaType.ERROR.value(), response.getType());
 
         assertEquals("id123", response.getAttributeValue("id")); // IDs must match
@@ -97,7 +97,7 @@ public class PubSubOwnerRetrieveAffiliationsTestCase extends AbstractPublishSubs
         Stanza stanza = sg.getStanza(client, pubsubService, "id123", testNode);
         ResponseStanzaContainer result = sendStanza(stanza, true);
         assertTrue(result.hasResponse());
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
         assertEquals(IQStanzaType.ERROR.value(), response.getType());
 
         assertEquals("id123", response.getAttributeValue("id")); // IDs must match
@@ -120,7 +120,7 @@ public class PubSubOwnerRetrieveAffiliationsTestCase extends AbstractPublishSubs
 
         assertTrue(result.hasResponse());
 
-        IQStanza response = new IQStanza(result.getResponseStanza());
+        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
         XMLElement sub = response.getFirstInnerElement().getFirstInnerElement();
         assertEquals("affiliations", sub.getName());
