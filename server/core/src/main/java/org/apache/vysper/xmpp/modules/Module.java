@@ -20,7 +20,9 @@
 package org.apache.vysper.xmpp.modules;
 
 import java.util.List;
+import java.util.Optional;
 
+import org.apache.vysper.event.EventListenerDictionary;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.XMPPServer;
@@ -33,6 +35,8 @@ import org.apache.vysper.xmpp.server.XMPPServer;
  * <li>doing initializations, for example adding request listeners to the ServiceDiscoveryRequestListenerRegistry</li>
  * <li>adding dictionaries with new stanza handlers getting registered with the server which then get called as
  *     matching stanzas arrive</li>
+ * <li>adding dictionaries with new event listeners getting registered with the server which then get called as
+ *     matching events are published</li>
  * </ul>
  *
  * TODO: think about returning the supported XEPs
@@ -41,6 +45,7 @@ import org.apache.vysper.xmpp.server.XMPPServer;
  * @see org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule recommended for modules responding to service disco requests
  * @see org.apache.vysper.xmpp.modules.ServerRuntimeContextService
  * @see org.apache.vysper.xmpp.protocol.HandlerDictionary
+ * @see EventListenerDictionary
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
@@ -51,9 +56,14 @@ public interface Module {
     String getVersion();
 
     /**
-     * all dictionaries to be added to the server
+     * all stanza handler dictionaries to be added to the server
      */
     List<HandlerDictionary> getHandlerDictionaries();
+
+    /**
+     * @return The event listener dictionary to be added to the server
+     */
+    Optional<EventListenerDictionary> getEventListenerDictionary(); 
 
     /**
      * all objects to be added to the server runtime context

@@ -28,6 +28,8 @@ import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.vysper.event.EventBus;
+import org.apache.vysper.event.SimpleEventBus;
 import org.apache.vysper.storage.OpenStorageProviderRegistry;
 import org.apache.vysper.storage.StorageProvider;
 import org.apache.vysper.storage.StorageProviderRegistry;
@@ -63,7 +65,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultServerRuntimeContext implements ServerRuntimeContext, ModuleRegistry {
 
-    final Logger logger = LoggerFactory.getLogger(DefaultServerRuntimeContext.class);
+    private final Logger logger = LoggerFactory.getLogger(DefaultServerRuntimeContext.class);
 
     // basic internal data structures and configuration...
 
@@ -124,7 +126,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     /**
      * collection of all other services, which are mostly add-ons to the minimal setup
      */
-    final private Map<String, ServerRuntimeContextService> serverRuntimeContextServiceMap = new HashMap<String, ServerRuntimeContextService>();
+    private final Map<String, ServerRuntimeContextService> serverRuntimeContextServiceMap = new HashMap<String, ServerRuntimeContextService>();
 
     private List<Module> modules = new ArrayList<Module>();
     
@@ -132,12 +134,15 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
      * map of all registered components, index by the subdomain they are registered for
      */
     protected final Map<String, Component> componentMap = new HashMap<String, Component>();
+    
+    private final SimpleEventBus eventBus;
 
     public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay) {
         this.serverEntity = serverEntity;
         this.stanzaRelay = stanzaRelay;
         this.resourceRegistry = new DefaultResourceRegistry();
         this.stanzaHandlerLookup = new StanzaHandlerLookup(this);
+        this.eventBus = new SimpleEventBus();
     }
 
     public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay,
@@ -304,7 +309,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
      * XMPP extension ('XEP') to it.
      * @see org.apache.vysper.xmpp.modules.Module
      * @see DefaultServerRuntimeContext#addModules(java.util.List) for adding a number of modules at once
-     * @param modules
+     * @param module
      */
     public void addModule(Module module) {
         addModuleInternal(module);
@@ -337,6 +342,8 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
 
         }
 
+        module.getEventListenerDictionary().ifPresent(eventBus::addDictionary);
+
         if (module instanceof Component) {
             registerComponent((Component) module);
         }
@@ -354,7 +361,12 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         }
         return null;
     }
-    
+
+    @Override
+    public EventBus getEventBus() {
+        return eventBus;
+    }
+
     public void registerComponent(Component component) {
         componentMap.put(component.getSubdomain(), component);
     }
