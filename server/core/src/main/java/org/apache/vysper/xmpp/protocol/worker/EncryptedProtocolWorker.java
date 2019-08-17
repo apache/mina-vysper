@@ -47,17 +47,18 @@ public class EncryptedProtocolWorker extends AbstractStateAwareProtocolWorker {
     protected boolean checkState(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
             StanzaHandler stanzaHandler) {
 
-        if (stanzaHandler instanceof StreamStartHandler) {
+        Class<?> handlerUnwrappedType = stanzaHandler.unwrapType();
+        if (StreamStartHandler.class.isAssignableFrom(handlerUnwrappedType)) {
             return true;
-        } else if (stanzaHandler instanceof AbstractSASLHandler) {
+        } else if (AbstractSASLHandler.class.isAssignableFrom(handlerUnwrappedType)) {
             return true;
-        } else if (stanzaHandler instanceof XMLPrologHandler) {
-            return true; // PSI client sends that. 
-        } else if (stanzaHandler instanceof InBandRegistrationHandler) {
+        } else if (XMLPrologHandler.class.isAssignableFrom(handlerUnwrappedType)) {
+            return true; // PSI client sends that.
+        } else if (InBandRegistrationHandler.class.isAssignableFrom(handlerUnwrappedType)) {
             return true;
-        } else if (sessionContext.isServerToServer() && stanzaHandler instanceof DbResultHandler) {
+        } else if (sessionContext.isServerToServer() && DbResultHandler.class.isAssignableFrom(handlerUnwrappedType)) {
             return true;
-        } else if (sessionContext.isServerToServer() && stanzaHandler instanceof DbVerifyHandler) {
+        } else if (sessionContext.isServerToServer() && DbVerifyHandler.class.isAssignableFrom(handlerUnwrappedType)) {
             return true;
         }
         ResponseWriter.writeUnsupportedStanzaError(sessionContext);

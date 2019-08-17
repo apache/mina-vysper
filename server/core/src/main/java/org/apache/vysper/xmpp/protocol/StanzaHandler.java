@@ -39,6 +39,17 @@ public interface StanzaHandler {
     public String getName();
 
     /**
+     * Allows to check the type of the handler by maintaining compatibility with
+     * delegating handlers. Delegating handlers are expected to delegate this call
+     * to their delegates.
+     * 
+     * @return The type wrapped by this handler
+     */
+    default Class<?> unwrapType() {
+        return getClass();
+    }
+
+    /**
      * verifies if the stanza is processed by this handler
      * @param stanza
      * @return true, if it is processed, false otherwise

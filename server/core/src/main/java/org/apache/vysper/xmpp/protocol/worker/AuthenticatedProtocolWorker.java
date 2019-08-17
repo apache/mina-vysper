@@ -36,7 +36,7 @@ public class AuthenticatedProtocolWorker extends AbstractStateAwareProtocolWorke
     @Override
     protected boolean checkState(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
             StanzaHandler stanzaHandler) {
-        if (stanzaHandler instanceof StreamStartHandler)
+        if (StreamStartHandler.class.isAssignableFrom(stanzaHandler.unwrapType()))
             return true;
         if (stanzaHandler.verify(stanza))
             return true;

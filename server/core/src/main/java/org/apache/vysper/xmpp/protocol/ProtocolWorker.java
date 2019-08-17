@@ -108,7 +108,7 @@ public class ProtocolWorker implements StanzaProcessor {
         if (sessionStateHolder.getState() != SessionState.AUTHENTICATED) {
             // is not authenticated...
             if (XMPPCoreStanza.getWrapper(stanza) != null
-                    && !(stanzaHandler instanceof InBandRegistrationHandler)) {
+                    && !(InBandRegistrationHandler.class.isAssignableFrom(stanzaHandler.unwrapType()))) {
                 // ... and is a IQ/PRESENCE/MESSAGE stanza!
                 responseWriter.handleNotAuthorized(sessionContext, stanza);
                 return;
