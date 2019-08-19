@@ -54,13 +54,13 @@
     </dependency>
 
     <dependency>
-      <groupId>jivesoftware</groupId>
+      <groupId>org.igniterealtime.smack</groupId>
       <artifactId>smack</artifactId>
       <scope>test</scope>
     </dependency>
 
     <dependency>
-      <groupId>jivesoftware</groupId>
+      <groupId>org.igniterealtime.smack</groupId>
       <artifactId>smackx</artifactId>
       <scope>test</scope>
     </dependency>
