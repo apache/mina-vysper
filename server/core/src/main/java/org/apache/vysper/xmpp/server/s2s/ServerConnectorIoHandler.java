@@ -1,23 +1,24 @@
 package org.apache.vysper.xmpp.server.s2s;
 
+import java.io.IOException;
+
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.filter.ssl.SslFilter;
+import org.apache.mina.filter.ssl.SslEvent;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-
 /**
  * handler for server-to-server connections
-*/
+ */
 public class ServerConnectorIoHandler extends IoHandlerAdapter {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(ServerConnectorIoHandler.class);
-    
+
     protected final Entity remoteServer;
+
     protected final XMPPServerConnector serverConnector;
 
     ServerConnectorIoHandler(Entity remoteServer, XMPPServerConnector serverConnector) {
@@ -40,7 +41,8 @@ public class ServerConnectorIoHandler extends IoHandlerAdapter {
             }
             serverConnector.close();
         } else {
-            LOG.warn("Exception {} thrown by XMPP server connector to " + remoteServer + ", probably a bug in Vysper: {}", cause.getClass().getName(), cause.getMessage());
+            LOG.warn("Exception {} thrown by XMPP server connector to " + remoteServer
+                    + ", probably a bug in Vysper: {}", cause.getClass().getName(), cause.getMessage());
         }
     }
 
@@ -49,12 +51,12 @@ public class ServerConnectorIoHandler extends IoHandlerAdapter {
      */
     @Override
     public void messageReceived(IoSession session, Object message) {
-        if(message == SslFilter.SESSION_SECURED) {
+        if (message == SslEvent.SECURED) {
             serverConnector.handleSessionSecured();
-        } else if(message == SslFilter.SESSION_UNSECURED) {
+        } else if (message == SslEvent.UNSECURED) {
             // unsecured, closing
             serverConnector.close();
-        } else if(message instanceof Stanza) {
+        } else if (message instanceof Stanza) {
             Stanza stanza = (Stanza) message;
             serverConnector.handleReceivedStanza(stanza);
         } else {

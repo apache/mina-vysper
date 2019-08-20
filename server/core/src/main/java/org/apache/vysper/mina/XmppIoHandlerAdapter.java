@@ -25,6 +25,8 @@ import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteToClosedSessionException;
+import org.apache.mina.filter.FilterEvent;
+import org.apache.mina.filter.ssl.SslEvent;
 import org.apache.mina.filter.ssl.SslFilter;
 import org.apache.vysper.xml.fragment.XMLText;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
@@ -58,6 +60,7 @@ public class XmppIoHandlerAdapter implements IoHandler {
         this.serverRuntimeContext = serverRuntimeContext;
     }
 
+    @Override
     public void messageReceived(IoSession ioSession, Object message) throws Exception {
         if (!(message instanceof Stanza)) {
             if (message instanceof XMLText) {
@@ -67,8 +70,8 @@ public class XmppIoHandlerAdapter implements IoHandler {
                     return;
             }
 
-            messageReceivedNoStanza(ioSession, message);
-            return;
+            throw new IllegalArgumentException("xmpp handler only accepts Stanza-typed messages, but received type "
+                    + message.getClass());
         }
 
         Stanza stanza = (Stanza) message;
@@ -79,27 +82,11 @@ public class XmppIoHandlerAdapter implements IoHandler {
         serverRuntimeContext.getStanzaProcessor().processStanza(serverRuntimeContext, session, stanza, stateHolder);
     }
 
-    private void messageReceivedNoStanza(IoSession ioSession, Object message) {
-        if (message == SslFilter.SESSION_SECURED) {
-            SessionContext session = extractSession(ioSession);
-            SessionStateHolder stateHolder = (SessionStateHolder) ioSession
-                    .getAttribute(ATTRIBUTE_VYSPER_SESSIONSTATEHOLDER);
-            serverRuntimeContext.getStanzaProcessor().processTLSEstablished(session, stateHolder);
-            return;
-        } else if (message == SslFilter.SESSION_UNSECURED) {
-            // TODO
-            return;
-            //            throw new IllegalStateException("server must close session!");
-        }
-
-        throw new IllegalArgumentException("xmpp handler only accepts Stanza-typed messages, but received type "
-                + message.getClass());
-    }
-
     private SessionContext extractSession(IoSession ioSession) {
         return (SessionContext) ioSession.getAttribute(ATTRIBUTE_VYSPER_SESSION);
     }
 
+    @Override
     public void messageSent(IoSession ioSession, Object o) throws Exception {
         // TODO implement
     }
@@ -109,6 +96,19 @@ public class XmppIoHandlerAdapter implements IoHandler {
         ioSession.closeNow();
     }
 
+    @Override
+    public void event(IoSession ioSession, FilterEvent event) throws Exception {
+        if (event == SslEvent.SECURED) {
+            SessionContext session = extractSession(ioSession);
+            SessionStateHolder stateHolder = (SessionStateHolder) ioSession
+                    .getAttribute(ATTRIBUTE_VYSPER_SESSIONSTATEHOLDER);
+            serverRuntimeContext.getStanzaProcessor().processTLSEstablished(session, stateHolder);
+        } else if (event == SslEvent.UNSECURED) {
+            // TODO
+        }
+    }
+
+    @Override
     public void sessionCreated(IoSession ioSession) throws Exception {
         SessionStateHolder stateHolder = new SessionStateHolder();
         SessionContext sessionContext = new MinaBackedSessionContext(serverRuntimeContext, stateHolder, ioSession);
@@ -117,10 +117,12 @@ public class XmppIoHandlerAdapter implements IoHandler {
         ioSession.setAttribute(ATTRIBUTE_VYSPER_TERMINATE_REASON, SessionTerminationCause.CLIENT_BYEBYE);
     }
 
+    @Override
     public void sessionOpened(IoSession ioSession) throws Exception {
         logger.info("new session from {} has been opened", ioSession.getRemoteAddress());
     }
 
+    @Override
     public void sessionClosed(IoSession ioSession) throws Exception {
         SessionContext sessionContext = extractSession(ioSession);
         SessionTerminationCause cause = (SessionTerminationCause) ioSession.getAttribute(ATTRIBUTE_VYSPER_TERMINATE_REASON);
@@ -132,11 +134,13 @@ public class XmppIoHandlerAdapter implements IoHandler {
         logger.info("session {} has been closed", sessionId);
     }
 
+    @Override
     public void sessionIdle(IoSession ioSession, IdleStatus idleStatus) throws Exception {
         logger.debug("session {} is idle", ((SessionContext) ioSession.getAttribute(ATTRIBUTE_VYSPER_SESSION))
                 .getSessionId());
     }
 
+    @Override
     public void exceptionCaught(IoSession ioSession, Throwable throwable) throws Exception {
         SessionContext sessionContext = extractSession(ioSession);
         

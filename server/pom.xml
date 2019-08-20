@@ -32,21 +32,11 @@
 
   <modules>
     <module>core</module>
+    <module>core-inttest</module>
     <module>extensions</module>
     <module>storage</module>
     <module>admin-console</module>
   </modules>
-
-  <profiles>
-    <profile>
-      <id>inttest</id>
-      <modules>
-        <module>core</module>
-        <module>core-inttest</module>
-        <module>extensions</module>
-      </modules>
-    </profile>
-  </profiles>
 
   <properties>
     <maven.compile.source>1.8</maven.compile.source>

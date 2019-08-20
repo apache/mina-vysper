@@ -33,23 +33,10 @@
   <modules>
     <module>xep0060-pubsub</module>
     <module>xep0045-muc</module>
+    <module>xep0045-muc-inttest</module>
     <module>xep0065-socks</module>
     <module>xep0124-xep0206-bosh</module>
     <module>websockets</module>
   </modules>
-
-  <profiles>
-    <profile>
-      <id>inttest</id>
-      <modules>
-      <module>xep0060-pubsub</module>
-      <module>xep0045-muc</module>
-      <module>xep0045-muc-inttest</module>
-      <module>xep0124-xep0206-bosh</module>
-      <module>xep0065-socks</module>
-      <module>websockets</module>
-      </modules>
-    </profile>
-  </profiles>
 
 </project>
