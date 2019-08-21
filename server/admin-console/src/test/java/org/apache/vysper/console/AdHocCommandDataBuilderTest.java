@@ -23,9 +23,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.jivesoftware.smackx.FormField;
-import org.jivesoftware.smackx.packet.AdHocCommandData;
-import org.jivesoftware.smackx.packet.DataForm;
+import org.jivesoftware.smackx.commands.packet.AdHocCommandData;
+import org.jivesoftware.smackx.xdata.FormField;
+import org.jivesoftware.smackx.xdata.packet.DataForm;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -57,10 +57,10 @@ public class AdHocCommandDataBuilderTest {
         AdHocCommandData commandData = builder.build(parameters);
         
         DataForm form = commandData.getForm();
-        Assert.assertTrue(form.getFields().hasNext());
-        FormField field = form.getFields().next();
+        Assert.assertFalse(form.getFields().isEmpty());
+        FormField field = form.getFields().get(0);
         
-        Iterator<String> values = field.getValues();
+        Iterator<CharSequence> values = field.getValues().iterator();
         Assert.assertEquals("value 1", values.next());
         Assert.assertEquals("value 2", values.next());
         Assert.assertFalse(values.hasNext());

@@ -31,15 +31,26 @@ import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authentication.AccountManagement;
+import org.apache.vysper.xmpp.cryptography.NonCheckingX509TrustManagerFactory;
 import org.apache.vysper.xmpp.server.XMPPServer;
 import org.jivesoftware.smack.ConnectionConfiguration;
-import org.jivesoftware.smack.PacketCollector;
 import org.jivesoftware.smack.SmackConfiguration;
+import org.jivesoftware.smack.SmackException;
+import org.jivesoftware.smack.StanzaCollector;
 import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.debugger.ConsoleDebugger;
 import org.jivesoftware.smack.filter.PacketIDFilter;
+import org.jivesoftware.smack.filter.StanzaIdFilter;
 import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.packet.Stanza;
+import org.jivesoftware.smack.sasl.SASLMechanism;
+import org.jivesoftware.smack.tcp.XMPPTCPConnection;
+import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSession;
 
 /**
  */
@@ -59,7 +70,7 @@ public abstract class AbstractIntegrationTestCase extends TestCase {
 
     private static final int DEFAULT_SERVER_PORT = 25222;
 
-    protected XMPPConnection client;
+    protected XMPPTCPConnection client;
 
     private XMPPServer server;
 
@@ -72,7 +83,7 @@ public abstract class AbstractIntegrationTestCase extends TestCase {
     @Override
     protected void setUp() throws Exception {
         // make sure Smack times out after 5 seconds
-        SmackConfiguration.setPacketReplyTimeout(5000);
+        SmackConfiguration.setDefaultReplyTimeout(5000);
 
         port = findFreePort();
 
@@ -105,30 +116,34 @@ public abstract class AbstractIntegrationTestCase extends TestCase {
         Thread.sleep(200);
     }
 
-    protected XMPPConnection connectClient(int port, String username, String password) throws Exception {
-        ConnectionConfiguration connectionConfiguration = new ConnectionConfiguration("localhost", port);
-        connectionConfiguration.setCompressionEnabled(false);
-        connectionConfiguration.setSecurityMode(ConnectionConfiguration.SecurityMode.required);
-        connectionConfiguration.setSASLAuthenticationEnabled(true);
-        connectionConfiguration.setDebuggerEnabled(false);
-        connectionConfiguration.setKeystorePath("src/main/config/bogus_mina_tls.cert");
-        connectionConfiguration.setTruststorePath("src/main/config/bogus_mina_tls.cert");
-        connectionConfiguration.setTruststorePassword("boguspw");
+    protected XMPPTCPConnection connectClient(int port, String username, String password) throws Exception {
+        XMPPTCPConnectionConfiguration connectionConfiguration = XMPPTCPConnectionConfiguration
+                .builder()
+                .setHost("localhost")
+                .setXmppDomain(SERVER_DOMAIN)
+                .setPort(port)
+                .setCompressionEnabled(false)
+                .setSecurityMode(ConnectionConfiguration.SecurityMode.required)
+                .addEnabledSaslMechanism(SASLMechanism.PLAIN)
+                .setHostnameVerifier((hostname, session) -> true)
+                .setDebuggerFactory(ConsoleDebugger.Factory.INSTANCE)
+                .setKeystorePath("src/main/config/bogus_mina_tls.cert")
+                .setCustomX509TrustManager(NonCheckingX509TrustManagerFactory.X509)
+                .build();
 
-        XMPPConnection.DEBUG_ENABLED = true;
-        XMPPConnection client = new XMPPConnection(connectionConfiguration);
+        XMPPTCPConnection client = new XMPPTCPConnection(connectionConfiguration);
 
         client.connect();
-
         client.login(username, password);
+
         return client;
     }
 
-    protected Packet sendSync(XMPPConnection client, Packet request) {
+    protected Stanza sendSync(XMPPConnection client, Stanza request) throws SmackException.NotConnectedException, InterruptedException {
         // Create a packet collector to listen for a response.
-        PacketCollector collector = client.createPacketCollector(new PacketIDFilter(request.getPacketID()));
+        StanzaCollector collector = client.createStanzaCollector(new StanzaIdFilter(request.getStanzaId()));
 
-        client.sendPacket(request);
+        client.sendStanza(request);
 
         // Wait up to 5 seconds for a result.
         return collector.nextResult(5000);

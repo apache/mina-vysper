@@ -30,12 +30,12 @@ public class ModerationIntegrationTestCase extends AbstractMUCIntegrationTestCas
     public void testGrantModeration() throws Exception {
         chat.join(NICK1);
         
-        Room room = conference.findRoom(EntityImpl.parseUnchecked(ROOM_JID));
-        assertEquals(Role.Moderator, room.findOccupantByNick(NICK1).getRole());
+        Room room = conference.findRoom(EntityImpl.parseUnchecked(ROOM_JID.toString()));
+        assertEquals(Role.Moderator, room.findOccupantByNick(NICK1.toString()).getRole());
         
         chat2.join(NICK2);
         
         chat.grantModerator(NICK2);
-        assertEquals(Role.Moderator, room.findOccupantByNick(NICK2).getRole());
+        assertEquals(Role.Moderator, room.findOccupantByNick(NICK2.toString()).getRole());
     }
 }

@@ -19,9 +19,8 @@
  */
 package org.apache.vysper.console;
 
-import org.jivesoftware.smackx.FormField;
-import org.jivesoftware.smackx.FormField.Option;
-import org.jivesoftware.smackx.packet.DataForm;
+import org.jivesoftware.smackx.xdata.FormField;
+import org.jivesoftware.smackx.xdata.packet.DataForm;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,13 +32,13 @@ public class HtmlFormBuilderTest {
     private static final String VALUE2 = "Value 2";
     private static final String VALUE3 = "Value 3";
 
-    private DataForm form = new DataForm("form");
+    private DataForm form = new DataForm(DataForm.Type.form);
     private HtmlFormBuilder builder = new HtmlFormBuilder();
 
     @Test
     public void testHiddenField() {
         FormField field = new FormField("abc def");
-        field.setType("hidden");
+        field.setType(FormField.Type.hidden);
         field.addValue(VALUE1);
         form.addField(field);
         
@@ -52,7 +51,7 @@ public class HtmlFormBuilderTest {
     @Test
     public void testTextPrivateField() {
         FormField field = new FormField("abc def");
-        field.setType("text-private");
+        field.setType(FormField.Type.text_private);
         field.addValue(VALUE1);
         form.addField(field);
         
@@ -65,7 +64,7 @@ public class HtmlFormBuilderTest {
     @Test
     public void testTextSingleField() {
         FormField field = new FormField("abc def");
-        field.setType("text-single");
+        field.setType(FormField.Type.text_single);
         field.addValue(VALUE1);
         form.addField(field);
         
@@ -77,8 +76,7 @@ public class HtmlFormBuilderTest {
 
     @Test
     public void testFixedField() {
-        FormField field = new FormField("abc def");
-        field.setType("fixed");
+        FormField field = new FormField();
         field.addValue(VALUE1);
         field.setLabel(LABEL);
         form.addField(field);
@@ -92,7 +90,7 @@ public class HtmlFormBuilderTest {
     @Test
     public void testJidSingleField() {
         FormField field = new FormField("abc def");
-        field.setType("jid-single");
+        field.setType(FormField.Type.jid_single);
         field.addValue(VALUE1);
         form.addField(field);
         
@@ -105,7 +103,7 @@ public class HtmlFormBuilderTest {
     @Test
     public void testTextMultiField() {
         FormField field = new FormField("abc def");
-        field.setType("text-multi");
+        field.setType(FormField.Type.text_multi);
         field.addValue(VALUE1);
         field.addValue(VALUE2);
         field.addValue(VALUE3);
@@ -120,7 +118,7 @@ public class HtmlFormBuilderTest {
     @Test
     public void testJidMultiField() {
         FormField field = new FormField("abc def");
-        field.setType("jid-multi");
+        field.setType(FormField.Type.jid_multi);
         field.addValue(VALUE1);
         field.addValue(VALUE2);
         field.addValue(VALUE3);
@@ -135,9 +133,9 @@ public class HtmlFormBuilderTest {
     @Test
     public void listSingleFieldNoValue() {
         FormField field = new FormField("abc def");
-        field.setType("list-single");
-        field.addOption(new Option("Label 1", VALUE1));
-        field.addOption(new Option(VALUE2));
+        field.setType(FormField.Type.list_single);
+        field.addOption(new FormField.Option("Label 1", VALUE1));
+        field.addOption(new FormField.Option(VALUE2));
         form.addField(field);
         
         String actual = builder.build(form);
@@ -149,9 +147,9 @@ public class HtmlFormBuilderTest {
     @Test
     public void listSingleFieldWithValue() {
         FormField field = new FormField("abc def");
-        field.setType("list-single");
-        field.addOption(new Option("Label 1", VALUE1));
-        field.addOption(new Option(VALUE2));
+        field.setType(FormField.Type.list_single);
+        field.addOption(new FormField.Option("Label 1", VALUE1));
+        field.addOption(new FormField.Option(VALUE2));
         field.addValue(VALUE1);
         form.addField(field);
         
@@ -164,9 +162,9 @@ public class HtmlFormBuilderTest {
     @Test
     public void listMultiFieldNoValue() {
         FormField field = new FormField("abc def");
-        field.setType("list-multi");
-        field.addOption(new Option("Label 1", VALUE1));
-        field.addOption(new Option(VALUE2));
+        field.setType(FormField.Type.list_multi);
+        field.addOption(new FormField.Option("Label 1", VALUE1));
+        field.addOption(new FormField.Option(VALUE2));
         form.addField(field);
         
         String actual = builder.build(form);
@@ -178,10 +176,10 @@ public class HtmlFormBuilderTest {
     @Test
     public void listMultiFieldWithValue() {
         FormField field = new FormField("abc def");
-        field.setType("list-multi");
-        field.addOption(new Option("Label 1", VALUE1));
-        field.addOption(new Option(VALUE2));
-        field.addOption(new Option(VALUE3));
+        field.setType(FormField.Type.list_multi);
+        field.addOption(new FormField.Option("Label 1", VALUE1));
+        field.addOption(new FormField.Option(VALUE2));
+        field.addOption(new FormField.Option(VALUE3));
         field.addValue(VALUE1);
         field.addValue(VALUE3);
         form.addField(field);
@@ -200,7 +198,7 @@ public class HtmlFormBuilderTest {
     @Test
     public void testBooleanFieldDefault() {
         FormField field = new FormField("abc def");
-        field.setType("boolean");
+        field.setType(FormField.Type.bool);
         form.addField(field);
         
         String actual = builder.build(form);
@@ -212,7 +210,7 @@ public class HtmlFormBuilderTest {
     @Test
     public void testBooleanFieldWithValue() {
         FormField field = new FormField("abc def");
-        field.setType("boolean");
+        field.setType(FormField.Type.bool);
         field.addValue("true");
         form.addField(field);
         

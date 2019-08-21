@@ -27,6 +27,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
+import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPException;
 
 public class PubsubDeleteButtonListener implements ActionListener {
@@ -47,7 +48,7 @@ public class PubsubDeleteButtonListener implements ActionListener {
                 parent.getPubsubMgr().deleteNode(nodeID);
                 System.out.println("Node deleted: " + nodeID);
                 parent.refresh();
-            } catch (XMPPException e1) {
+            } catch (XMPPException | SmackException.NoResponseException | SmackException.NotConnectedException | InterruptedException e1) {
                 System.err.println("Couldn't delete node " + nodeID);
                 e1.printStackTrace();
             }

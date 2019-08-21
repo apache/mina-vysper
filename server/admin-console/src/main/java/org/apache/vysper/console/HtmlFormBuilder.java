@@ -23,9 +23,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jivesoftware.smackx.FormField;
-import org.jivesoftware.smackx.FormField.Option;
-import org.jivesoftware.smackx.packet.DataForm;
+import org.jivesoftware.smackx.xdata.FormField;
+import org.jivesoftware.smackx.xdata.packet.DataForm;
 
 /**
  * Builds an HTML form from a {@link DataForm}
@@ -44,36 +43,36 @@ public class HtmlFormBuilder {
             return "";
 
         StringBuilder sb = new StringBuilder();
-        Iterator<String> instructions = form.getInstructions();
-        while (instructions.hasNext()) {
-            sb.append("<p class='instruction'>" + instructions.next() + "</p>");
+        List<String> instructions = form.getInstructions();
+        for (String instruction: instructions) {
+            sb.append("<p class='instruction'>" + instruction + "</p>");
         }
 
-        Iterator<FormField> fields = form.getFields();
+        Iterator<FormField> fields = form.getFields().iterator();
         while (fields.hasNext()) {
             FormField field = fields.next();
-            String type = field.getType();
+            FormField.Type type = field.getType();
             sb.append("<p>");
-            if ("hidden".equals(type)) {
+            if (type == FormField.Type.hidden) {
                 sb.append(hiddenFieldToHtml(field));
-            } else if ("fixed".equals(type)) {
+            } else if (type == FormField.Type.fixed) {
                 sb.append(fixedFieldToHtml(field));
-            } else if ("jid-single".equals(type)) {
+            } else if (type == FormField.Type.jid_single) {
                 sb.append(jidSingleFieldToHtml(field));
-            } else if ("text-single".equals(type) || type == null) {
+            } else if (type == FormField.Type.text_single || type == null) {
                 sb.append(textSingleFieldToHtml(field));
-            } else if ("text-private".equals(type)) {
+            } else if (type == FormField.Type.text_private) {
                 sb.append(textPrivateFieldToHtml(field));
-            } else if ("text-multi".equals(type)) {
+            } else if (type == FormField.Type.text_multi) {
                 sb.append(textMultiFieldToHtml(field));
-            } else if ("list-single".equals(type)) {
+            } else if (type == FormField.Type.list_single) {
                 sb.append(listSingleFieldToHtml(field));
-            } else if ("list-multi".equals(type)) {
+            } else if (type == FormField.Type.list_multi) {
                 sb.append(listMultiFieldToHtml(field));
-            } else if ("jid-multi".equals(type)) {
+            } else if (type == FormField.Type.jid_multi) {
                 // for now, do jid-multi as a textarea
                 sb.append(textMultiFieldToHtml(field));
-            } else if ("boolean".equals(type)) {
+            } else if (type == FormField.Type.bool) {
                 sb.append(booleanFieldToHtml(field));
             } else {
                 throw new RuntimeException("Unknown field type: " + type);
@@ -111,7 +110,7 @@ public class HtmlFormBuilder {
         StringBuilder sb = new StringBuilder();
         if (field.getLabel() != null)
             sb.append(field.getLabel());
-        sb.append(" <span>" + field.getValues().next() + "</span>");
+        sb.append(" <span>" + field.getValues().get(0) + "</span>");
         return sb.toString();
     }
 
@@ -141,7 +140,7 @@ public class HtmlFormBuilder {
         sb.append("'>");
         
         boolean first = true;
-        Iterator<String> values = field.getValues();
+        Iterator<CharSequence> values = field.getValues().iterator();
         while(values.hasNext()) {
             if(!first) sb.append("\r\n");
             sb.append(values.next());
@@ -153,16 +152,16 @@ public class HtmlFormBuilder {
     }
     
     private String listSingleFieldToHtml(FormField field) {
-        Iterator<String> fieldValues = field.getValues();
-        List<String> values = new ArrayList<String>();
+        Iterator<CharSequence> fieldValues = field.getValues().iterator();
+        List<CharSequence> values = new ArrayList<>();
         if(fieldValues.hasNext()) values.add(fieldValues.next());
         
         return listFieldToHtml(field, values, false);
     }
 
     private String listMultiFieldToHtml(FormField field) {
-        Iterator<String> fieldValues = field.getValues();
-        List<String> values = new ArrayList<String>();
+        Iterator<CharSequence> fieldValues = field.getValues().iterator();
+        List<CharSequence> values = new ArrayList<>();
         while(fieldValues.hasNext()) {
             values.add(fieldValues.next());
         }
@@ -170,7 +169,7 @@ public class HtmlFormBuilder {
         return listFieldToHtml(field, values, true);
     }
 
-    private String listFieldToHtml(FormField field, List<String> values, boolean multiple) {
+    private String listFieldToHtml(FormField field, List<CharSequence> values, boolean multiple) {
         StringBuilder sb = new StringBuilder();
         sb.append(labelToHtml(field));
         sb.append("<select id='");
@@ -183,10 +182,10 @@ public class HtmlFormBuilder {
         }
         sb.append(">");
         
-        Iterator<Option> options = field.getOptions();
+        Iterator<FormField.Option> options = field.getOptions().iterator();
         
         while(options.hasNext()) {
-            Option option = options.next();
+            FormField.Option option = options.next();
             sb.append("<option value='");
             sb.append(option.getValue());
             sb.append("'");
@@ -214,7 +213,7 @@ public class HtmlFormBuilder {
     
     private String booleanFieldToHtml(FormField field) {
         StringBuilder sb = new StringBuilder();
-        boolean value = (field.getValues().hasNext() && "true".equals(field.getValues().next()));
+        boolean value = (!field.getValues().isEmpty() && "true".equals(field.getValues().get(0).toString()));
         
         sb.append(labelToHtml(field));
         sb.append("<input name='");
@@ -257,9 +256,9 @@ public class HtmlFormBuilder {
         return field.isRequired() ? "required" : "";
     }
 
-    private String getSingleValue(FormField field) {
-        if (field.getValues().hasNext()) {
-            return field.getValues().next();
+    private CharSequence getSingleValue(FormField field) {
+        if (!field.getValues().isEmpty()) {
+            return field.getValues().get(0);
         } else {
             return "";
         }

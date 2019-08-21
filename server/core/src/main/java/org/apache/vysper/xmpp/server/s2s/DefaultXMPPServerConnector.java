@@ -138,7 +138,7 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
                             LOG.warn("XMPP handshake with {} at {} timed out", remoteServer, ipAddress);
                         }
                     } catch (InterruptedException e) {
-                        throw new RemoteServerTimeoutException("Connection to " + remoteServer + " was interrupted", e);
+                        throw new RemoteServerTimeoutException("XMPPConnection to " + remoteServer + " was interrupted", e);
                     }
                 } 
 

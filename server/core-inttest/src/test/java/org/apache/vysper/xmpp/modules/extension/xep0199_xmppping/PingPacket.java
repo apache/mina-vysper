@@ -22,9 +22,15 @@ package org.apache.vysper.xmpp.modules.extension.xep0199_xmppping;
 import org.jivesoftware.smack.packet.IQ;
 
 public class PingPacket extends IQ {
+
+    public PingPacket() {
+        super("ping", "urn:xmpp:ping");
+    }
+
     @Override
-    public String getChildElementXML() {
-        return "<ping xmlns='urn:xmpp:ping'/>";
+    protected IQChildElementXmlStringBuilder getIQChildElementBuilder(IQChildElementXmlStringBuilder xml) {
+        xml.setEmptyElement();
+        return xml;
     }
 
 }

@@ -19,6 +19,8 @@
  */
 package org.apache.vysper.demo.pubsub.client;
 
+import org.jxmpp.stringprep.XmppStringprepException;
+
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 
@@ -122,11 +124,16 @@ public class PubsubClientGUI implements Runnable, ListSelectionListener {
         createAndShowGUI();
         registerShutDownHook();
 
-        login();
+        try {
+            login();
+        } catch (XmppStringprepException e) {
+            e.printStackTrace();
+            return;
+        }
         pcm.refresh();
     }
 
-    public void login() {
+    public void login() throws XmppStringprepException {
         do {
             askForCredentials();
         } while (pcm.login() == false);

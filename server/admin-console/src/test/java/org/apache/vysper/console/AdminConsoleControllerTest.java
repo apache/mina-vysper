@@ -21,11 +21,16 @@ package org.apache.vysper.console;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.io.IOException;
+
+import static org.mockito.Mockito.mock;
 
 
 public class AdminConsoleControllerTest {
@@ -33,7 +38,7 @@ public class AdminConsoleControllerTest {
     private static final String ENTITY = "test@vysper.org";
     private static final String PASSWORD = "password";
 
-    private ExtendedXMPPConnection connection = Mockito.mock(ExtendedXMPPConnection.class);
+    private ExtendedXMPPConnection connection = mock(ExtendedXMPPConnection.class);
     
     private AdminConsoleController controller = new AdminConsoleController(null) {
         @Override
@@ -42,11 +47,11 @@ public class AdminConsoleControllerTest {
         }
     };
     
-    private HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+    private HttpServletRequest request = mock(HttpServletRequest.class);
     private MockHttpSession session = new MockHttpSession();
     
     @Test
-    public void login() throws XMPPException {
+    public void login() throws XMPPException, InterruptedException, IOException, SmackException {
         ModelAndView mav = controller.login(ENTITY, PASSWORD, session);
         
         Mockito.verify(connection).connect();
@@ -57,8 +62,9 @@ public class AdminConsoleControllerTest {
     }
 
     @Test
-    public void failedLogin() throws XMPPException {
-        Mockito.doThrow(new XMPPException()).when(connection).login(ENTITY, PASSWORD);
+    public void failedLogin() throws XMPPException, InterruptedException, IOException, SmackException {
+        XMPPException xmppException = mock(XMPPException.class);
+        Mockito.doThrow(xmppException).when(connection).login(ENTITY, PASSWORD);
         
         ModelAndView mav = controller.login(ENTITY, PASSWORD, session);
         
@@ -72,8 +78,9 @@ public class AdminConsoleControllerTest {
     }
 
     @Test
-    public void failedConnect() throws XMPPException {
-        Mockito.doThrow(new XMPPException()).when(connection).connect();
+    public void failedConnect() throws XMPPException, InterruptedException, IOException, SmackException {
+        XMPPException xmppException = mock(XMPPException.class);
+        Mockito.doThrow(xmppException).when(connection).connect();
         
         ModelAndView mav = controller.login(ENTITY, PASSWORD, session);
         

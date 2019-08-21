@@ -29,6 +29,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPException;
 
 public class PubsubCreateButtonListener implements ActionListener {
@@ -50,7 +51,7 @@ public class PubsubCreateButtonListener implements ActionListener {
                 parent.getPubsubMgr().createNode(nodeID);
                 System.out.println("Node created " + nodeID);
                 parent.refresh();
-            } catch (XMPPException e1) {
+            } catch (XMPPException | SmackException.NoResponseException | SmackException.NotConnectedException | InterruptedException e1) {
                 System.err.println("Couldn't create node " + nodeID);
                 e1.printStackTrace();
             }

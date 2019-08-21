@@ -19,7 +19,11 @@
  */
 package org.apache.vysper.xmpp.server.s2s;
 import java.io.File;
+import java.io.IOException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
+import org.apache.mina.filter.ssl.BogusTrustManagerFactory;
 import org.apache.vysper.mina.C2SEndpoint;
 import org.apache.vysper.mina.S2SEndpoint;
 import org.apache.vysper.storage.StorageProviderRegistry;
@@ -27,6 +31,7 @@ import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authentication.AccountManagement;
+import org.apache.vysper.xmpp.cryptography.NonCheckingX509TrustManagerFactory;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.XMPPServer;
@@ -34,14 +39,27 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.SmackException;
+import org.jivesoftware.smack.StanzaListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.PacketFilter;
+import org.jivesoftware.smack.filter.StanzaFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.tcp.XMPPTCPConnection;
+import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.stringprep.XmppStringprepException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.net.ssl.X509TrustManager;
 
 
 public class Server2Server {
+    
+    private static final Logger LOG = LoggerFactory.getLogger(Server2Server.class);
 
     public static void main(String[] args) throws Exception {
         Entity localServer = EntityImpl.parseUnchecked(args[0]);
@@ -111,42 +129,41 @@ public class Server2Server {
 
     private static void sendMessagesUsingClients(Entity localUser, Entity remoteServer, Entity remoteUser,
             String remotePassword, String keystorePath, String keystorePassword) throws XMPPException,
-            InterruptedException {
-        ConnectionConfiguration localConnectionConfiguration = new ConnectionConfiguration("localhost", 5222);
-        localConnectionConfiguration.setKeystorePath(keystorePath);
-        localConnectionConfiguration.setTruststorePath(keystorePath);
-        localConnectionConfiguration.setTruststorePassword(keystorePassword);
-        XMPPConnection localClient = new XMPPConnection(localConnectionConfiguration);
+            InterruptedException, IOException, SmackException {
+        XMPPTCPConnectionConfiguration localConnectionConfiguration = XMPPTCPConnectionConfiguration
+                .builder()
+                .setHost("localhost")
+                .setPort(5222)
+                .setKeystorePath(keystorePath)
+                .setCustomX509TrustManager(NonCheckingX509TrustManagerFactory.X509)
+                .build();
+
+        XMPPTCPConnection localClient = new XMPPTCPConnection(localConnectionConfiguration);
 
         localClient.connect();
         localClient.login(localUser.getNode(), "password1");
-        localClient.addPacketListener(new PacketListener() {
-            public void processPacket(Packet packet) {
-                System.out.println("# " + packet);
-            }
-        }, new PacketFilter() {
-            public boolean accept(Packet arg0) {
-                return true;
-            }
-        });
-        
-        
-        ConnectionConfiguration remoteConnectionConfiguration = new ConnectionConfiguration(remoteServer.getFullQualifiedName(), 5222);
-        remoteConnectionConfiguration.setKeystorePath(keystorePath);
-        remoteConnectionConfiguration.setTruststorePath(keystorePath);
-        remoteConnectionConfiguration.setTruststorePassword(keystorePassword);
-        XMPPConnection remoteClient = new XMPPConnection(remoteConnectionConfiguration);
+        localClient.addSyncStanzaListener(packet -> System.out.println("# " + packet), stanza -> false);
+
+        XMPPTCPConnectionConfiguration remoteConnectionConfiguration = XMPPTCPConnectionConfiguration
+                .builder()
+                .setHost(remoteServer.getFullQualifiedName())
+                .setPort(5222)
+                .setKeystorePath(keystorePath)
+                .setCustomX509TrustManager(NonCheckingX509TrustManagerFactory.X509)
+                .build();
+
+        XMPPTCPConnection remoteClient = new XMPPTCPConnection(remoteConnectionConfiguration);
 
         remoteClient.connect();
         remoteClient.login(remoteUser.getNode(), remotePassword);
         
         Thread.sleep(3000);
         
-        Message msg = new Message(remoteUser.getFullQualifiedName());
+        Message msg = new Message(JidCreate.entityFrom(remoteUser.getFullQualifiedName()));
 //        Message msg = new Message(localUser.getFullQualifiedName());
         msg.setBody("Hello world");
         
-        localClient.sendPacket(msg);
+        localClient.sendStanza(msg);
 //        remoteClient.sendPacket(msg);
         
         

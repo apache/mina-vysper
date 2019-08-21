@@ -46,7 +46,7 @@ public class NonCheckingX509TrustManagerFactory extends TrustManagerFactorySpi i
 
     static final Logger logger = LoggerFactory.getLogger(NonCheckingX509TrustManagerFactory.class);
     
-    static final X509TrustManager X509 = new X509TrustManager() {
+    public static final X509TrustManager X509 = new X509TrustManager() {
         public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
             logger.error("this XMPP Vysper instance uses NonCheckingTrustManagerFactory, clients certificates are not checked");
         }

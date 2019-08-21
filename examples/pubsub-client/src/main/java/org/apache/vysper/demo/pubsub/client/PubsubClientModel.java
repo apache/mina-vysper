@@ -19,22 +19,28 @@
  */
 package org.apache.vysper.demo.pubsub.client;
 
+import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import javax.swing.DefaultListModel;
 
+import org.jivesoftware.smack.AbstractXMPPConnection;
+import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smackx.packet.DiscoverItems;
-import org.jivesoftware.smackx.packet.DiscoverItems.Item;
+import org.jivesoftware.smack.tcp.XMPPTCPConnection;
+import org.jivesoftware.smackx.disco.packet.DiscoverItems;
+import org.jivesoftware.smackx.disco.packet.DiscoverItems.Item;
 import org.jivesoftware.smackx.pubsub.Affiliation;
 import org.jivesoftware.smackx.pubsub.Node;
+import org.jivesoftware.smackx.pubsub.PubSubException;
 import org.jivesoftware.smackx.pubsub.PubSubManager;
 import org.jivesoftware.smackx.pubsub.Subscription;
+import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.stringprep.XmppStringprepException;
 
 public class PubsubClientModel {
     private Map<String, DefaultListModel> nodeMessages = new TreeMap<String, DefaultListModel>();
@@ -43,7 +49,7 @@ public class PubsubClientModel {
 
     private PubsubEventListener pel = new PubsubEventListener(this);
 
-    private XMPPConnection connection;
+    private AbstractXMPPConnection connection;
 
     private PubSubManager pubsubMgr;
 
@@ -69,7 +75,8 @@ public class PubsubClientModel {
         return jid;
     }
 
-    private void discoverAffiliations(Map<String, PubsubNode> lookup) throws XMPPException {
+    private void discoverAffiliations(Map<String, PubsubNode> lookup) throws XMPPException,
+            SmackException.NotConnectedException, InterruptedException, SmackException.NoResponseException {
         List<Affiliation> lAffiliations = pubsubMgr.getAffiliations();
         for (Affiliation affiliation : lAffiliations) {
             System.out.print(affiliation.getType());
@@ -81,7 +88,8 @@ public class PubsubClientModel {
         }
     }
 
-    private void discoverSubscriptions(Map<String, PubsubNode> lookup) throws XMPPException {
+    private void discoverSubscriptions(Map<String, PubsubNode> lookup) throws XMPPException,
+            SmackException.NotConnectedException, InterruptedException, SmackException.NoResponseException {
         List<Subscription> lSubscriptions = pubsubMgr.getSubscriptions();
         for (Subscription subscription : lSubscriptions) {
             System.out.print(subscription.getState());
@@ -95,11 +103,11 @@ public class PubsubClientModel {
         }
     }
 
-    private void discoverNodes(Map<String, PubsubNode> lookup) throws XMPPException {
+    private void discoverNodes(Map<String, PubsubNode> lookup) throws XMPPException,
+            SmackException.NotConnectedException, InterruptedException, SmackException.NoResponseException {
         DiscoverItems di = pubsubMgr.discoverNodes(null);
-        Iterator<Item> iIt = di.getItems();
-        while (iIt.hasNext()) {
-            Item i = iIt.next();
+        List<Item> iIt = di.getItems();
+        for (Item i : iIt) {
             System.out.println("Adding " + i.getNode());
 
             PubsubNode n = new PubsubNode(i.getNode());
@@ -109,45 +117,48 @@ public class PubsubClientModel {
         }
     }
 
-    public boolean login() {
-        XMPPConnection.DEBUG_ENABLED = false;
+    public boolean login() throws XmppStringprepException {
         try {
             connection = connect(username, password, hostname);
-        } catch (XMPPException e) {
+        } catch (XMPPException | IOException | InterruptedException | SmackException e) {
             System.err.println("Login failed for user " + username);
             e.printStackTrace();
             return false;
         }
 
-        pubsubMgr = new PubSubManager(connection, "pubsub.vysper.org");
+        pubsubMgr = PubSubManager.getInstance(connection, JidCreate.bareFrom("pubsub.vysper.org"));
         return true;
     }
 
-    private XMPPConnection connect(String username, String password, String host) throws XMPPException {
-        XMPPConnection connection = new XMPPConnection(host);
+    private AbstractXMPPConnection connect(String username, String password, String host)
+            throws XMPPException, IOException, InterruptedException, SmackException {
+        AbstractXMPPConnection connection = new XMPPTCPConnection(username, password, host);
         connection.connect();
-        connection.login(username, password);
+        connection.login();
         return connection;
     }
 
     public void refresh() {
-        Map<String, PubsubNode> lookup = new HashMap<String, PubsubNode>();
+        Map<String, PubsubNode> lookup = new HashMap<>();
 
         try {
             discoverNodes(lookup);
-        } catch (XMPPException e) {
+        } catch (XMPPException | SmackException.NotConnectedException | InterruptedException
+                | SmackException.NoResponseException e) {
             e.printStackTrace();
         }
 
         try {
             discoverSubscriptions(lookup);
-        } catch (XMPPException e) {
+        } catch (XMPPException | SmackException.NotConnectedException | InterruptedException
+                | SmackException.NoResponseException e) {
             e.printStackTrace();
         }
 
         try {
             discoverAffiliations(lookup);
-        } catch (XMPPException e) {
+        } catch (XMPPException | SmackException.NotConnectedException | InterruptedException
+                | SmackException.NoResponseException e) {
             e.printStackTrace();
         }
 
@@ -160,7 +171,7 @@ public class PubsubClientModel {
                 Node node = pubsubMgr.getNode(n.getNode());
                 node.removeItemEventListener(pel); // remove the listener in cases we already know the node
                 node.addItemEventListener(pel); // add the listener for events
-            } catch (XMPPException e) {
+            } catch (XMPPException | SmackException.NoResponseException | SmackException.NotConnectedException | InterruptedException | PubSubException.NotAPubSubNodeException e) {
                 e.printStackTrace();
             }
         }

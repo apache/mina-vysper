@@ -38,7 +38,7 @@ public class PubsubEventListener implements ItemEventListener<PayloadItem<Simple
         System.out.println("Got something from " + e.getNodeId());
         
         for (PayloadItem<SimplePayload> i : e.getItems()) {
-            lm.add(0, i.getPayload().toXML()); //alwasy add to the top
+            lm.add(0, i.getPayload().toXML(null)); //alwasy add to the top
         }
     }
 }

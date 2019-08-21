@@ -24,76 +24,74 @@ import java.util.concurrent.TimeUnit;
 
 import javax.security.auth.callback.CallbackHandler;
 
-import org.jivesoftware.smack.ConnectionConfiguration;
-import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.SmackException;
+import org.jivesoftware.smack.StanzaListener;
 import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.filter.PacketFilter;
-import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.filter.StanzaFilter;
+import org.jivesoftware.smack.packet.Stanza;
+import org.jivesoftware.smack.tcp.XMPPTCPConnection;
+import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 
 /**
- * Extends {@link XMPPConnection} to add support for synchronous request-response
+ * Extends {@link XMPPConnection} to add support for synchronous
+ * request-response
  * 
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class ExtendedXMPPConnection extends XMPPConnection {
-    
-    public ExtendedXMPPConnection(ConnectionConfiguration config, CallbackHandler callbackHandler) {
-        super(config, callbackHandler);
-    }
+public class ExtendedXMPPConnection extends XMPPTCPConnection {
 
-    public ExtendedXMPPConnection(ConnectionConfiguration config) {
+    public ExtendedXMPPConnection(XMPPTCPConnectionConfiguration config) {
         super(config);
     }
 
-    public ExtendedXMPPConnection(String serviceName, CallbackHandler callbackHandler) {
-        super(serviceName, callbackHandler);
-    }
+//    public ExtendedXMPPConnection(String serviceName) {
+//        super(serviceName);
+//    }
 
-    public ExtendedXMPPConnection(String serviceName) {
-        super(serviceName);
-    }
-
-    public static class IdPacketFilter implements PacketFilter {
+    public static class IdPacketFilter implements StanzaFilter {
         private String id;
 
         public IdPacketFilter(String id) {
             this.id = id;
         }
 
-        public boolean accept(Packet packet) {
-            return id.equals(packet.getPacketID());
+        @Override
+        public boolean accept(Stanza stanza) {
+            return id.equals(stanza.getStanzaId());
         }
     }
-    
-    public static class SyncPacketListener implements PacketListener {
-        private LinkedBlockingQueue<Packet> queue;
 
-        public SyncPacketListener(LinkedBlockingQueue<Packet> queue) {
+    public static class SyncPacketListener implements StanzaListener {
+        private LinkedBlockingQueue<Stanza> queue;
+
+        public SyncPacketListener(LinkedBlockingQueue<Stanza> queue) {
             this.queue = queue;
         }
 
-        public void processPacket(Packet packet) {
+        @Override
+        public void processStanza(Stanza packet) {
             queue.offer(packet);
         }
     }
-    
+
     /**
      * Send a request and wait for the response.
+     * 
      * @param request
      * @return
      * @throws InterruptedException
      */
-    public Packet sendSync(Packet request) throws InterruptedException {
-        LinkedBlockingQueue<Packet> queue = new LinkedBlockingQueue<Packet>();
-        PacketListener listener = new SyncPacketListener(queue);
-        PacketFilter filter = new IdPacketFilter(request.getPacketID());
-        
-        addPacketListener(listener, filter);
-        sendPacket(request);
-        
-        Packet response = queue.poll(10000, TimeUnit.MILLISECONDS);
-        removePacketListener(listener);
-        
+    public Stanza sendSync(Stanza request) throws InterruptedException, SmackException.NotConnectedException {
+        LinkedBlockingQueue<Stanza> queue = new LinkedBlockingQueue<>();
+        StanzaListener listener = new SyncPacketListener(queue);
+        StanzaFilter filter = new IdPacketFilter(request.getPacketID());
+
+        addSyncStanzaListener(listener, filter);
+        sendStanza(request);
+
+        Stanza response = queue.poll(10000, TimeUnit.MILLISECONDS);
+        removeSyncStanzaListener(listener);
+
         return response;
     }
 }

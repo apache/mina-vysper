@@ -21,44 +21,52 @@ package org.apache.vysper.smack;
 
 import java.util.Random;
 
-import org.jivesoftware.smack.Chat;
+import org.apache.vysper.xmpp.authentication.Plain;
+import org.apache.vysper.xmpp.cryptography.NonCheckingX509TrustManagerFactory;
 import org.jivesoftware.smack.ConnectionConfiguration;
-import org.jivesoftware.smack.MessageListener;
-import org.jivesoftware.smack.PacketListener;
-import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.SASLAuthentication;
+import org.jivesoftware.smack.SmackException;
+import org.jivesoftware.smack.StanzaListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.filter.PacketFilter;
+import org.jivesoftware.smack.chat2.Chat;
+import org.jivesoftware.smack.chat2.ChatManager;
+import org.jivesoftware.smack.debugger.ConsoleDebugger;
+import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.packet.IQ;
-import org.jivesoftware.smack.packet.Message;
-import org.jivesoftware.smack.packet.Packet;
-import org.jivesoftware.smack.packet.PacketExtension;
 import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smackx.packet.Time;
-import org.jivesoftware.smackx.packet.Version;
+import org.jivesoftware.smack.packet.Stanza;
+import org.jivesoftware.smack.roster.Roster;
+import org.jivesoftware.smack.sasl.SASLMechanism;
+import org.jivesoftware.smack.sasl.core.SCRAMSHA1Mechanism;
+import org.jivesoftware.smack.tcp.XMPPTCPConnection;
+import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jivesoftware.smackx.iqversion.packet.Version;
+import org.jivesoftware.smackx.time.packet.Time;
+import org.jxmpp.jid.impl.JidCreate;
 
 /**
  */
 public class BasicClient {
 
-    static class IQListener implements PacketListener {
+    static class IQListener implements StanzaListener {
 
-        public void processPacket(Packet packet) {
+        public void processStanza(Stanza packet) {
             IQ iq = (IQ) packet;
             String iqString = iq.toString();
-            System.out.println("T" + System.currentTimeMillis() + " IQ: " + iqString + ": " + iq.toXML());
+            System.out.println("T" + System.currentTimeMillis() + " IQ: " + iqString + ": " + iq.toXML(null));
         }
     }
 
-    static class PresenceListener implements PacketListener {
+    static class PresenceListener implements StanzaListener {
 
-        public void processPacket(Packet packet) {
+        public void processStanza(Stanza packet) {
             Presence presence = (Presence) packet;
             String iqString = presence.toString();
-            final PacketExtension extension = presence.getExtension("http://jabber.org/protocol/caps");
+            final ExtensionElement extension = presence.getExtension("http://jabber.org/protocol/caps");
             if (extension != null)
-                System.out.println("T" + System.currentTimeMillis() + " Pres: " + iqString + ": " + presence.toXML());
+                System.out
+                        .println("T" + System.currentTimeMillis() + " Pres: " + iqString + ": " + presence.toXML(null));
         }
     }
 
@@ -68,39 +76,23 @@ public class BasicClient {
         String to = args.length < 2 ? null : args[1];
 
         try {
-            ConnectionConfiguration connectionConfiguration = new ConnectionConfiguration("localhost");
-            //            ConnectionConfiguration connectionConfiguration = new ConnectionConfiguration("xmpp.eu");
-            connectionConfiguration.setCompressionEnabled(false);
-            connectionConfiguration.setSelfSignedCertificateEnabled(true);
-            connectionConfiguration.setExpiredCertificatesCheckEnabled(false);
-            connectionConfiguration.setDebuggerEnabled(true);
-            connectionConfiguration.setSASLAuthenticationEnabled(true);
-            connectionConfiguration.setSecurityMode(ConnectionConfiguration.SecurityMode.required);
-            XMPPConnection.DEBUG_ENABLED = true;
-            XMPPConnection connection = new XMPPConnection(connectionConfiguration);
+            XMPPTCPConnectionConfiguration connectionConfiguration = XMPPTCPConnectionConfiguration.builder()
+                    .setHost("localhost").setCompressionEnabled(false)
+                    .setCustomX509TrustManager(NonCheckingX509TrustManagerFactory.X509)
+                    .setDebuggerFactory(ConsoleDebugger.Factory.INSTANCE)
+                    .addEnabledSaslMechanism(SASLMechanism.PLAIN)
+                    .setSecurityMode(ConnectionConfiguration.SecurityMode.required).build();
+
+            XMPPTCPConnection connection = new XMPPTCPConnection(connectionConfiguration);
             connection.connect();
-
-            SASLAuthentication saslAuthentication = connection.getSASLAuthentication();
-            //            saslAuthentication.authenticateAnonymously();
-            //            saslAuthentication.authenticate("user1@vysper.org", "password1", "test");
-
-            //            if (!saslAuthentication.isAuthenticated()) return;
 
             connection.login(me + "@vysper.org", "password1");
 
-            connection.getRoster().setSubscriptionMode(Roster.SubscriptionMode.accept_all);
+            Roster.getInstanceFor(connection).setSubscriptionMode(Roster.SubscriptionMode.accept_all);
 
-            connection.addPacketListener(new IQListener(), new PacketFilter() {
-                public boolean accept(Packet packet) {
-                    return packet instanceof IQ;
-                }
-            });
+            connection.addSyncStanzaListener(new IQListener(), packet -> packet instanceof IQ);
 
-            connection.addPacketListener(new PresenceListener(), new PacketFilter() {
-                public boolean accept(Packet packet) {
-                    return packet instanceof Presence;
-                }
-            });
+            connection.addSyncStanzaListener(new PresenceListener(), packet -> packet instanceof Presence);
 
             Chat chat = null;
             if (to != null) {
@@ -108,16 +100,16 @@ public class BasicClient {
                 presence.setFrom(connection.getUser());
                 String toEntity = to + "@vysper.org";
                 presence.setTo(toEntity);
-                connection.sendPacket(presence);
+                connection.sendStanza(presence);
 
-                chat = connection.getChatManager().createChat(toEntity, new MessageListener() {
-                    public void processMessage(Chat inchat, Message message) {
-                        System.out.println("log received message: " + message.getBody());
-                    }
+                ChatManager chatManager = ChatManager.getInstanceFor(connection);
+                chat = chatManager.chatWith(JidCreate.entityBareFrom(toEntity));
+                chatManager.addIncomingListener((from, message, chat1) -> {
+                    System.out.println("log received message: " + message.getBody());
                 });
             }
 
-            connection.sendPacket(new Presence(Presence.Type.available, "pommes", 1, Presence.Mode.available));
+            connection.sendStanza(new Presence(Presence.Type.available, "pommes", 1, Presence.Mode.available));
 
             Thread.sleep(1000);
 
@@ -127,19 +119,20 @@ public class BasicClient {
             // query server time
             sendIQGetWithTimestamp(connection, new Time());
 
-            /*            while (to != null) {
-            //                chat.sendMessage("Hello " + to + " at " + new Date());
-                            try { Thread.sleep((new Random().nextInt(15)+1)*1000 ); } catch (InterruptedException e) { ; }
-                        }*/
+            /*
+             * while (to != null) { // chat.sendMessage("Hello " + to + " at " + new
+             * Date()); try { Thread.sleep((new Random().nextInt(15)+1)*1000 ); } catch
+             * (InterruptedException e) { ; } }
+             */
 
             for (int i = 0; i < 10; i++) {
-                connection.sendPacket(new Presence(Presence.Type.available, "pommes", 1, Presence.Mode.available));
+                connection.sendStanza(new Presence(Presence.Type.available, "pommes", 1, Presence.Mode.available));
                 try {
                     Thread.sleep((new Random().nextInt(15) + 10) * 1000);
                 } catch (InterruptedException e) {
                     ;
                 }
-                connection.sendPacket(new Presence(Presence.Type.available, "nickes", 1, Presence.Mode.away));
+                connection.sendStanza(new Presence(Presence.Type.available, "nickes", 1, Presence.Mode.away));
                 try {
                     Thread.sleep((new Random().nextInt(15) + 10) * 1000);
                 } catch (InterruptedException e) {
@@ -162,14 +155,15 @@ public class BasicClient {
             } catch (InterruptedException ie) {
                 ;
             }
-            e.printStackTrace(); //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
         }
         System.exit(0);
     }
 
-    private static void sendIQGetWithTimestamp(XMPPConnection connection, IQ iq) {
-        iq.setType(IQ.Type.GET);
-        connection.sendPacket(iq);
+    private static void sendIQGetWithTimestamp(XMPPConnection connection, IQ iq)
+            throws SmackException.NotConnectedException, InterruptedException {
+        iq.setType(IQ.Type.get);
+        connection.sendStanza(iq);
         System.out.println("T" + System.currentTimeMillis() + " IQ request sent");
     }
 }

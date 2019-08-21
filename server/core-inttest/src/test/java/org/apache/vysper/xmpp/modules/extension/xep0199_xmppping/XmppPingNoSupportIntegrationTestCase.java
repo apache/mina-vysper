@@ -33,16 +33,15 @@ public class XmppPingNoSupportIntegrationTestCase extends AbstractIntegrationTes
 
     public void testClientServerPing() throws Exception {
         PingPacket pingRequest = new PingPacket();
-        pingRequest.setType(IQ.Type.GET);
+        pingRequest.setType(IQ.Type.get);
         pingRequest.setTo(SERVER_DOMAIN);
         pingRequest.setFrom(TEST_USERNAME1);
 
         IQ result = (IQ) sendSync(client, pingRequest);
 
         assertNotNull(result);
-        assertEquals(IQ.Type.ERROR, result.getType());
-        assertEquals(SERVER_DOMAIN, result.getFrom());
-        assertEquals(TEST_USERNAME1, result.getTo());
-        assertEquals("service-unavailable", result.getError().getCondition());
+        assertEquals(IQ.Type.error, result.getType());
+        assertEquals(SERVER_DOMAIN, result.getFrom().toString());
+        assertEquals("service-unavailable", result.getError().getCondition().toString());
     }
 }

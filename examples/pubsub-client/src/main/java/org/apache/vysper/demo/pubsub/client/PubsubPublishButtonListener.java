@@ -24,10 +24,12 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JTextField;
 
+import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smackx.pubsub.LeafNode;
 import org.jivesoftware.smackx.pubsub.Node;
 import org.jivesoftware.smackx.pubsub.PayloadItem;
+import org.jivesoftware.smackx.pubsub.PubSubException;
 import org.jivesoftware.smackx.pubsub.PubSubManager;
 import org.jivesoftware.smackx.pubsub.SimplePayload;
 
@@ -76,7 +78,7 @@ public class PubsubPublishButtonListener implements ActionListener {
             } else {
                 throw new IllegalArgumentException("Can only send to leaf nodes");
             }
-        } catch (XMPPException e1) {
+        } catch (XMPPException | SmackException.NotConnectedException | InterruptedException | SmackException.NoResponseException e1) {
             System.err.println("Couldn't send an item to " + nodeID);
             e1.printStackTrace();
         }
@@ -92,7 +94,7 @@ public class PubsubPublishButtonListener implements ActionListener {
         Node node = null;
         try {
             node = pubsubMgr.getNode(nodeID);
-        } catch (XMPPException e1) {
+        } catch (XMPPException | SmackException.NoResponseException | SmackException.NotConnectedException | InterruptedException | PubSubException.NotAPubSubNodeException e1) {
             System.err.println("Couldn't get the node object for " + nodeID);
             e1.printStackTrace();
         }

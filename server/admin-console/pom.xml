@@ -31,11 +31,23 @@
 
 		<dependency>
 			<groupId>org.igniterealtime.smack</groupId>
-			<artifactId>smack</artifactId>
+			<artifactId>smack-tcp</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.igniterealtime.smack</groupId>
-			<artifactId>smackx</artifactId>
+			<artifactId>smack-resolver-javax</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.igniterealtime.smack</groupId>
+			<artifactId>smack-sasl-javax</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.igniterealtime.smack</groupId>
+			<artifactId>smack-java7</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.igniterealtime.smack</groupId>
+			<artifactId>smack-extensions</artifactId>
 		</dependency>
 
 		<dependency>

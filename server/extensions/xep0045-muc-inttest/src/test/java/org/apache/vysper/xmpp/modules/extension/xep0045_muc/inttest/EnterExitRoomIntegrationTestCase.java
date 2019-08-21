@@ -27,46 +27,48 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.jivesoftware.smack.packet.Message;
+import org.jxmpp.jid.EntityFullJid;
+import org.jxmpp.jid.parts.Resourcepart;
 
 /**
  */
 public class EnterExitRoomIntegrationTestCase extends AbstractMUCIntegrationTestCase {
 
     public void testEnterRoom() throws Exception {
-        chat.join("Nick");
+        chat.join(Resourcepart.from("Nick"));
 
-        Room room = conference.findRoom(EntityImpl.parseUnchecked(ROOM_JID));
+        Room room = conference.findRoom(EntityImpl.parseUnchecked(ROOM_JID.toString()));
         assertEquals(1, room.getOccupantCount());
         Occupant occupant = room.getOccupants().iterator().next();
         assertEquals(TEST_USERNAME1, occupant.getJid().getBareJID().getFullQualifiedName());
         assertEquals("Nick", occupant.getNick());
 
-        final BlockingQueue<String> joinedQueue = new LinkedBlockingQueue<String>();
+        final BlockingQueue<EntityFullJid> joinedQueue = new LinkedBlockingQueue<>();
         chat.addParticipantStatusListener(new ParticipantStatusListenerAdapter() {
 
             @Override
-            public void joined(String participant) {
+            public void joined(EntityFullJid participant) {
                 joinedQueue.add(participant);
             }
         });
-        chat2.join("Nick2");
+        chat2.join(Resourcepart.from("Nick2"));
         assertEquals(2, room.getOccupantCount());
 
         // chat should be notified
-        assertEquals(ROOM_JID + "/Nick2", joinedQueue.poll(5000, TimeUnit.MILLISECONDS));
+        assertEquals(ROOM_JID + "/Nick2", joinedQueue.poll(5000, TimeUnit.MILLISECONDS).toString());
     }
 
     public void testExitRoom() throws Exception {
-        chat.join("Nick");
-        chat2.join("Nick2");
+        chat.join(Resourcepart.from("Nick"));
+        chat2.join(Resourcepart.from("Nick2"));
 
-        Room room = conference.findRoom(EntityImpl.parseUnchecked(ROOM_JID));
+        Room room = conference.findRoom(EntityImpl.parseUnchecked(ROOM_JID.toString()));
         assertEquals(2, room.getOccupantCount());
 
-        final BlockingQueue<String> leftQueue = new LinkedBlockingQueue<String>();
+        final BlockingQueue<EntityFullJid> leftQueue = new LinkedBlockingQueue<>();
         chat.addParticipantStatusListener(new ParticipantStatusListenerAdapter() {
             @Override
-            public void left(String participant) {
+            public void left(EntityFullJid participant) {
                 leftQueue.add(participant);
             }
         });
@@ -74,27 +76,27 @@ public class EnterExitRoomIntegrationTestCase extends AbstractMUCIntegrationTest
         chat2.leave();
 
         // wait for status update
-        assertEquals(ROOM_JID + "/Nick2", leftQueue.poll(5000, TimeUnit.MILLISECONDS));
+        assertEquals(ROOM_JID + "/Nick2", leftQueue.poll(5000, TimeUnit.MILLISECONDS).toString());
         assertEquals(1, room.getOccupantCount());
 
     }
 
     public void testSendMessageToRoom() throws Exception {
-        chat.join("Nick");
-        chat2.join("Nick2");
+        chat.join(Resourcepart.from("Nick"));
+        chat2.join(Resourcepart.from("Nick2"));
 
         chat.sendMessage("Fooo");
         Message message = chat.nextMessage(5000);
 
         assertNotNull(message);
         assertEquals("Fooo", message.getBody());
-        assertEquals(ROOM_JID + "/Nick", message.getFrom());
-        assertEquals(TEST_USERNAME1, EntityImpl.parse(message.getTo()).getBareJID().getFullQualifiedName());
+        assertEquals(ROOM_JID + "/Nick", message.getFrom().toString());
+        assertEquals(TEST_USERNAME1, EntityImpl.parse(message.getTo().toString()).getBareJID().getFullQualifiedName());
 
         message = chat2.nextMessage(5000);
         assertNotNull(message);
         assertEquals("Fooo", message.getBody());
-        assertEquals(ROOM_JID + "/Nick", message.getFrom());
-        assertEquals(TEST_USERNAME2, EntityImpl.parse(message.getTo()).getBareJID().getFullQualifiedName());
+        assertEquals(ROOM_JID + "/Nick", message.getFrom().toString());
+        assertEquals(TEST_USERNAME2, EntityImpl.parse(message.getTo().toString()).getBareJID().getFullQualifiedName());
     }
 }

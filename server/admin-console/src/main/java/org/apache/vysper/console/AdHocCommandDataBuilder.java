@@ -22,9 +22,10 @@ package org.apache.vysper.console;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.jivesoftware.smackx.FormField;
-import org.jivesoftware.smackx.packet.AdHocCommandData;
-import org.jivesoftware.smackx.packet.DataForm;
+import org.jivesoftware.smackx.commands.packet.AdHocCommandData;
+import org.jivesoftware.smackx.xdata.packet.DataForm;
+import org.apache.vysper.xmpp.stanza.dataforms.Field;
+import org.jivesoftware.smackx.xdata.FormField;
 
 /**
  * Builds {@link AdHocCommandData} from posted data
@@ -42,7 +43,7 @@ public class AdHocCommandDataBuilder {
         AdHocCommandData commandData = new AdHocCommandData();
         commandData.setSessionID(getSingleValue(parameters, AdminConsoleController.SESSION_FIELD));
         
-        DataForm form = new DataForm("submit");
+        DataForm form = new DataForm(DataForm.Type.submit);
         
         for(Entry<String, String[]> entry : parameters.entrySet()) {
             if(!AdminConsoleController.SESSION_FIELD.equals(entry.getKey())) {

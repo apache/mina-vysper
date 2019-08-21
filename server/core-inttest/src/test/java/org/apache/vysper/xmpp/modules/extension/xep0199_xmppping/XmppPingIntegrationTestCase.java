@@ -33,15 +33,14 @@ public class XmppPingIntegrationTestCase extends AbstractIntegrationTestCase {
 
     public void testClientServerPing() throws Exception {
         PingPacket pingRequest = new PingPacket();
-        pingRequest.setType(IQ.Type.GET);
+        pingRequest.setType(IQ.Type.get);
         pingRequest.setTo(SERVER_DOMAIN);
         pingRequest.setFrom(TEST_USERNAME1);
 
         IQ result = (IQ) sendSync(client, pingRequest);
 
         assertNotNull(result);
-        assertEquals(IQ.Type.RESULT, result.getType());
-        assertEquals(SERVER_DOMAIN, result.getFrom());
-        assertEquals(TEST_USERNAME1, result.getTo());
+        assertEquals(IQ.Type.result, result.getType());
+        assertEquals(SERVER_DOMAIN, result.getFrom().toString());
     }
 }
