@@ -1,6 +1,6 @@
-![Maven Central](https://img.shields.io/maven-central/v/org.apache.vysper/vysper-parent)
-![Jenkins](https://img.shields.io/jenkins/build/https/builds.apache.org/Vysper)
-![Jenkins tests](https://img.shields.io/jenkins/tests/https/builds.apache.org/Vysper?compact_message&failed_label=failed&passed_label=passed&skipped_label=skipped)
+[![Maven Central](https://img.shields.io/maven-central/v/org.apache.vysper/vysper-parent)](https://search.maven.org/search?q=g:org.apache.vysper%20AND%20a:vysper-parent&core=gav)
+[![Jenkins](https://img.shields.io/jenkins/build/https/builds.apache.org/Vysper)](https://builds.apache.org/job/Vysper/)
+[![Jenkins tests](https://img.shields.io/jenkins/tests/https/builds.apache.org/Vysper?compact_message&failed_label=failed&passed_label=passed&skipped_label=skipped)](https://builds.apache.org/job/Vysper/)
 
 # Apache Vysper
 
