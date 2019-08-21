@@ -1,3 +1,7 @@
+![Maven Central](https://img.shields.io/maven-central/v/org.apache.vysper/vysper-parent)
+![Jenkins](https://img.shields.io/jenkins/build/https/builds.apache.org/Vysper)
+![Jenkins tests](https://img.shields.io/jenkins/tests/https/builds.apache.org/Vysper?compact_message&failed_label=failed&passed_label=passed&skipped_label=skipped)
+
 # Apache Vysper
 
 This project aims at delivering a server implementation of both the core and IM parts of the XMPP protocol 
