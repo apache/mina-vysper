@@ -260,6 +260,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
      * @param name
      * @return
      */
+    @Override
     public ServerRuntimeContextService getServerRuntimeContextService(String name) {
         return serverRuntimeContextServiceMap.get(name);
     }
@@ -279,7 +280,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
      * @param clazz
      * @return
      */
-    public StorageProvider getStorageProvider(Class<? extends StorageProvider> clazz) {
+    public <T extends StorageProvider> T getStorageProvider(Class<T> clazz) {
         return storageProviderRegistry.retrieve(clazz);
     }
 

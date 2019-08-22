@@ -48,8 +48,9 @@ public class OpenStorageProviderRegistry implements StorageProviderRegistry {
         storageServices.putAll(entries);
     }
 
-    public StorageProvider retrieve(Class<? extends StorageProvider> clazz) {
-        return storageServices.get(clazz);
+    @SuppressWarnings("unchecked")
+    public <T extends StorageProvider> T retrieve(Class<T> clazz) {
+        return (T) storageServices.get(clazz);
     }
 
     /**

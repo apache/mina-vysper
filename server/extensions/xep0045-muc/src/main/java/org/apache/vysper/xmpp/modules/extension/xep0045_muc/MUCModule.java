@@ -105,9 +105,9 @@ public class MUCModule extends DefaultDiscoAwareModule implements Component, Com
         processor.addHandler(new MUCIqAdminHandler(conference));
         stanzaProcessor = processor;
 
-        RoomStorageProvider roomStorageProvider = (RoomStorageProvider) serverRuntimeContext
+        RoomStorageProvider roomStorageProvider = serverRuntimeContext
                 .getStorageProvider(RoomStorageProvider.class);
-        OccupantStorageProvider occupantStorageProvider = (OccupantStorageProvider) serverRuntimeContext
+        OccupantStorageProvider occupantStorageProvider = serverRuntimeContext
                 .getStorageProvider(OccupantStorageProvider.class);
 
         if (roomStorageProvider == null) {

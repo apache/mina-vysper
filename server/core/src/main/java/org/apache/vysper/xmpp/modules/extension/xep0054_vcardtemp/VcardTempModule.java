@@ -49,7 +49,7 @@ public class VcardTempModule extends DefaultDiscoAwareModule implements ServerIn
     public void initialize(ServerRuntimeContext serverRuntimeContext) {
         super.initialize(serverRuntimeContext);
 
-        VcardTempPersistenceManager persistenceManager = (VcardTempPersistenceManager) serverRuntimeContext
+        VcardTempPersistenceManager persistenceManager = serverRuntimeContext
                 .getStorageProvider(VcardTempPersistenceManager.class);
         if (persistenceManager == null) {
             logger.error("no VcardTempPersistenceManager found");

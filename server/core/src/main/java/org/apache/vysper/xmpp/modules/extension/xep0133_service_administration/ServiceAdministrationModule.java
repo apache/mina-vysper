@@ -133,7 +133,7 @@ public class ServiceAdministrationModule extends DefaultModule implements AdhocC
     public AdhocCommandHandler getCommandHandler(String commandNode, Entity executingUser) {
         if (executingUser == null) return null;
 
-        final AccountManagement accountManagement = (AccountManagement)serverRuntimeContext.getStorageProvider(AccountManagement.class);
+        final AccountManagement accountManagement = serverRuntimeContext.getStorageProvider(AccountManagement.class);
         final ResourceRegistry resourceRegistry = serverRuntimeContext.getResourceRegistry();
         
         if (!admins.contains(executingUser.getBareJID())) {

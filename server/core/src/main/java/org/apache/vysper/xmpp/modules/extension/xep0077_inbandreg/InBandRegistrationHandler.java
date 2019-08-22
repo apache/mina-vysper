@@ -116,7 +116,7 @@ public class InBandRegistrationHandler extends DefaultIQHandler {
                 String password = passwordElm.getInnerText().getText();
                 if(password.trim().length() == 0) throw new XMLSemanticError("Invalid password");
     
-                AccountManagement accountManagement = (AccountManagement) serverRuntimeContext.getStorageProvider(AccountManagement.class);
+                AccountManagement accountManagement = serverRuntimeContext.getStorageProvider(AccountManagement.class);
                 Entity user;
                 if(username.contains("@")) {
                     user = EntityImpl.parse(username);

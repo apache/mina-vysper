@@ -49,7 +49,7 @@ public class PrivateDataModule extends DefaultDiscoAwareModule implements Server
     public void initialize(ServerRuntimeContext serverRuntimeContext) {
         super.initialize(serverRuntimeContext);
 
-        PrivateDataPersistenceManager persistenceManager = (PrivateDataPersistenceManager) serverRuntimeContext
+        PrivateDataPersistenceManager persistenceManager = serverRuntimeContext
                 .getStorageProvider(PrivateDataPersistenceManager.class);
         if (persistenceManager == null) {
             logger.error("no PrivateDataPersistenceManager found");

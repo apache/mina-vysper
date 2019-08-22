@@ -202,7 +202,7 @@ public class Socks5IntegrationTest {
         server.start();
         System.out.println("vysper server is running...");
 
-        RosterManager rosterManager = (RosterManager) server.getServerRuntimeContext()
+        RosterManager rosterManager = server.getServerRuntimeContext()
                 .getStorageProvider(RosterManager.class);
         rosterManager.addContact(USER1, new RosterItem(USER2, SubscriptionType.BOTH));
         rosterManager.addContact(USER2, new RosterItem(USER1, SubscriptionType.BOTH));

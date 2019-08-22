@@ -120,9 +120,9 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements C
 
         fullDomain = EntityUtils.createComponentDomain(subdomain, serverRuntimeContext);
 
-        CollectionNodeStorageProvider collectionNodeStorageProvider = (CollectionNodeStorageProvider) serverRuntimeContext
+        CollectionNodeStorageProvider collectionNodeStorageProvider = serverRuntimeContext
                 .getStorageProvider(CollectionNodeStorageProvider.class);
-        LeafNodeStorageProvider leafNodeStorageProvider = (LeafNodeStorageProvider) serverRuntimeContext
+        LeafNodeStorageProvider leafNodeStorageProvider = serverRuntimeContext
                 .getStorageProvider(LeafNodeStorageProvider.class);
 
         if (collectionNodeStorageProvider == null) {

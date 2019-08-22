@@ -89,7 +89,7 @@ public class RosterIQHandler extends DefaultIQHandler {
     protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
 
         ResourceRegistry registry = serverRuntimeContext.getResourceRegistry();
-        RosterManager rosterManager = (RosterManager) serverRuntimeContext.getStorageProvider(RosterManager.class);
+        RosterManager rosterManager = serverRuntimeContext.getStorageProvider(RosterManager.class);
 
         if (rosterManager == null) {
             return handleCannotRetrieveRoster(stanza, sessionContext);
@@ -131,7 +131,7 @@ public class RosterIQHandler extends DefaultIQHandler {
             @SpecCompliant(spec = "rfc3921bis-08", section = "2.5", status = FINISHED, coverage = COMPLETE, comment = "only calling from here") })
     @Override
     protected List<Stanza> handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
-        RosterManager rosterManager = (RosterManager) serverRuntimeContext.getStorageProvider(RosterManager.class);
+        RosterManager rosterManager = serverRuntimeContext.getStorageProvider(RosterManager.class);
 
         if (rosterManager == null) {
             return handleCannotRetrieveRoster(stanza, sessionContext);

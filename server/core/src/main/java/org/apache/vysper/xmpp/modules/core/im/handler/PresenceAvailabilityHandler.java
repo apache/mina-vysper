@@ -262,7 +262,7 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
         registry.setResourcePriority(resourceId, presenceStanza.getPrioritySafe());
 
 		// check for pending offline stored stanzas, and send them out 
-		OfflineStorageProvider offlineProvider = (OfflineStorageProvider) serverRuntimeContext
+		OfflineStorageProvider offlineProvider = serverRuntimeContext
 				.getStorageProvider(OfflineStorageProvider.class);
 		if (offlineProvider == null) {
 			logger.warn("No Offline Storage Provider configured");

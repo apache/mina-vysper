@@ -34,7 +34,7 @@ public interface StorageProviderRegistry {
      * @param clazz a class implementing StorageProvider 
      * @return the fully initialized storage provider
      */
-    StorageProvider retrieve(Class<? extends StorageProvider> clazz);
+    <T extends StorageProvider> T retrieve(Class<T> clazz);
 
     /**
      * adds a storage provider implementation to the registry

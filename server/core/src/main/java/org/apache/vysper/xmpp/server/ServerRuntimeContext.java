@@ -71,7 +71,7 @@ public interface ServerRuntimeContext {
 
     ServerRuntimeContextService getServerRuntimeContextService(String name);
 
-    StorageProvider getStorageProvider(Class<? extends StorageProvider> clazz);
+    <T extends StorageProvider> T getStorageProvider(Class<T> clazz);
 
     void registerComponent(Component component);
 
