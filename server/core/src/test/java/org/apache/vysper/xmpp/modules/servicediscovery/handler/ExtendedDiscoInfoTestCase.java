@@ -78,8 +78,7 @@ public class ExtendedDiscoInfoTestCase extends TestCase {
             }
         });
 
-        DefaultServerRuntimeContext runtimeContext = new DefaultServerRuntimeContext(EntityImpl.parse("vysper.org"),
-                mock(StanzaRelay.class));
+        DefaultServerRuntimeContext runtimeContext = new DefaultServerRuntimeContext(EntityImpl.parse("vysper.org"), mock(StanzaRelay.class));
         runtimeContext.registerServerRuntimeContextService(serviceCollector);
 
         DiscoInfoIQHandler infoIQHandler = new DiscoInfoIQHandler();

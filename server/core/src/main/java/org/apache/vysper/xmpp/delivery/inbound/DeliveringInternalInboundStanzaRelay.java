@@ -19,6 +19,8 @@
  */
 package org.apache.vysper.xmpp.delivery.inbound;
 
+import static java.util.Objects.requireNonNull;
+
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
@@ -49,9 +51,11 @@ import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.protocol.worker.InboundStanzaProtocolWorker;
+import org.apache.vysper.xmpp.server.ComponentRegistry;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
+import org.apache.vysper.xmpp.server.SimpleComponentRegistry;
 import org.apache.vysper.xmpp.server.resources.ManagedThreadPool;
 import org.apache.vysper.xmpp.server.resources.ManagedThreadPoolUtil;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -94,6 +98,8 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
 
     private InboundStanzaProtocolWorker inboundStanzaProtocolWorker;
 
+    private final ComponentRegistry componentRegistry;
+
     private static final Integer PRIO_THRESHOLD = 0;
 
     protected ResourceRegistry resourceRegistry;
@@ -115,15 +121,18 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
     protected long lastDumpTimestamp = 0;
 
     public DeliveringInternalInboundStanzaRelay(Entity serverEntity, ResourceRegistry resourceRegistry,
-            StorageProviderRegistry storageProviderRegistry) {
-        this(serverEntity, resourceRegistry, storageProviderRegistry.retrieve(AccountManagement.class),
+            StorageProviderRegistry storageProviderRegistry, ComponentRegistry componentRegistry) {
+        this(serverEntity, resourceRegistry, componentRegistry,
+                storageProviderRegistry.retrieve(AccountManagement.class),
                 storageProviderRegistry.retrieve(OfflineStorageProvider.class));
     }
 
     public DeliveringInternalInboundStanzaRelay(Entity serverEntity, ResourceRegistry resourceRegistry,
-            AccountManagement accountVerification, OfflineStanzaReceiver offlineStanzaReceiver) {
+            ComponentRegistry componentRegistry, AccountManagement accountVerification,
+            OfflineStanzaReceiver offlineStanzaReceiver) {
         this.serverEntity = serverEntity;
         this.resourceRegistry = resourceRegistry;
+        this.componentRegistry = requireNonNull(componentRegistry);
         this.accountVerification = accountVerification;
         this.offlineStanzaReceiver = offlineStanzaReceiver;
         int coreThreadCount = 10;
@@ -134,6 +143,7 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
     }
 
     /* package */ DeliveringInternalInboundStanzaRelay(ExecutorService executor) {
+        this.componentRegistry = null;
         this.executor = executor;
     }
 
@@ -269,7 +279,7 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
                                 new ServiceNotAvailableException("unsupported domain " + receiverDomain));
                     }
 
-                    StanzaProcessor processor = serverRuntimeContext.getComponentStanzaProcessor(receiver);
+                    StanzaProcessor processor = componentRegistry.getComponentStanzaProcessor(receiver);
                     if (processor == null) {
                         return new RelayResult(new ServiceNotAvailableException(
                                 "cannot retrieve component stanza processor for" + receiverDomain));

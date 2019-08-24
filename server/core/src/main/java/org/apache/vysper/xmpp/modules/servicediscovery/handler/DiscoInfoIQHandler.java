@@ -98,7 +98,7 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
         Entity serverEntity = serverRuntimeContext.getServerEntity();
         if (to == null || to.equals(serverEntity)) {
             isServerInfoRequest = true; // this can only be meant to query the server
-        } else if (serverRuntimeContext.getComponentStanzaProcessor(to) != null) {
+        } else if (serverRuntimeContext.hasComponentStanzaProcessor(to)) {
             isComponentInfoRequest = true; // this is a query to a component
         } else if (!to.isNodeSet()) {
             isServerInfoRequest = serverEntity.equals(to);

@@ -20,6 +20,8 @@
 
 package org.apache.vysper.xmpp.server;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,7 +36,6 @@ import org.apache.vysper.storage.OpenStorageProviderRegistry;
 import org.apache.vysper.storage.StorageProvider;
 import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.addressing.EntityUtils;
 import org.apache.vysper.xmpp.authentication.UserAuthentication;
 import org.apache.vysper.xmpp.cryptography.TLSContextFactory;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
@@ -83,7 +84,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     /**
      * feature configuration
      */
-    private ServerFeatures serverFeatures = new ServerFeatures();
+    private final ServerFeatures serverFeatures;
 
     /**
      * the Secure Socket Engine in use
@@ -93,17 +94,19 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     /**
      * generates unique session ids
      */
-    private UUIDGenerator sessionIdGenerator = new JVMBuiltinUUIDGenerator();
+    private final UUIDGenerator sessionIdGenerator = new JVMBuiltinUUIDGenerator();
 
     // basic services the server is using...
 
     /**
-     * 'input stream': receives stanzas issued by client sessions to be handled by the server
+     * 'input stream': receives stanzas issued by client sessions to be handled by
+     * the server
      */
     private final StanzaProcessor stanzaProcessor;
 
     /**
-     * 'output stream': receives stanzas issued by a session, which are going to other sessions/servers
+     * 'output stream': receives stanzas issued by a session, which are going to
+     * other sessions/servers
      */
     private final StanzaRelay stanzaRelay;
 
@@ -118,34 +121,42 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     private LatestPresenceCache presenceCache = new SimplePresenceCache();
 
     private final XMPPServerConnectorRegistry serverConnectorRegistry;
-    
+
     /**
      * holds the storage services
      */
     private StorageProviderRegistry storageProviderRegistry = new OpenStorageProviderRegistry();
 
     /**
-     * collection of all other services, which are mostly add-ons to the minimal setup
+     * collection of all other services, which are mostly add-ons to the minimal
+     * setup
      */
     private final Map<String, ServerRuntimeContextService> serverRuntimeContextServiceMap = new HashMap<String, ServerRuntimeContextService>();
 
     private List<Module> modules = new ArrayList<Module>();
-    
+
     /**
-     * map of all registered components, index by the subdomain they are registered for
+     * map of all registered components, index by the subdomain they are registered
+     * for
      */
-    protected final Map<String, Component> componentMap = new HashMap<String, Component>();
-    
+    private final AlterableComponentRegistry componentRegistry;
+
     private final SimpleEventBus eventBus;
 
-    public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay) {
+    public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay,
+            AlterableComponentRegistry componentRegistry, ResourceRegistry resourceRegistry,
+            ServerFeatures serverFeatures, List<HandlerDictionary> dictionaries) {
         this.serverEntity = serverEntity;
         this.stanzaRelay = stanzaRelay;
         this.stanzaProcessor = new ProtocolWorker(stanzaRelay);
-        this.resourceRegistry = new DefaultResourceRegistry();
+        this.componentRegistry = requireNonNull(componentRegistry);
         this.serverConnectorRegistry = new DefaultXMPPServerConnectorRegistry(this, stanzaRelay);
         this.stanzaHandlerLookup = new StanzaHandlerLookup(this);
         this.eventBus = new SimpleEventBus();
+        this.serverFeatures = serverFeatures;
+        this.resourceRegistry = resourceRegistry;
+
+        addDictionaries(dictionaries);
     }
 
     public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay,
@@ -154,18 +165,15 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         this.storageProviderRegistry = storageProviderRegistry;
     }
 
-    public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay, ServerFeatures serverFeatures,
-            List<HandlerDictionary> dictionaries, ResourceRegistry resourceRegistry) {
-        this(serverEntity, stanzaRelay);
-        this.serverFeatures = serverFeatures;
-        this.resourceRegistry = resourceRegistry;
-
-        addDictionaries(dictionaries);
+    public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay) {
+        this(serverEntity, stanzaRelay, new SimpleComponentRegistry(serverEntity), new DefaultResourceRegistry(),
+                new ServerFeatures(), Collections.emptyList());
     }
 
     /**
-     * change the presence cache implementation. this is a setter intended to be used at
-     * initialisation time. (thus, this method is not part of ServerRuntimeContext.
+     * change the presence cache implementation. this is a setter intended to be
+     * used at initialisation time. (thus, this method is not part of
+     * ServerRuntimeContext.
      * 
      * @param presenceCache
      */
@@ -173,22 +181,27 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         this.presenceCache = presenceCache;
     }
 
+    @Override
     public StanzaHandler getHandler(Stanza stanza) {
         return stanzaHandlerLookup.getHandler(stanza);
     }
 
+    @Override
     public String getNextSessionId() {
         return sessionIdGenerator.create();
     }
 
+    @Override
     public Entity getServerEntity() {
         return serverEntity;
     }
 
+    @Override
     public String getDefaultXMLLang() {
         return "en_US"; // TODO must be configurable as of RFC3920
     }
 
+    @Override
     public StanzaProcessor getStanzaProcessor() {
         return stanzaProcessor;
     }
@@ -197,10 +210,12 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         return stanzaRelay;
     }
 
+    @Override
     public ServerFeatures getServerFeatures() {
         return serverFeatures;
     }
 
+    @Override
     public XMPPServerConnectorRegistry getServerConnectorRegistry() {
         return serverConnectorRegistry;
     }
@@ -223,29 +238,36 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         }
     }
 
+    @Override
     public SSLContext getSslContext() {
         return sslContext;
     }
 
     /**
-     * @deprecated use {@link #getStorageProvider(Class)} with {@link UserAuthentication}.class instead 
+     * @deprecated use {@link #getStorageProvider(Class)} with
+     *             {@link UserAuthentication}.class instead
      */
+    @Override
     public UserAuthentication getUserAuthentication() {
-        return (UserAuthentication) storageProviderRegistry.retrieve(UserAuthentication.class);
+        return storageProviderRegistry.retrieve(UserAuthentication.class);
     }
 
+    @Override
     public ResourceRegistry getResourceRegistry() {
         return resourceRegistry;
     }
 
+    @Override
     public LatestPresenceCache getPresenceCache() {
         return presenceCache;
     }
 
     /**
      * add a runtime service. makes the service dynamically discoverable at runtime.
+     * 
      * @param service
      */
+    @Override
     public void registerServerRuntimeContextService(ServerRuntimeContextService service) {
         if (service == null)
             throw new IllegalStateException("service must not be null");
@@ -256,10 +278,11 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     }
 
     /**
-     * retrieves a previously registered runtime context service. The RosterManager is a good example of such a service.
-     * This allows for modules, extensions and other services to discover their dependencies at runtime.
-     *  
-     * @see org.apache.vysper.xmpp.server.DefaultServerRuntimeContext#getStorageProvider(Class) 
+     * retrieves a previously registered runtime context service. The RosterManager
+     * is a good example of such a service. This allows for modules, extensions and
+     * other services to discover their dependencies at runtime.
+     * 
+     * @see org.apache.vysper.xmpp.server.DefaultServerRuntimeContext#getStorageProvider(Class)
      * @param name
      * @return
      */
@@ -270,6 +293,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
 
     /**
      * adds a whole set of storage providers at once to the system.
+     * 
      * @param storageProviderRegistry
      */
     public void setStorageProviderRegistry(StorageProviderRegistry storageProviderRegistry) {
@@ -279,26 +303,31 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     }
 
     /**
-     * retrieves a particular storage provider. 
+     * retrieves a particular storage provider.
+     * 
      * @param clazz
      * @return
      */
+    @Override
     public <T extends StorageProvider> T getStorageProvider(Class<T> clazz) {
         return storageProviderRegistry.retrieve(clazz);
     }
 
     /**
-     * adds and initializes a list of Modules. A module extends the server's functionality by adding an 
-     * XMPP extension ('XEP') to it. (More) Modules can be added at runtime.
-     * This approach has an advantage over adding modules one by one, in that it allows for a better
-     * dependency management: all modules from the list to first discover each other before initialize()
-     * get's called for every one of them. 
-     *  
+     * adds and initializes a list of Modules. A module extends the server's
+     * functionality by adding an XMPP extension ('XEP') to it. (More) Modules can
+     * be added at runtime. This approach has an advantage over adding modules one
+     * by one, in that it allows for a better dependency management: all modules
+     * from the list to first discover each other before initialize() get's called
+     * for every one of them.
+     * 
      * @see org.apache.vysper.xmpp.server.DefaultServerRuntimeContext#registerServerRuntimeContextService(org.apache.vysper.xmpp.modules.ServerRuntimeContextService)
-     * @see org.apache.vysper.xmpp.server.DefaultServerRuntimeContext#getServerRuntimeContextService(String)  
+     * @see org.apache.vysper.xmpp.server.DefaultServerRuntimeContext#getServerRuntimeContextService(String)
      * @see org.apache.vysper.xmpp.modules.Module
-     * @param modules List of modules
+     * @param modules
+     *            List of modules
      */
+    @Override
     public void addModules(List<Module> modules) {
         for (Module module : modules) {
             addModuleInternal(module);
@@ -309,12 +338,15 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     }
 
     /**
-     * adds and initializes a single Module. a module extends the server's functionality by adding an 
-     * XMPP extension ('XEP') to it.
+     * adds and initializes a single Module. a module extends the server's
+     * functionality by adding an XMPP extension ('XEP') to it.
+     * 
      * @see org.apache.vysper.xmpp.modules.Module
-     * @see DefaultServerRuntimeContext#addModules(java.util.List) for adding a number of modules at once
+     * @see DefaultServerRuntimeContext#addModules(java.util.List) for adding a
+     *      number of modules at once
      * @param module
      */
+    @Override
     public void addModule(Module module) {
         addModuleInternal(module);
         module.initialize(this);
@@ -329,7 +361,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
             for (ServerRuntimeContextService serverRuntimeContextService : serviceList) {
                 registerServerRuntimeContextService(serverRuntimeContextService);
 
-                // if a storage service, also register there 
+                // if a storage service, also register there
                 if (serverRuntimeContextService instanceof StorageProvider) {
                     StorageProvider storageProvider = (StorageProvider) serverRuntimeContextService;
                     storageProviderRegistry.add(storageProvider);
@@ -351,17 +383,20 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         if (module instanceof Component) {
             registerComponent((Component) module);
         }
-        
+
         modules.add(module);
     }
-    
+
+    @Override
     public List<Module> getModules() {
         return Collections.unmodifiableList(modules);
     }
 
+    @Override
     public <T> T getModule(Class<T> clazz) {
-        for(Module module : modules) {
-            if(module.getClass().equals(clazz)) return (T) module;
+        for (Module module : modules) {
+            if (module.getClass().equals(clazz))
+                return (T) module;
         }
         return null;
     }
@@ -371,27 +406,19 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         return eventBus;
     }
 
+    @Override
     public void registerComponent(Component component) {
-        componentMap.put(component.getSubdomain(), component);
+        componentRegistry.registerComponent(component);
     }
 
-    public StanzaProcessor getComponentStanzaProcessor(Entity entity) {
-        String serverDomain = getServerEntity().getDomain();
-        if (!EntityUtils.isAddressingServerComponent(entity, getServerEntity())) {
-            return null;
-        }
-        String domain = entity.getDomain();
-        String subdomain = domain.replace("." + serverDomain, "");
-        Component component = componentMap.get(subdomain);
-        if (component == null)
-            return null;
-        return component.getStanzaProcessor();
+    @Override
+    public boolean hasComponentStanzaProcessor(Entity entity) {
+        return componentRegistry.getComponentStanzaProcessor(entity) != null;
     }
 
     @Override
     public ComponentStanzaProcessor createComponentStanzaProcessor() {
         return new ComponentStanzaProcessor(stanzaRelay);
     }
-
 
 }

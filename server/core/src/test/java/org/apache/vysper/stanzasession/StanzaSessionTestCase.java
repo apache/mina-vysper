@@ -24,11 +24,13 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.StanzaRelayBroker;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
 import org.apache.vysper.xmpp.server.ServerFeatures;
+import org.apache.vysper.xmpp.server.SimpleComponentRegistry;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.state.resourcebinding.DefaultResourceRegistry;
@@ -53,8 +55,9 @@ public class StanzaSessionTestCase extends TestCase {
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.compatibility.jabber_iq_auth.JabberIQAuthDictionary());
         dictionaries.add(new org.apache.vysper.xmpp.modules.roster.RosterDictionary());
 
-        DefaultServerRuntimeContext serverContext = new DefaultServerRuntimeContext(new EntityImpl(null, "test", null),
-                relay, new ServerFeatures(), dictionaries, new DefaultResourceRegistry());
+        Entity serverEntity = new EntityImpl(null, "test", null);
+        DefaultServerRuntimeContext serverContext = new DefaultServerRuntimeContext(serverEntity,
+                relay, new SimpleComponentRegistry(serverEntity), new DefaultResourceRegistry(), new ServerFeatures(), dictionaries);
 
         relay.setServerRuntimeContext(serverContext);
 

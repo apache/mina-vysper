@@ -74,7 +74,7 @@ public interface ServerRuntimeContext {
 
     void registerComponent(Component component);
 
-    StanzaProcessor getComponentStanzaProcessor(Entity entity);
+    boolean hasComponentStanzaProcessor(Entity entity);
     
     ComponentStanzaProcessor createComponentStanzaProcessor();
     

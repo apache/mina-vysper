@@ -51,8 +51,7 @@ import org.apache.vysper.xmpp.state.resourcebinding.DefaultResourceRegistry;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 
 /**
- * this class is able to boot a standalone XMPP server.
- * <code>
+ * this class is able to boot a standalone XMPP server. <code>
  * XMPPServer server = new XMPPServer("vysper.org");
  *
  * server.addEndpoint(...); // add endpoints, at least one
@@ -69,10 +68,10 @@ public class XMPPServer {
 
     private String serverDomain;
 
-    private ServerRuntimeContext serverRuntimeContext;
+    private DefaultServerRuntimeContext serverRuntimeContext;
 
     private StorageProviderRegistry storageProviderRegistry;
-    
+
     private StanzaRelayBroker stanzaRelayBroker;
 
     private InputStream tlsCertificate;
@@ -84,9 +83,9 @@ public class XMPPServer {
     private final List<Endpoint> endpoints = new ArrayList<Endpoint>();
 
     private final List<Module> initialModules = new ArrayList<Module>();
- 
+
     private int maxInternalRelayThreads = -1;
-    
+
     private int maxExternalRelayThreads = -1;
 
     public XMPPServer(String domain) {
@@ -94,7 +93,8 @@ public class XMPPServer {
             throw new IllegalArgumentException("server domain cannot be blank, empty or NULL");
         }
         if (!domain.equals(domain.toLowerCase())) {
-            throw new IllegalArgumentException("server domain must be given in all lower-case letters, but was: " + domain);
+            throw new IllegalArgumentException(
+                    "server domain must be given in all lower-case letters, but was: " + domain);
         }
         try {
             EntityImpl.parse(domain);
@@ -105,7 +105,7 @@ public class XMPPServer {
 
         // default list of SASL mechanisms
         saslMechanisms.add(new Plain());
-        
+
         // add default modules
         initialModules.add(new ServiceDiscoveryModule());
         initialModules.add(new RosterModule());
@@ -126,13 +126,13 @@ public class XMPPServer {
     }
 
     public void setTLSCertificateInfo(InputStream certificate, String password) {
-    	setTLSCertificateInfo(certificate, password, null);
+        setTLSCertificateInfo(certificate, password, null);
     }
 
     public void setTLSCertificateInfo(InputStream certificate, String password, String keyStoreType) {
-    	tlsCertificate = certificate;
-    	tlsCertificatePassword = password;
-    	tlsKeyStoreType = keyStoreType;
+        tlsCertificate = certificate;
+        tlsCertificatePassword = password;
+        tlsKeyStoreType = keyStoreType;
     }
 
     public void setMaxInternalRelayThreads(int maxInternalRelayThreads) {
@@ -154,7 +154,7 @@ public class XMPPServer {
 
         TrustManagerFactory trustManagerFactory = null; // default, check certificates strictly
         if (!serverFeatures.isCheckingFederationServerCertificates()) {
-            // switch to accepting *any* certificate 
+            // switch to accepting *any* certificate
             trustManagerFactory = new NonCheckingX509TrustManagerFactory();
         }
 
@@ -164,8 +164,8 @@ public class XMPPServer {
         InputStreamBasedTLSContextFactory tlsContextFactory = new InputStreamBasedTLSContextFactory(tlsCertificate);
         tlsContextFactory.setPassword(tlsCertificatePassword);
         tlsContextFactory.setTrustManagerFactory(trustManagerFactory);
-        if(tlsKeyStoreType != null) {
-        	tlsContextFactory.setKeyStoreType(tlsKeyStoreType);
+        if (tlsKeyStoreType != null) {
+            tlsContextFactory.setKeyStoreType(tlsKeyStoreType);
         }
 
         List<HandlerDictionary> dictionaries = new ArrayList<HandlerDictionary>();
@@ -175,22 +175,29 @@ public class XMPPServer {
 
         EntityImpl serverEntity = new EntityImpl(null, serverDomain, null);
 
-        AccountManagement accountManagement = storageProviderRegistry
-                .retrieve(AccountManagement.class);
+        AccountManagement accountManagement = storageProviderRegistry.retrieve(AccountManagement.class);
         OfflineStanzaReceiver offlineReceiver = storageProviderRegistry.retrieve(OfflineStorageProvider.class);
-        DeliveringInternalInboundStanzaRelay internalStanzaRelay = new DeliveringInternalInboundStanzaRelay(serverEntity,
-                resourceRegistry, accountManagement,offlineReceiver);
+
+        AlterableComponentRegistry componentRegistry = new SimpleComponentRegistry(serverEntity);
+
+        DeliveringInternalInboundStanzaRelay internalStanzaRelay = new DeliveringInternalInboundStanzaRelay(
+                serverEntity, resourceRegistry, componentRegistry, accountManagement, offlineReceiver);
         DeliveringExternalInboundStanzaRelay externalStanzaRelay = new DeliveringExternalInboundStanzaRelay();
-        
-        if (maxInternalRelayThreads >= 0) internalStanzaRelay.setMaxThreadCount(maxInternalRelayThreads);
-        if (maxExternalRelayThreads >= 0) externalStanzaRelay.setMaxThreadCount(maxExternalRelayThreads);
+
+        if (maxInternalRelayThreads >= 0)
+            internalStanzaRelay.setMaxThreadCount(maxInternalRelayThreads);
+        if (maxExternalRelayThreads >= 0)
+            externalStanzaRelay.setMaxThreadCount(maxExternalRelayThreads);
 
         stanzaRelayBroker = new StanzaRelayBroker();
         stanzaRelayBroker.setInternalRelay(internalStanzaRelay);
         stanzaRelayBroker.setExternalRelay(externalStanzaRelay);
 
-        serverRuntimeContext = createServerRuntimeContext(serverFeatures, tlsContextFactory, dictionaries,
-                resourceRegistry, serverEntity);
+        serverRuntimeContext = new DefaultServerRuntimeContext(serverEntity, stanzaRelayBroker, componentRegistry,
+                resourceRegistry, serverFeatures, dictionaries);
+        serverRuntimeContext.setStorageProviderRegistry(storageProviderRegistry);
+        serverRuntimeContext.setTlsContextFactory(tlsContextFactory);
+
         for (Module module : initialModules) {
             serverRuntimeContext.addModule(module);
         }
@@ -200,26 +207,16 @@ public class XMPPServer {
         internalStanzaRelay.setStanzaRelay(stanzaRelayBroker);
         externalStanzaRelay.setServerRuntimeContext(serverRuntimeContext);
 
-        final LogStorageProvider logStorageProvider =
-                (LogStorageProvider) this.storageProviderRegistry.retrieve(LogStorageProvider.class);
-        if (logStorageProvider != null) internalStanzaRelay.setLogStorageProvider(logStorageProvider);
+        final LogStorageProvider logStorageProvider = this.storageProviderRegistry.retrieve(LogStorageProvider.class);
+        if (logStorageProvider != null)
+            internalStanzaRelay.setLogStorageProvider(logStorageProvider);
 
-        if (endpoints.size() == 0) throw new IllegalStateException("server must have at least one endpoint");
+        if (endpoints.size() == 0)
+            throw new IllegalStateException("server must have at least one endpoint");
         for (Endpoint endpoint : endpoints) {
             endpoint.setServerRuntimeContext(serverRuntimeContext);
             endpoint.start();
         }
-    }
-
-    protected ServerRuntimeContext createServerRuntimeContext(ServerFeatures serverFeatures,
-            InputStreamBasedTLSContextFactory tlsContextFactory, List<HandlerDictionary> dictionaries,
-            ResourceRegistry resourceRegistry, EntityImpl serverEntity) {
-        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(serverEntity,
-                stanzaRelayBroker, serverFeatures, dictionaries, resourceRegistry);
-        serverRuntimeContext.setStorageProviderRegistry(storageProviderRegistry);
-        serverRuntimeContext.setTlsContextFactory(tlsContextFactory);
-
-        return serverRuntimeContext;
     }
 
     protected ServerFeatures createServerFeatures() {
@@ -230,21 +227,21 @@ public class XMPPServer {
         for (Endpoint endpoint : endpoints) {
             endpoint.stop();
         }
-        
-        for(Module module : serverRuntimeContext.getModules()) {
+
+        for (Module module : serverRuntimeContext.getModules()) {
             try {
                 module.close();
-            } catch(RuntimeException e) {
+            } catch (RuntimeException e) {
                 // ignore
             }
         }
-        
+
         stanzaRelayBroker.stop();
         serverRuntimeContext.getServerConnectorRegistry().close();
     }
 
     public void addModule(Module module) {
-        if(serverRuntimeContext != null) {
+        if (serverRuntimeContext != null) {
             serverRuntimeContext.addModule(module);
         } else {
             initialModules.add(module);
@@ -259,7 +256,7 @@ public class XMPPServer {
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.session.SessionStanzaDictionary());
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.compatibility.jabber_iq_auth.JabberIQAuthDictionary());
     }
-    
+
     public ServerRuntimeContext getServerRuntimeContext() {
         return serverRuntimeContext;
     }

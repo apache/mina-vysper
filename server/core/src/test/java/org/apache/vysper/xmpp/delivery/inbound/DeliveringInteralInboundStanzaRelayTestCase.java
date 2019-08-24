@@ -19,6 +19,8 @@
  */
 package org.apache.vysper.xmpp.delivery.inbound;
 
+import static org.mockito.Mockito.mock;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -34,6 +36,7 @@ import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionState;
+import org.apache.vysper.xmpp.server.SimpleComponentRegistry;
 import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -43,8 +46,6 @@ import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
-
-import static org.mockito.Mockito.mock;
 
 /**
  */
@@ -73,18 +74,22 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
             ; // empty
         }
     }
+    
+    private Entity serverEntity;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
 
         accountVerification = new AccountVerificationMock();
-        stanzaRelay = new DeliveringInternalInboundStanzaRelay(EntityImpl.parse("vysper.org"), resourceRegistry,
-                accountVerification, null);
+        serverEntity = EntityImpl.parse("vysper.org");
+        stanzaRelay = new DeliveringInternalInboundStanzaRelay(serverEntity, resourceRegistry,
+                new SimpleComponentRegistry(serverEntity), accountVerification, null);
     }
 
     public void testSimpleRelay() throws EntityFormatException, XMLSemanticError, DeliveryException {
-        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(null, mock(StanzaRelay.class));
+        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(serverEntity,
+                mock(StanzaRelay.class));
         stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
         stanzaRelay.setStanzaRelay(stanzaRelay);
 
@@ -123,7 +128,8 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
 
     public void testRelayToTwoRecepients_DeliverToALL()
             throws EntityFormatException, XMLSemanticError, DeliveryException, BindException {
-        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(null, mock(StanzaRelay.class));
+        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(serverEntity,
+                mock(StanzaRelay.class));
 
         // !! DeliverMessageToHighestPriorityResourcesOnly = FALSE
         serverRuntimeContext.getServerFeatures().setDeliverMessageToHighestPriorityResourcesOnly(false);
@@ -157,7 +163,8 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
 
     public void testRelayToTwoRecepients_DeliverToHIGHEST()
             throws EntityFormatException, XMLSemanticError, DeliveryException, BindException {
-        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(null, mock(StanzaRelay.class));
+        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(serverEntity,
+                mock(StanzaRelay.class));
 
         // !! DeliverMessageToHighestPriorityResourcesOnly = TRUE
         serverRuntimeContext.getServerFeatures().setDeliverMessageToHighestPriorityResourcesOnly(true);
@@ -216,7 +223,8 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
 
     public void testSequentialDeliveryOneThread() throws DeliveryException, XMLSemanticError, EntityFormatException {
 
-        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(null, mock(StanzaRelay.class));
+        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(serverEntity,
+                mock(StanzaRelay.class));
 
         stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
         stanzaRelay.setStanzaRelay(stanzaRelay);
@@ -239,7 +247,8 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
 
     public void testSequentialDeliveryManyThreads() throws DeliveryException, XMLSemanticError, EntityFormatException {
 
-        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(null, mock(StanzaRelay.class));
+        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(serverEntity,
+                mock(StanzaRelay.class));
 
         stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
         stanzaRelay.setStanzaRelay(stanzaRelay);

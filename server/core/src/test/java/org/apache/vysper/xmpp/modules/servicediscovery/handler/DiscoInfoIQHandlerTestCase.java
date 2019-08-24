@@ -22,8 +22,6 @@ package org.apache.vysper.xmpp.modules.servicediscovery.handler;
 import java.util.Arrays;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.apache.vysper.StanzaAssert;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -40,7 +38,6 @@ import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
 import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
-import org.apache.vysper.xmpp.server.components.ComponentStanzaProcessor;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -52,31 +49,42 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import junit.framework.Assert;
+
 /**
  */
 public class DiscoInfoIQHandlerTestCase extends Mockito {
 
     private static final Entity FROM = EntityImpl.parseUnchecked("from@vysper.org");
+
     private static final Entity SERVER = EntityImpl.parseUnchecked("vysper.org");
+
     private static final Entity COMPONENT = EntityImpl.parseUnchecked("comp.vysper.org");
+
     private static final Entity USER = EntityImpl.parseUnchecked("user@vysper.org");
+
     private static final Entity USER_WITH_RESOURCE = EntityImpl.parseUnchecked("user@vysper.org/res1");
-    
+
     private ServerRuntimeContext serverRuntimeContext = mock(ServerRuntimeContext.class);
+
     private SessionContext sessionContext = mock(SessionContext.class);
+
     private ServiceCollector serviceCollector = mock(ServiceCollector.class);
+
     private StanzaBroker stanzaBroker = mock(StanzaBroker.class);
+
     private StanzaWriter stanzaWriter = mock(StanzaWriter.class);
 
     private IQStanza stanza = (IQStanza) IQStanza.getWrapper(buildStanza());
-    
+
     private DiscoInfoIQHandler handler = new DiscoInfoIQHandler();
-    
-    private ComponentStanzaProcessor componentStanzaProcessor = mock(ComponentStanzaProcessor.class);
+
     private Feature feature = new Feature("foo");
+
     private Identity identity = new Identity("bar", "fez");
+
     private List<InfoElement> infoElements = Arrays.asList(feature, identity);
-    
+
     private Stanza buildStanza() {
         return buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "query", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO);
     }
@@ -84,15 +92,12 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
     private Stanza buildStanza(String name, String namespaceUri) {
         return buildStanza(name, namespaceUri, "query", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO);
     }
-    
+
     private Stanza buildStanza(String name, String namespaceUri, String innerName, String innerNamespaceUri) {
-        return new StanzaBuilder(name, namespaceUri)
-            .addAttribute("type", "get")
-            .addAttribute("id", "1")
-            .startInnerElement(innerName, innerNamespaceUri)
-            .build();
+        return new StanzaBuilder(name, namespaceUri).addAttribute("type", "get").addAttribute("id", "1")
+                .startInnerElement(innerName, innerNamespaceUri).build();
     }
-    
+
     @Test
     public void nameMustBeIq() {
         Assert.assertEquals("iq", handler.getName());
@@ -127,10 +132,11 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
     public void verifyInvalidInnerNamespace() {
         Assert.assertFalse(handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "query", "dummy")));
     }
-    
+
     @Test
     public void verifyInvalidInnerName() {
-        Assert.assertFalse(handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "dummy", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO)));
+        Assert.assertFalse(handler.verify(
+                buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "dummy", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO)));
     }
 
     @Test
@@ -138,7 +144,7 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
         Stanza stanza = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT).build();
         Assert.assertFalse(handler.verify(stanza));
     }
-    
+
     @Test
     public void verifyValidStanza() {
         Assert.assertTrue(handler.verify(stanza));
@@ -148,12 +154,13 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
     public void sessionIsRequired() {
         Assert.assertTrue(handler.isSessionRequired());
     }
-    
+
     @Before
     public void before() {
-        when(serverRuntimeContext.getServerRuntimeContextService(ServiceDiscoveryRequestListenerRegistry.SERVICE_DISCOVERY_REQUEST_LISTENER_REGISTRY))
-            .thenReturn(serviceCollector);
-        
+        when(serverRuntimeContext.getServerRuntimeContextService(
+                ServiceDiscoveryRequestListenerRegistry.SERVICE_DISCOVERY_REQUEST_LISTENER_REGISTRY))
+                        .thenReturn(serviceCollector);
+
         when(serverRuntimeContext.getServerEntity()).thenReturn(SERVER);
         when(sessionContext.getResponseWriter()).thenReturn(stanzaWriter);
     }
@@ -161,9 +168,9 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
     @Test
     public void handleGetToServer() throws Exception {
         IQStanza stanza = createRequest(SERVER);
-        
+
         when(serviceCollector.processServerInfoRequest(any(InfoRequest.class))).thenReturn(infoElements);
-        
+
         List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
         StanzaAssert.assertEquals(createExpectedResponse(SERVER), response);
@@ -172,67 +179,69 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
     @Test
     public void handleGetToExistingComponent() throws Exception {
         IQStanza stanza = createRequest(COMPONENT);
-        
-        when(serverRuntimeContext.getComponentStanzaProcessor(COMPONENT)).thenReturn(componentStanzaProcessor);
-        
-        when(serviceCollector.processComponentInfoRequest(any(InfoRequest.class), eq(stanzaBroker))).thenReturn(infoElements);
+
+        when(serverRuntimeContext.hasComponentStanzaProcessor(COMPONENT)).thenReturn(true);
+
+        when(serviceCollector.processComponentInfoRequest(any(InfoRequest.class), eq(stanzaBroker)))
+                .thenReturn(infoElements);
 
         List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
-        
+
         StanzaAssert.assertEquals(createExpectedResponse(COMPONENT), response);
     }
 
     @Test
     public void handleGetToUser() throws Exception {
         IQStanza stanza = createRequest(USER);
-        
+
         when(serviceCollector.processInfoRequest(any(InfoRequest.class))).thenReturn(infoElements);
 
         List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
-        
+
         StanzaAssert.assertEquals(createExpectedResponse(USER), response);
     }
 
     @Test
     public void handleGetToUserWithResource() throws Exception {
         when(sessionContext.getInitiatingEntity()).thenReturn(FROM);
-        
+
         IQStanza stanza = createRequest(USER_WITH_RESOURCE);
-        
+
         List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
-        
+
         Assert.assertNull(response);
-        
+
         verify(stanzaBroker).write(eq(USER_WITH_RESOURCE), eq(stanza), any(DeliveryFailureStrategy.class));
     }
-    
+
     @Test
     public void handleGetToUserWithResourceInbound() throws Exception {
         when(sessionContext.getInitiatingEntity()).thenReturn(USER);
-        
+
         IQStanza stanza = createRequest(USER_WITH_RESOURCE);
-        
+
         List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
-        
+
         Assert.assertNull(response);
-        
+
         verify(stanzaWriter).write(stanza);
     }
-    
+
     @Test
     public void handleGetToNonExistingComponent() throws Exception {
         IQStanza stanza = createRequest(COMPONENT);
-        
-        when(serverRuntimeContext.getComponentStanzaProcessor(COMPONENT)).thenReturn(null);
-        when(serviceCollector.processComponentInfoRequest(any(InfoRequest.class), eq(stanzaBroker))).thenReturn(infoElements);
-        
+
+        when(serverRuntimeContext.hasComponentStanzaProcessor(COMPONENT)).thenReturn(false);
+        when(serviceCollector.processComponentInfoRequest(any(InfoRequest.class), eq(stanzaBroker)))
+                .thenReturn(infoElements);
+
         List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
-        
+
         Stanza expected = createErrorResponse(COMPONENT, "item-not-found");
 
         StanzaAssert.assertEquals(expected, response);
@@ -241,125 +250,118 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
     @Test
     public void handleGetNoServiceCollector() throws Exception {
         IQStanza stanza = createRequest(SERVER);
-        
-        when(serverRuntimeContext.getServerRuntimeContextService(ServiceDiscoveryRequestListenerRegistry.SERVICE_DISCOVERY_REQUEST_LISTENER_REGISTRY))
-            .thenReturn(null);
-            
+
+        when(serverRuntimeContext.getServerRuntimeContextService(
+                ServiceDiscoveryRequestListenerRegistry.SERVICE_DISCOVERY_REQUEST_LISTENER_REGISTRY)).thenReturn(null);
+
         List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
-        
+
         Stanza expected = createErrorResponse(SERVER, "internal-server-error");
-        
+
         StanzaAssert.assertEquals(expected, response);
     }
-    
+
     @Test
     public void handleGetToServerWithException() throws Exception {
         IQStanza stanza = createRequest(SERVER);
-        
-        when(serviceCollector.processServerInfoRequest(any(InfoRequest.class))).thenThrow(new ServiceDiscoveryRequestException(StanzaErrorCondition.INTERNAL_SERVER_ERROR));
-        
+
+        when(serviceCollector.processServerInfoRequest(any(InfoRequest.class)))
+                .thenThrow(new ServiceDiscoveryRequestException(StanzaErrorCondition.INTERNAL_SERVER_ERROR));
+
         List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
-        
+
         Stanza expected = createErrorResponse(SERVER, "internal-server-error");
-        
+
         StanzaAssert.assertEquals(expected, response);
     }
-    
+
     @Test
     public void handleGetToComponentWithException() throws Exception {
         IQStanza stanza = createRequest(COMPONENT);
-        
-        when(serverRuntimeContext.getComponentStanzaProcessor(COMPONENT)).thenReturn(componentStanzaProcessor);
-        when(serviceCollector.processComponentInfoRequest(any(InfoRequest.class), eq(stanzaBroker))).thenThrow(new ServiceDiscoveryRequestException(StanzaErrorCondition.INTERNAL_SERVER_ERROR));
-        
+
+        when(serverRuntimeContext.hasComponentStanzaProcessor(COMPONENT)).thenReturn(true);
+        when(serviceCollector.processComponentInfoRequest(any(InfoRequest.class), eq(stanzaBroker)))
+                .thenThrow(new ServiceDiscoveryRequestException(StanzaErrorCondition.INTERNAL_SERVER_ERROR));
+
         List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
-        
+
         Stanza expected = createErrorResponse(COMPONENT, "internal-server-error");
-        
+
         StanzaAssert.assertEquals(expected, response);
     }
-    
+
     @Test
     public void handleGetToUserWithException() throws Exception {
         IQStanza stanza = createRequest(USER);
-        
-        when(serviceCollector.processInfoRequest(any(InfoRequest.class))).thenThrow(new ServiceDiscoveryRequestException(StanzaErrorCondition.INTERNAL_SERVER_ERROR));
-        
+
+        when(serviceCollector.processInfoRequest(any(InfoRequest.class)))
+                .thenThrow(new ServiceDiscoveryRequestException(StanzaErrorCondition.INTERNAL_SERVER_ERROR));
+
         List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
-        
+
         Stanza expected = createErrorResponse(SERVER, "internal-server-error");
-        
+
         StanzaAssert.assertEquals(expected, response);
     }
-    
+
     @Test
     public void handleResultToUser() throws Exception {
         when(sessionContext.getInitiatingEntity()).thenReturn(FROM);
-        
+
         IQStanza stanza = createRequest(USER, IQStanzaType.RESULT);
 
         List<Stanza> responses = handler.handleResult(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
-        
+
         Assert.assertNull(response);
-        
+
         verify(stanzaBroker).write(eq(USER), eq(stanza), any(DeliveryFailureStrategy.class));
     }
-    
+
     @Test
     public void handleResultToUserInbound() throws Exception {
         when(sessionContext.getInitiatingEntity()).thenReturn(USER);
-        
+
         IQStanza stanza = createRequest(USER, IQStanzaType.RESULT);
 
         List<Stanza> responses = handler.handleResult(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
-        
+
         Assert.assertNull(response);
-        
+
         verify(stanzaWriter).write(stanza);
     }
-    
+
     private Stanza createErrorResponse(Entity from, String error) {
         Stanza expected = StanzaBuilder.createIQStanza(from, FROM, IQStanzaType.ERROR, "id1")
-        .startInnerElement("query", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO)
-        .addAttribute("node", "n")
-        .endInnerElement()
-        .startInnerElement("error", NamespaceURIs.JABBER_CLIENT)
-        .addAttribute("type", "cancel")
-        .startInnerElement(error, NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS)
-        .build();
+                .startInnerElement("query", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO).addAttribute("node", "n")
+                .endInnerElement().startInnerElement("error", NamespaceURIs.JABBER_CLIENT)
+                .addAttribute("type", "cancel")
+                .startInnerElement(error, NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).build();
         return expected;
     }
-    
+
     private IQStanza createRequest(Entity to) {
         return createRequest(to, IQStanzaType.GET);
     }
-    
+
     private IQStanza createRequest(Entity to, IQStanzaType type) {
         IQStanza stanza = (IQStanza) XMPPCoreStanza.getWrapper(StanzaBuilder.createIQStanza(FROM, to, type, "id1")
-                .startInnerElement("query", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO)
-                .addAttribute("node", "n")
+                .startInnerElement("query", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO).addAttribute("node", "n")
                 .build());
         return stanza;
     }
 
     private Stanza createExpectedResponse(Entity from) {
         Stanza expected = StanzaBuilder.createIQStanza(from, FROM, IQStanzaType.RESULT, "id1")
-        .startInnerElement("query", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO)
-        .addAttribute("node", "n")
-        .startInnerElement("feature", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO)
-        .addAttribute("var", "foo")
-        .endInnerElement()
-        .startInnerElement("identity", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO)
-        .addAttribute("category", "bar")
-        .addAttribute("type", "fez")
-        .endInnerElement()
-        .build();
+                .startInnerElement("query", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO).addAttribute("node", "n")
+                .startInnerElement("feature", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO).addAttribute("var", "foo")
+                .endInnerElement().startInnerElement("identity", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO)
+                .addAttribute("category", "bar").addAttribute("type", "fez").endInnerElement().build();
         return expected;
     }
 }
