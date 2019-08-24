@@ -130,7 +130,7 @@ public class SoftwareVersionIQHandlerTestCase {
 
     @Test
     public void handleGet() throws BindException, XMLSemanticError {
-        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext);
+        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, null);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
         
         // <iq xmlns="jabber:client" type="result" id="1">

@@ -27,6 +27,7 @@ import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.protocol.StreamErrorCondition;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
@@ -68,7 +69,8 @@ public abstract class XMPPCoreStanzaHandler implements StanzaHandler {
     }
 
     public ResponseStanzaContainer execute(Stanza anyStanza, ServerRuntimeContext serverRuntimeContext,
-            boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder) {
+										   boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder, 
+                                           StanzaBroker stanzaBroker) {
         XMPPCoreStanza stanza = XMPPCoreStanza.getWrapper(anyStanza);
         if (stanza == null)
             throw new IllegalArgumentException("can only handle core XMPP stanzas (iq, message, presence)");
@@ -116,12 +118,12 @@ public abstract class XMPPCoreStanzaHandler implements StanzaHandler {
             // TODO ensure, that RFC3920 9.1.1 "If the value of the 'to' attribute is invalid or cannot be contacted..." is enforced
         }
 
-        List<Stanza> responseStanzas = executeCore(stanza, serverRuntimeContext, isOutboundStanza, sessionContext);
+        List<Stanza> responseStanzas = executeCore(stanza, serverRuntimeContext, isOutboundStanza, sessionContext, stanzaBroker);
         return new ResponseStanzaContainerImpl(responseStanzas);
     }
 
     protected abstract List<Stanza> executeCore(XMPPCoreStanza stanza, ServerRuntimeContext serverRuntimeContext,
-                                                boolean isOutboundStanza, SessionContext sessionContext);
+                                                boolean isOutboundStanza, SessionContext sessionContext, StanzaBroker stanzaBroker);
     
     /**
      * Extracts the from address either from the "from" attribute of the stanza, if this isn't given

@@ -38,6 +38,7 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequestListener;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 
 /**
  * Represents the root of a conference, containing rooms
@@ -119,7 +120,7 @@ public class Conference implements ServerInfoRequestListener, ItemRequestListene
         return infoElements;
     }
 
-    public List<Item> getItemsFor(InfoRequest request) {
+    public List<Item> getItemsFor(InfoRequest request, StanzaBroker stanzaBroker) {
         List<Item> items = new ArrayList<Item>();
         Collection<Room> rooms = getAllRooms();
 

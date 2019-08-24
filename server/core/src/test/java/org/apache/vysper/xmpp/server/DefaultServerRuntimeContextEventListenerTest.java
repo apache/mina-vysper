@@ -24,9 +24,12 @@ import java.util.Optional;
 import org.apache.vysper.event.EventListenerDictionary;
 import org.apache.vysper.event.EventListenerMock;
 import org.apache.vysper.event.SimpleEventListenerDictionary;
+import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.DefaultModule;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Réda Housni Alaoui
@@ -43,7 +46,7 @@ public class DefaultServerRuntimeContextEventListenerTest {
         EventListenerDictionary listenerDictionary = SimpleEventListenerDictionary.builder()
                 .register(Event.class, eventListener).build();
 
-		tested = new DefaultServerRuntimeContext(null, null);
+		tested = new DefaultServerRuntimeContext(null, mock(StanzaRelay.class));
         tested.addModule(new MyModule(listenerDictionary));
     }
 

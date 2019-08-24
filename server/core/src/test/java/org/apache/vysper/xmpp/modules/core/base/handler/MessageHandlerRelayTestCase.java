@@ -20,8 +20,6 @@
 
 package org.apache.vysper.xmpp.modules.core.base.handler;
 
-import junit.framework.TestCase;
-
 import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
@@ -33,10 +31,13 @@ import org.apache.vysper.xmpp.modules.core.TestUser;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
+
+import junit.framework.TestCase;
 
 /**
  */
@@ -45,14 +46,14 @@ public class MessageHandlerRelayTestCase extends TestCase {
 
     private TestSessionContext senderSessionContext;
 
-    //    private SessionStateHolder sessionStateHolder = new SessionStateHolder();
+    // private SessionStateHolder sessionStateHolder = new SessionStateHolder();
     protected Entity sender;
 
     protected TestUser senderUser;
 
     private TestSessionContext receiverSessionContext;
 
-    //    private SessionStateHolder sessionStateHolder = new SessionStateHolder();
+    // private SessionStateHolder sessionStateHolder = new SessionStateHolder();
     protected Entity receiver;
 
     protected TestUser receiverUser;
@@ -69,7 +70,8 @@ public class MessageHandlerRelayTestCase extends TestCase {
 
         // receiver
         receiverSessionContext = TestSessionContext.createWithStanzaReceiverRelay(new SessionStateHolder(),
-                senderSessionContext.getServerRuntimeContext());
+                senderSessionContext.getServerRuntimeContext(),
+                (StanzaReceiverRelay) senderSessionContext.getStanzaRelay());
         receiver = EntityImpl.parse("receiver@vysper.org");
         receiverSessionContext.setInitiatingEntity(receiver);
         receiverUser = TestUser.createForSession(receiverSessionContext, receiver, false);
@@ -79,7 +81,7 @@ public class MessageHandlerRelayTestCase extends TestCase {
         String timestamp = "" + System.currentTimeMillis();
 
         StanzaBuilder stanzaBuilder = new StanzaBuilder("message", NamespaceURIs.JABBER_SERVER);
-        // receiver@vysper.org, NOT receiver@vysper.org/resourceID 
+        // receiver@vysper.org, NOT receiver@vysper.org/resourceID
         stanzaBuilder.addAttribute("to", receiverUser.getEntity().getBareJID().getFullQualifiedName());
         stanzaBuilder.startInnerElement("timestamp", NamespaceURIs.JABBER_SERVER).addAttribute("value", timestamp)
                 .endInnerElement();
@@ -90,14 +92,15 @@ public class MessageHandlerRelayTestCase extends TestCase {
         assertNull(senderUser.getNextStanza()); // nothing there yet
 
         Stanza stanza = stanzaBuilder.build();
-        ResponseStanzaContainer responseStanzaContainer = messageHandler.execute(stanza, senderSessionContext
-                .getServerRuntimeContext(), true, senderSessionContext, null);
+        ResponseStanzaContainer responseStanzaContainer = messageHandler.execute(stanza,
+                senderSessionContext.getServerRuntimeContext(), true, senderSessionContext, null,
+                new SimpleStanzaBroker(senderSessionContext.getStanzaRelay(), senderSessionContext));
 
         Stanza receivedStanza = receiverUser.getNextStanza();
         XMLElementVerifier timestampVerifier = receivedStanza.getFirstInnerElement().getVerifier();
 
-        assertTrue("stanza relayed to", receivedStanza.getVerifier().toAttributeEquals(
-                receiverUser.getEntity().getFullQualifiedName()));
+        assertTrue("stanza relayed to",
+                receivedStanza.getVerifier().toAttributeEquals(receiverUser.getEntity().getFullQualifiedName()));
         assertTrue("stanza relayed inner", timestampVerifier.attributeEquals("value", timestamp));
         assertNotNull("from added", receivedStanza.getFrom());
         assertNotNull("from is full JID", receivedStanza.getFrom().equals(senderUser.getEntityFQ()));
@@ -110,8 +113,7 @@ public class MessageHandlerRelayTestCase extends TestCase {
         Entity receiver = EntityImpl.parse("to_exist@example.com");
         Entity noReceiver = EntityImpl.parse("to_unavail@example.com");
 
-        StanzaReceiverRelay stanzaRelay = (StanzaReceiverRelay) senderSessionContext.getServerRuntimeContext()
-                .getStanzaRelay();
+        StanzaReceiverRelay stanzaRelay = (StanzaReceiverRelay) senderSessionContext.getStanzaRelay();
         StanzaReceiverQueue senderQueue = new StanzaReceiverQueue();
         StanzaReceiverQueue receiverQueue = new StanzaReceiverQueue();
         stanzaRelay.add(sender, senderQueue);
@@ -119,12 +121,14 @@ public class MessageHandlerRelayTestCase extends TestCase {
 
         Stanza successfulMessageStanza = StanzaBuilder.createMessageStanza(sender, receiver, "en", "info").build();
         ResponseStanzaContainer responseStanzaContainer = messageHandler.execute(successfulMessageStanza,
-                senderSessionContext.getServerRuntimeContext(), true, senderSessionContext, null);
+                senderSessionContext.getServerRuntimeContext(), true, senderSessionContext, null,
+                new SimpleStanzaBroker(stanzaRelay, senderSessionContext));
         assertEquals(successfulMessageStanza, receiverQueue.getNext());
 
         Stanza failureMessageStanza = StanzaBuilder.createMessageStanza(sender, noReceiver, "en", "info").build();
-        responseStanzaContainer = messageHandler.execute(failureMessageStanza, senderSessionContext
-                .getServerRuntimeContext(), true, senderSessionContext, null);
+        responseStanzaContainer = messageHandler.execute(failureMessageStanza,
+                senderSessionContext.getServerRuntimeContext(), true, senderSessionContext, null,
+                new SimpleStanzaBroker(stanzaRelay, senderSessionContext));
         assertNull(receiverQueue.getNext());
         Stanza rejectionStanza = senderQueue.getNext();
         assertNotNull(rejectionStanza);

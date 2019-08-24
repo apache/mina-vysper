@@ -73,7 +73,7 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
 
         AuthHandler authHandler = new AuthHandler();
         ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext
-                .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
+                .getServerRuntimeContext(), true, sessionContext, sessionStateHolder, null);
 
         assertTrue(responseContainer.getUniqueResponseStanza().getVerifier().nameEquals("failure"));
         assertTrue(sessionStateHolder.getState() == SessionState.ENCRYPTED);
@@ -86,7 +86,7 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
 
         AuthHandler authHandler = new AuthHandler();
         ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext
-                .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
+                .getServerRuntimeContext(), true, sessionContext, sessionStateHolder, null);
 
         assertTrue(responseContainer.getUniqueResponseStanza().getVerifier().nameEquals("failure"));
         assertTrue(sessionStateHolder.getState() == SessionState.ENCRYPTED);
@@ -102,7 +102,7 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
 
         AuthHandler authHandler = new AuthHandler();
         ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext
-                .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
+                .getServerRuntimeContext(), true, sessionContext, sessionStateHolder, null);
         Stanza responseStanza = responseContainer.getUniqueResponseStanza();
 
         assertTrue(responseStanza.getVerifier().nameEquals("success"));
@@ -122,7 +122,7 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
         AuthHandler authHandler = new AuthHandler();
         try {
             ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext
-                    .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
+                    .getServerRuntimeContext(), true, sessionContext, sessionStateHolder, null);
             fail("should raise error - no tries left");
         } catch (AuthenticationFailedException e) {
             // test succeeded
@@ -155,7 +155,7 @@ public class AuthHandlerPlainMechanismTestCase extends TestCase {
 
         AuthHandler authHandler = new AuthHandler();
         ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext
-                .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
+                .getServerRuntimeContext(), true, sessionContext, sessionStateHolder, null);
         Stanza responseStanza = responseContainer.getUniqueResponseStanza();
         return responseStanza;
     }

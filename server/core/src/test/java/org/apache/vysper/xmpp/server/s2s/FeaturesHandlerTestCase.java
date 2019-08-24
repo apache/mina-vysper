@@ -19,9 +19,9 @@
  */
 package org.apache.vysper.xmpp.server.s2s;
 
-import javax.net.ssl.SSLContext;
+import static org.mockito.Mockito.mock;
 
-import junit.framework.Assert;
+import javax.net.ssl.SSLContext;
 
 import org.apache.vysper.StanzaAssert;
 import org.apache.vysper.xmpp.addressing.Entity;
@@ -29,6 +29,7 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
@@ -38,30 +39,38 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import junit.framework.Assert;
+
 /**
  */
 public class FeaturesHandlerTestCase {
 
     private static final Entity FROM = EntityImpl.parseUnchecked("other.org");
+
     private static final Entity TO = EntityImpl.parseUnchecked("vysper.org");
 
     private FeaturesHandler handler = new FeaturesHandler();
-    private ServerRuntimeContext serverRuntimeContext = Mockito.mock(ServerRuntimeContext.class);
-    private SessionContext sessionContext = Mockito.mock(SessionContext.class);
+
+    private ServerRuntimeContext serverRuntimeContext = mock(ServerRuntimeContext.class);
+
+    private SessionContext sessionContext = mock(SessionContext.class);
+
     private SessionStateHolder sessionStateHolder = new SessionStateHolder();
+
+    private StanzaBroker stanzaBroker = mock(StanzaBroker.class);
 
     @Before
     public void before() {
-        SSLContext sslContext = Mockito.mock(SSLContext.class);
+        SSLContext sslContext = mock(SSLContext.class);
         Mockito.when(serverRuntimeContext.getSslContext()).thenReturn(sslContext);
         Mockito.when(serverRuntimeContext.getServerEntity()).thenReturn(TO);
-        
+
         Mockito.when(sessionContext.getInitiatingEntity()).thenReturn(FROM);
         Mockito.when(sessionContext.getSessionId()).thenReturn("session-id");
 
         sessionStateHolder.setState(SessionState.STARTED);
     }
-    
+
     @Test
     public void nameMustBeFeatures() {
         Assert.assertEquals("features", handler.getName());
@@ -104,72 +113,69 @@ public class FeaturesHandlerTestCase {
     @Test
     public void executeWithSsl() {
         Stanza stanza = new StanzaBuilder("features", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS)
-            .startInnerElement("starttls", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS).endInnerElement()
-            .startInnerElement("dialback", NamespaceURIs.URN_XMPP_FEATURES_DIALBACK).endInnerElement()
-            .build();
-        
-        ResponseStanzaContainer response = handler.execute(stanza, serverRuntimeContext, true, sessionContext, sessionStateHolder);
-        
+                .startInnerElement("starttls", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS).endInnerElement()
+                .startInnerElement("dialback", NamespaceURIs.URN_XMPP_FEATURES_DIALBACK).endInnerElement().build();
+
+        ResponseStanzaContainer response = handler.execute(stanza, serverRuntimeContext, true, sessionContext,
+                sessionStateHolder, stanzaBroker);
+
         Stanza expectedResponse = new StanzaBuilder("starttls", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS).build();
-        
+
         StanzaAssert.assertEquals(expectedResponse, response.getUniqueResponseStanza());
     }
 
     @Test
     public void executeWithSslDisabled() {
         Mockito.when(serverRuntimeContext.getSslContext()).thenReturn(null);
-        
+
         Stanza stanza = new StanzaBuilder("features", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS)
-            .startInnerElement("starttls", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS).endInnerElement()
-            .startInnerElement("dialback", NamespaceURIs.URN_XMPP_FEATURES_DIALBACK).endInnerElement()
-            .build();
-        
-        ResponseStanzaContainer response = handler.execute(stanza, serverRuntimeContext, true, sessionContext, sessionStateHolder);
-        
+                .startInnerElement("starttls", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS).endInnerElement()
+                .startInnerElement("dialback", NamespaceURIs.URN_XMPP_FEATURES_DIALBACK).endInnerElement().build();
+
+        ResponseStanzaContainer response = handler.execute(stanza, serverRuntimeContext, true, sessionContext,
+                sessionStateHolder, stanzaBroker);
+
         assertDialbackStanza(response.getUniqueResponseStanza());
     }
 
     @Test
     public void executeDialback() {
         Stanza stanza = new StanzaBuilder("features", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS)
-        .startInnerElement("dialback", NamespaceURIs.URN_XMPP_FEATURES_DIALBACK).endInnerElement()
-        .build();
-        
-        ResponseStanzaContainer response = handler.execute(stanza, serverRuntimeContext, true, sessionContext, sessionStateHolder);
-        
+                .startInnerElement("dialback", NamespaceURIs.URN_XMPP_FEATURES_DIALBACK).endInnerElement().build();
+
+        ResponseStanzaContainer response = handler.execute(stanza, serverRuntimeContext, true, sessionContext,
+                sessionStateHolder, stanzaBroker);
+
         assertDialbackStanza(response.getUniqueResponseStanza());
     }
 
     @Test
     public void executeWhenAuthenticated() {
         sessionStateHolder.setState(SessionState.AUTHENTICATED);
-        
+
         Stanza stanza = new StanzaBuilder("features", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS)
-        .startInnerElement("dialback", NamespaceURIs.URN_XMPP_FEATURES_DIALBACK).endInnerElement()
-        .build();
-        
-        Assert.assertNull(handler.execute(stanza, serverRuntimeContext, true, sessionContext, sessionStateHolder));
+                .startInnerElement("dialback", NamespaceURIs.URN_XMPP_FEATURES_DIALBACK).endInnerElement().build();
+
+        Assert.assertNull(
+                handler.execute(stanza, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker));
     }
 
     // TODO Is this the correct behavior?
-    @Test(expected=RuntimeException.class)
+    @Test(expected = RuntimeException.class)
     public void executeWithUnknownFeatures() {
         Stanza stanza = new StanzaBuilder("features", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS)
-        .startInnerElement("dummy", "dummy").endInnerElement()
-        .build();
-        
-        handler.execute(stanza, serverRuntimeContext, true, sessionContext, sessionStateHolder);
+                .startInnerElement("dummy", "dummy").endInnerElement().build();
+
+        handler.execute(stanza, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker);
     }
 
-
-    
     private void assertDialbackStanza(Stanza responseStanza) {
         Assert.assertEquals("result", responseStanza.getName());
         Assert.assertEquals(NamespaceURIs.JABBER_SERVER_DIALBACK, responseStanza.getNamespaceURI());
         Assert.assertEquals("db", responseStanza.getNamespacePrefix());
         Assert.assertEquals(TO.getFullQualifiedName(), responseStanza.getAttributeValue("from"));
         Assert.assertEquals(FROM.getFullQualifiedName(), responseStanza.getAttributeValue("to"));
-        
+
         Assert.assertNotNull(responseStanza.getInnerText().getText());
     }
 

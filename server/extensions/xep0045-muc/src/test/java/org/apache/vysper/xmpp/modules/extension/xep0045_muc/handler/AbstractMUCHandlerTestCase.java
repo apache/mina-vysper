@@ -23,8 +23,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
@@ -41,6 +39,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
@@ -51,6 +50,8 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
 import org.apache.vysper.xmpp.stanza.StanzaErrorType;
+
+import junit.framework.TestCase;
 
 /**
  */
@@ -91,12 +92,11 @@ public abstract class AbstractMUCHandlerTestCase extends TestCase {
     @Override
     protected void setUp() throws Exception {
         conference = new Conference("foo", new MUCFeatures());
-        
+
         sessionContext = TestSessionContext.createWithStanzaReceiverRelayAuthenticated();
         sessionContext.setInitiatingEntity(OCCUPANT1_JID);
 
-        StanzaReceiverRelay stanzaRelay = (StanzaReceiverRelay) sessionContext.getServerRuntimeContext()
-                .getStanzaRelay();
+        StanzaReceiverRelay stanzaRelay = (StanzaReceiverRelay) sessionContext.getStanzaRelay();
         stanzaRelay.add(OCCUPANT1_JID, occupant1Queue);
         stanzaRelay.add(OCCUPANT2_JID, occupant2Queue);
 
@@ -120,9 +120,10 @@ public abstract class AbstractMUCHandlerTestCase extends TestCase {
         int index = 0;
         if (expectedInnerElements != null) {
             for (XMLElement expectedInnerElement : expectedInnerElements) {
-                assertEquals(new Renderer(expectedInnerElement).getComplete() + "\n"
-                        + new Renderer(innerElements.get(index)).getComplete(), expectedInnerElement, innerElements
-                        .get(index));
+                assertEquals(
+                        new Renderer(expectedInnerElement).getComplete() + "\n"
+                                + new Renderer(innerElements.get(index)).getComplete(),
+                        expectedInnerElement, innerElements.get(index));
                 index++;
             }
         }
@@ -142,8 +143,8 @@ public abstract class AbstractMUCHandlerTestCase extends TestCase {
         assertMessageStanza(from, to, type, body, null, null, stanza);
     }
 
-    protected void assertMessageStanza(Entity from, Entity to, String type, String expectedBody,
-            String expectedSubject, X expectedX, Stanza stanza) throws XMLSemanticError {
+    protected void assertMessageStanza(Entity from, Entity to, String type, String expectedBody, String expectedSubject,
+            X expectedX, Stanza stanza) throws XMLSemanticError {
         assertNotNull(stanza);
         MessageStanza msgStanza = (MessageStanza) MessageStanza.getWrapper(stanza);
 
@@ -162,11 +163,13 @@ public abstract class AbstractMUCHandlerTestCase extends TestCase {
         }
     }
 
-    protected void assertMessageStanza(Entity from, Entity to, String type, XMLElement expectedInner, Stanza actual) throws XMLSemanticError {
+    protected void assertMessageStanza(Entity from, Entity to, String type, XMLElement expectedInner, Stanza actual)
+            throws XMLSemanticError {
         assertMessageStanza(from, to, type, Arrays.asList(expectedInner), actual);
     }
-    
-    protected void assertMessageStanza(Entity from, Entity to, String type, List<XMLElement> expectedInner, Stanza actual) throws XMLSemanticError {
+
+    protected void assertMessageStanza(Entity from, Entity to, String type, List<XMLElement> expectedInner,
+            Stanza actual) throws XMLSemanticError {
         assertNotNull(actual);
         MessageStanza msgStanza = (MessageStanza) MessageStanza.getWrapper(actual);
 
@@ -177,16 +180,15 @@ public abstract class AbstractMUCHandlerTestCase extends TestCase {
         }
 
         assertEquals("Length of inner elements", expectedInner.size(), actual.getInnerElements().size());
-        
-        for(int i = 0; i<expectedInner.size(); i++) {
+
+        for (int i = 0; i < expectedInner.size(); i++) {
             assertEquals(
-                    new Renderer(expectedInner.get(i)).getComplete() 
-                    + " \n "
-                    + new Renderer(actual.getInnerElements().get(i)).getComplete(),
+                    new Renderer(expectedInner.get(i)).getComplete() + " \n "
+                            + new Renderer(actual.getInnerElements().get(i)).getComplete(),
                     expectedInner.get(i), actual.getInnerElements().get(i));
         }
     }
-    
+
     protected void assertIqResultStanza(Entity from, Entity to, String id, Stanza stanza) throws XMLSemanticError {
         assertNotNull(stanza);
         IQStanza iqStanza = (IQStanza) IQStanza.getWrapper(stanza);
@@ -197,36 +199,36 @@ public abstract class AbstractMUCHandlerTestCase extends TestCase {
         assertEquals("result", iqStanza.getType());
     }
 
-    protected void assertPresenceStanza(Entity expectedFrom, Entity expectedTo, PresenceStanzaType expectedType, MucUserItem expectedItem,
-            StatusCode expectedStatus, Stanza actualStanza) throws Exception {
+    protected void assertPresenceStanza(Entity expectedFrom, Entity expectedTo, PresenceStanzaType expectedType,
+            MucUserItem expectedItem, StatusCode expectedStatus, Stanza actualStanza) throws Exception {
         List<MucUserItem> expectedItems = Arrays.asList(expectedItem);
         List<StatusCode> expectedStatuses = expectedStatus == null ? null : Arrays.asList(expectedStatus);
         assertPresenceStanza(expectedFrom, expectedTo, expectedType, expectedItems, expectedStatuses, actualStanza);
     }
 
-    protected void assertPresenceStanza(Entity expectedFrom, Entity expectedTo, PresenceStanzaType expectedType, 
-            List<MucUserItem> expectedMucItems,
-            List<StatusCode> expectedMucStatuses, Stanza actualStanza) throws Exception {
-        assertPresenceStanza(expectedFrom, expectedTo, expectedType, null, null, expectedMucItems, expectedMucStatuses, actualStanza);
+    protected void assertPresenceStanza(Entity expectedFrom, Entity expectedTo, PresenceStanzaType expectedType,
+            List<MucUserItem> expectedMucItems, List<StatusCode> expectedMucStatuses, Stanza actualStanza)
+            throws Exception {
+        assertPresenceStanza(expectedFrom, expectedTo, expectedType, null, null, expectedMucItems, expectedMucStatuses,
+                actualStanza);
     }
-    
-    protected void assertPresenceStanza(Entity expectedFrom, Entity expectedTo, PresenceStanzaType expectedType, 
-            String expectedShow, String expectedStatus,  
-            List<MucUserItem> expectedMucItems, List<StatusCode> expectedMucStatuses, 
-            Stanza actualStanza) throws Exception {
+
+    protected void assertPresenceStanza(Entity expectedFrom, Entity expectedTo, PresenceStanzaType expectedType,
+            String expectedShow, String expectedStatus, List<MucUserItem> expectedMucItems,
+            List<StatusCode> expectedMucStatuses, Stanza actualStanza) throws Exception {
 
         PresenceStanza actualPresenceStanza = (PresenceStanza) PresenceStanza.getWrapper(actualStanza);
-        
+
         assertNotNull(actualStanza);
         assertEquals(expectedFrom, actualStanza.getFrom());
         assertEquals(expectedTo, actualStanza.getTo());
-        
-        if(expectedType != null) {
+
+        if (expectedType != null) {
             assertEquals(expectedType.value(), actualStanza.getAttributeValue("type"));
         } else {
             assertEquals(null, actualStanza.getAttributeValue("type"));
         }
-        
+
         assertEquals(expectedShow, actualPresenceStanza.getShow());
         assertEquals(expectedStatus, actualPresenceStanza.getStatus(null));
 
@@ -258,19 +260,19 @@ public abstract class AbstractMUCHandlerTestCase extends TestCase {
         }
     }
 
-    protected Stanza sendIq(Entity from, Entity to, IQStanzaType type, String id, String namespaceUri, XMLElement... items)
-            throws ProtocolException {
+    protected Stanza sendIq(Entity from, Entity to, IQStanzaType type, String id, String namespaceUri,
+            XMLElement... items) throws ProtocolException {
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(from, to, type, id);
 
         stanzaBuilder.startInnerElement("query", namespaceUri);
-        for(XMLElement item : items) {
+        for (XMLElement item : items) {
             stanzaBuilder.addPreparedElement(item);
         }
         stanzaBuilder.endInnerElement();
 
         Stanza iqStanza = stanzaBuilder.build();
         ResponseStanzaContainer container = handler.execute(iqStanza, sessionContext.getServerRuntimeContext(), true,
-                sessionContext, null);
+                sessionContext, null, new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
         if (container != null) {
             return container.getUniqueResponseStanza();
         } else {

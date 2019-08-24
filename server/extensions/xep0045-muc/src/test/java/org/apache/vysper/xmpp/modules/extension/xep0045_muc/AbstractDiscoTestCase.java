@@ -19,11 +19,10 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
 
-import junit.framework.TestCase;
-
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceCollector;
@@ -33,6 +32,10 @@ import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
 import org.apache.vysper.xmpp.server.components.Component;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+
+import junit.framework.TestCase;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * 
@@ -71,7 +74,7 @@ public abstract class AbstractDiscoTestCase extends TestCase {
         super.setUp();
 
         serviceCollector = new ServiceCollector();
-        serverRuntimeContext = new DefaultServerRuntimeContext(SERVER_JID, null);
+        serverRuntimeContext = new DefaultServerRuntimeContext(SERVER_JID, mock(StanzaRelay.class));
         serverRuntimeContext.registerServerRuntimeContextService(serviceCollector);
 
     }
@@ -84,7 +87,9 @@ public abstract class AbstractDiscoTestCase extends TestCase {
         StanzaBuilder request = buildRequest();
 
         ResponseStanzaContainer resultStanzaContainer = infoIQHandler.execute(request.build(), serverRuntimeContext,
-                false, new TestSessionContext(serverRuntimeContext, new SessionStateHolder()), null);
+                false, new TestSessionContext(serverRuntimeContext, new SessionStateHolder(),
+                        serverRuntimeContext.getStanzaRelay()),
+                null, null);
         Stanza resultStanza = resultStanzaContainer.getUniqueResponseStanza();
 
         assertEquals("Disco request must not return error", "result", resultStanza.getAttributeValue("type"));

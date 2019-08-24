@@ -104,7 +104,7 @@ public class TlsProceedHandlerTestCase {
     public void execute() {
         Stanza stanza = new StanzaBuilder("proceed", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS).build();
         
-        ResponseStanzaContainer response = handler.execute(stanza, serverRuntimeContext, true, sessionContext, sessionStateHolder);
+        ResponseStanzaContainer response = handler.execute(stanza, serverRuntimeContext, true, sessionContext, sessionStateHolder, null);
         
         Assert.assertNull(response);
 

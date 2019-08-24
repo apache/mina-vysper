@@ -30,6 +30,7 @@ import org.apache.vysper.compliance.SpecCompliance;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLElementVerifier;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
@@ -74,7 +75,7 @@ public class IQHandler extends XMPPCoreStanzaHandler {
             @SpecCompliant(spec = "rfc3920bis-09", section = "9.2.3", status = FINISHED, coverage = PARTIAL, comment = "covers points 1, 2, 5 and 6") })
     @Override
     protected List<Stanza> executeCore(XMPPCoreStanza coreStanza, ServerRuntimeContext serverRuntimeContext,
-                                 boolean isOutboundStanza, SessionContext sessionContext) {
+                                       boolean isOutboundStanza, SessionContext sessionContext, StanzaBroker stanzaBroker) {
         IQStanza stanza = (IQStanza) coreStanza;
 
         // rfc3920/9.2.3/1.
@@ -115,7 +116,7 @@ public class IQHandler extends XMPPCoreStanzaHandler {
             // this is handled for all types of stanzas down-stack
         }
 
-        return executeIQLogic(stanza, serverRuntimeContext, isOutboundStanza, sessionContext);
+        return executeIQLogic(stanza, serverRuntimeContext, isOutboundStanza, sessionContext, stanzaBroker);
     }
 
     protected String getErrorLanguage(ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
@@ -128,7 +129,7 @@ public class IQHandler extends XMPPCoreStanzaHandler {
      * must be overridden by specialized IQ handlers
      */
     protected List<Stanza> executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza,
-            SessionContext sessionContext) {
+                                          SessionContext sessionContext, StanzaBroker stanzaBroker) {
         // this is default behavior and must be replaced by overrider
         return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
                 StanzaErrorType.CANCEL, null, null, null));

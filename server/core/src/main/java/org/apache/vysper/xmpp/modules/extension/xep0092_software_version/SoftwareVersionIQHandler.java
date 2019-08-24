@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0092_software_version;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.Version;
@@ -51,7 +52,7 @@ public class SoftwareVersionIQHandler extends DefaultIQHandler {
     }
 
     @Override
-    protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, StanzaBroker stanzaBroker) {
 
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(),
                 IQStanzaType.RESULT, stanza.getID()).startInnerElement("query", NamespaceURIs.JABBER_IQ_VERSION).

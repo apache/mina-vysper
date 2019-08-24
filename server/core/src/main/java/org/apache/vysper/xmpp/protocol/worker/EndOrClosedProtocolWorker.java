@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.protocol.worker;
 
+import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.server.SessionContext;
@@ -31,7 +32,11 @@ import org.apache.vysper.xmpp.stanza.Stanza;
  */
 public class EndOrClosedProtocolWorker extends AbstractStateAwareProtocolWorker {
 
-    @Override
+	public EndOrClosedProtocolWorker(StanzaRelay stanzaRelay) {
+		super(stanzaRelay);
+	}
+
+	@Override
     public SessionState getHandledState() {
         return SessionState.ENDED;
     }

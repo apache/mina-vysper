@@ -42,6 +42,7 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.components.Component;
@@ -52,15 +53,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A module for <a href="http://xmpp.org/extensions/xep-0045.html">XEP-0045 Multi-user chat</a>.
+ * A module for <a href="http://xmpp.org/extensions/xep-0045.html">XEP-0045
+ * Multi-user chat</a>.
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class MUCModule extends DefaultDiscoAwareModule implements Component, ComponentInfoRequestListener,
-        ItemRequestListener {
+public class MUCModule extends DefaultDiscoAwareModule
+        implements Component, ComponentInfoRequestListener, ItemRequestListener {
 
     private final MUCFeatures mucFeatures = new MUCFeatures();
-    
+
     private final String subdomain;
 
     private final Conference conference;
@@ -82,9 +84,11 @@ public class MUCModule extends DefaultDiscoAwareModule implements Component, Com
     }
 
     public MUCModule(String subdomain, Conference conference) {
-        if (subdomain == null) subdomain = "chat";
+        if (subdomain == null)
+            subdomain = "chat";
         this.subdomain = subdomain;
-        if (conference == null) conference = new Conference("Conference", mucFeatures);
+        if (conference == null)
+            conference = new Conference("Conference", mucFeatures);
         this.conference = conference;
     }
 
@@ -99,14 +103,13 @@ public class MUCModule extends DefaultDiscoAwareModule implements Component, Com
 
         fullDomain = EntityUtils.createComponentDomain(subdomain, serverRuntimeContext);
 
-        ComponentStanzaProcessor processor = new ComponentStanzaProcessor(serverRuntimeContext);
+        ComponentStanzaProcessor processor = serverRuntimeContext.createComponentStanzaProcessor();
         processor.addHandler(new MUCPresenceHandler(conference));
         processor.addHandler(new MUCMessageHandler(conference, fullDomain));
         processor.addHandler(new MUCIqAdminHandler(conference));
         stanzaProcessor = processor;
 
-        RoomStorageProvider roomStorageProvider = serverRuntimeContext
-                .getStorageProvider(RoomStorageProvider.class);
+        RoomStorageProvider roomStorageProvider = serverRuntimeContext.getStorageProvider(RoomStorageProvider.class);
         OccupantStorageProvider occupantStorageProvider = serverRuntimeContext
                 .getStorageProvider(OccupantStorageProvider.class);
 
@@ -147,7 +150,8 @@ public class MUCModule extends DefaultDiscoAwareModule implements Component, Com
         itemRequestListeners.add(this);
     }
 
-    public List<InfoElement> getComponentInfosFor(InfoRequest request) throws ServiceDiscoveryRequestException {
+    public List<InfoElement> getComponentInfosFor(InfoRequest request, StanzaBroker stanzaBroker)
+            throws ServiceDiscoveryRequestException {
         if (!EntityUtils.isAddressingServer(fullDomain, request.getTo()))
             return null;
 
@@ -165,7 +169,8 @@ public class MUCModule extends DefaultDiscoAwareModule implements Component, Com
                 Occupant occupant = room.findOccupantByNick(request.getTo().getResource());
                 // request for occupant, relay
                 if (occupant != null) {
-                    relayDiscoStanza(occupant.getJid(), request, NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO);
+                    relayDiscoStanza(occupant.getJid(), request, NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO,
+                            stanzaBroker);
                 }
                 return null;
             } else {
@@ -180,17 +185,19 @@ public class MUCModule extends DefaultDiscoAwareModule implements Component, Com
     }
 
     /**
-     * Implements the getItemsFor method from the {@link ItemRequestListener} interface.
-     * Makes this modules available via disco#items and returns the associated nodes.
+     * Implements the getItemsFor method from the {@link ItemRequestListener}
+     * interface. Makes this modules available via disco#items and returns the
+     * associated nodes.
      * 
-     * @see ItemRequestListener#getItemsFor(InfoRequest)
+     * @see ItemRequestListener#getItemsFor(InfoRequest, StanzaBroker)
      */
-    public List<Item> getItemsFor(InfoRequest request) throws ServiceDiscoveryRequestException {
+    public List<Item> getItemsFor(InfoRequest request, StanzaBroker stanzaBroker)
+            throws ServiceDiscoveryRequestException {
         Entity to = request.getTo();
         if (to.getNode() == null) {
             // react on request send to server domain or this subdomain, but not to others
             if (fullDomain.equals(to)) {
-                List<Item> conferenceItems = conference.getItemsFor(request);
+                List<Item> conferenceItems = conference.getItemsFor(request, stanzaBroker);
                 return conferenceItems;
             } else if (serverRuntimeContext.getServerEntity().equals(to)) {
                 List<Item> componentItem = new ArrayList<Item>();
@@ -207,26 +214,27 @@ public class MUCModule extends DefaultDiscoAwareModule implements Component, Com
                     Occupant occupant = room.findOccupantByNick(to.getResource());
                     // request for occupant, relay
                     if (occupant != null) {
-                        relayDiscoStanza(occupant.getJid(), request, NamespaceURIs.XEP0030_SERVICE_DISCOVERY_ITEMS);
+                        relayDiscoStanza(occupant.getJid(), request, NamespaceURIs.XEP0030_SERVICE_DISCOVERY_ITEMS,
+                                stanzaBroker);
                     }
                 } else {
-                    return room.getItemsFor(request);
+                    return room.getItemsFor(request, stanzaBroker);
                 }
             }
         }
         return null;
     }
 
-    private void relayDiscoStanza(Entity receiver, InfoRequest request, String ns) {
-        StanzaBuilder builder = StanzaBuilder.createIQStanza(request.getFrom(), receiver, IQStanzaType.GET, request
-                .getID());
+    private void relayDiscoStanza(Entity receiver, InfoRequest request, String ns, StanzaBroker stanzaBroker) {
+        StanzaBuilder builder = StanzaBuilder.createIQStanza(request.getFrom(), receiver, IQStanzaType.GET,
+                request.getID());
         builder.startInnerElement("query", ns);
         if (request.getNode() != null) {
             builder.addAttribute("node", request.getNode());
         }
 
         try {
-            serverRuntimeContext.getStanzaRelay().relay(receiver, builder.build(), new IgnoreFailureStrategy());
+            stanzaBroker.write(receiver, builder.build(), new IgnoreFailureStrategy());
         } catch (DeliveryException e) {
             // ignore
         }

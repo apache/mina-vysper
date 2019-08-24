@@ -19,6 +19,8 @@
  */
 package org.apache.vysper.xmpp.modules.servicediscovery.management;
 
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
+
 import java.util.List;
 
 /**
@@ -29,6 +31,6 @@ import java.util.List;
  */
 public interface ItemRequestListener {
 
-    public List<Item> getItemsFor(InfoRequest request) throws ServiceDiscoveryRequestException;
+    public List<Item> getItemsFor(InfoRequest request, StanzaBroker stanzaBroker) throws ServiceDiscoveryRequestException;
 
 }

@@ -19,10 +19,13 @@
  */
 package org.apache.vysper.xmpp.state.presence;
 
+import static org.mockito.Mockito.mock;
+
 import org.apache.vysper.xmpp.modules.core.TestUser;
 import org.apache.vysper.xmpp.modules.core.im.handler.PresenceHandler;
 import org.apache.vysper.xmpp.modules.core.im.handler.PresenceHandlerBaseTestCase;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.stanza.PresenceStanza;
@@ -30,7 +33,8 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 
 /**
- * abstract test case which re-usable for all LatestPresenceCache implementations 
+ * abstract test case which re-usable for all LatestPresenceCache
+ * implementations
  */
 abstract public class LatestPresenceCacheTestCase extends PresenceHandlerBaseTestCase {
 
@@ -76,10 +80,10 @@ abstract public class LatestPresenceCacheTestCase extends PresenceHandlerBaseTes
     }
 
     public XMPPCoreStanza sendInitialPresence(SessionStateHolder sessionStateHolder, TestUser user) {
-        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(
-                user.getEntityFQ(), null, null, null, null, null).build());
+        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(
+                StanzaBuilder.createPresenceStanza(user.getEntityFQ(), null, null, null, null, null).build());
         handler.execute(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext,
-                sessionStateHolder);
+                sessionStateHolder, mock(StanzaBroker.class));
         return initialPresence;
     }
 }

@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.modules.core.base.handler;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
@@ -59,25 +60,25 @@ public abstract class DefaultIQHandler extends IQHandler {
 
     @Override
     protected List<Stanza> executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
-            boolean outboundStanza, SessionContext sessionContext) {
+										  boolean outboundStanza, SessionContext sessionContext, StanzaBroker stanzaBroker) {
 
         switch (stanza.getIQType()) {
         case ERROR:
             handleError(stanza, serverRuntimeContext, sessionContext);
             return null;
         case GET:
-            return handleGet(stanza, serverRuntimeContext, sessionContext);
+            return handleGet(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         case RESULT:
-            return handleResult(stanza, serverRuntimeContext, sessionContext);
+            return handleResult(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         case SET:
-            return handleSet(stanza, serverRuntimeContext, sessionContext);
+            return handleSet(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         default:
             throw new RuntimeException("iq stanza type not supported: " + stanza.getIQType().value());
         }
     }
 
     protected List<Stanza> handleResult(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
-            SessionContext sessionContext) {
+                                        SessionContext sessionContext, StanzaBroker stanzaBroker) {
         logger.warn("IQ 'result' stanza not handled by {}: {}", getClass().getCanonicalName(),
                 DenseStanzaLogRenderer.render(stanza));
         return Collections
@@ -87,7 +88,7 @@ public abstract class DefaultIQHandler extends IQHandler {
     }
 
     protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
-            SessionContext sessionContext) {
+                                     SessionContext sessionContext, StanzaBroker stanzaBroker) {
         logger.warn("IQ 'get' stanza not handled by {}: {}", getClass().getCanonicalName(),
                 DenseStanzaLogRenderer.render(stanza));
         return Collections
@@ -104,7 +105,7 @@ public abstract class DefaultIQHandler extends IQHandler {
     }
 
     protected List<Stanza> handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
-            SessionContext sessionContext) {
+                                     SessionContext sessionContext, StanzaBroker stanzaBroker) {
         logger.warn("IQ 'set' stanza not handled by {}: {}", getClass().getCanonicalName(),
                 DenseStanzaLogRenderer.render(stanza));
         return Collections

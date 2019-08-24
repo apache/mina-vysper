@@ -121,7 +121,7 @@ public class EntityTimeXEP0090IQHandlerTestCase {
 
     @Test
     public void handleGet() throws BindException, XMLSemanticError {
-        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext);
+        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, null);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
         
         Assert.assertNotNull(response);

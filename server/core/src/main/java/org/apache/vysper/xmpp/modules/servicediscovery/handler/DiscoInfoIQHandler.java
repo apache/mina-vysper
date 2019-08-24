@@ -35,6 +35,7 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
@@ -66,7 +67,8 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
     }
 
     @Override
-    protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
+            SessionContext sessionContext, StanzaBroker stanzaBroker) {
         ServiceCollector serviceCollector = null;
 
         // TODO if the target entity does not exist, return error/cancel/item-not-found
@@ -74,20 +76,22 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
 
         // retrieve the service collector
         try {
-            serviceCollector = (ServiceCollector) serverRuntimeContext
-                    .getServerRuntimeContextService(ServiceDiscoveryRequestListenerRegistry.SERVICE_DISCOVERY_REQUEST_LISTENER_REGISTRY);
+            serviceCollector = (ServiceCollector) serverRuntimeContext.getServerRuntimeContextService(
+                    ServiceDiscoveryRequestListenerRegistry.SERVICE_DISCOVERY_REQUEST_LISTENER_REGISTRY);
         } catch (Exception e) {
             logger.error("error retrieving ServiceCollector service {}", e);
             serviceCollector = null;
         }
 
         if (serviceCollector == null) {
-            return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR, stanza,
-                    StanzaErrorType.CANCEL, "cannot retrieve IQ-get-info result from internal components",
-                    getErrorLanguage(serverRuntimeContext, sessionContext), null));
+            return Collections.singletonList(
+                    ServerErrorResponses.getStanzaError(StanzaErrorCondition.INTERNAL_SERVER_ERROR, stanza,
+                            StanzaErrorType.CANCEL, "cannot retrieve IQ-get-info result from internal components",
+                            getErrorLanguage(serverRuntimeContext, sessionContext), null));
         }
 
-        // if "vysper.org" is the server entity, 'to' can either be "vysper.org", "node@vysper.org", "service.vysper.org".
+        // if "vysper.org" is the server entity, 'to' can either be "vysper.org",
+        // "node@vysper.org", "service.vysper.org".
         Entity to = stanza.getTo();
         boolean isServerInfoRequest = false;
         boolean isComponentInfoRequest = false;
@@ -99,8 +103,8 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
         } else if (!to.isNodeSet()) {
             isServerInfoRequest = serverEntity.equals(to);
             if (!isServerInfoRequest) {
-                return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.ITEM_NOT_FOUND, stanza,
-                        StanzaErrorType.CANCEL,
+                return Collections.singletonList(ServerErrorResponses.getStanzaError(
+                        StanzaErrorCondition.ITEM_NOT_FOUND, stanza, StanzaErrorType.CANCEL,
                         "server does not handle info query requests for " + to.getFullQualifiedName(),
                         getErrorLanguage(serverRuntimeContext, sessionContext), null));
             }
@@ -119,12 +123,14 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
                 elements = serviceCollector.processServerInfoRequest(new InfoRequest(from, to, node, stanza.getID()));
             } else if (isComponentInfoRequest) {
                 elements = serviceCollector
-                        .processComponentInfoRequest(new InfoRequest(from, to, node, stanza.getID()));
+                        .processComponentInfoRequest(new InfoRequest(from, to, node, stanza.getID()), stanzaBroker);
             } else {
-                // "When an entity sends a disco#info request to a bare JID (<account@domain.tld>) hosted by a server, 
-                // the server itself MUST reply on behalf of the hosted account, either with an IQ-error or an IQ-result"
+                // "When an entity sends a disco#info request to a bare JID
+                // (<account@domain.tld>) hosted by a server,
+                // the server itself MUST reply on behalf of the hosted account, either with an
+                // IQ-error or an IQ-result"
                 if (to.isResourceSet()) {
-                    relayOrWrite(stanza, serverRuntimeContext, sessionContext);
+                    relayOrWrite(stanza, sessionContext, stanzaBroker);
                     return null;
                 } else {
                     elements = serviceCollector.processInfoRequest(new InfoRequest(from, to, node, stanza.getID()));
@@ -135,15 +141,18 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
             StanzaErrorCondition stanzaErrorCondition = e.getErrorCondition();
             if (stanzaErrorCondition == null)
                 stanzaErrorCondition = StanzaErrorCondition.INTERNAL_SERVER_ERROR;
-            return Collections.singletonList(ServerErrorResponses.getStanzaError(stanzaErrorCondition, stanza, StanzaErrorType.CANCEL,
-                    "disco info request failed.", getErrorLanguage(serverRuntimeContext, sessionContext), null));
+            return Collections.singletonList(ServerErrorResponses.getStanzaError(stanzaErrorCondition, stanza,
+                    StanzaErrorType.CANCEL, "disco info request failed.",
+                    getErrorLanguage(serverRuntimeContext, sessionContext), null));
         }
 
-        //TODO check that elementSet contains at least one identity element and on feature element!
+        // TODO check that elementSet contains at least one identity element and on
+        // feature element!
 
         // render the stanza with information collected
-        StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(to, stanza.getFrom(), IQStanzaType.RESULT,
-                stanza.getID()).startInnerElement("query", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO);
+        StanzaBuilder stanzaBuilder = StanzaBuilder
+                .createIQStanza(to, stanza.getFrom(), IQStanzaType.RESULT, stanza.getID())
+                .startInnerElement("query", NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO);
         if (node != null) {
             stanzaBuilder.addAttribute("node", node);
         }
@@ -158,17 +167,17 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
 
     @Override
     protected List<Stanza> handleResult(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
-            SessionContext sessionContext) {
+            SessionContext sessionContext, StanzaBroker stanzaBroker) {
 
         if (stanza.getTo().isNodeSet()) {
-            relayOrWrite(stanza, serverRuntimeContext, sessionContext);
+            relayOrWrite(stanza, sessionContext, stanzaBroker);
             return null;
         } else {
-            return super.handleResult(stanza, serverRuntimeContext, sessionContext);
+            return super.handleResult(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         }
     }
 
-    private void relayOrWrite(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    private void relayOrWrite(IQStanza stanza, SessionContext sessionContext, StanzaBroker stanzaBroker) {
         boolean isOutbound = !sessionContext.getInitiatingEntity().equals(stanza.getTo().getBareJID());
         if (isOutbound) {
             try {
@@ -178,8 +187,7 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
                 }
                 Stanza forward = StanzaBuilder.createForwardStanza(stanza, from, null);
 
-                serverRuntimeContext.getStanzaRelay().relay(stanza.getTo(), forward,
-                        new ReturnErrorToSenderFailureStrategy(serverRuntimeContext.getStanzaRelay()));
+                stanzaBroker.write(stanza.getTo(), forward, new ReturnErrorToSenderFailureStrategy(stanzaBroker));
             } catch (DeliveryException e) {
                 logger.warn("relaying IQ failed", e);
             }

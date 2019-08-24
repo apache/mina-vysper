@@ -19,8 +19,6 @@
  */
 package org.apache.vysper.xmpp.modules.core.im.handler;
 
-import junit.framework.TestCase;
-
 import org.apache.vysper.storage.OpenStorageProviderRegistry;
 import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
@@ -41,6 +39,8 @@ import org.apache.vysper.xmpp.stanza.PresenceStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceState;
+
+import junit.framework.TestCase;
 
 /**
  * base class for subclassing presence handler tests from
@@ -95,7 +95,8 @@ abstract public class PresenceHandlerBaseTestCase extends TestCase {
         unrelatedUser = TestUser.createQueueReceiver(sessionContext, "unrelated@vysper.org");
 
         // now we have:
-        // 4 resources for the same entity: one initiating, one interested (not yet avail), one interested (implicitly avail), one available
+        // 4 resources for the same entity: one initiating, one interested (not yet
+        // avail), one interested (implicitly avail), one available
         // and another unrelated resource
 
         subscribed_TO = TestUser.createContact(sessionContext, rosterManager, "subscribed_to@vysper.org",
@@ -143,8 +144,8 @@ abstract public class PresenceHandlerBaseTestCase extends TestCase {
     }
 
     protected ResourceState getResourceState() {
-        return sessionContext.getServerRuntimeContext().getResourceRegistry().getResourceState(
-                initiatingUser.getBoundResourceId());
+        return sessionContext.getServerRuntimeContext().getResourceRegistry()
+                .getResourceState(initiatingUser.getBoundResourceId());
     }
 
     protected void assertStanzasDeliveredAndRelayed(int expectedRelayedAndDelivered) {
@@ -156,10 +157,8 @@ abstract public class PresenceHandlerBaseTestCase extends TestCase {
     }
 
     protected void assertStanzasRelayed(int expectedRelayed, int expectedDelivered) {
-        assertEquals(expectedRelayed, ((StanzaReceiverRelay) sessionContext.getServerRuntimeContext().getStanzaRelay())
-                .getCountRelayed());
-        assertEquals(expectedDelivered, ((StanzaReceiverRelay) sessionContext.getServerRuntimeContext()
-                .getStanzaRelay()).getCountDelivered());
+        assertEquals(expectedRelayed, ((StanzaReceiverRelay) sessionContext.getStanzaRelay()).getCountRelayed());
+        assertEquals(expectedDelivered, ((StanzaReceiverRelay) sessionContext.getStanzaRelay()).getCountDelivered());
     }
 
     protected boolean checkRosterItem(Entity contactEntity, SubscriptionType expectedSubscriptionType,
@@ -198,13 +197,14 @@ abstract public class PresenceHandlerBaseTestCase extends TestCase {
     }
 
     protected void resetRecordedStanzas() {
-        StanzaReceiverRelay receiverRelay = (StanzaReceiverRelay) sessionContext.getServerRuntimeContext()
-                .getStanzaRelay();
+        StanzaReceiverRelay receiverRelay = (StanzaReceiverRelay) sessionContext.getStanzaRelay();
         receiverRelay.resetAll();
     }
 
     /**
-     * searches for the next message captured by the test session which was sent directly to the given user's resource 
+     * searches for the next message captured by the test session which was sent
+     * directly to the given user's resource
+     * 
      * @param testUser
      * @return NULL, if no stanza available matching the user's resource id
      */

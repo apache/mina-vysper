@@ -28,6 +28,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.stanza.MessageStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -45,13 +46,12 @@ public abstract class AbstractMUCMessageHandlerTestCase extends AbstractMUCHandl
         return sendMessage(from, to, type, body, null, null);
     }
 
-    protected Stanza sendMessage(Entity from, Entity to, XMLElement x)
-    throws ProtocolException {
+    protected Stanza sendMessage(Entity from, Entity to, XMLElement x) throws ProtocolException {
         return sendMessage(from, to, null, null, x, null);
     }
-    
-    protected Stanza sendMessage(Entity from, Entity to, MessageStanzaType type, String body, XMLElement x, String subject)
-            throws ProtocolException {
+
+    protected Stanza sendMessage(Entity from, Entity to, MessageStanzaType type, String body, XMLElement x,
+            String subject) throws ProtocolException {
         StanzaBuilder stanzaBuilder = StanzaBuilder.createMessageStanza(from, to, type, null, body);
         if (subject != null) {
             stanzaBuilder.startInnerElement("subject", NamespaceURIs.JABBER_CLIENT).addText(subject).endInnerElement();
@@ -62,7 +62,7 @@ public abstract class AbstractMUCMessageHandlerTestCase extends AbstractMUCHandl
 
         Stanza messageStanza = stanzaBuilder.build();
         ResponseStanzaContainer container = handler.execute(messageStanza, sessionContext.getServerRuntimeContext(),
-                true, sessionContext, null);
+                true, sessionContext, null, new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
         if (container != null) {
             return container.getUniqueResponseStanza();
         } else {
@@ -70,10 +70,11 @@ public abstract class AbstractMUCMessageHandlerTestCase extends AbstractMUCHandl
         }
     }
 
-    protected void assertMessageErrorStanza(Stanza actualResponse, Entity expectedFrom, Entity expectedTo, 
+    protected void assertMessageErrorStanza(Stanza actualResponse, Entity expectedFrom, Entity expectedTo,
             StanzaErrorType expectedErrorType, StanzaErrorCondition expectedErrorName,
             XMLElement... expectedInnerElements) {
-        assertErrorStanza(actualResponse, "message", expectedFrom, expectedTo, expectedErrorType, expectedErrorName, expectedInnerElements);
+        assertErrorStanza(actualResponse, "message", expectedFrom, expectedTo, expectedErrorType, expectedErrorName,
+                expectedInnerElements);
     }
 
     protected void testNotAllowedMessage(Room room, StanzaErrorCondition expectedErrorName) throws Exception {
@@ -83,7 +84,8 @@ public abstract class AbstractMUCMessageHandlerTestCase extends AbstractMUCHandl
         Stanza errorStanza = sendMessage(OCCUPANT1_JID, ROOM1_JID, GROUPCHAT, body);
 
         XMLElement expectedBody = new XMLElementBuilder("body").addText(body).build();
-        assertMessageErrorStanza(errorStanza, ROOM1_JID, OCCUPANT1_JID, StanzaErrorType.MODIFY, expectedErrorName, expectedBody);
+        assertMessageErrorStanza(errorStanza, ROOM1_JID, OCCUPANT1_JID, StanzaErrorType.MODIFY, expectedErrorName,
+                expectedBody);
 
         // no message should be relayed
         assertNull(occupant1Queue.getNext());

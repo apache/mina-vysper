@@ -29,6 +29,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.MucUserItem;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -39,12 +40,12 @@ public class ChangeStatusTestCase extends AbstractMUCHandlerTestCase {
 
     private Stanza changeStatus(Entity occupantJid, Entity roomWithNickJid, String show, String status)
             throws ProtocolException {
-        StanzaBuilder stanzaBuilder = StanzaBuilder.createPresenceStanza(occupantJid, roomWithNickJid, null, null,
-                show, status);
+        StanzaBuilder stanzaBuilder = StanzaBuilder.createPresenceStanza(occupantJid, roomWithNickJid, null, null, show,
+                status);
 
         Stanza presenceStanza = stanzaBuilder.build();
         ResponseStanzaContainer container = handler.execute(presenceStanza, sessionContext.getServerRuntimeContext(),
-                true, sessionContext, null);
+                true, sessionContext, null, new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
         if (container != null) {
             return container.getUniqueResponseStanza();
         } else {
@@ -93,10 +94,10 @@ public class ChangeStatusTestCase extends AbstractMUCHandlerTestCase {
         assertPresenceStanza(ROOM1_JID_WITH_NICK, OCCUPANT2_JID, null, "Gone", item, occupant2Queue.getNext());
     }
 
-    private void assertPresenceStanza(Entity expectedFrom, Entity expectedTo, String expectedShow, String expectedStatus,
-            MucUserItem expectedItem, Stanza actualStanza) throws XMLSemanticError, Exception {
+    private void assertPresenceStanza(Entity expectedFrom, Entity expectedTo, String expectedShow,
+            String expectedStatus, MucUserItem expectedItem, Stanza actualStanza) throws XMLSemanticError, Exception {
 
-        assertPresenceStanza(expectedFrom, expectedTo, null, expectedShow, expectedStatus, 
-                Arrays.asList(expectedItem), null, actualStanza);
+        assertPresenceStanza(expectedFrom, expectedTo, null, expectedShow, expectedStatus, Arrays.asList(expectedItem),
+                null, actualStanza);
     }
 }

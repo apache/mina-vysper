@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.protocol.worker;
 
+import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.core.sasl.handler.AbstractSASLHandler;
 import org.apache.vysper.xmpp.modules.core.starttls.handler.StartTLSHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbResultHandler;
@@ -36,7 +37,11 @@ import org.apache.vysper.xmpp.stanza.Stanza;
  */
 public class StartedProtocolWorker extends AbstractStateAwareProtocolWorker {
 
-    @Override
+	public StartedProtocolWorker(StanzaRelay stanzaRelay) {
+		super(stanzaRelay);
+	}
+
+	@Override
     public SessionState getHandledState() {
         return SessionState.STARTED;
     }

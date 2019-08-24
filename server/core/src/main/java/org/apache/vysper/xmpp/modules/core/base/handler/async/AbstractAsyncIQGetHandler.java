@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -52,7 +53,7 @@ abstract public class AbstractAsyncIQGetHandler extends IQHandler {
 
     @Override
     protected List<Stanza> executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza,
-                                          SessionContext sessionContext) {
+                                          SessionContext sessionContext, StanzaBroker stanzaBroker) {
         switch (stanza.getIQType()) {
         case GET:
             executeGetIQLogicAsync(stanza, serverRuntimeContext, sessionContext);

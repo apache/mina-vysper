@@ -27,7 +27,6 @@ import junit.framework.Assert;
 import org.apache.vysper.StanzaAssert;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
 import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceCollector;
 import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceDiscoveryRequestListenerRegistry;
@@ -38,6 +37,7 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.components.ComponentStanzaProcessor;
@@ -65,7 +65,7 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
     private ServerRuntimeContext serverRuntimeContext = mock(ServerRuntimeContext.class);
     private SessionContext sessionContext = mock(SessionContext.class);
     private ServiceCollector serviceCollector = mock(ServiceCollector.class);
-    private StanzaRelay stanzaRelay = mock(StanzaRelay.class);
+    private StanzaBroker stanzaBroker = mock(StanzaBroker.class);
     private StanzaWriter stanzaWriter = mock(StanzaWriter.class);
 
     private IQStanza stanza = (IQStanza) IQStanza.getWrapper(buildStanza());
@@ -155,7 +155,6 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
             .thenReturn(serviceCollector);
         
         when(serverRuntimeContext.getServerEntity()).thenReturn(SERVER);
-        when(serverRuntimeContext.getStanzaRelay()).thenReturn(stanzaRelay);
         when(sessionContext.getResponseWriter()).thenReturn(stanzaWriter);
     }
 
@@ -165,7 +164,7 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
         
         when(serviceCollector.processServerInfoRequest(any(InfoRequest.class))).thenReturn(infoElements);
         
-        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext);
+        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
         StanzaAssert.assertEquals(createExpectedResponse(SERVER), response);
     }
@@ -176,9 +175,9 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
         
         when(serverRuntimeContext.getComponentStanzaProcessor(COMPONENT)).thenReturn(componentStanzaProcessor);
         
-        when(serviceCollector.processComponentInfoRequest(any(InfoRequest.class))).thenReturn(infoElements);
+        when(serviceCollector.processComponentInfoRequest(any(InfoRequest.class), eq(stanzaBroker))).thenReturn(infoElements);
 
-        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext);
+        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
         
         StanzaAssert.assertEquals(createExpectedResponse(COMPONENT), response);
@@ -190,7 +189,7 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
         
         when(serviceCollector.processInfoRequest(any(InfoRequest.class))).thenReturn(infoElements);
 
-        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext);
+        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
         
         StanzaAssert.assertEquals(createExpectedResponse(USER), response);
@@ -202,12 +201,12 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
         
         IQStanza stanza = createRequest(USER_WITH_RESOURCE);
         
-        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext);
+        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
         
         Assert.assertNull(response);
         
-        verify(stanzaRelay).relay(eq(USER_WITH_RESOURCE), eq(stanza), any(DeliveryFailureStrategy.class));
+        verify(stanzaBroker).write(eq(USER_WITH_RESOURCE), eq(stanza), any(DeliveryFailureStrategy.class));
     }
     
     @Test
@@ -216,7 +215,7 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
         
         IQStanza stanza = createRequest(USER_WITH_RESOURCE);
         
-        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext);
+        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
         
         Assert.assertNull(response);
@@ -229,9 +228,9 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
         IQStanza stanza = createRequest(COMPONENT);
         
         when(serverRuntimeContext.getComponentStanzaProcessor(COMPONENT)).thenReturn(null);
-        when(serviceCollector.processComponentInfoRequest(any(InfoRequest.class))).thenReturn(infoElements);
+        when(serviceCollector.processComponentInfoRequest(any(InfoRequest.class), eq(stanzaBroker))).thenReturn(infoElements);
         
-        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext);
+        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
         
         Stanza expected = createErrorResponse(COMPONENT, "item-not-found");
@@ -246,7 +245,7 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
         when(serverRuntimeContext.getServerRuntimeContextService(ServiceDiscoveryRequestListenerRegistry.SERVICE_DISCOVERY_REQUEST_LISTENER_REGISTRY))
             .thenReturn(null);
             
-        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext);
+        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
         
         Stanza expected = createErrorResponse(SERVER, "internal-server-error");
@@ -260,7 +259,7 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
         
         when(serviceCollector.processServerInfoRequest(any(InfoRequest.class))).thenThrow(new ServiceDiscoveryRequestException(StanzaErrorCondition.INTERNAL_SERVER_ERROR));
         
-        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext);
+        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
         
         Stanza expected = createErrorResponse(SERVER, "internal-server-error");
@@ -273,9 +272,9 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
         IQStanza stanza = createRequest(COMPONENT);
         
         when(serverRuntimeContext.getComponentStanzaProcessor(COMPONENT)).thenReturn(componentStanzaProcessor);
-        when(serviceCollector.processComponentInfoRequest(any(InfoRequest.class))).thenThrow(new ServiceDiscoveryRequestException(StanzaErrorCondition.INTERNAL_SERVER_ERROR));
+        when(serviceCollector.processComponentInfoRequest(any(InfoRequest.class), eq(stanzaBroker))).thenThrow(new ServiceDiscoveryRequestException(StanzaErrorCondition.INTERNAL_SERVER_ERROR));
         
-        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext);
+        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
         
         Stanza expected = createErrorResponse(COMPONENT, "internal-server-error");
@@ -289,7 +288,7 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
         
         when(serviceCollector.processInfoRequest(any(InfoRequest.class))).thenThrow(new ServiceDiscoveryRequestException(StanzaErrorCondition.INTERNAL_SERVER_ERROR));
         
-        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext);
+        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
         
         Stanza expected = createErrorResponse(SERVER, "internal-server-error");
@@ -303,12 +302,12 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
         
         IQStanza stanza = createRequest(USER, IQStanzaType.RESULT);
 
-        List<Stanza> responses = handler.handleResult(stanza, serverRuntimeContext, sessionContext);
+        List<Stanza> responses = handler.handleResult(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
         
         Assert.assertNull(response);
         
-        verify(stanzaRelay).relay(eq(USER), eq(stanza), any(DeliveryFailureStrategy.class));
+        verify(stanzaBroker).write(eq(USER), eq(stanza), any(DeliveryFailureStrategy.class));
     }
     
     @Test
@@ -317,7 +316,7 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
         
         IQStanza stanza = createRequest(USER, IQStanzaType.RESULT);
 
-        List<Stanza> responses = handler.handleResult(stanza, serverRuntimeContext, sessionContext);
+        List<Stanza> responses = handler.handleResult(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
         
         Assert.assertNull(response);

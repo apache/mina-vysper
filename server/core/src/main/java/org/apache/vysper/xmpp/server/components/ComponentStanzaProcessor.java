@@ -19,12 +19,14 @@
  */
 package org.apache.vysper.xmpp.server.components;
 
+import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -34,16 +36,18 @@ import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 
 import java.util.List;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  */
 public class ComponentStanzaProcessor implements StanzaProcessor {
 
-    protected ServerRuntimeContext serverRuntimeContext;
+    protected StanzaRelay stanzaRelay;
 
     protected ComponentStanzaHandlerLookup componentStanzaHandlerLookup = new ComponentStanzaHandlerLookup();
 
-    public ComponentStanzaProcessor(ServerRuntimeContext serverRuntimeContext) {
-        this.serverRuntimeContext = serverRuntimeContext;
+    public ComponentStanzaProcessor(StanzaRelay stanzaRelay) {
+        this.stanzaRelay = requireNonNull(stanzaRelay);
     }
 
     public void addHandler(StanzaHandler stanzaHandler) {
@@ -72,7 +76,7 @@ public class ComponentStanzaProcessor implements StanzaProcessor {
         ResponseStanzaContainer responseStanzaContainer = null;
         try {
             responseStanzaContainer = stanzaHandler.execute(stanza, serverRuntimeContext, false, sessionContext,
-                    sessionStateHolder);
+                    sessionStateHolder, new SimpleStanzaBroker(stanzaRelay, sessionContext));
         } catch (ProtocolException e) {
             // TODO handle 
             e.printStackTrace();
@@ -85,7 +89,7 @@ public class ComponentStanzaProcessor implements StanzaProcessor {
         try {
             IgnoreFailureStrategy failureStrategy = IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY; // TODO call back module
             for (Stanza responseStanza: responseStanzas) {
-                serverRuntimeContext.getStanzaRelay().relay(responseStanza.getTo(), responseStanza, failureStrategy);
+                stanzaRelay.relay(responseStanza.getTo(), responseStanza, failureStrategy);
             }
         } catch (DeliveryException e) {
             throw new RuntimeException(e);

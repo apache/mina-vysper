@@ -22,18 +22,19 @@ package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This visitor sends each visited entity the XMLElement specified via the constructor.
+ * This visitor sends each visited entity the XMLElement specified via the
+ * constructor.
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
@@ -44,8 +45,8 @@ public class SubscriberPayloadNotificationVisitor implements SubscriberVisitor {
     // Ignore all failures during the delivery (fire and forget)
     private DeliveryFailureStrategy dfs = new IgnoreFailureStrategy();
 
-    // The StanzaRelay we use to send the messages
-    private StanzaRelay stanzaRelay;
+    // The StanzaBroker we use to send the messages
+    private final StanzaBroker stanzaBroker;
 
     // The payload.
     private XMLElement item;
@@ -55,27 +56,34 @@ public class SubscriberPayloadNotificationVisitor implements SubscriberVisitor {
 
     /**
      * Initialize the visitor with the StanzaRelay and payload.
-     * @param stanzaRelay relay for sending the messages.
-     * @param item payload for the messages.
+     * 
+     * @param stanzaBroker
+     *            relay for sending the messages.
+     * @param item
+     *            payload for the messages.
      */
-    public SubscriberPayloadNotificationVisitor(Entity serverJID, StanzaRelay stanzaRelay, XMLElement item) {
+    public SubscriberPayloadNotificationVisitor(Entity serverJID, StanzaBroker stanzaBroker, XMLElement item) {
         this.serverJID = serverJID;
-        this.stanzaRelay = stanzaRelay;
+        this.stanzaBroker = stanzaBroker;
         this.item = item;
     }
 
     /**
-     * Send each visited subscriber a notification with the configured payload included.
+     * Send each visited subscriber a notification with the configured payload
+     * included.
      * 
-     * @param nodeJID the node from which the message comes from
-     * @param subscriptionID the subscription ID
-     * @param subscriber the receiver of the notification
+     * @param nodeName
+     *            the node from which the message comes from
+     * @param subscriptionID
+     *            the subscription ID
+     * @param subscriber
+     *            the receiver of the notification
      */
     public void visit(String nodeName, String subscriptionID, Entity subscriber) {
         Stanza event = createMessageEventStanza(nodeName, subscriber, "en", item); // TODO extract the hardcoded "en"
 
         try {
-            stanzaRelay.relay(subscriber, event, dfs);
+            stanzaBroker.write(subscriber, event, dfs);
         } catch (DeliveryException e1) {
             if (logger.isTraceEnabled())
                 logger.trace("Couldn't deliver message to " + subscriber.getFullQualifiedName(), e1);
@@ -86,10 +94,12 @@ public class SubscriberPayloadNotificationVisitor implements SubscriberVisitor {
     /**
      * Creates the stanza for notifying the subscriber including payload.
      * 
-     * @param from the node JID which sends the notification
-     * @param to the receiver of the notification (subscriber)
-     * @param lang the language of the stanza text-content.
-     * @param item the payload as XMLElement
+     * @param to
+     *            the receiver of the notification (subscriber)
+     * @param lang
+     *            the language of the stanza text-content.
+     * @param item
+     *            the payload as XMLElement
      * @return the prepared Stanza object.
      */
     private Stanza createMessageEventStanza(String nodeName, Entity to, String lang, XMLElement item) {

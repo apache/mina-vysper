@@ -21,6 +21,7 @@ package org.apache.vysper.xmpp.delivery.failure;
 
 import java.util.List;
 
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**

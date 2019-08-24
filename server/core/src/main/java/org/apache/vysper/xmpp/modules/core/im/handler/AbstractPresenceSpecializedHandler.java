@@ -26,6 +26,7 @@ import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.modules.roster.persistence.RosterManager;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.PresenceStanza;
@@ -55,16 +56,16 @@ public abstract class AbstractPresenceSpecializedHandler {
         return (PresenceStanza) XMPPCoreStanza.getWrapper(builder.build());
     }
 
-    protected void relayStanza(Entity receiver, Stanza stanza, SessionContext sessionContext) {
+    protected void relayStanza(Entity receiver, Stanza stanza, StanzaBroker stanzaBroker) {
         try {
-            sessionContext.getServerRuntimeContext().getStanzaRelay().relay(receiver, stanza,
-                    new IgnoreFailureStrategy());
+            stanzaBroker.write(receiver, stanza, new IgnoreFailureStrategy());
         } catch (DeliveryException e) {
             logger.warn("presence relaying failed ", e);
         }
     }
 
-    abstract/*package*/Stanza executeCorePresence(ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza,
-            SessionContext sessionContext, PresenceStanza presenceStanza, RosterManager rosterManager);
+    abstract/* package */Stanza executeCorePresence(ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza,
+            SessionContext sessionContext, PresenceStanza presenceStanza, RosterManager rosterManager,
+            StanzaBroker stanzaBroker);
 
 }

@@ -18,6 +18,7 @@
  *
  */
 package org.apache.vysper.xmpp.server.s2s;
+
 import java.net.InetSocketAddress;
 import java.nio.channels.UnresolvedAddressException;
 import java.util.Arrays;
@@ -37,6 +38,7 @@ import org.apache.vysper.mina.MinaBackedSessionContext;
 import org.apache.vysper.mina.StanzaLoggingFilter;
 import org.apache.vysper.mina.codec.XMPPProtocolCodecFactory;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.delivery.failure.RemoteServerNotFoundException;
 import org.apache.vysper.xmpp.delivery.failure.RemoteServerTimeoutException;
 import org.apache.vysper.xmpp.modules.extension.xep0199_xmppping.XmppPingListener;
@@ -48,6 +50,7 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
@@ -61,44 +64,54 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Default implementation of {@link XMPPServerConnector} 
- *  
+ * Default implementation of {@link XMPPServerConnector}
+ * 
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerConnector {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultXMPPServerConnector.class);
 
-    private final static List<StanzaHandler> S2S_HANDSHAKE_HANDLERS = Arrays.asList(
-            new DbVerifyHandler(),
-            new DbResultHandler(),
-            new TlsProceedHandler(),
-            new FeaturesHandler()
-    ); 
-    
-    private ServerRuntimeContext serverRuntimeContext;
+    private final static List<StanzaHandler> S2S_HANDSHAKE_HANDLERS = Arrays.asList(new DbVerifyHandler(),
+            new DbResultHandler(), new TlsProceedHandler(), new FeaturesHandler());
+
+    private final ServerRuntimeContext serverRuntimeContext;
+
+    private final StanzaRelay stanzaRelay;
+
     private MinaBackedSessionContext sessionContext;
-    private Entity remoteServer;
-    private SessionStateHolder sessionStateHolder = new SessionStateHolder();
+
+    private final Entity remoteServer;
+
+    private final SessionStateHolder sessionStateHolder = new SessionStateHolder();
+
     private IoConnector connector;
-    
+
     private int connectTimeout = 30000;
+
     private int xmppHandshakeTimeout = 30000;
 
     private int pingPeriod = 30000;
+
     private int pingTimeout = 10000;
-    
+
     private boolean closed = false;
-    
+
     private SessionContext dialbackSessionContext;
+
     private SessionStateHolder dialbackSessionStateHolder;
-    
+
     private Timer pingTimer;
+
     protected ServerConnectorIoHandler serverConnectorIoHandler;
+
     protected final CountDownLatch authenticatedLatch = new CountDownLatch(1);
 
-    public DefaultXMPPServerConnector(Entity remoteServer, ServerRuntimeContext serverRuntimeContext, SessionContext dialbackSessionContext, SessionStateHolder dialbackSessionStateHolder) {
+    public DefaultXMPPServerConnector(Entity remoteServer, ServerRuntimeContext serverRuntimeContext,
+            StanzaRelay stanzaRelay, SessionContext dialbackSessionContext,
+            SessionStateHolder dialbackSessionStateHolder) {
         this.serverRuntimeContext = serverRuntimeContext;
+        this.stanzaRelay = stanzaRelay;
         this.remoteServer = remoteServer;
         this.dialbackSessionContext = dialbackSessionContext;
         this.dialbackSessionStateHolder = dialbackSessionStateHolder;
@@ -111,25 +124,25 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
         LOG.info("Starting XMPP server connector to {}", remoteServer);
 
         boolean successfullyConnected = false;
-        
+
         XmppEndpointResolver resolver = new XmppEndpointResolver();
         List<ResolvedAddress> addresses = resolver.resolveXmppServer(remoteServer.getDomain());
-        
+
         Throwable lastException = null;
-        
-        if(!addresses.isEmpty()) {
+
+        if (!addresses.isEmpty()) {
             LOG.info("resolved {} address(es) for {}", addresses.size(), remoteServer);
-            for(ResolvedAddress address : addresses) {
+            for (ResolvedAddress address : addresses) {
                 final InetSocketAddress ipAddress = address.getAddress();
                 LOG.info("Connecting to XMPP server {} at {}", remoteServer, ipAddress);
-                
+
                 connector = createConnector();
                 ConnectFuture connectFuture = connector.connect(ipAddress);
-                if(connectFuture.awaitUninterruptibly(connectTimeout) && connectFuture.isConnected()) {
+                if (connectFuture.awaitUninterruptibly(connectTimeout) && connectFuture.isConnected()) {
                     // success on the TCP/IP level, now wait for the XMPP handshake
                     LOG.info("XMPP server {} connected at {}", remoteServer, ipAddress);
                     try {
-                        if(authenticatedLatch.await(xmppHandshakeTimeout, TimeUnit.MILLISECONDS)) {
+                        if (authenticatedLatch.await(xmppHandshakeTimeout, TimeUnit.MILLISECONDS)) {
                             // success, break out of connect loop
                             successfullyConnected = true;
                             break;
@@ -138,34 +151,37 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
                             LOG.warn("XMPP handshake with {} at {} timed out", remoteServer, ipAddress);
                         }
                     } catch (InterruptedException e) {
-                        throw new RemoteServerTimeoutException("XMPPConnection to " + remoteServer + " was interrupted", e);
+                        throw new RemoteServerTimeoutException("XMPPConnection to " + remoteServer + " was interrupted",
+                                e);
                     }
-                } 
+                }
 
                 lastException = connectFuture.getException();
-                LOG.warn("Failed connecting to XMPP server " + remoteServer + " at " + ipAddress, connectFuture.getException());
+                LOG.warn("Failed connecting to XMPP server " + remoteServer + " at " + ipAddress,
+                        connectFuture.getException());
                 disposeAndNullifyConnector();
             }
         } else {
             // should never happen
             throw new RemoteServerNotFoundException("DNS lookup of remote server failed");
         }
-        
-        if(!successfullyConnected) {
+
+        if (!successfullyConnected) {
             String exceptionMsg = "Failed to connect to XMPP server at " + remoteServer;
-            
-            if(lastException instanceof UnresolvedAddressException) {
+
+            if (lastException instanceof UnresolvedAddressException) {
                 throw new RemoteServerNotFoundException(exceptionMsg);
             } else {
                 throw new RemoteServerTimeoutException(exceptionMsg);
             }
-            
+
         }
     }
 
     private void disposeAndNullifyConnector() {
         IoConnector localConnector = connector;
-        if (localConnector == null) return;
+        if (localConnector == null)
+            return;
         localConnector.dispose();
         connector = null;
     }
@@ -180,10 +196,10 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
         connector.setHandler(serverConnectorIoHandler);
         return connector;
     }
-    
+
     private void startPinging() {
         // are pings not already running and is the XMPP ping module active?
-        if(pingTimer == null && serverRuntimeContext.getModule(XmppPingModule.class) != null) {
+        if (pingTimer == null && serverRuntimeContext.getModule(XmppPingModule.class) != null) {
             pingTimer = new Timer("pingtimer", true);
             pingTimer.schedule(new PingTask(), pingPeriod, pingPeriod);
         }
@@ -197,72 +213,74 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
         }
         return null;
     }
-    
+
     public void handleReceivedStanza(Stanza stanza) {
-        
+
         // check for basic stanza handlers
         StanzaHandler s2sHandler = lookupS2SHandler(stanza);
-        
-        if(s2sHandler != null) {
+
+        if (s2sHandler != null) {
             ResponseStanzaContainer container;
             try {
-                container = s2sHandler.execute(stanza, serverRuntimeContext, false, sessionContext, sessionStateHolder);
+                container = s2sHandler.execute(stanza, serverRuntimeContext, false, sessionContext, sessionStateHolder,
+                        new SimpleStanzaBroker(stanzaRelay, sessionContext));
             } catch (ProtocolException e) {
                 return;
             }
-            if(container != null && container.hasResponse()) {
+            if (container != null && container.hasResponse()) {
                 container.getResponseStanzas().forEach(sessionContext::write);
             }
-            
-            if(sessionStateHolder.getState() == SessionState.AUTHENTICATED) {
+
+            if (sessionStateHolder.getState() == SessionState.AUTHENTICATED) {
                 LOG.info("XMPP server connector to {} authenticated", remoteServer);
                 authenticatedLatch.countDown();
-                
+
                 // connection established, start pinging
                 startPinging();
             }
-        // none of the handlers matched, stream start is handled separately
-        } else if(stanza.getName().equals("stream")) {
+            // none of the handlers matched, stream start is handled separately
+        } else if (stanza.getName().equals("stream")) {
             sessionContext.setSessionId(stanza.getAttributeValue("id"));
             sessionContext.setInitiatingEntity(remoteServer);
-            
+
             String version = stanza.getAttributeValue("version");
-            if(version == null) {
+            if (version == null) {
                 // old protocol, assume dialback
-                String dailbackId = new DialbackIdGenerator().generate(remoteServer, serverRuntimeContext.getServerEntity(), sessionContext.getSessionId());
-                
+                String dailbackId = new DialbackIdGenerator().generate(remoteServer,
+                        serverRuntimeContext.getServerEntity(), sessionContext.getSessionId());
+
                 Stanza dbResult = new StanzaBuilder("result", NamespaceURIs.JABBER_SERVER_DIALBACK, "db")
-                    .addAttribute("from", serverRuntimeContext.getServerEntity().getDomain())
-                    .addAttribute("to", remoteServer.getDomain())
-                    .addText(dailbackId)
-                    .build();
+                        .addAttribute("from", serverRuntimeContext.getServerEntity().getDomain())
+                        .addAttribute("to", remoteServer.getDomain()).addText(dailbackId).build();
                 write(dbResult);
             }
-            
-            if(dialbackSessionContext != null) {
-                // connector is being used for dialback verification, don't do further authentication
+
+            if (dialbackSessionContext != null) {
+                // connector is being used for dialback verification, don't do further
+                // authentication
                 sessionContext.putAttribute("DIALBACK_SESSION_CONTEXT", dialbackSessionContext);
                 sessionContext.putAttribute("DIALBACK_SESSION_STATE_HOLDER", dialbackSessionStateHolder);
-             
+
                 sessionContext.setInitiatingEntity(remoteServer);
                 sessionStateHolder.setState(SessionState.AUTHENTICATED);
                 authenticatedLatch.countDown();
             }
         } else {
-            
-            if(sessionStateHolder.getState() != SessionState.AUTHENTICATED) {
+
+            if (sessionStateHolder.getState() != SessionState.AUTHENTICATED) {
                 LOG.warn("regular stanza sent before s2s session to {} was authenticated, closing", remoteServer);
                 sessionContext.close();
                 return;
             }
-            // only deliver messages to directly server directly 
+            // only deliver messages to directly server directly
             if (!serverRuntimeContext.getServerEntity().equals(stanza.getTo())) {
                 LOG.info("not handling messages to clients here received from {} to {}", remoteServer, stanza.getTo());
                 sessionContext.close();
                 return;
             }
-            
-            serverRuntimeContext.getStanzaProcessor().processStanza(serverRuntimeContext, sessionContext, stanza, sessionStateHolder);
+
+            serverRuntimeContext.getStanzaProcessor().processStanza(serverRuntimeContext, sessionContext, stanza,
+                    sessionStateHolder);
         }
     }
 
@@ -275,7 +293,8 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
 
         sessionContext.setIsReopeningXMLStream();
 
-        Stanza opener = new ServerResponses().getStreamOpenerForServerConnector(serverRuntimeContext.getServerEntity(), remoteServer, XMPPVersion.VERSION_1_0, sessionContext);
+        Stanza opener = new ServerResponses().getStreamOpenerForServerConnector(serverRuntimeContext.getServerEntity(),
+                remoteServer, XMPPVersion.VERSION_1_0, sessionContext);
 
         sessionContext.write(opener);
     }
@@ -284,7 +303,8 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
         LOG.info("XMPP server session opened to {}", remoteServer);
         sessionContext = new MinaBackedSessionContext(serverRuntimeContext, sessionStateHolder, session);
         sessionStateHolder.setState(SessionState.INITIATED);
-        Stanza opener = new ServerResponses().getStreamOpenerForServerConnector(serverRuntimeContext.getServerEntity(), remoteServer, XMPPVersion.VERSION_1_0, sessionContext);
+        Stanza opener = new ServerResponses().getStreamOpenerForServerConnector(serverRuntimeContext.getServerEntity(),
+                remoteServer, XMPPVersion.VERSION_1_0, sessionContext);
         sessionContext.write(opener);
     }
 
@@ -299,11 +319,13 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
      * {@inheritDoc}
      */
     public void close() {
-        LOG.info("XMPP server connector socket closed, closing connector (current status: {})", closed ? "closed" : "open");
+        LOG.info("XMPP server connector socket closed, closing connector (current status: {})",
+                closed ? "closed" : "open");
         try {
-            if(!closed) {
+            if (!closed) {
                 LOG.info("XMPP server connector to {} is closing", remoteServer);
-                if (pingTimer != null) pingTimer.cancel();
+                if (pingTimer != null)
+                    pingTimer.cancel();
                 sessionContext.close();
                 disposeAndNullifyConnector();
                 LOG.info("XMPP server connector to {} is closed", remoteServer);
@@ -330,6 +352,7 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
 
     /**
      * Is this XMPP server connector closed?
+     * 
      * @return true if the connector is closed
      */
     public boolean isClosed() {
@@ -341,7 +364,8 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
         public void run() {
             XmppPingModule pingModule = serverRuntimeContext.getModule(XmppPingModule.class);
             LOG.info("pinging federated XMPP server {}", remoteServer);
-            pingModule.ping(DefaultXMPPServerConnector.this, serverRuntimeContext.getServerEntity(), remoteServer, pingTimeout, DefaultXMPPServerConnector.this);
+            pingModule.ping(DefaultXMPPServerConnector.this, serverRuntimeContext.getServerEntity(), remoteServer,
+                    pingTimeout, DefaultXMPPServerConnector.this);
         }
     }
 }

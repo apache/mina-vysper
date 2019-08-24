@@ -32,6 +32,7 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
@@ -65,7 +66,7 @@ public class DiscoItemIQHandler extends DefaultIQHandler {
     }
 
     @Override
-    protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, StanzaBroker stanzaBroker) {
         ServiceCollector serviceCollector = null;
 
         // retrieve the service collector
@@ -108,7 +109,7 @@ public class DiscoItemIQHandler extends DefaultIQHandler {
             Entity from = stanza.getFrom();
             if (from == null) from = sessionContext.getInitiatingEntity(); 
             items = serviceCollector.processItemRequest(new InfoRequest(from, stanza.getTo(), node, stanza
-                    .getID()));
+                    .getID()), stanzaBroker);
         } catch (ServiceDiscoveryRequestException e) {
             // the request yields an error
             StanzaErrorCondition stanzaErrorCondition = e.getErrorCondition();

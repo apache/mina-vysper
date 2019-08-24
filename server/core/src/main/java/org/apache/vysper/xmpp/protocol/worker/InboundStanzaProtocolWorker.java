@@ -19,11 +19,11 @@
  */
 package org.apache.vysper.xmpp.protocol.worker;
 
+import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.ResponseWriter;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
-import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
  * to send a mail through the handler and afterwards actually forwarding the result to the client
@@ -33,7 +33,11 @@ import org.apache.vysper.xmpp.stanza.Stanza;
  */
 public class InboundStanzaProtocolWorker extends AbstractStateAwareProtocolWorker {
 
-    @Override
+	public InboundStanzaProtocolWorker(StanzaRelay stanzaRelay) {
+		super(stanzaRelay);
+	}
+
+	@Override
     public SessionState getHandledState() {
         return SessionState.AUTHENTICATED;
     }

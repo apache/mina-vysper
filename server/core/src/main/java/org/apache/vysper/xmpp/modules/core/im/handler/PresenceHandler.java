@@ -24,6 +24,7 @@ import static org.apache.vysper.xmpp.stanza.PresenceStanzaType.isSubscriptionTyp
 import org.apache.vysper.xmpp.modules.core.base.handler.XMPPCoreStanzaHandler;
 import org.apache.vysper.xmpp.modules.roster.persistence.RosterManager;
 import org.apache.vysper.xmpp.modules.roster.persistence.RosterManagerUtils;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.PresenceStanza;
@@ -55,7 +56,7 @@ public class PresenceHandler extends XMPPCoreStanzaHandler {
 
     @Override
     protected List<Stanza> executeCore(XMPPCoreStanza stanza, ServerRuntimeContext serverRuntimeContext,
-                                       boolean isOutboundStanza, SessionContext sessionContext) {
+                                       boolean isOutboundStanza, SessionContext sessionContext, StanzaBroker stanzaBroker) {
         PresenceStanza presenceStanza = (PresenceStanza) stanza;
 
         boolean subscriptionRelated = isSubscriptionType(presenceStanza.getPresenceType());
@@ -64,10 +65,10 @@ public class PresenceHandler extends XMPPCoreStanzaHandler {
 
         if (!subscriptionRelated)
             return Collections.singletonList(AVAILABILITY_HANDLER.executeCorePresence(serverRuntimeContext, isOutboundStanza, sessionContext,
-                    presenceStanza, rosterManager));
+                    presenceStanza, rosterManager, stanzaBroker));
         else
             return Collections.singletonList(SUBSCRIPTION_HANDLER.executeCorePresence(serverRuntimeContext, isOutboundStanza, sessionContext,
-                    presenceStanza, rosterManager));
+                    presenceStanza, rosterManager, stanzaBroker));
     }
 
 }

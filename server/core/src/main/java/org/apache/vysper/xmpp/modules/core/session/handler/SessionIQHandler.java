@@ -21,6 +21,7 @@ package org.apache.vysper.xmpp.modules.core.session.handler;
 
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -44,7 +45,7 @@ public class SessionIQHandler extends DefaultIQHandler {
     }
 
     @Override
-    protected List<Stanza> handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, StanzaBroker stanzaBroker) {
         return Collections.singletonList(StanzaBuilder.createIQStanza(null, null, IQStanzaType.RESULT, stanza.getID()).addAttribute("from",
                 sessionContext.getServerJID().getFullQualifiedName()).build());
     }

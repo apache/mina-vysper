@@ -19,8 +19,6 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
-import junit.framework.TestCase;
-
 import org.apache.vysper.storage.OpenStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -33,11 +31,14 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.L
 import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceCollector;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceState;
 import org.apache.vysper.xmpp.writer.SystemOutStanzaWriter;
+
+import junit.framework.TestCase;
 
 /**
  * The abstract base class for all pubsub related tests.
@@ -100,7 +101,7 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
         relay = new org.apache.vysper.xmpp.delivery.StanzaReceiverRelay();
         DefaultServerRuntimeContext serverContext = new DefaultServerRuntimeContext(serverEntity, relay);
         relay.setServerRuntimeContext(serverContext);
-        TestSessionContext tsc = new TestSessionContext(serverContext, sessionStateHolder);
+        TestSessionContext tsc = new TestSessionContext(serverContext, sessionStateHolder, relay);
 
         configureStorageProvider(tsc);
         configureServiceRegistry(tsc);
@@ -114,8 +115,8 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
     }
 
     protected void configurePubsubModule(TestSessionContext tsc, PubSubServiceConfiguration serviceConfiguration) {
-        ((DefaultServerRuntimeContext) tsc.getServerRuntimeContext()).addModule(new PublishSubscribeModule(
-                serviceConfiguration));
+        ((DefaultServerRuntimeContext) tsc.getServerRuntimeContext())
+                .addModule(new PublishSubscribeModule(serviceConfiguration));
     }
 
     protected void configureStorageProvider(TestSessionContext tsc) {
@@ -132,25 +133,27 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
     }
 
     /**
-     * Override and provide the Handler to be tested. A new
-     * handler will be created for each test.
+     * Override and provide the Handler to be tested. A new handler will be created
+     * for each test.
      * 
      * @return the instantiated handler to be tested
      */
     protected abstract IQHandler getHandler();
 
     /**
-     * Return the StanzaGenerator that build the "typical" request for the given type of request.
+     * Return the StanzaGenerator that build the "typical" request for the given
+     * type of request.
      * 
-     * This will be used to test whether the handler correctly accepts these stanzas.
+     * This will be used to test whether the handler correctly accepts these
+     * stanzas.
      * 
      * @return the default Stanza generator for the request type.
      */
     protected abstract AbstractStanzaGenerator getDefaultStanzaGenerator();
 
     protected ResponseStanzaContainer sendStanza(Stanza toSend, boolean isOutboundStanza) {
-        return handler
-                .execute(toSend, sessionContext.getServerRuntimeContext(), isOutboundStanza, sessionContext, null);
+        return handler.execute(toSend, sessionContext.getServerRuntimeContext(), isOutboundStanza, sessionContext, null,
+                new SimpleStanzaBroker(relay, sessionContext));
     }
 
     public void testSimpleStanza() {

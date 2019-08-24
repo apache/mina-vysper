@@ -41,6 +41,7 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.stanza.PresenceStanza;
 
 /**
@@ -246,7 +247,7 @@ public class Room implements InfoRequestListener, ItemRequestListener {
         return infoElements;
     }
 
-    public List<Item> getItemsFor(InfoRequest request) throws ServiceDiscoveryRequestException {
+    public List<Item> getItemsFor(InfoRequest request, StanzaBroker stanzaBroker) throws ServiceDiscoveryRequestException {
 
         // TODO is this the right way to determine if the room is private?
         if (isRoomType(RoomType.FullyAnonymous) || isRoomType(RoomType.SemiAnonymous)) {

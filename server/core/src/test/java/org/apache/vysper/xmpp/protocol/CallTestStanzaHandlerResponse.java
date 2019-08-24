@@ -38,9 +38,9 @@ public class CallTestStanzaHandlerResponse extends CallTestStanzaHandler impleme
 
     @Override
     public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
-            boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder)
+										   boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder, StanzaBroker stanzaBroker)
             throws ProtocolException {
-        super.execute(stanza, serverRuntimeContext, true, sessionContext, null);
+        super.execute(stanza, serverRuntimeContext, true, sessionContext, null, stanzaBroker);
         return new ResponseStanzaContainerImpl(getResponseStanzas());
     }
 

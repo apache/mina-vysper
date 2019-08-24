@@ -24,10 +24,10 @@ import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
- * While stanzas hold the raw information read from stream, its handler holds the logic for
- * interpreting its semantics and execution. If stanzas are commands, a StanzaHandler is a command processor.
- * It is very much comparable to a Servlet.
- * StanzaHandler implementations must be stateless!
+ * While stanzas hold the raw information read from stream, its handler holds
+ * the logic for interpreting its semantics and execution. If stanzas are
+ * commands, a StanzaHandler is a command processor. It is very much comparable
+ * to a Servlet. StanzaHandler implementations must be stateless!
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
@@ -51,6 +51,7 @@ public interface StanzaHandler {
 
     /**
      * verifies if the stanza is processed by this handler
+     * 
      * @param stanza
      * @return true, if it is processed, false otherwise
      */
@@ -63,16 +64,20 @@ public interface StanzaHandler {
 
     /**
      * executes a stanza
+     * 
      * @param stanza
      * @param serverRuntimeContext
-     *@param isOutboundStanza
-     *   true, if the stanza was emitted by the client which is handled by the session belonging to the given sessionContext parameter.
-     *   false, if the session is receiving the stanza targeted to the session's client.
+     * @param isOutboundStanza
+     *            true, if the stanza was emitted by the client which is handled by
+     *            the session belonging to the given sessionContext parameter.
+     *            false, if the session is receiving the stanza targeted to the
+     *            session's client.
      * @param sessionContext
-     * @param sessionStateHolder 
-     * @return optionally returns a response which is passed to the session's client
+     * @param sessionStateHolder
+     * @param stanzaBroker
+     * @return optionally returns a stanzaBroker which is passed to the session's client
      */
     public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
-            boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder)
-            throws ProtocolException;
+            boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder,
+            StanzaBroker stanzaBroker) throws ProtocolException;
 }

@@ -39,6 +39,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.MessageStanza;
@@ -76,8 +77,9 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
             stanzaBuilder.addPreparedElement(new X(xInnerElms));
         }
         Stanza presenceStanza = stanzaBuilder.build();
-        ResponseStanzaContainer container = handler.execute(presenceStanza, userSessionContext
-                .getServerRuntimeContext(), true, userSessionContext, null);
+        ResponseStanzaContainer container = handler.execute(presenceStanza,
+                userSessionContext.getServerRuntimeContext(), true, userSessionContext, null,
+                new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
         if (container != null) {
             return container.getUniqueResponseStanza();
         } else {
@@ -143,7 +145,8 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
         room.getAffiliations().add(OCCUPANT1_JID, Affiliation.Outcast);
 
         Stanza error = enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK);
-        assertPresenceErrorStanza(error, ROOM1_JID, OCCUPANT1_JID, StanzaErrorType.AUTH, StanzaErrorCondition.FORBIDDEN);
+        assertPresenceErrorStanza(error, ROOM1_JID, OCCUPANT1_JID, StanzaErrorType.AUTH,
+                StanzaErrorCondition.FORBIDDEN);
 
         assertEquals(0, room.getOccupantCount());
     }
@@ -152,7 +155,8 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
         Room room = conference.createRoom(ROOM2_JID, "Room", RoomType.MembersOnly);
 
         Stanza error = enterRoom(OCCUPANT1_JID, ROOM2_JID_WITH_NICK);
-        assertPresenceErrorStanza(error, ROOM2_JID, OCCUPANT1_JID, StanzaErrorType.AUTH, StanzaErrorCondition.REGISTRATION_REQUIRED);
+        assertPresenceErrorStanza(error, ROOM2_JID, OCCUPANT1_JID, StanzaErrorType.AUTH,
+                StanzaErrorCondition.REGISTRATION_REQUIRED);
 
         assertEquals(0, room.getOccupantCount());
     }
@@ -160,7 +164,7 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
     public void testEnterRoomWithDuplicateNick() throws Exception {
         Room room1 = conference.findRoom(ROOM1_JID);
         room1.setRewriteDuplicateNick(false); // do not rewrite existing nick, second join will fail
-        assertNull(enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK)); // 1st join                                   
+        assertNull(enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK)); // 1st join
         Stanza error = enterRoom(OCCUPANT2_JID, ROOM1_JID_WITH_NICK); // 2nd join
 
         assertNotNull(error);
@@ -169,7 +173,7 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
     public void testEnterRoomWithDuplicateNick_Rewrite() throws Exception {
         Room room1 = conference.findRoom(ROOM1_JID);
         room1.setRewriteDuplicateNick(true); // do rewrite nick, second join will succeed
-        assertNull(enterRoom(OCCUPANT2_JID, ROOM1_JID_WITH_NICK)); // 1st join                                   
+        assertNull(enterRoom(OCCUPANT2_JID, ROOM1_JID_WITH_NICK)); // 1st join
         Stanza error = enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK); // 2nd join
         assertNull(error);
         final Stanza stanza1 = occupant1Queue.getNext();
@@ -180,7 +184,8 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
         boolean rewriteCode = false;
         for (XMLElement status : statuses) {
             final String code = status.getAttributeValue("code");
-            if ("210".equals(code)) rewriteCode = true;
+            if ("210".equals(code))
+                rewriteCode = true;
         }
         assertTrue(rewriteCode);
     }
@@ -205,7 +210,8 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
         // try entering without a nick
         Stanza response = enterRoom(OCCUPANT1_JID, ROOM1_JID);
 
-        assertPresenceErrorStanza(response, ROOM1_JID, OCCUPANT1_JID, StanzaErrorType.MODIFY, StanzaErrorCondition.JID_MALFORMED);
+        assertPresenceErrorStanza(response, ROOM1_JID, OCCUPANT1_JID, StanzaErrorType.MODIFY,
+                StanzaErrorCondition.JID_MALFORMED);
     }
 
     public void testEnterWithPassword() throws Exception {
@@ -224,10 +230,12 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
         // try entering without a password
         Stanza response = enterRoom(OCCUPANT1_JID, ROOM2_JID_WITH_NICK);
 
-        assertPresenceErrorStanza(response, ROOM2_JID, OCCUPANT1_JID, StanzaErrorType.AUTH, StanzaErrorCondition.NOT_AUTHORIZED);
+        assertPresenceErrorStanza(response, ROOM2_JID, OCCUPANT1_JID, StanzaErrorType.AUTH,
+                StanzaErrorCondition.NOT_AUTHORIZED);
     }
 
-    private void assertPresenceErrorStanza(Stanza response, Entity from, Entity to, StanzaErrorType type, StanzaErrorCondition errorName) {
+    private void assertPresenceErrorStanza(Stanza response, Entity from, Entity to, StanzaErrorType type,
+            StanzaErrorCondition errorName) {
         XMLElement xElement = new XMLElementBuilder("x", NamespaceURIs.XEP0045_MUC).build();
         assertErrorStanza(response, "presence", from, to, type, errorName, xElement);
     }
@@ -251,13 +259,15 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
         XMLElement xElement = user1JoinedStanza.getSingleInnerElementsNamed("x");
         assertEquals(NamespaceURIs.XEP0045_MUC_USER, xElement.getNamespaceURI());
 
-        // since this room is non-anonymous, x must contain an item element with the users full JID
+        // since this room is non-anonymous, x must contain an item element with the
+        // users full JID
         XMLElement itemElement = xElement.getSingleInnerElementsNamed("item");
         assertEquals(OCCUPANT1_JID.getFullQualifiedName(), itemElement.getAttributeValue("jid"));
         assertEquals("none", itemElement.getAttributeValue("affiliation"));
         assertEquals("participant", itemElement.getAttributeValue("role"));
 
-        // verify stanzas to the new user on all existing users, including himself with status=110 element
+        // verify stanzas to the new user on all existing users, including himself with
+        // status=110 element
         // own presence must be sent last
         // assert the stanza from the already existing user
         Stanza stanza = occupant1Queue.getNext();
@@ -265,7 +275,7 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
         assertEquals(ROOM1_JID.getFullQualifiedName() + "/Some nick", stanza.getFrom().getFullQualifiedName());
         assertEquals(OCCUPANT1_JID, stanza.getTo());
 
-        // assert stanza from the joining user, must have extra status=110 element        
+        // assert stanza from the joining user, must have extra status=110 element
         stanza = occupant1Queue.getNext();
         assertNotNull(stanza);
         assertEquals(ROOM1_JID_WITH_NICK, stanza.getFrom());
@@ -280,9 +290,12 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
     public void testDiscussionHistory() throws Exception {
         // add some messages
         Room room = ConferenceTestUtils.findOrCreateRoom(conference, ROOM1_JID, "Room 1");
-        room.getHistory().append(createMessageStanza("Body"), new Occupant(OCCUPANT2_JID, "nick2", room, Role.Participant));
-        room.getHistory().append(createMessageStanza("Body2"), new Occupant(OCCUPANT2_JID, "nick2", room, Role.Participant));
-        room.getHistory().append(createMessageStanza("Body3"), new Occupant(OCCUPANT2_JID, "nick2", room, Role.Participant));
+        room.getHistory().append(createMessageStanza("Body"),
+                new Occupant(OCCUPANT2_JID, "nick2", room, Role.Participant));
+        room.getHistory().append(createMessageStanza("Body2"),
+                new Occupant(OCCUPANT2_JID, "nick2", room, Role.Participant));
+        room.getHistory().append(createMessageStanza("Body3"),
+                new Occupant(OCCUPANT2_JID, "nick2", room, Role.Participant));
 
         // now, let user 1 enter room
         enterRoom(OCCUPANT1_JID, ROOM1_JID_WITH_NICK, null, new History(2, null, null, null), false);

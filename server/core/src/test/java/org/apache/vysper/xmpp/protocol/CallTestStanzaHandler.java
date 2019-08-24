@@ -86,7 +86,7 @@ public class CallTestStanzaHandler implements StanzaHandler {
     }
 
     public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
-            boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder)
+										   boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder, StanzaBroker stanzaBroker)
             throws ProtocolException {
         if (stanza == null || !stanza.getName().equals(getName()) || sessionContext == null)
             throw new RuntimeException("test failed");

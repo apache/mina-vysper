@@ -153,7 +153,7 @@ public class AsyncIQGetHandlerTestCase extends TestCase {
         Stanza iqStanza = stanzaBuilder.build();
 
         ResponseStanzaContainer container = asyncIQGetHandler.execute(iqStanza, sessionContext
-                .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
+                .getServerRuntimeContext(), true, sessionContext, sessionStateHolder, null);
         assertTrue(container == null || container.hasNoResponse());
 
         TriggeredRunnableFuture runnableFuture = asyncIQGetHandler.getWaitingRunnableFuture();

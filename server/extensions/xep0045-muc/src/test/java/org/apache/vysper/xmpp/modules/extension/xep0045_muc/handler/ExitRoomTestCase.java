@@ -31,6 +31,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.stanza.PresenceStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -50,7 +51,7 @@ public class ExitRoomTestCase extends AbstractMUCHandlerTestCase {
 
         Stanza presenceStanza = stanzaBuilder.build();
         ResponseStanzaContainer container = handler.execute(presenceStanza, sessionContext.getServerRuntimeContext(),
-                true, sessionContext, null);
+                true, sessionContext, null, new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
         if (container != null) {
             return container.getUniqueResponseStanza();
         } else {
@@ -149,7 +150,8 @@ public class ExitRoomTestCase extends AbstractMUCHandlerTestCase {
         XMLElement xElement = stanza.getSingleInnerElementsNamed("x");
         assertEquals(NamespaceURIs.XEP0045_MUC_USER, xElement.getNamespaceURI());
 
-        // since this room is non-anonymous, x must contain an item element with the users full JID
+        // since this room is non-anonymous, x must contain an item element with the
+        // users full JID
         XMLElement itemElement = xElement.getSingleInnerElementsNamed("item");
         assertEquals("none", itemElement.getAttributeValue("affiliation"));
         assertEquals("none", itemElement.getAttributeValue("role"));

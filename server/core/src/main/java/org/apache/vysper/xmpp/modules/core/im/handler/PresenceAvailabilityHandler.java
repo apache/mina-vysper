@@ -47,6 +47,7 @@ import org.apache.vysper.xmpp.modules.roster.RosterItem;
 import org.apache.vysper.xmpp.modules.roster.RosterUtils;
 import org.apache.vysper.xmpp.modules.roster.SubscriptionType;
 import org.apache.vysper.xmpp.modules.roster.persistence.RosterManager;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.protocol.commandstanza.EndOfSessionCommandStanza;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
@@ -76,17 +77,18 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
     final Logger logger = LoggerFactory.getLogger(PresenceAvailabilityHandler.class);
 
     /**
-     * handles availability presence stanzas. prepares further processing of the 
-     * stanza and decides which special case of availability to transfer to. 
+     * handles availability presence stanzas. prepares further processing of the
+     * stanza and decides which special case of availability to transfer to.
      */
     @Override
-    /*package*/Stanza executeCorePresence(ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza,
-            SessionContext sessionContext, PresenceStanza presenceStanza, RosterManager rosterManager) {
+    /* package */Stanza executeCorePresence(ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza,
+            SessionContext sessionContext, PresenceStanza presenceStanza, RosterManager rosterManager,
+            StanzaBroker stanzaBroker) {
 
         // do not handle other cases of presence
         if (isSubscriptionType(presenceStanza.getPresenceType())) {
-            throw new RuntimeException("case not handled in availability handler"
-                    + presenceStanza.getPresenceType().value());
+            throw new RuntimeException(
+                    "case not handled in availability handler" + presenceStanza.getPresenceType().value());
         }
 
         // TODO: either use the resource associated with the session
@@ -98,9 +100,8 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
         ResourceRegistry registry = serverRuntimeContext.getResourceRegistry();
 
         // check if presence reception is turned off either globally or locally
-        if (!serverRuntimeContext.getServerFeatures().isRelayingPresence()
-                || (sessionContext != null && sessionContext
-                        .getAttribute(SessionContext.SESSION_ATTRIBUTE_PRESENCE_STANZA_NO_RECEIVE) != null)) {
+        if (!serverRuntimeContext.getServerFeatures().isRelayingPresence() || (sessionContext != null
+                && sessionContext.getAttribute(SessionContext.SESSION_ATTRIBUTE_PRESENCE_STANZA_NO_RECEIVE) != null)) {
             return null;
         }
 
@@ -110,16 +111,16 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
         if (isOutboundStanza) {
             Entity user = XMPPCoreStanzaHandler.extractUniqueSenderJID(presenceStanza, sessionContext);
             if (user == null) {
-                return ServerErrorResponses.getStanzaError(StanzaErrorCondition.UNKNOWN_SENDER,
-                        presenceStanza, StanzaErrorType.MODIFY, "sender info insufficient: no from", null, null);
+                return ServerErrorResponses.getStanzaError(StanzaErrorCondition.UNKNOWN_SENDER, presenceStanza,
+                        StanzaErrorType.MODIFY, "sender info insufficient: no from", null, null);
             }
 
             if (available) {
                 return handleOutboundAvailable(presenceStanza, serverRuntimeContext, sessionContext, rosterManager,
-                        user, registry);
+                        user, registry, stanzaBroker);
             } else if (type == UNAVAILABLE) {
-                return handleOutboundUnavailable(presenceStanza, serverRuntimeContext, sessionContext, rosterManager,
-                        user, registry);
+                return handleOutboundUnavailable(presenceStanza, sessionContext, rosterManager, user, registry,
+                        stanzaBroker);
             } else if (type == PROBE) {
                 return handleOutboundPresenceProbe(presenceStanza, serverRuntimeContext, sessionContext, registry);
             } else if (type == ERROR) {
@@ -127,14 +128,13 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
             } else {
                 throw new RuntimeException("unhandled outbound presence case " + type.value());
             }
-        } else /* inbound */{
+        } else /* inbound */ {
             if (available) {
                 return handleInboundAvailable(presenceStanza, serverRuntimeContext, sessionContext, registry);
             } else if (type == UNAVAILABLE) {
                 return handleInboundUnavailable(presenceStanza, serverRuntimeContext, sessionContext, registry);
             } else if (type == PROBE) {
-                return handleInboundPresenceProbe(presenceStanza, serverRuntimeContext, sessionContext, registry,
-                        rosterManager);
+                return handleInboundPresenceProbe(presenceStanza, sessionContext, rosterManager, stanzaBroker);
             } else if (type == ERROR) {
                 return handleInboundPresenceError(presenceStanza, serverRuntimeContext, sessionContext, registry);
             } else {
@@ -143,24 +143,25 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
         }
     }
 
-    protected Stanza handleInboundPresenceError(PresenceStanza stanza, ServerRuntimeContext serverRuntimeContext, 
-                                              SessionContext sessionContext, ResourceRegistry registry) {
+    protected Stanza handleInboundPresenceError(PresenceStanza stanza, ServerRuntimeContext serverRuntimeContext,
+            SessionContext sessionContext, ResourceRegistry registry) {
         return stanza; // send to client
     }
 
     @SpecCompliance(compliant = { @SpecCompliant(spec = "RFC3921bis-08", section = "4.5.2", status = IN_PROGRESS) })
-    private Stanza handleOutboundUnavailable(PresenceStanza presenceStanza, ServerRuntimeContext serverRuntimeContext,
-            SessionContext sessionContext, RosterManager rosterManager, Entity user, ResourceRegistry registry) {
+    private Stanza handleOutboundUnavailable(PresenceStanza presenceStanza, SessionContext sessionContext,
+            RosterManager rosterManager, Entity user, ResourceRegistry registry, StanzaBroker stanzaBroker) {
 
         boolean hasTo = presenceStanza.getCoreVerifier().attributePresent("to");
         if (hasTo)
-            return handleOutboundDirectedPresence(presenceStanza, serverRuntimeContext, sessionContext, rosterManager,
-                    user, registry, true);
+            return handleOutboundDirectedPresence(presenceStanza, sessionContext, rosterManager, registry, true,
+                    stanzaBroker);
 
         if (!user.isResourceSet())
             throw new RuntimeException("resource id not available");
         boolean stateChanged = registry.setResourceState(user.getResource(), ResourceState.UNAVAILABLE);
-        // avoid races from closing connections and unavail presence stanza handlings happening quasi-concurrently
+        // avoid races from closing connections and unavail presence stanza handlings
+        // happening quasi-concurrently
         if (!stateChanged)
             return null;
 
@@ -183,7 +184,8 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
 
         // broadcast presence from full JID to contacts
         // in roster with 'subscription' either 'from' or 'both'
-        // TODO (for pres updates): ...and last presence stanza received from the contact during the user's
+        // TODO (for pres updates): ...and last presence stanza received from the
+        // contact during the user's
         // presence session was not of type "error" or "unsubscribe".
 
         List<RosterItem> rosterContacts_FROM = new ArrayList<RosterItem>();
@@ -213,14 +215,14 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
         }
 
         // and send them out
-        relayTo(user, contacts, presenceStanza, sessionContext);
+        relayTo(user, contacts, presenceStanza, stanzaBroker);
 
         return null;
     }
 
     @SpecCompliant(spec = "RFC3921bis-08", section = "4.3.1", status = IN_PROGRESS)
-    private Stanza handleOutboundPresenceProbe(PresenceStanza presenceStanza,
-            ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, ResourceRegistry registry) {
+    private Stanza handleOutboundPresenceProbe(PresenceStanza presenceStanza, ServerRuntimeContext serverRuntimeContext,
+            SessionContext sessionContext, ResourceRegistry registry) {
         // outbound presence probes are against the spec.
 
         // TODO return error stanza
@@ -230,11 +232,11 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
     @SpecCompliant(spec = "RFC3921bis-08", section = "4.2.2", status = IN_PROGRESS)
     private PresenceStanza handleOutboundAvailable(PresenceStanza presenceStanza,
             ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, RosterManager rosterManager,
-            Entity user, ResourceRegistry registry) {
+            Entity user, ResourceRegistry registry, StanzaBroker stanzaBroker) {
         boolean hasTo = presenceStanza.getCoreVerifier().attributePresent("to");
         if (hasTo)
-            return handleOutboundDirectedPresence(presenceStanza, serverRuntimeContext, sessionContext, rosterManager,
-                    user, registry, false);
+            return handleOutboundDirectedPresence(presenceStanza, sessionContext, rosterManager, registry, false,
+                    stanzaBroker);
 
         if (!user.isResourceSet())
             throw new RuntimeException("resource id not available");
@@ -243,7 +245,8 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
 
         boolean isPresenceUpdate = resourceState != null && ResourceState.isAvailable(resourceState);
 
-        // TODO in case of !isPresenceUpdate, should we check for resourceState != ResourceState.AVAILABLE_INTERESTED ?
+        // TODO in case of !isPresenceUpdate, should we check for resourceState !=
+        // ResourceState.AVAILABLE_INTERESTED ?
         // RFC3921bis-04#4.2.2 Initial Presence
         // RFC3921bis-04#4.4.2 Initial Presence
 
@@ -257,22 +260,22 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
             registry.setResourceState(resourceId, ResourceState.makeAvailable(currentState));
         }
 
-        // the presence priority is optional, but if contained, it might become relevant for
+        // the presence priority is optional, but if contained, it might become relevant
+        // for
         // message delivery (see RFC3921bis-05#8.3.1.1)
         registry.setResourcePriority(resourceId, presenceStanza.getPrioritySafe());
 
-		// check for pending offline stored stanzas, and send them out 
-		OfflineStorageProvider offlineProvider = serverRuntimeContext
-				.getStorageProvider(OfflineStorageProvider.class);
-		if (offlineProvider == null) {
-			logger.warn("No Offline Storage Provider configured");
-		} else {
-			Collection<Stanza> offlineStanzas = offlineProvider.getStanzasFor(user);
-			for (Stanza stanza : offlineStanzas) {
-				logger.debug("Sending out delayed offline stanza");
-				relayStanza(user, stanza, sessionContext);
-			}
-		}
+        // check for pending offline stored stanzas, and send them out
+        OfflineStorageProvider offlineProvider = serverRuntimeContext.getStorageProvider(OfflineStorageProvider.class);
+        if (offlineProvider == null) {
+            logger.warn("No Offline Storage Provider configured");
+        } else {
+            Collection<Stanza> offlineStanzas = offlineProvider.getStanzasFor(user);
+            for (Stanza stanza : offlineStanzas) {
+                logger.debug("Sending out delayed offline stanza");
+                relayStanza(user, stanza, stanzaBroker);
+            }
+        }
 
         List<Entity> contacts = new ArrayList<Entity>();
 
@@ -284,7 +287,8 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
         // broadcast presence from full JID to contacts
         // in roster with 'subscription' either 'from' or 'both'
         // TODO: ...and user is not blocking outbound presence notifications above
-        // TODO (for pres updates): ...and last presence stanza received from the contact during the user's
+        // TODO (for pres updates): ...and last presence stanza received from the
+        // contact during the user's
         // presence session was not of type "error" or "unsubscribe".
 
         List<RosterItem> rosterContacts_FROM = new ArrayList<RosterItem>();
@@ -303,21 +307,22 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
         }
 
         // and send them out
-        relayTo(user, contacts, presenceStanza, sessionContext);
+        relayTo(user, contacts, presenceStanza, stanzaBroker);
 
         if (!isPresenceUpdate) {
             // initial presence only:
             // send probes to all contacts of the current jid where
             // 'subscription' is either 'to' or 'both'
             // TODO: ...and jid is not blocking inbound presence notification
-            // TODO: optimize: don't send server-local probes when contact's presence is known locally
+            // TODO: optimize: don't send server-local probes when contact's presence is
+            // known locally
             List<RosterItem> rosterContacts_TO = new ArrayList<RosterItem>();
             rosterContacts_TO.addAll(item_TO);
             rosterContacts_TO.addAll(item_BOTH);
             for (RosterItem rosterItem : rosterContacts_TO) {
                 Entity contact_TO = rosterItem.getJid();
                 Stanza probeStanza = buildPresenceStanza(user, contact_TO, PresenceStanzaType.PROBE, null);
-                relayStanza(contact_TO, probeStanza, sessionContext);
+                relayStanza(contact_TO, probeStanza, stanzaBroker);
             }
         }
 
@@ -325,16 +330,16 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
     }
 
     @SpecCompliant(spec = "RFC3921bis-08", section = "4.6.2")
-    private PresenceStanza handleOutboundDirectedPresence(PresenceStanza presenceStanza,
-            ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, RosterManager rosterManager,
-            Entity user, ResourceRegistry registry, final boolean unvailable) {
+    private PresenceStanza handleOutboundDirectedPresence(PresenceStanza presenceStanza, SessionContext sessionContext,
+            RosterManager rosterManager, ResourceRegistry registry, final boolean unvailable,
+            StanzaBroker stanzaBroker) {
         final Entity to = presenceStanza.getTo();
         Entity from = presenceStanza.getFrom();
 
         Stanza redirectDirectedStanza = presenceStanza;
         if (from == null || !from.isResourceSet()) {
-            from = new EntityImpl(sessionContext.getInitiatingEntity(), registry
-                    .getUniqueResourceForSession(sessionContext));
+            from = new EntityImpl(sessionContext.getInitiatingEntity(),
+                    registry.getUniqueResourceForSession(sessionContext));
             redirectDirectedStanza = StanzaBuilder.createForwardStanza(presenceStanza, from, null);
         }
 
@@ -359,7 +364,7 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
         }
 
         try {
-            serverRuntimeContext.getStanzaRelay().relay(to, redirectDirectedStanza, new IgnoreFailureStrategy());
+            stanzaBroker.write(to, redirectDirectedStanza, new IgnoreFailureStrategy());
         } catch (DeliveryException e) {
             logger.warn("relaying directed presence failed. from = " + from + ", to = " + to);
         }
@@ -391,16 +396,16 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
 
     /**
      * TODO I don't think this works particulary good.
+     * 
      * @param stanza
-     * @param serverRuntimeContext
      * @param sessionContext
-     * @param registry
      * @param rosterManager
+     * @param stanzaBroker
      * @return
      */
     @SpecCompliant(spec = "RFC3921bis-08", section = "4.3.2")
-    private XMPPCoreStanza handleInboundPresenceProbe(PresenceStanza stanza, ServerRuntimeContext serverRuntimeContext,
-            SessionContext sessionContext, ResourceRegistry registry, RosterManager rosterManager) {
+    private XMPPCoreStanza handleInboundPresenceProbe(PresenceStanza stanza, SessionContext sessionContext,
+            RosterManager rosterManager, StanzaBroker stanzaBroker) {
         Entity contact = stanza.getFrom();
         Entity user = stanza.getTo();
 
@@ -412,26 +417,26 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
         }
         if (contactItem == null || !contactItem.hasFrom()) {
             // not a contact, or not a _subscribed_ contact!
-            relayStanza(contact, buildPresenceStanza(user, contact, UNSUBSCRIBED, null), sessionContext);
+            relayStanza(contact, buildPresenceStanza(user, contact, UNSUBSCRIBED, null), stanzaBroker);
             return null;
         }
 
         if (contact.getResource() == null) {
             // presence probes must happen on resource level!
-            relayStanza(contact, buildPresenceStanza(user, contact, UNSUBSCRIBED, null), sessionContext);
+            relayStanza(contact, buildPresenceStanza(user, contact, UNSUBSCRIBED, null), stanzaBroker);
             return null;
         }
 
         PresenceStanza latestPresenceStanza = retrieveLatestPresence(sessionContext, user);
         if (latestPresenceStanza == null) {
             // we have no current presence info
-            relayStanza(contact, buildPresenceStanza(user, contact, UNAVAILABLE, null), sessionContext);
+            relayStanza(contact, buildPresenceStanza(user, contact, UNAVAILABLE, null), stanzaBroker);
             return null;
         }
 
         // return current presence as probing result
         relayStanza(contact, buildPresenceStanza(user, contact, null, latestPresenceStanza.getInnerElements()),
-                sessionContext);
+                stanzaBroker);
 
         return null;
     }
@@ -458,14 +463,14 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
         return null;
     }
 
-    private void relayTo(Entity from, List<Entity> tos, PresenceStanza original, SessionContext sessionContext) {
+    private void relayTo(Entity from, List<Entity> tos, PresenceStanza original, StanzaBroker stanzaBroker) {
         List<Attribute> toFromReplacements = new ArrayList<Attribute>(2);
         toFromReplacements.add(new Attribute("from", from.getFullQualifiedName()));
 
         for (Entity to : tos) {
             toFromReplacements.add(new Attribute("to", to.getFullQualifiedName()));
             Stanza outgoingStanza = StanzaBuilder.createClone(original, true, toFromReplacements).build();
-            relayStanza(to, outgoingStanza, sessionContext);
+            relayStanza(to, outgoingStanza, stanzaBroker);
             toFromReplacements.remove(toFromReplacements.size() - 1); // clear space for new 'to' attribute
         }
     }

@@ -19,12 +19,13 @@
  */
 package org.apache.vysper.xmpp.modules.core.compatibility.jabber_iq_auth.handler;
 
-import junit.framework.Assert;
+import static org.mockito.Mockito.mock;
 
 import org.apache.vysper.StanzaAssert;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -33,38 +34,46 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.state.resourcebinding.BindException;
 import org.junit.Test;
-import org.mockito.Mockito;
+
+import junit.framework.Assert;
 
 /**
  */
 public class AuthCompatibilityIQHandlerTestCase {
 
-    private ServerRuntimeContext serverRuntimeContext = Mockito.mock(ServerRuntimeContext.class);
-    private SessionContext sessionContext = Mockito.mock(SessionContext.class);
+    private ServerRuntimeContext serverRuntimeContext = mock(ServerRuntimeContext.class);
+
+    private SessionContext sessionContext = mock(SessionContext.class);
+
     private IQStanza stanzaWithSet = (IQStanza) IQStanza.getWrapper(buildStanza("set"));
+
     private IQStanza stanzaWithGet = (IQStanza) IQStanza.getWrapper(buildStanza("get"));
+
     private IQStanza stanzaWithResult = (IQStanza) IQStanza.getWrapper(buildStanza("result"));
+
     private IQStanza stanzaWithError = (IQStanza) IQStanza.getWrapper(buildStanza("error"));
+
     private SessionStateHolder sessionStateHolder = new SessionStateHolder();
-    
+
     private AuthCompatibilityIQHandler handler = new AuthCompatibilityIQHandler();
-    
+
+    private StanzaBroker stanzaBroker = mock(StanzaBroker.class);
+
     private Stanza buildStanza(String type) {
-        return buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "query", NamespaceURIs.JABBER_IQ_AUTH_COMPATIBILITY, type);
+        return buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "query", NamespaceURIs.JABBER_IQ_AUTH_COMPATIBILITY,
+                type);
     }
 
     private Stanza buildStanza(String name, String namespaceUri, String type) {
         return buildStanza(name, namespaceUri, "query", NamespaceURIs.JABBER_IQ_AUTH_COMPATIBILITY, type);
     }
-    
-    private Stanza buildStanza(String name, String namespaceUri, String innerName, String innerNamespaceUri, String type) {
-        return new StanzaBuilder(name, namespaceUri)
-            .addAttribute("type", type)
-            .addAttribute("id", "1")
-            .startInnerElement(innerName, innerNamespaceUri)
-            .build();
+
+    private Stanza buildStanza(String name, String namespaceUri, String innerName, String innerNamespaceUri,
+            String type) {
+        return new StanzaBuilder(name, namespaceUri).addAttribute("type", type).addAttribute("id", "1")
+                .startInnerElement(innerName, innerNamespaceUri).build();
     }
-    
+
     @Test
     public void nameMustBeIq() {
         Assert.assertEquals("iq", handler.getName());
@@ -99,13 +108,13 @@ public class AuthCompatibilityIQHandlerTestCase {
     public void verifyInvalidInnerNamespace() {
         Assert.assertFalse(handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "query", "dummy", "set")));
     }
-    
+
     @Test
     public void verifyMissingInnerElement() {
         Stanza stanza = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT).build();
         Assert.assertFalse(handler.verify(stanza));
     }
-    
+
     @Test
     public void verifyValidStanza() {
         Assert.assertTrue(handler.verify(stanzaWithSet));
@@ -125,32 +134,31 @@ public class AuthCompatibilityIQHandlerTestCase {
     public void handleGet() throws BindException {
         assertResponse(stanzaWithGet);
     }
-    
+
     @Test
     public void handleResult() throws BindException {
-        Assert.assertFalse(handler.execute(stanzaWithResult, serverRuntimeContext, false, sessionContext, sessionStateHolder).hasResponse());
+        Assert.assertFalse(handler.execute(stanzaWithResult, serverRuntimeContext, false, sessionContext,
+                sessionStateHolder, stanzaBroker).hasResponse());
     }
-    
+
     @Test
     public void handleError() throws BindException {
-        Assert.assertFalse(handler.execute(stanzaWithError, serverRuntimeContext, false, sessionContext, sessionStateHolder).hasResponse());
+        Assert.assertFalse(handler
+                .execute(stanzaWithError, serverRuntimeContext, false, sessionContext, sessionStateHolder, stanzaBroker)
+                .hasResponse());
     }
-    
-    
-    
+
     private void assertResponse(Stanza stanza) {
-        ResponseStanzaContainer response = handler.execute(stanza, serverRuntimeContext, false, sessionContext, sessionStateHolder);
+        ResponseStanzaContainer response = handler.execute(stanza, serverRuntimeContext, false, sessionContext,
+                sessionStateHolder, stanzaBroker);
 
         Stanza expectedResponse = StanzaBuilder.createIQStanza(null, null, IQStanzaType.ERROR, "1")
-            .startInnerElement("query", NamespaceURIs.JABBER_IQ_AUTH_COMPATIBILITY).endInnerElement()
-            .startInnerElement("error",  NamespaceURIs.JABBER_CLIENT)
-            .addAttribute("type", "cancel")
-            .startInnerElement("service-unavailable", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).endInnerElement()
-            .startInnerElement("text", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS)
-            .addAttribute(NamespaceURIs.XML, "lang", "en")
-            .addText("jabber:iq:auth not supported")
-            .build();
-        
+                .startInnerElement("query", NamespaceURIs.JABBER_IQ_AUTH_COMPATIBILITY).endInnerElement()
+                .startInnerElement("error", NamespaceURIs.JABBER_CLIENT).addAttribute("type", "cancel")
+                .startInnerElement("service-unavailable", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS)
+                .endInnerElement().startInnerElement("text", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS)
+                .addAttribute(NamespaceURIs.XML, "lang", "en").addText("jabber:iq:auth not supported").build();
+
         StanzaAssert.assertEquals(expectedResponse, response.getUniqueResponseStanza());
     }
 

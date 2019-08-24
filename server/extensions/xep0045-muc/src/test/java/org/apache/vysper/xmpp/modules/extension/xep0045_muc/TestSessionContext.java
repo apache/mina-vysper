@@ -30,6 +30,7 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.RecordingStanzaRelay;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverQueue;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
+import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.AbstractSessionContext;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
@@ -53,8 +54,11 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
 
     private int recordedResponsesTotal = 0;
 
+    private final StanzaRelay relay;
+
     /**
      * creates a new session context (but doesn't set the runtime context)
+     *
      * @param entity
      * @return
      */
@@ -68,6 +72,7 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
 
     /**
      * creates a new authenticated session and a new runtime context
+     *
      * @return
      */
     public static TestSessionContext createWithStanzaReceiverRelayAuthenticated() {
@@ -78,6 +83,7 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
 
     /**
      * creates a session and also creates a fresh runtime context for it
+     *
      * @param sessionStateHolder
      * @return
      */
@@ -86,31 +92,45 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
         DefaultServerRuntimeContext serverContext = new DefaultServerRuntimeContext(new EntityImpl(null, "test", null),
                 relay);
         relay.setServerRuntimeContext(serverContext);
-        return new TestSessionContext(serverContext, sessionStateHolder);
+        return new TestSessionContext(serverContext, sessionStateHolder, relay);
     }
 
     /**
      * creates another session for an already created runtime context
+     *
      * @param sessionStateHolder
      * @param serverContext
      * @return
      */
     public static TestSessionContext createWithStanzaReceiverRelay(SessionStateHolder sessionStateHolder,
-            ServerRuntimeContext serverContext) {
-        StanzaReceiverRelay relay = (StanzaReceiverRelay) serverContext.getStanzaRelay();
+                                                                   ServerRuntimeContext serverContext, StanzaReceiverRelay relay) {
         relay.setServerRuntimeContext(serverContext);
-        return new TestSessionContext(serverContext, sessionStateHolder);
+        return new TestSessionContext(serverContext, sessionStateHolder, relay);
+    }
+
+    public StanzaRelay getStanzaRelay() {
+        return relay;
     }
 
     public TestSessionContext(SessionStateHolder sessionStateHolder) {
-        this(new DefaultServerRuntimeContext(new EntityImpl(null, "test", null), new RecordingStanzaRelay(),
+        super(new DefaultServerRuntimeContext(new EntityImpl(null, "test", null), new RecordingStanzaRelay(),
                 new MemoryStorageProviderRegistry()), sessionStateHolder);
+        sessionId = serverRuntimeContext.getNextSessionId();
+        xmlLang = "de";
+        this.relay = ((DefaultServerRuntimeContext) serverRuntimeContext).getStanzaRelay();
     }
 
-    public TestSessionContext(ServerRuntimeContext serverRuntimeContext, SessionStateHolder sessionStateHolder) {
+    public TestSessionContext(SessionStateHolder sessionStateHolder, StanzaReceiverRelay relay) {
+        this(new DefaultServerRuntimeContext(new EntityImpl(null, "test", null), new RecordingStanzaRelay(),
+                new MemoryStorageProviderRegistry()), sessionStateHolder, relay);
+    }
+
+    public TestSessionContext(ServerRuntimeContext serverRuntimeContext, SessionStateHolder sessionStateHolder,
+                              StanzaRelay relay) {
         super(serverRuntimeContext, sessionStateHolder);
         sessionId = serverRuntimeContext.getNextSessionId();
         xmlLang = "de";
+        this.relay = relay;
     }
 
     public Stanza getNextRecordedResponse() {
@@ -155,7 +175,8 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
     }
 
     /**
-     * @param stanza records the stanza.
+     * @param stanza
+     *            records the stanza.
      */
     public void write(Stanza stanza) {
         recordedResponses.add(stanza);
@@ -183,13 +204,13 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
     }
 
     public StanzaReceiverQueue addReceiver(Entity entity, String resourceId) {
-        if (!(getServerRuntimeContext().getStanzaRelay() instanceof StanzaReceiverRelay)) {
+        if (!(this.relay instanceof StanzaReceiverRelay)) {
             throw new RuntimeException("cannot add receiver - the stanza relay is of a different kind");
         }
         StanzaReceiverQueue relay = new StanzaReceiverQueue();
         if (resourceId != null)
             entity = new EntityImpl(entity.getNode(), entity.getDomain(), resourceId);
-        ((StanzaReceiverRelay) getServerRuntimeContext().getStanzaRelay()).add(entity, relay);
+        ((StanzaReceiverRelay) this.relay).add(entity, relay);
         return relay;
     }
 

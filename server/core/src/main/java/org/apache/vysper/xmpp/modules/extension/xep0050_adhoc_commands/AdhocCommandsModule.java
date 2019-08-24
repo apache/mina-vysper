@@ -40,6 +40,7 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscove
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,9 +100,9 @@ public class AdhocCommandsModule extends DefaultDiscoAwareModule
      * Implements the getItemsFor method from the {@link ItemRequestListener} interface.
      * Makes this modules available via disco#items and returns the associated nodes.
      * 
-     * @see ItemRequestListener#getItemsFor(InfoRequest)
+     * @see ItemRequestListener#getItemsFor(InfoRequest, StanzaBroker)
      */
-    public List<Item> getItemsFor(InfoRequest request) throws ServiceDiscoveryRequestException {
+    public List<Item> getItemsFor(InfoRequest request, StanzaBroker stanzaBroker) throws ServiceDiscoveryRequestException {
         if (!NamespaceURIs.XEP0050_ADHOC_COMMANDS.equals(request.getNode())) {
             return null;
         }

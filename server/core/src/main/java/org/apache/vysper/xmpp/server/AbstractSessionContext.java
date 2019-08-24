@@ -24,9 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.protocol.ProtocolException;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
-import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.state.resourcebinding.BindException;
@@ -120,13 +118,13 @@ public abstract class AbstractSessionContext implements SessionContext {
         this.sessionId = sessionId;
     }
 
-    
     public String getXMLLang() {
         return xmlLang;
     }
 
     public void setXMLLang(String languageCode) {
-        // TODO think about disallow changing the xmlLang a second time after from default to client value
+        // TODO think about disallow changing the xmlLang a second time after from
+        // default to client value
         xmlLang = languageCode;
     }
 
@@ -140,14 +138,10 @@ public abstract class AbstractSessionContext implements SessionContext {
 
         if (terminationCause == SessionTerminationCause.CLIENT_BYEBYE
                 || terminationCause == SessionTerminationCause.CONNECTION_ABORT) {
-            if(getState().equals(SessionState.AUTHENTICATED)) {
+            if (getState().equals(SessionState.AUTHENTICATED)) {
                 Stanza unavailableStanza = StanzaBuilder.createUnavailablePresenceStanza(null, terminationCause);
-                StanzaHandler handler = serverRuntimeContext.getHandler(unavailableStanza);
-                try {
-                    handler.execute(unavailableStanza, serverRuntimeContext, true, this, sessionStateHolder);
-                } catch (ProtocolException e) {
-                    logger.error("Failed to send unavailable stanza on connection close", e);
-                }
+                serverRuntimeContext.getStanzaProcessor().processStanza(serverRuntimeContext, this, unavailableStanza,
+                        sessionStateHolder);
             }
         } else if (terminationCause == SessionTerminationCause.SERVER_SHUTDOWN) {
             // do nothing
@@ -155,7 +149,8 @@ public abstract class AbstractSessionContext implements SessionContext {
             // TODO find a solution for informing the contacts without breaking test cases
             // but do nothing for now
         } else {
-            throw new IllegalArgumentException("endSession() not implemented for termination cause = " + terminationCause);
+            throw new IllegalArgumentException(
+                    "endSession() not implemented for termination cause = " + terminationCause);
         }
 
         // unbind session and remove from registry
@@ -171,13 +166,16 @@ public abstract class AbstractSessionContext implements SessionContext {
 
     public String bindResource() throws BindException {
 
-        // TODO we should impose a hard limit on the number of bound resources per session (in ServerConfiguration)
-        // TODO to avoid DoS attacks based on resource binding and to shield against clients running berserk
+        // TODO we should impose a hard limit on the number of bound resources per
+        // session (in ServerConfiguration)
+        // TODO to avoid DoS attacks based on resource binding and to shield against
+        // clients running berserk
         return getServerRuntimeContext().getResourceRegistry().bindSession(this);
     }
 
     /**
      * creates a unique ID, possibly a UUID, mostly for use as an IQ id.
+     * 
      * @return unique sequence ID
      */
     public String nextSequenceValue() {

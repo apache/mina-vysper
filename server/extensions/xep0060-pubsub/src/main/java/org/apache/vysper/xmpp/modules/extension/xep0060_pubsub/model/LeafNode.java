@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.MemberAffiliationVisitor;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubAffiliation;
@@ -38,10 +37,11 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.Identity;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 
 /**
- * This class is the model for leaf nodes. Leaf nodes contain messages and subscribers in various
- * forms.
+ * This class is the model for leaf nodes. Leaf nodes contain messages and
+ * subscribers in various forms.
  * 
  * @author The Apache MINA Project (http://mina.apache.org)
  */
@@ -60,14 +60,16 @@ public class LeafNode {
     protected PubSubServiceConfiguration serviceConfiguration = null;
 
     /**
-     * Creates a new LeafNode with the specified name and title. The creator will be added as owner.
+     * Creates a new LeafNode with the specified name and title. The creator will be
+     * added as owner.
      */
     public LeafNode(PubSubServiceConfiguration serviceConfiguration, String name, String title, Entity creator) {
         init(serviceConfiguration, name, title, creator);
     }
 
     /**
-     * Creates a new LeafNode with the specified name. The creator will be added as owner.
+     * Creates a new LeafNode with the specified name. The creator will be added as
+     * owner.
      */
     public LeafNode(PubSubServiceConfiguration serviceConfiguration, String name, Entity creator) {
         init(serviceConfiguration, name, null, creator);
@@ -96,7 +98,9 @@ public class LeafNode {
 
     /**
      * Changes the persistenceManager.
-     * @param persistenceManager the new persistence manager.
+     * 
+     * @param persistenceManager
+     *            the new persistence manager.
      */
     public void setPersistenceManager(LeafNodeStorageProvider persistenceManager) {
         this.storage = persistenceManager;
@@ -104,8 +108,11 @@ public class LeafNode {
 
     /**
      * Add a new subscriber with the given id.
-     * @param id subscription ID
-     * @param subscriber the subscriber
+     * 
+     * @param id
+     *            subscription ID
+     * @param subscriber
+     *            the subscriber
      */
     public void subscribe(String id, Entity subscriber) {
         storage.addSubscriber(name, id, subscriber);
@@ -113,7 +120,9 @@ public class LeafNode {
 
     /**
      * Check whether a JID is already subscribed
-     * @param subscriber the JID to check
+     * 
+     * @param subscriber
+     *            the JID to check
      * @return true if the JID is already subscribed
      */
     public boolean isSubscribed(Entity subscriber) {
@@ -122,7 +131,9 @@ public class LeafNode {
 
     /**
      * Check whether if we already have a subscription with the given ID
-     * @param subscriptionID the ID to check for.
+     * 
+     * @param subscriptionID
+     *            the ID to check for.
      * @return true if a subscription with this ID is present.
      */
 
@@ -132,8 +143,11 @@ public class LeafNode {
 
     /**
      * Remove a subscription of a JID with a given subscription ID.
-     * @param subscriptionID the subscription ID of the JID.
-     * @param subscriber the JID of the subscriber.
+     * 
+     * @param subscriptionID
+     *            the subscription ID of the JID.
+     * @param subscriber
+     *            the JID of the subscriber.
      * @return true if the subscription has been removed, false otherwise.
      */
     public boolean unsubscribe(String subscriptionID, Entity subscriber) {
@@ -146,12 +160,14 @@ public class LeafNode {
     }
 
     /**
-     * Remove a subscription solely with the subscription JID, if more than one subscription
-     * with this JID is present an exception will be thrown.
+     * Remove a subscription solely with the subscription JID, if more than one
+     * subscription with this JID is present an exception will be thrown.
      * 
-     * @param subscriber the JID to unsubscribe.
+     * @param subscriber
+     *            the JID to unsubscribe.
      * @return true if the subscription has been removed.
-     * @throws MultipleSubscriptionException if more than one subscription with this JID is present.
+     * @throws MultipleSubscriptionException
+     *             if more than one subscription with this JID is present.
      */
     public boolean unsubscribe(Entity subscriber) throws MultipleSubscriptionException {
         if (countSubscriptions(subscriber) > 1) {
@@ -162,7 +178,9 @@ public class LeafNode {
 
     /**
      * Returns the number of subscriptions with the given JID.
-     * @param subscriber the JID to count.
+     * 
+     * @param subscriber
+     *            the JID to count.
      * @return number of subscriptions.
      */
     public int countSubscriptions(Entity subscriber) {
@@ -170,7 +188,9 @@ public class LeafNode {
     }
 
     /**
-     * Returns the total number of subscriptions (based on the subscriptions IDs, not the JIDs).
+     * Returns the total number of subscriptions (based on the subscriptions IDs,
+     * not the JIDs).
+     * 
      * @return number of subscriptions.
      */
     public int countSubscriptions() {
@@ -179,29 +199,37 @@ public class LeafNode {
 
     /**
      * Publish an item to this node.
-     * @param sender the sender of the message (publisher).
-     * @param relay the relay for sending the messages.
-     * @param itemID the ID of the published message.
-     * @param item the payload of the message.
+     * 
+     * @param sender
+     *            the sender of the message (publisher).
+     * @param broker
+     *            the relay for sending the messages.
+     * @param itemID
+     *            the ID of the published message.
+     * @param item
+     *            the payload of the message.
      */
-    public void publish(Entity sender, StanzaRelay relay, String itemID, XMLElement item) {
+    public void publish(Entity sender, StanzaBroker broker, String itemID, XMLElement item) {
         storage.addMessage(sender, name, itemID, item);
-        sendMessageToSubscriber(relay, item);
+        sendMessageToSubscriber(broker, item);
     }
 
     /**
      * Sends a message to each subscriber of the node.
      * 
-     * @param stanzaRelay the relay for sending the notifications.
-     * @param item the payload of the message.
+     * @param stanzaBroker
+     *            the relay for sending the notifications.
+     * @param item
+     *            the payload of the message.
      */
-    protected void sendMessageToSubscriber(StanzaRelay stanzaRelay, XMLElement item) {
-        storage.acceptForEachSubscriber(name, new SubscriberPayloadNotificationVisitor(serviceConfiguration
-                .getDomainJID(), stanzaRelay, item));
+    protected void sendMessageToSubscriber(StanzaBroker stanzaBroker, XMLElement item) {
+        storage.acceptForEachSubscriber(name,
+                new SubscriberPayloadNotificationVisitor(serviceConfiguration.getDomainJID(), stanzaBroker, item));
     }
 
     /**
      * Call the SubscriberVisitor for each subscription of this node.
+     * 
      * @param sv
      */
     public void acceptSubscribers(SubscriberVisitor sv) {
@@ -225,7 +253,8 @@ public class LeafNode {
     /**
      * Builds a list of InfoElements for disco#info requests.
      * 
-     * @param request the sent request
+     * @param request
+     *            the sent request
      * @return the list of InfoElements
      */
     public List<InfoElement> getNodeInfosFor(InfoRequest request) {
@@ -247,7 +276,8 @@ public class LeafNode {
     /**
      * Visits each item ever published to this node.
      * 
-     * @param iv the visitor
+     * @param iv
+     *            the visitor
      */
     public void acceptItems(ItemVisitor iv) {
         storage.acceptForEachItem(name, iv);
@@ -256,15 +286,16 @@ public class LeafNode {
     /**
      * Visits each member of this node.
      *
-     * @param mav the visitor
+     * @param mav
+     *            the visitor
      */
     public void acceptMemberAffiliations(MemberAffiliationVisitor mav) {
         storage.acceptForEachMemberAffiliation(name, mav);
     }
 
     /**
-     * Called after all information, including the persistencemanager for the
-     * node is set.
+     * Called after all information, including the persistencemanager for the node
+     * is set.
      */
     public void initialize() {
         storage.initialize(this);
@@ -288,6 +319,7 @@ public class LeafNode {
 
     /**
      * Check whether the given JID is allowed to perform the requested task.
+     * 
      * @param sender
      * @param requestedAffiliation
      * @return
@@ -299,7 +331,9 @@ public class LeafNode {
 
     /**
      * Returns the affiliation for the given bareJID.
-     * @param entity the entity for which the affiliation should be returned.
+     * 
+     * @param entity
+     *            the entity for which the affiliation should be returned.
      * @return All affiliations ("NONE" if no other affiliation is known).
      */
     public PubSubAffiliation getAffiliation(Entity entity) {

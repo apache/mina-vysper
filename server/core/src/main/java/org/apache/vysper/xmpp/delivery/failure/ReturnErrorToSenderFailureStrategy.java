@@ -35,7 +35,7 @@ import java.util.List;
 import org.apache.vysper.compliance.SpecCompliance;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.delivery.StanzaRelay;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.MessageStanza;
@@ -53,10 +53,10 @@ import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
  */
 public class ReturnErrorToSenderFailureStrategy implements DeliveryFailureStrategy {
 
-    private StanzaRelay stanzaRelay;
+    private final StanzaBroker stanzaBroker;
 
-    public ReturnErrorToSenderFailureStrategy(StanzaRelay stanzaRelay) {
-        this.stanzaRelay = stanzaRelay;
+    public ReturnErrorToSenderFailureStrategy(StanzaBroker stanzaBroker) {
+        this.stanzaBroker = stanzaBroker;
     }
 
     @SpecCompliance(compliant = {
@@ -69,20 +69,20 @@ public class ReturnErrorToSenderFailureStrategy implements DeliveryFailureStrate
         StanzaErrorType errorType = StanzaErrorType.CANCEL;
 
         XMPPCoreStanza failedCoreStanza = XMPPCoreStanza.getWrapper(failedToDeliverStanza);
-        
+
         // Not a core stanza
         if (failedCoreStanza == null) {
             throw new DeliveryException("could not return to sender");
         }
-        
+
         if ("error".equals(failedCoreStanza.getType())) {
             return; // do not answer these
         }
 
         if (deliveryExceptions == null) {
-            XMPPCoreStanza error = XMPPCoreStanza.getWrapper(ServerErrorResponses.getStanzaError(
-                    stanzaErrorCondition, failedCoreStanza, errorType, "stanza could not be delivered", "en", null));
-            stanzaRelay.relay(error.getTo(), error, IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY);
+            XMPPCoreStanza error = XMPPCoreStanza.getWrapper(ServerErrorResponses.getStanzaError(stanzaErrorCondition,
+                    failedCoreStanza, errorType, "stanza could not be delivered", "en", null));
+            stanzaBroker.write(error.getTo(), error, IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY);
         } else if (deliveryExceptions.size() == 1) {
             DeliveryException deliveryException = deliveryExceptions.get(0);
             if (deliveryException instanceof LocalRecipientOfflineException) {
@@ -110,19 +110,18 @@ public class ReturnErrorToSenderFailureStrategy implements DeliveryFailureStrate
                         StanzaBuilder builder = StanzaBuilder.createPresenceStanza(from, to, null, UNSUBSCRIBED, null,
                                 null);
                         final Stanza finalStanza = builder.build();
-                        stanzaRelay.relay(to, finalStanza, IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY);
+                        stanzaBroker.write(to, finalStanza, IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY);
                         return;
                     }
                 }
             } else if (deliveryException instanceof SmartDeliveryException) {
                 // RFC3921bis#10.4.3: return remote server error to sender
                 SmartDeliveryException smartDeliveryException = (SmartDeliveryException) deliveryException;
-                XMPPCoreStanza error = XMPPCoreStanza
-                        .getWrapper(ServerErrorResponses.getStanzaError(
-                                smartDeliveryException.getStanzaErrorCondition(), failedCoreStanza,
-                                smartDeliveryException.getStanzaErrorType(), smartDeliveryException.getErrorText(),
-                                "en", null));
-                stanzaRelay.relay(error.getTo(), error, IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY);
+                XMPPCoreStanza error = XMPPCoreStanza.getWrapper(
+                        ServerErrorResponses.getStanzaError(smartDeliveryException.getStanzaErrorCondition(),
+                                failedCoreStanza, smartDeliveryException.getStanzaErrorType(),
+                                smartDeliveryException.getErrorText(), "en", null));
+                stanzaBroker.write(error.getTo(), error, IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY);
             }
         } else if (deliveryExceptions.size() > 1) {
             throw new RuntimeException("cannot return to sender for multiple failed deliveries");

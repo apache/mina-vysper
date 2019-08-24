@@ -17,8 +17,6 @@
 
 package org.apache.vysper.xmpp.protocol;
 
-import junit.framework.TestCase;
-
 import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -30,6 +28,8 @@ import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
+
+import junit.framework.TestCase;
 
 /**
  * test basic behavior of ProtocolWorker.aquireStanza()
@@ -45,15 +45,16 @@ public class ProtocolWorkerStateAwarenessTestCase extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        protocolWorker = new ProtocolWorker();
         sessionStateHolder = new SessionStateHolder();
         Entity serverEnitity = new EntityImpl(null, "vysper-server.org", null);
         StanzaReceiverRelay receiverRelay = new StanzaReceiverRelay();
-        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(serverEnitity, receiverRelay);
+        protocolWorker = new ProtocolWorker(receiverRelay);
+        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(serverEnitity,
+                receiverRelay);
         receiverRelay.setServerRuntimeContext(serverRuntimeContext);
         serverRuntimeContext.addDictionary(new BaseStreamStanzaDictionary());
         sessionStateHolder = new SessionStateHolder();
-        sessionContext = new TestSessionContext(serverRuntimeContext, sessionStateHolder);
+        sessionContext = new TestSessionContext(serverRuntimeContext, sessionStateHolder, receiverRelay);
     }
 
     public void testNotAcceptRegularStanzaBeyondAuthenticatedState_IQ() throws Exception {
@@ -101,8 +102,8 @@ public class ProtocolWorkerStateAwarenessTestCase extends TestCase {
 
             // RFC3920/4.3: response must be "not-authorized"
             assertTrue("error stanza", xmlElementVerifier.nameEquals("error"));
-            assertTrue("error stanza not-authorized", xmlElementVerifier
-                    .subElementPresent(StanzaErrorCondition.NOT_AUTHORIZED.value()));
+            assertTrue("error stanza not-authorized",
+                    xmlElementVerifier.subElementPresent(StanzaErrorCondition.NOT_AUTHORIZED.value()));
             assertTrue("writer had been closed", sessionContext.isClosed());
             assertEquals("session closed", SessionState.CLOSED, sessionContext.getState());
         }

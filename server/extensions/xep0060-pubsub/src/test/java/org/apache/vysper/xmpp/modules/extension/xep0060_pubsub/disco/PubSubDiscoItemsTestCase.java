@@ -32,6 +32,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.modules.servicediscovery.handler.DiscoItemIQHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -94,17 +95,21 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
 
         // since we have no nodes, there should be no items.
         assertEquals(2, inner.size());
-        //        
-        //        // ordering etc. is unknown; step through all subelements and pick the ones we need
+        //
+        // // ordering etc. is unknown; step through all subelements and pick the ones
+        // we need
         XMLElement news = null;
         XMLElement blogs = null;
         for (XMLElement el : inner) {
-            if (el.getName().equals("item") && el.getNamespaceURI().equals(NamespaceURIs.XEP0030_SERVICE_DISCOVERY_ITEMS) ) {
+            if (el.getName().equals("item")
+                    && el.getNamespaceURI().equals(NamespaceURIs.XEP0030_SERVICE_DISCOVERY_ITEMS)) {
                 if (el.getAttributeValue("jid").equals(serviceConfiguration.getDomainJID().getFullQualifiedName())
                         && el.getAttributeValue("node").equals("news") && el.getAttributeValue("name").equals("News")) {
                     news = el;
-                } else if (el.getAttributeValue("jid").equals(serviceConfiguration.getDomainJID().getFullQualifiedName())
-                        && el.getAttributeValue("node").equals("blogs") && el.getAttributeValue("name").equals("Blogs")) {
+                } else if (el.getAttributeValue("jid")
+                        .equals(serviceConfiguration.getDomainJID().getFullQualifiedName())
+                        && el.getAttributeValue("node").equals("blogs")
+                        && el.getAttributeValue("name").equals("Blogs")) {
                     blogs = el;
                 }
             }
@@ -147,12 +152,17 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
         XMLElement item1 = new XMLElement("namespace1", "item1", null, (Attribute[]) null, (XMLFragment[]) null);
         XMLElement item2 = new XMLElement("namespace2", "item2", null, (Attribute[]) null, (XMLFragment[]) null);
         XMLElement item3 = new XMLElement("namespace3", "item3", null, (Attribute[]) null, (XMLFragment[]) null);
-        node.publish(client, relay, "itemid1", item1);
+        node.publish(client, new SimpleStanzaBroker(relay, sessionContext), "itemid1", item1);
         Thread.sleep(10);
-        node.publish(client, relay, "itemid2", item1); // publish this one with the same id as the next one (overwritten by the next)
-        node.publish(client, relay, "itemid2", item2); // overwrite the prev. item (use the same itemid)
+        node.publish(client, new SimpleStanzaBroker(relay, sessionContext), "itemid2", item1); // publish this one with
+                                                                                               // the same id as the
+                                                                                               // next one (overwritten
+        // by the next)
+        node.publish(client, new SimpleStanzaBroker(relay, sessionContext), "itemid2", item2); // overwrite the prev.
+                                                                                               // item (use the same
+                                                                                               // itemid)
         Thread.sleep(10);
-        node.publish(client, relay, "itemid3", item3);
+        node.publish(client, new SimpleStanzaBroker(relay, sessionContext), "itemid3", item3);
 
         DefaultDiscoInfoStanzaGenerator sg = (DefaultDiscoInfoStanzaGenerator) getDefaultStanzaGenerator();
         Stanza stanza = sg.getStanza(client, pubsubService.getBareJID(), "id123", "news");
@@ -175,12 +185,14 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
         // since we have no messages, there should be no items.
         assertEquals(3, inner.size());
 
-        // the items should be returned in the reversed ordering of sending, make sure they are.
+        // the items should be returned in the reversed ordering of sending, make sure
+        // they are.
         boolean bItem1 = false;
         boolean bItem2 = false;
         boolean bItem3 = false;
         for (XMLElement el : inner) {
-            if (el.getName().equals("item") && el.getAttributeValue("jid").equals(pubsubService.getFullQualifiedName())) {
+            if (el.getName().equals("item")
+                    && el.getAttributeValue("jid").equals(pubsubService.getFullQualifiedName())) {
                 if (!bItem1 && el.getAttributeValue("name").equals("itemid1")) {
                     bItem1 = true;
                 } else if (bItem1 && !bItem2 && el.getAttributeValue("name").equals("itemid2")) {

@@ -75,7 +75,7 @@ public class StartTLSHandlerTestCase extends TestCase {
     private Stanza executeStartTLSHandler(Stanza starttlsStanza, TestSessionContext sessionContext) {
         StartTLSHandler startTLSHandler = new StartTLSHandler();
         ResponseStanzaContainer responseStanzaContainer = startTLSHandler.execute(starttlsStanza, sessionContext
-                .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
+                .getServerRuntimeContext(), true, sessionContext, sessionStateHolder, null);
         Stanza responseStanza = responseStanzaContainer.getUniqueResponseStanza();
         return responseStanza;
     }

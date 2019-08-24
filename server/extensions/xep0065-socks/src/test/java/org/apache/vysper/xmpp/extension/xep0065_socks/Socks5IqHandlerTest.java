@@ -22,8 +22,6 @@ package org.apache.vysper.xmpp.extension.xep0065_socks;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
@@ -40,25 +38,32 @@ import org.apache.vysper.xmpp.state.resourcebinding.BindException;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import junit.framework.Assert;
+
 /**
  */
 public class Socks5IqHandlerTest extends Mockito {
 
     private static final Entity FROM = EntityImpl.parseUnchecked("requestor@vysper.org");
+
     private static final Entity TARGET = EntityImpl.parseUnchecked("target@vysper.org");
+
     private static final Entity TO = EntityImpl.parseUnchecked("socks.vysper.org");
-    
+
     private ServerRuntimeContext serverRuntimeContext = Mockito.mock(ServerRuntimeContext.class);
+
     private SessionContext sessionContext = Mockito.mock(SessionContext.class);
+
     private IQStanza stanza = (IQStanza) IQStanza.getWrapper(buildStanza());
-    
+
     private Socks5ConnectionsRegistry connectionsRegistry = mock(Socks5ConnectionsRegistry.class);
-    
+
     private Entity jid = EntityImpl.parseUnchecked("socks.vysper.org");
+
     private InetSocketAddress proxyAddress = new InetSocketAddress("1.2.3.4", 12345);
 
     private Socks5IqHandler handler = new Socks5IqHandler(jid, proxyAddress, connectionsRegistry);
-    
+
     private Stanza buildStanza() {
         return buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "query", NamespaceURIs.XEP0065_SOCKS5_BYTESTREAMS);
     }
@@ -66,15 +71,12 @@ public class Socks5IqHandlerTest extends Mockito {
     private Stanza buildStanza(String name, String namespaceUri) {
         return buildStanza(name, namespaceUri, "query", NamespaceURIs.XEP0065_SOCKS5_BYTESTREAMS);
     }
-    
+
     private Stanza buildStanza(String name, String namespaceUri, String innerName, String innerNamespaceUri) {
-        return new StanzaBuilder(name, namespaceUri)
-            .addAttribute("type", "get")
-            .addAttribute("id", "1")
-            .startInnerElement(innerName, innerNamespaceUri)
-            .build();
+        return new StanzaBuilder(name, namespaceUri).addAttribute("type", "get").addAttribute("id", "1")
+                .startInnerElement(innerName, innerNamespaceUri).build();
     }
-    
+
     @Test
     public void nameMustBeIq() {
         Assert.assertEquals("iq", handler.getName());
@@ -109,10 +111,11 @@ public class Socks5IqHandlerTest extends Mockito {
     public void verifyInvalidInnerNamespace() {
         Assert.assertFalse(handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "query", "dummy")));
     }
-    
+
     @Test
     public void verifyInvalidInnerName() {
-        Assert.assertFalse(handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "dummy", NamespaceURIs.XEP0065_SOCKS5_BYTESTREAMS)));
+        Assert.assertFalse(handler.verify(
+                buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "dummy", NamespaceURIs.XEP0065_SOCKS5_BYTESTREAMS)));
     }
 
     @Test
@@ -120,7 +123,7 @@ public class Socks5IqHandlerTest extends Mockito {
         Stanza stanza = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT).build();
         Assert.assertFalse(handler.verify(stanza));
     }
-    
+
     @Test
     public void verifyValidStanza() {
         Assert.assertTrue(handler.verify(stanza));
@@ -133,60 +136,54 @@ public class Socks5IqHandlerTest extends Mockito {
 
     @Test
     public void handleGet() throws BindException, XMLSemanticError {
-        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext);
+        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, null);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
-        
-        Stanza expected = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID())
-            .startInnerElement("query", NamespaceURIs.XEP0065_SOCKS5_BYTESTREAMS)
-            .startInnerElement("streamhost", NamespaceURIs.XEP0065_SOCKS5_BYTESTREAMS)
-            .addAttribute("host", proxyAddress.getHostName())
-            .addAttribute("jid", jid.getFullQualifiedName())
-            .addAttribute("port", Integer.toString(proxyAddress.getPort()))
-            .build();
+
+        Stanza expected = StanzaBuilder
+                .createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID())
+                .startInnerElement("query", NamespaceURIs.XEP0065_SOCKS5_BYTESTREAMS)
+                .startInnerElement("streamhost", NamespaceURIs.XEP0065_SOCKS5_BYTESTREAMS)
+                .addAttribute("host", proxyAddress.getHostName()).addAttribute("jid", jid.getFullQualifiedName())
+                .addAttribute("port", Integer.toString(proxyAddress.getPort())).build();
 
         StanzaAssert.assertEquals(expected, response);
     }
-    
+
     @Test
     public void handleGetDefaultAddress() throws BindException, XMLSemanticError {
         proxyAddress = new InetSocketAddress(12345);
         handler = new Socks5IqHandler(jid, proxyAddress, connectionsRegistry);
-        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext);
+        List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, null);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
-        
-        Stanza expected = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID())
-        .startInnerElement("query", NamespaceURIs.XEP0065_SOCKS5_BYTESTREAMS)
-        .startInnerElement("streamhost", NamespaceURIs.XEP0065_SOCKS5_BYTESTREAMS)
-        .addAttribute("host", jid.getFullQualifiedName())
-        .addAttribute("jid", jid.getFullQualifiedName())
-        .addAttribute("port", Integer.toString(proxyAddress.getPort()))
-        .build();
-        
+
+        Stanza expected = StanzaBuilder
+                .createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID())
+                .startInnerElement("query", NamespaceURIs.XEP0065_SOCKS5_BYTESTREAMS)
+                .startInnerElement("streamhost", NamespaceURIs.XEP0065_SOCKS5_BYTESTREAMS)
+                .addAttribute("host", jid.getFullQualifiedName()).addAttribute("jid", jid.getFullQualifiedName())
+                .addAttribute("port", Integer.toString(proxyAddress.getPort())).build();
+
         StanzaAssert.assertEquals(expected, response);
     }
-    
-    
 
     @Test
     public void handleSetActivate() throws BindException, XMLSemanticError {
-        IQStanza request = (IQStanza) IQStanza.getWrapper(StanzaBuilder.createIQStanza(FROM, TO, IQStanzaType.SET, "id1")
-            .startInnerElement("query", NamespaceURIs.XEP0065_SOCKS5_BYTESTREAMS)
-            .addAttribute("sid", "sid1")
-            .startInnerElement("activate", NamespaceURIs.XEP0065_SOCKS5_BYTESTREAMS)
-            .addText(TARGET.getFullQualifiedName())
-            .build());
+        IQStanza request = (IQStanza) IQStanza.getWrapper(StanzaBuilder
+                .createIQStanza(FROM, TO, IQStanzaType.SET, "id1")
+                .startInnerElement("query", NamespaceURIs.XEP0065_SOCKS5_BYTESTREAMS).addAttribute("sid", "sid1")
+                .startInnerElement("activate", NamespaceURIs.XEP0065_SOCKS5_BYTESTREAMS)
+                .addText(TARGET.getFullQualifiedName()).build());
 
         String hash = DigestUtils.shaHex("sid1" + FROM.getFullQualifiedName() + TARGET.getFullQualifiedName());
         when(connectionsRegistry.activate(hash)).thenReturn(true);
-        
-        List<Stanza> responses = handler.handleSet(request, serverRuntimeContext, sessionContext);
+
+        List<Stanza> responses = handler.handleSet(request, serverRuntimeContext, sessionContext, null);
         Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
-        
-        Stanza expected = StanzaBuilder.createIQStanza(TO, FROM, IQStanzaType.RESULT, "id1")
-            .build();
+
+        Stanza expected = StanzaBuilder.createIQStanza(TO, FROM, IQStanzaType.RESULT, "id1").build();
 
         StanzaAssert.assertEquals(expected, response);
-        
+
         verify(connectionsRegistry).activate(hash);
     }
 

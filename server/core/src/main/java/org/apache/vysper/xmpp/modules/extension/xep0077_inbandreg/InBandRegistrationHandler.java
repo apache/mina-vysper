@@ -30,6 +30,7 @@ import org.apache.vysper.xmpp.authentication.AccountCreationException;
 import org.apache.vysper.xmpp.authentication.AccountManagement;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
@@ -66,7 +67,7 @@ public class InBandRegistrationHandler extends DefaultIQHandler {
     }
 
     @Override
-    protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, StanzaBroker stanzaBroker) {
         if(sessionContext.getState().equals(SessionState.STARTED)
                 || sessionContext.getState().equals(SessionState.ENCRYPTED) 
                 || sessionContext.getState().equals(SessionState.AUTHENTICATED)) {
@@ -92,7 +93,7 @@ public class InBandRegistrationHandler extends DefaultIQHandler {
     }
     
     @Override
-    protected List<Stanza> handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, StanzaBroker stanzaBroker) {
         //        <iq type='set' id='reg2'>
         //        <query xmlns='jabber:iq:register'>
         //          <username>bill</username>

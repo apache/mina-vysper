@@ -50,6 +50,7 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequ
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
 import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -137,7 +138,7 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements C
             serviceConfiguration.setLeafNodeStorageProvider(leafNodeStorageProvider);
         }
 
-        ComponentStanzaProcessor processor = new ComponentStanzaProcessor(serverRuntimeContext);
+        ComponentStanzaProcessor processor = serverRuntimeContext.createComponentStanzaProcessor();
         addPubsubHandlers(processor);
         addPubsubOwnerHandlers(processor);
         processor
@@ -168,9 +169,9 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements C
      * Implements the getServerInfosFor method from the {@link ServerInfoRequestListener} interface.
      * Makes this modules available via disco#info as "pubsub service" in the pubsub namespace.
      * 
-     * @see ComponentInfoRequestListener#getComponentInfosFor(org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest) 
+     * @see ComponentInfoRequestListener#getComponentInfosFor(InfoRequest, StanzaBroker) 
      */
-    public List<InfoElement> getComponentInfosFor(InfoRequest request) throws ServiceDiscoveryRequestException {
+    public List<InfoElement> getComponentInfosFor(InfoRequest request, StanzaBroker stanzaBroker) throws ServiceDiscoveryRequestException {
         if (!EntityUtils.isAddressingServer(fullDomain, request.getTo()))
             return null;
 
@@ -203,9 +204,9 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements C
      * Implements the getItemsFor method from the {@link ItemRequestListener} interface.
      * Makes this modules available via disco#items and returns the associated nodes.
      * 
-     * @see ItemRequestListener#getItemsFor(InfoRequest)
+     * @see ItemRequestListener#getItemsFor(InfoRequest, StanzaBroker)
      */
-    public List<Item> getItemsFor(InfoRequest request) throws ServiceDiscoveryRequestException {
+    public List<Item> getItemsFor(InfoRequest request, StanzaBroker stanzaBroker) throws ServiceDiscoveryRequestException {
         CollectionNode root = serviceConfiguration.getRootNode();
         List<Item> items = null;
 

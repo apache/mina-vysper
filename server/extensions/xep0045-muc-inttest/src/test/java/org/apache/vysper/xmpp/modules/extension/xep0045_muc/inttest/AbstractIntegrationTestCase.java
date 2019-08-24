@@ -94,7 +94,7 @@ public abstract class AbstractIntegrationTestCase extends TestCase {
     private void startServer(int port) throws Exception {
         StorageProviderRegistry providerRegistry = new MemoryStorageProviderRegistry();
 
-        AccountManagement accountManagement = (AccountManagement) providerRegistry.retrieve(AccountManagement.class);
+        AccountManagement accountManagement = providerRegistry.retrieve(AccountManagement.class);
         accountManagement.addUser(EntityImpl.parseUnchecked(TEST_USERNAME1), TEST_PASSWORD1);
         accountManagement.addUser(EntityImpl.parseUnchecked(TEST_USERNAME2), TEST_PASSWORD2);
 

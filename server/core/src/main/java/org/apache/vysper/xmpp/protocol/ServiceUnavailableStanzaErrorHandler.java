@@ -46,7 +46,7 @@ public class ServiceUnavailableStanzaErrorHandler implements StanzaHandler {
     }
 
     public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
-            boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder)
+										   boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder, StanzaBroker stanzaBroker)
             throws ProtocolException {
         if (!(stanza instanceof XMPPCoreStanza)) {
             stanza = XMPPCoreStanza.getWrapper(stanza);

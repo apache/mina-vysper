@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -95,7 +96,7 @@ public class XmppPingIQHandler extends DefaultIQHandler {
     }
 
     @Override
-    protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext) {
+    protected List<Stanza> handleGet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, StanzaBroker stanzaBroker) {
 
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(stanza.getTo(), stanza.getFrom(),
                 IQStanzaType.RESULT, stanza.getID());
@@ -105,7 +106,7 @@ public class XmppPingIQHandler extends DefaultIQHandler {
     
     @Override
     protected List<Stanza> handleResult(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
-            SessionContext sessionContext) {
+										SessionContext sessionContext, StanzaBroker stanzaBroker) {
         List<XmppPinger> pingersCopy = new ArrayList<XmppPinger>(pingers);
         for (XmppPinger pinger : pingersCopy) {
             try {

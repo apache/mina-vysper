@@ -19,8 +19,6 @@
  */
 package org.apache.vysper.xmpp.protocol;
 
-import junit.framework.TestCase;
-
 import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -33,6 +31,8 @@ import org.apache.vysper.xmpp.server.XMPPVersion;
 import org.apache.vysper.xmpp.server.response.ServerResponses;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+
+import junit.framework.TestCase;
 
 /**
  */
@@ -53,13 +53,13 @@ public abstract class AbstractProtocolStateTestCase extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        protocolWorker = new ProtocolWorker();
         StanzaReceiverRelay receiverRelay = new StanzaReceiverRelay();
+        protocolWorker = new ProtocolWorker(receiverRelay);
         serverRuntimeContext = new DefaultServerRuntimeContext(serverEnitity, receiverRelay);
         receiverRelay.setServerRuntimeContext(serverRuntimeContext);
         serverRuntimeContext.addDictionary(new BaseStreamStanzaDictionary());
         sessionStateHolder = new SessionStateHolder();
-        sessionContext = new TestSessionContext(serverRuntimeContext, sessionStateHolder);
+        sessionContext = new TestSessionContext(serverRuntimeContext, sessionStateHolder, receiverRelay);
         sessionContext.setSessionState(getDefaultState());
     }
 

@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.protocol.worker;
 
+import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.core.base.handler.StreamStartHandler;
 import org.apache.vysper.xmpp.modules.core.base.handler.XMLPrologHandler;
 import org.apache.vysper.xmpp.protocol.ResponseWriter;
@@ -34,7 +35,11 @@ import org.apache.vysper.xmpp.stanza.Stanza;
  */
 public class InitiatedProtocolWorker extends AbstractStateAwareProtocolWorker {
 
-    @Override
+	public InitiatedProtocolWorker(StanzaRelay stanzaRelay) {
+		super(stanzaRelay);
+	}
+
+	@Override
     public SessionState getHandledState() {
         return SessionState.INITIATED;
     }

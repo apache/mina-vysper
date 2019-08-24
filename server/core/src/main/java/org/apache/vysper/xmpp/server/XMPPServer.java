@@ -175,9 +175,9 @@ public class XMPPServer {
 
         EntityImpl serverEntity = new EntityImpl(null, serverDomain, null);
 
-        AccountManagement accountManagement = (AccountManagement) storageProviderRegistry
+        AccountManagement accountManagement = storageProviderRegistry
                 .retrieve(AccountManagement.class);
-        OfflineStanzaReceiver offlineReceiver = (OfflineStanzaReceiver) storageProviderRegistry.retrieve(OfflineStorageProvider.class);
+        OfflineStanzaReceiver offlineReceiver = storageProviderRegistry.retrieve(OfflineStorageProvider.class);
         DeliveringInternalInboundStanzaRelay internalStanzaRelay = new DeliveringInternalInboundStanzaRelay(serverEntity,
                 resourceRegistry, accountManagement,offlineReceiver);
         DeliveringExternalInboundStanzaRelay externalStanzaRelay = new DeliveringExternalInboundStanzaRelay();
@@ -197,6 +197,7 @@ public class XMPPServer {
 
         stanzaRelayBroker.setServerRuntimeContext(serverRuntimeContext);
         internalStanzaRelay.setServerRuntimeContext(serverRuntimeContext);
+        internalStanzaRelay.setStanzaRelay(stanzaRelayBroker);
         externalStanzaRelay.setServerRuntimeContext(serverRuntimeContext);
 
         final LogStorageProvider logStorageProvider =

@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.modules.core.base.handler;
 import org.apache.vysper.xmpp.modules.core.im.handler.PresenceHandlerBaseTestCase;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -34,22 +35,26 @@ public class RelayingIQHandlerTestCase extends PresenceHandlerBaseTestCase {
     protected RelayingIQHandler relayingIQHandler = new RelayingIQHandler();
 
     public void testIQClientToClient_Outbound_NotSubscribed() {
-        Stanza iqStanza = StanzaBuilder.createIQStanza(initiatingUser.getEntityFQ(), unrelatedUser.getEntityFQ(),
-                IQStanzaType.GET, "test").startInnerElement("mandatory", NamespaceURIs.JABBER_CLIENT).build();
+        Stanza iqStanza = StanzaBuilder
+                .createIQStanza(initiatingUser.getEntityFQ(), unrelatedUser.getEntityFQ(), IQStanzaType.GET, "test")
+                .startInnerElement("mandatory", NamespaceURIs.JABBER_CLIENT).build();
 
-        ResponseStanzaContainer stanzaContainer = relayingIQHandler.execute(iqStanza, sessionContext
-                .getServerRuntimeContext(), true, sessionContext, null /*don't we have as sessionStateHolder?*/);
+        ResponseStanzaContainer stanzaContainer = relayingIQHandler.execute(iqStanza,
+                sessionContext.getServerRuntimeContext(), true, sessionContext, null, new SimpleStanzaBroker(
+                        sessionContext.getStanzaRelay(), sessionContext)/* don't we have as sessionStateHolder? */);
         XMPPCoreStanza response = XMPPCoreStanza.getWrapper(stanzaContainer.getUniqueResponseStanza());
         assertNotNull(response);
         assertTrue(response.isError());
     }
 
     public void testIQClientToClient_Outbound() {
-        Stanza iqStanza = StanzaBuilder.createIQStanza(initiatingUser.getEntityFQ(), subscribed_FROM.getEntityFQ(),
-                IQStanzaType.GET, "test").startInnerElement("mandatory", NamespaceURIs.JABBER_CLIENT).build();
+        Stanza iqStanza = StanzaBuilder
+                .createIQStanza(initiatingUser.getEntityFQ(), subscribed_FROM.getEntityFQ(), IQStanzaType.GET, "test")
+                .startInnerElement("mandatory", NamespaceURIs.JABBER_CLIENT).build();
 
-        ResponseStanzaContainer stanzaContainer = relayingIQHandler.execute(iqStanza, sessionContext
-                .getServerRuntimeContext(), true, sessionContext, null /*don't we have as sessionStateHolder?*/);
+        ResponseStanzaContainer stanzaContainer = relayingIQHandler.execute(iqStanza,
+                sessionContext.getServerRuntimeContext(), true, sessionContext, null, new SimpleStanzaBroker(
+                        sessionContext.getStanzaRelay(), sessionContext) /* don't we have as sessionStateHolder? */);
         assertFalse(stanzaContainer.hasResponse());
         Stanza deliveredStanza = subscribed_FROM.getNextStanza();
         assertTrue(deliveredStanza.getVerifier().onlySubelementEquals("mandatory", NamespaceURIs.JABBER_CLIENT));
@@ -57,22 +62,26 @@ public class RelayingIQHandlerTestCase extends PresenceHandlerBaseTestCase {
     }
 
     public void testIQClientToClient_Inbound_NoTO() {
-        Stanza iqStanza = StanzaBuilder.createIQStanza(subscribed_FROM.getEntityFQ(), initiatingUser.getEntityFQ(),
-                IQStanzaType.GET, "test").startInnerElement("mandatory", NamespaceURIs.JABBER_CLIENT).build();
+        Stanza iqStanza = StanzaBuilder
+                .createIQStanza(subscribed_FROM.getEntityFQ(), initiatingUser.getEntityFQ(), IQStanzaType.GET, "test")
+                .startInnerElement("mandatory", NamespaceURIs.JABBER_CLIENT).build();
 
-        ResponseStanzaContainer stanzaContainer = relayingIQHandler.execute(iqStanza, sessionContext
-                .getServerRuntimeContext(), false, sessionContext, null /*don't we have as sessionStateHolder?*/);
+        ResponseStanzaContainer stanzaContainer = relayingIQHandler.execute(iqStanza,
+                sessionContext.getServerRuntimeContext(), false, sessionContext, null, new SimpleStanzaBroker(
+                        sessionContext.getStanzaRelay(), sessionContext)/* don't we have as sessionStateHolder? */);
         XMPPCoreStanza response = XMPPCoreStanza.getWrapper(stanzaContainer.getUniqueResponseStanza());
         assertNotNull(response);
         assertTrue(response.isError());
     }
 
     public void testIQClientToClient_Inbound() {
-        Stanza iqStanza = StanzaBuilder.createIQStanza(subscribed_TO.getEntityFQ(), initiatingUser.getEntityFQ(),
-                IQStanzaType.GET, "test").startInnerElement("mandatory", NamespaceURIs.JABBER_CLIENT).build();
+        Stanza iqStanza = StanzaBuilder
+                .createIQStanza(subscribed_TO.getEntityFQ(), initiatingUser.getEntityFQ(), IQStanzaType.GET, "test")
+                .startInnerElement("mandatory", NamespaceURIs.JABBER_CLIENT).build();
 
-        ResponseStanzaContainer stanzaContainer = relayingIQHandler.execute(iqStanza, sessionContext
-                .getServerRuntimeContext(), false, sessionContext, null /*don't we have as sessionStateHolder?*/);
+        ResponseStanzaContainer stanzaContainer = relayingIQHandler.execute(iqStanza,
+                sessionContext.getServerRuntimeContext(), false, sessionContext, null, new SimpleStanzaBroker(
+                        sessionContext.getStanzaRelay(), sessionContext)/* don't we have as sessionStateHolder? */);
         assertFalse(stanzaContainer.hasResponse());
         Stanza deliveredStanza = sessionContext.getNextRecordedResponse();
         assertTrue(deliveredStanza.getVerifier().onlySubelementEquals("mandatory", NamespaceURIs.JABBER_CLIENT));

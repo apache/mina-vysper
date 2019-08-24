@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLElementVerifier;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
@@ -62,17 +63,17 @@ public class DefaultMessageHandler extends XMPPCoreStanzaHandler {
 
     @Override
     protected List<Stanza> executeCore(XMPPCoreStanza coreStanza, ServerRuntimeContext serverRuntimeContext,
-                                 boolean isOutboundStanza, SessionContext sessionContext) {
+                                       boolean isOutboundStanza, SessionContext sessionContext, StanzaBroker stanzaBroker) {
         MessageStanza stanza = (MessageStanza) coreStanza;
 
-        return executeMessageLogic(stanza, serverRuntimeContext, sessionContext);
+        return executeMessageLogic(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
     }
 
     /**
      * must be overridden by specialized message handlers
      */
     protected List<Stanza> executeMessageLogic(MessageStanza stanza, ServerRuntimeContext serverRuntimeContext,
-            SessionContext sessionContext) {
+											   SessionContext sessionContext, StanzaBroker stanzaBroker) {
         // this is default behavior and must be replaced by overrider
         return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
                 StanzaErrorType.CANCEL, null, null, null));

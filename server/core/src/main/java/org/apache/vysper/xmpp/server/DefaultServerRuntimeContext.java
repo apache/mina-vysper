@@ -47,6 +47,7 @@ import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaHandlerLookup;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.components.Component;
+import org.apache.vysper.xmpp.server.components.ComponentStanzaProcessor;
 import org.apache.vysper.xmpp.server.s2s.DefaultXMPPServerConnectorRegistry;
 import org.apache.vysper.xmpp.server.s2s.XMPPServerConnectorRegistry;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -72,12 +73,12 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     /**
      * directory where all available processors for incoming stanzas are located
      */
-    private StanzaHandlerLookup stanzaHandlerLookup;
+    private final StanzaHandlerLookup stanzaHandlerLookup;
 
     /**
      * the 'domain' the server is directly serving for
      */
-    private Entity serverEntity;
+    private final Entity serverEntity;
 
     /**
      * feature configuration
@@ -99,12 +100,12 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     /**
      * 'input stream': receives stanzas issued by client sessions to be handled by the server
      */
-    private StanzaProcessor stanzaProcessor = new ProtocolWorker();
+    private final StanzaProcessor stanzaProcessor;
 
     /**
      * 'output stream': receives stanzas issued by a session, which are going to other sessions/servers
      */
-    private StanzaRelay stanzaRelay;
+    private final StanzaRelay stanzaRelay;
 
     /**
      * administrate and query resources and sessions
@@ -116,7 +117,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
      */
     private LatestPresenceCache presenceCache = new SimplePresenceCache();
 
-    private XMPPServerConnectorRegistry serverConnectorRegistry = new DefaultXMPPServerConnectorRegistry(this);
+    private final XMPPServerConnectorRegistry serverConnectorRegistry;
     
     /**
      * holds the storage services
@@ -140,7 +141,9 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay) {
         this.serverEntity = serverEntity;
         this.stanzaRelay = stanzaRelay;
+        this.stanzaProcessor = new ProtocolWorker(stanzaRelay);
         this.resourceRegistry = new DefaultResourceRegistry();
+        this.serverConnectorRegistry = new DefaultXMPPServerConnectorRegistry(this, stanzaRelay);
         this.stanzaHandlerLookup = new StanzaHandlerLookup(this);
         this.eventBus = new SimpleEventBus();
     }
@@ -383,6 +386,11 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         if (component == null)
             return null;
         return component.getStanzaProcessor();
+    }
+
+    @Override
+    public ComponentStanzaProcessor createComponentStanzaProcessor() {
+        return new ComponentStanzaProcessor(stanzaRelay);
     }
 
 

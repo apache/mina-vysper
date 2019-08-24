@@ -38,6 +38,7 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.components.Component;
@@ -121,7 +122,7 @@ public class Socks5Module extends DefaultDiscoAwareModule implements Component, 
         
         fullDomain = EntityUtils.createComponentDomain(subdomain, serverRuntimeContext);
         
-        stanzaProcessor = new ComponentStanzaProcessor(serverRuntimeContext);
+        stanzaProcessor = serverRuntimeContext.createComponentStanzaProcessor();
         stanzaProcessor.addHandler(new Socks5IqHandler(fullDomain, proxyAddress, connectionsRegistry));
         
         try {
@@ -194,7 +195,7 @@ public class Socks5Module extends DefaultDiscoAwareModule implements Component, 
     /**
      * {@inheritDoc}
      */
-    public List<Item> getItemsFor(InfoRequest request) throws ServiceDiscoveryRequestException {
+    public List<Item> getItemsFor(InfoRequest request, StanzaBroker stanzaBroker) throws ServiceDiscoveryRequestException {
         List<Item> componentItem = new ArrayList<Item>();
         componentItem.add(new Item(fullDomain));
         return componentItem;
@@ -203,7 +204,7 @@ public class Socks5Module extends DefaultDiscoAwareModule implements Component, 
     /**
      * {@inheritDoc}
      */
-    public List<InfoElement> getComponentInfosFor(InfoRequest request) throws ServiceDiscoveryRequestException {
+    public List<InfoElement> getComponentInfosFor(InfoRequest request, StanzaBroker stanzaBroker) throws ServiceDiscoveryRequestException {
         return COMPONENT_INFO;
     }
 

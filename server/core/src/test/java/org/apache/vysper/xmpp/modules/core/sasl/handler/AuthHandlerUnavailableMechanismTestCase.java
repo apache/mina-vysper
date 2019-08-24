@@ -63,7 +63,7 @@ public class AuthHandlerUnavailableMechanismTestCase extends TestCase {
         AuthHandler authHandler = new AuthHandler();
         try {
             ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext
-                    .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
+                    .getServerRuntimeContext(), true, sessionContext, sessionStateHolder, null);
 
             fail("should raise exception");
         } catch (RuntimeException e) {
@@ -79,7 +79,7 @@ public class AuthHandlerUnavailableMechanismTestCase extends TestCase {
         AuthHandler authHandler = new AuthHandler();
         try {
             ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext
-                    .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
+                    .getServerRuntimeContext(), true, sessionContext, sessionStateHolder, null);
 
             fail("should raise exception");
         } catch (RuntimeException e) {

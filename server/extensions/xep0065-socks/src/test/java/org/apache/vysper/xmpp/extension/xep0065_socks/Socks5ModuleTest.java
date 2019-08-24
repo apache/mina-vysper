@@ -53,21 +53,26 @@ import org.mockito.Mockito;
 public class Socks5ModuleTest extends Mockito {
 
     private static final Entity SERVER = EntityImpl.parseUnchecked("vysper.org");
+
     private static final Entity COMPONENT = EntityImpl.parseUnchecked("socks.vysper.org");
+
     private static final Entity FROM = EntityImpl.parseUnchecked("user@vysper.org");
-    
+
     private Socks5Module module = new Socks5Module("socks");
-    
+
     private ServerRuntimeContext serverRuntimeContext = mock(ServerRuntimeContext.class);
+
     private Socks5ConnectionsRegistry connectionsRegistry = mock(Socks5ConnectionsRegistry.class);
-    
+
     @Before
     public void before() {
         when(serverRuntimeContext.getServerEntity()).thenReturn(SERVER);
-        
+        ComponentStanzaProcessor componentStanzaProcessor = mock(ComponentStanzaProcessor.class);
+        when(serverRuntimeContext.createComponentStanzaProcessor()).thenReturn(componentStanzaProcessor);
+
         module.setConnectionsRegistry(connectionsRegistry);
     }
-    
+
     @Test
     public void getName() {
         Assert.assertNotNull(module.getName());
@@ -77,23 +82,23 @@ public class Socks5ModuleTest extends Mockito {
     public void getVersion() {
         Assert.assertNotNull(module.getVersion());
     }
-    
+
     @Test
     public void getSubdomain() {
         Assert.assertEquals("socks", module.getSubdomain());
     }
-    
-    @Test(expected=IllegalArgumentException.class)
+
+    @Test(expected = IllegalArgumentException.class)
     public void nullSubdomain() {
         new Socks5Module(null);
     }
-    
-    @Test(expected=IllegalArgumentException.class)
+
+    @Test(expected = IllegalArgumentException.class)
     public void emptySubdomain() {
         new Socks5Module("");
     }
-    
-    @Test(expected=IllegalArgumentException.class)
+
+    @Test(expected = IllegalArgumentException.class)
     public void fullDomain() {
         new Socks5Module("socks.vysper.org");
     }
@@ -104,72 +109,73 @@ public class Socks5ModuleTest extends Mockito {
         module.initialize(serverRuntimeContext);
         Assert.assertTrue(module.getStanzaProcessor() instanceof ComponentStanzaProcessor);
     }
-    
+
     @Test
     public void discoItems() throws Exception {
         ServiceCollector collector = new ServiceCollector();
-        
-        when(serverRuntimeContext.getServerRuntimeContextService(ServiceDiscoveryRequestListenerRegistry.SERVICE_DISCOVERY_REQUEST_LISTENER_REGISTRY))
-        .thenReturn(collector);
-        
+
+        when(serverRuntimeContext.getServerRuntimeContextService(
+                ServiceDiscoveryRequestListenerRegistry.SERVICE_DISCOVERY_REQUEST_LISTENER_REGISTRY))
+                        .thenReturn(collector);
+
         module = new Socks5Module("socks");
-        
+
         module.initialize(serverRuntimeContext);
-        
+
         InfoRequest infoRequest = new InfoRequest(FROM, SERVER, null, "id1");
-        List<Item> items = collector.processItemRequest(infoRequest);
-        
-        List<Item> expected = Arrays.asList(new Item(COMPONENT)); 
+        List<Item> items = collector.processItemRequest(infoRequest, null);
+
+        List<Item> expected = Arrays.asList(new Item(COMPONENT));
         Assert.assertEquals(expected, items);
     }
-    
+
     @Test
     public void discoComponentInfo() throws Exception {
         ServiceCollector collector = new ServiceCollector();
-        
-        when(serverRuntimeContext.getServerRuntimeContextService(ServiceDiscoveryRequestListenerRegistry.SERVICE_DISCOVERY_REQUEST_LISTENER_REGISTRY))
-        .thenReturn(collector);
-        
+
+        when(serverRuntimeContext.getServerRuntimeContextService(
+                ServiceDiscoveryRequestListenerRegistry.SERVICE_DISCOVERY_REQUEST_LISTENER_REGISTRY))
+                        .thenReturn(collector);
+
         module = new Socks5Module("socks");
-        
+
         module.initialize(serverRuntimeContext);
-        
+
         InfoRequest infoRequest = new InfoRequest(FROM, COMPONENT, null, "id1");
-        List<InfoElement> infoElements = collector.processComponentInfoRequest(infoRequest);
-        
-        
-        List<InfoElement> expected = Arrays.asList(new Identity("proxy", "bytestreams", "File Transfer Relay"), 
-              new Feature(NamespaceURIs.XEP0065_SOCKS5_BYTESTREAMS)); 
+        List<InfoElement> infoElements = collector.processComponentInfoRequest(infoRequest, null);
+
+        List<InfoElement> expected = Arrays.asList(new Identity("proxy", "bytestreams", "File Transfer Relay"),
+                new Feature(NamespaceURIs.XEP0065_SOCKS5_BYTESTREAMS));
         Assert.assertEquals(expected, infoElements);
     }
-    
+
     @Test
     public void proxy() throws Exception {
         int port = findFreePort();
-        
+
         InetSocketAddress address = new InetSocketAddress(port);
-        
+
         module = new Socks5Module("socks", address);
         module.initialize(serverRuntimeContext);
-        
+
         Thread.sleep(200);
-        
+
         assertSocket(port);
     }
-    
+
     @Test
     public void proxyDefaultAddress() throws Exception {
         int port = findFreePort();
 
         module = new Socks5Module("socks", new InetSocketAddress(port));
         module.initialize(serverRuntimeContext);
-        
+
         Thread.sleep(200);
 
         assertSocket(port);
     }
 
-    @Test(expected=RuntimeException.class)
+    @Test(expected = RuntimeException.class)
     public void proxyAddressInUse() throws Exception {
         int port = findFreePort();
 
@@ -177,12 +183,11 @@ public class Socks5ModuleTest extends Mockito {
 
         module = new Socks5Module("socks", new InetSocketAddress(port));
         module.initialize(serverRuntimeContext);
-        
+
         module.close();
         ss.close();
     }
 
-    
     private int findFreePort() throws IOException, SocketException {
         ServerSocket ss = new ServerSocket(0);
         ss.setReuseAddress(true);
@@ -195,10 +200,10 @@ public class Socks5ModuleTest extends Mockito {
         Socket socket = new Socket("127.0.0.1", port);
         socket.close();
     }
-    
+
     @After
     public void after() {
-        if(module != null) {
+        if (module != null) {
             module.close();
         }
     }

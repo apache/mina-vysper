@@ -19,15 +19,16 @@
  */
 package org.apache.vysper.xmpp.modules.servicediscovery.handler;
 
+import static org.mockito.Mockito.mock;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import junit.framework.TestCase;
 
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceCollector;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Identity;
@@ -40,7 +41,9 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
@@ -49,13 +52,15 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 import org.apache.vysper.xmpp.stanza.dataforms.DataForm;
 
+import junit.framework.TestCase;
+
 /**
  */
 public class ExtendedDiscoInfoTestCase extends TestCase {
 
     public void testExtendedInfo() throws EntityFormatException {
 
-        // test if the data form is correctly added to the disco info response 
+        // test if the data form is correctly added to the disco info response
 
         ServiceCollector serviceCollector = new ServiceCollector();
         serviceCollector.addInfoRequestListener(new InfoRequestListener() {
@@ -74,18 +79,21 @@ public class ExtendedDiscoInfoTestCase extends TestCase {
         });
 
         DefaultServerRuntimeContext runtimeContext = new DefaultServerRuntimeContext(EntityImpl.parse("vysper.org"),
-                null);
+                mock(StanzaRelay.class));
         runtimeContext.registerServerRuntimeContextService(serviceCollector);
 
         DiscoInfoIQHandler infoIQHandler = new DiscoInfoIQHandler();
 
-        StanzaBuilder request = StanzaBuilder.createIQStanza(EntityImpl.parse("user@vysper.org"), EntityImpl
-                .parse("info@vysper.org"), IQStanzaType.GET, "1");
+        StanzaBuilder request = StanzaBuilder.createIQStanza(EntityImpl.parse("user@vysper.org"),
+                EntityImpl.parse("info@vysper.org"), IQStanzaType.GET, "1");
 
         IQStanza finalStanza = (IQStanza) XMPPCoreStanza.getWrapper(request.build());
 
-        List<Stanza> resultStanza = infoIQHandler.handleGet(finalStanza, runtimeContext, new TestSessionContext(
-                runtimeContext, new SessionStateHolder()));
+        SessionContext sessionContext = new TestSessionContext(runtimeContext, new SessionStateHolder(),
+                runtimeContext.getStanzaRelay());
+
+        List<Stanza> resultStanza = infoIQHandler.handleGet(finalStanza, runtimeContext, sessionContext,
+                new SimpleStanzaBroker(runtimeContext.getStanzaRelay(), sessionContext));
 
         ResponseStanzaContainer responseStanzaContainer = new ResponseStanzaContainerImpl(resultStanza);
         assertTrue(responseStanzaContainer.getUniqueResponseStanza().getVerifier().onlySubelementEquals("query",

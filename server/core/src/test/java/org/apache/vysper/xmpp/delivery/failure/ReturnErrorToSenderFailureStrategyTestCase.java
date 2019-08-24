@@ -27,8 +27,8 @@ import org.apache.vysper.StanzaAssert;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.stanza.MessageStanzaType;
 import org.apache.vysper.xmpp.stanza.PresenceStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -48,8 +48,8 @@ public class ReturnErrorToSenderFailureStrategyTestCase extends Mockito {
     private static final String BODY = "Hello world";
     private static final String ERROR_TEXT = "Error!";
     
-    private StanzaRelay stanzaRelay = mock(StanzaRelay.class);
-    private ReturnErrorToSenderFailureStrategy strategy = new ReturnErrorToSenderFailureStrategy(stanzaRelay);
+    private StanzaBroker stanzaBroker = mock(StanzaBroker.class);
+    private ReturnErrorToSenderFailureStrategy strategy = new ReturnErrorToSenderFailureStrategy(stanzaBroker);
 
     
     @Test
@@ -70,7 +70,7 @@ public class ReturnErrorToSenderFailureStrategyTestCase extends Mockito {
             .build();
 
         ArgumentCaptor<Stanza> stanzaCaptor = ArgumentCaptor.forClass(Stanza.class);
-        verify(stanzaRelay).relay(eq(FROM), stanzaCaptor.capture(), eq(IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY));
+        verify(stanzaBroker).write(eq(FROM), stanzaCaptor.capture(), eq(IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY));
         StanzaAssert.assertEquals(expected, stanzaCaptor.getValue());
     }
 
@@ -91,7 +91,7 @@ public class ReturnErrorToSenderFailureStrategyTestCase extends Mockito {
             .build();
 
         ArgumentCaptor<Stanza> stanzaCaptor = ArgumentCaptor.forClass(Stanza.class);
-        verify(stanzaRelay).relay(eq(FROM), stanzaCaptor.capture(), eq(IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY));
+        verify(stanzaBroker).write(eq(FROM), stanzaCaptor.capture(), eq(IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY));
         StanzaAssert.assertEquals(expected, stanzaCaptor.getValue());
         
     }
@@ -106,7 +106,7 @@ public class ReturnErrorToSenderFailureStrategyTestCase extends Mockito {
         Stanza expected = StanzaBuilder.createPresenceStanza(TO, FROM, null, UNSUBSCRIBED, null, null).build();
         
         ArgumentCaptor<Stanza> stanzaCaptor = ArgumentCaptor.forClass(Stanza.class);
-        verify(stanzaRelay).relay(eq(FROM), stanzaCaptor.capture(), eq(IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY));
+        verify(stanzaBroker).write(eq(FROM), stanzaCaptor.capture(), eq(IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY));
         StanzaAssert.assertEquals(expected, stanzaCaptor.getValue());        
     }
     
@@ -146,7 +146,7 @@ public class ReturnErrorToSenderFailureStrategyTestCase extends Mockito {
         DeliveryException e = new NoSuchLocalUserException();
         strategy.process(stanza, Arrays.asList(e));
 
-        verifyZeroInteractions(stanzaRelay);
+        verifyZeroInteractions(stanzaBroker);
     }
     
     @Test
@@ -157,7 +157,7 @@ public class ReturnErrorToSenderFailureStrategyTestCase extends Mockito {
 
         strategy.process(stanza, Arrays.asList((DeliveryException)new RemoteServerNotFoundException()));
 
-        verifyZeroInteractions(stanzaRelay);
+        verifyZeroInteractions(stanzaBroker);
     }
     
     @Test
@@ -168,7 +168,7 @@ public class ReturnErrorToSenderFailureStrategyTestCase extends Mockito {
         strategy.process(stanza, Arrays.asList((DeliveryException)new LocalRecipientOfflineException()));
         
         // TODO Update when fully implemented
-        verifyZeroInteractions(stanzaRelay);
+        verifyZeroInteractions(stanzaBroker);
     }
     
     @Test(expected=DeliveryException.class)

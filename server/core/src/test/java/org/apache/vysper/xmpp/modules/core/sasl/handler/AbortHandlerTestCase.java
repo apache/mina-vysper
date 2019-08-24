@@ -82,7 +82,7 @@ public class AbortHandlerTestCase extends TestCase {
         AuthHandler authHandler = new AuthHandler();
         try {
             ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext
-                    .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
+                    .getServerRuntimeContext(), true, sessionContext, sessionStateHolder, null);
             fail("should raise error - no tries left");
         } catch (AuthenticationFailedException e) {
             // test succeeded
@@ -114,7 +114,7 @@ public class AbortHandlerTestCase extends TestCase {
 
         AbortHandler abortHandler = new AbortHandler();
         ResponseStanzaContainer responseContainer = abortHandler.execute(abortStanza, sessionContext
-                .getServerRuntimeContext(), true, sessionContext, sessionStateHolder);
+                .getServerRuntimeContext(), true, sessionContext, sessionStateHolder, null);
         Stanza responseStanza = responseContainer.getUniqueResponseStanza();
         return responseStanza;
     }

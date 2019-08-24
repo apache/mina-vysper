@@ -19,8 +19,8 @@
  */
 package org.apache.vysper.xmpp.delivery.inbound;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
@@ -28,6 +28,7 @@ import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authentication.AccountCreationException;
 import org.apache.vysper.xmpp.authentication.AccountManagement;
+import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
@@ -40,16 +41,17 @@ import org.apache.vysper.xmpp.state.resourcebinding.BindException;
 import org.apache.vysper.xmpp.state.resourcebinding.DefaultResourceRegistry;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import static org.mockito.Mockito.mock;
 
 /**
  */
 public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
 
     protected static final EntityImpl TO_ENTITY = EntityImpl.parseUnchecked("userTo@vysper.org");
+
     protected static final EntityImpl FROM_ENTITY = EntityImpl.parseUnchecked("userFrom@vysper.org");
 
     protected ResourceRegistry resourceRegistry = new DefaultResourceRegistry();
@@ -82,8 +84,9 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
     }
 
     public void testSimpleRelay() throws EntityFormatException, XMLSemanticError, DeliveryException {
-        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(null, null);
+        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(null, mock(StanzaRelay.class));
         stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
+        stanzaRelay.setStanzaRelay(stanzaRelay);
 
         TestSessionContext sessionContext = TestSessionContext.createSessionContext(TO_ENTITY);
         sessionContext.setSessionState(SessionState.AUTHENTICATED);
@@ -118,19 +121,21 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
         }
     }
 
-    public void testRelayToTwoRecepients_DeliverToALL() throws EntityFormatException, XMLSemanticError,
-            DeliveryException, BindException {
-        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(null, null);
+    public void testRelayToTwoRecepients_DeliverToALL()
+            throws EntityFormatException, XMLSemanticError, DeliveryException, BindException {
+        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(null, mock(StanzaRelay.class));
 
         // !! DeliverMessageToHighestPriorityResourcesOnly = FALSE
         serverRuntimeContext.getServerFeatures().setDeliverMessageToHighestPriorityResourcesOnly(false);
 
         stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
+        stanzaRelay.setStanzaRelay(stanzaRelay);
 
         TestSessionContext sessionContextTO_ENTITY_1_prio3 = createSessionForTo(TO_ENTITY, 3); // NON-NEGATIVE
         TestSessionContext sessionContextTO_ENTITY_2_prio0 = createSessionForTo(TO_ENTITY, 0); // NON-NEGATIVE
         TestSessionContext sessionContextTO_ENTITY_3_prio3 = createSessionForTo(TO_ENTITY, 3); // NON-NEGATIVE
-        TestSessionContext sessionContextTO_ENTITY_4_prioMinus = createSessionForTo(TO_ENTITY, -1); // not receiving, negative
+        TestSessionContext sessionContextTO_ENTITY_4_prioMinus = createSessionForTo(TO_ENTITY, -1); // not receiving,
+                                                                                                    // negative
 
         Stanza stanza = StanzaBuilder.createMessageStanza(FROM_ENTITY, TO_ENTITY, "en", "Hello").build();
 
@@ -150,14 +155,15 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
 
     }
 
-    public void testRelayToTwoRecepients_DeliverToHIGHEST() throws EntityFormatException, XMLSemanticError,
-            DeliveryException, BindException {
-        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(null, null);
+    public void testRelayToTwoRecepients_DeliverToHIGHEST()
+            throws EntityFormatException, XMLSemanticError, DeliveryException, BindException {
+        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(null, mock(StanzaRelay.class));
 
         // !! DeliverMessageToHighestPriorityResourcesOnly = TRUE
         serverRuntimeContext.getServerFeatures().setDeliverMessageToHighestPriorityResourcesOnly(true);
 
         stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
+        stanzaRelay.setStanzaRelay(stanzaRelay);
 
         TestSessionContext sessionContextTO_ENTITY_1_prio3 = createSessionForTo(TO_ENTITY, 3); // HIGHEST PRIO
         TestSessionContext sessionContextTO_ENTITY_2_prio0 = createSessionForTo(TO_ENTITY, 1); // not receiving
@@ -198,7 +204,7 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
         relay.stop();
         Assert.assertFalse(relay.isRelaying());
         Assert.assertTrue(testExecutorService.isShutdown());
-        
+
         Stanza stanza = StanzaBuilder.createMessageStanza(FROM_ENTITY, TO_ENTITY, "en", "Hello").build();
         try {
             relay.relay(TO_ENTITY, stanza, null);
@@ -210,15 +216,16 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
 
     public void testSequentialDeliveryOneThread() throws DeliveryException, XMLSemanticError, EntityFormatException {
 
-        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(null, null);
+        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(null, mock(StanzaRelay.class));
 
         stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
+        stanzaRelay.setStanzaRelay(stanzaRelay);
         stanzaRelay.setMaxThreadCount(1);
 
         TestSessionContext sessionContext = createSessionForTo(TO_ENTITY, 1);
 
         final int STANZA_COUNT = 1000;
-        
+
         for (int i = 0; i < STANZA_COUNT; i++) {
             Stanza stanza = StanzaBuilder.createMessageStanza(FROM_ENTITY, TO_ENTITY, "en", "" + i).build();
             stanzaRelay.relay(TO_ENTITY, stanza, null);
@@ -227,38 +234,41 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
             final Stanza nextResponse = sessionContext.getNextRecordedResponse(100);
             assertEquals("" + i, nextResponse.getSingleInnerElementsNamed("body").getSingleInnerText().getText());
         }
-        
-    } 
-    
+
+    }
+
     public void testSequentialDeliveryManyThreads() throws DeliveryException, XMLSemanticError, EntityFormatException {
 
-        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(null, null);
+        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(null, mock(StanzaRelay.class));
 
         stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
+        stanzaRelay.setStanzaRelay(stanzaRelay);
         stanzaRelay.setMaxThreadCount(10);
 
         TestSessionContext sessionContext = createSessionForTo(TO_ENTITY, 1);
 
         final int STANZA_COUNT = 1000;
-        
+
         for (int i = 0; i < STANZA_COUNT; i++) {
             Stanza stanza = StanzaBuilder.createMessageStanza(FROM_ENTITY, TO_ENTITY, "en", "" + i).build();
             stanzaRelay.relay(TO_ENTITY, stanza, null);
         }
 
         /*
-        our handling currently does not enforce strict ordered delivery (for example by session). 
-        If stanzas A and B enter the Relay's queue in that order, we only ensure that processing is started in 
-        that order. However, it might as well happen that B is processed in parallel to A, and even exits 
-        before A.
-        */
+         * our handling currently does not enforce strict ordered delivery (for example
+         * by session). If stanzas A and B enter the Relay's queue in that order, we
+         * only ensure that processing is started in that order. However, it might as
+         * well happen that B is processed in parallel to A, and even exits before A.
+         */
 
         for (int i = 0; i < STANZA_COUNT; i++) {
             final Stanza nextResponse = sessionContext.getNextRecordedResponse(100);
-            boolean matches = ("" + i).equals(nextResponse.getSingleInnerElementsNamed("body").getSingleInnerText().getText());
-            if (!matches) return; // succeed
+            boolean matches = ("" + i)
+                    .equals(nextResponse.getSingleInnerElementsNamed("body").getSingleInnerText().getText());
+            if (!matches)
+                return; // succeed
         }
         Assert.fail("delivered in sequence is unexpected, see VYSPER-337");
     }
-    
+
 }

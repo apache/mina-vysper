@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.modules.core.compatibility.jabber_iq_auth.handler
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
@@ -48,7 +49,7 @@ public class AuthCompatibilityIQHandler extends IQHandler {
 
     @Override
     protected List<Stanza> executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza,
-                                          SessionContext sessionContext) {
+										  SessionContext sessionContext, StanzaBroker stanzaBroker) {
 
         // from XEP 78 - http://www.xmpp.org/extensions/xep-0078.html:
         // If the server does not support non-SASL authentication (e.g., because it supports only SASL authentication

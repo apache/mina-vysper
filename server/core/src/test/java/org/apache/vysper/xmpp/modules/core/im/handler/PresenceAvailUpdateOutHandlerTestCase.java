@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.modules.core.im.handler;
 
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
+import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
@@ -35,45 +36,46 @@ public class PresenceAvailUpdateOutHandlerTestCase extends PresenceHandlerBaseTe
     protected PresenceHandler handler = new PresenceHandler();
 
     public void testUpdatedPresence() throws BindException, EntityFormatException {
-        StanzaReceiverRelay receiverRelay = (StanzaReceiverRelay) sessionContext.getServerRuntimeContext()
-                .getStanzaRelay();
+        StanzaReceiverRelay receiverRelay = (StanzaReceiverRelay) sessionContext.getStanzaRelay();
 
         // at first, initial presence
-        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(
-                initiatingUser.getEntityFQ(), null, null, null, null, null).build());
-        handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext);
+        XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(
+                StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), null, null, null, null, null).build());
+        handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext,
+                new SimpleStanzaBroker(receiverRelay, sessionContext));
         assertTrue(0 < receiverRelay.getCountDelivered());
-        resetRecordedStanzas(); // purge recorded 
+        resetRecordedStanzas(); // purge recorded
         assertTrue(0 == receiverRelay.getCountDelivered());
 
         // send update now
         final String showValue = "chatty";
 
-        XMPPCoreStanza updatePresence = XMPPCoreStanza.getWrapper(StanzaBuilder.createPresenceStanza(
-                initiatingUser.getEntityFQ(), null, null, null, showValue, null).build());
-        handler.executeCore(updatePresence, sessionContext.getServerRuntimeContext(), true, sessionContext);
-        // check resource state 
+        XMPPCoreStanza updatePresence = XMPPCoreStanza.getWrapper(StanzaBuilder
+                .createPresenceStanza(initiatingUser.getEntityFQ(), null, null, null, showValue, null).build());
+        handler.executeCore(updatePresence, sessionContext.getServerRuntimeContext(), true, sessionContext,
+                new SimpleStanzaBroker(receiverRelay, sessionContext));
+        // check resource state
         assertEquals(ResourceState.AVAILABLE, getResourceState());
 
         // 3 presence update broadcasts to same session + 2 presence to subscribers
-        assertEquals(3 + 2, ((StanzaReceiverRelay) sessionContext.getServerRuntimeContext().getStanzaRelay())
-                .getCountDelivered());
+        assertEquals(3 + 2, ((StanzaReceiverRelay) sessionContext.getStanzaRelay()).getCountDelivered());
 
         //
-        // check presence broadcasts to resources of same session (self, interested & available)
+        // check presence broadcasts to resources of same session (self, interested &
+        // available)
         //
 
         Stanza initiatorNotification = initiatingUser.getNextStanza();
         assertNotNull(initiatorNotification);
         assertTrue(checkPresence(initiatorNotification, null, initiatingUser.getEntityFQ(), showValue));
-        assertTrue(initiatorNotification.getVerifier().toAttributeEquals(
-                initiatingUser.getEntityFQ().getFullQualifiedName()));
+        assertTrue(initiatorNotification.getVerifier()
+                .toAttributeEquals(initiatingUser.getEntityFQ().getFullQualifiedName()));
 
         Stanza availableResourceNotification = anotherAvailableUser.getNextStanza();
         assertNotNull(availableResourceNotification);
         assertTrue(checkPresence(availableResourceNotification, null, initiatingUser.getEntityFQ(), showValue));
-        assertTrue(availableResourceNotification.getVerifier().toAttributeEquals(
-                anotherAvailableUser.getEntityFQ().getFullQualifiedName()));
+        assertTrue(availableResourceNotification.getVerifier()
+                .toAttributeEquals(anotherAvailableUser.getEntityFQ().getFullQualifiedName()));
         assertNull(anotherAvailableUser.getNextStanza()); // no more stanzas
 
         Stanza interestedResourceNotification = anotherInterestedUser.getNextStanza();
@@ -87,17 +89,25 @@ public class PresenceAvailUpdateOutHandlerTestCase extends PresenceHandlerBaseTe
 
         //
         // check other presences
-        //        
+        //
 
         assertNull(unrelatedUser.getNextStanza()); // does not sent pres to everybody arbitrarily
-        assertTrue(checkPresence(subscribed_FROM.getNextStanza(), null, initiatingUser.getEntityFQ(), showValue)); // pres sent to FROM contacts
+        assertTrue(checkPresence(subscribed_FROM.getNextStanza(), null, initiatingUser.getEntityFQ(), showValue)); // pres
+                                                                                                                   // sent
+                                                                                                                   // to
+                                                                                                                   // FROM
+                                                                                                                   // contacts
         assertNull(subscribed_FROM.getNextStanza()); // no second stanza sent to FROMs
 
         // initial pres and pres probe might come in different order
-        assertTrue(checkPresence(subscribed_BOTH.getNextStanza(), null, initiatingUser.getEntityFQ(), showValue)); // pres sent to BOTH contacts
+        assertTrue(checkPresence(subscribed_BOTH.getNextStanza(), null, initiatingUser.getEntityFQ(), showValue)); // pres
+                                                                                                                   // sent
+                                                                                                                   // to
+                                                                                                                   // BOTH
+                                                                                                                   // contacts
         assertNull(subscribed_BOTH.getNextStanza()); // no second stanza (especially probe) sent to BOTHs
 
-        assertNull(subscribed_TO.getNextStanza()); // pres (especially probe)  NOT sent to TO contacts
+        assertNull(subscribed_TO.getNextStanza()); // pres (especially probe) NOT sent to TO contacts
     }
 
 }

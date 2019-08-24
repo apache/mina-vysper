@@ -26,6 +26,7 @@ import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.ReturnErrorToSenderFailureStrategy;
 import org.apache.vysper.xmpp.modules.roster.persistence.RosterManager;
 import org.apache.vysper.xmpp.modules.roster.persistence.RosterManagerUtils;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
@@ -46,7 +47,7 @@ public class RelayingIQHandler extends IQHandler {
 
     @Override
     protected List<Stanza> executeIQLogic(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, boolean outboundStanza,
-                                          SessionContext sessionContext) {
+                                          SessionContext sessionContext, StanzaBroker stanzaBroker) {
         // only handle IQs which are not directed to the server (vysper.org).
         // in the case where an IQ is send to the server, StanzaHandlerLookup.getIQHandler is responsible for
         // looking it up and we shouldn't have been come here in the first place.
@@ -86,8 +87,8 @@ public class RelayingIQHandler extends IQHandler {
                 }
 
                 Stanza forwardedStanza = StanzaBuilder.createForward(stanza, from, null).build();
-                serverRuntimeContext.getStanzaRelay().relay(to, forwardedStanza,
-                        new ReturnErrorToSenderFailureStrategy(serverRuntimeContext.getStanzaRelay()));
+                stanzaBroker.write(to, forwardedStanza,
+                        new ReturnErrorToSenderFailureStrategy(stanzaBroker));
             } catch (DeliveryException e) {
                 // TODO how to handle this exception?
             }

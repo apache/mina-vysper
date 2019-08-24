@@ -19,7 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0054_vcardtemp;
 
-import junit.framework.Assert;
+import static org.mockito.Mockito.mock;
 
 import org.apache.vysper.StanzaAssert;
 import org.apache.vysper.xml.fragment.Renderer;
@@ -30,6 +30,7 @@ import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -41,48 +42,54 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import junit.framework.Assert;
+
 /**
  */
 public class VcardTempIQHandlerTestCase {
 
     private static final Entity FROM = EntityImpl.parseUnchecked("from@vysper.org");
+
     private static final Entity OTHER = EntityImpl.parseUnchecked("other@vysper.org");
+
     private static final Entity TO = EntityImpl.parseUnchecked("vysper.org");
 
-    private ServerRuntimeContext serverRuntimeContext = Mockito.mock(ServerRuntimeContext.class);
-    private SessionContext sessionContext = Mockito.mock(SessionContext.class);
+    private ServerRuntimeContext serverRuntimeContext = mock(ServerRuntimeContext.class);
+
+    private SessionContext sessionContext = mock(SessionContext.class);
+
     private SessionStateHolder sessionStateHolder = new SessionStateHolder();
-    private VcardTempPersistenceManager persistenceManager = Mockito.mock(VcardTempPersistenceManager.class);
-    
+
+    private StanzaBroker stanzaBroker = mock(StanzaBroker.class);
+
+    private VcardTempPersistenceManager persistenceManager = mock(VcardTempPersistenceManager.class);
+
     private IQStanza verifyStanza = (IQStanza) IQStanza.getWrapper(buildStanza());
-    
+
     private VcardTempIQHandler handler = new VcardTempIQHandler();
-    
+
     private static final XMLElement VCARD = new XMLElementBuilder("vCard", NamespaceURIs.VCARD_TEMP)
-        .startInnerElement("FN", NamespaceURIs.VCARD_TEMP).addText("JeremieMiller").endInnerElement()
-        .startInnerElement("NICKNAME", NamespaceURIs.VCARD_TEMP).addText("jer").endInnerElement()
-        .build();
+            .startInnerElement("FN", NamespaceURIs.VCARD_TEMP).addText("JeremieMiller").endInnerElement()
+            .startInnerElement("NICKNAME", NamespaceURIs.VCARD_TEMP).addText("jer").endInnerElement().build();
 
     private static final XMLElement OTHER_VCARD = new XMLElementBuilder("vCard", NamespaceURIs.VCARD_TEMP)
-    .startInnerElement("FN", NamespaceURIs.VCARD_TEMP).addText("DonaldDuck").endInnerElement()
-    .startInnerElement("NICKNAME", NamespaceURIs.VCARD_TEMP).addText("don").endInnerElement()
-    .build();
-    
-    private static final String VCARD_STRING = new Renderer(VCARD).getComplete(); 
-    private static final String OTHER_VCARD_STRING = new Renderer(OTHER_VCARD).getComplete(); 
-    
-    
+            .startInnerElement("FN", NamespaceURIs.VCARD_TEMP).addText("DonaldDuck").endInnerElement()
+            .startInnerElement("NICKNAME", NamespaceURIs.VCARD_TEMP).addText("don").endInnerElement().build();
+
+    private static final String VCARD_STRING = new Renderer(VCARD).getComplete();
+
+    private static final String OTHER_VCARD_STRING = new Renderer(OTHER_VCARD).getComplete();
+
     @Before
     public void before() {
         Mockito.when(sessionContext.getInitiatingEntity()).thenReturn(FROM);
-        
+
         Mockito.when(persistenceManager.getVcard(FROM)).thenReturn(VCARD_STRING);
         Mockito.when(persistenceManager.getVcard(OTHER)).thenReturn(OTHER_VCARD_STRING);
-        
+
         handler.setPersistenceManager(persistenceManager);
     }
-    
-    
+
     private Stanza buildStanza() {
         return buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "vCard", NamespaceURIs.VCARD_TEMP);
     }
@@ -90,15 +97,12 @@ public class VcardTempIQHandlerTestCase {
     private Stanza buildStanza(String name, String namespaceUri) {
         return buildStanza(name, namespaceUri, "vCard", NamespaceURIs.VCARD_TEMP);
     }
-    
+
     private Stanza buildStanza(String name, String namespaceUri, String innerName, String innerNamespaceUri) {
-        return new StanzaBuilder(name, namespaceUri)
-            .addAttribute("type", "get")
-            .addAttribute("id", "1")
-            .startInnerElement(innerName, innerNamespaceUri)
-            .build();
+        return new StanzaBuilder(name, namespaceUri).addAttribute("type", "get").addAttribute("id", "1")
+                .startInnerElement(innerName, innerNamespaceUri).build();
     }
-    
+
     @Test
     public void nameMustBeIq() {
         Assert.assertEquals("iq", handler.getName());
@@ -133,10 +137,11 @@ public class VcardTempIQHandlerTestCase {
     public void verifyInvalidInnerNamespace() {
         Assert.assertFalse(handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "vCard", "dummy")));
     }
-    
+
     @Test
     public void verifyInvalidInnerName() {
-        Assert.assertFalse(handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "dummy", NamespaceURIs.VCARD_TEMP)));
+        Assert.assertFalse(
+                handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "dummy", NamespaceURIs.VCARD_TEMP)));
     }
 
     @Test
@@ -144,7 +149,7 @@ public class VcardTempIQHandlerTestCase {
         Stanza stanza = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT).build();
         Assert.assertFalse(handler.verify(stanza));
     }
-    
+
     @Test
     public void verifyValidStanza() {
         Assert.assertTrue(handler.verify(verifyStanza));
@@ -157,84 +162,83 @@ public class VcardTempIQHandlerTestCase {
 
     @Test
     public void handleGet() throws BindException, XMLSemanticError {
-        Stanza request = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.GET, "id1")
-            .addPreparedElement(VCARD)
-            .build();
-        
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
+        Stanza request = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.GET, "id1").addPreparedElement(VCARD)
+                .build();
 
-        Stanza expected = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.RESULT, "id1")
-            .addPreparedElement(VCARD)
-            .build();
-        
+        Stanza response = handler
+                .execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker)
+                .getUniqueResponseStanza();
+
+        Stanza expected = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.RESULT, "id1").addPreparedElement(VCARD)
+                .build();
+
         StanzaAssert.assertEquals(expected, response);
     }
-    
+
     @Test
     public void handleGetNonExisting() throws BindException, XMLSemanticError {
         Mockito.when(persistenceManager.getVcard(FROM)).thenReturn(null);
-        
+
         Stanza request = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.GET, "id1")
-        .startInnerElement("vCard", NamespaceURIs.VCARD_TEMP)
-        .build();
-        
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
-        
+                .startInnerElement("vCard", NamespaceURIs.VCARD_TEMP).build();
+
+        Stanza response = handler
+                .execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker)
+                .getUniqueResponseStanza();
+
         Stanza expected = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.RESULT, "id1")
-        .startInnerElement("vCard", NamespaceURIs.VCARD_TEMP)
-        .build();
-        
+                .startInnerElement("vCard", NamespaceURIs.VCARD_TEMP).build();
+
         StanzaAssert.assertEquals(expected, response);
     }
-    
+
     @Test
     public void handleGetForOtherUser() throws BindException, XMLSemanticError {
         Stanza request = StanzaBuilder.createIQStanza(FROM, OTHER, IQStanzaType.GET, "id1")
-            .startInnerElement("vCard", NamespaceURIs.VCARD_TEMP)
-            .build();
-        
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
-        
+                .startInnerElement("vCard", NamespaceURIs.VCARD_TEMP).build();
+
+        Stanza response = handler
+                .execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker)
+                .getUniqueResponseStanza();
+
         Stanza expected = StanzaBuilder.createIQStanza(OTHER, FROM, IQStanzaType.RESULT, "id1")
-        .addPreparedElement(OTHER_VCARD)
-        .build();
-        
+                .addPreparedElement(OTHER_VCARD).build();
+
         StanzaAssert.assertEquals(expected, response);
     }
-    
+
     @Test
     public void handleGetWithoutPersitenceManager() throws BindException, XMLSemanticError {
         handler.setPersistenceManager(null);
-        
+
         Stanza request = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.GET, "id1")
-        .startInnerElement("vCard", NamespaceURIs.VCARD_TEMP)
-        .build();
-        
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
-        
+                .startInnerElement("vCard", NamespaceURIs.VCARD_TEMP).build();
+
+        Stanza response = handler
+                .execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker)
+                .getUniqueResponseStanza();
+
         Stanza expected = StanzaBuilder.createIQStanza(TO, FROM, IQStanzaType.ERROR, "id1")
-        .startInnerElement("vCard", NamespaceURIs.VCARD_TEMP).endInnerElement()
-        .startInnerElement("error", NamespaceURIs.JABBER_CLIENT)
-        .addAttribute("type", "wait")
-        .startInnerElement("internal-server-error", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS)
-        .build();
-        
+                .startInnerElement("vCard", NamespaceURIs.VCARD_TEMP).endInnerElement()
+                .startInnerElement("error", NamespaceURIs.JABBER_CLIENT).addAttribute("type", "wait")
+                .startInnerElement("internal-server-error", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).build();
+
         StanzaAssert.assertEquals(expected, response);
     }
 
     @Test
     public void handleSet() throws BindException, XMLSemanticError {
         Mockito.when(persistenceManager.setVcard(FROM, VCARD_STRING)).thenReturn(true);
-        
-        Stanza request = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.SET, "id1")
-            .addPreparedElement(VCARD)
-            .build();
-        
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
 
-        Stanza expected = StanzaBuilder.createIQStanza(null, FROM, IQStanzaType.RESULT, "id1")
-            .build();
-        
+        Stanza request = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.SET, "id1").addPreparedElement(VCARD)
+                .build();
+
+        Stanza response = handler
+                .execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker)
+                .getUniqueResponseStanza();
+
+        Stanza expected = StanzaBuilder.createIQStanza(null, FROM, IQStanzaType.RESULT, "id1").build();
+
         StanzaAssert.assertEquals(expected, response);
 
         Mockito.verify(persistenceManager).setVcard(FROM, VCARD_STRING);
@@ -243,75 +247,69 @@ public class VcardTempIQHandlerTestCase {
     @Test
     public void handleSetWithoutPersistenceManager() throws BindException, XMLSemanticError {
         handler.setPersistenceManager(null);
-        
-        Stanza request = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.SET, "id1")
-            .addPreparedElement(VCARD)
-            .build();
-        
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
 
-        Stanza expected = StanzaBuilder.createIQStanza(TO, FROM, IQStanzaType.ERROR, "id1")
-            .addPreparedElement(VCARD)
-            .startInnerElement("error", NamespaceURIs.JABBER_CLIENT)
-            .addAttribute("type", "wait")
-            .startInnerElement("internal-server-error", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS)
-            .build();
-        
+        Stanza request = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.SET, "id1").addPreparedElement(VCARD)
+                .build();
+
+        Stanza response = handler
+                .execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker)
+                .getUniqueResponseStanza();
+
+        Stanza expected = StanzaBuilder.createIQStanza(TO, FROM, IQStanzaType.ERROR, "id1").addPreparedElement(VCARD)
+                .startInnerElement("error", NamespaceURIs.JABBER_CLIENT).addAttribute("type", "wait")
+                .startInnerElement("internal-server-error", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).build();
+
         StanzaAssert.assertEquals(expected, response);
     }
 
     @Test
     public void handleSetWithoutVCard() throws BindException, XMLSemanticError {
         Stanza request = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.SET, "id1")
-            .startInnerElement("dummy", NamespaceURIs.VCARD_TEMP)
-            .build();
-        
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
+                .startInnerElement("dummy", NamespaceURIs.VCARD_TEMP).build();
+
+        Stanza response = handler
+                .execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker)
+                .getUniqueResponseStanza();
 
         Stanza expected = StanzaBuilder.createIQStanza(TO, FROM, IQStanzaType.ERROR, "id1")
-            .startInnerElement("dummy", NamespaceURIs.VCARD_TEMP)
-            .endInnerElement()
-            .startInnerElement("error", NamespaceURIs.JABBER_CLIENT)
-            .addAttribute("type", "modify")
-            .startInnerElement("bad-request", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS)
-            .build();
-            
+                .startInnerElement("dummy", NamespaceURIs.VCARD_TEMP).endInnerElement()
+                .startInnerElement("error", NamespaceURIs.JABBER_CLIENT).addAttribute("type", "modify")
+                .startInnerElement("bad-request", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).build();
+
         StanzaAssert.assertEquals(expected, response);
     }
-    
+
     @Test
     public void handleSetForOtherUser() throws BindException, XMLSemanticError {
         Stanza request = StanzaBuilder.createIQStanza(FROM, OTHER, IQStanzaType.SET, "id1")
-            .addPreparedElement(OTHER_VCARD)
-            .build();
-        
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
-        
+                .addPreparedElement(OTHER_VCARD).build();
+
+        Stanza response = handler
+                .execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker)
+                .getUniqueResponseStanza();
+
         Stanza expected = StanzaBuilder.createIQStanza(TO, FROM, IQStanzaType.ERROR, "id1")
-            .addPreparedElement(OTHER_VCARD)
-            .startInnerElement("error", NamespaceURIs.JABBER_CLIENT)
-            .addAttribute("type", "auth")
-            .startInnerElement("forbidden", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS)
-            .build();
-        
+                .addPreparedElement(OTHER_VCARD).startInnerElement("error", NamespaceURIs.JABBER_CLIENT)
+                .addAttribute("type", "auth")
+                .startInnerElement("forbidden", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).build();
+
         StanzaAssert.assertEquals(expected, response);
     }
 
     @Test
     public void handleSetFailedPersisting() throws BindException, XMLSemanticError {
         // persistence manager mock will always default to return false
-        
-        Stanza request = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.SET, "id1")
-            .addPreparedElement(VCARD)
-            .build();
-        
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder).getUniqueResponseStanza();
 
-        Stanza expected = StanzaBuilder.createIQStanza(null, FROM, IQStanzaType.ERROR, "id1")
-            .build();
-        
+        Stanza request = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.SET, "id1").addPreparedElement(VCARD)
+                .build();
+
+        Stanza response = handler
+                .execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker)
+                .getUniqueResponseStanza();
+
+        Stanza expected = StanzaBuilder.createIQStanza(null, FROM, IQStanzaType.ERROR, "id1").build();
+
         StanzaAssert.assertEquals(expected, response);
     }
-
 
 }

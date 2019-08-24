@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityUtils;
+import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.extension.xep0077_inbandreg.InBandRegistrationHandler;
 import org.apache.vysper.xmpp.protocol.exception.TLSException;
 import org.apache.vysper.xmpp.protocol.worker.AuthenticatedProtocolWorker;
@@ -65,16 +66,16 @@ public class ProtocolWorker implements StanzaProcessor {
 
     private final ResponseWriter responseWriter = new ResponseWriter();
 
-    public ProtocolWorker() {
+    public ProtocolWorker(StanzaRelay stanzaRelay) {
 
-        stateWorker.put(SessionState.UNCONNECTED, new UnconnectedProtocolWorker());
-        stateWorker.put(SessionState.INITIATED, new InitiatedProtocolWorker());
-        stateWorker.put(SessionState.STARTED, new StartedProtocolWorker());
-        stateWorker.put(SessionState.ENCRYPTION_STARTED, new EncryptionStartedProtocolWorker());
-        stateWorker.put(SessionState.ENCRYPTED, new EncryptedProtocolWorker());
-        stateWorker.put(SessionState.AUTHENTICATED, new AuthenticatedProtocolWorker());
-        stateWorker.put(SessionState.ENDED, new EndOrClosedProtocolWorker());
-        stateWorker.put(SessionState.CLOSED, new EndOrClosedProtocolWorker());
+        stateWorker.put(SessionState.UNCONNECTED, new UnconnectedProtocolWorker(stanzaRelay));
+        stateWorker.put(SessionState.INITIATED, new InitiatedProtocolWorker(stanzaRelay));
+        stateWorker.put(SessionState.STARTED, new StartedProtocolWorker(stanzaRelay));
+        stateWorker.put(SessionState.ENCRYPTION_STARTED, new EncryptionStartedProtocolWorker(stanzaRelay));
+        stateWorker.put(SessionState.ENCRYPTED, new EncryptedProtocolWorker(stanzaRelay));
+        stateWorker.put(SessionState.AUTHENTICATED, new AuthenticatedProtocolWorker(stanzaRelay));
+        stateWorker.put(SessionState.ENDED, new EndOrClosedProtocolWorker(stanzaRelay));
+        stateWorker.put(SessionState.CLOSED, new EndOrClosedProtocolWorker(stanzaRelay));
     }
 
     /**

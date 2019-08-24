@@ -164,7 +164,7 @@ public class XmppPingIQHandlerTestCase {
 
         Stanza requestStanza = stanzaBuilder.build();
         ResponseStanzaContainer resp = handler.execute(requestStanza, sessionContext.getServerRuntimeContext(), true,
-                sessionContext, null);
+                sessionContext, null, null);
 
         // we should always get a response
         Assert.assertTrue(resp.hasResponse());
@@ -194,7 +194,7 @@ public class XmppPingIQHandlerTestCase {
         handler.removePinger(pinger3);
         
         ResponseStanzaContainer resp = handler.execute(stanza, sessionContext.getServerRuntimeContext(), true,
-                sessionContext, null);
+                sessionContext, null, null);
 
         assertFalse(resp.hasResponse());
         

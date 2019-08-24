@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLElementVerifier;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
@@ -62,20 +63,20 @@ public class DefaultPresenceHandler extends XMPPCoreStanzaHandler {
 
     @Override
     protected List<Stanza> executeCore(XMPPCoreStanza coreStanza, ServerRuntimeContext serverRuntimeContext,
-                                 boolean isOutboundStanza, SessionContext sessionContext) {
+            boolean isOutboundStanza, SessionContext sessionContext, StanzaBroker stanzaBroker) {
         PresenceStanza stanza = (PresenceStanza) coreStanza;
 
-        return executePresenceLogic(stanza, serverRuntimeContext, sessionContext);
+        return executePresenceLogic(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
     }
 
     /**
      * must be overridden by specialized presence handlers
      */
     protected List<Stanza> executePresenceLogic(PresenceStanza stanza, ServerRuntimeContext serverRuntimeContext,
-            SessionContext sessionContext) {
+            SessionContext sessionContext, StanzaBroker stanzaBroker) {
         // this is default behavior and must be replaced by overrider
-        return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza,
-                StanzaErrorType.CANCEL, null, null, null));
+        return Collections.singletonList(ServerErrorResponses.getStanzaError(
+                StanzaErrorCondition.FEATURE_NOT_IMPLEMENTED, stanza, StanzaErrorType.CANCEL, null, null, null));
     }
 
 }

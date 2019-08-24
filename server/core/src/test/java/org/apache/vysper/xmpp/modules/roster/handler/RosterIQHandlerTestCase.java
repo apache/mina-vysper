@@ -19,8 +19,6 @@
  */
 package org.apache.vysper.xmpp.modules.roster.handler;
 
-import junit.framework.TestCase;
-
 import org.apache.vysper.storage.OpenStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.roster.persistence.MemoryRosterManager;
@@ -30,6 +28,8 @@ import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceState;
+
+import junit.framework.TestCase;
 
 /**
  */
@@ -67,14 +67,15 @@ public class RosterIQHandlerTestCase extends TestCase {
         StanzaBuilder stanzaBuilder = createRosterGet();
 
         assertEquals(ResourceState.CONNECTED, getResourceState());
-        handler.execute(stanzaBuilder.build(), sessionContext.getServerRuntimeContext(), true, sessionContext, null);
+        handler.execute(stanzaBuilder.build(), sessionContext.getServerRuntimeContext(), true, sessionContext, null,
+                null);
         assertEquals(ResourceState.CONNECTED_INTERESTED, getResourceState());
 
-        //        C: <iq from='juliet@example.com/balcony'
-        //               type='get'
-        //               id='roster_get'>
-        //            <query xmlns='jabber:iq:roster'/>
-        //          </iq>
+        // C: <iq from='juliet@example.com/balcony'
+        // type='get'
+        // id='roster_get'>
+        // <query xmlns='jabber:iq:roster'/>
+        // </iq>
 
     }
 
@@ -86,7 +87,8 @@ public class RosterIQHandlerTestCase extends TestCase {
         sessionContext.getServerRuntimeContext().getResourceRegistry().setResourceState(boundResourceId,
                 ResourceState.AVAILABLE);
 
-        handler.execute(stanzaBuilder.build(), sessionContext.getServerRuntimeContext(), true, sessionContext, null);
+        handler.execute(stanzaBuilder.build(), sessionContext.getServerRuntimeContext(), true, sessionContext, null,
+                null);
         assertEquals(ResourceState.AVAILABLE_INTERESTED, getResourceState());
     }
 

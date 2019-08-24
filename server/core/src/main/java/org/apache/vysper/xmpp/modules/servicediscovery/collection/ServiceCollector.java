@@ -34,10 +34,11 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestLis
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 
 /**
- * on an item or info requests, calls all related listeners and collects what they have to add to the
- * response. compiles the responded infos and items.
+ * on an item or info requests, calls all related listeners and collects what
+ * they have to add to the response. compiles the responded infos and items.
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
@@ -92,14 +93,14 @@ public class ServiceCollector implements ServiceDiscoveryRequestListenerRegistry
         return elements;
     }
 
-    public List<InfoElement> processComponentInfoRequest(InfoRequest infoRequest)
+    public List<InfoElement> processComponentInfoRequest(InfoRequest infoRequest, StanzaBroker stanzaBroker)
             throws ServiceDiscoveryRequestException {
         // sorted structure, to place all <feature/> after <identity/>
         List<InfoElement> elements = new ArrayList<InfoElement>();
         for (ComponentInfoRequestListener componentInfoRequestListener : componentInfoRequestListeners) {
             List<InfoElement> elementList = null;
             try {
-                elementList = componentInfoRequestListener.getComponentInfosFor(infoRequest);
+                elementList = componentInfoRequestListener.getComponentInfosFor(infoRequest, stanzaBroker);
             } catch (ServiceDiscoveryRequestException abortion) {
                 throw abortion;
             } catch (Throwable e) {
@@ -138,12 +139,13 @@ public class ServiceCollector implements ServiceDiscoveryRequestListenerRegistry
     /**
      * collect all item info from the listeners
      */
-    public List<Item> processItemRequest(InfoRequest infoRequest) throws ServiceDiscoveryRequestException {
+    public List<Item> processItemRequest(InfoRequest infoRequest, StanzaBroker stanzaBroker)
+            throws ServiceDiscoveryRequestException {
         List<Item> elements = new ArrayList<Item>();
         for (ItemRequestListener itemRequestListener : itemRequestListeners) {
             List<Item> elementList;
             try {
-                elementList = itemRequestListener.getItemsFor(infoRequest);
+                elementList = itemRequestListener.getItemsFor(infoRequest, stanzaBroker);
             } catch (ServiceDiscoveryRequestException abortion) {
                 throw abortion;
             } catch (Throwable e) {

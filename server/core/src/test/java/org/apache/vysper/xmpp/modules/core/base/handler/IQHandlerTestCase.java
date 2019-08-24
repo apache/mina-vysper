@@ -58,7 +58,7 @@ public class IQHandlerTestCase extends TestCase {
 
         TestIQHandler iqHandler = new TestIQHandler();
         ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanzaBuilder.build(), sessionContext
-                .getServerRuntimeContext(), true, sessionContext, null);
+                .getServerRuntimeContext(), true, sessionContext, null, null);
         Stanza responseStanza = responseStanzaContainer.getUniqueResponseStanza();
         XMLElementVerifier verifier = responseStanza.getVerifier();
         assertTrue("error", verifier.nameEquals("error"));
@@ -77,7 +77,7 @@ public class IQHandlerTestCase extends TestCase {
 
         IQHandler iqHandler = new IQHandler();
         ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanza, sessionContext
-                .getServerRuntimeContext(), true, sessionContext, null);
+                .getServerRuntimeContext(), true, sessionContext, null, null);
         Stanza responseStanza = responseStanzaContainer.getUniqueResponseStanza();
         XMLElementVerifier verifier = responseStanza.getVerifier();
         assertTrue("error", verifier.nameEquals("error")); // response is _not_ IQ stanza
@@ -86,7 +86,7 @@ public class IQHandlerTestCase extends TestCase {
     private void assertIQError(Stanza stanza) {
         TestIQHandler iqHandler = new TestIQHandler();
         ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanza, sessionContext
-                .getServerRuntimeContext(), true, sessionContext, null);
+                .getServerRuntimeContext(), true, sessionContext, null, null);
         Stanza responseStanza = responseStanzaContainer.getUniqueResponseStanza();
         XMLElementVerifier verifier = responseStanza.getVerifier();
         assertTrue("iq", verifier.nameEquals("iq"));
@@ -150,7 +150,7 @@ public class IQHandlerTestCase extends TestCase {
 
         TestIQHandler iqHandler = new TestIQHandler();
         ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanzaBuilder.build(), sessionContext
-                .getServerRuntimeContext(), true, sessionContext, null);
+                .getServerRuntimeContext(), true, sessionContext, null, null);
         IQStanza incomingStanza = iqHandler.getIncomingStanza();
 
         XMPPCoreStanzaVerifier verifier = incomingStanza.getCoreVerifier();

@@ -19,7 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.core.bind.handler;
 
-import junit.framework.Assert;
+import java.util.List;
 
 import org.apache.vysper.StanzaAssert;
 import org.apache.vysper.xmpp.addressing.Entity;
@@ -38,25 +38,27 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.List;
+import junit.framework.Assert;
 
 /**
  */
 public class BindIQHandlerTestCase {
 
     private static final Entity FROM = EntityImpl.parseUnchecked("other.org");
-    
+
     private ServerRuntimeContext serverRuntimeContext = Mockito.mock(ServerRuntimeContext.class);
+
     private SessionContext sessionContext = Mockito.mock(SessionContext.class);
+
     private IQStanza stanza = (IQStanza) IQStanza.getWrapper(buildStanza());
-    
+
     private BindIQHandler handler = new BindIQHandler();
-    
+
     @Before
     public void before() throws BindException {
         Mockito.when(sessionContext.getInitiatingEntity()).thenReturn(FROM);
     }
-    
+
     private Stanza buildStanza() {
         return buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "bind", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND);
     }
@@ -64,14 +66,12 @@ public class BindIQHandlerTestCase {
     private Stanza buildStanza(String name, String namespaceUri) {
         return buildStanza(name, namespaceUri, "bind", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND);
     }
-    
+
     private Stanza buildStanza(String name, String namespaceUri, String innerName, String innerNamespaceUri) {
-        return new StanzaBuilder(name, namespaceUri)
-            .addAttribute("id", "1")
-            .startInnerElement(innerName, innerNamespaceUri)
-            .build();
+        return new StanzaBuilder(name, namespaceUri).addAttribute("id", "1")
+                .startInnerElement(innerName, innerNamespaceUri).build();
     }
-    
+
     @Test
     public void nameMustBeIq() {
         Assert.assertEquals("iq", handler.getName());
@@ -106,10 +106,11 @@ public class BindIQHandlerTestCase {
     public void verifyInvalidInnerNamespace() {
         Assert.assertFalse(handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "bind", "dummy")));
     }
-    
+
     @Test
     public void verifyInvalidInnerName() {
-        Assert.assertFalse(handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "dummy", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND)));
+        Assert.assertFalse(handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "dummy",
+                NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND)));
     }
 
     @Test
@@ -117,7 +118,7 @@ public class BindIQHandlerTestCase {
         Stanza stanza = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT).build();
         Assert.assertFalse(handler.verify(stanza));
     }
-    
+
     @Test
     public void verifyValidStanza() {
         Assert.assertTrue(handler.verify(stanza));
@@ -131,14 +132,13 @@ public class BindIQHandlerTestCase {
     @Test
     public void handleSet() throws BindException {
         Mockito.when(sessionContext.bindResource()).thenReturn("res");
-        
-        List<Stanza> responses = handler.handleSet(stanza, serverRuntimeContext, sessionContext);
-        
+
+        List<Stanza> responses = handler.handleSet(stanza, serverRuntimeContext, sessionContext, null);
+
         Stanza expectedResponse = StanzaBuilder.createIQStanza(null, null, IQStanzaType.RESULT, stanza.getID())
-            .startInnerElement("bind", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND)
-            .startInnerElement("jid",  NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND)
-            .addText(new EntityImpl(FROM, "res").getFullQualifiedName())
-            .build();
+                .startInnerElement("bind", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND)
+                .startInnerElement("jid", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND)
+                .addText(new EntityImpl(FROM, "res").getFullQualifiedName()).build();
 
         ResponseStanzaContainer responseStanzaContainer = new ResponseStanzaContainerImpl(responses);
         StanzaAssert.assertEquals(expectedResponse, responseStanzaContainer.getUniqueResponseStanza());
@@ -148,13 +148,11 @@ public class BindIQHandlerTestCase {
     public void handleSetWithBindException() throws BindException {
         Mockito.when(sessionContext.bindResource()).thenThrow(new BindException());
 
-        List<Stanza> responses = handler.handleSet(stanza, serverRuntimeContext, sessionContext);
-        
+        List<Stanza> responses = handler.handleSet(stanza, serverRuntimeContext, sessionContext, null);
+
         Stanza expectedResponse = StanzaBuilder.createIQStanza(null, null, IQStanzaType.ERROR, stanza.getID())
-            .startInnerElement("error", NamespaceURIs.JABBER_CLIENT)
-            .addAttribute("type", "cancel")
-            .startInnerElement("not-allowed", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS)
-            .build();
+                .startInnerElement("error", NamespaceURIs.JABBER_CLIENT).addAttribute("type", "cancel")
+                .startInnerElement("not-allowed", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).build();
 
         ResponseStanzaContainer responseStanzaContainer = new ResponseStanzaContainerImpl(responses);
         StanzaAssert.assertEquals(expectedResponse, responseStanzaContainer.getUniqueResponseStanza());
