@@ -210,7 +210,7 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements C
         List<Item> items = null;
 
         if (request.getNode() == null || request.getNode().length() == 0) {
-            if (serverRuntimeContext.getServerEnitity().equals(request.getTo())) {
+            if (serverRuntimeContext.getServerEntity().equals(request.getTo())) {
                 // top level item request. for example return entry for "pubsub.vysper.org" on request for "vysper.org"
                 List<Item> componentItem = new ArrayList<Item>();
                 componentItem.add(new Item(fullDomain));

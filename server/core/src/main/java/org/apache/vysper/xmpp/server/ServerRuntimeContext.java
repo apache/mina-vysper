@@ -49,7 +49,7 @@ public interface ServerRuntimeContext {
 
     String getNextSessionId();
 
-    Entity getServerEnitity();
+    Entity getServerEntity();
 
     String getDefaultXMLLang();
 

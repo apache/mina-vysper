@@ -75,7 +75,7 @@ public class DbResultHandler implements StanzaHandler {
             String streamId = sessionContext.getSessionId();
             String dailbackId = stanza.getInnerText().getText();
             Entity receiving = EntityImpl.parseUnchecked(stanza.getAttributeValue("from"));
-            Entity originating = serverRuntimeContext.getServerEnitity();
+            Entity originating = serverRuntimeContext.getServerEntity();
             
             try {
                 XMPPServerConnector connector = serverRuntimeContext.getServerConnectorRegistry().connectForDialback(receiving, sessionContext, sessionStateHolder);

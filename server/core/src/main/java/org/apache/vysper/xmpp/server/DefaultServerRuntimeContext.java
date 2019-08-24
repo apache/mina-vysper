@@ -178,7 +178,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         return sessionIdGenerator.create();
     }
 
-    public Entity getServerEnitity() {
+    public Entity getServerEntity() {
         return serverEntity;
     }
 
@@ -373,8 +373,8 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     }
 
     public StanzaProcessor getComponentStanzaProcessor(Entity entity) {
-        String serverDomain = getServerEnitity().getDomain();
-        if (!EntityUtils.isAddressingServerComponent(entity, getServerEnitity())) {
+        String serverDomain = getServerEntity().getDomain();
+        if (!EntityUtils.isAddressingServerComponent(entity, getServerEntity())) {
             return null;
         }
         String domain = entity.getDomain();

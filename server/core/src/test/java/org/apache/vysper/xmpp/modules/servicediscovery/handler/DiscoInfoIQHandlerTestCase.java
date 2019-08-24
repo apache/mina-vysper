@@ -154,7 +154,7 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
         when(serverRuntimeContext.getServerRuntimeContextService(ServiceDiscoveryRequestListenerRegistry.SERVICE_DISCOVERY_REQUEST_LISTENER_REGISTRY))
             .thenReturn(serviceCollector);
         
-        when(serverRuntimeContext.getServerEnitity()).thenReturn(SERVER);
+        when(serverRuntimeContext.getServerEntity()).thenReturn(SERVER);
         when(serverRuntimeContext.getStanzaRelay()).thenReturn(stanzaRelay);
         when(sessionContext.getResponseWriter()).thenReturn(stanzaWriter);
     }

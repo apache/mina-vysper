@@ -34,8 +34,6 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
 import org.apache.vysper.xmpp.stanza.StanzaErrorType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -64,7 +62,7 @@ public class RelayingIQHandler extends IQHandler {
         if (outboundStanza) {
             try {
 
-                boolean toComponent = EntityUtils.isAddressingServerComponent(to, serverRuntimeContext.getServerEnitity());
+                boolean toComponent = EntityUtils.isAddressingServerComponent(to, serverRuntimeContext.getServerEntity());
 
                 Entity from = stanza.getFrom();
                 if (from == null || !from.isResourceSet()) {
@@ -98,7 +96,7 @@ public class RelayingIQHandler extends IQHandler {
 
             Entity from = stanza.getFrom();
 
-            boolean fromComponent = (from != null) && EntityUtils.isAddressingServerComponent(from, serverRuntimeContext.getServerEnitity());
+            boolean fromComponent = (from != null) && EntityUtils.isAddressingServerComponent(from, serverRuntimeContext.getServerEntity());
 
             // determine if 'from' is a component or a matching subscription...
             boolean isToContact = false;

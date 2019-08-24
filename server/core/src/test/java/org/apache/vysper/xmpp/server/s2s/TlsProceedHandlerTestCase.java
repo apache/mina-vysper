@@ -53,7 +53,7 @@ public class TlsProceedHandlerTestCase {
     public void before() {
         SSLContext sslContext = Mockito.mock(SSLContext.class);
         Mockito.when(serverRuntimeContext.getSslContext()).thenReturn(sslContext);
-        Mockito.when(serverRuntimeContext.getServerEnitity()).thenReturn(TO);
+        Mockito.when(serverRuntimeContext.getServerEntity()).thenReturn(TO);
         
         Mockito.when(sessionContext.getInitiatingEntity()).thenReturn(FROM);
         Mockito.when(sessionContext.getSessionId()).thenReturn("session-id");

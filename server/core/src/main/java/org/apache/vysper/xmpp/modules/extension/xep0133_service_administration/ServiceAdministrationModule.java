@@ -146,7 +146,7 @@ public class ServiceAdministrationModule extends DefaultModule implements AdhocC
         
         if (commandNode.equals(COMMAND_NODE_ADD_USER)) {
             if (accountManagement == null) return null;
-            return new AddUserCommandHandler(accountManagement, Arrays.asList(serverRuntimeContext.getServerEnitity().getDomain()));
+            return new AddUserCommandHandler(accountManagement, Arrays.asList(serverRuntimeContext.getServerEntity().getDomain()));
         } else if (commandNode.equals(COMMAND_CHANGE_USER_PASSWORD)) {
             return new ChangeUserPasswordCommandHandler(accountManagement, null);
         } else if (commandNode.equals(COMMAND_GET_ONLINE_USERS_NUM)) {

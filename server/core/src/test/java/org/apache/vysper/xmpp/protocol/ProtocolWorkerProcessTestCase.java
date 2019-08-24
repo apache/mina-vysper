@@ -170,7 +170,7 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
 
     public void testDetectWrongFromAddress() throws XMLSemanticError {
 
-        Entity server = sessionContext.getServerRuntimeContext().getServerEnitity();
+        Entity server = sessionContext.getServerRuntimeContext().getServerEntity();
         sessionContext.setSessionState(SessionState.AUTHENTICATED);
         // the session is running for 'mark'
         sessionContext.setInitiatingEntity(new EntityImpl("mark", server.getDomain(), null));
@@ -198,7 +198,7 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
 
     public void testAllowProperFromResourceId() throws XMLSemanticError, BindException {
 
-        Entity server = sessionContext.getServerRuntimeContext().getServerEnitity();
+        Entity server = sessionContext.getServerRuntimeContext().getServerEntity();
         sessionContext.setSessionState(SessionState.AUTHENTICATED);
         // the session is running for 'charlotte'
         sessionContext.setInitiatingEntity(new EntityImpl("charlotte", server.getDomain(), null));
@@ -221,7 +221,7 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
 
     public void testDetectWrongFromResourceId() throws XMLSemanticError, BindException {
 
-        Entity server = sessionContext.getServerRuntimeContext().getServerEnitity();
+        Entity server = sessionContext.getServerRuntimeContext().getServerEntity();
         sessionContext.setSessionState(SessionState.AUTHENTICATED);
         // the session is running for 'charlotte'
         sessionContext.setInitiatingEntity(new EntityImpl("charlotte", server.getDomain(), null));
@@ -256,7 +256,7 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
         // if there is more than one resource bound in the same session, from must come 
         // fully qualified, e.g. from="client@vysper.org/resourceId"
 
-        Entity server = sessionContext.getServerRuntimeContext().getServerEnitity();
+        Entity server = sessionContext.getServerRuntimeContext().getServerEntity();
         sessionContext.setSessionState(SessionState.AUTHENTICATED);
         // the session is running for 'lea'
         sessionContext.setInitiatingEntity(new EntityImpl("lea", server.getDomain(), null));

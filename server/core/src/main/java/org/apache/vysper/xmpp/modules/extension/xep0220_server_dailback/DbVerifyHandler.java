@@ -66,7 +66,7 @@ public class DbVerifyHandler implements StanzaHandler {
         String type = stanza.getAttributeValue("type");
         String id = stanza.getAttributeValue("id");
         Entity receiving = EntityImpl.parseUnchecked(stanza.getAttributeValue("from"));
-        Entity originating = serverRuntimeContext.getServerEnitity();
+        Entity originating = serverRuntimeContext.getServerEntity();
         if(type == null) {
             // acting as a Authoritative server
             // getting asked for verification from the Receiving server

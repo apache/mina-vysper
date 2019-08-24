@@ -59,7 +59,7 @@ public class BoshBackedSessionContextTest {
         boshHandler = mocksControl.createMock(BoshHandler.class);
         serverRuntimeContext = mocksControl.createMock(ServerRuntimeContext.class);
         expect(serverRuntimeContext.getNextSessionId()).andReturn("123");
-        expect(serverRuntimeContext.getServerEnitity()).andReturn(new EntityImpl(null, "vysper.org", null));
+        expect(serverRuntimeContext.getServerEntity()).andReturn(new EntityImpl(null, "vysper.org", null));
         expect(serverRuntimeContext.getDefaultXMLLang()).andReturn("en");
         inactivityChecker = new InactivityChecker(boshHandler);
 //        inactivityChecker.start();

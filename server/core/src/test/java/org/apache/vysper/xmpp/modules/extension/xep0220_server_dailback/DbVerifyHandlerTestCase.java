@@ -59,7 +59,7 @@ public class DbVerifyHandlerTestCase extends TestCase {
 
     private void assertExecuteVerification(String token, String expectedType) {
         ServerRuntimeContext serverRuntimeContext = Mockito.mock(ServerRuntimeContext.class);
-        Mockito.when(serverRuntimeContext.getServerEnitity()).thenReturn(TO);
+        Mockito.when(serverRuntimeContext.getServerEntity()).thenReturn(TO);
         
         Stanza stanza = new StanzaBuilder("verify", NamespaceURIs.JABBER_SERVER_DIALBACK)
         .addAttribute("from", FROM.getFullQualifiedName())

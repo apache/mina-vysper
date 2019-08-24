@@ -117,7 +117,7 @@ public class AdhocCommandsModule extends DefaultDiscoAwareModule
         List<Item> items = new ArrayList<Item>();
         for (CommandInfo commandInfo : allCommandInfos) {
             Entity jid = commandInfo.getJid();
-            if (jid == null) jid = serverRuntimeContext.getServerEnitity();
+            if (jid == null) jid = serverRuntimeContext.getServerEntity();
 
             String node = commandInfo.getNode();
             if (node == null) {

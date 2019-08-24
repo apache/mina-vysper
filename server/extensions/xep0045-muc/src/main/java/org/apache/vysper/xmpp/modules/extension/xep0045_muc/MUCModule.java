@@ -192,7 +192,7 @@ public class MUCModule extends DefaultDiscoAwareModule implements Component, Com
             if (fullDomain.equals(to)) {
                 List<Item> conferenceItems = conference.getItemsFor(request);
                 return conferenceItems;
-            } else if (serverRuntimeContext.getServerEnitity().equals(to)) {
+            } else if (serverRuntimeContext.getServerEntity().equals(to)) {
                 List<Item> componentItem = new ArrayList<Item>();
                 componentItem.add(new Item(fullDomain));
                 return componentItem;

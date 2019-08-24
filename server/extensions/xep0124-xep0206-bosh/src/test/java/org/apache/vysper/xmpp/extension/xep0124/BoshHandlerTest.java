@@ -78,7 +78,7 @@ public class BoshHandlerTest {
         // test session creation
         HttpServletRequest httpServletRequest = mocksControl.createMock(HttpServletRequest.class);
         expect(serverRuntimeContext.getNextSessionId()).andReturn("200");
-        expect(serverRuntimeContext.getServerEnitity()).andReturn(new EntityImpl(null, "vysper.org", null));
+        expect(serverRuntimeContext.getServerEntity()).andReturn(new EntityImpl(null, "vysper.org", null));
         expect(serverRuntimeContext.getDefaultXMLLang()).andReturn("en");
         AsyncContext asyncContext = mocksControl.createMock(AsyncContext.class);
         expect(httpServletRequest.startAsync()).andReturn(asyncContext).atLeastOnce();

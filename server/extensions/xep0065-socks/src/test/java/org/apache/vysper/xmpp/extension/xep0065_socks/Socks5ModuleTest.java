@@ -63,7 +63,7 @@ public class Socks5ModuleTest extends Mockito {
     
     @Before
     public void before() {
-        when(serverRuntimeContext.getServerEnitity()).thenReturn(SERVER);
+        when(serverRuntimeContext.getServerEntity()).thenReturn(SERVER);
         
         module.setConnectionsRegistry(connectionsRegistry);
     }

@@ -59,7 +59,7 @@ public class InBandRegistrationHandlerTestCase {
     @Before
     public void before() {
         Mockito.when(serverRuntimeContext.getStorageProvider(AccountManagement.class)).thenReturn(accountManagement);
-        Mockito.when(serverRuntimeContext.getServerEnitity()).thenReturn(SERVER);
+        Mockito.when(serverRuntimeContext.getServerEntity()).thenReturn(SERVER);
         Mockito.when(accountManagement.verifyAccountExists(EXISTING)).thenReturn(true);
         Mockito.when(sessionContext.getState()).thenReturn(SessionState.STARTED);
     }

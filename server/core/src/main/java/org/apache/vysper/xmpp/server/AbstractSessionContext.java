@@ -66,7 +66,7 @@ public abstract class AbstractSessionContext implements SessionContext {
     public AbstractSessionContext(ServerRuntimeContext serverRuntimeContext, SessionStateHolder sessionStateHolder) {
         this.serverRuntimeContext = serverRuntimeContext;
         sessionId = serverRuntimeContext.getNextSessionId();
-        serverEntity = serverRuntimeContext.getServerEnitity();
+        serverEntity = serverRuntimeContext.getServerEntity();
         xmlLang = serverRuntimeContext.getDefaultXMLLang();
         this.sessionStateHolder = sessionStateHolder;
     }

@@ -142,7 +142,7 @@ public class ProtocolWorker implements StanzaProcessor {
                             coreStanza, StanzaErrorType.MODIFY, "Missing to attribute", null, null);
                     ResponseWriter.writeResponse(sessionContext, errorStanza);
                     return;                    
-                } else if(!EntityUtils.isAddressingServer(serverRuntimeContext.getServerEnitity(), to)) {
+                } else if(!EntityUtils.isAddressingServer(serverRuntimeContext.getServerEntity(), to)) {
                     // TODO what's the appropriate error? StreamErrorCondition.IMPROPER_ADDRESSING?
                     Stanza errorStanza = ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST,
                             coreStanza, StanzaErrorType.MODIFY, "Invalid to attribute", null, null);

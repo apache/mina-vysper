@@ -70,7 +70,7 @@ public class FeaturesHandler implements StanzaHandler {
                 
                 return new ResponseStanzaContainerImpl(startTlsStanza);
             } else if(dialbackSupported(stanza)) {
-                Entity originating = serverRuntimeContext.getServerEnitity();
+                Entity originating = serverRuntimeContext.getServerEntity();
 
                 String dailbackId = new DialbackIdGenerator().generate(otherServer, originating, sessionContext.getSessionId());
                 

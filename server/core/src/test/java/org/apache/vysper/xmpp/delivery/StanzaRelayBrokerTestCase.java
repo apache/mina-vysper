@@ -61,7 +61,7 @@ public class StanzaRelayBrokerTestCase extends Mockito {
     
     @Before
     public void before() {
-        when(serverRuntimeContext.getServerEnitity()).thenReturn(SERVER);
+        when(serverRuntimeContext.getServerEntity()).thenReturn(SERVER);
         when(serverRuntimeContext.getServerFeatures()).thenReturn(serverFeatures);
         
         broker.setExternalRelay(externalRelay);
