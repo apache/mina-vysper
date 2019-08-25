@@ -60,4 +60,13 @@ public class EntityUtils {
             throw new RuntimeException("could not create component domain", e);
         }
     }
+    
+    public static Entity createComponentDomain(String subdomain, Entity serverEntity){
+        try {
+            return EntityImpl.parse(subdomain + "." + serverEntity.getDomain());
+        } catch (EntityFormatException e) {
+            // only happens when server entity is bad.
+            throw new RuntimeException("could not create component domain", e);
+        }
+    }
 }

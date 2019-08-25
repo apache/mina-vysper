@@ -19,48 +19,52 @@
  */
 package org.apache.vysper.xmpp.server;
 
-import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.addressing.EntityUtils;
-import org.apache.vysper.xmpp.protocol.StanzaProcessor;
-import org.apache.vysper.xmpp.server.components.Component;
+import static java.util.Objects.requireNonNull;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static java.util.Objects.requireNonNull;
+import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityUtils;
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
+import org.apache.vysper.xmpp.server.components.Component;
+import org.apache.vysper.xmpp.server.components.ComponentStanzaProcessor;
 
 /**
  * @author Réda Housni Alaoui
  */
 public class SimpleComponentRegistry implements AlterableComponentRegistry {
-	
-	private final Entity serverEntity;
-	
-	/**
-	 * map of all registered components, index by the subdomain they are registered for
-	 */
-	private final Map<String, Component> componentMap = new HashMap<>();
 
-	public SimpleComponentRegistry(Entity serverEntity) {
-		this.serverEntity = requireNonNull(serverEntity);
-	}
-	
-	@Override
-	public void registerComponent(Component component){
-		componentMap.put(component.getSubdomain(), component);
-	}
+    private final Entity serverEntity;
 
-	@Override
-	public StanzaProcessor getComponentStanzaProcessor(Entity entity) {
-		String serverDomain = serverEntity.getDomain();
-		if (!EntityUtils.isAddressingServerComponent(entity, serverEntity)) {
-			return null;
-		}
-		String domain = entity.getDomain();
-		String subdomain = domain.replace("." + serverDomain, "");
-		Component component = componentMap.get(subdomain);
-		if (component == null)
-			return null;
-		return component.getStanzaProcessor();
-	}
+    /**
+     * map of all registered components, index by the subdomain they are registered
+     * for
+     */
+    private final Map<String, StanzaProcessor> processorBySubdomain = new HashMap<>();
+
+    public SimpleComponentRegistry(Entity serverEntity) {
+        this.serverEntity = requireNonNull(serverEntity);
+    }
+
+    @Override
+    public void registerComponent(ComponentStanzaProcessorFactory processorFactory, Component component) {
+        ComponentStanzaProcessor processor = processorFactory.build();
+        Entity fullDomain = EntityUtils.createComponentDomain(component.getSubdomain(), serverEntity);
+        component.getComponentHandlers(fullDomain).forEach(processor::addHandler);
+        component.getComponentHandlerDictionnaries(fullDomain).forEach(processor::addDictionary);
+        processorBySubdomain.put(component.getSubdomain(), processor);
+    }
+
+    @Override
+    public StanzaProcessor getComponentStanzaProcessor(Entity entity) {
+        String serverDomain = serverEntity.getDomain();
+        if (!EntityUtils.isAddressingServerComponent(entity, serverEntity)) {
+            return null;
+        }
+        String domain = entity.getDomain();
+        String subdomain = domain.replace("." + serverDomain, "");
+        return processorBySubdomain.get(subdomain);
+    }
+
 }

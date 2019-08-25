@@ -168,7 +168,7 @@ public class XMPPServer {
             tlsContextFactory.setKeyStoreType(tlsKeyStoreType);
         }
 
-        List<HandlerDictionary> dictionaries = new ArrayList<HandlerDictionary>();
+        List<HandlerDictionary> dictionaries = new ArrayList<>();
         addCoreDictionaries(dictionaries);
 
         ResourceRegistry resourceRegistry = new DefaultResourceRegistry();

@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.extension.xep0065_socks;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.Validate;
@@ -37,8 +38,10 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
+import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.StanzaBroker;
+import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.components.Component;
@@ -66,8 +69,6 @@ public class Socks5Module extends DefaultDiscoAwareModule implements Component, 
     private Entity fullDomain;
     private InetSocketAddress proxyAddress = new InetSocketAddress(DEFAULT_PORT);
     private int idleTimeInSeconds = DEFAULT_IDLE_TIME;
-    
-    private ComponentStanzaProcessor stanzaProcessor;
     
     private Socks5ConnectionsRegistry connectionsRegistry = new DefaultSocks5ConnectionsRegistry();
     
@@ -122,9 +123,6 @@ public class Socks5Module extends DefaultDiscoAwareModule implements Component, 
         
         fullDomain = EntityUtils.createComponentDomain(subdomain, serverRuntimeContext);
         
-        stanzaProcessor = serverRuntimeContext.createComponentStanzaProcessor();
-        stanzaProcessor.addHandler(new Socks5IqHandler(fullDomain, proxyAddress, connectionsRegistry));
-        
         try {
             startProxy();
         } catch (Exception e) {
@@ -165,15 +163,18 @@ public class Socks5Module extends DefaultDiscoAwareModule implements Component, 
     /**
      * {@inheritDoc}
      */
-    public StanzaProcessor getStanzaProcessor() {
-        return stanzaProcessor;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public String getSubdomain() {
         return subdomain;
+    }
+
+    @Override
+    public List<StanzaHandler> getComponentHandlers(Entity fullDomain) {
+        return Collections.singletonList(new Socks5IqHandler(fullDomain, proxyAddress, connectionsRegistry));
+    }
+
+    @Override
+    public List<NamespaceHandlerDictionary> getComponentHandlerDictionnaries(Entity fullDomain) {
+        return Collections.emptyList();
     }
 
     /**
@@ -206,10 +207,6 @@ public class Socks5Module extends DefaultDiscoAwareModule implements Component, 
      */
     public List<InfoElement> getComponentInfosFor(InfoRequest request, StanzaBroker stanzaBroker) throws ServiceDiscoveryRequestException {
         return COMPONENT_INFO;
-    }
-
-    public Socks5ConnectionsRegistry getConnectionsRegistry() {
-        return connectionsRegistry;
     }
 
     public void setConnectionsRegistry(Socks5ConnectionsRegistry connectionsRegistry) {

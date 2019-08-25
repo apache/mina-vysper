@@ -20,6 +20,7 @@
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.vysper.compliance.SpecCompliant;
@@ -73,8 +74,6 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements C
 
     // for debugging
     private final Logger logger = LoggerFactory.getLogger(PublishSubscribeModule.class);
-
-    private ComponentStanzaProcessor stanzaProcessor;
 
     private ServerRuntimeContext serverRuntimeContext;
 
@@ -137,13 +136,6 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements C
         } else {
             serviceConfiguration.setLeafNodeStorageProvider(leafNodeStorageProvider);
         }
-
-        ComponentStanzaProcessor processor = serverRuntimeContext.createComponentStanzaProcessor();
-        addPubsubHandlers(processor);
-        addPubsubOwnerHandlers(processor);
-        processor
-                .addDictionary(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB_EVENT, new MessageHandler()));
-        stanzaProcessor = processor;
 
         this.serviceConfiguration.setDomainJID(fullDomain);
         this.serviceConfiguration.initialize();
@@ -232,38 +224,49 @@ public class PublishSubscribeModule extends DefaultDiscoAwareModule implements C
         return items;
     }
 
+    public String getSubdomain() {
+        return subdomain;
+    }
+
+    @Override
+    public List<StanzaHandler> getComponentHandlers(Entity fullDomain) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<NamespaceHandlerDictionary> getComponentHandlerDictionnaries(Entity fullDomain) {
+        List<NamespaceHandlerDictionary> dictionaries = new ArrayList<>();
+        addPubsubHandlers(dictionaries);
+        addPubsubOwnerHandlers(dictionaries);
+        dictionaries.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB_EVENT, new MessageHandler()));
+        return dictionaries;
+    }
+
     /**
      * Inserts the handlers for the pubsub#owner namespace into the HandlerDictionary.
-     * @param dictionary the list to which the handlers should be appended.
+     * @param dictionaries the list to which the handlers should be appended.
      */
-    private void addPubsubOwnerHandlers(ComponentStanzaProcessor dictionary) {
-        ArrayList<StanzaHandler> pubsubOwnerHandlers = new ArrayList<StanzaHandler>();
+    private void addPubsubOwnerHandlers(List<NamespaceHandlerDictionary> dictionaries) {
+        ArrayList<StanzaHandler> pubsubOwnerHandlers = new ArrayList<>();
         pubsubOwnerHandlers.add(new PubSubOwnerConfigureNodeHandler(serviceConfiguration));
         pubsubOwnerHandlers.add(new PubSubOwnerDeleteNodeHandler(serviceConfiguration));
-        dictionary
-                .addDictionary(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB_OWNER, pubsubOwnerHandlers));
+        dictionaries
+                .add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB_OWNER, pubsubOwnerHandlers));
     }
 
     /**
      * Inserts the handlers for the pubsub namespace into the HandlerDictionary.
-     * @param dictionary the list to which the handlers should be appended.
+     * @param dictionaries the list to which the handlers should be appended.
      */
-    private void addPubsubHandlers(ComponentStanzaProcessor dictionary) {
-        ArrayList<StanzaHandler> pubsubHandlers = new ArrayList<StanzaHandler>();
+    private void addPubsubHandlers(List<NamespaceHandlerDictionary> dictionaries) {
+        ArrayList<StanzaHandler> pubsubHandlers = new ArrayList<>();
         pubsubHandlers.add(new PubSubSubscribeHandler(serviceConfiguration));
         pubsubHandlers.add(new PubSubUnsubscribeHandler(serviceConfiguration));
         pubsubHandlers.add(new PubSubPublishHandler(serviceConfiguration));
         pubsubHandlers.add(new PubSubCreateNodeHandler(serviceConfiguration));
         pubsubHandlers.add(new PubSubRetrieveSubscriptionsHandler(serviceConfiguration));
         pubsubHandlers.add(new PubSubRetrieveAffiliationsHandler(serviceConfiguration));
-        dictionary.addDictionary(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB, pubsubHandlers));
+        dictionaries.add(new NamespaceHandlerDictionary(NamespaceURIs.XEP0060_PUBSUB, pubsubHandlers));
     }
 
-    public String getSubdomain() {
-        return subdomain;
-    }
-
-    public StanzaProcessor getStanzaProcessor() {
-        return stanzaProcessor;
-    }
 }

@@ -19,14 +19,23 @@
  */
 package org.apache.vysper.xmpp.server;
 
+import static java.util.Objects.requireNonNull;
+
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
-import org.apache.vysper.xmpp.server.components.Component;
+import org.apache.vysper.xmpp.server.components.ComponentStanzaProcessor;
 
 /**
  * @author Réda Housni Alaoui
  */
-public interface AlterableComponentRegistry extends ComponentRegistry {
+public class ComponentStanzaProcessorFactory {
 
-    void registerComponent(ComponentStanzaProcessorFactory processorFactory, Component component);
+    private final StanzaRelay stanzaRelay;
 
+    public ComponentStanzaProcessorFactory(StanzaRelay stanzaRelay) {
+        this.stanzaRelay = requireNonNull(stanzaRelay);
+    }
+
+    public ComponentStanzaProcessor build() {
+        return new ComponentStanzaProcessor(stanzaRelay);
+    }
 }

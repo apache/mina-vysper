@@ -20,6 +20,7 @@
 package org.apache.vysper.xmpp.modules.extension.xep0045_muc;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.vysper.xmpp.addressing.Entity;
@@ -41,12 +42,12 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Item;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ItemRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
+import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.StanzaBroker;
-import org.apache.vysper.xmpp.protocol.StanzaProcessor;
+import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.components.Component;
-import org.apache.vysper.xmpp.server.components.ComponentStanzaProcessor;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.slf4j.Logger;
@@ -72,8 +73,6 @@ public class MUCModule extends DefaultDiscoAwareModule
     private final Logger logger = LoggerFactory.getLogger(MUCModule.class);
 
     private ServerRuntimeContext serverRuntimeContext;
-
-    private ComponentStanzaProcessor stanzaProcessor;
 
     public MUCModule(String subdomain) {
         this(subdomain, null);
@@ -102,12 +101,6 @@ public class MUCModule extends DefaultDiscoAwareModule
         this.serverRuntimeContext = serverRuntimeContext;
 
         fullDomain = EntityUtils.createComponentDomain(subdomain, serverRuntimeContext);
-
-        ComponentStanzaProcessor processor = serverRuntimeContext.createComponentStanzaProcessor();
-        processor.addHandler(new MUCPresenceHandler(conference));
-        processor.addHandler(new MUCMessageHandler(conference, fullDomain));
-        processor.addHandler(new MUCIqAdminHandler(conference));
-        stanzaProcessor = processor;
 
         RoomStorageProvider roomStorageProvider = serverRuntimeContext.getStorageProvider(RoomStorageProvider.class);
         OccupantStorageProvider occupantStorageProvider = serverRuntimeContext
@@ -245,8 +238,18 @@ public class MUCModule extends DefaultDiscoAwareModule
         return subdomain;
     }
 
-    public StanzaProcessor getStanzaProcessor() {
-        return stanzaProcessor;
+    @Override
+    public List<StanzaHandler> getComponentHandlers(Entity fullDomain) {
+        List<StanzaHandler> handlers = new ArrayList<>();
+        handlers.add(new MUCPresenceHandler(conference));
+        handlers.add(new MUCMessageHandler(conference, fullDomain));
+        handlers.add(new MUCIqAdminHandler(conference));
+        return handlers;
+    }
+
+    @Override
+    public List<NamespaceHandlerDictionary> getComponentHandlerDictionnaries(Entity fullDomain) {
+        return Collections.emptyList();
     }
 
 }

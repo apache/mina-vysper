@@ -48,7 +48,6 @@ import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaHandlerLookup;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.components.Component;
-import org.apache.vysper.xmpp.server.components.ComponentStanzaProcessor;
 import org.apache.vysper.xmpp.server.s2s.DefaultXMPPServerConnectorRegistry;
 import org.apache.vysper.xmpp.server.s2s.XMPPServerConnectorRegistry;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -142,6 +141,8 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     private final AlterableComponentRegistry componentRegistry;
 
     private final SimpleEventBus eventBus;
+    
+    private final ComponentStanzaProcessorFactory componentStanzaProcessorFactory;
 
     public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay,
             AlterableComponentRegistry componentRegistry, ResourceRegistry resourceRegistry,
@@ -155,6 +156,7 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         this.eventBus = new SimpleEventBus();
         this.serverFeatures = serverFeatures;
         this.resourceRegistry = resourceRegistry;
+        this.componentStanzaProcessorFactory = new ComponentStanzaProcessorFactory(stanzaRelay);
 
         addDictionaries(dictionaries);
     }
@@ -408,17 +410,12 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
 
     @Override
     public void registerComponent(Component component) {
-        componentRegistry.registerComponent(component);
+        componentRegistry.registerComponent(componentStanzaProcessorFactory, component);
     }
 
     @Override
     public boolean hasComponentStanzaProcessor(Entity entity) {
         return componentRegistry.getComponentStanzaProcessor(entity) != null;
-    }
-
-    @Override
-    public ComponentStanzaProcessor createComponentStanzaProcessor() {
-        return new ComponentStanzaProcessor(stanzaRelay);
     }
 
 }

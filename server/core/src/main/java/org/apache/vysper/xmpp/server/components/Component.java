@@ -19,25 +19,28 @@
  */
 package org.apache.vysper.xmpp.server.components;
 
-import org.apache.vysper.xmpp.protocol.StanzaProcessor;
+import java.util.List;
+
+import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
+import org.apache.vysper.xmpp.protocol.StanzaHandler;
 
 /**
- * a component is a server subsystem providing a dedicated extension.
- * components operate on their own subdomain, e.g. conference.vysper.org for MUC.
- * components have a dedicated context in which they receive stanzas 
+ * a component is a server subsystem providing a dedicated extension. components
+ * operate on their own subdomain, e.g. conference.vysper.org for MUC.
+ * components have a dedicated context in which they receive stanzas
  */
 public interface Component {
 
     /**
-     * the subdomain this component should become available under.
-     * example: subdomain = 'chat' + server domain = 'vysper.org' => 'chat.vysper.org'
+     * the subdomain this component should become available under. example:
+     * subdomain = 'chat' + server domain = 'vysper.org' => 'chat.vysper.org'
+     * 
      * @return
      */
     String getSubdomain();
 
-    /**
-     * retrieve the stanza processor for the component
-     * @return
-     */
-    StanzaProcessor getStanzaProcessor();
+    List<StanzaHandler> getComponentHandlers(Entity fullDomain);
+
+    List<NamespaceHandlerDictionary> getComponentHandlerDictionnaries(Entity fullDomain);
 }

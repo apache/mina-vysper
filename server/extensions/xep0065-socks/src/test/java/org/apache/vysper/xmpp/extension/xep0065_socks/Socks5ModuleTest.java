@@ -67,8 +67,6 @@ public class Socks5ModuleTest extends Mockito {
     @Before
     public void before() {
         when(serverRuntimeContext.getServerEntity()).thenReturn(SERVER);
-        ComponentStanzaProcessor componentStanzaProcessor = mock(ComponentStanzaProcessor.class);
-        when(serverRuntimeContext.createComponentStanzaProcessor()).thenReturn(componentStanzaProcessor);
 
         module.setConnectionsRegistry(connectionsRegistry);
     }
@@ -101,13 +99,6 @@ public class Socks5ModuleTest extends Mockito {
     @Test(expected = IllegalArgumentException.class)
     public void fullDomain() {
         new Socks5Module("socks.vysper.org");
-    }
-
-    @Test
-    public void getStanzaProcessor() throws Exception {
-        module = new Socks5Module("socks");
-        module.initialize(serverRuntimeContext);
-        Assert.assertTrue(module.getStanzaProcessor() instanceof ComponentStanzaProcessor);
     }
 
     @Test

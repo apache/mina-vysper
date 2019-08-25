@@ -76,8 +76,6 @@ public interface ServerRuntimeContext {
 
     boolean hasComponentStanzaProcessor(Entity entity);
     
-    ComponentStanzaProcessor createComponentStanzaProcessor();
-    
     XMPPServerConnectorRegistry getServerConnectorRegistry();
     
     List<Module> getModules();
