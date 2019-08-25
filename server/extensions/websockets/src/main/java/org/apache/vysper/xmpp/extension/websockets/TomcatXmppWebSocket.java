@@ -25,6 +25,7 @@ import java.nio.CharBuffer;
 
 import org.apache.catalina.websocket.MessageInbound;
 import org.apache.catalina.websocket.WsOutbound;
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.slf4j.Logger;
@@ -42,8 +43,8 @@ public class TomcatXmppWebSocket extends MessageInbound implements Outbound {
     private WebSocketBackedSessionContext sessionContext;
     private WsOutbound outbound;
 
-    public TomcatXmppWebSocket(ServerRuntimeContext serverRuntimeContext) {
-        this.sessionContext = new WebSocketBackedSessionContext(serverRuntimeContext, this);
+    public TomcatXmppWebSocket(ServerRuntimeContext serverRuntimeContext, StanzaProcessor stanzaProcessor) {
+        this.sessionContext = new WebSocketBackedSessionContext(serverRuntimeContext, stanzaProcessor, this);
     }
 
     /**

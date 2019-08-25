@@ -28,6 +28,7 @@ import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.delivery.failure.RemoteServerNotFoundException;
 import org.apache.vysper.xmpp.delivery.failure.RemoteServerTimeoutException;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.slf4j.Logger;
@@ -47,10 +48,15 @@ public class DefaultXMPPServerConnectorRegistry implements XMPPServerConnectorRe
     private final Map<Entity, XMPPServerConnector> connectors = new ConcurrentHashMap<>();
 
     private final StanzaRelay stanzaRelay;
+    
+    private final StanzaProcessor stanzaProcessor;
 
-    public DefaultXMPPServerConnectorRegistry(ServerRuntimeContext serverRuntimeContext, StanzaRelay stanzaRelay) {
+    public DefaultXMPPServerConnectorRegistry(ServerRuntimeContext serverRuntimeContext, 
+                                              StanzaRelay stanzaRelay, 
+                                              StanzaProcessor stanzaProcessor) {
         this.serverRuntimeContext = serverRuntimeContext;
         this.stanzaRelay = stanzaRelay;
+        this.stanzaProcessor = stanzaProcessor;
     }
 
     /*
@@ -98,7 +104,7 @@ public class DefaultXMPPServerConnectorRegistry implements XMPPServerConnectorRe
 
     protected XMPPServerConnector createConnector(Entity otherServer, ServerRuntimeContext serverRuntimeContext,
             SessionContext dialbackSessionContext, SessionStateHolder dialbackSessionStateHolder) {
-        return new DefaultXMPPServerConnector(otherServer, serverRuntimeContext, stanzaRelay, dialbackSessionContext,
+        return new DefaultXMPPServerConnector(otherServer, serverRuntimeContext, stanzaRelay, stanzaProcessor, dialbackSessionContext,
                 dialbackSessionStateHolder);
     }
 

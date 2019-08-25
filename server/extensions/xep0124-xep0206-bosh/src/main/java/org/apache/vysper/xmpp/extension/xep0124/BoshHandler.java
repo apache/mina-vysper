@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.extension.xep0124;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.modules.ServerRuntimeContextService;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.server.response.ServerResponses;
@@ -51,6 +52,8 @@ public class BoshHandler implements ServerRuntimeContextService {
     private static final Logger LOGGER = LoggerFactory.getLogger(BoshHandler.class);
 
     private ServerRuntimeContext serverRuntimeContext;
+    
+    private StanzaProcessor stanzaProcessor;
 
     private Map<String, BoshBackedSessionContext> sessions;
     
@@ -85,9 +88,13 @@ public class BoshHandler implements ServerRuntimeContextService {
     public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
         this.serverRuntimeContext = serverRuntimeContext;
     }
+    
+    public void setStanzaProcessor(StanzaProcessor stanzaProcessor){
+        this.stanzaProcessor = stanzaProcessor;
+    }
 
     protected BoshBackedSessionContext createSessionContext() {
-        return new BoshBackedSessionContext(serverRuntimeContext, this, inactivityChecker);
+        return new BoshBackedSessionContext(serverRuntimeContext, stanzaProcessor, this, inactivityChecker);
     }
 
     /**
@@ -225,7 +232,7 @@ public class BoshHandler implements ServerRuntimeContextService {
             stanza = new Stanza(element.getNamespaceURI(), element.getName(), element.getNamespacePrefix(),
                     element.getAttributes(), element.getInnerFragments());
         }
-        serverRuntimeContext.getStanzaProcessor().processStanza(serverRuntimeContext, session, stanza,
+        stanzaProcessor.processStanza(serverRuntimeContext, session, stanza,
                 session.getStateHolder());
     }
 

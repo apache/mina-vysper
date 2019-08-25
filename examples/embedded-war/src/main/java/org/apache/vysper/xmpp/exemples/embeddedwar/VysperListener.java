@@ -34,6 +34,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0054_vcardtemp.VcardTempModul
 import org.apache.vysper.xmpp.modules.extension.xep0092_software_version.SoftwareVersionModule;
 import org.apache.vysper.xmpp.modules.extension.xep0199_xmppping.XmppPingModule;
 import org.apache.vysper.xmpp.modules.extension.xep0202_entity_time.EntityTimeModule;
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerFeatures;
 import org.apache.vysper.xmpp.server.XMPPServer;
 
@@ -47,7 +48,7 @@ public class VysperListener implements ServletContextListener {
             
             StorageProviderRegistry providerRegistry = new MemoryStorageProviderRegistry();
     
-            final AccountManagement accountManagement = (AccountManagement) providerRegistry
+            final AccountManagement accountManagement = providerRegistry
                     .retrieve(AccountManagement.class);
 
             Entity user1 = EntityImpl.parse("user1@" + domain);
@@ -92,6 +93,7 @@ public class VysperListener implements ServletContextListener {
 
             // Used by the websocket endpoint, if enabled
             sce.getServletContext().setAttribute("org.apache.vysper.xmpp.server.ServerRuntimeContext", server.getServerRuntimeContext());
+            sce.getServletContext().setAttribute(StanzaProcessor.class.getCanonicalName(), server.getStanzaProcessor());
             sce.getServletContext().setAttribute("vysper", server);
         } catch (Exception e) {
             e.printStackTrace();

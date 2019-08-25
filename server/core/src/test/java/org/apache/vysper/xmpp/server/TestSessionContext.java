@@ -31,6 +31,7 @@ import org.apache.vysper.xmpp.delivery.RecordingStanzaRelay;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverQueue;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
+import org.apache.vysper.xmpp.protocol.ProtocolWorker;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.writer.StanzaWriter;
@@ -109,21 +110,20 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
     }
 
     public TestSessionContext(SessionStateHolder sessionStateHolder) {
-        super(new DefaultServerRuntimeContext(new EntityImpl(null, "test", null), new RecordingStanzaRelay(),
-                new MemoryStorageProviderRegistry()), sessionStateHolder);
-        sessionId = serverRuntimeContext.getNextSessionId();
-        xmlLang = "de";
-        this.relay = ((DefaultServerRuntimeContext) serverRuntimeContext).getStanzaRelay();
-    }
-
-    public TestSessionContext(SessionStateHolder sessionStateHolder, StanzaReceiverRelay relay) {
-        this(new DefaultServerRuntimeContext(new EntityImpl(null, "test", null), new RecordingStanzaRelay(),
-                new MemoryStorageProviderRegistry()), sessionStateHolder, relay);
+        this(sessionStateHolder, new RecordingStanzaRelay());
     }
 
     public TestSessionContext(ServerRuntimeContext serverRuntimeContext, SessionStateHolder sessionStateHolder,
             StanzaRelay relay) {
-        super(serverRuntimeContext, sessionStateHolder);
+        super(serverRuntimeContext, new ProtocolWorker(relay), sessionStateHolder);
+        sessionId = serverRuntimeContext.getNextSessionId();
+        xmlLang = "de";
+        this.relay = relay;
+    }
+    
+    public TestSessionContext(SessionStateHolder sessionStateHolder, StanzaRelay relay) {
+        super(new DefaultServerRuntimeContext(new EntityImpl(null, "test", null), relay,
+                new MemoryStorageProviderRegistry()), new ProtocolWorker(relay), sessionStateHolder);
         sessionId = serverRuntimeContext.getNextSessionId();
         xmlLang = "de";
         this.relay = relay;

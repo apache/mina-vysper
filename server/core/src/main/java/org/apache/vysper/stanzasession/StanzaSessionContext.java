@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.AbstractSessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionState;
@@ -38,9 +39,12 @@ import org.apache.vysper.xmpp.writer.StanzaWriter;
 public class StanzaSessionContext extends AbstractSessionContext implements StanzaWriter {
 
     protected Queue<Stanza> stanzaQueue = new LinkedList<Stanza>();
+    
+    private final StanzaProcessor stanzaProcessor;
 
-    public StanzaSessionContext(ServerRuntimeContext serverRuntimeContext, SessionStateHolder sessionStateHolder) {
-        super(serverRuntimeContext, sessionStateHolder);
+    public StanzaSessionContext(ServerRuntimeContext serverRuntimeContext, StanzaProcessor stanzaProcessor, SessionStateHolder sessionStateHolder) {
+        super(serverRuntimeContext, stanzaProcessor, sessionStateHolder);
+        this.stanzaProcessor = stanzaProcessor;
     }
 
     public StanzaWriter getResponseWriter() {
@@ -48,7 +52,7 @@ public class StanzaSessionContext extends AbstractSessionContext implements Stan
     }
 
     public void sendStanzaToServer(Stanza stanza) {
-        serverRuntimeContext.getStanzaProcessor().processStanza(getServerRuntimeContext(), this, stanza,
+        stanzaProcessor.processStanza(getServerRuntimeContext(), this, stanza,
                 sessionStateHolder);
     }
 

@@ -60,7 +60,8 @@ public class DefaultXMPPServerConnectorRegistryTestCase {
 
     @Test
     public void connectorShouldBeReused() throws RemoteServerNotFoundException, RemoteServerTimeoutException {
-        DefaultXMPPServerConnectorRegistry registry = new DefaultXMPPServerConnectorRegistry(serverRuntimeContext, null) {
+        DefaultXMPPServerConnectorRegistry registry = 
+                new DefaultXMPPServerConnectorRegistry(serverRuntimeContext, null, null) {
             @Override
             protected XMPPServerConnector createConnector(Entity otherServer,
                     ServerRuntimeContext serverRuntimeContext, SessionContext dialbackSessionContext,
@@ -83,7 +84,8 @@ public class DefaultXMPPServerConnectorRegistryTestCase {
     
     @Test
     public void dontReuseClosedConnector() throws RemoteServerNotFoundException, RemoteServerTimeoutException {
-        DefaultXMPPServerConnectorRegistry registry = new DefaultXMPPServerConnectorRegistry(serverRuntimeContext, null) {
+        DefaultXMPPServerConnectorRegistry registry = 
+                new DefaultXMPPServerConnectorRegistry(serverRuntimeContext, null, null) {
             @Override
             protected XMPPServerConnector createConnector(Entity otherServer,
                     ServerRuntimeContext serverRuntimeContext, SessionContext dialbackSessionContext,
@@ -104,7 +106,8 @@ public class DefaultXMPPServerConnectorRegistryTestCase {
 
     @Test
     public void dontReuseConnectorToDifferentServers() throws RemoteServerNotFoundException, RemoteServerTimeoutException {
-        DefaultXMPPServerConnectorRegistry registry = new DefaultXMPPServerConnectorRegistry(serverRuntimeContext, null) {
+        DefaultXMPPServerConnectorRegistry registry = 
+                new DefaultXMPPServerConnectorRegistry(serverRuntimeContext, null, null) {
             @Override
             protected XMPPServerConnector createConnector(Entity otherServer,
                     ServerRuntimeContext serverRuntimeContext, SessionContext dialbackSessionContext,
@@ -123,7 +126,8 @@ public class DefaultXMPPServerConnectorRegistryTestCase {
 
     @Test
     public void createDialbackConnector() throws RemoteServerNotFoundException, RemoteServerTimeoutException {
-        DefaultXMPPServerConnectorRegistry registry = new DefaultXMPPServerConnectorRegistry(serverRuntimeContext, null) {
+        DefaultXMPPServerConnectorRegistry registry = 
+                new DefaultXMPPServerConnectorRegistry(serverRuntimeContext, null, null) {
             @Override
             protected XMPPServerConnector createConnector(Entity otherServer,
                     ServerRuntimeContext serverRuntimeContext, SessionContext dialbackSessionContext,
@@ -143,7 +147,8 @@ public class DefaultXMPPServerConnectorRegistryTestCase {
 
     @Test
     public void close() throws RemoteServerNotFoundException, RemoteServerTimeoutException {
-        DefaultXMPPServerConnectorRegistry registry = new DefaultXMPPServerConnectorRegistry(serverRuntimeContext, null) {
+        DefaultXMPPServerConnectorRegistry registry = 
+                new DefaultXMPPServerConnectorRegistry(serverRuntimeContext, null, null) {
             @Override
             protected XMPPServerConnector createConnector(Entity otherServer,
                     ServerRuntimeContext serverRuntimeContext, SessionContext dialbackSessionContext,

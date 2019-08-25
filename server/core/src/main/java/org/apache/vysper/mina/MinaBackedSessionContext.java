@@ -28,6 +28,7 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.ssl.SslFilter;
 import org.apache.vysper.mina.codec.StanzaWriteInfo;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.AbstractSessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionState;
@@ -54,9 +55,9 @@ public class MinaBackedSessionContext extends AbstractSessionContext implements 
 
     protected CloseFuture closeFuture;
 
-    public MinaBackedSessionContext(ServerRuntimeContext serverRuntimeContext, SessionStateHolder sessionStateHolder,
-            IoSession minaSession) {
-        super(serverRuntimeContext, sessionStateHolder);
+    public MinaBackedSessionContext(ServerRuntimeContext serverRuntimeContext, StanzaProcessor stanzaProcessor, SessionStateHolder sessionStateHolder,
+                                    IoSession minaSession) {
+        super(serverRuntimeContext, stanzaProcessor, sessionStateHolder);
         this.minaSession = minaSession;
         closeFuture = minaSession.getCloseFuture();
         closeFuture.addListener(this);

@@ -27,16 +27,18 @@ import javax.servlet.ServletException;
 
 import org.apache.catalina.websocket.StreamInbound;
 import org.apache.catalina.websocket.WebSocketServlet;
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * Servlet for initiating websocket connections in Apache Tomcat. Requires Tomcat 7.0.27 or later.
+ * Servlet for initiating websocket connections in Apache Tomcat. Requires
+ * Tomcat 7.0.27 or later.
  * <p>
- * When creating this servlet from web.xml, the Vysper server needs to be started beforehand
- * (e.g. from a {@link ServletContextListener} and the {@link ServerRuntimeContext} needs to be
- * added as an attribute in the {@link ServletContext} with the key "org.apache.vysper.xmpp.server.ServerRuntimeContext".
+ * When creating this servlet from web.xml, the Vysper server needs to be
+ * started beforehand (e.g. from a {@link ServletContextListener} and the
+ * {@link ServerRuntimeContext} needs to be added as an attribute in the
+ * {@link ServletContext} with the key
+ * "org.apache.vysper.xmpp.server.ServerRuntimeContext".
  * </p>
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
@@ -44,23 +46,26 @@ import org.slf4j.LoggerFactory;
 public class TomcatXmppWebSocketServlet extends WebSocketServlet {
 
     /**
-     * The attribute key for the {@link ServerRuntimeContext} in {@link ServletContext}
+     * The attribute key for the {@link ServerRuntimeContext} in
+     * {@link ServletContext}
      */
     public static final String SERVER_RUNTIME_CONTEXT_ATTRIBUTE = "org.apache.vysper.xmpp.server.ServerRuntimeContext";
 
-    private final static Logger LOG = LoggerFactory.getLogger(TomcatXmppWebSocketServlet.class);
-
     private static final long serialVersionUID = 197413099255392884L;
+
     private static final String SUB_PROTOCOL = "xmpp";
 
     private ServerRuntimeContext serverRuntimeContext;
+
+    private StanzaProcessor stanzaProcessor;
 
     public TomcatXmppWebSocketServlet() {
         // default cstr needed
     }
 
-    public TomcatXmppWebSocketServlet(ServerRuntimeContext serverRuntimeContext) {
+    public TomcatXmppWebSocketServlet(ServerRuntimeContext serverRuntimeContext, StanzaProcessor stanzaProcessor) {
         this.serverRuntimeContext = serverRuntimeContext;
+        this.stanzaProcessor = stanzaProcessor;
     }
 
     /**
@@ -70,10 +75,21 @@ public class TomcatXmppWebSocketServlet extends WebSocketServlet {
     public void init() throws ServletException {
         super.init();
 
-        if(serverRuntimeContext == null) {
-            serverRuntimeContext = (ServerRuntimeContext) getServletContext().getAttribute(SERVER_RUNTIME_CONTEXT_ATTRIBUTE);
-            if(serverRuntimeContext == null) {
-                throw new RuntimeException("Failed to get Vysper ServerRuntimeContext from servlet context attribute \"" + SERVER_RUNTIME_CONTEXT_ATTRIBUTE + "\"");
+        if (serverRuntimeContext == null) {
+            serverRuntimeContext = (ServerRuntimeContext) getServletContext()
+                    .getAttribute(SERVER_RUNTIME_CONTEXT_ATTRIBUTE);
+            if (serverRuntimeContext == null) {
+                throw new RuntimeException("Failed to get Vysper ServerRuntimeContext from servlet context attribute \""
+                        + SERVER_RUNTIME_CONTEXT_ATTRIBUTE + "\"");
+            }
+        }
+
+        if (stanzaProcessor == null) {
+            stanzaProcessor = (StanzaProcessor) getServletContext()
+                    .getAttribute(StanzaProcessor.class.getCanonicalName());
+            if (stanzaProcessor == null) {
+                throw new RuntimeException("Failed to get Vysper StanzaProcessor from servlet context attribute \""
+                        + StanzaProcessor.class.getCanonicalName() + "\"");
             }
         }
     }
@@ -86,17 +102,19 @@ public class TomcatXmppWebSocketServlet extends WebSocketServlet {
     /**
      * {@inheritDoc}
      *
-     * Will return null if the client does not provide the correct websocket sub protocol. "xmpp" is required.
+     * Will return null if the client does not provide the correct websocket sub
+     * protocol. "xmpp" is required.
      */
     @Override
     protected StreamInbound createWebSocketInbound(String subProtocol) {
         // TODO subProtocol is always null on Tomcat 7.0.27, reactivate check when fixed
-        //if (SUB_PROTOCOL.equals(subProtocol)) {
-            TomcatXmppWebSocket sessionContext = new TomcatXmppWebSocket(serverRuntimeContext);
-            return sessionContext;
-        //} else {
-        //    LOG.warn("Unsupported websocket sub protocol, must be \"xmpp\", but was \"" + subProtocol + "\"");
-        //    return null;
-        //}
+        // if (SUB_PROTOCOL.equals(subProtocol)) {
+        TomcatXmppWebSocket sessionContext = new TomcatXmppWebSocket(serverRuntimeContext, stanzaProcessor);
+        return sessionContext;
+        // } else {
+        // LOG.warn("Unsupported websocket sub protocol, must be \"xmpp\", but was \"" +
+        // subProtocol + "\"");
+        // return null;
+        // }
     }
 }

@@ -25,14 +25,13 @@ import java.util.Map;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.state.resourcebinding.BindException;
 import org.apache.vysper.xmpp.uuid.JVMBuiltinUUIDGenerator;
 import org.apache.vysper.xmpp.uuid.UUIDGenerator;
 import org.apache.vysper.xmpp.writer.StanzaWriter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * provides default session context behavior
@@ -41,9 +40,9 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractSessionContext implements SessionContext {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractSessionContext.class);
+    protected final ServerRuntimeContext serverRuntimeContext;
 
-    protected ServerRuntimeContext serverRuntimeContext;
+    private final StanzaProcessor stanzaProcessor;
 
     protected String sessionId;
 
@@ -59,10 +58,12 @@ public abstract class AbstractSessionContext implements SessionContext {
 
     private boolean serverToServer = false;
 
-    private Map<String, Object> attributeMap = new HashMap<String, Object>();
+    private Map<String, Object> attributeMap = new HashMap<>();
 
-    public AbstractSessionContext(ServerRuntimeContext serverRuntimeContext, SessionStateHolder sessionStateHolder) {
+    public AbstractSessionContext(ServerRuntimeContext serverRuntimeContext, StanzaProcessor stanzaProcessor,
+            SessionStateHolder sessionStateHolder) {
         this.serverRuntimeContext = serverRuntimeContext;
+        this.stanzaProcessor = stanzaProcessor;
         sessionId = serverRuntimeContext.getNextSessionId();
         serverEntity = serverRuntimeContext.getServerEntity();
         xmlLang = serverRuntimeContext.getDefaultXMLLang();
@@ -140,7 +141,7 @@ public abstract class AbstractSessionContext implements SessionContext {
                 || terminationCause == SessionTerminationCause.CONNECTION_ABORT) {
             if (getState().equals(SessionState.AUTHENTICATED)) {
                 Stanza unavailableStanza = StanzaBuilder.createUnavailablePresenceStanza(null, terminationCause);
-                serverRuntimeContext.getStanzaProcessor().processStanza(serverRuntimeContext, this, unavailableStanza,
+                stanzaProcessor.processStanza(serverRuntimeContext, this, unavailableStanza,
                         sessionStateHolder);
             }
         } else if (terminationCause == SessionTerminationCause.SERVER_SHUTDOWN) {

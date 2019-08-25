@@ -24,6 +24,7 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketServlet;
@@ -33,9 +34,11 @@ import org.slf4j.LoggerFactory;
 /**
  * Servlet for initiating websocket connections for Jetty.
  * <p>
- * When creating this servlet from web.xml, the Vysper server needs to be started beforehand
- * (e.g. from a {@link ServletContextListener} and the {@link ServerRuntimeContext} needs to be
- * added as an attribute in the {@link ServletContext} with the key "org.apache.vysper.xmpp.server.ServerRuntimeContext".
+ * When creating this servlet from web.xml, the Vysper server needs to be
+ * started beforehand (e.g. from a {@link ServletContextListener} and the
+ * {@link ServerRuntimeContext} needs to be added as an attribute in the
+ * {@link ServletContext} with the key
+ * "org.apache.vysper.xmpp.server.ServerRuntimeContext".
  * </p>
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
@@ -43,23 +46,28 @@ import org.slf4j.LoggerFactory;
 public class JettyXmppWebSocketServlet extends WebSocketServlet {
 
     /**
-     * The attribute key for the {@link ServerRuntimeContext} in {@link ServletContext}
+     * The attribute key for the {@link ServerRuntimeContext} in
+     * {@link ServletContext}
      */
     public static final String SERVER_RUNTIME_CONTEXT_ATTRIBUTE = "org.apache.vysper.xmpp.server.ServerRuntimeContext";
 
     private final static Logger LOG = LoggerFactory.getLogger(JettyXmppWebSocketServlet.class);
 
     private static final long serialVersionUID = 197413099255392883L;
+
     private static final String SUB_PROTOCOL = "xmpp";
 
     private ServerRuntimeContext serverRuntimeContext;
+
+    private StanzaProcessor stanzaProcessor;
 
     public JettyXmppWebSocketServlet() {
         // default cstr needed
     }
 
-    public JettyXmppWebSocketServlet(ServerRuntimeContext serverRuntimeContext) {
+    public JettyXmppWebSocketServlet(ServerRuntimeContext serverRuntimeContext, StanzaProcessor stanzaProcessor) {
         this.serverRuntimeContext = serverRuntimeContext;
+        this.stanzaProcessor = stanzaProcessor;
     }
 
     /**
@@ -69,10 +77,21 @@ public class JettyXmppWebSocketServlet extends WebSocketServlet {
     public void init() throws ServletException {
         super.init();
 
-        if(serverRuntimeContext == null) {
-            serverRuntimeContext = (ServerRuntimeContext) getServletContext().getAttribute(SERVER_RUNTIME_CONTEXT_ATTRIBUTE);
-            if(serverRuntimeContext == null) {
-                throw new RuntimeException("Failed to get Vysper ServerRuntimeContext from servlet context attribute \"" + SERVER_RUNTIME_CONTEXT_ATTRIBUTE + "\"");
+        if (serverRuntimeContext == null) {
+            serverRuntimeContext = (ServerRuntimeContext) getServletContext()
+                    .getAttribute(SERVER_RUNTIME_CONTEXT_ATTRIBUTE);
+            if (serverRuntimeContext == null) {
+                throw new RuntimeException("Failed to get Vysper ServerRuntimeContext from servlet context attribute \""
+                        + SERVER_RUNTIME_CONTEXT_ATTRIBUTE + "\"");
+            }
+        }
+
+        if (stanzaProcessor == null) {
+            stanzaProcessor = (StanzaProcessor) getServletContext()
+                    .getAttribute(StanzaProcessor.class.getCanonicalName());
+            if (stanzaProcessor == null) {
+                throw new RuntimeException("Failed to get Vysper StanzaProcessor from servlet context attribute \""
+                        + StanzaProcessor.class.getCanonicalName() + "\"");
             }
         }
     }
@@ -80,11 +99,12 @@ public class JettyXmppWebSocketServlet extends WebSocketServlet {
     /**
      * {@inheritDoc}
      *
-     * Will return null if the client does not provide the correct websocket sub protocol. "xmpp" is required.
+     * Will return null if the client does not provide the correct websocket sub
+     * protocol. "xmpp" is required.
      */
     public WebSocket doWebSocketConnect(HttpServletRequest request, String protocol) {
-        if(SUB_PROTOCOL.equals(protocol)) {
-            JettyXmppWebSocket sessionContext = new JettyXmppWebSocket(serverRuntimeContext);
+        if (SUB_PROTOCOL.equals(protocol)) {
+            JettyXmppWebSocket sessionContext = new JettyXmppWebSocket(serverRuntimeContext, stanzaProcessor);
             return sessionContext;
         } else {
             LOG.warn("Unsupported WebSocket sub protocol, must be \"xmpp\"");

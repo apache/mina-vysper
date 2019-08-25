@@ -28,7 +28,6 @@ import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.eclipse.jetty.websocket.WebSocket.Connection;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -39,26 +38,24 @@ import org.mockito.Mockito;
 public class JettyXmppWebSocketTest {
 
     private StanzaProcessor stanzaProcessor = Mockito.mock(StanzaProcessor.class);
-    private ServerRuntimeContext serverRuntimeContext = Mockito.mock(ServerRuntimeContext.class);
-    private Connection outbound = Mockito.mock(Connection.class);
 
-    @Before
-    public void before() {
-        Mockito.when(serverRuntimeContext.getStanzaProcessor()).thenReturn(stanzaProcessor);
-    }
+    private ServerRuntimeContext serverRuntimeContext = Mockito.mock(ServerRuntimeContext.class);
+
+    private Connection outbound = Mockito.mock(Connection.class);
 
     @Test
     public void onMessage() {
-      JettyXmppWebSocket context = new JettyXmppWebSocket(serverRuntimeContext);
+        JettyXmppWebSocket context = new JettyXmppWebSocket(serverRuntimeContext, stanzaProcessor);
         context.onMessage("<test></test>");
 
         Stanza expected = new StanzaBuilder("test").build();
-        Mockito.verify(stanzaProcessor).processStanza(Mockito.eq(serverRuntimeContext), Mockito.any(SessionContext.class), Mockito.eq(expected), Mockito.any(SessionStateHolder.class));
+        Mockito.verify(stanzaProcessor).processStanza(Mockito.eq(serverRuntimeContext),
+                Mockito.any(SessionContext.class), Mockito.eq(expected), Mockito.any(SessionStateHolder.class));
     }
 
     @Test
     public void write() throws IOException {
-        JettyXmppWebSocket context = new JettyXmppWebSocket(serverRuntimeContext);
+        JettyXmppWebSocket context = new JettyXmppWebSocket(serverRuntimeContext, stanzaProcessor);
         context.onOpen(outbound);
 
         context.write("<test></test>");

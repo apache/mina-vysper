@@ -21,6 +21,7 @@ package org.apache.vysper.xmpp.extension.websockets;
 
 import java.io.IOException;
 
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.Endpoint;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.eclipse.jetty.server.Connector;
@@ -45,6 +46,8 @@ public class WebSocketEndpoint implements Endpoint {
     protected final static Logger logger = LoggerFactory.getLogger(WebSocketEndpoint.class);
 
     protected ServerRuntimeContext serverRuntimeContext;
+    
+    private StanzaProcessor stanzaProcessor;
 
     protected int port = 8080;
 
@@ -63,6 +66,11 @@ public class WebSocketEndpoint implements Endpoint {
      */
     public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
         this.serverRuntimeContext = serverRuntimeContext;
+    }
+
+    @Override
+    public void setStanzaProcessor(StanzaProcessor stanzaProcessor) {
+        this.stanzaProcessor = stanzaProcessor;
     }
 
     /**
@@ -142,7 +150,7 @@ public class WebSocketEndpoint implements Endpoint {
         ServletContextHandler servletContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
         servletContext.setContextPath(contextPath);
 
-        JettyXmppWebSocketServlet wsServlet = new JettyXmppWebSocketServlet(serverRuntimeContext);
+        JettyXmppWebSocketServlet wsServlet = new JettyXmppWebSocketServlet(serverRuntimeContext, stanzaProcessor);
         servletContext.addServlet(new ServletHolder(wsServlet), "/ws");
 
         return servletContext;

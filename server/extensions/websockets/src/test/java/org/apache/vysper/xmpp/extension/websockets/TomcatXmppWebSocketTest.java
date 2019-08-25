@@ -29,7 +29,6 @@ import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -40,26 +39,24 @@ import org.mockito.Mockito;
 public class TomcatXmppWebSocketTest {
 
     private StanzaProcessor stanzaProcessor = Mockito.mock(StanzaProcessor.class);
-    private ServerRuntimeContext serverRuntimeContext = Mockito.mock(ServerRuntimeContext.class);
-    private WsOutbound outbound = Mockito.mock(WsOutbound.class);
 
-    @Before
-    public void before() {
-        Mockito.when(serverRuntimeContext.getStanzaProcessor()).thenReturn(stanzaProcessor);
-    }
+    private ServerRuntimeContext serverRuntimeContext = Mockito.mock(ServerRuntimeContext.class);
+
+    private WsOutbound outbound = Mockito.mock(WsOutbound.class);
 
     @Test
     public void onMessage() throws IOException {
-        TomcatXmppWebSocket context = new TomcatXmppWebSocket(serverRuntimeContext);
+        TomcatXmppWebSocket context = new TomcatXmppWebSocket(serverRuntimeContext, stanzaProcessor);
         context.onTextMessage(CharBuffer.wrap("<test></test>"));
 
         Stanza expected = new StanzaBuilder("test").build();
-        Mockito.verify(stanzaProcessor).processStanza(Mockito.eq(serverRuntimeContext), Mockito.any(SessionContext.class), Mockito.eq(expected), Mockito.any(SessionStateHolder.class));
+        Mockito.verify(stanzaProcessor).processStanza(Mockito.eq(serverRuntimeContext),
+                Mockito.any(SessionContext.class), Mockito.eq(expected), Mockito.any(SessionStateHolder.class));
     }
 
     @Test
     public void write() throws IOException {
-        TomcatXmppWebSocket context = new TomcatXmppWebSocket(serverRuntimeContext);
+        TomcatXmppWebSocket context = new TomcatXmppWebSocket(serverRuntimeContext, stanzaProcessor);
         context.onOpen(outbound);
 
         context.write("<test></test>");

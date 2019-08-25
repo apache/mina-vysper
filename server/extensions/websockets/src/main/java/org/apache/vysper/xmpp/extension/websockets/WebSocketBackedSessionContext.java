@@ -33,6 +33,7 @@ import org.apache.vysper.xml.sax.NonBlockingXMLReader;
 import org.apache.vysper.xml.sax.impl.DefaultNonBlockingXMLReader;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.protocol.StreamErrorCondition;
 import org.apache.vysper.xmpp.server.AbstractSessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -51,13 +52,19 @@ import org.xml.sax.SAXException;
 public class WebSocketBackedSessionContext extends AbstractSessionContext implements XMLElementListener, StanzaWriter {
 
     private final static Charset CHARSET = Charset.forName("UTF-8");
+
     private final static CharsetDecoder CHARSET_DECODER = CHARSET.newDecoder();
 
     private NonBlockingXMLReader xmlReader = new DefaultNonBlockingXMLReader();
+    
+    private final StanzaProcessor stanzaProcessor;
+
     private Outbound outbound;
 
-    public WebSocketBackedSessionContext(ServerRuntimeContext serverRuntimeContext, Outbound outbound) {
-        super(serverRuntimeContext, new SessionStateHolder());
+    public WebSocketBackedSessionContext(ServerRuntimeContext serverRuntimeContext, StanzaProcessor stanzaProcessor,
+            Outbound outbound) {
+        super(serverRuntimeContext, stanzaProcessor, new SessionStateHolder());
+        this.stanzaProcessor = stanzaProcessor;
 
         this.outbound = outbound;
 
@@ -104,7 +111,8 @@ public class WebSocketBackedSessionContext extends AbstractSessionContext implem
      */
     public void element(XMLElement element) {
         // on parsed stanzas
-        serverRuntimeContext.getStanzaProcessor().processStanza(serverRuntimeContext, this, (Stanza) element, sessionStateHolder);
+        stanzaProcessor.processStanza(serverRuntimeContext, this, (Stanza) element,
+                sessionStateHolder);
     }
 
     public void onOpen() {
@@ -120,7 +128,7 @@ public class WebSocketBackedSessionContext extends AbstractSessionContext implem
             throw new RuntimeException(e);
         } catch (SAXException e) {
             Stanza errorStanza = ServerErrorResponses.getStreamError(StreamErrorCondition.XML_NOT_WELL_FORMED,
-                getXMLLang(), "Stanza not well-formed", null);
+                    getXMLLang(), "Stanza not well-formed", null);
             write(errorStanza);
             endSession(SessionTerminationCause.STREAM_ERROR);
         }
@@ -136,7 +144,8 @@ public class WebSocketBackedSessionContext extends AbstractSessionContext implem
     public void write(Stanza stanza) {
         // handle stream open
         Renderer renderer = new Renderer(stanza);
-        if("stream".equals(stanza.getName()) && NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS.equals(stanza.getNamespaceURI())) {
+        if ("stream".equals(stanza.getName())
+                && NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS.equals(stanza.getNamespaceURI())) {
             // stream:stream and stream:features comes at the same time, split them
             write(renderer.getOpeningElement());
             write(renderer.getElementContent());

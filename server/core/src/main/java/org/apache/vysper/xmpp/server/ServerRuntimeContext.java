@@ -54,8 +54,6 @@ public interface ServerRuntimeContext {
 
     String getDefaultXMLLang();
 
-    StanzaProcessor getStanzaProcessor();
-
     ServerFeatures getServerFeatures();
 
     SSLContext getSslContext();

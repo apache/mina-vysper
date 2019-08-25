@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.extension.xep0124;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.Endpoint;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.eclipse.jetty.server.Connector;
@@ -48,7 +49,9 @@ public class BoshEndpoint implements Endpoint {
     protected final static Logger logger = LoggerFactory.getLogger(BoshEndpoint.class);
 
     protected ServerRuntimeContext serverRuntimeContext;
-
+    
+    private StanzaProcessor stanzaProcessor;
+    
     protected int port = 8080;
 
     protected Server server;
@@ -65,6 +68,11 @@ public class BoshEndpoint implements Endpoint {
 
     public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
         this.serverRuntimeContext = serverRuntimeContext;
+    }
+
+    @Override
+    public void setStanzaProcessor(StanzaProcessor stanzaProcessor) {
+        this.stanzaProcessor = stanzaProcessor;
     }
 
     /**
@@ -175,7 +183,7 @@ public class BoshEndpoint implements Endpoint {
         boshContext.setContextPath(contextPath);
 
         BoshServlet boshServlet = new BoshServlet();
-        boshServlet.setServerRuntimeContext(serverRuntimeContext);
+        boshServlet.inject(serverRuntimeContext, stanzaProcessor);
         boshServlet.setAccessControlAllowOrigin(accessControlAllowOrigin);
         boshContext.addServlet(new ServletHolder(boshServlet), "/");
 

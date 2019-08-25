@@ -98,12 +98,6 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     // basic services the server is using...
 
     /**
-     * 'input stream': receives stanzas issued by client sessions to be handled by
-     * the server
-     */
-    private final StanzaProcessor stanzaProcessor;
-
-    /**
      * 'output stream': receives stanzas issued by a session, which are going to
      * other sessions/servers
      */
@@ -141,17 +135,16 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     private final AlterableComponentRegistry componentRegistry;
 
     private final SimpleEventBus eventBus;
-    
+
     private final ComponentStanzaProcessorFactory componentStanzaProcessorFactory;
 
-    public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay,
+    public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay, StanzaProcessor stanzaProcessor,
             AlterableComponentRegistry componentRegistry, ResourceRegistry resourceRegistry,
             ServerFeatures serverFeatures, List<HandlerDictionary> dictionaries) {
         this.serverEntity = serverEntity;
         this.stanzaRelay = stanzaRelay;
-        this.stanzaProcessor = new ProtocolWorker(stanzaRelay);
         this.componentRegistry = requireNonNull(componentRegistry);
-        this.serverConnectorRegistry = new DefaultXMPPServerConnectorRegistry(this, stanzaRelay);
+        this.serverConnectorRegistry = new DefaultXMPPServerConnectorRegistry(this, stanzaRelay, stanzaProcessor);
         this.stanzaHandlerLookup = new StanzaHandlerLookup(this);
         this.eventBus = new SimpleEventBus();
         this.serverFeatures = serverFeatures;
@@ -168,8 +161,8 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     }
 
     public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay) {
-        this(serverEntity, stanzaRelay, new SimpleComponentRegistry(serverEntity), new DefaultResourceRegistry(),
-                new ServerFeatures(), Collections.emptyList());
+        this(serverEntity, stanzaRelay, new ProtocolWorker(stanzaRelay), new SimpleComponentRegistry(serverEntity),
+                new DefaultResourceRegistry(), new ServerFeatures(), Collections.emptyList());
     }
 
     /**
@@ -201,11 +194,6 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     @Override
     public String getDefaultXMLLang() {
         return "en_US"; // TODO must be configurable as of RFC3920
-    }
-
-    @Override
-    public StanzaProcessor getStanzaProcessor() {
-        return stanzaProcessor;
     }
 
     public StanzaRelay getStanzaRelay() {

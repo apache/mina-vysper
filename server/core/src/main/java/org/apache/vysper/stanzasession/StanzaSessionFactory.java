@@ -20,6 +20,7 @@
 package org.apache.vysper.stanzasession;
 
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.Endpoint;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionState;
@@ -31,6 +32,7 @@ import org.apache.vysper.xmpp.server.SessionState;
 public class StanzaSessionFactory implements Endpoint {
 
     private ServerRuntimeContext serverRuntimeContext;
+    private StanzaProcessor stanzaProcessor;
 
     /**
      * returns a new session for the server. the session behaves like a client, but lives within the server JVM
@@ -38,13 +40,18 @@ public class StanzaSessionFactory implements Endpoint {
     public StanzaSession createNewSession() {
         SessionStateHolder stateHolder = new SessionStateHolder();
         stateHolder.setState(SessionState.INITIATED);
-        StanzaSessionContext sessionContext = new StanzaSessionContext(serverRuntimeContext, stateHolder);
+        StanzaSessionContext sessionContext = new StanzaSessionContext(serverRuntimeContext, stanzaProcessor, stateHolder);
         StanzaSession session = new StanzaSession(sessionContext);
         return session;
     }
 
     public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
         this.serverRuntimeContext = serverRuntimeContext;
+    }
+
+    @Override
+    public void setStanzaProcessor(StanzaProcessor stanzaProcessor) {
+        this.stanzaProcessor = stanzaProcessor;
     }
 
     public void start() {

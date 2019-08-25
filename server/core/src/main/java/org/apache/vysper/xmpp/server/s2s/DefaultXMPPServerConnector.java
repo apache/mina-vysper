@@ -52,6 +52,7 @@ import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
@@ -78,6 +79,8 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
     private final ServerRuntimeContext serverRuntimeContext;
 
     private final StanzaRelay stanzaRelay;
+    
+    private final StanzaProcessor stanzaProcessor;
 
     private MinaBackedSessionContext sessionContext;
 
@@ -108,9 +111,11 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
     protected final CountDownLatch authenticatedLatch = new CountDownLatch(1);
 
     public DefaultXMPPServerConnector(Entity remoteServer, ServerRuntimeContext serverRuntimeContext,
-            StanzaRelay stanzaRelay, SessionContext dialbackSessionContext,
-            SessionStateHolder dialbackSessionStateHolder) {
+                                      StanzaRelay stanzaRelay, StanzaProcessor stanzaProcessor, 
+                                      SessionContext dialbackSessionContext,
+                                      SessionStateHolder dialbackSessionStateHolder) {
         this.serverRuntimeContext = serverRuntimeContext;
+        this.stanzaProcessor = stanzaProcessor;
         this.stanzaRelay = stanzaRelay;
         this.remoteServer = remoteServer;
         this.dialbackSessionContext = dialbackSessionContext;
@@ -279,7 +284,7 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
                 return;
             }
 
-            serverRuntimeContext.getStanzaProcessor().processStanza(serverRuntimeContext, sessionContext, stanza,
+            stanzaProcessor.processStanza(serverRuntimeContext, sessionContext, stanza,
                     sessionStateHolder);
         }
     }
@@ -301,7 +306,7 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
 
     public void handleSessionOpened(IoSession session) {
         LOG.info("XMPP server session opened to {}", remoteServer);
-        sessionContext = new MinaBackedSessionContext(serverRuntimeContext, sessionStateHolder, session);
+        sessionContext = new MinaBackedSessionContext(serverRuntimeContext, stanzaProcessor, sessionStateHolder, session);
         sessionStateHolder.setState(SessionState.INITIATED);
         Stanza opener = new ServerResponses().getStreamOpenerForServerConnector(serverRuntimeContext.getServerEntity(),
                 remoteServer, XMPPVersion.VERSION_1_0, sessionContext);

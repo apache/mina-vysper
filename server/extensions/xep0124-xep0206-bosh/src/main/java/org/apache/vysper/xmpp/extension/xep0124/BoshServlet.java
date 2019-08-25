@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.extension.xep0124;
 
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,13 +77,13 @@ public class BoshServlet extends HttpServlet {
     /**
      * Setter for the {@link ServerRuntimeContext}
      * @param serverRuntimeContext
+     * @param stanzaProcessor
      */
-    public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
+    public void inject(ServerRuntimeContext serverRuntimeContext, StanzaProcessor stanzaProcessor) {
         boshHandler.setServerRuntimeContext(serverRuntimeContext);
+        boshHandler.setStanzaProcessor(stanzaProcessor);
         serverRuntimeContext.registerServerRuntimeContextService(boshHandler);
     }
-    
-    
     
     public List<String> getAccessControlAllowOrigin() {
         return accessControlAllowOrigin;

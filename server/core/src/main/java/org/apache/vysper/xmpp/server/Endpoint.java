@@ -19,6 +19,8 @@
  */
 package org.apache.vysper.xmpp.server;
 
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
+
 import java.io.IOException;
 
 /**
@@ -33,6 +35,8 @@ import java.io.IOException;
 public interface Endpoint {
 
     void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext);
+    
+    void setStanzaProcessor(StanzaProcessor stanzaProcessor);
 
     void start() throws IOException;
 

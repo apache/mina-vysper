@@ -21,6 +21,7 @@ package org.apache.vysper.xmpp.extension.websockets;
 
 import java.io.IOException;
 
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.eclipse.jetty.websocket.WebSocket;
@@ -34,14 +35,14 @@ import org.slf4j.LoggerFactory;
  */
 public class JettyXmppWebSocket implements WebSocket, WebSocket.OnTextMessage, Outbound {
 
-
     private final static Logger LOG = LoggerFactory.getLogger(JettyXmppWebSocket.class);
 
     private WebSocketBackedSessionContext sessionContext;
+
     private Connection outbound;
 
-    public JettyXmppWebSocket(ServerRuntimeContext serverRuntimeContext) {
-        this.sessionContext = new WebSocketBackedSessionContext(serverRuntimeContext, this);
+    public JettyXmppWebSocket(ServerRuntimeContext serverRuntimeContext, StanzaProcessor stanzaProcessor) {
+        this.sessionContext = new WebSocketBackedSessionContext(serverRuntimeContext, stanzaProcessor, this);
     }
 
     /**
@@ -53,7 +54,6 @@ public class JettyXmppWebSocket implements WebSocket, WebSocket.OnTextMessage, O
 
         sessionContext.onOpen();
     }
-
 
     public void onMessage(String data) {
         LOG.info("< " + data);

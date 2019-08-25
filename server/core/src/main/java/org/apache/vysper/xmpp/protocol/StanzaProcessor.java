@@ -33,8 +33,8 @@ public interface StanzaProcessor {
     /**
      * processes a stanza as received from a local session
      */
-    public void processStanza(ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, Stanza stanza,
-            SessionStateHolder sessionStateHolder);
+    void processStanza(ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, Stanza stanza,
+                       SessionStateHolder sessionStateHolder);
 
-    public void processTLSEstablished(SessionContext sessionContext, SessionStateHolder sessionStateHolder);
+    void processTLSEstablished(SessionContext sessionContext, SessionStateHolder sessionStateHolder);
 }

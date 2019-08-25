@@ -30,6 +30,7 @@ import org.apache.mina.filter.executor.OrderedThreadPoolExecutor;
 import org.apache.mina.transport.socket.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.apache.vysper.mina.codec.XMPPProtocolCodecFactory;
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.Endpoint;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 
@@ -40,6 +41,8 @@ import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 public class TCPEndpoint implements Endpoint {
 
     private ServerRuntimeContext serverRuntimeContext;
+    
+    private StanzaProcessor stanzaProcessor;
 
     private int port = 5222;
 
@@ -59,7 +62,12 @@ public class TCPEndpoint implements Endpoint {
     public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
         this.serverRuntimeContext = serverRuntimeContext;
     }
-    
+
+    @Override
+    public void setStanzaProcessor(StanzaProcessor stanzaProcessor) {
+        this.stanzaProcessor = stanzaProcessor;
+    }
+
     /**
      * Returns the configured port if one is provided (non-zero value).
      */
@@ -92,8 +100,7 @@ public class TCPEndpoint implements Endpoint {
         filterChainBuilder.addLast("executorFilter", new ExecutorFilter(new OrderedThreadPoolExecutor(coreThreadCount, maxThreadCount, threadTimeoutSeconds, TimeUnit.SECONDS)));
         acceptor.setFilterChainBuilder(filterChainBuilder);
 
-        XmppIoHandlerAdapter adapter = new XmppIoHandlerAdapter();
-        adapter.setServerRuntimeContext(serverRuntimeContext);
+        XmppIoHandlerAdapter adapter = new XmppIoHandlerAdapter(serverRuntimeContext, stanzaProcessor);
         acceptor.setHandler(adapter);
 
         acceptor.setReuseAddress(true);

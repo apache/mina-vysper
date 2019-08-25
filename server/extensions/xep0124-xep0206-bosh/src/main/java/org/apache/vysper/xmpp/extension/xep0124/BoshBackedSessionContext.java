@@ -39,6 +39,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.AbstractSessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionState;
@@ -144,10 +145,11 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
     /**
      * Creates a new context for a session
      * @param serverRuntimeContext
+     * @param stanzaProcessor
      * @param inactivityChecker
      */
-    public BoshBackedSessionContext(ServerRuntimeContext serverRuntimeContext, BoshHandler boshHandler, InactivityChecker inactivityChecker) {
-        super(serverRuntimeContext, new SessionStateHolder());
+    public BoshBackedSessionContext(ServerRuntimeContext serverRuntimeContext, StanzaProcessor stanzaProcessor, BoshHandler boshHandler, InactivityChecker inactivityChecker) {
+        super(serverRuntimeContext, stanzaProcessor, new SessionStateHolder());
 
         // in BOSH we jump directly to the encrypted state
         sessionStateHolder.setState(SessionState.ENCRYPTED);

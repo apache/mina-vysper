@@ -24,6 +24,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
 import org.apache.catalina.websocket.StreamInbound;
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -37,12 +38,14 @@ import org.mockito.Mockito;
 public class TomcatXmppWebSocketServletTest {
 
     private ServerRuntimeContext serverRuntimeContext = Mockito.mock(ServerRuntimeContext.class);
+    private StanzaProcessor stanzaProcessor = Mockito.mock(StanzaProcessor.class);
 
     @Test
     public void doWebSocketConnectWithDefaultCstr() throws ServletException {
         ServletContext servletContext = Mockito.mock(ServletContext.class);
         Mockito.when(servletContext.getAttribute(JettyXmppWebSocketServlet.SERVER_RUNTIME_CONTEXT_ATTRIBUTE)).thenReturn(serverRuntimeContext);
-
+        Mockito.when(servletContext.getAttribute(StanzaProcessor.class.getCanonicalName())).thenReturn(stanzaProcessor);
+        
         ServletConfig servletConfig = Mockito.mock(ServletConfig.class);
         Mockito.when(servletConfig.getServletContext()).thenReturn(servletContext);
 
@@ -55,7 +58,7 @@ public class TomcatXmppWebSocketServletTest {
 
     @Test
     public void doWebSocketConnectWithDirectCstr() throws ServletException {
-        TomcatXmppWebSocketServlet servlet = new TomcatXmppWebSocketServlet(serverRuntimeContext);
+        TomcatXmppWebSocketServlet servlet = new TomcatXmppWebSocketServlet(serverRuntimeContext, stanzaProcessor);
 
         StreamInbound webSocket = servlet.createWebSocketInbound("xmpp");
         Assert.assertTrue(webSocket instanceof TomcatXmppWebSocket);
@@ -64,7 +67,7 @@ public class TomcatXmppWebSocketServletTest {
     @Test
     @Ignore("sub protocol check temporarily disabled for Tomcat")
     public void doWebSocketConnectWithInvalidSubprotocl() throws ServletException {
-        TomcatXmppWebSocketServlet servlet = new TomcatXmppWebSocketServlet(serverRuntimeContext);
+        TomcatXmppWebSocketServlet servlet = new TomcatXmppWebSocketServlet(serverRuntimeContext, stanzaProcessor);
 
         StreamInbound webSocket = servlet.createWebSocketInbound("dummy");
         Assert.assertNull(webSocket);

@@ -23,6 +23,7 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.junit.Assert;
@@ -36,11 +37,13 @@ import org.mockito.Mockito;
 public class JettyXmppWebSocketServletTest {
 
     private ServerRuntimeContext serverRuntimeContext = Mockito.mock(ServerRuntimeContext.class);
+    private StanzaProcessor stanzaProcessor = Mockito.mock(StanzaProcessor.class);
 
     @Test
     public void doWebSocketConnectWithDefaultCstr() throws ServletException {
         ServletContext servletContext = Mockito.mock(ServletContext.class);
         Mockito.when(servletContext.getAttribute(JettyXmppWebSocketServlet.SERVER_RUNTIME_CONTEXT_ATTRIBUTE)).thenReturn(serverRuntimeContext);
+        Mockito.when(servletContext.getAttribute(StanzaProcessor.class.getCanonicalName())).thenReturn(stanzaProcessor);
 
         ServletConfig servletConfig = Mockito.mock(ServletConfig.class);
         Mockito.when(servletConfig.getServletContext()).thenReturn(servletContext);
@@ -54,7 +57,7 @@ public class JettyXmppWebSocketServletTest {
 
     @Test
     public void doWebSocketConnectWithDirectCstr() throws ServletException {
-      JettyXmppWebSocketServlet servlet = new JettyXmppWebSocketServlet(serverRuntimeContext);
+      JettyXmppWebSocketServlet servlet = new JettyXmppWebSocketServlet(serverRuntimeContext, stanzaProcessor);
 
         WebSocket webSocket = servlet.doWebSocketConnect(null, "xmpp");
         Assert.assertTrue(webSocket instanceof JettyXmppWebSocket);
@@ -62,7 +65,7 @@ public class JettyXmppWebSocketServletTest {
 
     @Test
     public void doWebSocketConnectWithInvalidSubprotocl() throws ServletException {
-      JettyXmppWebSocketServlet servlet = new JettyXmppWebSocketServlet(serverRuntimeContext);
+      JettyXmppWebSocketServlet servlet = new JettyXmppWebSocketServlet(serverRuntimeContext, stanzaProcessor);
 
         WebSocket webSocket = servlet.doWebSocketConnect(null, "dummy");
         Assert.assertNull(webSocket);

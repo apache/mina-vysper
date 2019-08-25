@@ -28,6 +28,7 @@ import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.StanzaRelayBroker;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
+import org.apache.vysper.xmpp.protocol.ProtocolWorker;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
 import org.apache.vysper.xmpp.server.ServerFeatures;
 import org.apache.vysper.xmpp.server.SimpleComponentRegistry;
@@ -56,13 +57,15 @@ public class StanzaSessionTestCase extends TestCase {
         dictionaries.add(new org.apache.vysper.xmpp.modules.roster.RosterDictionary());
 
         Entity serverEntity = new EntityImpl(null, "test", null);
+        ProtocolWorker protocolWorker = new ProtocolWorker(relay);
         DefaultServerRuntimeContext serverContext = new DefaultServerRuntimeContext(serverEntity,
-                relay, new SimpleComponentRegistry(serverEntity), new DefaultResourceRegistry(), new ServerFeatures(), dictionaries);
+                relay, protocolWorker, new SimpleComponentRegistry(serverEntity), new DefaultResourceRegistry(), new ServerFeatures(), dictionaries);
 
         relay.setServerRuntimeContext(serverContext);
 
         sessionFactory = new StanzaSessionFactory();
         sessionFactory.setServerRuntimeContext(serverContext);
+        sessionFactory.setStanzaProcessor(protocolWorker);
     }
 
     public void testHandshake() {

@@ -27,9 +27,9 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteToClosedSessionException;
 import org.apache.mina.filter.FilterEvent;
 import org.apache.mina.filter.ssl.SslEvent;
-import org.apache.mina.filter.ssl.SslFilter;
 import org.apache.vysper.xml.fragment.XMLText;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.protocol.StreamErrorCondition;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
@@ -39,6 +39,8 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXParseException;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * handler for client-to-server sessions
@@ -54,10 +56,12 @@ public class XmppIoHandlerAdapter implements IoHandler {
     
     final Logger logger = LoggerFactory.getLogger(XmppIoHandlerAdapter.class);
 
-    private ServerRuntimeContext serverRuntimeContext;
+    private final ServerRuntimeContext serverRuntimeContext;
+    private final StanzaProcessor stanzaProcessor;
 
-    public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
+    public XmppIoHandlerAdapter(ServerRuntimeContext serverRuntimeContext, StanzaProcessor stanzaProcessor) {
         this.serverRuntimeContext = serverRuntimeContext;
+        this.stanzaProcessor = stanzaProcessor;
     }
 
     @Override
@@ -79,7 +83,7 @@ public class XmppIoHandlerAdapter implements IoHandler {
         SessionStateHolder stateHolder = (SessionStateHolder) ioSession
                 .getAttribute(ATTRIBUTE_VYSPER_SESSIONSTATEHOLDER);
 
-        serverRuntimeContext.getStanzaProcessor().processStanza(serverRuntimeContext, session, stanza, stateHolder);
+        stanzaProcessor.processStanza(serverRuntimeContext, session, stanza, stateHolder);
     }
 
     private SessionContext extractSession(IoSession ioSession) {
@@ -102,7 +106,7 @@ public class XmppIoHandlerAdapter implements IoHandler {
             SessionContext session = extractSession(ioSession);
             SessionStateHolder stateHolder = (SessionStateHolder) ioSession
                     .getAttribute(ATTRIBUTE_VYSPER_SESSIONSTATEHOLDER);
-            serverRuntimeContext.getStanzaProcessor().processTLSEstablished(session, stateHolder);
+            stanzaProcessor.processTLSEstablished(session, stateHolder);
         } else if (event == SslEvent.UNSECURED) {
             // TODO
         }
@@ -111,7 +115,7 @@ public class XmppIoHandlerAdapter implements IoHandler {
     @Override
     public void sessionCreated(IoSession ioSession) throws Exception {
         SessionStateHolder stateHolder = new SessionStateHolder();
-        SessionContext sessionContext = new MinaBackedSessionContext(serverRuntimeContext, stateHolder, ioSession);
+        SessionContext sessionContext = new MinaBackedSessionContext(serverRuntimeContext, stanzaProcessor, stateHolder, ioSession);
         ioSession.setAttribute(ATTRIBUTE_VYSPER_SESSION, sessionContext);
         ioSession.setAttribute(ATTRIBUTE_VYSPER_SESSIONSTATEHOLDER, stateHolder);
         ioSession.setAttribute(ATTRIBUTE_VYSPER_TERMINATE_REASON, SessionTerminationCause.CLIENT_BYEBYE);

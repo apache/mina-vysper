@@ -28,6 +28,7 @@ import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
 import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
 import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.AlterableComponentRegistry;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
 import org.apache.vysper.xmpp.server.ServerFeatures;
@@ -65,8 +66,9 @@ public class SpringCompatibleDefaultServerRuntimeContext extends DefaultServerRu
 
     public SpringCompatibleDefaultServerRuntimeContext(Entity serverEntity, ServerFeatures serverFeatures,
             List<HandlerDictionary> dictionaries, ResourceRegistry resourceRegistry,
+            StanzaProcessor stanzaProcessor,
             AlterableComponentRegistry componentRegistry) {
-        super(serverEntity, new StanzaRelayHull(), componentRegistry, resourceRegistry, serverFeatures, dictionaries);
+        super(serverEntity, new StanzaRelayHull(), stanzaProcessor, componentRegistry, resourceRegistry, serverFeatures, dictionaries);
     }
 
     public void setStanzaRelay(StanzaRelay stanzaRelay) {

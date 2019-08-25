@@ -47,6 +47,8 @@ import org.apache.vysper.xmpp.modules.extension.xep0160_offline_storage.OfflineS
 import org.apache.vysper.xmpp.modules.roster.RosterModule;
 import org.apache.vysper.xmpp.modules.servicediscovery.ServiceDiscoveryModule;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
+import org.apache.vysper.xmpp.protocol.ProtocolWorker;
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.state.resourcebinding.DefaultResourceRegistry;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 
@@ -69,6 +71,8 @@ public class XMPPServer {
     private String serverDomain;
 
     private DefaultServerRuntimeContext serverRuntimeContext;
+    
+    private StanzaProcessor stanzaProcessor;
 
     private StorageProviderRegistry storageProviderRegistry;
 
@@ -193,7 +197,9 @@ public class XMPPServer {
         stanzaRelayBroker.setInternalRelay(internalStanzaRelay);
         stanzaRelayBroker.setExternalRelay(externalStanzaRelay);
 
-        serverRuntimeContext = new DefaultServerRuntimeContext(serverEntity, stanzaRelayBroker, componentRegistry,
+        stanzaProcessor = new ProtocolWorker(stanzaRelayBroker);
+
+        serverRuntimeContext = new DefaultServerRuntimeContext(serverEntity, stanzaRelayBroker, stanzaProcessor, componentRegistry,
                 resourceRegistry, serverFeatures, dictionaries);
         serverRuntimeContext.setStorageProviderRegistry(storageProviderRegistry);
         serverRuntimeContext.setTlsContextFactory(tlsContextFactory);
@@ -213,8 +219,14 @@ public class XMPPServer {
 
         if (endpoints.size() == 0)
             throw new IllegalStateException("server must have at least one endpoint");
+
+        /*
+          'input stream': receives stanzas issued by client sessions to be handled by
+          the server
+         */
         for (Endpoint endpoint : endpoints) {
             endpoint.setServerRuntimeContext(serverRuntimeContext);
+            endpoint.setStanzaProcessor(stanzaProcessor);
             endpoint.start();
         }
     }
@@ -259,5 +271,9 @@ public class XMPPServer {
 
     public ServerRuntimeContext getServerRuntimeContext() {
         return serverRuntimeContext;
+    }
+    
+    public StanzaProcessor getStanzaProcessor(){
+        return stanzaProcessor;
     }
 }

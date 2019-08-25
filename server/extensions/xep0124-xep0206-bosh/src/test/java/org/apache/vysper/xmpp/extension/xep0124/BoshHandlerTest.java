@@ -58,6 +58,7 @@ public class BoshHandlerTest {
     private IMocksControl mocksControl;
 
     private ServerRuntimeContext serverRuntimeContext;
+    private StanzaProcessor stanzaProcessor;
 
     private BoshHandler boshHandler;
 
@@ -65,8 +66,10 @@ public class BoshHandlerTest {
     public void setUp() throws Exception {
         mocksControl = createControl();
         serverRuntimeContext = mocksControl.createMock(ServerRuntimeContext.class);
+        stanzaProcessor = mocksControl.createMock(StanzaProcessor.class);
         boshHandler = new BoshHandler();
         boshHandler.setServerRuntimeContext(serverRuntimeContext);
+        boshHandler.setStanzaProcessor(stanzaProcessor);
     }
 
     @After
@@ -130,8 +133,6 @@ public class BoshHandlerTest {
         asyncContext.setTimeout(anyLong());
         httpServletRequest.setAttribute(eq(BOSH_REQUEST_ATTRIBUTE), EasyMock.<BoshRequest> capture(br));
         asyncContext.addListener(EasyMock.<AsyncListener> anyObject());
-        StanzaProcessor stanzaProcessor = mocksControl.createMock(StanzaProcessor.class);
-        expect(serverRuntimeContext.getStanzaProcessor()).andReturn(stanzaProcessor);
         Capture<Stanza> stanzaCaptured = new Capture<Stanza>();
         stanzaProcessor.processStanza(eq(serverRuntimeContext), EasyMock.<SessionContext> anyObject(),
                 EasyMock.<Stanza> capture(stanzaCaptured), EasyMock.<SessionStateHolder> anyObject());

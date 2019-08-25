@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.extension.websockets;
 
+import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 
 
@@ -34,7 +35,7 @@ public class XmppWebSocketServlet extends JettyXmppWebSocketServlet {
     super();
   }
 
-  public XmppWebSocketServlet(ServerRuntimeContext serverRuntimeContext) {
-    super(serverRuntimeContext);
+  public XmppWebSocketServlet(ServerRuntimeContext serverRuntimeContext, StanzaProcessor stanzaProcessor) {
+    super(serverRuntimeContext, stanzaProcessor);
   }
 }
