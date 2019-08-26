@@ -28,13 +28,10 @@ import org.apache.vysper.event.EventBus;
 import org.apache.vysper.storage.StorageProvider;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.authentication.UserAuthentication;
-import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.ServerRuntimeContextService;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
-import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.components.Component;
-import org.apache.vysper.xmpp.server.components.ComponentStanzaProcessor;
 import org.apache.vysper.xmpp.server.s2s.XMPPServerConnectorRegistry;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.state.presence.LatestPresenceCache;
@@ -73,14 +70,14 @@ public interface ServerRuntimeContext {
     void registerComponent(Component component);
 
     boolean hasComponentStanzaProcessor(Entity entity);
-    
+
     XMPPServerConnectorRegistry getServerConnectorRegistry();
-    
+
     List<Module> getModules();
 
     <T> T getModule(Class<T> clazz);
-    
+
     void addModule(Module module);
-    
+
     EventBus getEventBus();
 }
