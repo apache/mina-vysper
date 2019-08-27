@@ -30,39 +30,27 @@ import org.apache.vysper.xmpp.modules.core.im.handler.PresenceHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbResultHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbVerifyHandler;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-import org.apache.vysper.xmpp.server.s2s.FeaturesHandler;
-import org.apache.vysper.xmpp.server.s2s.TlsProceedHandler;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 
 /**
- * for effeciently looking up the right handler for a stanza. at first this
- * class tries to determine the stanza's specific namespace which uniquely
- * brings up a NamespaceHandlerDictionary. then, all handlers in this directory
- * are visited and can verify if they might want to handle the stanza. the first
- * affirmative handler lucks out and can handle the stanza. regardless what
- * comes out of this handler, no other handler will then be tasked with
+ * for effeciently looking up the right handler for a stanza. at first this class tries to determine the stanza's
+ * specific namespace which uniquely brings up a NamespaceHandlerDictionary. then, all handlers in this directory
+ * are visited and can verify if they might want to handle the stanza. the first affirmative handler lucks out and
+ * can handle the stanza. regardless what comes out of this handler, no other handler will then be tasked with
  * handling.
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class StanzaHandlerLookup extends AbstractStanzaHandlerLookup {
 
+    private IQHandler iqHandler = new RelayingIQHandler();
+
+    private MessageHandler messageHandler = new MessageHandler();
+
+    private PresenceHandler presenceHandler = new PresenceHandler();
+
     private static final ServiceUnavailableStanzaErrorHandler SERVICE_UNAVAILABLE_STANZA_ERROR_HANDLER = new ServiceUnavailableStanzaErrorHandler();
-
-    private final IQHandler iqHandler = new RelayingIQHandler();
-
-    private final MessageHandler messageHandler = new MessageHandler();
-
-    private final PresenceHandler presenceHandler = new PresenceHandler();
-
-    private final DbVerifyHandler dbVerifyHandler = new DbVerifyHandler();
-
-    private final DbResultHandler dbResultHandler = new DbResultHandler();
-
-    private final TlsProceedHandler tlsProceedHandler = new TlsProceedHandler();
-
-    private final FeaturesHandler featuresHandler = new FeaturesHandler();
 
     protected ServerRuntimeContext serverRuntimeContext;
 
@@ -72,7 +60,6 @@ public class StanzaHandlerLookup extends AbstractStanzaHandlerLookup {
 
     /**
      * looks into the stanza to see which handler is responsible, if any
-     * 
      * @param stanza
      * @return NULL, if no handler could be
      */
@@ -83,39 +70,40 @@ public class StanzaHandlerLookup extends AbstractStanzaHandlerLookup {
 
         // allow extensions to override default handling
         StanzaHandler stanzaHandler = getHandlerForElement(stanza, stanza);
-
-        if (stanzaHandler != null) {
+        
+        if(stanzaHandler != null) {
             return stanzaHandler;
         } else {
             String name = stanza.getName();
-
+    
             if ("xml".equals(name)) {
                 return new XMLPrologHandler();
             } else if ("stream".equals(name)) {
                 return new StreamStartHandler();
-            } else if (dbVerifyHandler.verify(stanza)) {
-                return dbVerifyHandler;
-            } else if (dbResultHandler.verify(stanza)) {
-                return dbResultHandler;
-            } else if (tlsProceedHandler.verify(stanza)) {
-                return tlsProceedHandler;
-            } else if (featuresHandler.verify(stanza)) {
-                return featuresHandler;
+            } else if ("verify".equals(name)) {
+                return new DbVerifyHandler();
+            } else if ("result".equals(name)) {
+                return new DbResultHandler();
             } else if (iqHandler.verify(stanza)) {
                 return getIQHandler(stanza);
             } else if (messageHandler.verify(stanza)) {
-                return messageHandler;
+                return getMessageHandler(stanza);
             } else if (presenceHandler.verify(stanza)) {
-                return presenceHandler;
+                return getPresenceHandler(stanza);
             } else {
-                // ... and if we could not resolve and it's a core stanza, we can safely return
-                // an error
-                if (XMPPCoreStanza.getWrapper(stanza) != null)
-                    return SERVICE_UNAVAILABLE_STANZA_ERROR_HANDLER;
-                else
-                    return null;
+                // ... and if we could not resolve and it's a core stanza, we can safely return an error
+                if (XMPPCoreStanza.getWrapper(stanza) != null) return SERVICE_UNAVAILABLE_STANZA_ERROR_HANDLER;
+                else return null;
             }
         }
+    }
+
+    private StanzaHandler getPresenceHandler(Stanza stanza) {
+        return presenceHandler;
+    }
+
+    private StanzaHandler getMessageHandler(Stanza stanza) {
+        return messageHandler;
     }
 
     private StanzaHandler getIQHandler(Stanza stanza) {

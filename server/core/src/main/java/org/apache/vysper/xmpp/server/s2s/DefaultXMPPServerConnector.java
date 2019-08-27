@@ -21,6 +21,7 @@ package org.apache.vysper.xmpp.server.s2s;
 
 import java.net.InetSocketAddress;
 import java.nio.channels.UnresolvedAddressException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -42,6 +43,8 @@ import org.apache.vysper.xmpp.delivery.failure.RemoteServerNotFoundException;
 import org.apache.vysper.xmpp.delivery.failure.RemoteServerTimeoutException;
 import org.apache.vysper.xmpp.modules.extension.xep0199_xmppping.XmppPingListener;
 import org.apache.vysper.xmpp.modules.extension.xep0199_xmppping.XmppPingModule;
+import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbResultHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbVerifyHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DialbackIdGenerator;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
@@ -69,6 +72,9 @@ import org.slf4j.LoggerFactory;
 public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerConnector {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultXMPPServerConnector.class);
+
+    private final static List<StanzaHandler> S2S_HANDSHAKE_HANDLERS = Arrays.asList(new DbVerifyHandler(),
+            new DbResultHandler(), new TlsProceedHandler(), new FeaturesHandler());
 
     private final ServerRuntimeContext serverRuntimeContext;
 
@@ -204,15 +210,24 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
         }
     }
 
+    private StanzaHandler lookupS2SHandler(Stanza stanza) {
+        for (StanzaHandler handler : S2S_HANDSHAKE_HANDLERS) {
+            if (handler.verify(stanza)) {
+                return handler;
+            }
+        }
+        return null;
+    }
+
     public void handleReceivedStanza(Stanza stanza) {
 
         // check for basic stanza handlers
-        StanzaHandler handler = serverRuntimeContext.getHandler(stanza);
+        StanzaHandler s2sHandler = lookupS2SHandler(stanza);
 
-        if (handler != null) {
+        if (s2sHandler != null) {
             ResponseStanzaContainer container;
             try {
-                container = handler.execute(stanza, serverRuntimeContext, false, sessionContext, sessionStateHolder,
+                container = s2sHandler.execute(stanza, serverRuntimeContext, false, sessionContext, sessionStateHolder,
                         new SimpleStanzaBroker(stanzaRelay, sessionContext));
             } catch (ProtocolException e) {
                 return;
