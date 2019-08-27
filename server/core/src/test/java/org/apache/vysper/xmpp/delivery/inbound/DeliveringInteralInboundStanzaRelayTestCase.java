@@ -92,8 +92,7 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
         DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(serverEntity,
                 mock(StanzaRelay.class));
         stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
-        stanzaRelay
-                .setStanzaHandlerExecutionContextFactory(new SimpleStanzaHandlerExecutorFactory(stanzaRelay));
+        stanzaRelay.setStanzaHandlerExecutorFactory(new SimpleStanzaHandlerExecutorFactory(stanzaRelay));
 
         TestSessionContext sessionContext = TestSessionContext.createSessionContext(TO_ENTITY);
         sessionContext.setSessionState(SessionState.AUTHENTICATED);
@@ -137,8 +136,7 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
         serverRuntimeContext.getServerFeatures().setDeliverMessageToHighestPriorityResourcesOnly(false);
 
         stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
-        stanzaRelay
-                .setStanzaHandlerExecutionContextFactory(new SimpleStanzaHandlerExecutorFactory(stanzaRelay));
+        stanzaRelay.setStanzaHandlerExecutorFactory(new SimpleStanzaHandlerExecutorFactory(stanzaRelay));
 
         TestSessionContext sessionContextTO_ENTITY_1_prio3 = createSessionForTo(TO_ENTITY, 3); // NON-NEGATIVE
         TestSessionContext sessionContextTO_ENTITY_2_prio0 = createSessionForTo(TO_ENTITY, 0); // NON-NEGATIVE
@@ -173,8 +171,7 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
         serverRuntimeContext.getServerFeatures().setDeliverMessageToHighestPriorityResourcesOnly(true);
 
         stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
-        stanzaRelay
-                .setStanzaHandlerExecutionContextFactory(new SimpleStanzaHandlerExecutorFactory(stanzaRelay));
+        stanzaRelay.setStanzaHandlerExecutorFactory(new SimpleStanzaHandlerExecutorFactory(stanzaRelay));
 
         TestSessionContext sessionContextTO_ENTITY_1_prio3 = createSessionForTo(TO_ENTITY, 3); // HIGHEST PRIO
         TestSessionContext sessionContextTO_ENTITY_2_prio0 = createSessionForTo(TO_ENTITY, 1); // not receiving
@@ -231,8 +228,7 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
                 mock(StanzaRelay.class));
 
         stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
-        stanzaRelay
-                .setStanzaHandlerExecutionContextFactory(new SimpleStanzaHandlerExecutorFactory(stanzaRelay));
+        stanzaRelay.setStanzaHandlerExecutorFactory(new SimpleStanzaHandlerExecutorFactory(stanzaRelay));
         stanzaRelay.setMaxThreadCount(1);
 
         TestSessionContext sessionContext = createSessionForTo(TO_ENTITY, 1);
@@ -256,8 +252,7 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
                 mock(StanzaRelay.class));
 
         stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
-        stanzaRelay
-                .setStanzaHandlerExecutionContextFactory(new SimpleStanzaHandlerExecutorFactory(stanzaRelay));
+        stanzaRelay.setStanzaHandlerExecutorFactory(new SimpleStanzaHandlerExecutorFactory(stanzaRelay));
         stanzaRelay.setMaxThreadCount(10);
 
         TestSessionContext sessionContext = createSessionForTo(TO_ENTITY, 1);

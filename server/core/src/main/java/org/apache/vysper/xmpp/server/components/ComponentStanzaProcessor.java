@@ -89,11 +89,9 @@ public class ComponentStanzaProcessor implements StanzaProcessor {
         List<Stanza> responseStanzas = responseStanzaContainer.getResponseStanzas();
         try {
             // module
-            StanzaHandlerExecutor executionContext = stanzaHandlerExecutorFactory
-                    .build(new RelayingStanzaHandler());
+            StanzaHandlerExecutor executor = stanzaHandlerExecutorFactory.build(new RelayingStanzaHandler());
             for (Stanza responseStanza : responseStanzas) {
-                executionContext.execute(responseStanza, serverRuntimeContext, false, sessionContext,
-                        sessionStateHolder);
+                executor.execute(responseStanza, serverRuntimeContext, false, sessionContext, sessionStateHolder);
             }
         } catch (ProtocolException e) {
             throw new RuntimeException(e);

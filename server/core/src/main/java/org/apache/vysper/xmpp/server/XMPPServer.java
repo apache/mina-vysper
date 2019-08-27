@@ -217,7 +217,7 @@ public class XMPPServer {
 
         stanzaRelayBroker.setServerRuntimeContext(serverRuntimeContext);
         internalStanzaRelay.setServerRuntimeContext(serverRuntimeContext);
-        internalStanzaRelay.setStanzaHandlerExecutionContextFactory(stanzaHandlerExecutorFactory);
+        internalStanzaRelay.setStanzaHandlerExecutorFactory(stanzaHandlerExecutorFactory);
         externalStanzaRelay.setServerRuntimeContext(serverRuntimeContext);
 
         final LogStorageProvider logStorageProvider = this.storageProviderRegistry.retrieve(LogStorageProvider.class);

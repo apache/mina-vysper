@@ -151,7 +151,7 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
         this.serverRuntimeContext = serverRuntimeContext;
     }
 
-    public void setStanzaHandlerExecutionContextFactory(
+    public void setStanzaHandlerExecutorFactory(
             StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory) {
         this.inboundStanzaProtocolWorker = new InboundStanzaProtocolWorker(stanzaHandlerExecutorFactory);
     }
