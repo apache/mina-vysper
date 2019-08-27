@@ -29,6 +29,7 @@ import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
+import org.apache.vysper.xmpp.protocol.SimpleStanzaHandlerExecutorFactory;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
@@ -62,7 +63,8 @@ public class ComponentStanzaProcessorTestCase {
 
     private ResponseStanzaContainer container = new ResponseStanzaContainerImpl(responseStanza);
 
-    private ComponentStanzaProcessor processor = new ComponentStanzaProcessor(stanzaRelay);
+    private ComponentStanzaProcessor processor = new ComponentStanzaProcessor(
+            new SimpleStanzaHandlerExecutorFactory(stanzaRelay));
 
     @Before
     public void before() {

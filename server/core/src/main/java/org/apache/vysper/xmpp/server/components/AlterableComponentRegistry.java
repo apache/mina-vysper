@@ -17,25 +17,15 @@
  *  under the License.
  *  
  */
-package org.apache.vysper.xmpp.server;
+package org.apache.vysper.xmpp.server.components;
 
-import static java.util.Objects.requireNonNull;
-
-import org.apache.vysper.xmpp.protocol.StanzaHandlerExecutorFactory;
-import org.apache.vysper.xmpp.server.components.ComponentStanzaProcessor;
+import org.apache.vysper.xmpp.server.ComponentStanzaProcessorFactory;
 
 /**
  * @author Réda Housni Alaoui
  */
-public class ComponentStanzaProcessorFactory {
+public interface AlterableComponentRegistry extends ComponentRegistry {
 
-    private final StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory;
+    void registerComponent(ComponentStanzaProcessorFactory processorFactory, Component component);
 
-    public ComponentStanzaProcessorFactory(StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory) {
-        this.stanzaHandlerExecutorFactory = requireNonNull(stanzaHandlerExecutorFactory);
-    }
-
-    public ComponentStanzaProcessor build() {
-        return new ComponentStanzaProcessor(stanzaHandlerExecutorFactory);
-    }
 }

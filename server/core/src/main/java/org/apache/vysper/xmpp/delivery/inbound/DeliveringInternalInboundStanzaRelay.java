@@ -49,13 +49,13 @@ import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
 import org.apache.vysper.xmpp.modules.extension.xep0160_offline_storage.OfflineStorageProvider;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
+import org.apache.vysper.xmpp.protocol.StanzaHandlerExecutorFactory;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.protocol.worker.InboundStanzaProtocolWorker;
-import org.apache.vysper.xmpp.server.ComponentRegistry;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
-import org.apache.vysper.xmpp.server.SimpleComponentRegistry;
+import org.apache.vysper.xmpp.server.components.ComponentRegistry;
 import org.apache.vysper.xmpp.server.resources.ManagedThreadPool;
 import org.apache.vysper.xmpp.server.resources.ManagedThreadPoolUtil;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -151,8 +151,9 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
         this.serverRuntimeContext = serverRuntimeContext;
     }
 
-    public void setStanzaRelay(StanzaRelay stanzaRelay) {
-        this.inboundStanzaProtocolWorker = new InboundStanzaProtocolWorker(stanzaRelay);
+    public void setStanzaHandlerExecutionContextFactory(
+            StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory) {
+        this.inboundStanzaProtocolWorker = new InboundStanzaProtocolWorker(stanzaHandlerExecutorFactory);
     }
 
     public final void setLogStorageProvider(final LogStorageProvider logStorageProvider) {

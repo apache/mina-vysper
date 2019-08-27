@@ -17,16 +17,15 @@
  *  under the License.
  *  
  */
-package org.apache.vysper.xmpp.server;
-
-import org.apache.vysper.xmpp.delivery.StanzaRelay;
-import org.apache.vysper.xmpp.server.components.Component;
+package org.apache.vysper.xmpp.protocol;
 
 /**
  * @author Réda Housni Alaoui
  */
-public interface AlterableComponentRegistry extends ComponentRegistry {
+public interface StanzaHandlerExecutorFactory {
 
-    void registerComponent(ComponentStanzaProcessorFactory processorFactory, Component component);
-
+    /**
+     * @see StanzaHandlerExecutor
+     */
+    StanzaHandlerExecutor build(StanzaHandler stanzaHandler);
 }

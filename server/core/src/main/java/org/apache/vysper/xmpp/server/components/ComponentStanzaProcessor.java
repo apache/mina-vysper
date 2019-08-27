@@ -19,35 +19,36 @@
  */
 package org.apache.vysper.xmpp.server.components;
 
-import org.apache.vysper.xmpp.delivery.StanzaRelay;
+import static java.util.Objects.requireNonNull;
+
+import java.util.List;
+
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
-import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
+import org.apache.vysper.xmpp.protocol.StanzaHandlerExecutor;
+import org.apache.vysper.xmpp.protocol.StanzaHandlerExecutorFactory;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 
-import java.util.List;
-
-import static java.util.Objects.requireNonNull;
-
 /**
  */
 public class ComponentStanzaProcessor implements StanzaProcessor {
 
-    protected StanzaRelay stanzaRelay;
+    protected StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory;
 
     protected ComponentStanzaHandlerLookup componentStanzaHandlerLookup = new ComponentStanzaHandlerLookup();
 
-    public ComponentStanzaProcessor(StanzaRelay stanzaRelay) {
-        this.stanzaRelay = requireNonNull(stanzaRelay);
+    public ComponentStanzaProcessor(StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory) {
+        this.stanzaHandlerExecutorFactory = requireNonNull(stanzaHandlerExecutorFactory);
     }
 
     public void addHandler(StanzaHandler stanzaHandler) {
@@ -75,10 +76,10 @@ public class ComponentStanzaProcessor implements StanzaProcessor {
 
         ResponseStanzaContainer responseStanzaContainer = null;
         try {
-            responseStanzaContainer = stanzaHandler.execute(stanza, serverRuntimeContext, false, sessionContext,
-                    sessionStateHolder, new SimpleStanzaBroker(stanzaRelay, sessionContext));
+            responseStanzaContainer = stanzaHandlerExecutorFactory.build(stanzaHandler).execute(stanza,
+                    serverRuntimeContext, false, sessionContext, sessionStateHolder);
         } catch (ProtocolException e) {
-            // TODO handle 
+            // TODO handle
             e.printStackTrace();
         }
 
@@ -87,11 +88,14 @@ public class ComponentStanzaProcessor implements StanzaProcessor {
         }
         List<Stanza> responseStanzas = responseStanzaContainer.getResponseStanzas();
         try {
-            IgnoreFailureStrategy failureStrategy = IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY; // TODO call back module
-            for (Stanza responseStanza: responseStanzas) {
-                stanzaRelay.relay(responseStanza.getTo(), responseStanza, failureStrategy);
+            // module
+            StanzaHandlerExecutor executionContext = stanzaHandlerExecutorFactory
+                    .build(new RelayingStanzaHandler());
+            for (Stanza responseStanza : responseStanzas) {
+                executionContext.execute(responseStanza, serverRuntimeContext, false, sessionContext,
+                        sessionStateHolder);
             }
-        } catch (DeliveryException e) {
+        } catch (ProtocolException e) {
             throw new RuntimeException(e);
         }
 
@@ -99,5 +103,35 @@ public class ComponentStanzaProcessor implements StanzaProcessor {
 
     public void processTLSEstablished(SessionContext sessionContext, SessionStateHolder sessionStateHolder) {
         throw new RuntimeException("should not be called for components, which only acts as an established session");
+    }
+
+    private static class RelayingStanzaHandler implements StanzaHandler {
+
+        @Override
+        public String getName() {
+            return null;
+        }
+
+        @Override
+        public boolean verify(Stanza stanza) {
+            return false;
+        }
+
+        @Override
+        public boolean isSessionRequired() {
+            return false;
+        }
+
+        @Override
+        public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
+                boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder,
+                StanzaBroker stanzaBroker) {
+            try {
+                stanzaBroker.write(stanza.getTo(), stanza, IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY);
+            } catch (DeliveryException e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        }
     }
 }

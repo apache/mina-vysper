@@ -19,25 +19,26 @@
  */
 package org.apache.vysper.xmpp.protocol.worker;
 
-import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.ResponseWriter;
+import org.apache.vysper.xmpp.protocol.StanzaHandlerExecutorFactory;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
 
 /**
- * to send a mail through the handler and afterwards actually forwarding the result to the client
- * inbound stanzas can only be forwarded when the client is authenticated
+ * to send a mail through the handler and afterwards actually forwarding the
+ * result to the client inbound stanzas can only be forwarded when the client is
+ * authenticated
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class InboundStanzaProtocolWorker extends AbstractStateAwareProtocolWorker {
 
-	public InboundStanzaProtocolWorker(StanzaRelay stanzaRelay) {
-		super(stanzaRelay);
-	}
+    public InboundStanzaProtocolWorker(StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory) {
+        super(stanzaHandlerExecutorFactory);
+    }
 
-	@Override
+    @Override
     public SessionState getHandledState() {
         return SessionState.AUTHENTICATED;
     }

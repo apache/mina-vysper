@@ -19,9 +19,9 @@
  */
 package org.apache.vysper.xmpp.protocol.worker;
 
-import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
+import org.apache.vysper.xmpp.protocol.StanzaHandlerExecutorFactory;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -32,11 +32,11 @@ import org.apache.vysper.xmpp.stanza.Stanza;
  */
 public class UnconnectedProtocolWorker extends AbstractStateAwareProtocolWorker {
 
-	public UnconnectedProtocolWorker(StanzaRelay stanzaRelay) {
-		super(stanzaRelay);
-	}
+    public UnconnectedProtocolWorker(StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory) {
+        super(stanzaHandlerExecutorFactory);
+    }
 
-	@Override
+    @Override
     public SessionState getHandledState() {
         return SessionState.UNCONNECTED;
     }

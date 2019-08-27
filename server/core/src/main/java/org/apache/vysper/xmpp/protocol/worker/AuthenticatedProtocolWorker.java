@@ -19,11 +19,11 @@
  */
 package org.apache.vysper.xmpp.protocol.worker;
 
-import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.core.base.handler.StreamStartHandler;
 import org.apache.vysper.xmpp.protocol.ResponseWriter;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
+import org.apache.vysper.xmpp.protocol.StanzaHandlerExecutorFactory;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -34,11 +34,11 @@ import org.apache.vysper.xmpp.stanza.Stanza;
  */
 public class AuthenticatedProtocolWorker extends AbstractStateAwareProtocolWorker {
 
-	public AuthenticatedProtocolWorker(StanzaRelay stanzaRelay) {
-		super(stanzaRelay);
-	}
+    public AuthenticatedProtocolWorker(StanzaHandlerExecutorFactory StanzaHandlerExecutorFactory) {
+        super(StanzaHandlerExecutorFactory);
+    }
 
-	@Override
+    @Override
     protected boolean checkState(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
             StanzaHandler stanzaHandler) {
         if (StreamStartHandler.class.isAssignableFrom(stanzaHandler.unwrapType()))

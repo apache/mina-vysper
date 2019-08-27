@@ -17,25 +17,26 @@
  *  under the License.
  *  
  */
-package org.apache.vysper.xmpp.server;
+package org.apache.vysper.xmpp.protocol;
 
 import static java.util.Objects.requireNonNull;
 
-import org.apache.vysper.xmpp.protocol.StanzaHandlerExecutorFactory;
-import org.apache.vysper.xmpp.server.components.ComponentStanzaProcessor;
+import org.apache.vysper.xmpp.delivery.StanzaRelay;
 
 /**
  * @author Réda Housni Alaoui
  */
-public class ComponentStanzaProcessorFactory {
+public class SimpleStanzaHandlerExecutorFactory implements StanzaHandlerExecutorFactory {
 
-    private final StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory;
+    private final StanzaRelay stanzaRelay;
 
-    public ComponentStanzaProcessorFactory(StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory) {
-        this.stanzaHandlerExecutorFactory = requireNonNull(stanzaHandlerExecutorFactory);
+    public SimpleStanzaHandlerExecutorFactory(StanzaRelay stanzaRelay) {
+        this.stanzaRelay = requireNonNull(stanzaRelay);
     }
 
-    public ComponentStanzaProcessor build() {
-        return new ComponentStanzaProcessor(stanzaHandlerExecutorFactory);
+    @Override
+    public StanzaHandlerExecutor build(StanzaHandler stanzaHandler) {
+        return new SimpleStanzaHandlerExecutor(stanzaRelay, stanzaHandler);
     }
+
 }

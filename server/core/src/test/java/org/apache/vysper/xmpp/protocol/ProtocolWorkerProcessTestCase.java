@@ -58,7 +58,7 @@ public class ProtocolWorkerProcessTestCase extends TestCase {
         namespaceHandlerDictionary = new NamespaceHandlerDictionary("testNSURI");
         StanzaReceiverRelay receiverRelay = new StanzaReceiverRelay();
         serverRuntimeContext = new DefaultServerRuntimeContext(serverEnitity, receiverRelay);
-        protocolWorker = new ProtocolWorker(serverRuntimeContext.getStanzaRelay());
+        protocolWorker = new ProtocolWorker(new SimpleStanzaHandlerExecutorFactory(receiverRelay));
         receiverRelay.setServerRuntimeContext(serverRuntimeContext);
         serverRuntimeContext.addDictionary(namespaceHandlerDictionary);
         sessionStateHolder = new SessionStateHolder();

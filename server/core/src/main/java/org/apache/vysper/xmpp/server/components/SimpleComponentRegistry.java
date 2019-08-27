@@ -17,7 +17,7 @@
  *  under the License.
  *  
  */
-package org.apache.vysper.xmpp.server;
+package org.apache.vysper.xmpp.server.components;
 
 import static java.util.Objects.requireNonNull;
 
@@ -27,8 +27,7 @@ import java.util.Map;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityUtils;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
-import org.apache.vysper.xmpp.server.components.Component;
-import org.apache.vysper.xmpp.server.components.ComponentStanzaProcessor;
+import org.apache.vysper.xmpp.server.ComponentStanzaProcessorFactory;
 
 /**
  * @author Réda Housni Alaoui

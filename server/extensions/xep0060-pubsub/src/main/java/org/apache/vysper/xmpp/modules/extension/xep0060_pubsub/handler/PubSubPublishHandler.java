@@ -19,6 +19,9 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.vysper.compliance.SpecCompliance;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xml.fragment.XMLElement;
@@ -26,7 +29,6 @@ import org.apache.vysper.xml.fragment.XMLElementBuilder;
 import org.apache.vysper.xml.fragment.XMLFragment;
 import org.apache.vysper.xml.fragment.XMLText;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubPrivilege;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubServiceConfiguration;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionNode;
@@ -39,9 +41,6 @@ import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * This class handles the "publish" use cases for the "pubsub" namespace.
@@ -69,9 +68,11 @@ public class PubSubPublishHandler extends AbstractPubSubGeneralHandler {
     }
 
     /**
-     * This method takes care of handling the "publish" use-case including all (relevant) error conditions.
+     * This method takes care of handling the "publish" use-case including all
+     * (relevant) error conditions.
      * 
-     * @return the appropriate response stanza (either success or some error condition).
+     * @return the appropriate response stanza (either success or some error
+     *         condition).
      */
     @Override
     @SpecCompliance(compliant = {
@@ -84,7 +85,8 @@ public class PubSubPublishHandler extends AbstractPubSubGeneralHandler {
             @SpecCompliant(spec = "xep-0060", section = "7.1.3.4", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED),
             @SpecCompliant(spec = "xep-0060", section = "7.1.3.5", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED),
             @SpecCompliant(spec = "xep-0060", section = "7.1.3.6", status = SpecCompliant.ComplianceStatus.NOT_STARTED, coverage = SpecCompliant.ComplianceCoverage.UNSUPPORTED) })
-    protected List<Stanza> handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, StanzaBroker stanzaBroker) {
+    protected List<Stanza> handleSet(IQStanza stanza, ServerRuntimeContext serverRuntimeContext,
+            SessionContext sessionContext, StanzaBroker stanzaBroker) {
         Entity serverJID = serviceConfiguration.getDomainJID();
         CollectionNode root = serviceConfiguration.getRootNode();
 
@@ -108,7 +110,8 @@ public class PubSubPublishHandler extends AbstractPubSubGeneralHandler {
 
         if (!node.isAuthorized(sender, PubSubPrivilege.PUBLISH)) {
             // not enough privileges to publish - error condition 1 (7.1.3)
-            return Collections.singletonList(errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, serverJID, stanza));
+            return Collections.singletonList(
+                    errorStanzaGenerator.generateInsufficientPrivilegesErrorStanza(sender, serverJID, stanza));
         }
 
         XMLElementBuilder eventItemBuilder = new XMLElementBuilder("item", NamespaceURIs.XEP0060_PUBSUB_EVENT);
@@ -137,9 +140,12 @@ public class PubSubPublishHandler extends AbstractPubSubGeneralHandler {
     /**
      * This method adds the default "success" elements to the given StanzaBuilder.
      * 
-     * @param sb the StanzaBuilder to add the success elements.
-     * @param node the node to which the message was published.
-     * @param id the id of the published message.
+     * @param sb
+     *            the StanzaBuilder to add the success elements.
+     * @param node
+     *            the node to which the message was published.
+     * @param id
+     *            the id of the published message.
      */
     private void buildSuccessStanza(StanzaBuilder sb, String node, String id) {
         sb.startInnerElement("publish", NamespaceURIs.XEP0060_PUBSUB);

@@ -25,7 +25,6 @@ import java.util.Map;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityUtils;
-import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.extension.xep0077_inbandreg.InBandRegistrationHandler;
 import org.apache.vysper.xmpp.protocol.exception.TLSException;
 import org.apache.vysper.xmpp.protocol.worker.AuthenticatedProtocolWorker;
@@ -66,16 +65,16 @@ public class ProtocolWorker implements StanzaProcessor {
 
     private final ResponseWriter responseWriter = new ResponseWriter();
 
-    public ProtocolWorker(StanzaRelay stanzaRelay) {
+    public ProtocolWorker(StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory) {
 
-        stateWorker.put(SessionState.UNCONNECTED, new UnconnectedProtocolWorker(stanzaRelay));
-        stateWorker.put(SessionState.INITIATED, new InitiatedProtocolWorker(stanzaRelay));
-        stateWorker.put(SessionState.STARTED, new StartedProtocolWorker(stanzaRelay));
-        stateWorker.put(SessionState.ENCRYPTION_STARTED, new EncryptionStartedProtocolWorker(stanzaRelay));
-        stateWorker.put(SessionState.ENCRYPTED, new EncryptedProtocolWorker(stanzaRelay));
-        stateWorker.put(SessionState.AUTHENTICATED, new AuthenticatedProtocolWorker(stanzaRelay));
-        stateWorker.put(SessionState.ENDED, new EndOrClosedProtocolWorker(stanzaRelay));
-        stateWorker.put(SessionState.CLOSED, new EndOrClosedProtocolWorker(stanzaRelay));
+        stateWorker.put(SessionState.UNCONNECTED, new UnconnectedProtocolWorker(stanzaHandlerExecutorFactory));
+        stateWorker.put(SessionState.INITIATED, new InitiatedProtocolWorker(stanzaHandlerExecutorFactory));
+        stateWorker.put(SessionState.STARTED, new StartedProtocolWorker(stanzaHandlerExecutorFactory));
+        stateWorker.put(SessionState.ENCRYPTION_STARTED, new EncryptionStartedProtocolWorker(stanzaHandlerExecutorFactory));
+        stateWorker.put(SessionState.ENCRYPTED, new EncryptedProtocolWorker(stanzaHandlerExecutorFactory));
+        stateWorker.put(SessionState.AUTHENTICATED, new AuthenticatedProtocolWorker(stanzaHandlerExecutorFactory));
+        stateWorker.put(SessionState.ENDED, new EndOrClosedProtocolWorker(stanzaHandlerExecutorFactory));
+        stateWorker.put(SessionState.CLOSED, new EndOrClosedProtocolWorker(stanzaHandlerExecutorFactory));
     }
 
     /**

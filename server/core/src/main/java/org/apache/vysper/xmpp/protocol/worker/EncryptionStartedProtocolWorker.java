@@ -19,24 +19,23 @@
  */
 package org.apache.vysper.xmpp.protocol.worker;
 
-import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
+import org.apache.vysper.xmpp.protocol.StanzaHandlerExecutorFactory;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
- *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class EncryptionStartedProtocolWorker extends AbstractStateAwareProtocolWorker {
 
-	public EncryptionStartedProtocolWorker(StanzaRelay stanzaRelay) {
-		super(stanzaRelay);
-	}
+    public EncryptionStartedProtocolWorker(StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory) {
+        super(stanzaHandlerExecutorFactory);
+    }
 
-	@Override
+    @Override
     public SessionState getHandledState() {
         return SessionState.ENCRYPTION_STARTED;
     }
@@ -45,7 +44,8 @@ public class EncryptionStartedProtocolWorker extends AbstractStateAwareProtocolW
     protected boolean checkState(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
             StanzaHandler stanzaHandler) {
         // StartTLS is currently completely handled on the protocol side.
-        // anyway, there are no stanzas to be parsed between ENCRYPTION_STARTED and ENCRYPTED.
+        // anyway, there are no stanzas to be parsed between ENCRYPTION_STARTED and
+        // ENCRYPTED.
         // the state change is handeld in ProtocolWorker.processTLSEstablished()
         throw new RuntimeException("worker not implemented");
     }

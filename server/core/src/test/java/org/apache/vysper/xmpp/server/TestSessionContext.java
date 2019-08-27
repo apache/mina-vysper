@@ -33,6 +33,7 @@ import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.protocol.ProtocolWorker;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
+import org.apache.vysper.xmpp.protocol.SimpleStanzaHandlerExecutorFactory;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.writer.StanzaWriter;
 
@@ -115,15 +116,17 @@ public class TestSessionContext extends AbstractSessionContext implements Stanza
 
     public TestSessionContext(ServerRuntimeContext serverRuntimeContext, SessionStateHolder sessionStateHolder,
             StanzaRelay relay) {
-        super(serverRuntimeContext, new ProtocolWorker(relay), sessionStateHolder);
+        super(serverRuntimeContext, new ProtocolWorker(new SimpleStanzaHandlerExecutorFactory(relay)),
+                sessionStateHolder);
         sessionId = serverRuntimeContext.getNextSessionId();
         xmlLang = "de";
         this.relay = relay;
     }
-    
+
     public TestSessionContext(SessionStateHolder sessionStateHolder, StanzaRelay relay) {
         super(new DefaultServerRuntimeContext(new EntityImpl(null, "test", null), relay,
-                new MemoryStorageProviderRegistry()), new ProtocolWorker(relay), sessionStateHolder);
+                new MemoryStorageProviderRegistry()),
+                new ProtocolWorker(new SimpleStanzaHandlerExecutorFactory(relay)), sessionStateHolder);
         sessionId = serverRuntimeContext.getNextSessionId();
         xmlLang = "de";
         this.relay = relay;

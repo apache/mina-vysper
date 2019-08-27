@@ -44,10 +44,14 @@ import org.apache.vysper.xmpp.modules.ModuleRegistry;
 import org.apache.vysper.xmpp.modules.ServerRuntimeContextService;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.protocol.ProtocolWorker;
+import org.apache.vysper.xmpp.protocol.SimpleStanzaHandlerExecutorFactory;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
+import org.apache.vysper.xmpp.protocol.StanzaHandlerExecutorFactory;
 import org.apache.vysper.xmpp.protocol.StanzaHandlerLookup;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
+import org.apache.vysper.xmpp.server.components.AlterableComponentRegistry;
 import org.apache.vysper.xmpp.server.components.Component;
+import org.apache.vysper.xmpp.server.components.SimpleComponentRegistry;
 import org.apache.vysper.xmpp.server.s2s.DefaultXMPPServerConnectorRegistry;
 import org.apache.vysper.xmpp.server.s2s.XMPPServerConnectorRegistry;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -144,12 +148,16 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
         this.serverEntity = serverEntity;
         this.stanzaRelay = stanzaRelay;
         this.componentRegistry = requireNonNull(componentRegistry);
-        this.serverConnectorRegistry = new DefaultXMPPServerConnectorRegistry(this, stanzaRelay, stanzaProcessor);
+        StanzaHandlerExecutorFactory simpleStanzaHandlerExecutorFactory = new SimpleStanzaHandlerExecutorFactory(
+                stanzaRelay);
+        this.serverConnectorRegistry = new DefaultXMPPServerConnectorRegistry(this,
+                simpleStanzaHandlerExecutorFactory, stanzaProcessor);
         this.stanzaHandlerLookup = new StanzaHandlerLookup(this);
         this.eventBus = new SimpleEventBus();
         this.serverFeatures = serverFeatures;
         this.resourceRegistry = resourceRegistry;
-        this.componentStanzaProcessorFactory = new ComponentStanzaProcessorFactory(stanzaRelay);
+        this.componentStanzaProcessorFactory = new ComponentStanzaProcessorFactory(
+                simpleStanzaHandlerExecutorFactory);
 
         addDictionaries(dictionaries);
     }
@@ -161,8 +169,9 @@ public class DefaultServerRuntimeContext implements ServerRuntimeContext, Module
     }
 
     public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay) {
-        this(serverEntity, stanzaRelay, new ProtocolWorker(stanzaRelay), new SimpleComponentRegistry(serverEntity),
-                new DefaultResourceRegistry(), new ServerFeatures(), Collections.emptyList());
+        this(serverEntity, stanzaRelay, new ProtocolWorker(new SimpleStanzaHandlerExecutorFactory(stanzaRelay)),
+                new SimpleComponentRegistry(serverEntity), new DefaultResourceRegistry(), new ServerFeatures(),
+                Collections.emptyList());
     }
 
     /**

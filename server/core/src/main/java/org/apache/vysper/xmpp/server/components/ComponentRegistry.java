@@ -17,7 +17,7 @@
  *  under the License.
  *  
  */
-package org.apache.vysper.xmpp.server;
+package org.apache.vysper.xmpp.server.components;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;

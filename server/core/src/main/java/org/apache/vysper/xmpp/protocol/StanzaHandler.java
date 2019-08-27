@@ -65,17 +65,13 @@ public interface StanzaHandler {
     /**
      * executes a stanza
      * 
-     * @param stanza
-     * @param serverRuntimeContext
      * @param isOutboundStanza
      *            true, if the stanza was emitted by the client which is handled by
      *            the session belonging to the given sessionContext parameter.
      *            false, if the session is receiving the stanza targeted to the
      *            session's client.
-     * @param sessionContext
-     * @param sessionStateHolder
-     * @param stanzaBroker
-     * @return optionally returns a stanzaBroker which is passed to the session's client
+     * @return optionally returns a stanzaBroker which is passed to the session's
+     *         client
      */
     public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
             boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder,

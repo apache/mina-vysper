@@ -21,13 +21,12 @@ package org.apache.vysper.xmpp.protocol.worker;
 
 import static java.util.Objects.requireNonNull;
 
-import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.ResponseWriter;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
-import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
+import org.apache.vysper.xmpp.protocol.StanzaHandlerExecutorFactory;
 import org.apache.vysper.xmpp.protocol.StateAwareProtocolWorker;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
@@ -40,10 +39,11 @@ import org.apache.vysper.xmpp.stanza.Stanza;
  */
 public abstract class AbstractStateAwareProtocolWorker implements StateAwareProtocolWorker {
 
-    private final StanzaRelay stanzaRelay;
+    private final StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory;
 
-    protected AbstractStateAwareProtocolWorker(StanzaRelay stanzaRelay) {
-        this.stanzaRelay = requireNonNull(stanzaRelay);
+    protected AbstractStateAwareProtocolWorker(
+            StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory) {
+        this.stanzaHandlerExecutorFactory = requireNonNull(stanzaHandlerExecutorFactory);
     }
 
     abstract public SessionState getHandledState();
@@ -78,11 +78,11 @@ public abstract class AbstractStateAwareProtocolWorker implements StateAwareProt
 
     protected ResponseStanzaContainer executeHandler(SessionContext sessionContext,
             SessionStateHolder sessionStateHolder, Stanza stanza, StanzaHandler stanzaHandler) {
-        ResponseStanzaContainer responseStanzaContainer = null;
+        ResponseStanzaContainer responseStanzaContainer;
         try {
-            responseStanzaContainer = stanzaHandler.execute(stanza, sessionContext.getServerRuntimeContext(),
-                    isProcessingOutboundStanzas(), sessionContext, sessionStateHolder,
-                    new SimpleStanzaBroker(stanzaRelay, sessionContext));
+            responseStanzaContainer = stanzaHandlerExecutorFactory.build(stanzaHandler).execute(stanza,
+                    sessionContext.getServerRuntimeContext(), isProcessingOutboundStanzas(), sessionContext,
+                    sessionStateHolder);
         } catch (ProtocolException e) {
             ResponseWriter.handleProtocolError(e, sessionContext, stanza);
             return null;

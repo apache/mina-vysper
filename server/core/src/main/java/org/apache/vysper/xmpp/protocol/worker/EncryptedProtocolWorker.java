@@ -19,7 +19,6 @@
  */
 package org.apache.vysper.xmpp.protocol.worker;
 
-import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.core.base.handler.StreamStartHandler;
 import org.apache.vysper.xmpp.modules.core.base.handler.XMLPrologHandler;
 import org.apache.vysper.xmpp.modules.core.sasl.handler.AbstractSASLHandler;
@@ -29,6 +28,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbVerify
 import org.apache.vysper.xmpp.protocol.ResponseWriter;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
+import org.apache.vysper.xmpp.protocol.StanzaHandlerExecutorFactory;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -39,11 +39,11 @@ import org.apache.vysper.xmpp.stanza.Stanza;
  */
 public class EncryptedProtocolWorker extends AbstractStateAwareProtocolWorker {
 
-	public EncryptedProtocolWorker(StanzaRelay stanzaRelay) {
-		super(stanzaRelay);
-	}
+    public EncryptedProtocolWorker(StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory) {
+        super(stanzaHandlerExecutorFactory);
+    }
 
-	@Override
+    @Override
     public SessionState getHandledState() {
         return SessionState.ENCRYPTED;
     }

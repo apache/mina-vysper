@@ -20,12 +20,13 @@
 
 package org.apache.vysper.xmpp.modules.core.base.handler;
 
+import java.util.List;
+
 import org.apache.vysper.xml.fragment.Attribute;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.delivery.failure.ReturnErrorToSenderFailureStrategy;
 import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -34,8 +35,6 @@ import org.apache.vysper.xmpp.stanza.MessageStanza;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
-
-import java.util.List;
 
 /**
  * handling message stanzas
@@ -54,7 +53,7 @@ public class MessageHandler extends XMPPCoreStanzaHandler {
 
     @Override
     protected List<Stanza> executeCore(XMPPCoreStanza stanza, ServerRuntimeContext serverRuntimeContext,
-                                       boolean isOutboundStanza, SessionContext sessionContext, StanzaBroker stanzaBroker) {
+            boolean isOutboundStanza, SessionContext sessionContext, StanzaBroker stanzaBroker) {
 
         // (try to) read thread id
         String threadId = null;
@@ -123,7 +122,7 @@ public class MessageHandler extends XMPPCoreStanzaHandler {
                 stanzaBroker.write(stanza.getTo(), stanza, new ReturnErrorToSenderFailureStrategy(stanzaBroker));
             } catch (Exception e) {
                 // TODO return error stanza
-                e.printStackTrace(); //To change body of catch statement use File | Settings | File Templates.
+                e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
             }
         } else if (sessionContext != null) {
             sessionContext.getResponseWriter().write(stanza);

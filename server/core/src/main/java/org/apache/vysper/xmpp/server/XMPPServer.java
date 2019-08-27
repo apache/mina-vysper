@@ -48,7 +48,11 @@ import org.apache.vysper.xmpp.modules.roster.RosterModule;
 import org.apache.vysper.xmpp.modules.servicediscovery.ServiceDiscoveryModule;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.protocol.ProtocolWorker;
+import org.apache.vysper.xmpp.protocol.SimpleStanzaHandlerExecutorFactory;
+import org.apache.vysper.xmpp.protocol.StanzaHandlerExecutorFactory;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
+import org.apache.vysper.xmpp.server.components.AlterableComponentRegistry;
+import org.apache.vysper.xmpp.server.components.SimpleComponentRegistry;
 import org.apache.vysper.xmpp.state.resourcebinding.DefaultResourceRegistry;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 
@@ -71,7 +75,7 @@ public class XMPPServer {
     private String serverDomain;
 
     private DefaultServerRuntimeContext serverRuntimeContext;
-    
+
     private StanzaProcessor stanzaProcessor;
 
     private StorageProviderRegistry storageProviderRegistry;
@@ -197,10 +201,13 @@ public class XMPPServer {
         stanzaRelayBroker.setInternalRelay(internalStanzaRelay);
         stanzaRelayBroker.setExternalRelay(externalStanzaRelay);
 
-        stanzaProcessor = new ProtocolWorker(stanzaRelayBroker);
+        StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory = new SimpleStanzaHandlerExecutorFactory(
+                stanzaRelayBroker);
 
-        serverRuntimeContext = new DefaultServerRuntimeContext(serverEntity, stanzaRelayBroker, stanzaProcessor, componentRegistry,
-                resourceRegistry, serverFeatures, dictionaries);
+        stanzaProcessor = new ProtocolWorker(stanzaHandlerExecutorFactory);
+
+        serverRuntimeContext = new DefaultServerRuntimeContext(serverEntity, stanzaRelayBroker, stanzaProcessor,
+                componentRegistry, resourceRegistry, serverFeatures, dictionaries);
         serverRuntimeContext.setStorageProviderRegistry(storageProviderRegistry);
         serverRuntimeContext.setTlsContextFactory(tlsContextFactory);
 
@@ -210,7 +217,7 @@ public class XMPPServer {
 
         stanzaRelayBroker.setServerRuntimeContext(serverRuntimeContext);
         internalStanzaRelay.setServerRuntimeContext(serverRuntimeContext);
-        internalStanzaRelay.setStanzaRelay(stanzaRelayBroker);
+        internalStanzaRelay.setStanzaHandlerExecutionContextFactory(stanzaHandlerExecutorFactory);
         externalStanzaRelay.setServerRuntimeContext(serverRuntimeContext);
 
         final LogStorageProvider logStorageProvider = this.storageProviderRegistry.retrieve(LogStorageProvider.class);
@@ -221,8 +228,8 @@ public class XMPPServer {
             throw new IllegalStateException("server must have at least one endpoint");
 
         /*
-          'input stream': receives stanzas issued by client sessions to be handled by
-          the server
+         * 'input stream': receives stanzas issued by client sessions to be handled by
+         * the server
          */
         for (Endpoint endpoint : endpoints) {
             endpoint.setServerRuntimeContext(serverRuntimeContext);
@@ -272,8 +279,8 @@ public class XMPPServer {
     public ServerRuntimeContext getServerRuntimeContext() {
         return serverRuntimeContext;
     }
-    
-    public StanzaProcessor getStanzaProcessor(){
+
+    public StanzaProcessor getStanzaProcessor() {
         return stanzaProcessor;
     }
 }

@@ -54,7 +54,7 @@ public abstract class AbstractProtocolStateTestCase extends TestCase {
         super.setUp();
 
         StanzaReceiverRelay receiverRelay = new StanzaReceiverRelay();
-        protocolWorker = new ProtocolWorker(receiverRelay);
+        protocolWorker = new ProtocolWorker(new SimpleStanzaHandlerExecutorFactory(receiverRelay));
         serverRuntimeContext = new DefaultServerRuntimeContext(serverEnitity, receiverRelay);
         receiverRelay.setServerRuntimeContext(serverRuntimeContext);
         serverRuntimeContext.addDictionary(new BaseStreamStanzaDictionary());

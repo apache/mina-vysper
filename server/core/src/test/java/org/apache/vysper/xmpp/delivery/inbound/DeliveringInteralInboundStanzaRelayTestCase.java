@@ -34,10 +34,11 @@ import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
+import org.apache.vysper.xmpp.protocol.SimpleStanzaHandlerExecutorFactory;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionState;
-import org.apache.vysper.xmpp.server.SimpleComponentRegistry;
 import org.apache.vysper.xmpp.server.TestSessionContext;
+import org.apache.vysper.xmpp.server.components.SimpleComponentRegistry;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.state.resourcebinding.BindException;
@@ -74,7 +75,7 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
             ; // empty
         }
     }
-    
+
     private Entity serverEntity;
 
     @Override
@@ -91,7 +92,8 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
         DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(serverEntity,
                 mock(StanzaRelay.class));
         stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
-        stanzaRelay.setStanzaRelay(stanzaRelay);
+        stanzaRelay
+                .setStanzaHandlerExecutionContextFactory(new SimpleStanzaHandlerExecutorFactory(stanzaRelay));
 
         TestSessionContext sessionContext = TestSessionContext.createSessionContext(TO_ENTITY);
         sessionContext.setSessionState(SessionState.AUTHENTICATED);
@@ -135,7 +137,8 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
         serverRuntimeContext.getServerFeatures().setDeliverMessageToHighestPriorityResourcesOnly(false);
 
         stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
-        stanzaRelay.setStanzaRelay(stanzaRelay);
+        stanzaRelay
+                .setStanzaHandlerExecutionContextFactory(new SimpleStanzaHandlerExecutorFactory(stanzaRelay));
 
         TestSessionContext sessionContextTO_ENTITY_1_prio3 = createSessionForTo(TO_ENTITY, 3); // NON-NEGATIVE
         TestSessionContext sessionContextTO_ENTITY_2_prio0 = createSessionForTo(TO_ENTITY, 0); // NON-NEGATIVE
@@ -170,7 +173,8 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
         serverRuntimeContext.getServerFeatures().setDeliverMessageToHighestPriorityResourcesOnly(true);
 
         stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
-        stanzaRelay.setStanzaRelay(stanzaRelay);
+        stanzaRelay
+                .setStanzaHandlerExecutionContextFactory(new SimpleStanzaHandlerExecutorFactory(stanzaRelay));
 
         TestSessionContext sessionContextTO_ENTITY_1_prio3 = createSessionForTo(TO_ENTITY, 3); // HIGHEST PRIO
         TestSessionContext sessionContextTO_ENTITY_2_prio0 = createSessionForTo(TO_ENTITY, 1); // not receiving
@@ -227,7 +231,8 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
                 mock(StanzaRelay.class));
 
         stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
-        stanzaRelay.setStanzaRelay(stanzaRelay);
+        stanzaRelay
+                .setStanzaHandlerExecutionContextFactory(new SimpleStanzaHandlerExecutorFactory(stanzaRelay));
         stanzaRelay.setMaxThreadCount(1);
 
         TestSessionContext sessionContext = createSessionForTo(TO_ENTITY, 1);
@@ -251,7 +256,8 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
                 mock(StanzaRelay.class));
 
         stanzaRelay.setServerRuntimeContext(serverRuntimeContext);
-        stanzaRelay.setStanzaRelay(stanzaRelay);
+        stanzaRelay
+                .setStanzaHandlerExecutionContextFactory(new SimpleStanzaHandlerExecutorFactory(stanzaRelay));
         stanzaRelay.setMaxThreadCount(10);
 
         TestSessionContext sessionContext = createSessionForTo(TO_ENTITY, 1);

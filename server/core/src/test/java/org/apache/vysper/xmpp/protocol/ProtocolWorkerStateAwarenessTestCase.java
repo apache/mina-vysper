@@ -48,8 +48,9 @@ public class ProtocolWorkerStateAwarenessTestCase extends TestCase {
         sessionStateHolder = new SessionStateHolder();
         Entity serverEnitity = new EntityImpl(null, "vysper-server.org", null);
         StanzaReceiverRelay receiverRelay = new StanzaReceiverRelay();
-        protocolWorker = new ProtocolWorker(receiverRelay);
-        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(serverEnitity, receiverRelay);
+        protocolWorker = new ProtocolWorker(new SimpleStanzaHandlerExecutorFactory(receiverRelay));
+        DefaultServerRuntimeContext serverRuntimeContext = new DefaultServerRuntimeContext(serverEnitity,
+                receiverRelay);
         receiverRelay.setServerRuntimeContext(serverRuntimeContext);
         serverRuntimeContext.addDictionary(new BaseStreamStanzaDictionary());
         sessionStateHolder = new SessionStateHolder();
