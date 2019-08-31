@@ -23,12 +23,10 @@ package org.apache.vysper.xmpp.modules.core.sasl.handler;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.apache.vysper.xmpp.authentication.Plain;
 import org.apache.vysper.xmpp.authentication.SASLMechanism;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.RecordingStanzaBroker;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.exception.AuthenticationFailedException;
 import org.apache.vysper.xmpp.server.SessionState;
@@ -36,12 +34,16 @@ import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 
+import junit.framework.TestCase;
+
 /**
  */
 public class AuthHandlerUnavailableMechanismTestCase extends TestCase {
     private TestSessionContext sessionContext;
 
     private SessionStateHolder sessionStateHolder = new SessionStateHolder();
+
+    private RecordingStanzaBroker stanzaBroker;
 
     @Override
     protected void setUp() throws Exception {
@@ -53,6 +55,8 @@ public class AuthHandlerUnavailableMechanismTestCase extends TestCase {
         methods.add(new Plain());
 
         sessionContext.getServerRuntimeContext().getServerFeatures().setAuthenticationMethods(methods);
+
+        stanzaBroker = new RecordingStanzaBroker();
     }
 
     public void testAuthPlainWrongCase() throws AuthenticationFailedException {
@@ -62,8 +66,8 @@ public class AuthHandlerUnavailableMechanismTestCase extends TestCase {
 
         AuthHandler authHandler = new AuthHandler();
         try {
-            ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext
-                    .getServerRuntimeContext(), true, sessionContext, sessionStateHolder, null);
+            authHandler.execute(authPlainStanza, sessionContext.getServerRuntimeContext(), true, sessionContext,
+                    sessionStateHolder, stanzaBroker);
 
             fail("should raise exception");
         } catch (RuntimeException e) {
@@ -78,8 +82,8 @@ public class AuthHandlerUnavailableMechanismTestCase extends TestCase {
 
         AuthHandler authHandler = new AuthHandler();
         try {
-            ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext
-                    .getServerRuntimeContext(), true, sessionContext, sessionStateHolder, null);
+            authHandler.execute(authPlainStanza, sessionContext.getServerRuntimeContext(), true, sessionContext,
+                    sessionStateHolder, stanzaBroker);
 
             fail("should raise exception");
         } catch (RuntimeException e) {

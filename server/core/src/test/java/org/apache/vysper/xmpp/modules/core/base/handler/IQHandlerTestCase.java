@@ -20,11 +20,9 @@
 
 package org.apache.vysper.xmpp.modules.core.base.handler;
 
-import junit.framework.TestCase;
-
 import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.RecordingStanzaBroker;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -32,6 +30,8 @@ import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanzaVerifier;
+
+import junit.framework.TestCase;
 
 /**
  */
@@ -57,9 +57,10 @@ public class IQHandlerTestCase extends TestCase {
         sessionContext.setServerToServer();
 
         TestIQHandler iqHandler = new TestIQHandler();
-        ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanzaBuilder.build(), sessionContext
-                .getServerRuntimeContext(), true, sessionContext, null, null);
-        Stanza responseStanza = responseStanzaContainer.getUniqueResponseStanza();
+        RecordingStanzaBroker stanzaBroker = new RecordingStanzaBroker();
+        iqHandler.execute(stanzaBuilder.build(), sessionContext.getServerRuntimeContext(), true, sessionContext, null,
+                stanzaBroker);
+        Stanza responseStanza = stanzaBroker.getUniqueStanzaWrittenToSession();
         XMLElementVerifier verifier = responseStanza.getVerifier();
         assertTrue("error", verifier.nameEquals("error"));
     }
@@ -76,18 +77,18 @@ public class IQHandlerTestCase extends TestCase {
         Stanza stanza = stanzaBuilder.build(); // this stanza has no ID
 
         IQHandler iqHandler = new IQHandler();
-        ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanza, sessionContext
-                .getServerRuntimeContext(), true, sessionContext, null, null);
-        Stanza responseStanza = responseStanzaContainer.getUniqueResponseStanza();
+        RecordingStanzaBroker stanzaBroker = new RecordingStanzaBroker();
+        iqHandler.execute(stanza, sessionContext.getServerRuntimeContext(), true, sessionContext, null, stanzaBroker);
+        Stanza responseStanza = stanzaBroker.getUniqueStanzaWrittenToSession();
         XMLElementVerifier verifier = responseStanza.getVerifier();
         assertTrue("error", verifier.nameEquals("error")); // response is _not_ IQ stanza
     }
 
     private void assertIQError(Stanza stanza) {
         TestIQHandler iqHandler = new TestIQHandler();
-        ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanza, sessionContext
-                .getServerRuntimeContext(), true, sessionContext, null, null);
-        Stanza responseStanza = responseStanzaContainer.getUniqueResponseStanza();
+        RecordingStanzaBroker stanzaBroker = new RecordingStanzaBroker();
+        iqHandler.execute(stanza, sessionContext.getServerRuntimeContext(), true, sessionContext, null, stanzaBroker);
+        Stanza responseStanza = stanzaBroker.getUniqueStanzaWrittenToSession();
         XMLElementVerifier verifier = responseStanza.getVerifier();
         assertTrue("iq", verifier.nameEquals("iq"));
         assertTrue("error type", verifier.attributeEquals("type", IQStanzaType.ERROR.value()));
@@ -149,8 +150,9 @@ public class IQHandlerTestCase extends TestCase {
         stanzaBuilder.startInnerElement("getRequest", NamespaceURIs.JABBER_CLIENT).endInnerElement();
 
         TestIQHandler iqHandler = new TestIQHandler();
-        ResponseStanzaContainer responseStanzaContainer = iqHandler.execute(stanzaBuilder.build(), sessionContext
-                .getServerRuntimeContext(), true, sessionContext, null, null);
+        RecordingStanzaBroker stanzaBroker = new RecordingStanzaBroker();
+        iqHandler.execute(stanzaBuilder.build(), sessionContext.getServerRuntimeContext(), true, sessionContext, null,
+                stanzaBroker);
         IQStanza incomingStanza = iqHandler.getIncomingStanza();
 
         XMPPCoreStanzaVerifier verifier = incomingStanza.getCoreVerifier();
@@ -159,7 +161,7 @@ public class IQHandlerTestCase extends TestCase {
         assertTrue("iq-type-get", verifier.attributeEquals("type", "get"));
 
         // response is "result"
-        Stanza responseStanza = responseStanzaContainer.getUniqueResponseStanza();
+        Stanza responseStanza = stanzaBroker.getUniqueStanzaWrittenToSession();
         XMLElementVerifier responseVerifier = responseStanza.getVerifier();
         assertTrue("iq", responseVerifier.nameEquals("iq"));
         assertTrue("iq-id", responseVerifier.attributeEquals("id", "1"));

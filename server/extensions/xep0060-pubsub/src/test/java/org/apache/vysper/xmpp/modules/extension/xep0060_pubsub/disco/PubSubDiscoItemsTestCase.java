@@ -31,7 +31,6 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.AbstractS
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.modules.servicediscovery.handler.DiscoItemIQHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
@@ -54,9 +53,9 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
         DefaultDiscoInfoStanzaGenerator sg = (DefaultDiscoInfoStanzaGenerator) getDefaultStanzaGenerator();
         Stanza stanza = sg.getStanza(client, pubsubService.getBareJID(), "id123");
 
-        ResponseStanzaContainer result = sendStanza(stanza, true);
-        assertTrue(result.hasResponse());
-        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
+        Stanza result = sendStanza(stanza, true);
+        assertNotNull(result);
+        IQStanza response = new IQStanza(result);
 
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
 
@@ -79,9 +78,9 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
         DefaultDiscoInfoStanzaGenerator sg = (DefaultDiscoInfoStanzaGenerator) getDefaultStanzaGenerator();
         Stanza stanza = sg.getStanza(client, pubsubService.getBareJID(), "id123");
 
-        ResponseStanzaContainer result = sendStanza(stanza, true);
-        assertTrue(result.hasResponse());
-        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
+        Stanza result = sendStanza(stanza, true);
+        assertNotNull(result);
+        IQStanza response = new IQStanza(result);
 
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
 
@@ -126,9 +125,9 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
         DefaultDiscoInfoStanzaGenerator sg = (DefaultDiscoInfoStanzaGenerator) getDefaultStanzaGenerator();
         Stanza stanza = sg.getStanza(client, pubsubService.getBareJID(), "id123", "news");
 
-        ResponseStanzaContainer result = sendStanza(stanza, true);
-        assertTrue(result.hasResponse());
-        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
+        Stanza result = sendStanza(stanza, true);
+        assertNotNull(result);
+        IQStanza response = new IQStanza(result);
 
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
 
@@ -167,9 +166,9 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
         DefaultDiscoInfoStanzaGenerator sg = (DefaultDiscoInfoStanzaGenerator) getDefaultStanzaGenerator();
         Stanza stanza = sg.getStanza(client, pubsubService.getBareJID(), "id123", "news");
 
-        ResponseStanzaContainer result = sendStanza(stanza, true);
-        assertTrue(result.hasResponse());
-        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
+        Stanza result = sendStanza(stanza, true);
+        assertNotNull(result);
+        IQStanza response = new IQStanza(result);
 
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
 

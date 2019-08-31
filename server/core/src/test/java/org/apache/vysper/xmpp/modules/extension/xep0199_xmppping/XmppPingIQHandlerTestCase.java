@@ -19,10 +19,12 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0199_xmppping;
 
+import static org.junit.Assert.assertFalse;
+
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.RecordingStanzaBroker;
 import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -31,8 +33,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import static org.junit.Assert.assertFalse;
 
 /**
  */
@@ -50,14 +50,18 @@ public class XmppPingIQHandlerTestCase {
 
     protected XmppPingIQHandler handler = new XmppPingIQHandler();
 
+    private RecordingStanzaBroker stanzaBroker;
+
     @Before
     public void before() throws Exception {
         sessionContext.setInitiatingEntity(client);
 
         boundClient = new EntityImpl(client, sessionContext.bindResource());
         server = sessionContext.getServerJID();
+
+        stanzaBroker = new RecordingStanzaBroker();
     }
-    
+
     private Stanza buildStanza() {
         return buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "ping", NamespaceURIs.URN_XMPP_PING);
     }
@@ -65,15 +69,12 @@ public class XmppPingIQHandlerTestCase {
     private Stanza buildStanza(String name, String namespaceUri) {
         return buildStanza(name, namespaceUri, "ping", NamespaceURIs.URN_XMPP_PING);
     }
-    
+
     private Stanza buildStanza(String name, String namespaceUri, String innerName, String innerNamespaceUri) {
-        return new StanzaBuilder(name, namespaceUri)
-            .addAttribute("type", "get")
-            .addAttribute("id", "1")
-            .startInnerElement(innerName, innerNamespaceUri)
-            .build();
+        return new StanzaBuilder(name, namespaceUri).addAttribute("type", "get").addAttribute("id", "1")
+                .startInnerElement(innerName, innerNamespaceUri).build();
     }
-    
+
     @Test
     public void nameMustBeIq() {
         Assert.assertEquals("iq", handler.getName());
@@ -108,10 +109,11 @@ public class XmppPingIQHandlerTestCase {
     public void verifyInvalidInnerNamespace() {
         assertFalse(handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "ping", "dummy")));
     }
-    
+
     @Test
     public void verifyInvalidInnerName() {
-        assertFalse(handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "dummy", NamespaceURIs.URN_XMPP_PING)));
+        assertFalse(
+                handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "dummy", NamespaceURIs.URN_XMPP_PING)));
     }
 
     @Test
@@ -119,7 +121,7 @@ public class XmppPingIQHandlerTestCase {
         Stanza stanza = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT).build();
         assertFalse(handler.verify(stanza));
     }
-    
+
     @Test
     public void verifyValidStanza() {
         Assert.assertTrue(handler.verify(buildStanza()));
@@ -127,49 +129,46 @@ public class XmppPingIQHandlerTestCase {
 
     @Test
     public void verifyValidResultStanza() {
-        Stanza stanza = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT)
-        .addAttribute("type", "result")
-        .addAttribute("id", "xmppping-1")
-        .build();
+        Stanza stanza = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT).addAttribute("type", "result")
+                .addAttribute("id", "xmppping-1").build();
 
         Assert.assertTrue(handler.verify(stanza));
     }
 
     @Test
     public void verifyInvalidResultStanza() {
-        Stanza stanza = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT)
-        .addAttribute("type", "result")
-        .addAttribute("id", "dummy-1")
-        .build();
-        
+        Stanza stanza = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT).addAttribute("type", "result")
+                .addAttribute("id", "dummy-1").build();
+
         assertFalse(handler.verify(stanza));
     }
-    
+
     @Test
     public void sessionIsRequired() {
         Assert.assertTrue(handler.isSessionRequired());
     }
 
-
     @Test
     public void clientToServerPing() {
-        // C: <iq from='juliet@capulet.lit/balcony' to='capulet.lit' id='c2s1' type='get'>
-        //      <ping xmlns='urn:xmpp:ping'/>
-        //    </iq>
+        // C: <iq from='juliet@capulet.lit/balcony' to='capulet.lit' id='c2s1'
+        // type='get'>
+        // <ping xmlns='urn:xmpp:ping'/>
+        // </iq>
         //
-        // S: <iq from='capulet.lit' to='juliet@capulet.lit/balcony' id='c2s1' type='result'/>
+        // S: <iq from='capulet.lit' to='juliet@capulet.lit/balcony' id='c2s1'
+        // type='result'/>
 
         StanzaBuilder stanzaBuilder = StanzaBuilder.createIQStanza(boundClient, server, IQStanzaType.GET, IQ_ID);
         stanzaBuilder.startInnerElement("ping", NamespaceURIs.URN_XMPP_PING).endInnerElement();
 
         Stanza requestStanza = stanzaBuilder.build();
-        ResponseStanzaContainer resp = handler.execute(requestStanza, sessionContext.getServerRuntimeContext(), true,
-                sessionContext, null, null);
+        handler.execute(requestStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, null,
+                stanzaBroker);
 
         // we should always get a response
-        Assert.assertTrue(resp.hasResponse());
+        Assert.assertTrue(stanzaBroker.hasStanzaWrittenToSession());
 
-        Stanza respStanza = resp.getUniqueResponseStanza();
+        Stanza respStanza = stanzaBroker.getUniqueStanzaWrittenToSession();
 
         Assert.assertEquals("iq", respStanza.getName());
         Assert.assertEquals(boundClient, respStanza.getTo());
@@ -180,24 +179,24 @@ public class XmppPingIQHandlerTestCase {
 
     @Test
     public void handleResult() {
-        // S: <iq from='capulet.lit' to='juliet@capulet.lit/balcony' id='c2s1' type='result'/>
+        // S: <iq from='capulet.lit' to='juliet@capulet.lit/balcony' id='c2s1'
+        // type='result'/>
 
         Stanza stanza = StanzaBuilder.createIQStanza(boundClient, server, IQStanzaType.RESULT, IQ_ID).build();
 
         XmppPinger pinger1 = Mockito.mock(XmppPinger.class);
         XmppPinger pinger2 = Mockito.mock(XmppPinger.class);
         XmppPinger pinger3 = Mockito.mock(XmppPinger.class);
-        
+
         handler.addPinger(pinger1);
         handler.addPinger(pinger2);
         handler.addPinger(pinger3);
         handler.removePinger(pinger3);
-        
-        ResponseStanzaContainer resp = handler.execute(stanza, sessionContext.getServerRuntimeContext(), true,
-                sessionContext, null, null);
 
-        assertFalse(resp.hasResponse());
-        
+        handler.execute(stanza, sessionContext.getServerRuntimeContext(), true, sessionContext, null, stanzaBroker);
+
+        assertFalse(stanzaBroker.hasStanzaWrittenToSession());
+
         Mockito.verify(pinger1).pong(IQ_ID);
         Mockito.verify(pinger1).pong(IQ_ID);
         Mockito.verifyZeroInteractions(pinger3);

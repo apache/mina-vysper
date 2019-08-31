@@ -23,8 +23,6 @@ import static java.util.Objects.requireNonNull;
 
 import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
-import org.apache.vysper.xmpp.protocol.ResponseWriter;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaHandlerExecutorFactory;
@@ -69,19 +67,13 @@ public class ComponentStanzaProcessor implements StanzaProcessor {
             throw new RuntimeException("no handler for stanza");
         }
 
-        ResponseStanzaContainer responseStanzaContainer = null;
         try {
-            responseStanzaContainer = stanzaHandlerExecutorFactory.build(stanzaHandler).execute(stanza,
-                    serverRuntimeContext, false, sessionContext, sessionStateHolder);
+            stanzaHandlerExecutorFactory.build(stanzaHandler).execute(stanza, serverRuntimeContext, false,
+                    sessionContext, sessionStateHolder);
         } catch (ProtocolException e) {
             // TODO handle
             e.printStackTrace();
         }
-
-        if (responseStanzaContainer == null) {
-            return;
-        }
-        ResponseWriter.writeResponse(sessionContext, responseStanzaContainer);
 
     }
 

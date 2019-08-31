@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.RecordingStanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -40,6 +41,15 @@ public class DbVerifyHandlerTestCase extends TestCase {
 
     private DbVerifyHandler handler = new DbVerifyHandler();
 
+    private RecordingStanzaBroker stanzaBroker;
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+
+        stanzaBroker = new RecordingStanzaBroker();
+    }
+
     public void testVerify() {
         Stanza correct = new StanzaBuilder("verify", NamespaceURIs.JABBER_SERVER_DIALBACK).build();
         Stanza invalidNamespace = new StanzaBuilder("verify", "dummy").build();
@@ -48,6 +58,7 @@ public class DbVerifyHandlerTestCase extends TestCase {
         Assert.assertTrue(handler.verify(correct));
         Assert.assertFalse(handler.verify(invalidNamespace));
         Assert.assertFalse(handler.verify(invalidName));
+
     }
 
     public void testExecuteValidVerification() {
@@ -67,8 +78,9 @@ public class DbVerifyHandlerTestCase extends TestCase {
                 .addAttribute("from", FROM.getFullQualifiedName()).addAttribute("to", TO.getFullQualifiedName())
                 .addAttribute("id", ID).addText(token).build();
 
-        Stanza response = handler.execute(stanza, serverRuntimeContext, false, null, null, null)
-                .getUniqueResponseStanza();
+        handler.execute(stanza, serverRuntimeContext, false, null, null, stanzaBroker);
+
+        Stanza response = stanzaBroker.getUniqueStanzaWrittenToSession();
 
         Assert.assertNotNull(response);
         Assert.assertEquals(TO, response.getFrom());

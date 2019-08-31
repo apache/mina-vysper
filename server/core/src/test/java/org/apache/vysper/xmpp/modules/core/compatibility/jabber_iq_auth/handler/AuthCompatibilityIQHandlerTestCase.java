@@ -23,9 +23,8 @@ import static org.mockito.Mockito.mock;
 
 import org.apache.vysper.StanzaAssert;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.RecordingStanzaBroker;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
-import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -33,6 +32,7 @@ import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.state.resourcebinding.BindException;
+import org.junit.Before;
 import org.junit.Test;
 
 import junit.framework.Assert;
@@ -57,7 +57,7 @@ public class AuthCompatibilityIQHandlerTestCase {
 
     private AuthCompatibilityIQHandler handler = new AuthCompatibilityIQHandler();
 
-    private StanzaBroker stanzaBroker = mock(StanzaBroker.class);
+    private RecordingStanzaBroker stanzaBroker;
 
     private Stanza buildStanza(String type) {
         return buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "query", NamespaceURIs.JABBER_IQ_AUTH_COMPATIBILITY,
@@ -72,6 +72,11 @@ public class AuthCompatibilityIQHandlerTestCase {
             String type) {
         return new StanzaBuilder(name, namespaceUri).addAttribute("type", type).addAttribute("id", "1")
                 .startInnerElement(innerName, innerNamespaceUri).build();
+    }
+
+    @Before
+    public void before() {
+        stanzaBroker = new RecordingStanzaBroker();
     }
 
     @Test
@@ -137,20 +142,21 @@ public class AuthCompatibilityIQHandlerTestCase {
 
     @Test
     public void handleResult() throws BindException {
-        Assert.assertFalse(handler.execute(stanzaWithResult, serverRuntimeContext, false, sessionContext,
-                sessionStateHolder, stanzaBroker).hasResponse());
+        handler.execute(stanzaWithResult, serverRuntimeContext, false, sessionContext, sessionStateHolder,
+                stanzaBroker);
+
+        Assert.assertFalse(stanzaBroker.hasStanzaWrittenToSession());
     }
 
     @Test
     public void handleError() throws BindException {
-        Assert.assertFalse(handler
-                .execute(stanzaWithError, serverRuntimeContext, false, sessionContext, sessionStateHolder, stanzaBroker)
-                .hasResponse());
+        handler.execute(stanzaWithError, serverRuntimeContext, false, sessionContext, sessionStateHolder, stanzaBroker);
+
+        Assert.assertFalse(stanzaBroker.hasStanzaWrittenToSession());
     }
 
     private void assertResponse(Stanza stanza) {
-        ResponseStanzaContainer response = handler.execute(stanza, serverRuntimeContext, false, sessionContext,
-                sessionStateHolder, stanzaBroker);
+        handler.execute(stanza, serverRuntimeContext, false, sessionContext, sessionStateHolder, stanzaBroker);
 
         Stanza expectedResponse = StanzaBuilder.createIQStanza(null, null, IQStanzaType.ERROR, "1")
                 .startInnerElement("query", NamespaceURIs.JABBER_IQ_AUTH_COMPATIBILITY).endInnerElement()
@@ -159,7 +165,7 @@ public class AuthCompatibilityIQHandlerTestCase {
                 .endInnerElement().startInnerElement("text", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS)
                 .addAttribute(NamespaceURIs.XML, "lang", "en").addText("jabber:iq:auth not supported").build();
 
-        StanzaAssert.assertEquals(expectedResponse, response.getUniqueResponseStanza());
+        StanzaAssert.assertEquals(expectedResponse, stanzaBroker.getUniqueStanzaWrittenToSession());
     }
 
 }

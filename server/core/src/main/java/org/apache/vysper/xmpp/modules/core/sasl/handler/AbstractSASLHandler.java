@@ -23,11 +23,9 @@ import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.modules.core.sasl.AuthorizationRetriesCounter;
 import org.apache.vysper.xmpp.modules.core.sasl.SASLFailureType;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
-import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaBroker;
+import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StreamErrorCondition;
 import org.apache.vysper.xmpp.protocol.exception.AuthenticationFailedException;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -49,13 +47,13 @@ public abstract class AbstractSASLHandler implements StanzaHandler {
         return true;
     }
 
-    public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
-										   boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder, StanzaBroker stanzaBroker)
+    public void execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza,
+            SessionContext sessionContext, SessionStateHolder sessionStateHolder, StanzaBroker stanzaBroker)
             throws AuthenticationFailedException {
         if (!AuthorizationRetriesCounter.getFromSession(sessionContext).hasTriesLeft()) {
             AuthenticationFailedException failedException = new AuthenticationFailedException("too many retries");
-            failedException.setErrorStanza(ServerErrorResponses.getStreamError(
-                    StreamErrorCondition.POLICY_VIOLATION, null, null, null));
+            failedException.setErrorStanza(
+                    ServerErrorResponses.getStreamError(StreamErrorCondition.POLICY_VIOLATION, null, null, null));
             throw failedException;
         }
 
@@ -63,25 +61,26 @@ public abstract class AbstractSASLHandler implements StanzaHandler {
         boolean saslNamespace = xmlElementVerifier.namespacePresent(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
 
         if (!saslNamespace) {
-            return respondSASLFailure();
+            stanzaBroker.writeToSession(buildSASLFailure());
+            return;
         }
-        // the session must be in status ENCRYPTED. HOWEVER, only if encryption is not required, SessionState.INITIATED
+        // the session must be in status ENCRYPTED. HOWEVER, only if encryption is not
+        // required, SessionState.INITIATED
         // is fine, too.
-        if (sessionStateHolder.getState() != SessionState.ENCRYPTED && 
-            !(sessionStateHolder.getState() != SessionState.INITIATED && 
-              !serverRuntimeContext.getServerFeatures().isStartTLSRequired())
-           ) {
-            return respondSASLFailure();
+        if (sessionStateHolder.getState() != SessionState.ENCRYPTED
+                && !(sessionStateHolder.getState() != SessionState.INITIATED
+                        && !serverRuntimeContext.getServerFeatures().isStartTLSRequired())) {
+            stanzaBroker.writeToSession(buildSASLFailure());
+            return;
         }
 
-        return executeWorker(stanza, sessionContext, sessionStateHolder);
+        stanzaBroker.writeToSession(executeWorker(stanza, sessionContext, sessionStateHolder));
     }
 
-    protected ResponseStanzaContainer respondSASLFailure() {
-        return new ResponseStanzaContainerImpl(ServerErrorResponses.getSASLFailure(
-                SASLFailureType.MALFORMED_REQUEST));
+    protected Stanza buildSASLFailure() {
+        return ServerErrorResponses.getSASLFailure(SASLFailureType.MALFORMED_REQUEST);
     }
 
-    protected abstract ResponseStanzaContainer executeWorker(Stanza stanza, SessionContext sessionContext,
+    protected abstract Stanza executeWorker(Stanza stanza, SessionContext sessionContext,
             SessionStateHolder sessionStateHolder);
 }

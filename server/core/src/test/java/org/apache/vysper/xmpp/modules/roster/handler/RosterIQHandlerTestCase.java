@@ -19,10 +19,13 @@
  */
 package org.apache.vysper.xmpp.modules.roster.handler;
 
+import static org.mockito.Mockito.mock;
+
 import org.apache.vysper.storage.OpenStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.roster.persistence.MemoryRosterManager;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
 import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
@@ -68,7 +71,7 @@ public class RosterIQHandlerTestCase extends TestCase {
 
         assertEquals(ResourceState.CONNECTED, getResourceState());
         handler.execute(stanzaBuilder.build(), sessionContext.getServerRuntimeContext(), true, sessionContext, null,
-                null);
+                mock(StanzaBroker.class));
         assertEquals(ResourceState.CONNECTED_INTERESTED, getResourceState());
 
         // C: <iq from='juliet@example.com/balcony'
@@ -88,7 +91,7 @@ public class RosterIQHandlerTestCase extends TestCase {
                 ResourceState.AVAILABLE);
 
         handler.execute(stanzaBuilder.build(), sessionContext.getServerRuntimeContext(), true, sessionContext, null,
-                null);
+                mock(StanzaBroker.class));
         assertEquals(ResourceState.AVAILABLE_INTERESTED, getResourceState());
     }
 

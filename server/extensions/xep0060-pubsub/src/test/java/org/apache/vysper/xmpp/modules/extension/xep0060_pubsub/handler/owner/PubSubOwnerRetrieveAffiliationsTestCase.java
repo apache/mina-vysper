@@ -30,7 +30,6 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.PubSubAffiliation
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.AbstractStanzaGenerator;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -70,16 +69,16 @@ public class PubSubOwnerRetrieveAffiliationsTestCase extends AbstractPublishSubs
 
         AbstractStanzaGenerator sg = new DefaultRetrieveAffiliationsStanzaGenerator("Node1");
         Stanza stanza = sg.getStanza(client2, pubsubService, "id123", null);
-        ResponseStanzaContainer result = sendStanza(stanza, true);
+        Stanza result = sendStanza(stanza, true);
 
-        assertTrue(result.hasResponse());
+        assertNotNull(result);
 
-        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
+        IQStanza response = new IQStanza(result);
         assertEquals(IQStanzaType.ERROR.value(), response.getType());
 
         assertEquals("id123", response.getAttributeValue("id")); // IDs must match
 
-        XMLElement error = response.getInnerElementsNamed("error").get(0); //jump directly to the error part
+        XMLElement error = response.getInnerElementsNamed("error").get(0); // jump directly to the error part
         assertEquals("error", error.getName());
         assertEquals("auth", error.getAttributeValue("type"));
 
@@ -95,14 +94,14 @@ public class PubSubOwnerRetrieveAffiliationsTestCase extends AbstractPublishSubs
 
         AbstractStanzaGenerator sg = new DefaultRetrieveAffiliationsStanzaGenerator("test");
         Stanza stanza = sg.getStanza(client, pubsubService, "id123", testNode);
-        ResponseStanzaContainer result = sendStanza(stanza, true);
-        assertTrue(result.hasResponse());
-        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
+        Stanza result = sendStanza(stanza, true);
+        assertNotNull(result);
+        IQStanza response = new IQStanza(result);
         assertEquals(IQStanzaType.ERROR.value(), response.getType());
 
         assertEquals("id123", response.getAttributeValue("id")); // IDs must match
 
-        XMLElement error = response.getInnerElementsNamed("error").get(0); //jump directly to the error part
+        XMLElement error = response.getInnerElementsNamed("error").get(0); // jump directly to the error part
         assertEquals("error", error.getName());
         assertEquals("cancel", error.getAttributeValue("type"));
 
@@ -116,11 +115,11 @@ public class PubSubOwnerRetrieveAffiliationsTestCase extends AbstractPublishSubs
         AbstractStanzaGenerator sg = getDefaultStanzaGenerator();
 
         Stanza stanza = sg.getStanza(client, pubsubService, "4711", null);
-        ResponseStanzaContainer result = sendStanza(stanza, true);
+        Stanza result = sendStanza(stanza, true);
 
-        assertTrue(result.hasResponse());
+        assertNotNull(result);
 
-        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
+        IQStanza response = new IQStanza(result);
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
         XMLElement sub = response.getFirstInnerElement().getFirstInnerElement();
         assertEquals("affiliations", sub.getName());

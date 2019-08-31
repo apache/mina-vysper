@@ -24,13 +24,13 @@ import java.util.List;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.RecordingStanzaBroker;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.ConferenceTestUtils;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Occupant;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.RoomType;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.stanza.PresenceStanzaType;
@@ -50,13 +50,11 @@ public class ExitRoomTestCase extends AbstractMUCHandlerTestCase {
                 PresenceStanzaType.UNAVAILABLE, null, status);
 
         Stanza presenceStanza = stanzaBuilder.build();
-        ResponseStanzaContainer container = handler.execute(presenceStanza, sessionContext.getServerRuntimeContext(),
-                true, sessionContext, null, new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
-        if (container != null) {
-            return container.getUniqueResponseStanza();
-        } else {
-            return null;
-        }
+        RecordingStanzaBroker stanzaBroker = new RecordingStanzaBroker(
+                new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
+        handler.execute(presenceStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, null,
+                stanzaBroker);
+        return stanzaBroker.getUniqueStanzaWrittenToSession();
     }
 
     @Override

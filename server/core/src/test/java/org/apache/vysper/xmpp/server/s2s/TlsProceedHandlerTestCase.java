@@ -21,12 +21,10 @@ package org.apache.vysper.xmpp.server.s2s;
 
 import javax.net.ssl.SSLContext;
 
-import junit.framework.Assert;
-
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.RecordingStanzaBroker;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
@@ -37,30 +35,40 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import junit.framework.Assert;
+
 /**
  */
 public class TlsProceedHandlerTestCase {
 
     private static final Entity FROM = EntityImpl.parseUnchecked("other.org");
+
     private static final Entity TO = EntityImpl.parseUnchecked("vysper.org");
 
     private TlsProceedHandler handler = new TlsProceedHandler();
+
     private ServerRuntimeContext serverRuntimeContext = Mockito.mock(ServerRuntimeContext.class);
+
     private SessionContext sessionContext = Mockito.mock(SessionContext.class);
+
     private SessionStateHolder sessionStateHolder = new SessionStateHolder();
+
+    private RecordingStanzaBroker stanzaBroker;
 
     @Before
     public void before() {
         SSLContext sslContext = Mockito.mock(SSLContext.class);
         Mockito.when(serverRuntimeContext.getSslContext()).thenReturn(sslContext);
         Mockito.when(serverRuntimeContext.getServerEntity()).thenReturn(TO);
-        
+
         Mockito.when(sessionContext.getInitiatingEntity()).thenReturn(FROM);
         Mockito.when(sessionContext.getSessionId()).thenReturn("session-id");
 
         sessionStateHolder.setState(SessionState.STARTED);
+
+        stanzaBroker = new RecordingStanzaBroker();
     }
-    
+
     @Test
     public void nameMustBeFeatures() {
         Assert.assertEquals("proceed", handler.getName());
@@ -103,13 +111,13 @@ public class TlsProceedHandlerTestCase {
     @Test
     public void execute() {
         Stanza stanza = new StanzaBuilder("proceed", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS).build();
-        
-        ResponseStanzaContainer response = handler.execute(stanza, serverRuntimeContext, true, sessionContext, sessionStateHolder, null);
-        
-        Assert.assertNull(response);
+
+        handler.execute(stanza, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker);
+
+        Assert.assertFalse(stanzaBroker.hasStanzaWrittenToSession());
 
         Assert.assertEquals(SessionState.ENCRYPTION_STARTED, sessionStateHolder.getState());
-        
+
         Mockito.verify(sessionContext).switchToTLS(false, true);
     }
 

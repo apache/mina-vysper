@@ -36,7 +36,7 @@ public interface StanzaHandler {
     /**
      * the stanza name handled by this handler
      */
-    public String getName();
+    String getName();
 
     /**
      * Allows to check the type of the handler by maintaining compatibility with
@@ -55,12 +55,12 @@ public interface StanzaHandler {
      * @param stanza
      * @return true, if it is processed, false otherwise
      */
-    public boolean verify(Stanza stanza);
+    boolean verify(Stanza stanza);
 
     /**
      * specifies if a session context is needed for this handler
      */
-    public boolean isSessionRequired();
+    boolean isSessionRequired();
 
     /**
      * executes a stanza
@@ -70,10 +70,8 @@ public interface StanzaHandler {
      *            the session belonging to the given sessionContext parameter.
      *            false, if the session is receiving the stanza targeted to the
      *            session's client.
-     * @return optionally returns a stanzaBroker which is passed to the session's
-     *         client
      */
-    public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
-            boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder,
-            StanzaBroker stanzaBroker) throws ProtocolException;
+    void execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
+                 boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder,
+                 StanzaBroker stanzaBroker) throws ProtocolException;
 }

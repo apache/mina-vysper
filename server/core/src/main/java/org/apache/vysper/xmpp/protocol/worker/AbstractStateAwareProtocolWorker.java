@@ -22,7 +22,6 @@ package org.apache.vysper.xmpp.protocol.worker;
 import static java.util.Objects.requireNonNull;
 
 import org.apache.vysper.xmpp.protocol.ProtocolException;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.ResponseWriter;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
@@ -41,8 +40,7 @@ public abstract class AbstractStateAwareProtocolWorker implements StateAwareProt
 
     private final StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory;
 
-    protected AbstractStateAwareProtocolWorker(
-            StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory) {
+    protected AbstractStateAwareProtocolWorker(StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory) {
         this.stanzaHandlerExecutorFactory = requireNonNull(stanzaHandlerExecutorFactory);
     }
 
@@ -54,10 +52,7 @@ public abstract class AbstractStateAwareProtocolWorker implements StateAwareProt
         if (!proceed)
             return; // TODO close stream?
 
-        ResponseStanzaContainer responseStanzaContainer = executeHandler(sessionContext, sessionStateHolder, stanza,
-                stanzaHandler);
-
-        writeResponse(sessionContext, responseStanzaContainer);
+        executeHandler(sessionContext, sessionStateHolder, stanza, stanzaHandler);
     }
 
     protected boolean checkState(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
@@ -65,29 +60,14 @@ public abstract class AbstractStateAwareProtocolWorker implements StateAwareProt
         return 0 == getHandledState().compareTo(sessionContext.getState());
     }
 
-    protected void writeResponse(SessionContext sessionContext, ResponseStanzaContainer responseStanzaContainer) {
-        if (responseStanzaContainer == null) {
-            return;
-        }
-        if (sessionContext == null) {
-            throw new IllegalStateException(
-                    "no session context to write stanza to: " + responseStanzaContainer.getResponseStanzas());
-        }
-        ResponseWriter.writeResponse(sessionContext, responseStanzaContainer);
-    }
-
-    protected ResponseStanzaContainer executeHandler(SessionContext sessionContext,
-            SessionStateHolder sessionStateHolder, Stanza stanza, StanzaHandler stanzaHandler) {
-        ResponseStanzaContainer responseStanzaContainer;
+    private void executeHandler(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
+            StanzaHandler stanzaHandler) {
         try {
-            responseStanzaContainer = stanzaHandlerExecutorFactory.build(stanzaHandler).execute(stanza,
-                    sessionContext.getServerRuntimeContext(), isProcessingOutboundStanzas(), sessionContext,
-                    sessionStateHolder);
+            stanzaHandlerExecutorFactory.build(stanzaHandler).execute(stanza, sessionContext.getServerRuntimeContext(),
+                    isProcessingOutboundStanzas(), sessionContext, sessionStateHolder);
         } catch (ProtocolException e) {
             ResponseWriter.handleProtocolError(e, sessionContext, stanza);
-            return null;
         }
-        return responseStanzaContainer;
     }
 
     protected boolean isProcessingOutboundStanzas() {

@@ -24,11 +24,9 @@ import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
-import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaBroker;
+import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StreamErrorCondition;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
@@ -62,15 +60,16 @@ public class StreamStartHandler implements StanzaHandler {
         return true;
     }
 
-    public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
-										   boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder, StanzaBroker stanzaBroker) {
+    public void execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza,
+            SessionContext sessionContext, SessionStateHolder sessionStateHolder, StanzaBroker stanzaBroker) {
         XMLElementVerifier xmlElementVerifier = stanza.getVerifier();
         boolean jabberNamespace = NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS.equals(stanza.getNamespaceURI());
 
         boolean clientCall = xmlElementVerifier.namespacePresent(NamespaceURIs.JABBER_CLIENT);
         boolean serverCall = xmlElementVerifier.namespacePresent(NamespaceURIs.JABBER_SERVER);
 
-        // TODO is it better to derive c2s or s2s from the type of endpoint and verify the namespace here?
+        // TODO is it better to derive c2s or s2s from the type of endpoint and verify
+        // the namespace here?
         if (clientCall && serverCall)
             serverCall = false; // silently ignore ambiguous attributes
         if (serverCall)
@@ -81,13 +80,15 @@ public class StreamStartHandler implements StanzaHandler {
         if (sessionStateHolder.getState() != SessionState.INITIATED
                 && sessionStateHolder.getState() != SessionState.ENCRYPTED
                 && sessionStateHolder.getState() != SessionState.AUTHENTICATED) {
-            return respondUnsupportedStanzaType("unexpected stream start");
+            stanzaBroker.writeToSession(buildUnsupportedStanzaType("unexpected stream start"));
+            return;
         }
 
         // http://etherx.jabber.org/streams cannot be omitted
         if (!jabberNamespace) {
-            return respondIllegalNamespaceError("namespace is mandatory: "
-                    + NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS);
+            stanzaBroker.writeToSession(buildIllegalNamespaceError(
+                    "namespace is mandatory: " + NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS));
+            return;
         }
 
         // processing xml:lang
@@ -104,7 +105,9 @@ public class StreamStartHandler implements StanzaHandler {
                 clientVersion = new XMPPVersion(versionAttributeValue);
             } catch (IllegalArgumentException e) {
                 // version string does not conform to spec
-                return respondUnsupportedVersionError(xmlLang, versionAttributeValue, "illegal version value: ");
+                stanzaBroker.writeToSession(
+                        buildUnsupportedVersionError(xmlLang, versionAttributeValue, "illegal version value: "));
+                return;
             }
             // check if version is supported
             if (!clientVersion.equals(XMPPVersion.VERSION_1_0)) {
@@ -113,8 +116,9 @@ public class StreamStartHandler implements StanzaHandler {
                     responseVersion = XMPPVersion.VERSION_1_0;
                 } else {
                     // we do not support major changes, as of RFC3920
-                    return respondUnsupportedVersionError(xmlLang, versionAttributeValue,
-                            "major version change not supported: ");
+                    stanzaBroker.writeToSession(buildUnsupportedVersionError(xmlLang, versionAttributeValue,
+                            "major version change not supported: "));
+                    return;
                 }
             } else {
                 responseVersion = clientVersion;
@@ -133,16 +137,18 @@ public class StreamStartHandler implements StanzaHandler {
                 try {
                     EntityImpl.parse(toValue);
                 } catch (EntityFormatException e) {
-                    return new ResponseStanzaContainerImpl(ServerErrorResponses.getStreamError(
+                    stanzaBroker.writeToSession(ServerErrorResponses.getStreamError(
                             StreamErrorCondition.IMPROPER_ADDRESSING, sessionContext.getXMLLang(),
                             "could not parse incoming stanza's TO attribute", null));
-
+                    return;
                 }
                 // TODO check if toEntity is served by this server
                 // if (!server.doesServe(toEntity)) throw WhateverException();
 
-                // TODO RFC3920: 'from' attribute SHOULD be silently ignored by the receiving entity
-                // TODO RFC3920bis: 'from' attribute SHOULD be not ignored by the receiving entity and used as 'to' in responses
+                // TODO RFC3920: 'from' attribute SHOULD be silently ignored by the receiving
+                // entity
+                // TODO RFC3920bis: 'from' attribute SHOULD be not ignored by the receiving
+                // entity and used as 'to' in responses
             }
             responseStanza = new ServerResponses().getStreamOpenerForClient(sessionContext.getServerJID(),
                     responseVersion, sessionContext);
@@ -153,9 +159,9 @@ public class StreamStartHandler implements StanzaHandler {
                 try {
                     EntityImpl.parse(fromValue);
                 } catch (EntityFormatException e) {
-                    return new ResponseStanzaContainerImpl(ServerErrorResponses.getStreamError(
-                            StreamErrorCondition.INVALID_FROM, sessionContext.getXMLLang(),
-                            "could not parse incoming stanza's FROM attribute", null));
+                    stanzaBroker.writeToSession(ServerErrorResponses.getStreamError(StreamErrorCondition.INVALID_FROM,
+                            sessionContext.getXMLLang(), "could not parse incoming stanza's FROM attribute", null));
+                    return;
                 }
             }
 
@@ -164,7 +170,8 @@ public class StreamStartHandler implements StanzaHandler {
         } else {
             String descriptiveText = "one of the two namespaces must be present: " + NamespaceURIs.JABBER_CLIENT
                     + " or " + NamespaceURIs.JABBER_SERVER;
-            return respondIllegalNamespaceError(descriptiveText);
+            stanzaBroker.writeToSession(buildIllegalNamespaceError(descriptiveText));
+            return;
         }
 
         // if all is correct, go to next phase
@@ -178,29 +185,26 @@ public class StreamStartHandler implements StanzaHandler {
             sessionStateHolder.setState(SessionState.STARTED);
         }
 
-        if (responseStanza != null)
-            return new ResponseStanzaContainerImpl(responseStanza);
-
-        return null;
+        if (responseStanza == null) {
+            return;
+        }
+        stanzaBroker.writeToSession(responseStanza);
     }
 
-    private ResponseStanzaContainer respondIllegalNamespaceError(String descriptiveText) {
-        return new ResponseStanzaContainerImpl(ServerErrorResponses.getStreamError(
-                StreamErrorCondition.INVALID_NAMESPACE, null, descriptiveText, null));
+    private Stanza buildIllegalNamespaceError(String descriptiveText) {
+        return ServerErrorResponses.getStreamError(StreamErrorCondition.INVALID_NAMESPACE, null, descriptiveText, null);
     }
 
-    private ResponseStanzaContainer respondUnsupportedStanzaType(String descriptiveText) {
-        return new ResponseStanzaContainerImpl(ServerErrorResponses.getStreamError(
-                StreamErrorCondition.UNSUPPORTED_STANZA_TYPE, null, descriptiveText, null));
+    private Stanza buildUnsupportedStanzaType(String descriptiveText) {
+        return ServerErrorResponses.getStreamError(StreamErrorCondition.UNSUPPORTED_STANZA_TYPE, null, descriptiveText,
+                null);
     }
 
-    private ResponseStanzaContainer respondUnsupportedVersionError(String xmlLang, String versionAttributeValue,
-            String errorMessage) {
+    private Stanza buildUnsupportedVersionError(String xmlLang, String versionAttributeValue, String errorMessage) {
         if (xmlLang == null)
             xmlLang = "en_US";
-        Stanza error = ServerErrorResponses.getStreamError(StreamErrorCondition.UNSUPPORTED_VERSION,
-                xmlLang, errorMessage + versionAttributeValue, null);
-        return new ResponseStanzaContainerImpl(error);
+        return ServerErrorResponses.getStreamError(StreamErrorCondition.UNSUPPORTED_VERSION, xmlLang,
+                errorMessage + versionAttributeValue, null);
     }
 
 }

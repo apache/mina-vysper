@@ -25,7 +25,6 @@ import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeTestCase;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -72,9 +71,9 @@ public class PubSubCreateNodeTestCase extends AbstractPublishSubscribeTestCase {
 
         AbstractStanzaGenerator sg = getDefaultStanzaGenerator();
         Stanza stanza = sg.getStanza(client, pubsubService, "id123", testNode);
-        ResponseStanzaContainer result = sendStanza(stanza, true);
-        assertTrue(result.hasResponse());
-        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
+        Stanza result = sendStanza(stanza, true);
+        assertNotNull(result);
+        IQStanza response = new IQStanza(result);
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
 
         assertEquals("id123", response.getAttributeValue("id")); // IDs must match
@@ -90,9 +89,9 @@ public class PubSubCreateNodeTestCase extends AbstractPublishSubscribeTestCase {
 
         AbstractStanzaGenerator sg = getDefaultStanzaGenerator();
         Stanza stanza = sg.getStanza(client, pubsubService, "id123", testNode);
-        ResponseStanzaContainer result = sendStanza(stanza, true);
-        assertTrue(result.hasResponse());
-        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
+        Stanza result = sendStanza(stanza, true);
+        assertNotNull(result);
+        IQStanza response = new IQStanza(result);
         assertEquals(IQStanzaType.ERROR.value(), response.getType());
         assertEquals("id123", response.getAttributeValue("id")); // IDs must match
 

@@ -19,14 +19,15 @@
  */
 package org.apache.vysper.xmpp.server.components;
 
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
-import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
-import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.protocol.SimpleStanzaHandlerExecutorFactory;
@@ -39,11 +40,6 @@ import org.apache.vysper.xmpp.writer.StanzaWriter;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  */
@@ -67,11 +63,9 @@ public class ComponentStanzaProcessorTestCase {
 
     private Stanza responseStanza = StanzaBuilder.createMessageStanza(TO, FROM, null, "response").build();
 
-    private ResponseStanzaContainer container = new ResponseStanzaContainerImpl(responseStanza);
-
     private ComponentStanzaProcessor processor = new ComponentStanzaProcessor(
             new SimpleStanzaHandlerExecutorFactory(stanzaRelay));
-    
+
     private StanzaWriter sessionContextStanzaWriter;
 
     @Before
@@ -109,22 +103,17 @@ public class ComponentStanzaProcessorTestCase {
     }
 
     @Test
-    public void processSuccessfulWithResponse() throws ProtocolException, DeliveryException {
-        when(handler.execute(stanza, serverRuntimeContext, false, sessionContext, sessionStateHolder,
-                new SimpleStanzaBroker(stanzaRelay, sessionContext))).thenReturn(container);
-
+    public void processSuccessfulWithResponse() throws ProtocolException {
         processor.addHandler(handler);
 
         processor.processStanza(serverRuntimeContext, sessionContext, stanza, sessionStateHolder);
 
-        verify(sessionContextStanzaWriter).write(responseStanza);
+        verify(handler).execute(stanza, serverRuntimeContext, false, sessionContext, sessionStateHolder,
+                new SimpleStanzaBroker(stanzaRelay, sessionContext));
     }
 
     @Test
-    public void handlerThrowsException() throws ProtocolException, DeliveryException {
-        when(handler.execute(stanza, serverRuntimeContext, false, sessionContext, sessionStateHolder,
-                new SimpleStanzaBroker(stanzaRelay, sessionContext))).thenThrow(new ProtocolException());
-
+    public void handlerThrowsException() {
         processor.addHandler(handler);
 
         processor.processStanza(serverRuntimeContext, sessionContext, stanza, sessionStateHolder);
@@ -134,9 +123,12 @@ public class ComponentStanzaProcessorTestCase {
 
     @Test(expected = RuntimeException.class)
     public void processThenFailRelaying() throws ProtocolException {
-        when(handler.execute(stanza, serverRuntimeContext, false, sessionContext, sessionStateHolder,
-                new SimpleStanzaBroker(stanzaRelay, sessionContext))).thenReturn(container);
-        doThrow(new RuntimeException()).when(sessionContextStanzaWriter).write(responseStanza);
+        // when(handler.execute(stanza, serverRuntimeContext, false, sessionContext,
+        // sessionStateHolder,
+        // new SimpleStanzaBroker(stanzaRelay, sessionContext))).thenReturn(container);
+
+        doThrow(new RuntimeException()).when(handler).execute(stanza, serverRuntimeContext, false, sessionContext,
+                sessionStateHolder, new SimpleStanzaBroker(stanzaRelay, sessionContext));
 
         processor.addHandler(handler);
 

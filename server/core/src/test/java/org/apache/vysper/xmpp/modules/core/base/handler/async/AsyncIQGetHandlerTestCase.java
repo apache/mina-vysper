@@ -24,11 +24,9 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import junit.framework.TestCase;
-
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.RecordingStanzaBroker;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
@@ -38,6 +36,8 @@ import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
+
+import junit.framework.TestCase;
 
 /**
  *
@@ -49,10 +49,13 @@ public class AsyncIQGetHandlerTestCase extends TestCase {
 
     private SessionStateHolder sessionStateHolder = new SessionStateHolder();
 
+    private RecordingStanzaBroker stanzaBroker;
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         sessionContext = new TestSessionContext(sessionStateHolder);
+        stanzaBroker = new RecordingStanzaBroker();
     }
 
     protected static final int SLEEP_INTERVAL = 50;
@@ -110,8 +113,8 @@ public class AsyncIQGetHandlerTestCase extends TestCase {
             return response;
         }
 
-        public XMPPCoreStanza get(long l, TimeUnit timeUnit) throws InterruptedException, ExecutionException,
-                TimeoutException {
+        public XMPPCoreStanza get(long l, TimeUnit timeUnit)
+                throws InterruptedException, ExecutionException, TimeoutException {
             return response;
         }
 
@@ -125,9 +128,10 @@ public class AsyncIQGetHandlerTestCase extends TestCase {
                     }
                 }
                 try {
-                    Stanza finalStanza = StanzaBuilder.createIQStanza(requestStanza.getTo(), requestStanza.getFrom(),
-                            IQStanzaType.RESULT, requestStanza.getID()).startInnerElement("success",
-                            NamespaceURIs.JABBER_CLIENT).endInnerElement().build();
+                    Stanza finalStanza = StanzaBuilder
+                            .createIQStanza(requestStanza.getTo(), requestStanza.getFrom(), IQStanzaType.RESULT,
+                                    requestStanza.getID())
+                            .startInnerElement("success", NamespaceURIs.JABBER_CLIENT).endInnerElement().build();
                     response = XMPPCoreStanza.getWrapper(finalStanza);
                 } catch (Throwable e) {
                     e.printStackTrace();
@@ -152,9 +156,9 @@ public class AsyncIQGetHandlerTestCase extends TestCase {
         stanzaBuilder.startInnerElement("query", NamespaceURIs.JABBER_CLIENT).endInnerElement();
         Stanza iqStanza = stanzaBuilder.build();
 
-        ResponseStanzaContainer container = asyncIQGetHandler.execute(iqStanza, sessionContext
-                .getServerRuntimeContext(), true, sessionContext, sessionStateHolder, null);
-        assertTrue(container == null || container.hasNoResponse());
+        asyncIQGetHandler.execute(iqStanza, sessionContext.getServerRuntimeContext(), true, sessionContext,
+                sessionStateHolder, stanzaBroker);
+        assertFalse(stanzaBroker.hasStanzaWrittenToSession());
 
         TriggeredRunnableFuture runnableFuture = asyncIQGetHandler.getWaitingRunnableFuture();
         assertNotNull("future has been created", runnableFuture);

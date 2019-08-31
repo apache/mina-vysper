@@ -37,6 +37,6 @@ import org.apache.vysper.xmpp.stanza.Stanza;
  * @author Réda Housni Alaoui
  */
 public interface StanzaHandlerExecutor {
-    ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza,
+    void execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza,
             SessionContext sessionContext, SessionStateHolder sessionStateHolder) throws ProtocolException;
 }

@@ -21,11 +21,9 @@ package org.apache.vysper.xmpp.modules.core.starttls.handler;
 
 import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
-import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaBroker;
+import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
@@ -54,16 +52,18 @@ public class StartTLSHandler implements StanzaHandler {
         return true;
     }
 
-    public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
-										   boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder, StanzaBroker stanzaBroker) {
+    public void execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza,
+            SessionContext sessionContext, SessionStateHolder sessionStateHolder, StanzaBroker stanzaBroker) {
         XMLElementVerifier xmlElementVerifier = stanza.getVerifier();
         boolean tlsNamespace = xmlElementVerifier.namespacePresent(NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS);
 
         if (!tlsNamespace) {
-            return respondTLSFailure();
+            stanzaBroker.writeToSession(ServerErrorResponses.getTLSFailure());
+            return;
         }
         if (sessionStateHolder.getState() != SessionState.STARTED) {
-            return respondTLSFailure();
+            stanzaBroker.writeToSession(ServerErrorResponses.getTLSFailure());
+            return;
         }
 
         Stanza responseStanza = new ServerResponses().getTLSProceed();
@@ -73,10 +73,7 @@ public class StartTLSHandler implements StanzaHandler {
 
         sessionContext.switchToTLS(true, false);
 
-        return new ResponseStanzaContainerImpl(responseStanza);
+        stanzaBroker.writeToSession(responseStanza);
     }
 
-    private ResponseStanzaContainer respondTLSFailure() {
-        return new ResponseStanzaContainerImpl(ServerErrorResponses.getTLSFailure());
-    }
 }

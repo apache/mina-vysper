@@ -27,9 +27,8 @@ import org.apache.vysper.StanzaAssert;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.RecordingStanzaBroker;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
-import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
@@ -57,7 +56,7 @@ public class FeaturesHandlerTestCase {
 
     private SessionStateHolder sessionStateHolder = new SessionStateHolder();
 
-    private StanzaBroker stanzaBroker = mock(StanzaBroker.class);
+    private RecordingStanzaBroker stanzaBroker;
 
     @Before
     public void before() {
@@ -69,6 +68,8 @@ public class FeaturesHandlerTestCase {
         Mockito.when(sessionContext.getSessionId()).thenReturn("session-id");
 
         sessionStateHolder.setState(SessionState.STARTED);
+
+        stanzaBroker = new RecordingStanzaBroker();
     }
 
     @Test
@@ -116,12 +117,11 @@ public class FeaturesHandlerTestCase {
                 .startInnerElement("starttls", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS).endInnerElement()
                 .startInnerElement("dialback", NamespaceURIs.URN_XMPP_FEATURES_DIALBACK).endInnerElement().build();
 
-        ResponseStanzaContainer response = handler.execute(stanza, serverRuntimeContext, true, sessionContext,
-                sessionStateHolder, stanzaBroker);
+        handler.execute(stanza, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker);
 
         Stanza expectedResponse = new StanzaBuilder("starttls", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS).build();
 
-        StanzaAssert.assertEquals(expectedResponse, response.getUniqueResponseStanza());
+        StanzaAssert.assertEquals(expectedResponse, stanzaBroker.getUniqueStanzaWrittenToSession());
     }
 
     @Test
@@ -132,10 +132,9 @@ public class FeaturesHandlerTestCase {
                 .startInnerElement("starttls", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_TLS).endInnerElement()
                 .startInnerElement("dialback", NamespaceURIs.URN_XMPP_FEATURES_DIALBACK).endInnerElement().build();
 
-        ResponseStanzaContainer response = handler.execute(stanza, serverRuntimeContext, true, sessionContext,
-                sessionStateHolder, stanzaBroker);
+        handler.execute(stanza, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker);
 
-        assertDialbackStanza(response.getUniqueResponseStanza());
+        assertDialbackStanza(stanzaBroker.getUniqueStanzaWrittenToSession());
     }
 
     @Test
@@ -143,10 +142,9 @@ public class FeaturesHandlerTestCase {
         Stanza stanza = new StanzaBuilder("features", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS)
                 .startInnerElement("dialback", NamespaceURIs.URN_XMPP_FEATURES_DIALBACK).endInnerElement().build();
 
-        ResponseStanzaContainer response = handler.execute(stanza, serverRuntimeContext, true, sessionContext,
-                sessionStateHolder, stanzaBroker);
+        handler.execute(stanza, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker);
 
-        assertDialbackStanza(response.getUniqueResponseStanza());
+        assertDialbackStanza(stanzaBroker.getUniqueStanzaWrittenToSession());
     }
 
     @Test
@@ -156,8 +154,9 @@ public class FeaturesHandlerTestCase {
         Stanza stanza = new StanzaBuilder("features", NamespaceURIs.HTTP_ETHERX_JABBER_ORG_STREAMS)
                 .startInnerElement("dialback", NamespaceURIs.URN_XMPP_FEATURES_DIALBACK).endInnerElement().build();
 
-        Assert.assertNull(
-                handler.execute(stanza, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker));
+        handler.execute(stanza, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker);
+
+        Assert.assertFalse(stanzaBroker.hasStanzaWrittenToSession());
     }
 
     // TODO Is this the correct behavior?

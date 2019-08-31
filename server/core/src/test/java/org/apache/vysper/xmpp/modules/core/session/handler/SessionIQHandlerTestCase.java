@@ -19,13 +19,12 @@
  */
 package org.apache.vysper.xmpp.modules.core.session.handler;
 
-import junit.framework.Assert;
-
 import org.apache.vysper.StanzaAssert;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.protocol.RecordingStanzaBroker;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
@@ -38,44 +37,50 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import junit.framework.Assert;
+
 /**
  */
 public class SessionIQHandlerTestCase {
 
     private static final Entity FROM = EntityImpl.parseUnchecked("from@vysper.org");
+
     private static final Entity TO = EntityImpl.parseUnchecked("vysper.org");
 
     private ServerRuntimeContext serverRuntimeContext = Mockito.mock(ServerRuntimeContext.class);
+
     private SessionContext sessionContext = Mockito.mock(SessionContext.class);
+
     private SessionStateHolder sessionStateHolder = new SessionStateHolder();
-    
+
     private IQStanza verifyStanza = (IQStanza) IQStanza.getWrapper(buildStanza());
-    
+
     private SessionIQHandler handler = new SessionIQHandler();
-    
+
+    private RecordingStanzaBroker stanzaBroker;
+
     @Before
     public void before() {
         Mockito.when(sessionContext.getInitiatingEntity()).thenReturn(FROM);
         Mockito.when(sessionContext.getServerJID()).thenReturn(TO);
+
+        stanzaBroker = new RecordingStanzaBroker();
     }
-    
-    
+
     private Stanza buildStanza() {
-        return buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "session", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SESSION);
+        return buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "session",
+                NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SESSION);
     }
 
     private Stanza buildStanza(String name, String namespaceUri) {
         return buildStanza(name, namespaceUri, "session", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SESSION);
     }
-    
+
     private Stanza buildStanza(String name, String namespaceUri, String innerName, String innerNamespaceUri) {
-        return new StanzaBuilder(name, namespaceUri)
-            .addAttribute("type", "get")
-            .addAttribute("id", "1")
-            .startInnerElement(innerName, innerNamespaceUri)
-            .build();
+        return new StanzaBuilder(name, namespaceUri).addAttribute("type", "get").addAttribute("id", "1")
+                .startInnerElement(innerName, innerNamespaceUri).build();
     }
-    
+
     @Test
     public void nameMustBeIq() {
         Assert.assertEquals("iq", handler.getName());
@@ -110,10 +115,11 @@ public class SessionIQHandlerTestCase {
     public void verifyInvalidInnerNamespace() {
         Assert.assertFalse(handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "session", "dummy")));
     }
-    
+
     @Test
     public void verifyInvalidInnerName() {
-        Assert.assertFalse(handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "dummy", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SESSION)));
+        Assert.assertFalse(handler.verify(buildStanza("iq", NamespaceURIs.JABBER_CLIENT, "dummy",
+                NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SESSION)));
     }
 
     @Test
@@ -121,7 +127,7 @@ public class SessionIQHandlerTestCase {
         Stanza stanza = new StanzaBuilder("iq", NamespaceURIs.JABBER_CLIENT).build();
         Assert.assertFalse(handler.verify(stanza));
     }
-    
+
     @Test
     public void verifyValidStanza() {
         Assert.assertTrue(handler.verify(verifyStanza));
@@ -133,15 +139,16 @@ public class SessionIQHandlerTestCase {
     }
 
     @Test
-    public void handleSet() throws BindException, XMLSemanticError {
+    public void handleSet() throws XMLSemanticError {
         Stanza request = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.SET, "id1")
-            .startInnerElement("session", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SESSION)
-            .build();
-        
-        Stanza response = handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, null).getUniqueResponseStanza();
+                .startInnerElement("session", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SESSION).build();
+
+        handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker);
+
+        Stanza response = stanzaBroker.getUniqueStanzaWrittenToSession();
 
         Stanza expected = StanzaBuilder.createIQStanza(TO, null, IQStanzaType.RESULT, "id1").build();
-        
+
         StanzaAssert.assertEquals(expected, response);
     }
 

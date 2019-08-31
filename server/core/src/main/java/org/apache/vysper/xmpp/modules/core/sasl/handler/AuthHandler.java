@@ -23,8 +23,6 @@ import java.util.List;
 
 import org.apache.vysper.xmpp.authentication.SASLMechanism;
 import org.apache.vysper.xmpp.modules.core.sasl.AuthorizationRetriesCounter;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
@@ -44,11 +42,11 @@ public class AuthHandler extends AbstractSASLHandler {
     }
 
     @Override
-    protected ResponseStanzaContainer executeWorker(Stanza stanza, SessionContext sessionContext,
+    protected Stanza executeWorker(Stanza stanza, SessionContext sessionContext,
             SessionStateHolder sessionStateHolder) {
         String requestedMechanism = stanza.getAttributeValue("mechanism");
         if (requestedMechanism == null) {
-            return respondSASLFailure();
+            return buildSASLFailure();
         }
 
         SASLMechanism identifiedMechanism = null;
@@ -71,7 +69,7 @@ public class AuthHandler extends AbstractSASLHandler {
             AuthorizationRetriesCounter.getFromSession(sessionContext).countFailedTry();
         }
 
-        return new ResponseStanzaContainerImpl(responseStanza);
+        return responseStanza;
     }
 
 }

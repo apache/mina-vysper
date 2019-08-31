@@ -37,13 +37,12 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 public abstract class AbstractMUCOccupantDiscoTestCase extends AbstractMUCHandlerTestCase {
 
     private Stanza sendDisco(Stanza stanza) throws ProtocolException {
-        ResponseStanzaContainer container = handler.execute(stanza, sessionContext.getServerRuntimeContext(), true,
-                sessionContext, null, new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
-        if (container != null) {
-            return container.getUniqueResponseStanza();
-        } else {
-            return null;
-        }
+        RecordingStanzaBroker recordingStanzaBroker = new RecordingStanzaBroker(
+                new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
+
+        handler.execute(stanza, sessionContext.getServerRuntimeContext(), true,
+                sessionContext, null, recordingStanzaBroker);
+        return recordingStanzaBroker.getUniqueStanzaWrittenToSession();
     }
 
     @Override

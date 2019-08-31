@@ -47,7 +47,6 @@ import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DbVerify
 import org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback.DialbackIdGenerator;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaHandlerExecutorFactory;
@@ -110,8 +109,8 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
     protected final CountDownLatch authenticatedLatch = new CountDownLatch(1);
 
     public DefaultXMPPServerConnector(Entity remoteServer, ServerRuntimeContext serverRuntimeContext,
-                                      StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory, StanzaProcessor stanzaProcessor,
-                                      SessionContext dialbackSessionContext, SessionStateHolder dialbackSessionStateHolder) {
+            StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory, StanzaProcessor stanzaProcessor,
+            SessionContext dialbackSessionContext, SessionStateHolder dialbackSessionStateHolder) {
         this.serverRuntimeContext = serverRuntimeContext;
         this.stanzaProcessor = stanzaProcessor;
         this.stanzaHandlerExecutorFactory = stanzaHandlerExecutorFactory;
@@ -223,15 +222,11 @@ public class DefaultXMPPServerConnector implements XmppPingListener, XMPPServerC
         StanzaHandler s2sHandler = lookupS2SHandler(stanza);
 
         if (s2sHandler != null) {
-            ResponseStanzaContainer container;
             try {
-                container = stanzaHandlerExecutorFactory.build(s2sHandler).execute(stanza, serverRuntimeContext,
-                        false, sessionContext, sessionStateHolder);
+                stanzaHandlerExecutorFactory.build(s2sHandler).execute(stanza, serverRuntimeContext, false,
+                        sessionContext, sessionStateHolder);
             } catch (ProtocolException e) {
                 return;
-            }
-            if (container != null && container.hasResponse()) {
-                container.getResponseStanzas().forEach(sessionContext::write);
             }
 
             if (sessionStateHolder.getState() == SessionState.AUTHENTICATED) {

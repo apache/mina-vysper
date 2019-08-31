@@ -41,10 +41,9 @@ class SimpleStanzaHandlerExecutor implements StanzaHandlerExecutor {
     }
 
     @Override
-    public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
-            boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder)
-            throws ProtocolException {
-        return stanzaHandler.execute(stanza, serverRuntimeContext, isOutboundStanza, sessionContext, sessionStateHolder,
+    public void execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza,
+            SessionContext sessionContext, SessionStateHolder sessionStateHolder) throws ProtocolException {
+        stanzaHandler.execute(stanza, serverRuntimeContext, isOutboundStanza, sessionContext, sessionStateHolder,
                 new SimpleStanzaBroker(stanzaRelay, sessionContext));
     }
 

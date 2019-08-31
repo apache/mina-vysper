@@ -20,8 +20,8 @@
 package org.apache.vysper.xmpp.modules.extension.xep0054_vcardtemp;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-import org.apache.vysper.StanzaAssert;
 import org.apache.vysper.xml.fragment.Renderer;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLElementBuilder;
@@ -165,14 +165,12 @@ public class VcardTempIQHandlerTestCase {
         Stanza request = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.GET, "id1").addPreparedElement(VCARD)
                 .build();
 
-        Stanza response = handler
-                .execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker)
-                .getUniqueResponseStanza();
+        handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker);
 
         Stanza expected = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.RESULT, "id1").addPreparedElement(VCARD)
                 .build();
 
-        StanzaAssert.assertEquals(expected, response);
+        verify(stanzaBroker).writeToSession(expected);
     }
 
     @Test
@@ -182,14 +180,12 @@ public class VcardTempIQHandlerTestCase {
         Stanza request = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.GET, "id1")
                 .startInnerElement("vCard", NamespaceURIs.VCARD_TEMP).build();
 
-        Stanza response = handler
-                .execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker)
-                .getUniqueResponseStanza();
+        handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker);
 
         Stanza expected = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.RESULT, "id1")
                 .startInnerElement("vCard", NamespaceURIs.VCARD_TEMP).build();
 
-        StanzaAssert.assertEquals(expected, response);
+        verify(stanzaBroker).writeToSession(expected);
     }
 
     @Test
@@ -197,14 +193,12 @@ public class VcardTempIQHandlerTestCase {
         Stanza request = StanzaBuilder.createIQStanza(FROM, OTHER, IQStanzaType.GET, "id1")
                 .startInnerElement("vCard", NamespaceURIs.VCARD_TEMP).build();
 
-        Stanza response = handler
-                .execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker)
-                .getUniqueResponseStanza();
+        handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker);
 
         Stanza expected = StanzaBuilder.createIQStanza(OTHER, FROM, IQStanzaType.RESULT, "id1")
                 .addPreparedElement(OTHER_VCARD).build();
 
-        StanzaAssert.assertEquals(expected, response);
+        verify(stanzaBroker).writeToSession(expected);
     }
 
     @Test
@@ -214,16 +208,14 @@ public class VcardTempIQHandlerTestCase {
         Stanza request = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.GET, "id1")
                 .startInnerElement("vCard", NamespaceURIs.VCARD_TEMP).build();
 
-        Stanza response = handler
-                .execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker)
-                .getUniqueResponseStanza();
+        handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker);
 
         Stanza expected = StanzaBuilder.createIQStanza(TO, FROM, IQStanzaType.ERROR, "id1")
                 .startInnerElement("vCard", NamespaceURIs.VCARD_TEMP).endInnerElement()
                 .startInnerElement("error", NamespaceURIs.JABBER_CLIENT).addAttribute("type", "wait")
                 .startInnerElement("internal-server-error", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).build();
 
-        StanzaAssert.assertEquals(expected, response);
+        verify(stanzaBroker).writeToSession(expected);
     }
 
     @Test
@@ -233,13 +225,11 @@ public class VcardTempIQHandlerTestCase {
         Stanza request = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.SET, "id1").addPreparedElement(VCARD)
                 .build();
 
-        Stanza response = handler
-                .execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker)
-                .getUniqueResponseStanza();
+        handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker);
 
         Stanza expected = StanzaBuilder.createIQStanza(null, FROM, IQStanzaType.RESULT, "id1").build();
 
-        StanzaAssert.assertEquals(expected, response);
+        verify(stanzaBroker).writeToSession(expected);
 
         Mockito.verify(persistenceManager).setVcard(FROM, VCARD_STRING);
     }
@@ -251,15 +241,13 @@ public class VcardTempIQHandlerTestCase {
         Stanza request = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.SET, "id1").addPreparedElement(VCARD)
                 .build();
 
-        Stanza response = handler
-                .execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker)
-                .getUniqueResponseStanza();
+        handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker);
 
         Stanza expected = StanzaBuilder.createIQStanza(TO, FROM, IQStanzaType.ERROR, "id1").addPreparedElement(VCARD)
                 .startInnerElement("error", NamespaceURIs.JABBER_CLIENT).addAttribute("type", "wait")
                 .startInnerElement("internal-server-error", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).build();
 
-        StanzaAssert.assertEquals(expected, response);
+        verify(stanzaBroker).writeToSession(expected);
     }
 
     @Test
@@ -267,16 +255,14 @@ public class VcardTempIQHandlerTestCase {
         Stanza request = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.SET, "id1")
                 .startInnerElement("dummy", NamespaceURIs.VCARD_TEMP).build();
 
-        Stanza response = handler
-                .execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker)
-                .getUniqueResponseStanza();
+        handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker);
 
         Stanza expected = StanzaBuilder.createIQStanza(TO, FROM, IQStanzaType.ERROR, "id1")
                 .startInnerElement("dummy", NamespaceURIs.VCARD_TEMP).endInnerElement()
                 .startInnerElement("error", NamespaceURIs.JABBER_CLIENT).addAttribute("type", "modify")
                 .startInnerElement("bad-request", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).build();
 
-        StanzaAssert.assertEquals(expected, response);
+        verify(stanzaBroker).writeToSession(expected);
     }
 
     @Test
@@ -284,16 +270,14 @@ public class VcardTempIQHandlerTestCase {
         Stanza request = StanzaBuilder.createIQStanza(FROM, OTHER, IQStanzaType.SET, "id1")
                 .addPreparedElement(OTHER_VCARD).build();
 
-        Stanza response = handler
-                .execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker)
-                .getUniqueResponseStanza();
+        handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker);
 
         Stanza expected = StanzaBuilder.createIQStanza(TO, FROM, IQStanzaType.ERROR, "id1")
                 .addPreparedElement(OTHER_VCARD).startInnerElement("error", NamespaceURIs.JABBER_CLIENT)
                 .addAttribute("type", "auth")
                 .startInnerElement("forbidden", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).build();
 
-        StanzaAssert.assertEquals(expected, response);
+        verify(stanzaBroker).writeToSession(expected);
     }
 
     @Test
@@ -303,13 +287,11 @@ public class VcardTempIQHandlerTestCase {
         Stanza request = StanzaBuilder.createIQStanza(FROM, FROM, IQStanzaType.SET, "id1").addPreparedElement(VCARD)
                 .build();
 
-        Stanza response = handler
-                .execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker)
-                .getUniqueResponseStanza();
+        handler.execute(request, serverRuntimeContext, true, sessionContext, sessionStateHolder, stanzaBroker);
 
         Stanza expected = StanzaBuilder.createIQStanza(null, FROM, IQStanzaType.ERROR, "id1").build();
 
-        StanzaAssert.assertEquals(expected, response);
+        verify(stanzaBroker).writeToSession(expected);
     }
 
 }

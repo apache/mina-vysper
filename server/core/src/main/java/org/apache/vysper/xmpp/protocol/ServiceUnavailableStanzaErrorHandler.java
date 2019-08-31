@@ -45,9 +45,8 @@ public class ServiceUnavailableStanzaErrorHandler implements StanzaHandler {
         return true;
     }
 
-    public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
-										   boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder, StanzaBroker stanzaBroker)
-            throws ProtocolException {
+    public void execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza,
+            SessionContext sessionContext, SessionStateHolder sessionStateHolder, StanzaBroker stanzaBroker) {
         if (!(stanza instanceof XMPPCoreStanza)) {
             stanza = XMPPCoreStanza.getWrapper(stanza);
         }
@@ -55,9 +54,8 @@ public class ServiceUnavailableStanzaErrorHandler implements StanzaHandler {
             throw new IllegalArgumentException("cannot coerce into a message, iq or presence stanza");
 
         XMPPCoreStanza coreStanza = (XMPPCoreStanza) stanza;
-        Stanza errorStanza = ServerErrorResponses.getStanzaError(
-                StanzaErrorCondition.SERVICE_UNAVAILABLE, coreStanza, StanzaErrorType.CANCEL,
-                "namespace not supported", null, null);
-        return new ResponseStanzaContainerImpl(errorStanza);
+        Stanza errorStanza = ServerErrorResponses.getStanzaError(StanzaErrorCondition.SERVICE_UNAVAILABLE, coreStanza,
+                StanzaErrorType.CANCEL, "namespace not supported", null, null);
+        stanzaBroker.writeToSession(errorStanza);
     }
 }

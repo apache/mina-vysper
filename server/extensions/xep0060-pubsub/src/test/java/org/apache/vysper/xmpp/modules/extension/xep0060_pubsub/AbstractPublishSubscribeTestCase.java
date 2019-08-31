@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0060_pubsub;
 
+import org.apache.vysper.RecordingStanzaBroker;
 import org.apache.vysper.storage.OpenStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
@@ -29,7 +30,6 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.CollectionN
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.CollectionNodeInMemoryStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeInMemoryStorageProvider;
 import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceCollector;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
@@ -151,9 +151,11 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
      */
     protected abstract AbstractStanzaGenerator getDefaultStanzaGenerator();
 
-    protected ResponseStanzaContainer sendStanza(Stanza toSend, boolean isOutboundStanza) {
-        return handler.execute(toSend, sessionContext.getServerRuntimeContext(), isOutboundStanza, sessionContext, null,
-                new SimpleStanzaBroker(relay, sessionContext));
+    protected Stanza sendStanza(Stanza toSend, boolean isOutboundStanza) {
+        RecordingStanzaBroker stanzaBroker = new RecordingStanzaBroker(new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
+        handler.execute(toSend, sessionContext.getServerRuntimeContext(), isOutboundStanza, sessionContext, null,
+                stanzaBroker);
+        return stanzaBroker.getUniqueStanzaWrittenToSession();
     }
 
     public void testSimpleStanza() {

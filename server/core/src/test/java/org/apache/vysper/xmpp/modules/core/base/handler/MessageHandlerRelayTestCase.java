@@ -29,7 +29,6 @@ import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.modules.core.TestUser;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.server.TestSessionContext;
@@ -92,8 +91,7 @@ public class MessageHandlerRelayTestCase extends TestCase {
         assertNull(senderUser.getNextStanza()); // nothing there yet
 
         Stanza stanza = stanzaBuilder.build();
-        ResponseStanzaContainer responseStanzaContainer = messageHandler.execute(stanza,
-                senderSessionContext.getServerRuntimeContext(), true, senderSessionContext, null,
+        messageHandler.execute(stanza, senderSessionContext.getServerRuntimeContext(), true, senderSessionContext, null,
                 new SimpleStanzaBroker(senderSessionContext.getStanzaRelay(), senderSessionContext));
 
         Stanza receivedStanza = receiverUser.getNextStanza();
@@ -120,15 +118,13 @@ public class MessageHandlerRelayTestCase extends TestCase {
         stanzaRelay.add(receiver, receiverQueue);
 
         Stanza successfulMessageStanza = StanzaBuilder.createMessageStanza(sender, receiver, "en", "info").build();
-        ResponseStanzaContainer responseStanzaContainer = messageHandler.execute(successfulMessageStanza,
-                senderSessionContext.getServerRuntimeContext(), true, senderSessionContext, null,
-                new SimpleStanzaBroker(stanzaRelay, senderSessionContext));
+        messageHandler.execute(successfulMessageStanza, senderSessionContext.getServerRuntimeContext(), true,
+                senderSessionContext, null, new SimpleStanzaBroker(stanzaRelay, senderSessionContext));
         assertEquals(successfulMessageStanza, receiverQueue.getNext());
 
         Stanza failureMessageStanza = StanzaBuilder.createMessageStanza(sender, noReceiver, "en", "info").build();
-        responseStanzaContainer = messageHandler.execute(failureMessageStanza,
-                senderSessionContext.getServerRuntimeContext(), true, senderSessionContext, null,
-                new SimpleStanzaBroker(stanzaRelay, senderSessionContext));
+        messageHandler.execute(failureMessageStanza, senderSessionContext.getServerRuntimeContext(), true,
+                senderSessionContext, null, new SimpleStanzaBroker(stanzaRelay, senderSessionContext));
         assertNull(receiverQueue.getNext());
         Stanza rejectionStanza = senderQueue.getNext();
         assertNotNull(rejectionStanza);

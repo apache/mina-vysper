@@ -117,6 +117,6 @@ public class RelayingIQHandler extends IQHandler {
             sessionContext.getResponseWriter().write(stanza);
         }
 
-        return null;
+        return Collections.emptyList();
     }
 }

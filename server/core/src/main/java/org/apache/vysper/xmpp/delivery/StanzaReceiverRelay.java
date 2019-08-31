@@ -33,27 +33,24 @@ import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
- * relays stanzas to a StanzaReceiver identified by an Entity
- * this relay is mostly for testing purposes
+ * relays stanzas to a StanzaReceiver identified by an Entity this relay is
+ * mostly for testing purposes
  */
 public class StanzaReceiverRelay implements StanzaRelay {
 
-    private final Map<Entity, StanzaReceiver> receiverMap = new HashMap<Entity, StanzaReceiver>();
+    private final Map<Entity, StanzaReceiver> receiverMap = new HashMap<>();
 
     private boolean exploitFailureStrategy = true;
-
-    private ServerRuntimeContext serverRuntimeContext = null;
 
     private int countRelayed = 0;
 
     private int countFailed = 0;
 
     private int countDelivered = 0;
-    
+
     private final AtomicBoolean acceptingMode = new AtomicBoolean(true);
-    
+
     public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
-        this.serverRuntimeContext = serverRuntimeContext;
     }
 
     /**
@@ -63,8 +60,8 @@ public class StanzaReceiverRelay implements StanzaRelay {
         receiverMap.put(receiverID, receiver);
     }
 
-    public void relay(SessionContext sessionContext, Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy)
-            throws DeliveryException {
+    public void relay(SessionContext sessionContext, Entity receiver, Stanza stanza,
+            DeliveryFailureStrategy deliveryFailureStrategy) throws DeliveryException {
         if (!isRelaying()) {
             throw new ServiceNotAvailableException("relay is not relaying");
         }

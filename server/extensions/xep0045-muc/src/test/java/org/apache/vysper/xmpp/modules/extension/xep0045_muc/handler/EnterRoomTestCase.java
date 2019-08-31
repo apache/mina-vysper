@@ -26,6 +26,7 @@ import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLElementBuilder;
 import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.RecordingStanzaBroker;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.TestSessionContext;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Affiliation;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.ConferenceTestUtils;
@@ -38,7 +39,6 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Password;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.server.SessionContext;
@@ -77,14 +77,11 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
             stanzaBuilder.addPreparedElement(new X(xInnerElms));
         }
         Stanza presenceStanza = stanzaBuilder.build();
-        ResponseStanzaContainer container = handler.execute(presenceStanza,
-                userSessionContext.getServerRuntimeContext(), true, userSessionContext, null,
+        RecordingStanzaBroker stanzaBroker = new RecordingStanzaBroker(
                 new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
-        if (container != null) {
-            return container.getUniqueResponseStanza();
-        } else {
-            return null;
-        }
+        handler.execute(presenceStanza, userSessionContext.getServerRuntimeContext(), true, userSessionContext, null,
+                stanzaBroker);
+        return stanzaBroker.getUniqueStanzaWrittenToSession();
     }
 
     protected TestSessionContext sessionContext2;

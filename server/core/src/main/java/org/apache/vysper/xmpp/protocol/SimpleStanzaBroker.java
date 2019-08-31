@@ -45,11 +45,17 @@ public class SimpleStanzaBroker implements StanzaBroker {
     @Override
     public void write(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy)
             throws DeliveryException {
+        if (stanza == null) {
+            return;
+        }
         stanzaRelay.relay(sessionContext, receiver, stanza, deliveryFailureStrategy);
     }
 
     @Override
     public void writeToSession(Stanza stanza) {
+        if (stanza == null) {
+            return;
+        }
         if (sessionContext == null) {
             // TODO Move offline storage here?
             return;
@@ -71,13 +77,13 @@ public class SimpleStanzaBroker implements StanzaBroker {
         if (!stanzaRelay.equals(that.stanzaRelay)) {
             return false;
         }
-        return sessionContext.equals(that.sessionContext);
+        return sessionContext != null ? sessionContext.equals(that.sessionContext) : that.sessionContext == null;
     }
 
     @Override
     public int hashCode() {
         int result = stanzaRelay.hashCode();
-        result = 31 * result + sessionContext.hashCode();
+        result = 31 * result + (sessionContext != null ? sessionContext.hashCode() : 0);
         return result;
     }
 }

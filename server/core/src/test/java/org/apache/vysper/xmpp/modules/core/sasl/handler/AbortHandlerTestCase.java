@@ -22,18 +22,15 @@ package org.apache.vysper.xmpp.modules.core.sasl.handler;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.vysper.storage.OpenStorageProviderRegistry;
-import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authentication.Plain;
 import org.apache.vysper.xmpp.authentication.SASLMechanism;
 import org.apache.vysper.xmpp.authentication.SimpleUserAuthentication;
 import org.apache.vysper.xmpp.modules.core.sasl.AuthorizationRetriesCounter;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.RecordingStanzaBroker;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.exception.AuthenticationFailedException;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
@@ -41,6 +38,8 @@ import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+
+import junit.framework.TestCase;
 
 /**
  */
@@ -55,7 +54,7 @@ public class AbortHandlerTestCase extends TestCase {
         sessionContext = new TestSessionContext(sessionStateHolder);
         sessionContext.setSessionState(SessionState.ENCRYPTED);
 
-        List<SASLMechanism> methods = new ArrayList<SASLMechanism>();
+        List<SASLMechanism> methods = new ArrayList<>();
         methods.add(new Plain());
 
         sessionContext.getServerRuntimeContext().getServerFeatures().setAuthenticationMethods(methods);
@@ -67,13 +66,11 @@ public class AbortHandlerTestCase extends TestCase {
                 .setStorageProviderRegistry(providerRegistry);
     }
 
-    public void testAbort() throws XMLSemanticError, AuthenticationFailedException {
+    public void testAbort() throws AuthenticationFailedException {
 
         executeAbortAuthorization_3Times();
 
-        StanzaBuilder stanzaBuilder = createAbort();
-
-        stanzaBuilder = new StanzaBuilder("auth", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
+        StanzaBuilder stanzaBuilder = new StanzaBuilder("auth", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
         stanzaBuilder.addAttribute("mechanism", "PLAIN");
         stanzaBuilder.addText(new String(Base64.encodeBase64("dummy\0user007\0pass007".getBytes())));
         Stanza authPlainStanza = stanzaBuilder.build();
@@ -81,8 +78,8 @@ public class AbortHandlerTestCase extends TestCase {
         // correct credential no longer work - no retries left
         AuthHandler authHandler = new AuthHandler();
         try {
-            ResponseStanzaContainer responseContainer = authHandler.execute(authPlainStanza, sessionContext
-                    .getServerRuntimeContext(), true, sessionContext, sessionStateHolder, null);
+            authHandler.execute(authPlainStanza, sessionContext.getServerRuntimeContext(), true, sessionContext,
+                    sessionStateHolder, new RecordingStanzaBroker());
             fail("should raise error - no tries left");
         } catch (AuthenticationFailedException e) {
             // test succeeded
@@ -113,15 +110,14 @@ public class AbortHandlerTestCase extends TestCase {
         Stanza abortStanza = stanzaBuilder.build();
 
         AbortHandler abortHandler = new AbortHandler();
-        ResponseStanzaContainer responseContainer = abortHandler.execute(abortStanza, sessionContext
-                .getServerRuntimeContext(), true, sessionContext, sessionStateHolder, null);
-        Stanza responseStanza = responseContainer.getUniqueResponseStanza();
-        return responseStanza;
+        RecordingStanzaBroker stanzaBroker = new RecordingStanzaBroker();
+        abortHandler.execute(abortStanza, sessionContext.getServerRuntimeContext(), true, sessionContext,
+                sessionStateHolder, stanzaBroker);
+        return stanzaBroker.getUniqueStanzaWrittenToSession();
     }
 
     private StanzaBuilder createAbort() {
-        StanzaBuilder stanzaBuilder = new StanzaBuilder("abort", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
-        return stanzaBuilder;
+        return new StanzaBuilder("abort", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_SASL);
     }
 
 }

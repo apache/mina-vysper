@@ -24,10 +24,10 @@ import static org.apache.vysper.xmpp.stanza.MessageStanzaType.GROUPCHAT;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLElementBuilder;
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.RecordingStanzaBroker;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.stanza.MessageStanzaType;
@@ -61,13 +61,11 @@ public abstract class AbstractMUCMessageHandlerTestCase extends AbstractMUCHandl
         }
 
         Stanza messageStanza = stanzaBuilder.build();
-        ResponseStanzaContainer container = handler.execute(messageStanza, sessionContext.getServerRuntimeContext(),
-                true, sessionContext, null, new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
-        if (container != null) {
-            return container.getUniqueResponseStanza();
-        } else {
-            return null;
-        }
+        RecordingStanzaBroker stanzaBroker = new RecordingStanzaBroker(
+                new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
+        handler.execute(messageStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, null,
+                stanzaBroker);
+        return stanzaBroker.getUniqueStanzaWrittenToSession();
     }
 
     protected void assertMessageErrorStanza(Stanza actualResponse, Entity expectedFrom, Entity expectedTo,

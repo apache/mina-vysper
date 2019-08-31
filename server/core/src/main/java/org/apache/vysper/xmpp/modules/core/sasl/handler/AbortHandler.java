@@ -20,7 +20,6 @@
 package org.apache.vysper.xmpp.modules.core.sasl.handler;
 
 import org.apache.vysper.xmpp.modules.core.sasl.AuthorizationRetriesCounter;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.SessionContext;
@@ -41,15 +40,15 @@ public class AbortHandler extends AbstractSASLHandler {
     }
 
     @Override
-    public ResponseStanzaContainer executeWorker(Stanza stanza, SessionContext sessionContext,
-            SessionStateHolder sessionStateHolder) {
+    public Stanza executeWorker(Stanza stanza, SessionContext sessionContext,
+                                SessionStateHolder sessionStateHolder) {
 
         AuthorizationRetriesCounter counter = AuthorizationRetriesCounter.getFromSession(sessionContext);
         boolean moreTriesLeft = counter.countFailedTry(); // record that client aborted
 
         // TODO do more clean-ups as mechanism requires.
 
-        return new ResponseStanzaContainerImpl(new ServerResponses().getAuthAborted());
+        return new ServerResponses().getAuthAborted();
     }
 
 }

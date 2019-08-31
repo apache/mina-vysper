@@ -21,7 +21,6 @@
 package org.apache.vysper.xmpp.server.s2s;
 
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaBroker;
@@ -55,13 +54,11 @@ public class TlsProceedHandler implements StanzaHandler {
         return true;
     }
 
-    public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
-										   boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder, StanzaBroker stanzaBroker) {
+    public void execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
+						boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder, StanzaBroker stanzaBroker) {
         sessionStateHolder.setState(SessionState.ENCRYPTION_STARTED);
         
         LOG.debug("XMPP server connector switching to TLS");
         sessionContext.switchToTLS(false, true);
-
-        return null;
     }
 }

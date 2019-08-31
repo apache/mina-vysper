@@ -31,6 +31,7 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverQueue;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.MUCFeatures;
+import org.apache.vysper.xmpp.modules.extension.xep0045_muc.RecordingStanzaBroker;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.TestSessionContext;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Conference;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.MucUserItem;
@@ -38,7 +39,6 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Status.Statu
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -271,13 +271,10 @@ public abstract class AbstractMUCHandlerTestCase extends TestCase {
         stanzaBuilder.endInnerElement();
 
         Stanza iqStanza = stanzaBuilder.build();
-        ResponseStanzaContainer container = handler.execute(iqStanza, sessionContext.getServerRuntimeContext(), true,
-                sessionContext, null, new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
-        if (container != null) {
-            return container.getUniqueResponseStanza();
-        } else {
-            return null;
-        }
+
+        RecordingStanzaBroker stanzaBroker = new RecordingStanzaBroker(new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
+        handler.execute(iqStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, null, stanzaBroker);
+        return stanzaBroker.getUniqueStanzaWrittenToSession();
     }
 
 }

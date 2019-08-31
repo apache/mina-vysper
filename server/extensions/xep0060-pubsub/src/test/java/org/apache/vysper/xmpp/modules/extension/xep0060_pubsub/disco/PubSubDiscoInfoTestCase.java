@@ -31,7 +31,6 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.AbstractS
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.modules.servicediscovery.handler.DiscoInfoIQHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -53,9 +52,9 @@ public class PubSubDiscoInfoTestCase extends AbstractPublishSubscribeTestCase {
         DefaultDiscoInfoStanzaGenerator sg = (DefaultDiscoInfoStanzaGenerator) getDefaultStanzaGenerator();
         Stanza stanza = sg.getStanza(client, pubsubService.getBareJID(), "id123");
 
-        ResponseStanzaContainer result = sendStanza(stanza, true);
-        assertTrue(result.hasResponse());
-        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
+        Stanza result = sendStanza(stanza, true);
+        assertNotNull(result);
+        IQStanza response = new IQStanza(result);
 
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
 
@@ -70,17 +69,21 @@ public class PubSubDiscoInfoTestCase extends AbstractPublishSubscribeTestCase {
         // at least we have an identity and a feature element
         assertTrue(inner.size() >= 2);
 
-        // ordering etc. is unknown; step through all subelements and pick the ones we need
+        // ordering etc. is unknown; step through all subelements and pick the ones we
+        // need
         XMLElement identity = null;
         XMLElement feature = null;
         for (XMLElement el : inner) {
             if (el.getName().equals("identity")
-                    //&& el.getNamespace().equals(NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO) // TODO enable when the parser is fixed
+                    // && el.getNamespace().equals(NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO) //
+                    // TODO enable when the parser is fixed
                     && el.getAttributeValue("category").equals("pubsub")
                     && el.getAttributeValue("type").equals("service")) {
                 identity = el;
             } else if (el.getName().equals("feature")
-            /*&& el.getNamespace().equals(NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO)*/// TODO enable when the parser is fixed
+                    /* && el.getNamespace().equals(NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO) */// TODO enable when
+                                                                                                   // the parser is
+                                                                                                   // fixed
                     && el.getAttributeValue("var").equals(NamespaceURIs.XEP0060_PUBSUB)) {
                 feature = el;
             }
@@ -97,9 +100,9 @@ public class PubSubDiscoInfoTestCase extends AbstractPublishSubscribeTestCase {
         DefaultDiscoInfoStanzaGenerator sg = (DefaultDiscoInfoStanzaGenerator) getDefaultStanzaGenerator();
         Stanza stanza = sg.getStanza(client, pubsubService.getBareJID(), "id123", "news");
 
-        ResponseStanzaContainer result = sendStanza(stanza, true);
-        assertTrue(result.hasResponse());
-        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
+        Stanza result = sendStanza(stanza, true);
+        assertNotNull(result);
+        IQStanza response = new IQStanza(result);
 
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
 
@@ -114,12 +117,15 @@ public class PubSubDiscoInfoTestCase extends AbstractPublishSubscribeTestCase {
         // at least we have an identity element
         assertTrue(inner.size() >= 1);
 
-        // ordering etc. is unknown; step through all subelements and pick the ones we need
+        // ordering etc. is unknown; step through all subelements and pick the ones we
+        // need
         XMLElement identity = null;
         for (XMLElement el : inner) {
             if (el.getName().equals("identity")
-            //&& el.getNamespace().equals(NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO) // TODO enable when the parser is fixed
-                    && el.getAttributeValue("category").equals("pubsub") && el.getAttributeValue("type").equals("leaf")) {
+                    // && el.getNamespace().equals(NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO) //
+                    // TODO enable when the parser is fixed
+                    && el.getAttributeValue("category").equals("pubsub")
+                    && el.getAttributeValue("type").equals("leaf")) {
                 identity = el;
             }
         }
@@ -135,7 +141,8 @@ public class PubSubDiscoInfoTestCase extends AbstractPublishSubscribeTestCase {
         XMLElement[] elementList = collectFeatures(inner, featuresList);
 
         for (int idx = 0; idx < elementList.length; ++idx) {
-            assertNotNull(featuresList[idx], elementList[idx]); // add a more descriptive error message if the test fails
+            assertNotNull(featuresList[idx], elementList[idx]); // add a more descriptive error message if the test
+                                                                // fails
         }
     }
 
@@ -144,7 +151,8 @@ public class PubSubDiscoInfoTestCase extends AbstractPublishSubscribeTestCase {
         Arrays.sort(features);
         for (XMLElement el : inner) {
             if (el.getName().equals("feature"))
-            /*&& el.getNamespace().equals(NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO)*/{ // TODO enable when the parser is fixed
+            /* && el.getNamespace().equals(NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO) */ { // TODO enable when the
+                                                                                              // parser is fixed
                 int index = Arrays.binarySearch(features, el.getAttributeValue("var"));
                 if (index != -1) {
                     elementList[index] = el;

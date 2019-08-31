@@ -20,16 +20,16 @@
 
 package org.apache.vysper.xmpp.modules.core.starttls.handler;
 
-import junit.framework.TestCase;
-
 import org.apache.vysper.xml.fragment.XMLElementVerifier;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
+import org.apache.vysper.xmpp.protocol.RecordingStanzaBroker;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+
+import junit.framework.TestCase;
 
 /**
  */
@@ -67,17 +67,17 @@ public class StartTLSHandlerTestCase extends TestCase {
         responseStanza = executeStartTLSHandler(starttlsStanza, sessionContext);
         verifier = responseStanza.getVerifier();
         assertTrue("session state ready", verifier.nameEquals("proceed"));
-        assertEquals("session stat is encryption started", SessionState.ENCRYPTION_STARTED, sessionStateHolder
-                .getState());
+        assertEquals("session stat is encryption started", SessionState.ENCRYPTION_STARTED,
+                sessionStateHolder.getState());
         assertTrue("tls init", sessionContext.isSwitchToTLSCalled());
     }
 
     private Stanza executeStartTLSHandler(Stanza starttlsStanza, TestSessionContext sessionContext) {
         StartTLSHandler startTLSHandler = new StartTLSHandler();
-        ResponseStanzaContainer responseStanzaContainer = startTLSHandler.execute(starttlsStanza, sessionContext
-                .getServerRuntimeContext(), true, sessionContext, sessionStateHolder, null);
-        Stanza responseStanza = responseStanzaContainer.getUniqueResponseStanza();
-        return responseStanza;
+        RecordingStanzaBroker stanzaBroker = new RecordingStanzaBroker();
+        startTLSHandler.execute(starttlsStanza, sessionContext.getServerRuntimeContext(), true, sessionContext,
+                sessionStateHolder, stanzaBroker);
+        return stanzaBroker.getUniqueStanzaWrittenToSession();
     }
 
     public void testNamespace() {

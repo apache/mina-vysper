@@ -20,12 +20,12 @@
 
 package org.apache.vysper.xmpp.protocol;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  */
@@ -37,11 +37,11 @@ public class CallTestStanzaHandlerResponse extends CallTestStanzaHandler impleme
     }
 
     @Override
-    public ResponseStanzaContainer execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
-										   boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder, StanzaBroker stanzaBroker)
+    public void execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza,
+            SessionContext sessionContext, SessionStateHolder sessionStateHolder, StanzaBroker stanzaBroker)
             throws ProtocolException {
         super.execute(stanza, serverRuntimeContext, true, sessionContext, null, stanzaBroker);
-        return new ResponseStanzaContainerImpl(getResponseStanzas());
+        getResponseStanzas().forEach(stanzaBroker::writeToSession);
     }
 
     public void setResponseStanza(Stanza response) {

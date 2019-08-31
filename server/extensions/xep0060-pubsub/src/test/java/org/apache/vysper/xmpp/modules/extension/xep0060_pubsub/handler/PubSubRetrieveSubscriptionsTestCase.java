@@ -25,7 +25,6 @@ import org.apache.vysper.xmpp.modules.core.base.handler.IQHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.AbstractPublishSubscribeTestCase;
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -67,11 +66,11 @@ public class PubSubRetrieveSubscriptionsTestCase extends AbstractPublishSubscrib
     public void testNoSubscriptions() {
         AbstractStanzaGenerator sg = getDefaultStanzaGenerator();
         Stanza stanza = sg.getStanza(client, pubsubService, "id123", null);
-        ResponseStanzaContainer result = sendStanza(stanza, true);
+        Stanza result = sendStanza(stanza, true);
 
-        assertTrue(result.hasResponse());
+        assertNotNull(result);
 
-        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
+        IQStanza response = new IQStanza(result);
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
         XMLElement sub = response.getFirstInnerElement().getFirstInnerElement();
         assertEquals("subscriptions", sub.getName());
@@ -87,11 +86,11 @@ public class PubSubRetrieveSubscriptionsTestCase extends AbstractPublishSubscrib
         n3.subscribe("id126", client);
 
         Stanza stanza = sg.getStanza(client, pubsubService, "4711", null);
-        ResponseStanzaContainer result = sendStanza(stanza, true);
+        Stanza result = sendStanza(stanza, true);
 
-        assertTrue(result.hasResponse());
+        assertNotNull(result);
 
-        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
+        IQStanza response = new IQStanza(result);
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
         XMLElement sub = response.getFirstInnerElement().getFirstInnerElement();
         assertEquals("subscriptions", sub.getName());
@@ -107,11 +106,11 @@ public class PubSubRetrieveSubscriptionsTestCase extends AbstractPublishSubscrib
         n3.subscribe("id126", client);
 
         Stanza stanza = sg.getStanza(client, pubsubService, "4711", "Node1");
-        ResponseStanzaContainer result = sendStanza(stanza, true);
+        Stanza result = sendStanza(stanza, true);
 
-        assertTrue(result.hasResponse());
+        assertNotNull(result);
 
-        IQStanza response = new IQStanza(result.getUniqueResponseStanza());
+        IQStanza response = new IQStanza(result);
         assertEquals(IQStanzaType.RESULT.value(), response.getType());
         XMLElement sub = response.getFirstInnerElement().getFirstInnerElement();
         assertEquals("subscriptions", sub.getName());

@@ -48,11 +48,4 @@ public class InboundStanzaProtocolWorker extends AbstractStateAwareProtocolWorke
         return false; // this worker is delivering inbound only
     }
 
-    @Override
-    protected void writeResponse(SessionContext sessionContext, ResponseStanzaContainer responseStanzaContainer) {
-        if (responseStanzaContainer == null) {
-            return;
-        }
-        ResponseWriter.writeResponse(sessionContext, responseStanzaContainer);
-    }
 }

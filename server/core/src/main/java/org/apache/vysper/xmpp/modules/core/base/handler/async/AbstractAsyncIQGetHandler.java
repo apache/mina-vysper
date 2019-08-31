@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.core.base.handler.async;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -57,7 +58,7 @@ abstract public class AbstractAsyncIQGetHandler extends IQHandler {
         switch (stanza.getIQType()) {
         case GET:
             executeGetIQLogicAsync(stanza, serverRuntimeContext, sessionContext);
-            return null; // IQ response is sent later
+            return Collections.emptyList(); // IQ response is sent later
 
             // all non-GET requests are handled synchronously, regardless of  
         case ERROR:
