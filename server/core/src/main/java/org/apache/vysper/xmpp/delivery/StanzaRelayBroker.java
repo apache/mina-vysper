@@ -25,6 +25,7 @@ import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
 import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.resources.ManagedThreadPool;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
@@ -67,7 +68,7 @@ public class StanzaRelayBroker implements StanzaRelay {
         this.serverRuntimeContext = serverRuntimeContext;
     }
 
-    public void relay(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy)
+    public void relay(SessionContext sessionContext, Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy)
             throws DeliveryException {
         
         if (!isRelaying()) {
@@ -92,11 +93,11 @@ public class StanzaRelayBroker implements StanzaRelay {
         boolean relayToExternal = serverRuntimeContext.getServerFeatures().isRelayingToFederationServers();
 
         if (EntityUtils.isAddressingServer(receiver, serverRuntimeContext.getServerEntity()) || toComponent) {
-            internalRelay.relay(receiver, stanza, deliveryFailureStrategy);
+            internalRelay.relay(sessionContext, receiver, stanza, deliveryFailureStrategy);
         } else {
             if (!relayToExternal)
                 throw new IllegalStateException("this server is not relaying to external currently");
-            externalRelay.relay(receiver, stanza, deliveryFailureStrategy);
+            externalRelay.relay(sessionContext, receiver, stanza, deliveryFailureStrategy);
         }
     }
 

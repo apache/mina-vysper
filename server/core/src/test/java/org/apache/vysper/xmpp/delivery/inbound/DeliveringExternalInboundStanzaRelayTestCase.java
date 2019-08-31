@@ -30,6 +30,7 @@ import org.apache.vysper.xmpp.delivery.failure.RemoteServerNotFoundException;
 import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.s2s.XMPPServerConnector;
 import org.apache.vysper.xmpp.server.s2s.XMPPServerConnectorRegistry;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -40,6 +41,8 @@ import org.mockito.Mockito;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static org.mockito.Mockito.mock;
 
 /**
  */
@@ -57,19 +60,21 @@ public class DeliveringExternalInboundStanzaRelayTestCase extends TestCase {
 
     private static final Stanza STANZA = XMPPCoreStanza.getWrapper(StanzaBuilder.createMessageStanza(FROM, TO, LANG,
             BODY).build());
+    
+    private SessionContext sessionContext = mock(SessionContext.class);
 
     public void testRemoteServerError() throws Exception {
-        XMPPServerConnectorRegistry registry = Mockito.mock(XMPPServerConnectorRegistry.class);
+        XMPPServerConnectorRegistry registry = mock(XMPPServerConnectorRegistry.class);
         Mockito.when(registry.connect(SERVER)).thenThrow(new RemoteServerNotFoundException());
 
-        ServerRuntimeContext serverRuntimeContext = Mockito.mock(ServerRuntimeContext.class);
+        ServerRuntimeContext serverRuntimeContext = mock(ServerRuntimeContext.class);
         Mockito.when(serverRuntimeContext.getServerConnectorRegistry()).thenReturn(registry);
 
         DeliveringExternalInboundStanzaRelay relay = new DeliveringExternalInboundStanzaRelay(new TestExecutorService());
         relay.setServerRuntimeContext(serverRuntimeContext);
 
         RecordingDeliveryFailureStrategy deliveryFailureStrategy = new RecordingDeliveryFailureStrategy();
-        relay.relay(TO, STANZA, deliveryFailureStrategy);
+        relay.relay(sessionContext, TO, STANZA, deliveryFailureStrategy);
 
         Stanza failedStanza = deliveryFailureStrategy.getRecordedStanza();
         Assert.assertNotNull(failedStanza);
@@ -81,19 +86,19 @@ public class DeliveringExternalInboundStanzaRelayTestCase extends TestCase {
     }
 
     public void testSuccessfulRelay() throws Exception {
-        XMPPServerConnector connector = Mockito.mock(XMPPServerConnector.class);
+        XMPPServerConnector connector = mock(XMPPServerConnector.class);
         
-        XMPPServerConnectorRegistry registry = Mockito.mock(XMPPServerConnectorRegistry.class);
+        XMPPServerConnectorRegistry registry = mock(XMPPServerConnectorRegistry.class);
         Mockito.when(registry.connect(SERVER)).thenReturn(connector);
 
-        ServerRuntimeContext serverRuntimeContext = Mockito.mock(ServerRuntimeContext.class);
+        ServerRuntimeContext serverRuntimeContext = mock(ServerRuntimeContext.class);
         Mockito.when(serverRuntimeContext.getServerConnectorRegistry()).thenReturn(registry);
 
         DeliveringExternalInboundStanzaRelay relay = new DeliveringExternalInboundStanzaRelay(new TestExecutorService());
         relay.setServerRuntimeContext(serverRuntimeContext);
 
         RecordingDeliveryFailureStrategy deliveryFailureStrategy = new RecordingDeliveryFailureStrategy();
-        relay.relay(TO, STANZA, deliveryFailureStrategy);
+        relay.relay(sessionContext, TO, STANZA, deliveryFailureStrategy);
 
         Assert.assertNull(deliveryFailureStrategy.getRecordedStanza());
 
@@ -119,7 +124,7 @@ public class DeliveringExternalInboundStanzaRelayTestCase extends TestCase {
         Assert.assertTrue(testExecutorService.isShutdown());
 
         try {
-            relay.relay(TO, STANZA, null);
+            relay.relay(sessionContext, TO, STANZA, null);
             Assert.fail("ServiceNotAvailableException expected");
         } catch (ServiceNotAvailableException e) {
             // test succeeds

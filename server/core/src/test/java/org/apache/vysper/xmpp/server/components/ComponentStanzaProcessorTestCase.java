@@ -35,9 +35,15 @@ import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
+import org.apache.vysper.xmpp.writer.StanzaWriter;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  */
@@ -47,15 +53,15 @@ public class ComponentStanzaProcessorTestCase {
 
     private static final Entity TO = EntityImpl.parseUnchecked("vysper.org");
 
-    private ServerRuntimeContext serverRuntimeContext = Mockito.mock(ServerRuntimeContext.class);
+    private ServerRuntimeContext serverRuntimeContext = mock(ServerRuntimeContext.class);
 
-    private SessionContext sessionContext = Mockito.mock(SessionContext.class);
+    private SessionContext sessionContext = mock(SessionContext.class);
 
     private SessionStateHolder sessionStateHolder = new SessionStateHolder();
 
-    private StanzaRelay stanzaRelay = Mockito.mock(StanzaRelay.class);
+    private StanzaRelay stanzaRelay = mock(StanzaRelay.class);
 
-    private StanzaHandler handler = Mockito.mock(StanzaHandler.class);
+    private StanzaHandler handler = mock(StanzaHandler.class);
 
     private Stanza stanza = StanzaBuilder.createMessageStanza(FROM, TO, null, "body").build();
 
@@ -65,11 +71,16 @@ public class ComponentStanzaProcessorTestCase {
 
     private ComponentStanzaProcessor processor = new ComponentStanzaProcessor(
             new SimpleStanzaHandlerExecutorFactory(stanzaRelay));
+    
+    private StanzaWriter sessionContextStanzaWriter;
 
     @Before
     public void before() {
-        Mockito.when(handler.verify(stanza)).thenReturn(true);
-        Mockito.when(handler.getName()).thenReturn("message");
+        when(handler.verify(stanza)).thenReturn(true);
+        when(handler.getName()).thenReturn("message");
+
+        sessionContextStanzaWriter = mock(StanzaWriter.class);
+        when(sessionContext.getResponseWriter()).thenReturn(sessionContextStanzaWriter);
     }
 
     @Test(expected = RuntimeException.class)
@@ -99,19 +110,19 @@ public class ComponentStanzaProcessorTestCase {
 
     @Test
     public void processSuccessfulWithResponse() throws ProtocolException, DeliveryException {
-        Mockito.when(handler.execute(stanza, serverRuntimeContext, false, sessionContext, sessionStateHolder,
+        when(handler.execute(stanza, serverRuntimeContext, false, sessionContext, sessionStateHolder,
                 new SimpleStanzaBroker(stanzaRelay, sessionContext))).thenReturn(container);
 
         processor.addHandler(handler);
 
         processor.processStanza(serverRuntimeContext, sessionContext, stanza, sessionStateHolder);
 
-        Mockito.verify(stanzaRelay).relay(FROM, responseStanza, IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY);
+        verify(sessionContextStanzaWriter).write(responseStanza);
     }
 
     @Test
     public void handlerThrowsException() throws ProtocolException, DeliveryException {
-        Mockito.when(handler.execute(stanza, serverRuntimeContext, false, sessionContext, sessionStateHolder,
+        when(handler.execute(stanza, serverRuntimeContext, false, sessionContext, sessionStateHolder,
                 new SimpleStanzaBroker(stanzaRelay, sessionContext))).thenThrow(new ProtocolException());
 
         processor.addHandler(handler);
@@ -122,11 +133,10 @@ public class ComponentStanzaProcessorTestCase {
     }
 
     @Test(expected = RuntimeException.class)
-    public void processThenFailRelaying() throws ProtocolException, DeliveryException {
-        Mockito.when(handler.execute(stanza, serverRuntimeContext, false, sessionContext, sessionStateHolder,
+    public void processThenFailRelaying() throws ProtocolException {
+        when(handler.execute(stanza, serverRuntimeContext, false, sessionContext, sessionStateHolder,
                 new SimpleStanzaBroker(stanzaRelay, sessionContext))).thenReturn(container);
-        Mockito.doThrow(new DeliveryException()).when(stanzaRelay).relay(FROM, responseStanza,
-                IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY);
+        doThrow(new RuntimeException()).when(sessionContextStanzaWriter).write(responseStanza);
 
         processor.addHandler(handler);
 

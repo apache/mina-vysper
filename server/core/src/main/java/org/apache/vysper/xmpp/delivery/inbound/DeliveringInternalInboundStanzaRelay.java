@@ -151,8 +151,7 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
         this.serverRuntimeContext = serverRuntimeContext;
     }
 
-    public void setStanzaHandlerExecutorFactory(
-            StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory) {
+    public void setStanzaHandlerExecutorFactory(StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory) {
         this.inboundStanzaProtocolWorker = new InboundStanzaProtocolWorker(stanzaHandlerExecutorFactory);
     }
 
@@ -195,13 +194,14 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
         lastCompleted = completedTaskCount;
     }
 
-    public void relay(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy)
-            throws DeliveryException {
+    public void relay(SessionContext sessionContext, Entity receiver, Stanza stanza,
+            DeliveryFailureStrategy deliveryFailureStrategy) throws DeliveryException {
         if (!isRelaying()) {
             throw new ServiceNotAvailableException("internal inbound relay is not relaying");
         }
 
-        Future<RelayResult> resultFuture = executor.submit(new Relay(receiver, stanza, deliveryFailureStrategy));
+        executor
+                .submit(new Relay(sessionContext, receiver, stanza, deliveryFailureStrategy));
         if (this.logStorageProvider != null) {
             this.logStorageProvider.logStanza(receiver, stanza);
         }
@@ -216,15 +216,19 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
     }
 
     private class Relay implements Callable<RelayResult> {
-        private Entity receiver;
+        private final SessionContext sessionContext;
 
-        private Stanza stanza;
+        private final Entity receiver;
 
-        private DeliveryFailureStrategy deliveryFailureStrategy;
+        private final Stanza stanza;
+
+        private final DeliveryFailureStrategy deliveryFailureStrategy;
 
         protected final UnmodifyableSessionStateHolder sessionStateHolder = new UnmodifyableSessionStateHolder();
 
-        Relay(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy) {
+        Relay(SessionContext sessionContext, Entity receiver, Stanza stanza,
+                DeliveryFailureStrategy deliveryFailureStrategy) {
+            this.sessionContext = sessionContext;
             this.receiver = receiver;
             this.stanza = stanza;
             this.deliveryFailureStrategy = deliveryFailureStrategy;
@@ -286,7 +290,7 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
                                 "cannot retrieve component stanza processor for" + receiverDomain));
                     }
 
-                    processor.processStanza(serverRuntimeContext, null, stanza, null);
+                    processor.processStanza(serverRuntimeContext, sessionContext, stanza, sessionStateHolder);
                     return new RelayResult().setProcessed();
                 }
 

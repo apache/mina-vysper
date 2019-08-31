@@ -23,6 +23,7 @@ package org.apache.vysper.xmpp.delivery;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
+import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
@@ -34,22 +35,28 @@ public interface StanzaRelay {
 
     /**
      * relaying a stanza
-     * @param receiver the stanza receiver
-     * @param stanza the payload
-     * @param deliveryFailureStrategy what to do in case of errors
-     * @throws ServiceNotAvailableException relaying is stopped
-     * @throws DeliveryException error while relaying
+     *
+     * @param sessionContext
+     *            The current session context. Can be null.
+     * @param receiver
+     *            the stanza receiver
+     * @param stanza
+     *            the payload
+     * @param deliveryFailureStrategy
+     *            what to do in case of errors
+     * @throws DeliveryException
+     *             error while relaying
      */
-    public void relay(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy)
-            throws DeliveryException;
+    void relay(SessionContext sessionContext, Entity receiver, Stanza stanza,
+            DeliveryFailureStrategy deliveryFailureStrategy) throws DeliveryException;
 
     /**
      * @return TRUE iff the relay is live (started and not stopped)
      */
-    public boolean isRelaying();
-    
+    boolean isRelaying();
+
     /**
      * Shutdown this relay and prevent it from accepting any further stanzas.
      */
-    public void stop();
+    void stop();
 }

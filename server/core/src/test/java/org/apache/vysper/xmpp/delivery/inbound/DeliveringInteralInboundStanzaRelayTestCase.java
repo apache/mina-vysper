@@ -36,6 +36,7 @@ import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
 import org.apache.vysper.xmpp.protocol.SimpleStanzaHandlerExecutorFactory;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.server.components.SimpleComponentRegistry;
@@ -61,6 +62,8 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
     protected AccountManagement accountVerification;
 
     protected DeliveringInternalInboundStanzaRelay stanzaRelay;
+    
+    private SessionContext sessionContext = mock(SessionContext.class);
 
     static class AccountVerificationMock implements AccountManagement {
         public void addUser(Entity username, String password) throws AccountCreationException {
@@ -101,7 +104,7 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
         Stanza stanza = StanzaBuilder.createMessageStanza(FROM_ENTITY, TO_ENTITY, "en", "Hello").build();
 
         try {
-            stanzaRelay.relay(TO_ENTITY, stanza, new IgnoreFailureStrategy());
+            stanzaRelay.relay(sessionContext, TO_ENTITY, stanza, new IgnoreFailureStrategy());
             Stanza recordedStanza = sessionContext.getNextRecordedResponse(1000);
             assertNotNull("stanza delivered", recordedStanza);
             assertEquals("Hello", recordedStanza.getSingleInnerElementsNamed("body").getSingleInnerText().getText());
@@ -119,7 +122,7 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
         Stanza stanza = StanzaBuilder.createMessageStanza(FROM_ENTITY, TO_ENTITY, "en", "Hello").build();
 
         try {
-            stanzaRelay.relay(TO_ENTITY, stanza, new IgnoreFailureStrategy());
+            stanzaRelay.relay(sessionContext, TO_ENTITY, stanza, new IgnoreFailureStrategy());
             Stanza recordedStanza = sessionContext.getNextRecordedResponse(1000);
             assertNull("stanza not delivered to unbound", recordedStanza);
         } catch (DeliveryException e) {
@@ -147,7 +150,7 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
         Stanza stanza = StanzaBuilder.createMessageStanza(FROM_ENTITY, TO_ENTITY, "en", "Hello").build();
 
         try {
-            stanzaRelay.relay(TO_ENTITY, stanza, new IgnoreFailureStrategy());
+            stanzaRelay.relay(sessionContext, TO_ENTITY, stanza, new IgnoreFailureStrategy());
             Stanza recordedStanza_1 = sessionContextTO_ENTITY_1_prio3.getNextRecordedResponse(100);
             assertNotNull("stanza 1 delivered", recordedStanza_1);
             Stanza recordedStanza_2 = sessionContextTO_ENTITY_2_prio0.getNextRecordedResponse(100);
@@ -181,7 +184,7 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
         Stanza stanza = StanzaBuilder.createMessageStanza(FROM_ENTITY, TO_ENTITY, "en", "Hello").build();
 
         try {
-            stanzaRelay.relay(TO_ENTITY, stanza, new IgnoreFailureStrategy());
+            stanzaRelay.relay(sessionContext, TO_ENTITY, stanza, new IgnoreFailureStrategy());
             Stanza recordedStanza_1 = sessionContextTO_ENTITY_1_prio3.getNextRecordedResponse(100);
             assertNotNull("stanza 1 delivered", recordedStanza_1);
             Stanza recordedStanza_2 = sessionContextTO_ENTITY_2_prio0.getNextRecordedResponse(100);
@@ -215,7 +218,7 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
 
         Stanza stanza = StanzaBuilder.createMessageStanza(FROM_ENTITY, TO_ENTITY, "en", "Hello").build();
         try {
-            relay.relay(TO_ENTITY, stanza, null);
+            relay.relay(sessionContext, TO_ENTITY, stanza, null);
             Assert.fail("ServiceNotAvailableException expected");
         } catch (ServiceNotAvailableException e) {
             // test succeeds
@@ -237,7 +240,7 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
 
         for (int i = 0; i < STANZA_COUNT; i++) {
             Stanza stanza = StanzaBuilder.createMessageStanza(FROM_ENTITY, TO_ENTITY, "en", "" + i).build();
-            stanzaRelay.relay(TO_ENTITY, stanza, null);
+            stanzaRelay.relay(sessionContext, TO_ENTITY, stanza, null);
         }
         for (int i = 0; i < STANZA_COUNT; i++) {
             final Stanza nextResponse = sessionContext.getNextRecordedResponse(100);
@@ -261,7 +264,7 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
 
         for (int i = 0; i < STANZA_COUNT; i++) {
             Stanza stanza = StanzaBuilder.createMessageStanza(FROM_ENTITY, TO_ENTITY, "en", "" + i).build();
-            stanzaRelay.relay(TO_ENTITY, stanza, null);
+            stanzaRelay.relay(sessionContext, TO_ENTITY, stanza, null);
         }
 
         /*

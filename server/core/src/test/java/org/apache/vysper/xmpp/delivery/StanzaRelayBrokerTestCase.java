@@ -28,6 +28,7 @@ import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
 import org.apache.vysper.xmpp.server.ServerFeatures;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.junit.Before;
@@ -52,6 +53,7 @@ public class StanzaRelayBrokerTestCase extends Mockito {
     
     private StanzaRelay internalRelay = mock(StanzaRelay.class);
     private StanzaRelay externalRelay = mock(StanzaRelay.class);
+    private SessionContext sessionContext = mock(SessionContext.class);
     private ServerRuntimeContext serverRuntimeContext = mock(ServerRuntimeContext.class);
     private ServerFeatures serverFeatures = mock(ServerFeatures.class);
 
@@ -72,9 +74,9 @@ public class StanzaRelayBrokerTestCase extends Mockito {
     
     @Test
     public void toInternal() throws DeliveryException {
-        broker.relay(INTERNAL, stanza, failureStrategy);
+        broker.relay(sessionContext, INTERNAL, stanza, failureStrategy);
 
-        verify(internalRelay).relay(INTERNAL, stanza, failureStrategy);
+        verify(internalRelay).relay(sessionContext, INTERNAL, stanza, failureStrategy);
         verifyZeroInteractions(externalRelay);
     }
 
@@ -82,19 +84,19 @@ public class StanzaRelayBrokerTestCase extends Mockito {
     public void toExternalWithFederation() throws DeliveryException {
         when(serverFeatures.isRelayingToFederationServers()).thenReturn(true);
         
-        broker.relay(EXTERNAL, stanza, failureStrategy);
+        broker.relay(sessionContext, EXTERNAL, stanza, failureStrategy);
 
         verifyZeroInteractions(internalRelay);
-        verify(externalRelay).relay(EXTERNAL, stanza, failureStrategy);
+        verify(externalRelay).relay(sessionContext, EXTERNAL, stanza, failureStrategy);
     }
     
     @Test
     public void toComponent() throws DeliveryException {
         when(serverFeatures.isRelayingToFederationServers()).thenReturn(true);
         
-        broker.relay(COMPONENT, stanza, failureStrategy);
+        broker.relay(sessionContext, COMPONENT, stanza, failureStrategy);
         
-        verify(internalRelay).relay(COMPONENT, stanza, failureStrategy);
+        verify(internalRelay).relay(sessionContext, COMPONENT, stanza, failureStrategy);
         verifyZeroInteractions(externalRelay);
     }
     
@@ -102,9 +104,9 @@ public class StanzaRelayBrokerTestCase extends Mockito {
     public void toComponentUser() throws DeliveryException {
         when(serverFeatures.isRelayingToFederationServers()).thenReturn(true);
         
-        broker.relay(COMPONENT_USER, stanza, failureStrategy);
+        broker.relay(sessionContext, COMPONENT_USER, stanza, failureStrategy);
         
-        verify(internalRelay).relay(COMPONENT_USER, stanza, failureStrategy);
+        verify(internalRelay).relay(sessionContext, COMPONENT_USER, stanza, failureStrategy);
         verifyZeroInteractions(externalRelay);
     }
     
@@ -112,17 +114,17 @@ public class StanzaRelayBrokerTestCase extends Mockito {
     public void toExternalWithoutFederation() throws DeliveryException {
         when(serverFeatures.isRelayingToFederationServers()).thenReturn(false);
         
-        broker.relay(EXTERNAL, stanza, failureStrategy);
+        broker.relay(sessionContext, EXTERNAL, stanza, failureStrategy);
     }
     
     @Test(expected=RuntimeException.class)
     public void toServer() throws DeliveryException {
-        broker.relay(SERVER, stanza, failureStrategy);
+        broker.relay(sessionContext, SERVER, stanza, failureStrategy);
     }
     
     @Test(expected=RuntimeException.class)
     public void toNullReceiver() throws DeliveryException {
-        broker.relay(null, stanza, failureStrategy);
+        broker.relay(sessionContext, null, stanza, failureStrategy);
     }
 
     @Test
@@ -132,7 +134,7 @@ public class StanzaRelayBrokerTestCase extends Mockito {
         Assert.assertFalse(broker.isRelaying());
         
         try {
-            broker.relay(INTERNAL, stanza, null);
+            broker.relay(sessionContext, INTERNAL, stanza, null);
             Assert.fail("ServiceNotAvailableException expected");
         } catch (ServiceNotAvailableException e) {
             // test succeeds

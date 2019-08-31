@@ -45,7 +45,7 @@ public class SimpleStanzaBroker implements StanzaBroker {
     @Override
     public void write(Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy)
             throws DeliveryException {
-        stanzaRelay.relay(receiver, stanza, deliveryFailureStrategy);
+        stanzaRelay.relay(sessionContext, receiver, stanza, deliveryFailureStrategy);
     }
 
     @Override
