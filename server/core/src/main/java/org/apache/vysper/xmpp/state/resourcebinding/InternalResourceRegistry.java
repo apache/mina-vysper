@@ -22,7 +22,7 @@ package org.apache.vysper.xmpp.state.resourcebinding;
 import java.util.List;
 
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
+import org.apache.vysper.xmpp.server.InternalSessionContext;
 
 /**
  * Resource registry giving access to its internal parts. This abstraction
@@ -35,11 +35,11 @@ import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
  */
 public interface InternalResourceRegistry extends ResourceRegistry {
 
-    StanzaReceivingSessionContext getSessionContext(String resourceId);
+    InternalSessionContext getSessionContext(String resourceId);
 
-    List<StanzaReceivingSessionContext> getSessions(Entity entity);
+    List<InternalSessionContext> getSessions(Entity entity);
 
-    List<StanzaReceivingSessionContext> getSessions(Entity entity, Integer prioThreshold);
+    List<InternalSessionContext> getSessions(Entity entity, Integer prioThreshold);
 
-    List<StanzaReceivingSessionContext> getHighestPrioSessions(Entity entity, Integer prioThreshold);
+    List<InternalSessionContext> getHighestPrioSessions(Entity entity, Integer prioThreshold);
 }

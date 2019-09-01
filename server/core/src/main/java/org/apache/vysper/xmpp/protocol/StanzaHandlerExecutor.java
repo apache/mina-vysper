@@ -21,7 +21,7 @@ package org.apache.vysper.xmpp.protocol;
 
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
-import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
+import org.apache.vysper.xmpp.server.InternalSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
@@ -39,6 +39,6 @@ import org.apache.vysper.xmpp.stanza.Stanza;
  */
 public interface StanzaHandlerExecutor {
     void execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza,
-            StanzaReceivingSessionContext sessionContext, SessionStateHolder sessionStateHolder)
+				 InternalSessionContext sessionContext, SessionStateHolder sessionStateHolder)
             throws ProtocolException;
 }

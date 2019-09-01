@@ -36,9 +36,8 @@ import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
 import org.apache.vysper.xmpp.protocol.SimpleStanzaHandlerExecutorFactory;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
-import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
-import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
+import org.apache.vysper.xmpp.server.InternalSessionContext;
 import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.server.components.SimpleComponentRegistry;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -46,7 +45,6 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.state.resourcebinding.BindException;
 import org.apache.vysper.xmpp.state.resourcebinding.DefaultResourceRegistry;
 import org.apache.vysper.xmpp.state.resourcebinding.InternalResourceRegistry;
-import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -65,7 +63,7 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
 
     protected DeliveringInternalInboundStanzaRelay stanzaRelay;
     
-    private StanzaReceivingSessionContext sessionContext = mock(StanzaReceivingSessionContext.class);
+    private InternalSessionContext sessionContext = mock(InternalSessionContext.class);
 
     static class AccountVerificationMock implements AccountManagement {
         public void addUser(Entity username, String password) throws AccountCreationException {

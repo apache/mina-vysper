@@ -20,8 +20,7 @@
 package org.apache.vysper.xmpp.protocol;
 
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-import org.apache.vysper.xmpp.server.SessionContext;
-import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
+import org.apache.vysper.xmpp.server.InternalSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
@@ -34,8 +33,8 @@ public interface StanzaProcessor {
     /**
      * processes a stanza as received from a local session
      */
-    void processStanza(ServerRuntimeContext serverRuntimeContext, StanzaReceivingSessionContext sessionContext,
+    void processStanza(ServerRuntimeContext serverRuntimeContext, InternalSessionContext sessionContext,
             Stanza stanza, SessionStateHolder sessionStateHolder);
 
-    void processTLSEstablished(StanzaReceivingSessionContext sessionContext, SessionStateHolder sessionStateHolder);
+    void processTLSEstablished(InternalSessionContext sessionContext, SessionStateHolder sessionStateHolder);
 }

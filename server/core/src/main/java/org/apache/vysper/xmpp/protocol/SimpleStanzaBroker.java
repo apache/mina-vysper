@@ -25,7 +25,7 @@ import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
-import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
+import org.apache.vysper.xmpp.server.InternalSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
@@ -35,9 +35,9 @@ public class SimpleStanzaBroker implements StanzaBroker {
 
     private final StanzaRelay stanzaRelay;
 
-    private final StanzaReceivingSessionContext sessionContext;
+    private final InternalSessionContext sessionContext;
 
-    public SimpleStanzaBroker(StanzaRelay stanzaRelay, StanzaReceivingSessionContext sessionContext) {
+    public SimpleStanzaBroker(StanzaRelay stanzaRelay, InternalSessionContext sessionContext) {
         this.stanzaRelay = requireNonNull(stanzaRelay);
         this.sessionContext = sessionContext;
     }

@@ -23,8 +23,7 @@ package org.apache.vysper.xmpp.delivery;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
-import org.apache.vysper.xmpp.server.SessionContext;
-import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
+import org.apache.vysper.xmpp.server.InternalSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
@@ -48,7 +47,7 @@ public interface StanzaRelay {
      * @throws DeliveryException
      *             error while relaying
      */
-    void relay(StanzaReceivingSessionContext sessionContext, Entity receiver, Stanza stanza,
+    void relay(InternalSessionContext sessionContext, Entity receiver, Stanza stanza,
 			   DeliveryFailureStrategy deliveryFailureStrategy) throws DeliveryException;
 
     /**

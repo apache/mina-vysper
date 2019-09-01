@@ -53,7 +53,7 @@ import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.protocol.worker.InboundStanzaProtocolWorker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionState;
-import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
+import org.apache.vysper.xmpp.server.InternalSessionContext;
 import org.apache.vysper.xmpp.server.components.ComponentRegistry;
 import org.apache.vysper.xmpp.server.resources.ManagedThreadPool;
 import org.apache.vysper.xmpp.server.resources.ManagedThreadPoolUtil;
@@ -64,7 +64,6 @@ import org.apache.vysper.xmpp.stanza.PresenceStanza;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 import org.apache.vysper.xmpp.state.resourcebinding.InternalResourceRegistry;
-import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -194,8 +193,8 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
         lastCompleted = completedTaskCount;
     }
 
-    public void relay(StanzaReceivingSessionContext sessionContext, Entity receiver, Stanza stanza,
-            DeliveryFailureStrategy deliveryFailureStrategy) throws DeliveryException {
+    public void relay(InternalSessionContext sessionContext, Entity receiver, Stanza stanza,
+                      DeliveryFailureStrategy deliveryFailureStrategy) throws DeliveryException {
         if (!isRelaying()) {
             throw new ServiceNotAvailableException("internal inbound relay is not relaying");
         }
@@ -215,7 +214,7 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
     }
 
     private class Relay implements Callable<RelayResult> {
-        private final StanzaReceivingSessionContext sessionContext;
+        private final InternalSessionContext sessionContext;
 
         private final Entity receiver;
 
@@ -225,8 +224,8 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
 
         protected final UnmodifyableSessionStateHolder sessionStateHolder = new UnmodifyableSessionStateHolder();
 
-        Relay(StanzaReceivingSessionContext sessionContext, Entity receiver, Stanza stanza,
-                DeliveryFailureStrategy deliveryFailureStrategy) {
+        Relay(InternalSessionContext sessionContext, Entity receiver, Stanza stanza,
+              DeliveryFailureStrategy deliveryFailureStrategy) {
             this.sessionContext = sessionContext;
             this.receiver = receiver;
             this.stanza = stanza;
@@ -392,7 +391,7 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
         }
 
         protected RelayResult relayToBestSessions(final boolean fallbackToBareJIDAllowed) {
-            List<StanzaReceivingSessionContext> receivingSessions = resourceRegistry.getHighestPrioSessions(receiver,
+            List<InternalSessionContext> receivingSessions = resourceRegistry.getHighestPrioSessions(receiver,
                     PRIO_THRESHOLD);
 
             if (receivingSessions.size() == 0 && receiver.isResourceSet() && fallbackToBareJIDAllowed) {
@@ -406,7 +405,7 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
             }
 
             RelayResult relayResult = new RelayResult();
-            for (StanzaReceivingSessionContext receivingSession : receivingSessions) {
+            for (InternalSessionContext receivingSession : receivingSessions) {
                 if (receivingSession.getState() != SessionState.AUTHENTICATED) {
                     relayResult.addProcessingError(new DeliveryException("no relay to non-authenticated sessions"));
                     continue;
@@ -430,7 +429,7 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
 
         protected RelayResult relayToAllSessions(Integer prioThreshold) {
 
-            List<StanzaReceivingSessionContext> receivingSessions = prioThreshold == null
+            List<InternalSessionContext> receivingSessions = prioThreshold == null
                     ? resourceRegistry.getSessions(receiver)
                     : resourceRegistry.getSessions(receiver, prioThreshold);
 
@@ -444,7 +443,7 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
 
             RelayResult relayResult = new RelayResult();
 
-            for (StanzaReceivingSessionContext sessionContext : receivingSessions) {
+            for (InternalSessionContext sessionContext : receivingSessions) {
                 if (sessionContext.getState() != SessionState.AUTHENTICATED) {
                     relayResult.addProcessingError(new DeliveryException("no relay to non-authenticated sessions"));
                     continue;

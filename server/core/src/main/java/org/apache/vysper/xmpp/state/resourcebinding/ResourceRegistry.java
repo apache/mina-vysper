@@ -2,7 +2,7 @@ package org.apache.vysper.xmpp.state.resourcebinding;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.server.SessionContext;
-import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
+import org.apache.vysper.xmpp.server.InternalSessionContext;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ public interface ResourceRegistry {
 
     List<String> getAvailableResources(Entity entity);
 
-    String bindSession(StanzaReceivingSessionContext sessionContext);
+    String bindSession(InternalSessionContext sessionContext);
 
     boolean unbindResource(String resourceId);
 

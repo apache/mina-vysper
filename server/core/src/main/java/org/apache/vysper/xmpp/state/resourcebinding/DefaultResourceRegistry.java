@@ -31,7 +31,7 @@ import java.util.Map;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.server.SessionContext;
-import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
+import org.apache.vysper.xmpp.server.InternalSessionContext;
 import org.apache.vysper.xmpp.uuid.JVMBuiltinUUIDGenerator;
 import org.apache.vysper.xmpp.uuid.UUIDGenerator;
 import org.slf4j.Logger;
@@ -48,13 +48,13 @@ public class DefaultResourceRegistry implements InternalResourceRegistry {
 
     private static class SessionData {
 
-        private final StanzaReceivingSessionContext context;
+        private final InternalSessionContext context;
 
         private ResourceState state;
 
         private Integer priority;
 
-        SessionData(StanzaReceivingSessionContext context, ResourceState status, Integer priority) {
+        SessionData(InternalSessionContext context, ResourceState status, Integer priority) {
             this.context = context;
             this.state = status;
             this.priority = priority == null ? 0 : priority;
@@ -88,7 +88,7 @@ public class DefaultResourceRegistry implements InternalResourceRegistry {
      * @param sessionContext
      * @return newly allocated resource id
      */
-    public String bindSession(StanzaReceivingSessionContext sessionContext) {
+    public String bindSession(InternalSessionContext sessionContext) {
         if (sessionContext == null) {
             throw new IllegalArgumentException("session context cannot be NULL");
         }
@@ -226,7 +226,7 @@ public class DefaultResourceRegistry implements InternalResourceRegistry {
         return resourceList;
     }
 
-    public StanzaReceivingSessionContext getSessionContext(String resourceId) {
+    public InternalSessionContext getSessionContext(String resourceId) {
         SessionData data = boundResources.get(resourceId);
         if (data == null)
             return null;
@@ -278,8 +278,8 @@ public class DefaultResourceRegistry implements InternalResourceRegistry {
      * session for the JID's resource part. if it's a bare JID, it will return all session for the JID.
      * @param entity
      */
-    public List<StanzaReceivingSessionContext> getSessions(Entity entity) {
-        List<StanzaReceivingSessionContext> sessionContexts = new ArrayList<>();
+    public List<InternalSessionContext> getSessions(Entity entity) {
+        List<InternalSessionContext> sessionContexts = new ArrayList<>();
 
         List<String> boundResources = getBoundResources(entity, false);
         for (String resourceId : boundResources) {
@@ -297,10 +297,10 @@ public class DefaultResourceRegistry implements InternalResourceRegistry {
      * for the threshold is 0 (zero), which is also the default when param is NULL.
      * @return returns the sessions matching the given JID (bare) with same or higher priority
      */
-    public List<StanzaReceivingSessionContext> getSessions(Entity entity, Integer prioThreshold) {
+    public List<InternalSessionContext> getSessions(Entity entity, Integer prioThreshold) {
         if (prioThreshold == null)
             prioThreshold = 0;
-        List<StanzaReceivingSessionContext> results = new ArrayList<>();
+        List<InternalSessionContext> results = new ArrayList<>();
 
         List<String> boundResourceIds = getBoundResources(entity, true);
         for (String resourceId : boundResourceIds) {
@@ -334,9 +334,9 @@ public class DefaultResourceRegistry implements InternalResourceRegistry {
      * @return for a bare JID, it will return the highest prioritized sessions. for a full JID, it will return the
      * related session.
      */
-    public List<StanzaReceivingSessionContext> getHighestPrioSessions(Entity entity, Integer prioThreshold) {
+    public List<InternalSessionContext> getHighestPrioSessions(Entity entity, Integer prioThreshold) {
         Integer currentPrio = prioThreshold == null ? Integer.MIN_VALUE : prioThreshold;
-        List<StanzaReceivingSessionContext> results = new ArrayList<>();
+        List<InternalSessionContext> results = new ArrayList<>();
 
         boolean isResourceSet = entity.isResourceSet();
 

@@ -38,7 +38,7 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscove
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
+import org.apache.vysper.xmpp.server.InternalSessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -68,7 +68,7 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
 
     private ServerRuntimeContext serverRuntimeContext = mock(ServerRuntimeContext.class);
 
-    private StanzaReceivingSessionContext sessionContext = mock(StanzaReceivingSessionContext.class);
+    private InternalSessionContext sessionContext = mock(InternalSessionContext.class);
 
     private ServiceCollector serviceCollector = mock(ServiceCollector.class);
 

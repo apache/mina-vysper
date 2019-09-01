@@ -27,7 +27,7 @@ import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
 import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
-import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
+import org.apache.vysper.xmpp.server.InternalSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
@@ -43,7 +43,7 @@ public class RecordingStanzaRelay implements StanzaRelay {
 
     protected final AtomicBoolean isRelaying = new AtomicBoolean(true);
 
-    public void relay(StanzaReceivingSessionContext sessionContext, Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy)
+    public void relay(InternalSessionContext sessionContext, Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy)
             throws DeliveryException {
         if (!isRelaying()) throw new ServiceNotAvailableException("recording stanza relay is not relaying");
         entityStanzaPairs.add(new Triple(receiver, stanza, deliveryFailureStrategy));

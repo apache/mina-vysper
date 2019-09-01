@@ -38,7 +38,7 @@ import org.apache.vysper.xmpp.writer.StanzaWriter;
  * 
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public abstract class AbstractSessionContext implements StanzaReceivingSessionContext {
+public abstract class AbstractSessionContext implements InternalSessionContext {
 
     protected final ServerRuntimeContext serverRuntimeContext;
 

@@ -19,10 +19,8 @@
  */
 package org.apache.vysper.xmpp.protocol;
 
-import org.apache.vysper.xmpp.parser.ParsingErrorCondition;
-import org.apache.vysper.xmpp.parser.ParsingException;
 import org.apache.vysper.xmpp.server.SessionContext;
-import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
+import org.apache.vysper.xmpp.server.InternalSessionContext;
 import org.apache.vysper.xmpp.server.XMPPVersion;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
 import org.apache.vysper.xmpp.server.response.ServerResponses;
@@ -38,7 +36,7 @@ import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
  */
 public class ResponseWriter {
 
-    public static void writeUnsupportedStanzaError(StanzaReceivingSessionContext sessionContext) {
+    public static void writeUnsupportedStanzaError(InternalSessionContext sessionContext) {
 
         Stanza errorStanza = ServerErrorResponses.getStreamError(StreamErrorCondition.UNSUPPORTED_STANZA_TYPE,
                 sessionContext.getXMLLang(), "service unavailable at this session state", null);
@@ -48,7 +46,7 @@ public class ResponseWriter {
         writeErrorAndClose(sessionContext, streamOpener);
     }
 
-    public static void handleProtocolError(ProtocolException protocolException, StanzaReceivingSessionContext sessionContext,
+    public static void handleProtocolError(ProtocolException protocolException, InternalSessionContext sessionContext,
                                            Stanza receivedStanza) {
         Stanza errorStanza = null;
         if (protocolException != null)
@@ -61,19 +59,19 @@ public class ResponseWriter {
         writeErrorAndClose(sessionContext, errorStanza);
     }
 
-    public void handleUnsupportedStanzaType(StanzaReceivingSessionContext sessionContext, Stanza receivedStanza) {
+    public void handleUnsupportedStanzaType(InternalSessionContext sessionContext, Stanza receivedStanza) {
         Stanza errorStanza = ServerErrorResponses.getStreamError(StreamErrorCondition.UNSUPPORTED_STANZA_TYPE,
                 sessionContext.getXMLLang(), "could not process incoming stanza", receivedStanza);
         writeErrorAndClose(sessionContext, errorStanza);
     }
 
-    public void handleNotAuthorized(StanzaReceivingSessionContext sessionContext, Stanza receivedStanza) {
+    public void handleNotAuthorized(InternalSessionContext sessionContext, Stanza receivedStanza) {
         Stanza errorStanza = ServerErrorResponses.getStreamError(StreamErrorCondition.NOT_AUTHORIZED,
                 sessionContext.getXMLLang(), "could not process incoming stanza", receivedStanza);
         writeErrorAndClose(sessionContext, errorStanza);
     }
 
-    public void handleWrongFromJID(StanzaReceivingSessionContext sessionContext, Stanza receivedStanza) {
+    public void handleWrongFromJID(InternalSessionContext sessionContext, Stanza receivedStanza) {
         XMPPCoreStanza receivedCoreStanza = XMPPCoreStanza.getWrapper(receivedStanza);
         if (receivedCoreStanza == null) {
             handleNotAuthorized(sessionContext, receivedStanza);
@@ -86,7 +84,7 @@ public class ResponseWriter {
         sessionContext.getResponseWriter().write(errorStanza);
     }
 
-    public static void writeErrorAndClose(StanzaReceivingSessionContext sessionContext, Stanza errorStanza) {
+    public static void writeErrorAndClose(InternalSessionContext sessionContext, Stanza errorStanza) {
         sessionContext.getResponseWriter().write(errorStanza);
         sessionContext.endSession(SessionContext.SessionTerminationCause.STREAM_ERROR);
     }

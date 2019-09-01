@@ -34,7 +34,7 @@ import org.apache.vysper.xmpp.protocol.StreamErrorCondition;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionContext.SessionTerminationCause;
-import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
+import org.apache.vysper.xmpp.server.InternalSessionContext;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.slf4j.Logger;
@@ -80,15 +80,15 @@ public class XmppIoHandlerAdapter implements IoHandler {
         }
 
         Stanza stanza = (Stanza) message;
-        StanzaReceivingSessionContext session = extractSession(ioSession);
+        InternalSessionContext session = extractSession(ioSession);
         SessionStateHolder stateHolder = (SessionStateHolder) ioSession
                 .getAttribute(ATTRIBUTE_VYSPER_SESSIONSTATEHOLDER);
 
         stanzaProcessor.processStanza(serverRuntimeContext, session, stanza, stateHolder);
     }
 
-    private StanzaReceivingSessionContext extractSession(IoSession ioSession) {
-        return (StanzaReceivingSessionContext) ioSession.getAttribute(ATTRIBUTE_VYSPER_SESSION);
+    private InternalSessionContext extractSession(IoSession ioSession) {
+        return (InternalSessionContext) ioSession.getAttribute(ATTRIBUTE_VYSPER_SESSION);
     }
 
     @Override
@@ -104,7 +104,7 @@ public class XmppIoHandlerAdapter implements IoHandler {
     @Override
     public void event(IoSession ioSession, FilterEvent event) throws Exception {
         if (event == SslEvent.SECURED) {
-            StanzaReceivingSessionContext session = extractSession(ioSession);
+            InternalSessionContext session = extractSession(ioSession);
             SessionStateHolder stateHolder = (SessionStateHolder) ioSession
                     .getAttribute(ATTRIBUTE_VYSPER_SESSIONSTATEHOLDER);
             stanzaProcessor.processTLSEstablished(session, stateHolder);
@@ -149,7 +149,7 @@ public class XmppIoHandlerAdapter implements IoHandler {
 
     @Override
     public void exceptionCaught(IoSession ioSession, Throwable throwable) throws Exception {
-        StanzaReceivingSessionContext sessionContext = extractSession(ioSession);
+        InternalSessionContext sessionContext = extractSession(ioSession);
 
         // Assume that the connection was aborted for now. Might be different depending
         // on

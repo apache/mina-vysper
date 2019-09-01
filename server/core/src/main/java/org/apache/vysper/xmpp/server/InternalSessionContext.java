@@ -22,9 +22,11 @@ package org.apache.vysper.xmpp.server;
 import org.apache.vysper.xmpp.writer.StanzaWriter;
 
 /**
+ * This abstraction should only be provided to internal framework parts.
+ * 
  * @author Réda Housni Alaoui
  */
-public interface StanzaReceivingSessionContext extends SessionContext {
+public interface InternalSessionContext extends SessionContext {
 
     StanzaWriter getResponseWriter();
 

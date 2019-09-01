@@ -26,7 +26,7 @@ import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaHandlerExecutorFactory;
 import org.apache.vysper.xmpp.server.SessionState;
-import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
+import org.apache.vysper.xmpp.server.InternalSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
@@ -45,7 +45,7 @@ public class InitiatedProtocolWorker extends AbstractStateAwareProtocolWorker {
     }
 
     @Override
-    protected boolean checkState(StanzaReceivingSessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
+    protected boolean checkState(InternalSessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
 								 StanzaHandler stanzaHandler) {
         Class<?> handlerUnwrappedType = stanzaHandler.unwrapType();
         if (XMLPrologHandler.class.isAssignableFrom(handlerUnwrappedType))

@@ -25,7 +25,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
+import org.apache.vysper.xmpp.server.InternalSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
@@ -52,26 +52,26 @@ public class QueuedStanzaProcessor implements StanzaProcessor {
         this.stanzaProcessor = stanzaProcessor;
     }
 
-    public void processStanza(ServerRuntimeContext serverRuntimeContext, StanzaReceivingSessionContext sessionContext,
+    public void processStanza(ServerRuntimeContext serverRuntimeContext, InternalSessionContext sessionContext,
             Stanza stanza, SessionStateHolder sessionStateHolder) {
         executor.submit(new StanzaProcessorUnitOfWork(sessionContext, stanza, sessionStateHolder));
     }
 
-    public void processTLSEstablished(StanzaReceivingSessionContext sessionContext,
-            SessionStateHolder sessionStateHolder) {
+    public void processTLSEstablished(InternalSessionContext sessionContext,
+									  SessionStateHolder sessionStateHolder) {
         ProtocolWorker.processTLSEstablishedInternal(sessionContext, sessionStateHolder, responseWriter);
     }
 
     private class StanzaProcessorUnitOfWork implements Runnable {
 
-        private StanzaReceivingSessionContext sessionContext;
+        private InternalSessionContext sessionContext;
 
         private Stanza stanza;
 
         private SessionStateHolder sessionStateHolder;
 
-        private StanzaProcessorUnitOfWork(StanzaReceivingSessionContext sessionContext, Stanza stanza,
-                SessionStateHolder sessionStateHolder) {
+        private StanzaProcessorUnitOfWork(InternalSessionContext sessionContext, Stanza stanza,
+										  SessionStateHolder sessionStateHolder) {
             this.sessionContext = sessionContext;
             this.stanza = stanza;
             this.sessionStateHolder = sessionStateHolder;

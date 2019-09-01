@@ -36,7 +36,7 @@ import org.apache.vysper.xmpp.protocol.worker.StartedProtocolWorker;
 import org.apache.vysper.xmpp.protocol.worker.UnconnectedProtocolWorker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionState;
-import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
+import org.apache.vysper.xmpp.server.InternalSessionContext;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -85,8 +85,8 @@ public class ProtocolWorker implements StanzaProcessor {
      * @param stanza
      * @param sessionStateHolder
      */
-    public void processStanza(ServerRuntimeContext serverRuntimeContext, StanzaReceivingSessionContext sessionContext, Stanza stanza,
-                              SessionStateHolder sessionStateHolder) {
+    public void processStanza(ServerRuntimeContext serverRuntimeContext, InternalSessionContext sessionContext, Stanza stanza,
+							  SessionStateHolder sessionStateHolder) {
         if (stanza == null)
             throw new RuntimeException("cannot process NULL stanzas");
 
@@ -197,12 +197,12 @@ public class ProtocolWorker implements StanzaProcessor {
         }
     }
 
-    public void processTLSEstablished(StanzaReceivingSessionContext sessionContext, SessionStateHolder sessionStateHolder) {
+    public void processTLSEstablished(InternalSessionContext sessionContext, SessionStateHolder sessionStateHolder) {
         processTLSEstablishedInternal(sessionContext, sessionStateHolder, responseWriter);
     }
 
-    static void processTLSEstablishedInternal(StanzaReceivingSessionContext sessionContext, SessionStateHolder sessionStateHolder,
-                                              ResponseWriter responseWriter) {
+    static void processTLSEstablishedInternal(InternalSessionContext sessionContext, SessionStateHolder sessionStateHolder,
+											  ResponseWriter responseWriter) {
         if (sessionContext.getState() != SessionState.ENCRYPTION_STARTED) {
             responseWriter.handleProtocolError(new TLSException(), sessionContext, null);
             return;
