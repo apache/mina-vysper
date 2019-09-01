@@ -26,7 +26,6 @@ import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -131,7 +130,7 @@ public class SoftwareVersionIQHandlerTestCase {
     @Test
     public void handleGet() throws BindException, XMLSemanticError {
         List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, null);
-        Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
+        Stanza response = responses.get(0);
         
         // <iq xmlns="jabber:client" type="result" id="1">
         // <query xmlns="jabber:iq:version"><name>Apache Vysper XMPP Server</name>

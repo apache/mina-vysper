@@ -29,7 +29,7 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
  */
-public class CallTestStanzaHandlerResponse extends CallTestStanzaHandler implements ResponseStanzaContainer {
+public class CallTestStanzaHandlerResponse extends CallTestStanzaHandler {
     private Stanza response;
 
     public CallTestStanzaHandlerResponse(String name) {
@@ -52,7 +52,6 @@ public class CallTestStanzaHandlerResponse extends CallTestStanzaHandler impleme
         return Collections.singletonList(response);
     }
 
-    @Override
     public Stanza getUniqueResponseStanza() {
         return response;
     }
@@ -61,7 +60,4 @@ public class CallTestStanzaHandlerResponse extends CallTestStanzaHandler impleme
         return response != null;
     }
 
-    public boolean hasNoResponse() {
-        return !hasResponse();
-    }
 }

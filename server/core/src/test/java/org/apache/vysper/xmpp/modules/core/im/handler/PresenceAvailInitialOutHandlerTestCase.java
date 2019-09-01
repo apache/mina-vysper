@@ -27,7 +27,6 @@ import java.util.List;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
 import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -114,7 +113,7 @@ public class PresenceAvailInitialOutHandlerTestCase extends PresenceHandlerBaseT
 
         List<Stanza> stanzas = handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true,
                 sessionContext, new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
-        Stanza stanza = new ResponseStanzaContainerImpl(stanzas).getUniqueResponseStanza();
+        Stanza stanza = stanzas.get(0);
         // ... and will give an error:
         assertEquals("error", stanza.getAttribute("type").getValue());
         assertEquals(StanzaErrorCondition.UNKNOWN_SENDER.value(),
@@ -129,7 +128,7 @@ public class PresenceAvailInitialOutHandlerTestCase extends PresenceHandlerBaseT
         // 3 other resources got unbound, remaining one should now be unique
         stanzas = handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext,
                 new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
-        stanza = new ResponseStanzaContainerImpl(stanzas).getUniqueResponseStanza();
+        stanza = stanzas.get(0);
         assertNull(stanza); // no return, esp no error stanza - all the handling is done through relays
         stanza = initiatingUser.getNextStanza();
         assertNull(stanza.getAttribute("type"));
@@ -143,7 +142,7 @@ public class PresenceAvailInitialOutHandlerTestCase extends PresenceHandlerBaseT
         assertTrue(noRemainingBinds);
         stanzas = handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext,
                 new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
-        stanza = new ResponseStanzaContainerImpl(stanzas).getUniqueResponseStanza();
+        stanza = stanzas.get(0);
         assertEquals("error", stanza.getAttribute("type").getValue());
         assertEquals(StanzaErrorCondition.UNKNOWN_SENDER.value(),
                 stanza.getSingleInnerElementsNamed("error").getFirstInnerElement().getName());

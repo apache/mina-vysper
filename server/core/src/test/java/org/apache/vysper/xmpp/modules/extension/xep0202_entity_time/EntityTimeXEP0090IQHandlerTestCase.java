@@ -27,7 +27,6 @@ import junit.framework.Assert;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -122,7 +121,7 @@ public class EntityTimeXEP0090IQHandlerTestCase {
     @Test
     public void handleGet() throws BindException, XMLSemanticError {
         List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, null);
-        Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
+        Stanza response = responses.get(0);
         
         Assert.assertNotNull(response);
         Assert.assertEquals("iq", response.getName());

@@ -38,8 +38,6 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
@@ -78,7 +76,8 @@ public class ExtendedDiscoInfoTestCase extends TestCase {
             }
         });
 
-        DefaultServerRuntimeContext runtimeContext = new DefaultServerRuntimeContext(EntityImpl.parse("vysper.org"), mock(StanzaRelay.class));
+        DefaultServerRuntimeContext runtimeContext = new DefaultServerRuntimeContext(EntityImpl.parse("vysper.org"),
+                mock(StanzaRelay.class));
         runtimeContext.registerServerRuntimeContextService(serviceCollector);
 
         DiscoInfoIQHandler infoIQHandler = new DiscoInfoIQHandler();
@@ -91,13 +90,12 @@ public class ExtendedDiscoInfoTestCase extends TestCase {
         SessionContext sessionContext = new TestSessionContext(runtimeContext, new SessionStateHolder(),
                 runtimeContext.getStanzaRelay());
 
-        List<Stanza> resultStanza = infoIQHandler.handleGet(finalStanza, runtimeContext, sessionContext,
+        List<Stanza> resultStanzas = infoIQHandler.handleGet(finalStanza, runtimeContext, sessionContext,
                 new SimpleStanzaBroker(runtimeContext.getStanzaRelay(), sessionContext));
 
-        ResponseStanzaContainer responseStanzaContainer = new ResponseStanzaContainerImpl(resultStanza);
-        assertTrue(responseStanzaContainer.getUniqueResponseStanza().getVerifier().onlySubelementEquals("query",
+        assertTrue(resultStanzas.get(0).getVerifier().onlySubelementEquals("query",
                 NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO));
-        XMLElement queryElement = responseStanzaContainer.getUniqueResponseStanza().getFirstInnerElement();
+        XMLElement queryElement = resultStanzas.get(0).getFirstInnerElement();
         XMLElementVerifier queryVerifier = queryElement.getVerifier();
         assertTrue(queryVerifier.subElementsPresentExact(4));
         List<XMLElement> innerElements = queryElement.getInnerElements();

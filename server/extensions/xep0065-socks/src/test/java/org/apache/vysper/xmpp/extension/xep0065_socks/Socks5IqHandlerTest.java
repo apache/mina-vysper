@@ -27,7 +27,6 @@ import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -137,7 +136,7 @@ public class Socks5IqHandlerTest extends Mockito {
     @Test
     public void handleGet() throws BindException, XMLSemanticError {
         List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, null);
-        Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
+        Stanza response = responses.get(0);
 
         Stanza expected = StanzaBuilder
                 .createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID())
@@ -154,7 +153,7 @@ public class Socks5IqHandlerTest extends Mockito {
         proxyAddress = new InetSocketAddress(12345);
         handler = new Socks5IqHandler(jid, proxyAddress, connectionsRegistry);
         List<Stanza> responses = handler.handleGet(stanza, serverRuntimeContext, sessionContext, null);
-        Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
+        Stanza response = responses.get(0);
 
         Stanza expected = StanzaBuilder
                 .createIQStanza(stanza.getTo(), stanza.getFrom(), IQStanzaType.RESULT, stanza.getID())
@@ -178,7 +177,7 @@ public class Socks5IqHandlerTest extends Mockito {
         when(connectionsRegistry.activate(hash)).thenReturn(true);
 
         List<Stanza> responses = handler.handleSet(request, serverRuntimeContext, sessionContext, null);
-        Stanza response = new ResponseStanzaContainerImpl(responses).getUniqueResponseStanza();
+        Stanza response = responses.get(0);
 
         Stanza expected = StanzaBuilder.createIQStanza(TO, FROM, IQStanzaType.RESULT, "id1").build();
 

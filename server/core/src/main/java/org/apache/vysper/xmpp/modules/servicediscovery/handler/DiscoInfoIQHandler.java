@@ -131,7 +131,7 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
                 // IQ-error or an IQ-result"
                 if (to.isResourceSet()) {
                     relayOrWrite(stanza, sessionContext, stanzaBroker);
-                    return null;
+                    return Collections.emptyList();
                 } else {
                     elements = serviceCollector.processInfoRequest(new InfoRequest(from, to, node, stanza.getID()));
                 }
@@ -171,7 +171,7 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
 
         if (stanza.getTo().isNodeSet()) {
             relayOrWrite(stanza, sessionContext, stanzaBroker);
-            return null;
+            return Collections.emptyList();
         } else {
             return super.handleResult(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
         }

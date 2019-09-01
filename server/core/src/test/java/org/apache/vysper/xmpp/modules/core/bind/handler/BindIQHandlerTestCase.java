@@ -25,8 +25,6 @@ import org.apache.vysper.StanzaAssert;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainer;
-import org.apache.vysper.xmpp.protocol.ResponseStanzaContainerImpl;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
@@ -140,8 +138,7 @@ public class BindIQHandlerTestCase {
                 .startInnerElement("jid", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_BIND)
                 .addText(new EntityImpl(FROM, "res").getFullQualifiedName()).build();
 
-        ResponseStanzaContainer responseStanzaContainer = new ResponseStanzaContainerImpl(responses);
-        StanzaAssert.assertEquals(expectedResponse, responseStanzaContainer.getUniqueResponseStanza());
+        StanzaAssert.assertEquals(expectedResponse, responses.get(0));
     }
 
     @Test
@@ -154,8 +151,7 @@ public class BindIQHandlerTestCase {
                 .startInnerElement("error", NamespaceURIs.JABBER_CLIENT).addAttribute("type", "cancel")
                 .startInnerElement("not-allowed", NamespaceURIs.URN_IETF_PARAMS_XML_NS_XMPP_STANZAS).build();
 
-        ResponseStanzaContainer responseStanzaContainer = new ResponseStanzaContainerImpl(responses);
-        StanzaAssert.assertEquals(expectedResponse, responseStanzaContainer.getUniqueResponseStanza());
+        StanzaAssert.assertEquals(expectedResponse, responses.get(0));
     }
 
 }
