@@ -19,8 +19,11 @@
  */
 package org.apache.vysper.xmpp.delivery;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.vysper.xmpp.addressing.Entity;
@@ -38,7 +41,7 @@ import org.apache.vysper.xmpp.stanza.Stanza;
  */
 public class StanzaReceiverRelay implements StanzaRelay {
 
-    private final Map<Entity, StanzaReceiver> receiverMap = new HashMap<>();
+    private final Map<Entity, StanzaReceiverQueue> receiverMap = new HashMap<>();
 
     private boolean exploitFailureStrategy = true;
 
@@ -56,12 +59,12 @@ public class StanzaReceiverRelay implements StanzaRelay {
     /**
      * add new receiver
      */
-    public void add(Entity receiverID, StanzaReceiver receiver) {
+    public void add(Entity receiverID, StanzaReceiverQueue receiver) {
         receiverMap.put(receiverID, receiver);
     }
 
     public void relay(StanzaReceivingSessionContext sessionContext, Entity receiver, Stanza stanza,
-                      DeliveryFailureStrategy deliveryFailureStrategy) throws DeliveryException {
+            DeliveryFailureStrategy deliveryFailureStrategy) throws DeliveryException {
         if (!isRelaying()) {
             throw new ServiceNotAvailableException("relay is not relaying");
         }
@@ -81,6 +84,15 @@ public class StanzaReceiverRelay implements StanzaRelay {
 
         countDelivered++;
         receiverMap.get(receiver).deliver(stanza);
+    }
+    
+    public Stanza nextStanza(){
+        return receiverMap.values()
+                .stream()
+                .map(StanzaReceiverQueue::getNext)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 
     public boolean isRelaying() {
@@ -108,13 +120,10 @@ public class StanzaReceiverRelay implements StanzaRelay {
      */
     public void resetAll() {
         synchronized (receiverMap) {
-            for (StanzaReceiver receiver : receiverMap.values()) {
-                if (receiver instanceof StanzaReceiverQueue) {
-                    StanzaReceiverQueue stanzaReceiverQueue = (StanzaReceiverQueue) receiver;
-                    // emptying by retrieving all stanzas from the queue
-                    while (stanzaReceiverQueue.getNext() != null) {
-                        // continue
-                    }
+            for (StanzaReceiverQueue receiver : receiverMap.values()) {
+                // emptying by retrieving all stanzas from the queue
+                while (receiver.getNext() != null) {
+                    // continue
                 }
 
             }

@@ -209,6 +209,7 @@ abstract public class PresenceHandlerBaseTestCase extends TestCase {
      * @return NULL, if no stanza available matching the user's resource id
      */
     protected Stanza getNextDirectResponseFor(TestUser testUser) {
-        return sessionContext.getNextRecordedResponseForResource(testUser.getBoundResourceId());
+        return testUser.getNextStanza();
+//        return sessionContext.getNextRecordedResponseForResource(testUser.getBoundResourceId());
     }
 }

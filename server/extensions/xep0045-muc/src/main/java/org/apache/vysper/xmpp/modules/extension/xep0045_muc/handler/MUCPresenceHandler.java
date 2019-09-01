@@ -503,7 +503,7 @@ public class MUCPresenceHandler extends DefaultPresenceHandler {
     protected void relayStanza(Entity receiver, Stanza stanza, ServerRuntimeContext serverRuntimeContext,
             StanzaBroker stanzaBroker) {
         try {
-            stanzaBroker.write(receiver, stanza, new IgnoreFailureStrategy());
+            stanzaBroker.write(receiver, stanza, IgnoreFailureStrategy.INSTANCE);
         } catch (DeliveryException e) {
             logger.warn("presence relaying failed ", e);
         }

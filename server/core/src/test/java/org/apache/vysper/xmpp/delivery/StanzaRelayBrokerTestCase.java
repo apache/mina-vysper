@@ -28,7 +28,6 @@ import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
 import org.apache.vysper.xmpp.server.ServerFeatures;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -50,7 +49,7 @@ public class StanzaRelayBrokerTestCase extends Mockito {
     private static final String LANG = "en";
     private static final String BODY = "Hello world";
     
-    private DeliveryFailureStrategy failureStrategy = IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY;
+    private DeliveryFailureStrategy failureStrategy = IgnoreFailureStrategy.INSTANCE;
     
     private StanzaRelay internalRelay = mock(StanzaRelay.class);
     private StanzaRelay externalRelay = mock(StanzaRelay.class);

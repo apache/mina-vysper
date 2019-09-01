@@ -309,7 +309,7 @@ public class MUCMessageHandler extends DefaultMessageHandler {
 
     protected void relayStanza(Entity receiver, Stanza stanza, StanzaBroker stanzaBroker) {
         try {
-            stanzaBroker.write(receiver, stanza, new IgnoreFailureStrategy());
+            stanzaBroker.write(receiver, stanza, IgnoreFailureStrategy.INSTANCE);
         } catch (DeliveryException e) {
             logger.warn("presence relaying failed ", e);
         }

@@ -26,6 +26,7 @@ import static org.apache.vysper.xmpp.modules.roster.SubscriptionType.NONE;
 
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
+import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
 import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.stanza.PresenceStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -50,16 +51,18 @@ public class PresenceSubRequestOutHandlerTestCase extends PresenceHandlerBaseTes
         XMPPCoreStanza requestApproval = XMPPCoreStanza
                 .getWrapper(StanzaBuilder.createPresenceStanza(unrelatedUser.getEntityFQ(), initiatingUser.getEntity(),
                         null, PresenceStanzaType.SUBSCRIBED, null, null).build());
-        handler.executeCore(requestApproval, sessionContext.getServerRuntimeContext(), false, sessionContext, null);
+        handler.executeCore(requestApproval, sessionContext.getServerRuntimeContext(), false, sessionContext,
+                new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
 
         // 3 roster pushes but...
+        StanzaReceiverRelay relay = (StanzaReceiverRelay) sessionContext.getStanzaRelay();
         for (int i = 1; i <= 3; i++) {
-            Stanza stanza = sessionContext.getNextRecordedResponse();
+            Stanza stanza = relay.nextStanza();
             assertEquals("iq", stanza.getName());
         }
         // ... BUT no subscription approval (presence) or anything additional to the
         // roster pushes
-        assertNull(sessionContext.getNextRecordedResponse());
+        assertNull(relay.nextStanza());
 
         resetRecordedStanzas();
     }
@@ -77,8 +80,7 @@ public class PresenceSubRequestOutHandlerTestCase extends PresenceHandlerBaseTes
         assertEquals(ResourceState.AVAILABLE_INTERESTED, getResourceState());
 
         // 1 to TO + 3 roster pushes
-        assertStanzasDeliveredAndRelayed(1);
-        assertStanzasReceivedDirectly(3);
+        assertStanzasDeliveredAndRelayed(4);
 
         // roster push for 1 interested initiator of _same_ session
         Stanza initiatorNotification = getNextDirectResponseFor(initiatingUser);
@@ -128,8 +130,7 @@ public class PresenceSubRequestOutHandlerTestCase extends PresenceHandlerBaseTes
         assertEquals(ResourceState.AVAILABLE_INTERESTED, getResourceState());
 
         // 1 to TO + 3 roster pushes
-        assertStanzasDeliveredAndRelayed(1);
-        assertStanzasReceivedDirectly(3);
+        assertStanzasDeliveredAndRelayed(4);
 
         // roster push for 1 interested initiator...
         Stanza initiatorNotification = getNextDirectResponseFor(initiatingUser);

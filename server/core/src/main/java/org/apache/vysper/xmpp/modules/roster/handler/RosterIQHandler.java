@@ -33,7 +33,6 @@ import org.apache.vysper.compliance.SpecCompliance;
 import org.apache.vysper.compliance.SpecCompliant;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
-import org.apache.vysper.xmpp.delivery.LocalDeliveryUtils;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.IgnoreFailureStrategy;
 import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
@@ -70,7 +69,7 @@ import org.slf4j.LoggerFactory;
 @SpecCompliant(spec = "rfc3921bis-08", section = "2", status = IN_PROGRESS, coverage = COMPLETE)
 public class RosterIQHandler extends DefaultIQHandler {
 
-    final Logger logger = LoggerFactory.getLogger(RosterIQHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RosterIQHandler.class);
 
     @Override
     protected boolean verifyNamespace(Stanza stanza) {
@@ -184,10 +183,10 @@ public class RosterIQHandler extends DefaultIQHandler {
 
         if (setRosterItem.getName() != null) {
             existingItem.setName(setRosterItem.getName());
-            logger.debug(user.getBareJID() + " roster: set roster item name to " + setRosterItem.getName());
+            LOG.debug(user.getBareJID() + " roster: set roster item name to " + setRosterItem.getName());
         }
         existingItem.setGroups(setRosterItem.getGroups());
-        logger.debug(user.getBareJID() + " roster: roster item groups set to " + setRosterItem.getGroups());
+        LOG.debug(user.getBareJID() + " roster: roster item groups set to " + setRosterItem.getGroups());
 
         try {
             // update contact persistently
@@ -198,7 +197,7 @@ public class RosterIQHandler extends DefaultIQHandler {
                     null));
         }
 
-        pushRosterItemToInterestedResources(sessionContext, user, existingItem);
+        pushRosterItemToInterestedResources(sessionContext, user, existingItem, stanzaBroker);
 
         return Collections.singletonList(
                 RosterStanzaUtils.createRosterItemIQ(user, stanza.getID(), IQStanzaType.RESULT, existingItem));
@@ -231,36 +230,41 @@ public class RosterIQHandler extends DefaultIQHandler {
 
         if (unsubscribedStanza != null) {
             try {
-                stanzaBroker.write(contactJid, unsubscribedStanza, new IgnoreFailureStrategy());
+                stanzaBroker.write(contactJid, unsubscribedStanza, IgnoreFailureStrategy.INSTANCE);
             } catch (DeliveryException e) {
-                logger.warn("failure sending unsubscribed on roster remove", e);
+                LOG.warn("failure sending unsubscribed on roster remove", e);
             }
         }
         if (unsubscribeStanza != null) {
             try {
-                stanzaBroker.write(contactJid, unsubscribeStanza, new IgnoreFailureStrategy());
+                stanzaBroker.write(contactJid, unsubscribeStanza, IgnoreFailureStrategy.INSTANCE);
             } catch (DeliveryException e) {
-                logger.warn("failure sending unsubscribe on roster remove", e);
+                LOG.warn("failure sending unsubscribe on roster remove", e);
             }
         }
 
         // send roster item push to all interested resources
-        pushRosterItemToInterestedResources(sessionContext, user, new RosterItem(contactJid, REMOVE));
+        pushRosterItemToInterestedResources(sessionContext, user, new RosterItem(contactJid, REMOVE), stanzaBroker);
 
         // return success
         return Collections
                 .singletonList(StanzaBuilder.createIQStanza(null, user, IQStanzaType.RESULT, stanza.getID()).build());
     }
 
-    private void pushRosterItemToInterestedResources(SessionContext sessionContext, Entity user,
-            RosterItem rosterItem) {
+    private void pushRosterItemToInterestedResources(SessionContext sessionContext, Entity user, RosterItem rosterItem,
+            StanzaBroker stanzaBroker) {
         ResourceRegistry registry = sessionContext.getServerRuntimeContext().getResourceRegistry();
         List<String> resources = registry.getInterestedResources(user.getBareJID());
         for (String resource : resources) {
             Entity userResource = new EntityImpl(user, resource);
             Stanza push = RosterStanzaUtils.createRosterItemPushIQ(userResource, sessionContext.nextSequenceValue(),
                     rosterItem);
-            LocalDeliveryUtils.relayToResourceDirectly(registry, resource, push);
+
+            try {
+                stanzaBroker.write(userResource, push, IgnoreFailureStrategy.INSTANCE);
+            } catch (DeliveryException e) {
+                LOG.error(e.getMessage(), e);
+            }
         }
     }
 

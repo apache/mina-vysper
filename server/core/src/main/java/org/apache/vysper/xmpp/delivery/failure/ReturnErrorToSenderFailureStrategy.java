@@ -82,7 +82,7 @@ public class ReturnErrorToSenderFailureStrategy implements DeliveryFailureStrate
         if (deliveryExceptions == null) {
             XMPPCoreStanza error = XMPPCoreStanza.getWrapper(ServerErrorResponses.getStanzaError(stanzaErrorCondition,
                     failedCoreStanza, errorType, "stanza could not be delivered", "en", null));
-            stanzaBroker.write(error.getTo(), error, IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY);
+            stanzaBroker.write(error.getTo(), error, IgnoreFailureStrategy.INSTANCE);
         } else if (deliveryExceptions.size() == 1) {
             DeliveryException deliveryException = deliveryExceptions.get(0);
             if (deliveryException instanceof LocalRecipientOfflineException) {
@@ -110,7 +110,7 @@ public class ReturnErrorToSenderFailureStrategy implements DeliveryFailureStrate
                         StanzaBuilder builder = StanzaBuilder.createPresenceStanza(from, to, null, UNSUBSCRIBED, null,
                                 null);
                         final Stanza finalStanza = builder.build();
-                        stanzaBroker.write(to, finalStanza, IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY);
+                        stanzaBroker.write(to, finalStanza, IgnoreFailureStrategy.INSTANCE);
                         return;
                     }
                 }
@@ -121,7 +121,7 @@ public class ReturnErrorToSenderFailureStrategy implements DeliveryFailureStrate
                         ServerErrorResponses.getStanzaError(smartDeliveryException.getStanzaErrorCondition(),
                                 failedCoreStanza, smartDeliveryException.getStanzaErrorType(),
                                 smartDeliveryException.getErrorText(), "en", null));
-                stanzaBroker.write(error.getTo(), error, IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY);
+                stanzaBroker.write(error.getTo(), error, IgnoreFailureStrategy.INSTANCE);
             }
         } else if (deliveryExceptions.size() > 1) {
             throw new RuntimeException("cannot return to sender for multiple failed deliveries");

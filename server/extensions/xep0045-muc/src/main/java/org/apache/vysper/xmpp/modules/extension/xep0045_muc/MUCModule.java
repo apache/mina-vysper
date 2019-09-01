@@ -227,7 +227,7 @@ public class MUCModule extends DefaultDiscoAwareModule
         }
 
         try {
-            stanzaBroker.write(receiver, builder.build(), new IgnoreFailureStrategy());
+            stanzaBroker.write(receiver, builder.build(), IgnoreFailureStrategy.INSTANCE);
         } catch (DeliveryException e) {
             // ignore
         }

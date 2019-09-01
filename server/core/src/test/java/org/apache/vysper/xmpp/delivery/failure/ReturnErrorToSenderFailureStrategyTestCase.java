@@ -70,7 +70,7 @@ public class ReturnErrorToSenderFailureStrategyTestCase extends Mockito {
             .build();
 
         ArgumentCaptor<Stanza> stanzaCaptor = ArgumentCaptor.forClass(Stanza.class);
-        verify(stanzaBroker).write(eq(FROM), stanzaCaptor.capture(), eq(IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY));
+        verify(stanzaBroker).write(eq(FROM), stanzaCaptor.capture(), eq(IgnoreFailureStrategy.INSTANCE));
         StanzaAssert.assertEquals(expected, stanzaCaptor.getValue());
     }
 
@@ -91,7 +91,7 @@ public class ReturnErrorToSenderFailureStrategyTestCase extends Mockito {
             .build();
 
         ArgumentCaptor<Stanza> stanzaCaptor = ArgumentCaptor.forClass(Stanza.class);
-        verify(stanzaBroker).write(eq(FROM), stanzaCaptor.capture(), eq(IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY));
+        verify(stanzaBroker).write(eq(FROM), stanzaCaptor.capture(), eq(IgnoreFailureStrategy.INSTANCE));
         StanzaAssert.assertEquals(expected, stanzaCaptor.getValue());
         
     }
@@ -106,7 +106,7 @@ public class ReturnErrorToSenderFailureStrategyTestCase extends Mockito {
         Stanza expected = StanzaBuilder.createPresenceStanza(TO, FROM, null, UNSUBSCRIBED, null, null).build();
         
         ArgumentCaptor<Stanza> stanzaCaptor = ArgumentCaptor.forClass(Stanza.class);
-        verify(stanzaBroker).write(eq(FROM), stanzaCaptor.capture(), eq(IgnoreFailureStrategy.IGNORE_FAILURE_STRATEGY));
+        verify(stanzaBroker).write(eq(FROM), stanzaCaptor.capture(), eq(IgnoreFailureStrategy.INSTANCE));
         StanzaAssert.assertEquals(expected, stanzaCaptor.getValue());        
     }
     

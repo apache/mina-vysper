@@ -105,7 +105,7 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
         Stanza stanza = StanzaBuilder.createMessageStanza(FROM_ENTITY, TO_ENTITY, "en", "Hello").build();
 
         try {
-            stanzaRelay.relay(sessionContext, TO_ENTITY, stanza, new IgnoreFailureStrategy());
+            stanzaRelay.relay(sessionContext, TO_ENTITY, stanza, IgnoreFailureStrategy.INSTANCE);
             Stanza recordedStanza = sessionContext.getNextRecordedResponse(1000);
             assertNotNull("stanza delivered", recordedStanza);
             assertEquals("Hello", recordedStanza.getSingleInnerElementsNamed("body").getSingleInnerText().getText());
@@ -123,7 +123,7 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
         Stanza stanza = StanzaBuilder.createMessageStanza(FROM_ENTITY, TO_ENTITY, "en", "Hello").build();
 
         try {
-            stanzaRelay.relay(sessionContext, TO_ENTITY, stanza, new IgnoreFailureStrategy());
+            stanzaRelay.relay(sessionContext, TO_ENTITY, stanza, IgnoreFailureStrategy.INSTANCE);
             Stanza recordedStanza = sessionContext.getNextRecordedResponse(1000);
             assertNull("stanza not delivered to unbound", recordedStanza);
         } catch (DeliveryException e) {
@@ -151,7 +151,7 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
         Stanza stanza = StanzaBuilder.createMessageStanza(FROM_ENTITY, TO_ENTITY, "en", "Hello").build();
 
         try {
-            stanzaRelay.relay(sessionContext, TO_ENTITY, stanza, new IgnoreFailureStrategy());
+            stanzaRelay.relay(sessionContext, TO_ENTITY, stanza, IgnoreFailureStrategy.INSTANCE);
             Stanza recordedStanza_1 = sessionContextTO_ENTITY_1_prio3.getNextRecordedResponse(100);
             assertNotNull("stanza 1 delivered", recordedStanza_1);
             Stanza recordedStanza_2 = sessionContextTO_ENTITY_2_prio0.getNextRecordedResponse(100);
@@ -185,7 +185,7 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
         Stanza stanza = StanzaBuilder.createMessageStanza(FROM_ENTITY, TO_ENTITY, "en", "Hello").build();
 
         try {
-            stanzaRelay.relay(sessionContext, TO_ENTITY, stanza, new IgnoreFailureStrategy());
+            stanzaRelay.relay(sessionContext, TO_ENTITY, stanza, IgnoreFailureStrategy.INSTANCE);
             Stanza recordedStanza_1 = sessionContextTO_ENTITY_1_prio3.getNextRecordedResponse(100);
             assertNotNull("stanza 1 delivered", recordedStanza_1);
             Stanza recordedStanza_2 = sessionContextTO_ENTITY_2_prio0.getNextRecordedResponse(100);

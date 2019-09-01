@@ -29,7 +29,11 @@ import org.apache.vysper.xmpp.stanza.Stanza;
  */
 public class IgnoreFailureStrategy implements DeliveryFailureStrategy {
 
-    public final static IgnoreFailureStrategy IGNORE_FAILURE_STRATEGY = new IgnoreFailureStrategy();
+    public static final IgnoreFailureStrategy INSTANCE = IgnoreFailureStrategy.INSTANCE;
+
+    private IgnoreFailureStrategy() {
+
+    }
 
     public void process(Stanza failedToDeliverStanza, List<DeliveryException> deliveryException)
             throws DeliveryException {

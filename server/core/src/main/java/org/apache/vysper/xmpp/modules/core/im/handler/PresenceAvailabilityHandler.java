@@ -143,7 +143,7 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
         }
     }
 
-    protected Stanza handleInboundPresenceError(PresenceStanza stanza, ServerRuntimeContext serverRuntimeContext,
+    private Stanza handleInboundPresenceError(PresenceStanza stanza, ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext, ResourceRegistry registry) {
         return stanza; // send to client
     }
@@ -364,7 +364,7 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
         }
 
         try {
-            stanzaBroker.write(to, redirectDirectedStanza, new IgnoreFailureStrategy());
+            stanzaBroker.write(to, redirectDirectedStanza, IgnoreFailureStrategy.INSTANCE);
         } catch (DeliveryException e) {
             logger.warn("relaying directed presence failed. from = " + from + ", to = " + to);
         }

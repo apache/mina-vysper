@@ -43,7 +43,7 @@ public class SubscriberPayloadNotificationVisitor implements SubscriberVisitor {
     final Logger logger = LoggerFactory.getLogger(SubscriberPayloadNotificationVisitor.class);
 
     // Ignore all failures during the delivery (fire and forget)
-    private DeliveryFailureStrategy dfs = new IgnoreFailureStrategy();
+    private DeliveryFailureStrategy dfs = IgnoreFailureStrategy.INSTANCE;
 
     // The StanzaBroker we use to send the messages
     private final StanzaBroker stanzaBroker;
