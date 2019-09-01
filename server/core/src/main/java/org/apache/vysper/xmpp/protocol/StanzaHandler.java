@@ -52,7 +52,6 @@ public interface StanzaHandler {
     /**
      * verifies if the stanza is processed by this handler
      * 
-     * @param stanza
      * @return true, if it is processed, false otherwise
      */
     boolean verify(Stanza stanza);
@@ -71,7 +70,7 @@ public interface StanzaHandler {
      *            false, if the session is receiving the stanza targeted to the
      *            session's client.
      */
-    void execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext,
-                 boolean isOutboundStanza, SessionContext sessionContext, SessionStateHolder sessionStateHolder,
-                 StanzaBroker stanzaBroker) throws ProtocolException;
+    void execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza,
+            SessionContext sessionContext, SessionStateHolder sessionStateHolder, StanzaBroker stanzaBroker)
+            throws ProtocolException;
 }

@@ -455,12 +455,9 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
 
         // TODO ?check if user has blocked contact?
 
-        // write inbound stanza to the user
-        sessionContext.getResponseWriter().write(stanza);
-
         logger.info("{} has become available", stanza.getFrom().getFullQualifiedName());
 
-        return null;
+        return stanza;
     }
 
     private void relayTo(Entity from, List<Entity> tos, PresenceStanza original, StanzaBroker stanzaBroker) {

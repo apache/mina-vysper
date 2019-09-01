@@ -44,9 +44,4 @@ abstract public class ResponseFuture<T extends XMPPCoreStanza> implements Runnab
         this.sessionContext = sessionContext;
     }
 
-    protected void sendResponse(T response) throws DeliveryException {
-        StanzaWriter stanzaWriter = sessionContext.getResponseWriter();
-        stanzaWriter.write(response);
-    }
-
 }

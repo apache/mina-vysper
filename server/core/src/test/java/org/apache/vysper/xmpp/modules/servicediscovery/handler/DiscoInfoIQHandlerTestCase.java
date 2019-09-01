@@ -228,7 +228,7 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
 
         Assert.assertNull(response);
 
-        verify(stanzaWriter).write(stanza);
+        verify(stanzaBroker).writeToSession(stanza);
     }
 
     @Test
@@ -333,7 +333,7 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
 
         Assert.assertNull(response);
 
-        verify(stanzaWriter).write(stanza);
+        verify(stanzaBroker).writeToSession(stanza);
     }
 
     private Stanza createErrorResponse(Entity from, String error) {

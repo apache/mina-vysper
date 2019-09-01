@@ -31,11 +31,11 @@ import org.apache.vysper.xmpp.writer.StanzaWriter;
  */
 public interface SessionContext {
 
-    static final String SESSION_ATTRIBUTE_MESSAGE_STANZA_NO_RECEIVE = "stanza.message.no_receive";
+    String SESSION_ATTRIBUTE_MESSAGE_STANZA_NO_RECEIVE = "stanza.message.no_receive";
 
-    static final String SESSION_ATTRIBUTE_PRESENCE_STANZA_NO_RECEIVE = "stanza.presence.no_receive";
+    String SESSION_ATTRIBUTE_PRESENCE_STANZA_NO_RECEIVE = "stanza.presence.no_receive";
 
-    public enum SessionTerminationCause {
+    enum SessionTerminationCause {
         /**
          * underlying connection is broken
          */
@@ -49,8 +49,8 @@ public interface SessionContext {
          */
         SERVER_SHUTDOWN,
         /**
-         * the server signalled a stream error to the client and subsequently needs
-         * to close the session down 
+         * the server signalled a stream error to the client and subsequently needs to
+         * close the session down
          */
         STREAM_ERROR;
 
@@ -68,23 +68,21 @@ public interface SessionContext {
     ServerRuntimeContext getServerRuntimeContext();
 
     /**
-     * FALSE iff _this_ server has initiated the connection (to another server),
-     * and _not_ the remote side (client/server) initiated the session. for
-     * common client/server connections this returns TRUE.
-     *
-     * @return
+     * FALSE iff _this_ server has initiated the connection (to another server), and
+     * _not_ the remote side (client/server) initiated the session. for common
+     * client/server connections this returns TRUE.
      */
     boolean isRemotelyInitiatedSession();
 
     /**
-     * @return the initiating {@link Entity}. For c2s, this is the client {@link Entity}. For s2s, this is the server {@link Entity}
+     * @return the initiating {@link Entity}. For c2s, this is the client
+     *         {@link Entity}. For s2s, this is the server {@link Entity}
      */
     Entity getInitiatingEntity();
 
     /**
-     * Sets the initiating entity. For c2s, this is the client {@link Entity}. For s2s, this is the server {@link Entity}
-     *
-     * @param entity
+     * Sets the initiating entity. For c2s, this is the client {@link Entity}. For
+     * s2s, this is the server {@link Entity}
      */
     void setInitiatingEntity(Entity entity);
 
@@ -110,8 +108,8 @@ public interface SessionContext {
     SessionState getState();
 
     /**
-     * Returns the id for this session, which is unique inside a server instance
-     * and across all hosted services.
+     * Returns the id for this session, which is unique inside a server instance and
+     * across all hosted services.
      *
      * @return this session's id
      */
@@ -136,7 +134,9 @@ public interface SessionContext {
 
     /**
      * Ends this session and the underlying TCP connection.
-     * @param give the logical cause for the session's end
+     * 
+     * @param terminationCause
+     *            give the logical cause for the session's end
      */
     void endSession(SessionTerminationCause terminationCause);
 
@@ -154,9 +154,8 @@ public interface SessionContext {
 
     /**
      * this method signals that from now on a new <stream:stream>... xml stream
-     * begins. this is used at the very beginning of the session, then again
-     * after encryption and after authentication. see RFC3920.7.5.7 and
-     * RFC3920.6.2
+     * begins. this is used at the very beginning of the session, then again after
+     * encryption and after authentication. see RFC3920.7.5.7 and RFC3920.6.2
      */
     void setIsReopeningXMLStream();
 
@@ -176,17 +175,23 @@ public interface SessionContext {
 
     /**
      * put arbitrary object into the session
-     * @param key identifier used to retrieve the object
-     * @param value NULL to not store an object with the key
+     * 
+     * @param key
+     *            identifier used to retrieve the object
+     * @param value
+     *            NULL to not store an object with the key
      * @return previous stored value object, or NULL
      */
     Object putAttribute(String key, Object value);
 
     /**
      * retrieve object
-     * @param key retrieve a previously stored attribute
+     * 
+     * @param key
+     *            retrieve a previously stored attribute
      * @return stored object for the given key, or NULL
-     * @see org.apache.vysper.xmpp.server.SessionContext#putAttribute(String, Object)
+     * @see org.apache.vysper.xmpp.server.SessionContext#putAttribute(String,
+     *      Object)
      */
     Object getAttribute(String key);
 

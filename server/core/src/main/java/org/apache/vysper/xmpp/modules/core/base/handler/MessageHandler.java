@@ -124,10 +124,8 @@ public class MessageHandler extends XMPPCoreStanzaHandler {
                 // TODO return error stanza
                 e.printStackTrace(); // To change body of catch statement use File | Settings | File Templates.
             }
-        } else if (sessionContext != null) {
-            sessionContext.getResponseWriter().write(stanza);
         } else {
-            throw new IllegalStateException("handling offline messages not implemented");
+            stanzaBroker.writeToSession(stanza);
         }
         return null;
     }

@@ -114,7 +114,7 @@ public class RelayingIQHandler extends IQHandler {
                         stanza, StanzaErrorType.CANCEL, null, null, null));
             }
 
-            sessionContext.getResponseWriter().write(stanza);
+            stanzaBroker.writeToSession(stanza);
         }
 
         return Collections.emptyList();

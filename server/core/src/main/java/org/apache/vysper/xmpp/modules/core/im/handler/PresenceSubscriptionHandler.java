@@ -487,7 +487,7 @@ public class PresenceSubscriptionHandler extends AbstractPresenceSpecializedHand
         // TODO check if user has blocked contact
 
         // write inbound subscription request to the user
-        sessionContext.getResponseWriter().write(stanza);
+        stanzaBroker.writeToSession(stanza);
 
         return null;
     }

@@ -116,7 +116,7 @@ public class DbVerifyHandler implements StanzaHandler {
             builder.addAttribute("to", otherServer.getDomain());
             builder.addAttribute("type", resultType);
 
-            dialbackSessionContext.getResponseWriter().write(builder.build());
+            stanzaBroker.writeToSession(builder.build());
             // }
 
             // close this session as we are now done checking dialback

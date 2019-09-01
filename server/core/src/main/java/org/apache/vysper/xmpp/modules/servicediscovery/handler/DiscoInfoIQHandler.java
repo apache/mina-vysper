@@ -192,7 +192,7 @@ public class DiscoInfoIQHandler extends DefaultIQHandler {
                 logger.warn("relaying IQ failed", e);
             }
         } else {
-            sessionContext.getResponseWriter().write(stanza);
+            stanzaBroker.writeToSession(stanza);
         }
     }
 }

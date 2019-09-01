@@ -87,8 +87,8 @@ public class RelayingIQHandlerTestCase extends PresenceHandlerBaseTestCase {
 
         relayingIQHandler.execute(iqStanza, sessionContext.getServerRuntimeContext(), false, sessionContext, null,
                 stanzaBroker/* don't we have as sessionStateHolder? */);
-        assertFalse(stanzaBroker.hasStanzaWrittenToSession());
-        Stanza deliveredStanza = sessionContext.getNextRecordedResponse();
+        Stanza deliveredStanza = stanzaBroker.getUniqueStanzaWrittenToSession();
+        assertNotNull(deliveredStanza);
         assertTrue(deliveredStanza.getVerifier().onlySubelementEquals("mandatory", NamespaceURIs.JABBER_CLIENT));
         assertEquals(initiatingUser.getEntityFQ(), deliveredStanza.getTo());
     }
