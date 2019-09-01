@@ -17,15 +17,18 @@
  *  under the License.
  *  
  */
-package org.apache.vysper.xmpp.server;
+package org.apache.vysper.xmpp.protocol;
 
-import org.apache.vysper.xmpp.server.s2s.XMPPServerConnectorRegistry;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
+import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
  * @author Réda Housni Alaoui
  */
-public interface InternalServerRuntimeContext extends ServerRuntimeContext {
+public interface StanzaHandlerInterceptorChain {
 
-    XMPPServerConnectorRegistry getServerConnectorRegistry();
-
+	void intercept(Stanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza,
+				   SessionContext sessionContext, SessionStateHolder sessionStateHolder, StanzaBroker stanzaBroker) throws ProtocolException;
+	
 }

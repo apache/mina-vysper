@@ -31,6 +31,7 @@ import org.apache.vysper.xmpp.authentication.UserAuthentication;
 import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.ServerRuntimeContextService;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
+import org.apache.vysper.xmpp.protocol.StanzaHandlerInterceptor;
 import org.apache.vysper.xmpp.server.components.Component;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.state.presence.LatestPresenceCache;
@@ -77,4 +78,6 @@ public interface ServerRuntimeContext {
     void addModule(Module module);
 
     EventBus getEventBus();
+
+    List<StanzaHandlerInterceptor> getStanzaHandlerInterceptors();
 }

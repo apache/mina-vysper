@@ -47,6 +47,7 @@ import org.apache.vysper.xmpp.protocol.ProtocolWorker;
 import org.apache.vysper.xmpp.protocol.SimpleStanzaHandlerExecutorFactory;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaHandlerExecutorFactory;
+import org.apache.vysper.xmpp.protocol.StanzaHandlerInterceptor;
 import org.apache.vysper.xmpp.protocol.StanzaHandlerLookup;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.components.AlterableComponentRegistry;
@@ -142,6 +143,8 @@ public class DefaultServerRuntimeContext implements InternalServerRuntimeContext
 
     private final ComponentStanzaProcessorFactory componentStanzaProcessorFactory;
 
+    private final List<StanzaHandlerInterceptor> stanzaHandlerInterceptors = new ArrayList<>();
+
     public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay, StanzaProcessor stanzaProcessor,
             AlterableComponentRegistry componentRegistry, ResourceRegistry resourceRegistry,
             ServerFeatures serverFeatures, List<HandlerDictionary> dictionaries) {
@@ -150,14 +153,13 @@ public class DefaultServerRuntimeContext implements InternalServerRuntimeContext
         this.componentRegistry = requireNonNull(componentRegistry);
         StanzaHandlerExecutorFactory simpleStanzaHandlerExecutorFactory = new SimpleStanzaHandlerExecutorFactory(
                 stanzaRelay);
-        this.serverConnectorRegistry = new DefaultXMPPServerConnectorRegistry(this,
-                simpleStanzaHandlerExecutorFactory, stanzaProcessor);
+        this.serverConnectorRegistry = new DefaultXMPPServerConnectorRegistry(this, simpleStanzaHandlerExecutorFactory,
+                stanzaProcessor);
         this.stanzaHandlerLookup = new StanzaHandlerLookup(this);
         this.eventBus = new SimpleEventBus();
         this.serverFeatures = serverFeatures;
         this.resourceRegistry = resourceRegistry;
-        this.componentStanzaProcessorFactory = new ComponentStanzaProcessorFactory(
-                simpleStanzaHandlerExecutorFactory);
+        this.componentStanzaProcessorFactory = new ComponentStanzaProcessorFactory(simpleStanzaHandlerExecutorFactory);
 
         addDictionaries(dictionaries);
     }
@@ -383,6 +385,8 @@ public class DefaultServerRuntimeContext implements InternalServerRuntimeContext
             registerComponent((Component) module);
         }
 
+        stanzaHandlerInterceptors.addAll(module.getStanzaHandlerInterceptors());
+
         modules.add(module);
     }
 
@@ -403,6 +407,11 @@ public class DefaultServerRuntimeContext implements InternalServerRuntimeContext
     @Override
     public EventBus getEventBus() {
         return eventBus;
+    }
+
+    @Override
+    public List<StanzaHandlerInterceptor> getStanzaHandlerInterceptors() {
+        return stanzaHandlerInterceptors;
     }
 
     @Override

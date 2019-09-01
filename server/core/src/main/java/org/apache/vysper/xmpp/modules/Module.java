@@ -24,6 +24,7 @@ import java.util.Optional;
 
 import org.apache.vysper.event.EventListenerDictionary;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
+import org.apache.vysper.xmpp.protocol.StanzaHandlerInterceptor;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.XMPPServer;
 
@@ -59,6 +60,8 @@ public interface Module {
      * all stanza handler dictionaries to be added to the server
      */
     List<HandlerDictionary> getHandlerDictionaries();
+    
+    List<StanzaHandlerInterceptor> getStanzaHandlerInterceptors();
 
     /**
      * @return The event listener dictionary to be added to the server

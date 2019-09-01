@@ -22,6 +22,7 @@ package org.apache.vysper.stanzasession;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.Endpoint;
+import org.apache.vysper.xmpp.server.InternalServerRuntimeContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionState;
 

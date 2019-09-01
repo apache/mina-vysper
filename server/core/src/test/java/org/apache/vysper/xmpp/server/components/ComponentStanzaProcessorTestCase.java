@@ -32,14 +32,13 @@ import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.protocol.SimpleStanzaHandlerExecutorFactory;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
-import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.InternalSessionContext;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.writer.StanzaWriter;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 /**
  */
@@ -60,8 +59,6 @@ public class ComponentStanzaProcessorTestCase {
     private StanzaHandler handler = mock(StanzaHandler.class);
 
     private Stanza stanza = StanzaBuilder.createMessageStanza(FROM, TO, null, "body").build();
-
-    private Stanza responseStanza = StanzaBuilder.createMessageStanza(TO, FROM, null, "response").build();
 
     private ComponentStanzaProcessor processor = new ComponentStanzaProcessor(
             new SimpleStanzaHandlerExecutorFactory(stanzaRelay));
@@ -94,15 +91,6 @@ public class ComponentStanzaProcessorTestCase {
     }
 
     @Test
-    public void processSuccessfulNoResponse() {
-        processor.addHandler(handler);
-
-        processor.processStanza(serverRuntimeContext, sessionContext, stanza, sessionStateHolder);
-
-        Mockito.verifyZeroInteractions(serverRuntimeContext);
-    }
-
-    @Test
     public void processSuccessfulWithResponse() throws ProtocolException {
         processor.addHandler(handler);
 
@@ -110,15 +98,6 @@ public class ComponentStanzaProcessorTestCase {
 
         verify(handler).execute(stanza, serverRuntimeContext, false, sessionContext, sessionStateHolder,
                 new SimpleStanzaBroker(stanzaRelay, sessionContext));
-    }
-
-    @Test
-    public void handlerThrowsException() {
-        processor.addHandler(handler);
-
-        processor.processStanza(serverRuntimeContext, sessionContext, stanza, sessionStateHolder);
-
-        Mockito.verifyZeroInteractions(serverRuntimeContext);
     }
 
     @Test(expected = RuntimeException.class)
