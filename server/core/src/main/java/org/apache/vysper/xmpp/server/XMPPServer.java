@@ -54,6 +54,7 @@ import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.components.AlterableComponentRegistry;
 import org.apache.vysper.xmpp.server.components.SimpleComponentRegistry;
 import org.apache.vysper.xmpp.state.resourcebinding.DefaultResourceRegistry;
+import org.apache.vysper.xmpp.state.resourcebinding.InternalResourceRegistry;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 
 /**
@@ -179,7 +180,7 @@ public class XMPPServer {
         List<HandlerDictionary> dictionaries = new ArrayList<>();
         addCoreDictionaries(dictionaries);
 
-        ResourceRegistry resourceRegistry = new DefaultResourceRegistry();
+        InternalResourceRegistry resourceRegistry = new DefaultResourceRegistry();
 
         EntityImpl serverEntity = new EntityImpl(null, serverDomain, null);
 

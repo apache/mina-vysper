@@ -63,6 +63,7 @@ import org.apache.vysper.xmpp.stanza.MessageStanzaType;
 import org.apache.vysper.xmpp.stanza.PresenceStanza;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
+import org.apache.vysper.xmpp.state.resourcebinding.InternalResourceRegistry;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,7 +102,7 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
 
     private static final Integer PRIO_THRESHOLD = 0;
 
-    protected ResourceRegistry resourceRegistry;
+    protected InternalResourceRegistry resourceRegistry;
 
     protected ExecutorService executor;
 
@@ -119,16 +120,16 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
 
     protected long lastDumpTimestamp = 0;
 
-    public DeliveringInternalInboundStanzaRelay(Entity serverEntity, ResourceRegistry resourceRegistry,
-            StorageProviderRegistry storageProviderRegistry, ComponentRegistry componentRegistry) {
+    public DeliveringInternalInboundStanzaRelay(Entity serverEntity, InternalResourceRegistry resourceRegistry,
+                                                StorageProviderRegistry storageProviderRegistry, ComponentRegistry componentRegistry) {
         this(serverEntity, resourceRegistry, componentRegistry,
                 storageProviderRegistry.retrieve(AccountManagement.class),
                 storageProviderRegistry.retrieve(OfflineStorageProvider.class));
     }
 
-    public DeliveringInternalInboundStanzaRelay(Entity serverEntity, ResourceRegistry resourceRegistry,
-            ComponentRegistry componentRegistry, AccountManagement accountVerification,
-            OfflineStanzaReceiver offlineStanzaReceiver) {
+    public DeliveringInternalInboundStanzaRelay(Entity serverEntity, InternalResourceRegistry resourceRegistry,
+                                                ComponentRegistry componentRegistry, AccountManagement accountVerification,
+                                                OfflineStanzaReceiver offlineStanzaReceiver) {
         this.serverEntity = serverEntity;
         this.resourceRegistry = resourceRegistry;
         this.componentRegistry = requireNonNull(componentRegistry);

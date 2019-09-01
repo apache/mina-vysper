@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class DefaultResourceRegistry implements ResourceRegistry {
+public class DefaultResourceRegistry implements InternalResourceRegistry {
 
     final Logger logger = LoggerFactory.getLogger(DefaultResourceRegistry.class);
 

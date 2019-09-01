@@ -22,7 +22,6 @@ package org.apache.vysper.xmpp.server;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.state.resourcebinding.BindException;
-import org.apache.vysper.xmpp.writer.StanzaWriter;
 
 /**
  * provides the server-side session with its context data

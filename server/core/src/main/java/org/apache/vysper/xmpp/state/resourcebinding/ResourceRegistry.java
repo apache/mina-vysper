@@ -9,7 +9,6 @@ import java.util.List;
 /**
  */
 public interface ResourceRegistry {
-    StanzaReceivingSessionContext getSessionContext(String resourceId);
 
     boolean setResourceState(String resourceId, ResourceState state);
 
@@ -20,12 +19,6 @@ public interface ResourceRegistry {
     long getSessionCount();
 
     String getUniqueResourceForSession(SessionContext sessionContext);
-
-    List<StanzaReceivingSessionContext> getSessions(Entity entity);
-
-    List<StanzaReceivingSessionContext> getSessions(Entity entity, Integer prioThreshold);
-
-    List<StanzaReceivingSessionContext> getHighestPrioSessions(Entity entity, Integer prioThreshold);
 
     void setResourcePriority(String resourceId, int priority);
 

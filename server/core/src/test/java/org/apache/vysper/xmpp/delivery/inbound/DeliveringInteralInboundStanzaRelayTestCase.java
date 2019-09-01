@@ -45,6 +45,7 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.state.resourcebinding.BindException;
 import org.apache.vysper.xmpp.state.resourcebinding.DefaultResourceRegistry;
+import org.apache.vysper.xmpp.state.resourcebinding.InternalResourceRegistry;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 
 import junit.framework.Assert;
@@ -58,7 +59,7 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
 
     protected static final EntityImpl FROM_ENTITY = EntityImpl.parseUnchecked("userFrom@vysper.org");
 
-    protected ResourceRegistry resourceRegistry = new DefaultResourceRegistry();
+    protected InternalResourceRegistry resourceRegistry = new DefaultResourceRegistry();
 
     protected AccountManagement accountVerification;
 
