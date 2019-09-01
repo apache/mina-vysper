@@ -38,6 +38,7 @@ import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
 import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.server.InternalServerRuntimeContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.InternalSessionContext;
 import org.apache.vysper.xmpp.server.resources.ManagedThreadPool;
@@ -81,7 +82,7 @@ public class DeliveringExternalInboundStanzaRelay implements StanzaRelay, Manage
 
     protected OfflineStanzaReceiver offlineStanzaReceiver = null;
 
-    protected ServerRuntimeContext serverRuntimeContext = null;
+    protected InternalServerRuntimeContext serverRuntimeContext = null;
     
     protected long lastCompleted = 0;
     protected long lastDumpTimestamp = 0;
@@ -98,7 +99,7 @@ public class DeliveringExternalInboundStanzaRelay implements StanzaRelay, Manage
         this.executor = executor;
     }
 
-    public void setServerRuntimeContext(ServerRuntimeContext serverRuntimeContext) {
+    public void setServerRuntimeContext(InternalServerRuntimeContext serverRuntimeContext) {
         this.serverRuntimeContext = serverRuntimeContext;
     }
 

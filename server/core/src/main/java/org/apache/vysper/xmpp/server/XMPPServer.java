@@ -277,7 +277,7 @@ public class XMPPServer {
         dictionaries.add(new org.apache.vysper.xmpp.modules.core.compatibility.jabber_iq_auth.JabberIQAuthDictionary());
     }
 
-    public ServerRuntimeContext getServerRuntimeContext() {
+    public InternalServerRuntimeContext getServerRuntimeContext() {
         return serverRuntimeContext;
     }
 

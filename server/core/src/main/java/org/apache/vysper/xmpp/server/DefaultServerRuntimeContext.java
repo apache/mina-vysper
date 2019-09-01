@@ -68,7 +68,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
-public class DefaultServerRuntimeContext implements ServerRuntimeContext, ModuleRegistry {
+public class DefaultServerRuntimeContext implements InternalServerRuntimeContext, ModuleRegistry {
 
     private final Logger logger = LoggerFactory.getLogger(DefaultServerRuntimeContext.class);
 

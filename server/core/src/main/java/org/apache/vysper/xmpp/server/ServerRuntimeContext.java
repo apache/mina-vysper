@@ -32,7 +32,6 @@ import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.ServerRuntimeContextService;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.server.components.Component;
-import org.apache.vysper.xmpp.server.s2s.XMPPServerConnectorRegistry;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.state.presence.LatestPresenceCache;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
@@ -70,8 +69,6 @@ public interface ServerRuntimeContext {
     void registerComponent(Component component);
 
     boolean hasComponentStanzaProcessor(Entity entity);
-
-    XMPPServerConnectorRegistry getServerConnectorRegistry();
 
     List<Module> getModules();
 

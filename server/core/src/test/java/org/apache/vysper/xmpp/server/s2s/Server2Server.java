@@ -33,6 +33,7 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authentication.AccountManagement;
 import org.apache.vysper.xmpp.cryptography.NonCheckingX509TrustManagerFactory;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.server.InternalServerRuntimeContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.XMPPServer;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -102,7 +103,7 @@ public class Server2Server {
         // enable server connection to use ping
         //server.addModule(new XmppPingModule());
 
-        ServerRuntimeContext serverRuntimeContext = server.getServerRuntimeContext();
+        InternalServerRuntimeContext serverRuntimeContext = server.getServerRuntimeContext();
         
         Thread.sleep(2000);
 

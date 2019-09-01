@@ -29,6 +29,7 @@ import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.RemoteServerNotFoundException;
 import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.apache.vysper.xmpp.server.InternalServerRuntimeContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.InternalSessionContext;
 import org.apache.vysper.xmpp.server.s2s.XMPPServerConnector;
@@ -67,7 +68,7 @@ public class DeliveringExternalInboundStanzaRelayTestCase extends TestCase {
         XMPPServerConnectorRegistry registry = mock(XMPPServerConnectorRegistry.class);
         Mockito.when(registry.connect(SERVER)).thenThrow(new RemoteServerNotFoundException());
 
-        ServerRuntimeContext serverRuntimeContext = mock(ServerRuntimeContext.class);
+        InternalServerRuntimeContext serverRuntimeContext = mock(InternalServerRuntimeContext.class);
         Mockito.when(serverRuntimeContext.getServerConnectorRegistry()).thenReturn(registry);
 
         DeliveringExternalInboundStanzaRelay relay = new DeliveringExternalInboundStanzaRelay(new TestExecutorService());
@@ -91,7 +92,7 @@ public class DeliveringExternalInboundStanzaRelayTestCase extends TestCase {
         XMPPServerConnectorRegistry registry = mock(XMPPServerConnectorRegistry.class);
         Mockito.when(registry.connect(SERVER)).thenReturn(connector);
 
-        ServerRuntimeContext serverRuntimeContext = mock(ServerRuntimeContext.class);
+        InternalServerRuntimeContext serverRuntimeContext = mock(InternalServerRuntimeContext.class);
         Mockito.when(serverRuntimeContext.getServerConnectorRegistry()).thenReturn(registry);
 
         DeliveringExternalInboundStanzaRelay relay = new DeliveringExternalInboundStanzaRelay(new TestExecutorService());
