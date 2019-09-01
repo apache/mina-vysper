@@ -83,28 +83,28 @@ public class PresenceSubRequestOutHandlerTestCase extends PresenceHandlerBaseTes
         assertStanzasDeliveredAndRelayed(4);
 
         // roster push for 1 interested initiator of _same_ session
-        Stanza initiatorNotification = getNextDirectResponseFor(initiatingUser);
+        Stanza initiatorNotification = getNextRelayedResponseFor(initiatingUser);
         assertTrue(checkRosterPush(initiatorNotification, initiatingUser.getEntityFQ(), unrelatedUser.getEntity(), NONE,
                 ASK_SUBSCRIBE));
 
         // no stanzas for not interested
-        assertNull(getNextDirectResponseFor(anotherAvailableUser));
+        assertNull(getNextRelayedResponseFor(anotherAvailableUser));
 
         // roster 2 interested resources of _same_ session...
 
         // roster push for interested
-        Stanza interestedResourceNotification = getNextDirectResponseFor(anotherInterestedUser);
+        Stanza interestedResourceNotification = getNextRelayedResponseFor(anotherInterestedUser);
         assertTrue(checkRosterPush(interestedResourceNotification,
                 new EntityImpl(initiatingUser.getEntity(), anotherInterestedUser.getBoundResourceId()),
                 unrelatedUser.getEntity(), NONE, ASK_SUBSCRIBE));
-        assertNull(getNextDirectResponseFor(anotherInterestedUser)); // no more stanzas;
+        assertNull(getNextRelayedResponseFor(anotherInterestedUser)); // no more stanzas;
 
         // roster push for interested but not avail
-        Stanza interestedNotYetAvailResourceNotification = getNextDirectResponseFor(anotherInterestedNotAvailUser);
+        Stanza interestedNotYetAvailResourceNotification = getNextRelayedResponseFor(anotherInterestedNotAvailUser);
         assertTrue(checkRosterPush(interestedNotYetAvailResourceNotification,
                 new EntityImpl(initiatingUser.getEntity(), anotherInterestedNotAvailUser.getBoundResourceId()),
                 unrelatedUser.getEntity(), NONE, ASK_SUBSCRIBE));
-        assertNull(getNextDirectResponseFor(anotherInterestedNotAvailUser)); // no more stanzas;
+        assertNull(getNextRelayedResponseFor(anotherInterestedNotAvailUser)); // no more stanzas;
 
         // sub request sent to contact
         assertTrue(checkPresence(unrelatedUser.getNextStanza(), PresenceStanzaType.SUBSCRIBE,
@@ -133,15 +133,15 @@ public class PresenceSubRequestOutHandlerTestCase extends PresenceHandlerBaseTes
         assertStanzasDeliveredAndRelayed(4);
 
         // roster push for 1 interested initiator...
-        Stanza initiatorNotification = getNextDirectResponseFor(initiatingUser);
+        Stanza initiatorNotification = getNextRelayedResponseFor(initiatingUser);
         assertTrue(checkRosterPush(initiatorNotification, initiatingUser.getEntityFQ(), subscribed_FROM.getEntity(),
                 FROM, ASK_SUBSCRIBE));
 
         // .. and 2 interested resources of _same_ session
-        Stanza anotherInterestedUserNotification = getNextDirectResponseFor(anotherInterestedUser);
+        Stanza anotherInterestedUserNotification = getNextRelayedResponseFor(anotherInterestedUser);
         assertTrue(checkRosterPush(anotherInterestedUserNotification, anotherInterestedUser.getEntityFQ(),
                 subscribed_FROM.getEntity(), FROM, ASK_SUBSCRIBE));
-        Stanza anotherInterestedNotAvailUserNotification = getNextDirectResponseFor(anotherInterestedNotAvailUser);
+        Stanza anotherInterestedNotAvailUserNotification = getNextRelayedResponseFor(anotherInterestedNotAvailUser);
         assertTrue(checkRosterPush(anotherInterestedNotAvailUserNotification,
                 anotherInterestedNotAvailUser.getEntityFQ(), subscribed_FROM.getEntity(), FROM, ASK_SUBSCRIBE));
 

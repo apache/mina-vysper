@@ -152,10 +152,6 @@ abstract public class PresenceHandlerBaseTestCase extends TestCase {
         assertStanzasRelayed(expectedRelayedAndDelivered, expectedRelayedAndDelivered);
     }
 
-    protected void assertStanzasReceivedDirectly(int expectedReceivedDirectly) {
-        assertEquals(expectedReceivedDirectly, sessionContext.getRecordedResponsesTotal());
-    }
-
     protected void assertStanzasRelayed(int expectedRelayed, int expectedDelivered) {
         assertEquals(expectedRelayed, ((StanzaReceiverRelay) sessionContext.getStanzaRelay()).getCountRelayed());
         assertEquals(expectedDelivered, ((StanzaReceiverRelay) sessionContext.getStanzaRelay()).getCountDelivered());
@@ -208,8 +204,7 @@ abstract public class PresenceHandlerBaseTestCase extends TestCase {
      * @param testUser
      * @return NULL, if no stanza available matching the user's resource id
      */
-    protected Stanza getNextDirectResponseFor(TestUser testUser) {
+    protected Stanza getNextRelayedResponseFor(TestUser testUser) {
         return testUser.getNextStanza();
-//        return sessionContext.getNextRecordedResponseForResource(testUser.getBoundResourceId());
     }
 }
