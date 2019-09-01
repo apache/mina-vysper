@@ -22,8 +22,8 @@ package org.apache.vysper.xmpp.protocol.worker;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaHandlerExecutorFactory;
-import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
+import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
@@ -42,8 +42,8 @@ public class EndOrClosedProtocolWorker extends AbstractStateAwareProtocolWorker 
     }
 
     @Override
-    protected boolean checkState(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
-            StanzaHandler stanzaHandler) {
+    protected boolean checkState(StanzaReceivingSessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
+								 StanzaHandler stanzaHandler) {
         throw new RuntimeException("session was terminated");
     }
 }

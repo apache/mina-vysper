@@ -24,6 +24,7 @@ import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
 import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
@@ -47,8 +48,8 @@ public interface StanzaRelay {
      * @throws DeliveryException
      *             error while relaying
      */
-    void relay(SessionContext sessionContext, Entity receiver, Stanza stanza,
-            DeliveryFailureStrategy deliveryFailureStrategy) throws DeliveryException;
+    void relay(StanzaReceivingSessionContext sessionContext, Entity receiver, Stanza stanza,
+			   DeliveryFailureStrategy deliveryFailureStrategy) throws DeliveryException;
 
     /**
      * @return TRUE iff the relay is live (started and not stopped)

@@ -25,7 +25,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
@@ -48,28 +48,29 @@ public class QueuedStanzaProcessor implements StanzaProcessor {
         int maxThreadCount = 20;
         int threadTimeoutSeconds = 2 * 60 * 1000;
         this.executor = new ThreadPoolExecutor(coreThreadCount, maxThreadCount, threadTimeoutSeconds, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>());
+                new LinkedBlockingQueue<>());
         this.stanzaProcessor = stanzaProcessor;
     }
 
-    public void processStanza(ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, Stanza stanza,
-            SessionStateHolder sessionStateHolder) {
+    public void processStanza(ServerRuntimeContext serverRuntimeContext, StanzaReceivingSessionContext sessionContext,
+            Stanza stanza, SessionStateHolder sessionStateHolder) {
         executor.submit(new StanzaProcessorUnitOfWork(sessionContext, stanza, sessionStateHolder));
     }
 
-    public void processTLSEstablished(SessionContext sessionContext, SessionStateHolder sessionStateHolder) {
+    public void processTLSEstablished(StanzaReceivingSessionContext sessionContext,
+            SessionStateHolder sessionStateHolder) {
         ProtocolWorker.processTLSEstablishedInternal(sessionContext, sessionStateHolder, responseWriter);
     }
 
     private class StanzaProcessorUnitOfWork implements Runnable {
 
-        private SessionContext sessionContext;
+        private StanzaReceivingSessionContext sessionContext;
 
         private Stanza stanza;
 
         private SessionStateHolder sessionStateHolder;
 
-        private StanzaProcessorUnitOfWork(SessionContext sessionContext, Stanza stanza,
+        private StanzaProcessorUnitOfWork(StanzaReceivingSessionContext sessionContext, Stanza stanza,
                 SessionStateHolder sessionStateHolder) {
             this.sessionContext = sessionContext;
             this.stanza = stanza;

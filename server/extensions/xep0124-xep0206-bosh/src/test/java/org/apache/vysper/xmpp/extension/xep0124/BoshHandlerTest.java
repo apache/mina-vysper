@@ -43,6 +43,7 @@ import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerFeatures;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.easymock.Capture;
@@ -131,11 +132,11 @@ public class BoshHandlerTest {
         expect(httpServletRequest.startAsync()).andReturn(asyncContext).atLeastOnce();
         expect(httpServletRequest.getAsyncContext()).andReturn(asyncContext).anyTimes();
         asyncContext.setTimeout(anyLong());
-        httpServletRequest.setAttribute(eq(BOSH_REQUEST_ATTRIBUTE), EasyMock.<BoshRequest> capture(br));
-        asyncContext.addListener(EasyMock.<AsyncListener> anyObject());
-        Capture<Stanza> stanzaCaptured = new Capture<Stanza>();
-        stanzaProcessor.processStanza(eq(serverRuntimeContext), EasyMock.<SessionContext> anyObject(),
-                EasyMock.<Stanza> capture(stanzaCaptured), EasyMock.<SessionStateHolder> anyObject());
+        httpServletRequest.setAttribute(eq(BOSH_REQUEST_ATTRIBUTE), EasyMock.capture(br));
+        asyncContext.addListener(EasyMock.anyObject());
+        Capture<Stanza> stanzaCaptured = new Capture<>();
+        stanzaProcessor.processStanza(eq(serverRuntimeContext), EasyMock.anyObject(),
+                EasyMock.capture(stanzaCaptured), EasyMock.anyObject());
         mocksControl.replay();
         boshRequest = createSaslRequest();
         boshHandler.process(httpServletRequest, boshRequest);

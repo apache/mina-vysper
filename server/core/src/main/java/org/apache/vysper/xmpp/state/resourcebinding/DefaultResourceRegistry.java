@@ -31,6 +31,7 @@ import java.util.Map;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 import org.apache.vysper.xmpp.uuid.JVMBuiltinUUIDGenerator;
 import org.apache.vysper.xmpp.uuid.UUIDGenerator;
 import org.slf4j.Logger;
@@ -47,13 +48,13 @@ public class DefaultResourceRegistry implements ResourceRegistry {
 
     private static class SessionData {
 
-        private final SessionContext context;
+        private final StanzaReceivingSessionContext context;
 
         private ResourceState state;
 
         private Integer priority;
 
-        SessionData(SessionContext context, ResourceState status, Integer priority) {
+        SessionData(StanzaReceivingSessionContext context, ResourceState status, Integer priority) {
             this.context = context;
             this.state = status;
             this.priority = priority == null ? 0 : priority;
@@ -87,7 +88,7 @@ public class DefaultResourceRegistry implements ResourceRegistry {
      * @param sessionContext
      * @return newly allocated resource id
      */
-    public String bindSession(SessionContext sessionContext) {
+    public String bindSession(StanzaReceivingSessionContext sessionContext) {
         if (sessionContext == null) {
             throw new IllegalArgumentException("session context cannot be NULL");
         }
@@ -225,7 +226,7 @@ public class DefaultResourceRegistry implements ResourceRegistry {
         return resourceList;
     }
 
-    public SessionContext getSessionContext(String resourceId) {
+    public StanzaReceivingSessionContext getSessionContext(String resourceId) {
         SessionData data = boundResources.get(resourceId);
         if (data == null)
             return null;
@@ -277,8 +278,8 @@ public class DefaultResourceRegistry implements ResourceRegistry {
      * session for the JID's resource part. if it's a bare JID, it will return all session for the JID.
      * @param entity
      */
-    public List<SessionContext> getSessions(Entity entity) {
-        List<SessionContext> sessionContexts = new ArrayList<SessionContext>();
+    public List<StanzaReceivingSessionContext> getSessions(Entity entity) {
+        List<StanzaReceivingSessionContext> sessionContexts = new ArrayList<>();
 
         List<String> boundResources = getBoundResources(entity, false);
         for (String resourceId : boundResources) {
@@ -296,10 +297,10 @@ public class DefaultResourceRegistry implements ResourceRegistry {
      * for the threshold is 0 (zero), which is also the default when param is NULL.
      * @return returns the sessions matching the given JID (bare) with same or higher priority
      */
-    public List<SessionContext> getSessions(Entity entity, Integer prioThreshold) {
+    public List<StanzaReceivingSessionContext> getSessions(Entity entity, Integer prioThreshold) {
         if (prioThreshold == null)
             prioThreshold = 0;
-        List<SessionContext> results = new ArrayList<SessionContext>();
+        List<StanzaReceivingSessionContext> results = new ArrayList<>();
 
         List<String> boundResourceIds = getBoundResources(entity, true);
         for (String resourceId : boundResourceIds) {
@@ -333,9 +334,9 @@ public class DefaultResourceRegistry implements ResourceRegistry {
      * @return for a bare JID, it will return the highest prioritized sessions. for a full JID, it will return the
      * related session.
      */
-    public List<SessionContext> getHighestPrioSessions(Entity entity, Integer prioThreshold) {
+    public List<StanzaReceivingSessionContext> getHighestPrioSessions(Entity entity, Integer prioThreshold) {
         Integer currentPrio = prioThreshold == null ? Integer.MIN_VALUE : prioThreshold;
-        List<SessionContext> results = new ArrayList<SessionContext>();
+        List<StanzaReceivingSessionContext> results = new ArrayList<>();
 
         boolean isResourceSet = entity.isResourceSet();
 

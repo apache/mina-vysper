@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.protocol;
 import org.apache.vysper.xmpp.parser.ParsingErrorCondition;
 import org.apache.vysper.xmpp.parser.ParsingException;
 import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 import org.apache.vysper.xmpp.server.XMPPVersion;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
 import org.apache.vysper.xmpp.server.response.ServerResponses;
@@ -37,7 +38,7 @@ import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
  */
 public class ResponseWriter {
 
-    public static void writeUnsupportedStanzaError(SessionContext sessionContext) {
+    public static void writeUnsupportedStanzaError(StanzaReceivingSessionContext sessionContext) {
 
         Stanza errorStanza = ServerErrorResponses.getStreamError(StreamErrorCondition.UNSUPPORTED_STANZA_TYPE,
                 sessionContext.getXMLLang(), "service unavailable at this session state", null);
@@ -47,15 +48,8 @@ public class ResponseWriter {
         writeErrorAndClose(sessionContext, streamOpener);
     }
 
-    /**
-     * writes a response in this context
-     */
-    public static void writeResponse(SessionContext sessionContext, Stanza responseStanza) {
-        sessionContext.getResponseWriter().write(responseStanza);
-    }
-
-    public static void handleProtocolError(ProtocolException protocolException, SessionContext sessionContext,
-            Stanza receivedStanza) {
+    public static void handleProtocolError(ProtocolException protocolException, StanzaReceivingSessionContext sessionContext,
+                                           Stanza receivedStanza) {
         Stanza errorStanza = null;
         if (protocolException != null)
             errorStanza = protocolException.getErrorStanza();
@@ -67,19 +61,19 @@ public class ResponseWriter {
         writeErrorAndClose(sessionContext, errorStanza);
     }
 
-    public void handleUnsupportedStanzaType(SessionContext sessionContext, Stanza receivedStanza) {
+    public void handleUnsupportedStanzaType(StanzaReceivingSessionContext sessionContext, Stanza receivedStanza) {
         Stanza errorStanza = ServerErrorResponses.getStreamError(StreamErrorCondition.UNSUPPORTED_STANZA_TYPE,
                 sessionContext.getXMLLang(), "could not process incoming stanza", receivedStanza);
         writeErrorAndClose(sessionContext, errorStanza);
     }
 
-    public void handleNotAuthorized(SessionContext sessionContext, Stanza receivedStanza) {
+    public void handleNotAuthorized(StanzaReceivingSessionContext sessionContext, Stanza receivedStanza) {
         Stanza errorStanza = ServerErrorResponses.getStreamError(StreamErrorCondition.NOT_AUTHORIZED,
                 sessionContext.getXMLLang(), "could not process incoming stanza", receivedStanza);
         writeErrorAndClose(sessionContext, errorStanza);
     }
 
-    public void handleWrongFromJID(SessionContext sessionContext, Stanza receivedStanza) {
+    public void handleWrongFromJID(StanzaReceivingSessionContext sessionContext, Stanza receivedStanza) {
         XMPPCoreStanza receivedCoreStanza = XMPPCoreStanza.getWrapper(receivedStanza);
         if (receivedCoreStanza == null) {
             handleNotAuthorized(sessionContext, receivedStanza);
@@ -89,20 +83,11 @@ public class ResponseWriter {
         Stanza errorStanza = ServerErrorResponses.getStanzaError(StanzaErrorCondition.UNKNOWN_SENDER,
                 receivedCoreStanza, StanzaErrorType.MODIFY, "from attribute does not match authorized entity", null,
                 null);
-        writeResponse(sessionContext, errorStanza);
+        sessionContext.getResponseWriter().write(errorStanza);
     }
 
-    public void handleParsingException(SessionContext sessionContext, ParsingException e) {
-        // TODO write the __right__ error response, not bad-format default only
-        if (e.getErrorCondition() != ParsingErrorCondition.BAD_FORMAT)
-            throw new RuntimeException("cannot handle this error condition yet");
-        Stanza errorStanza = ServerErrorResponses.getStreamError(StreamErrorCondition.BAD_FORMAT,
-                sessionContext.getXMLLang(), "could not parse incoming stanza", null);
-        writeErrorAndClose(sessionContext, errorStanza);
-    }
-
-    public static void writeErrorAndClose(SessionContext sessionContext, Stanza errorStanza) {
-        writeResponse(sessionContext, errorStanza);
+    public static void writeErrorAndClose(StanzaReceivingSessionContext sessionContext, Stanza errorStanza) {
+        sessionContext.getResponseWriter().write(errorStanza);
         sessionContext.endSession(SessionContext.SessionTerminationCause.STREAM_ERROR);
     }
 

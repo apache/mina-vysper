@@ -19,6 +19,8 @@
  */
 package org.apache.vysper.xmpp.modules.servicediscovery.handler;
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,7 +38,7 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscove
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -49,8 +51,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import junit.framework.Assert;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  */
@@ -68,7 +68,7 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
 
     private ServerRuntimeContext serverRuntimeContext = mock(ServerRuntimeContext.class);
 
-    private SessionContext sessionContext = mock(SessionContext.class);
+    private StanzaReceivingSessionContext sessionContext = mock(StanzaReceivingSessionContext.class);
 
     private ServiceCollector serviceCollector = mock(ServiceCollector.class);
 
@@ -316,7 +316,7 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
         List<Stanza> responses = handler.handleResult(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
 
         assertTrue(responses.isEmpty());
-        
+
         verify(stanzaBroker).write(eq(USER), eq(stanza), any(DeliveryFailureStrategy.class));
     }
 
@@ -329,7 +329,7 @@ public class DiscoInfoIQHandlerTestCase extends Mockito {
         List<Stanza> responses = handler.handleResult(stanza, serverRuntimeContext, sessionContext, stanzaBroker);
 
         assertTrue(responses.isEmpty());
-        
+
         verify(stanzaBroker).writeToSession(stanza);
     }
 

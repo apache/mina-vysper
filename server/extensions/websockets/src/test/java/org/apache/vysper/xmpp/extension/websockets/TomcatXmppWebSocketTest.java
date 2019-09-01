@@ -27,6 +27,7 @@ import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.junit.Test;
@@ -51,7 +52,7 @@ public class TomcatXmppWebSocketTest {
 
         Stanza expected = new StanzaBuilder("test").build();
         Mockito.verify(stanzaProcessor).processStanza(Mockito.eq(serverRuntimeContext),
-                Mockito.any(SessionContext.class), Mockito.eq(expected), Mockito.any(SessionStateHolder.class));
+                Mockito.any(StanzaReceivingSessionContext.class), Mockito.eq(expected), Mockito.any(SessionStateHolder.class));
     }
 
     @Test

@@ -130,8 +130,6 @@ public interface SessionContext {
      */
     void setXMLLang(String languageCode);
 
-    StanzaWriter getResponseWriter();
-
     /**
      * Ends this session and the underlying TCP connection.
      * 

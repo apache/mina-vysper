@@ -25,7 +25,7 @@ import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
 import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 import org.apache.vysper.xmpp.server.resources.ManagedThreadPool;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
@@ -68,7 +68,7 @@ public class StanzaRelayBroker implements StanzaRelay {
         this.serverRuntimeContext = serverRuntimeContext;
     }
 
-    public void relay(SessionContext sessionContext, Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy)
+    public void relay(StanzaReceivingSessionContext sessionContext, Entity receiver, Stanza stanza, DeliveryFailureStrategy deliveryFailureStrategy)
             throws DeliveryException {
         
         if (!isRelaying()) {

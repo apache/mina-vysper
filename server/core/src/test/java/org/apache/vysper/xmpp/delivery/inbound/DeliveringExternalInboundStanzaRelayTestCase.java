@@ -31,6 +31,7 @@ import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 import org.apache.vysper.xmpp.server.s2s.XMPPServerConnector;
 import org.apache.vysper.xmpp.server.s2s.XMPPServerConnectorRegistry;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -61,7 +62,7 @@ public class DeliveringExternalInboundStanzaRelayTestCase extends TestCase {
     private static final Stanza STANZA = XMPPCoreStanza.getWrapper(StanzaBuilder.createMessageStanza(FROM, TO, LANG,
             BODY).build());
     
-    private SessionContext sessionContext = mock(SessionContext.class);
+    private StanzaReceivingSessionContext sessionContext = mock(StanzaReceivingSessionContext.class);
 
     public void testRemoteServerError() throws Exception {
         XMPPServerConnectorRegistry registry = mock(XMPPServerConnectorRegistry.class);

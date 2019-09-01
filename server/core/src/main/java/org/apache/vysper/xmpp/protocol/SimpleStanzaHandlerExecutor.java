@@ -23,7 +23,7 @@ import static java.util.Objects.requireNonNull;
 
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
@@ -42,7 +42,7 @@ class SimpleStanzaHandlerExecutor implements StanzaHandlerExecutor {
 
     @Override
     public void execute(Stanza stanza, ServerRuntimeContext serverRuntimeContext, boolean isOutboundStanza,
-            SessionContext sessionContext, SessionStateHolder sessionStateHolder) throws ProtocolException {
+                        StanzaReceivingSessionContext sessionContext, SessionStateHolder sessionStateHolder) throws ProtocolException {
         stanzaHandler.execute(stanza, serverRuntimeContext, isOutboundStanza, sessionContext, sessionStateHolder,
                 new SimpleStanzaBroker(stanzaRelay, sessionContext));
     }

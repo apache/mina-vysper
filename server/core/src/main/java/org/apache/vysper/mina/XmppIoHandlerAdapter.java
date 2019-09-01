@@ -34,16 +34,16 @@ import org.apache.vysper.xmpp.protocol.StreamErrorCondition;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionContext.SessionTerminationCause;
+import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXParseException;
 
-import static java.util.Objects.requireNonNull;
-
 /**
  * handler for client-to-server sessions
+ * 
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public class XmppIoHandlerAdapter implements IoHandler {
@@ -53,10 +53,11 @@ public class XmppIoHandlerAdapter implements IoHandler {
     public static final String ATTRIBUTE_VYSPER_SESSIONSTATEHOLDER = "vysperSessionStateHolder";
 
     public static final String ATTRIBUTE_VYSPER_TERMINATE_REASON = "vysperTerminateReason";
-    
+
     final Logger logger = LoggerFactory.getLogger(XmppIoHandlerAdapter.class);
 
     private final ServerRuntimeContext serverRuntimeContext;
+
     private final StanzaProcessor stanzaProcessor;
 
     public XmppIoHandlerAdapter(ServerRuntimeContext serverRuntimeContext, StanzaProcessor stanzaProcessor) {
@@ -74,20 +75,20 @@ public class XmppIoHandlerAdapter implements IoHandler {
                     return;
             }
 
-            throw new IllegalArgumentException("xmpp handler only accepts Stanza-typed messages, but received type "
-                    + message.getClass());
+            throw new IllegalArgumentException(
+                    "xmpp handler only accepts Stanza-typed messages, but received type " + message.getClass());
         }
 
         Stanza stanza = (Stanza) message;
-        SessionContext session = extractSession(ioSession);
+        StanzaReceivingSessionContext session = extractSession(ioSession);
         SessionStateHolder stateHolder = (SessionStateHolder) ioSession
                 .getAttribute(ATTRIBUTE_VYSPER_SESSIONSTATEHOLDER);
 
         stanzaProcessor.processStanza(serverRuntimeContext, session, stanza, stateHolder);
     }
 
-    private SessionContext extractSession(IoSession ioSession) {
-        return (SessionContext) ioSession.getAttribute(ATTRIBUTE_VYSPER_SESSION);
+    private StanzaReceivingSessionContext extractSession(IoSession ioSession) {
+        return (StanzaReceivingSessionContext) ioSession.getAttribute(ATTRIBUTE_VYSPER_SESSION);
     }
 
     @Override
@@ -103,7 +104,7 @@ public class XmppIoHandlerAdapter implements IoHandler {
     @Override
     public void event(IoSession ioSession, FilterEvent event) throws Exception {
         if (event == SslEvent.SECURED) {
-            SessionContext session = extractSession(ioSession);
+            StanzaReceivingSessionContext session = extractSession(ioSession);
             SessionStateHolder stateHolder = (SessionStateHolder) ioSession
                     .getAttribute(ATTRIBUTE_VYSPER_SESSIONSTATEHOLDER);
             stanzaProcessor.processTLSEstablished(session, stateHolder);
@@ -115,7 +116,8 @@ public class XmppIoHandlerAdapter implements IoHandler {
     @Override
     public void sessionCreated(IoSession ioSession) throws Exception {
         SessionStateHolder stateHolder = new SessionStateHolder();
-        SessionContext sessionContext = new MinaBackedSessionContext(serverRuntimeContext, stanzaProcessor, stateHolder, ioSession);
+        SessionContext sessionContext = new MinaBackedSessionContext(serverRuntimeContext, stanzaProcessor, stateHolder,
+                ioSession);
         ioSession.setAttribute(ATTRIBUTE_VYSPER_SESSION, sessionContext);
         ioSession.setAttribute(ATTRIBUTE_VYSPER_SESSIONSTATEHOLDER, stateHolder);
         ioSession.setAttribute(ATTRIBUTE_VYSPER_TERMINATE_REASON, SessionTerminationCause.CLIENT_BYEBYE);
@@ -129,7 +131,8 @@ public class XmppIoHandlerAdapter implements IoHandler {
     @Override
     public void sessionClosed(IoSession ioSession) throws Exception {
         SessionContext sessionContext = extractSession(ioSession);
-        SessionTerminationCause cause = (SessionTerminationCause) ioSession.getAttribute(ATTRIBUTE_VYSPER_TERMINATE_REASON);
+        SessionTerminationCause cause = (SessionTerminationCause) ioSession
+                .getAttribute(ATTRIBUTE_VYSPER_TERMINATE_REASON);
         String sessionId = "UNKNOWN";
         if (sessionContext != null) {
             sessionId = sessionContext.getSessionId();
@@ -140,28 +143,29 @@ public class XmppIoHandlerAdapter implements IoHandler {
 
     @Override
     public void sessionIdle(IoSession ioSession, IdleStatus idleStatus) throws Exception {
-        logger.debug("session {} is idle", ((SessionContext) ioSession.getAttribute(ATTRIBUTE_VYSPER_SESSION))
-                .getSessionId());
+        logger.debug("session {} is idle",
+                ((SessionContext) ioSession.getAttribute(ATTRIBUTE_VYSPER_SESSION)).getSessionId());
     }
 
     @Override
     public void exceptionCaught(IoSession ioSession, Throwable throwable) throws Exception {
-        SessionContext sessionContext = extractSession(ioSession);
-        
-        // Assume that the connection was aborted for now. Might be different depending on 
+        StanzaReceivingSessionContext sessionContext = extractSession(ioSession);
+
+        // Assume that the connection was aborted for now. Might be different depending
+        // on
         // cause of exception determined below.
         ioSession.setAttribute(ATTRIBUTE_VYSPER_TERMINATE_REASON, SessionTerminationCause.CONNECTION_ABORT);
-        
+
         Stanza errorStanza;
-        if(throwable.getCause() != null && throwable.getCause() instanceof SAXParseException) {
+        if (throwable.getCause() != null && throwable.getCause() instanceof SAXParseException) {
             logger.info("Client sent not well-formed XML, closing session", throwable);
             errorStanza = ServerErrorResponses.getStreamError(StreamErrorCondition.XML_NOT_WELL_FORMED,
                     sessionContext.getXMLLang(), "Stanza not well-formed", null);
             ioSession.setAttribute(ATTRIBUTE_VYSPER_TERMINATE_REASON, SessionTerminationCause.STREAM_ERROR);
-        } else if(throwable instanceof WriteToClosedSessionException) {
+        } else if (throwable instanceof WriteToClosedSessionException) {
             // ignore
             return;
-        } else if(throwable instanceof IOException) {
+        } else if (throwable instanceof IOException) {
             logger.info("error caught on transportation layer", throwable);
             return;
         } else {

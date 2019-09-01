@@ -29,7 +29,7 @@ import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
 import org.apache.vysper.xmpp.delivery.failure.LocalRecipientOfflineException;
 import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
@@ -60,8 +60,8 @@ public class StanzaReceiverRelay implements StanzaRelay {
         receiverMap.put(receiverID, receiver);
     }
 
-    public void relay(SessionContext sessionContext, Entity receiver, Stanza stanza,
-            DeliveryFailureStrategy deliveryFailureStrategy) throws DeliveryException {
+    public void relay(StanzaReceivingSessionContext sessionContext, Entity receiver, Stanza stanza,
+                      DeliveryFailureStrategy deliveryFailureStrategy) throws DeliveryException {
         if (!isRelaying()) {
             throw new ServiceNotAvailableException("relay is not relaying");
         }

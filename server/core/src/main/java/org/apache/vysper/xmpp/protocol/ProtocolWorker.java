@@ -35,8 +35,8 @@ import org.apache.vysper.xmpp.protocol.worker.InitiatedProtocolWorker;
 import org.apache.vysper.xmpp.protocol.worker.StartedProtocolWorker;
 import org.apache.vysper.xmpp.protocol.worker.UnconnectedProtocolWorker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
+import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -85,8 +85,8 @@ public class ProtocolWorker implements StanzaProcessor {
      * @param stanza
      * @param sessionStateHolder
      */
-    public void processStanza(ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, Stanza stanza,
-            SessionStateHolder sessionStateHolder) {
+    public void processStanza(ServerRuntimeContext serverRuntimeContext, StanzaReceivingSessionContext sessionContext, Stanza stanza,
+                              SessionStateHolder sessionStateHolder) {
         if (stanza == null)
             throw new RuntimeException("cannot process NULL stanzas");
 
@@ -124,15 +124,15 @@ public class ProtocolWorker implements StanzaProcessor {
                 if(from == null) {
                     Stanza errorStanza = ServerErrorResponses.getStanzaError(StanzaErrorCondition.UNKNOWN_SENDER,
                             coreStanza, StanzaErrorType.MODIFY, "Missing from attribute", null, null);
-                    ResponseWriter.writeResponse(sessionContext, errorStanza);
+                    sessionContext.getResponseWriter().write(errorStanza);
                     return;
                 } else if(!EntityUtils.isAddressingServer(sessionContext.getInitiatingEntity(), from)) {
                     // make sure the from attribute refers to the correct remote server
                     
                         Stanza errorStanza = ServerErrorResponses.getStanzaError(StanzaErrorCondition.UNKNOWN_SENDER,
                                 coreStanza, StanzaErrorType.MODIFY, "Incorrect from attribute", null, null);
-                        ResponseWriter.writeResponse(sessionContext, errorStanza); 
-                        return;
+                    sessionContext.getResponseWriter().write(errorStanza);
+                    return;
                 }
                 
                 Entity to = stanza.getTo();
@@ -140,13 +140,13 @@ public class ProtocolWorker implements StanzaProcessor {
                     // TODO what's the appropriate error? StreamErrorCondition.IMPROPER_ADDRESSING?
                     Stanza errorStanza = ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST,
                             coreStanza, StanzaErrorType.MODIFY, "Missing to attribute", null, null);
-                    ResponseWriter.writeResponse(sessionContext, errorStanza);
+                    sessionContext.getResponseWriter().write(errorStanza);
                     return;                    
                 } else if(!EntityUtils.isAddressingServer(serverRuntimeContext.getServerEntity(), to)) {
                     // TODO what's the appropriate error? StreamErrorCondition.IMPROPER_ADDRESSING?
                     Stanza errorStanza = ServerErrorResponses.getStanzaError(StanzaErrorCondition.BAD_REQUEST,
                             coreStanza, StanzaErrorType.MODIFY, "Invalid to attribute", null, null);
-                    ResponseWriter.writeResponse(sessionContext, errorStanza);
+                    sessionContext.getResponseWriter().write(errorStanza);
                     return;                    
                     
                 }
@@ -197,12 +197,12 @@ public class ProtocolWorker implements StanzaProcessor {
         }
     }
 
-    public void processTLSEstablished(SessionContext sessionContext, SessionStateHolder sessionStateHolder) {
+    public void processTLSEstablished(StanzaReceivingSessionContext sessionContext, SessionStateHolder sessionStateHolder) {
         processTLSEstablishedInternal(sessionContext, sessionStateHolder, responseWriter);
     }
 
-    static void processTLSEstablishedInternal(SessionContext sessionContext, SessionStateHolder sessionStateHolder,
-            ResponseWriter responseWriter) {
+    static void processTLSEstablishedInternal(StanzaReceivingSessionContext sessionContext, SessionStateHolder sessionStateHolder,
+                                              ResponseWriter responseWriter) {
         if (sessionContext.getState() != SessionState.ENCRYPTION_STARTED) {
             responseWriter.handleProtocolError(new TLSException(), sessionContext, null);
             return;

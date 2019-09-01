@@ -29,6 +29,7 @@ import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
 import org.apache.vysper.xmpp.server.ServerFeatures;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.junit.Before;
@@ -53,7 +54,7 @@ public class StanzaRelayBrokerTestCase extends Mockito {
     
     private StanzaRelay internalRelay = mock(StanzaRelay.class);
     private StanzaRelay externalRelay = mock(StanzaRelay.class);
-    private SessionContext sessionContext = mock(SessionContext.class);
+    private StanzaReceivingSessionContext sessionContext = mock(StanzaReceivingSessionContext.class);
     private ServerRuntimeContext serverRuntimeContext = mock(ServerRuntimeContext.class);
     private ServerFeatures serverFeatures = mock(ServerFeatures.class);
 

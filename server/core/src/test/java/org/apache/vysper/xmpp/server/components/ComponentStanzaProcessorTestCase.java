@@ -34,6 +34,7 @@ import org.apache.vysper.xmpp.protocol.SimpleStanzaHandlerExecutorFactory;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.writer.StanzaWriter;
@@ -51,7 +52,7 @@ public class ComponentStanzaProcessorTestCase {
 
     private ServerRuntimeContext serverRuntimeContext = mock(ServerRuntimeContext.class);
 
-    private SessionContext sessionContext = mock(SessionContext.class);
+    private StanzaReceivingSessionContext sessionContext = mock(StanzaReceivingSessionContext.class);
 
     private SessionStateHolder sessionStateHolder = new SessionStateHolder();
 

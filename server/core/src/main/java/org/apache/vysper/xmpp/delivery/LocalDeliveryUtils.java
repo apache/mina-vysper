@@ -19,7 +19,7 @@
  */
 package org.apache.vysper.xmpp.delivery;
 
-import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 import org.slf4j.Logger;
@@ -31,17 +31,22 @@ import org.slf4j.LoggerFactory;
  */
 public class LocalDeliveryUtils {
 
-    final static Logger logger = LoggerFactory.getLogger(LocalDeliveryUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(LocalDeliveryUtils.class);
 
     /**
-     * delivers a stanza to a server-local resource. used for sending a stanza to all resources of the same user.
-     * @param registry registry to look up session by resource ID
-     * @param resource receiving resource ID
-     * @param push stanza to be pushed
+     * delivers a stanza to a server-local resource. used for sending a stanza to
+     * all resources of the same user.
+     * 
+     * @param registry
+     *            registry to look up session by resource ID
+     * @param resource
+     *            receiving resource ID
+     * @param push
+     *            stanza to be pushed
      */
     public static void relayToResourceDirectly(ResourceRegistry registry, String resource, Stanza push) {
         try {
-            SessionContext targetContext = registry.getSessionContext(resource);
+            StanzaReceivingSessionContext targetContext = registry.getSessionContext(resource);
             if (targetContext == null)
                 return;
             targetContext.getResponseWriter().write(push);

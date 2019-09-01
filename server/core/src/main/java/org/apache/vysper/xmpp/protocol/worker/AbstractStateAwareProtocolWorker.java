@@ -29,6 +29,7 @@ import org.apache.vysper.xmpp.protocol.StanzaHandlerExecutorFactory;
 import org.apache.vysper.xmpp.protocol.StateAwareProtocolWorker;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
+import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
@@ -46,8 +47,8 @@ public abstract class AbstractStateAwareProtocolWorker implements StateAwareProt
 
     abstract public SessionState getHandledState();
 
-    public void processStanza(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
-            StanzaHandler stanzaHandler) {
+    public void processStanza(StanzaReceivingSessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
+                              StanzaHandler stanzaHandler) {
         boolean proceed = checkState(sessionContext, sessionStateHolder, stanza, stanzaHandler);
         if (!proceed)
             return; // TODO close stream?
@@ -55,13 +56,13 @@ public abstract class AbstractStateAwareProtocolWorker implements StateAwareProt
         executeHandler(sessionContext, sessionStateHolder, stanza, stanzaHandler);
     }
 
-    protected boolean checkState(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
-            StanzaHandler stanzaHandler) {
+    protected boolean checkState(StanzaReceivingSessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
+                                 StanzaHandler stanzaHandler) {
         return 0 == getHandledState().compareTo(sessionContext.getState());
     }
 
-    private void executeHandler(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
-            StanzaHandler stanzaHandler) {
+    private void executeHandler(StanzaReceivingSessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
+                                StanzaHandler stanzaHandler) {
         try {
             stanzaHandlerExecutorFactory.build(stanzaHandler).execute(stanza, sessionContext.getServerRuntimeContext(),
                     isProcessingOutboundStanzas(), sessionContext, sessionStateHolder);

@@ -19,7 +19,7 @@
  */
 package org.apache.vysper.xmpp.protocol;
 
-import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
@@ -32,6 +32,6 @@ import org.apache.vysper.xmpp.stanza.Stanza;
  */
 public interface StateAwareProtocolWorker {
 
-    public void processStanza(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
-            StanzaHandler stanzaHandler);
+    void processStanza(StanzaReceivingSessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
+                              StanzaHandler stanzaHandler);
 }

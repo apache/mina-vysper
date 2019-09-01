@@ -26,6 +26,7 @@ import junit.framework.TestCase;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 import org.apache.vysper.xmpp.server.TestSessionContext;
 
 /**
@@ -90,12 +91,12 @@ public class ResourceRegistryTestCase extends TestCase {
         assertTrue(resourceList.contains(resourceId1));
         assertTrue(resourceList.contains(resourceId2));
 
-        List<SessionContext> sessionList = resourceRegistry.getSessions(entity);
+        List<StanzaReceivingSessionContext> sessionList = resourceRegistry.getSessions(entity);
         assertEquals(2, resourceList.size());
         assertTrue(sessionList.contains(sessionContext1));
         assertTrue(sessionList.contains(sessionContext2));
 
-        List<SessionContext> highestPrioSessions = resourceRegistry.getHighestPrioSessions(entity, null);
+        List<StanzaReceivingSessionContext> highestPrioSessions = resourceRegistry.getHighestPrioSessions(entity, null);
         assertEquals(1, highestPrioSessions.size());
         SessionContext highestPrioSession = highestPrioSessions.get(0);
         assertSame(resourceRegistry.getSessionContext(resourceId2), highestPrioSession);
@@ -145,7 +146,7 @@ public class ResourceRegistryTestCase extends TestCase {
         assertTrue(resourceList.contains(resourceId1));
         assertTrue(resourceList.contains(resourceId2));
 
-        List<SessionContext> sessionList = resourceRegistry.getSessions(entity);
+        List<StanzaReceivingSessionContext> sessionList = resourceRegistry.getSessions(entity);
         assertEquals(2, resourceList.size());
         assertTrue(sessionList.contains(sessionContext1));
         assertTrue(sessionList.contains(sessionContext2));

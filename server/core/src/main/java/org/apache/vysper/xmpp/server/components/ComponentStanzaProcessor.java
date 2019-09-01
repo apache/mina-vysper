@@ -28,7 +28,7 @@ import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaHandlerExecutorFactory;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
-import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
 
@@ -52,8 +52,8 @@ public class ComponentStanzaProcessor implements StanzaProcessor {
         componentStanzaHandlerLookup.addDictionary(namespaceHandlerDictionary);
     }
 
-    public void processStanza(ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext, Stanza stanza,
-            SessionStateHolder sessionStateHolder) {
+    public void processStanza(ServerRuntimeContext serverRuntimeContext, StanzaReceivingSessionContext sessionContext, Stanza stanza,
+                              SessionStateHolder sessionStateHolder) {
         if (stanza == null)
             throw new RuntimeException("cannot process NULL stanzas");
 
@@ -77,7 +77,7 @@ public class ComponentStanzaProcessor implements StanzaProcessor {
 
     }
 
-    public void processTLSEstablished(SessionContext sessionContext, SessionStateHolder sessionStateHolder) {
+    public void processTLSEstablished(StanzaReceivingSessionContext sessionContext, SessionStateHolder sessionStateHolder) {
         throw new RuntimeException("should not be called for components, which only acts as an established session");
     }
 }

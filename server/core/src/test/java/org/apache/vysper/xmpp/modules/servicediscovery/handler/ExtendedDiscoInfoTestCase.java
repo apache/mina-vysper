@@ -41,7 +41,7 @@ import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
-import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
@@ -87,7 +87,7 @@ public class ExtendedDiscoInfoTestCase extends TestCase {
 
         IQStanza finalStanza = (IQStanza) XMPPCoreStanza.getWrapper(request.build());
 
-        SessionContext sessionContext = new TestSessionContext(runtimeContext, new SessionStateHolder(),
+        StanzaReceivingSessionContext sessionContext = new TestSessionContext(runtimeContext, new SessionStateHolder(),
                 runtimeContext.getStanzaRelay());
 
         List<Stanza> resultStanzas = infoIQHandler.handleGet(finalStanza, runtimeContext, sessionContext,

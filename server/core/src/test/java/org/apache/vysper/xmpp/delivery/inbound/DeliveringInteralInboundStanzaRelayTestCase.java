@@ -38,6 +38,7 @@ import org.apache.vysper.xmpp.protocol.SimpleStanzaHandlerExecutorFactory;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
+import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.server.components.SimpleComponentRegistry;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -63,7 +64,7 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
 
     protected DeliveringInternalInboundStanzaRelay stanzaRelay;
     
-    private SessionContext sessionContext = mock(SessionContext.class);
+    private StanzaReceivingSessionContext sessionContext = mock(StanzaReceivingSessionContext.class);
 
     static class AccountVerificationMock implements AccountManagement {
         public void addUser(Entity username, String password) throws AccountCreationException {

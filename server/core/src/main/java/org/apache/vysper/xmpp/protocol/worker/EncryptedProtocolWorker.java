@@ -29,8 +29,8 @@ import org.apache.vysper.xmpp.protocol.ResponseWriter;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaHandlerExecutorFactory;
-import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.SessionState;
+import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
@@ -49,8 +49,8 @@ public class EncryptedProtocolWorker extends AbstractStateAwareProtocolWorker {
     }
 
     @Override
-    protected boolean checkState(SessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
-            StanzaHandler stanzaHandler) {
+    protected boolean checkState(StanzaReceivingSessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
+								 StanzaHandler stanzaHandler) {
 
         Class<?> handlerUnwrappedType = stanzaHandler.unwrapType();
         if (StreamStartHandler.class.isAssignableFrom(handlerUnwrappedType)) {

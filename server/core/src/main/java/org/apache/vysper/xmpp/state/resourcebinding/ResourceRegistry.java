@@ -2,13 +2,14 @@ package org.apache.vysper.xmpp.state.resourcebinding;
 
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.server.SessionContext;
+import org.apache.vysper.xmpp.server.StanzaReceivingSessionContext;
 
 import java.util.List;
 
 /**
  */
 public interface ResourceRegistry {
-    SessionContext getSessionContext(String resourceId);
+    StanzaReceivingSessionContext getSessionContext(String resourceId);
 
     boolean setResourceState(String resourceId, ResourceState state);
 
@@ -20,17 +21,17 @@ public interface ResourceRegistry {
 
     String getUniqueResourceForSession(SessionContext sessionContext);
 
-    List<SessionContext> getSessions(Entity entity);
+    List<StanzaReceivingSessionContext> getSessions(Entity entity);
 
-    List<SessionContext> getSessions(Entity entity, Integer prioThreshold);
+    List<StanzaReceivingSessionContext> getSessions(Entity entity, Integer prioThreshold);
 
-    List<SessionContext> getHighestPrioSessions(Entity entity, Integer prioThreshold);
+    List<StanzaReceivingSessionContext> getHighestPrioSessions(Entity entity, Integer prioThreshold);
 
     void setResourcePriority(String resourceId, int priority);
 
     List<String> getAvailableResources(Entity entity);
 
-    String bindSession(SessionContext sessionContext);
+    String bindSession(StanzaReceivingSessionContext sessionContext);
 
     boolean unbindResource(String resourceId);
 
