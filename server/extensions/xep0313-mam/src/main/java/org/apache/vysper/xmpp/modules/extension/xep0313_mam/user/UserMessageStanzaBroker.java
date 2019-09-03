@@ -24,6 +24,7 @@ import static java.util.Objects.requireNonNull;
 import java.util.Optional;
 
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.addressing.EntityUtils;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
 import org.apache.vysper.xmpp.modules.core.base.handler.XMPPCoreStanzaHandler;
@@ -75,6 +76,9 @@ class UserMessageStanzaBroker extends DelegatingStanzaBroker {
     }
 
     private Stanza archive(Stanza stanza) {
+        if (!isOutbound) {
+            return stanza;
+        }
         if (!MessageStanza.isOfType(stanza)) {
             return stanza;
         }
@@ -88,33 +92,39 @@ class UserMessageStanzaBroker extends DelegatingStanzaBroker {
             return messageStanza;
         }
 
-        Entity archiveJID;
-        if (isOutbound) {
-            // We will store the message in the sender archive
-            archiveJID = XMPPCoreStanzaHandler.extractSenderJID(messageStanza, sessionContext);
-        } else {
-            // We will store the message in the receiver archive
-            archiveJID = requireNonNull(messageStanza.getTo(), "No 'to' found in " + messageStanza);
-        }
+        addToSenderArchive(messageStanza, sessionContext);
+        return addToReceiverArchive(messageStanza).map(MessageStanzaWithId::new).map(MessageStanzaWithId::toStanza)
+                .orElse(stanza);
+    }
 
+    private void addToSenderArchive(MessageStanza messageStanza, SessionContext sessionContext) {
         // Servers that expose archive messages of sent/received messages on behalf of
         // local users MUST expose these archives to the user on the user's bare JID.
-        archiveJID = archiveJID.getBareJID();
+        Entity senderArchiveId = XMPPCoreStanzaHandler.extractSenderJID(messageStanza, sessionContext).getBareJID();
+        Optional<MessageArchive> senderArchive = messageArchives().retrieveUserMessageArchive(senderArchiveId);
+        if (!senderArchive.isPresent()) {
+            LOG.debug("No archive returned for sender with bare JID '{}'", senderArchiveId);
+            return;
+        }
+        senderArchive.get().archive(new SimpleMessage(messageStanza));
+    }
 
-        MessageArchives archives = requireNonNull(serverRuntimeContext.getStorageProvider(MessageArchives.class),
+    private Optional<ArchivedMessage> addToReceiverArchive(MessageStanza messageStanza) {
+        Entity to = requireNonNull(messageStanza.getTo(), "No 'to' found in " + messageStanza);
+        if (!EntityUtils.isAddressingServer(to, serverRuntimeContext.getServerEntity())) {
+            LOG.debug("Receiver {} is not managed by this server", to);
+            return Optional.empty();
+        }
+        // Servers that expose archive messages of sent/received messages on behalf of
+        // local users MUST expose these archives to the user on the user's bare JID.
+        Entity receiverArchiveId = requireNonNull(messageStanza.getTo(), "No 'to' found in " + messageStanza)
+                .getBareJID();
+        return messageArchives().retrieveUserMessageArchive(receiverArchiveId)
+                .map(messageArchive -> messageArchive.archive(new SimpleMessage(messageStanza)));
+    }
+
+    private MessageArchives messageArchives() {
+        return requireNonNull(serverRuntimeContext.getStorageProvider(MessageArchives.class),
                 "Could not find an instance of " + MessageArchives.class);
-
-        Optional<MessageArchive> userArchive = archives.retrieveUserMessageArchive(archiveJID);
-        if (!userArchive.isPresent()) {
-            LOG.debug("No archive returned for user with bare JID '{}'", archiveJID);
-            return messageStanza;
-        }
-
-        ArchivedMessage archivedMessage = userArchive.get().archive(new SimpleMessage(messageStanza));
-        if (isOutbound) {
-            return messageStanza;
-        } else {
-            return new MessageStanzaWithId(archivedMessage).toStanza();
-        }
     }
 }

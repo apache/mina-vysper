@@ -20,7 +20,6 @@
 package org.apache.vysper.xmpp.modules.extension.xep0313_mam.user;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.util.stream.Stream;
 
@@ -44,11 +43,11 @@ public class UserMessageStanzaBrokerTest {
 
     private static final Entity JULIET_IN_CHAMBER = EntityImpl.parseUnchecked("juliet@capulet.lit/chamber");
 
-    private static final Entity ROMEO_IN_ORCHARD = EntityImpl.parseUnchecked("romeo@montague.lit/orchard");
+    private static final Entity ROMEO_IN_ORCHARD = EntityImpl.parseUnchecked("romeo@capulet.lit/orchard");
 
-    private static final Entity MACBETH_IN_KITCHEN = EntityImpl.parseUnchecked("macbeth@shakespeare.lit/kitchen");
+    private static final Entity MACBETH_IN_KITCHEN = EntityImpl.parseUnchecked("macbeth@capulet.lit/kitchen");
 
-    private static final Entity ALICE_IN_RABBIT_HOLE = EntityImpl.parseUnchecked("alice@carol.lit/rabbit-hole");
+    private static final Entity ALICE_IN_RABBIT_HOLE = EntityImpl.parseUnchecked("alice@capulet.lit/rabbit-hole");
 
     private static final Entity INITIATING_ENTITY = JULIET_IN_CHAMBER;
 
@@ -66,7 +65,7 @@ public class UserMessageStanzaBrokerTest {
 
     @Before
     public void before() {
-        serverRuntimeContext = new ServerRuntimeContextMock();
+        serverRuntimeContext = new ServerRuntimeContextMock(EntityImpl.parseUnchecked("capulet.lit"));
 
         MessageArchivesMock archives = serverRuntimeContext.givenUserMessageArchives();
 
@@ -134,17 +133,6 @@ public class UserMessageStanzaBrokerTest {
         tested.writeToSession(messageStanza);
 
         julietArchive.assertUniqueArchivedMessageStanza(messageStanza);
-    }
-
-    @Test
-    public void inboundMessage() {
-        UserMessageStanzaBroker tested = buildTested(false);
-
-        MessageStanza messageStanza = buildMessageStanza(MessageStanzaType.NORMAL, null, MACBETH_IN_KITCHEN);
-
-        tested.writeToSession(messageStanza);
-
-        macbethArchive.assertUniqueArchivedMessageStanza(messageStanza);
     }
 
     @Test

@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0313_mam;
 
+import static java.util.Objects.requireNonNull;
 import static org.mockito.Mockito.mock;
 
 import java.util.Collections;
@@ -47,8 +48,14 @@ import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
  * @author Réda Housni Alaoui
  */
 public class ServerRuntimeContextMock implements ServerRuntimeContext {
+    
+    private final Entity serverEntity;
 
     private MessageArchivesMock userMessageArchives;
+
+    public ServerRuntimeContextMock(Entity serverEntity) {
+        this.serverEntity = requireNonNull(serverEntity);
+    }
 
     public MessageArchivesMock givenUserMessageArchives() {
         userMessageArchives = new MessageArchivesMock();
@@ -67,7 +74,7 @@ public class ServerRuntimeContextMock implements ServerRuntimeContext {
 
     @Override
     public Entity getServerEntity() {
-        throw new UnsupportedOperationException();
+        return serverEntity;
     }
 
     @Override

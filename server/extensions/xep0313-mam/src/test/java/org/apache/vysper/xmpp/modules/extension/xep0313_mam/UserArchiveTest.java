@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0313_mam;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -31,6 +32,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
+import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.chat2.Chat;
@@ -164,7 +166,8 @@ public class UserArchiveTest extends IntegrationTest {
     }
 
     @Test
-    public void sendMessageToOfflineReceiver() throws SmackException, InterruptedException, XMPPException, IOException {
+    public void givenOfflineStorageSendMessageToOfflineReceiver()
+            throws SmackException, InterruptedException, XMPPException, IOException {
         carol().instantShutdown();
 
         Chat chatFromAliceToCarol = ChatManager.getInstanceFor(alice()).chatWith(carol().getUser().asEntityBareJid());
@@ -182,15 +185,46 @@ public class UserArchiveTest extends IntegrationTest {
         assertNotNull(carolReceivedMessage.get());
         assertEquals("Hello carol", carolReceivedMessage.get().getBody());
 
-        MamManager.MamQueryArgs archiveFullQuery = MamManager.MamQueryArgs.builder().build();
-        MamManager.MamQuery carolArchive = MamManager.getInstanceFor(carol()).queryArchive(archiveFullQuery);
-        assertEquals(1, carolArchive.getMessageCount());
-        String storedStanzaId = extractStanzaId(carolArchive.getMessages().get(0));
+        Message archivedMessage = fetchUniqueArchivedMessage(carol());
+        String storedStanzaId = extractStanzaId(archivedMessage);
         assertNotNull(storedStanzaId);
 
         String receivedStanzaId = extractStanzaId(carolReceivedMessage.get());
 
         assertEquals(storedStanzaId, receivedStanzaId);
+    }
+
+    @Test
+    public void givenDisabledOfflineStorageSendMessageToOfflineReceiver()
+            throws SmackException, InterruptedException, XMPPException, IOException {
+        offlineStorageProvider().disable();
+        carol().instantShutdown();
+
+        Chat chatFromAliceToCarol = ChatManager.getInstanceFor(alice()).chatWith(carol().getUser().asEntityBareJid());
+        chatFromAliceToCarol.send("Hello carol");
+
+        AtomicReference<Message> carolReceivedMessage = new AtomicReference<>();
+        ChatManager.getInstanceFor(carol())
+                .addIncomingListener((from, message, chat) -> carolReceivedMessage.set(message));
+
+        carol().connect();
+        carol().login();
+
+        Thread.sleep(200);
+
+        assertNull(carolReceivedMessage.get());
+
+        Message message = fetchUniqueArchivedMessage(carol());
+        assertEquals("Hello carol", message.getBody());
+    }
+
+    private Message fetchUniqueArchivedMessage(AbstractXMPPConnection connection)
+            throws XMPPException.XMPPErrorException, InterruptedException, SmackException.NotConnectedException,
+            SmackException.NotLoggedInException, SmackException.NoResponseException {
+        MamManager.MamQueryArgs archiveFullQuery = MamManager.MamQueryArgs.builder().build();
+        MamManager.MamQuery archive = MamManager.getInstanceFor(connection).queryArchive(archiveFullQuery);
+        assertEquals(1, archive.getMessageCount());
+        return archive.getMessages().get(0);
     }
 
     private String extractStanzaId(Stanza stanza) {

@@ -80,7 +80,7 @@ public class UserArchiveQueryHandlerTest {
                         XMLParserUtil.parseRequiredDocument("<iq type='set'><query xmlns='urn:xmpp:mam:2'/></iq>"),
                         true, Collections.emptyList()).build()));
 
-        serverRuntimeContext = new ServerRuntimeContextMock();
+        serverRuntimeContext = new ServerRuntimeContextMock(EntityImpl.parseUnchecked("capulet.lit"));
         archives = serverRuntimeContext.givenUserMessageArchives();
         sessionContext = new SessionContextMock();
         sessionContext.givenInitiatingEntity(INITIATING_ENTITY);

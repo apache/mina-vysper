@@ -30,7 +30,6 @@ import org.apache.vysper.storage.inmemory.MemoryStorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.authentication.AccountManagement;
 import org.apache.vysper.xmpp.cryptography.NonCheckingX509TrustManagerFactory;
-import org.apache.vysper.xmpp.modules.extension.xep0160_offline_storage.MemoryOfflineStorageProvider;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.in_memory.InMemoryMessageArchives;
 import org.apache.vysper.xmpp.server.XMPPServer;
 import org.jivesoftware.smack.AbstractXMPPConnection;
@@ -77,9 +76,12 @@ public abstract class IntegrationTest {
 
     private XMPPServer server;
 
+    private ToggleableOfflineStorageProvider offlineStorageProvider;
+
     @Before
     public void setUp() throws Exception {
         SmackConfiguration.setDefaultReplyTimeout(5000);
+        offlineStorageProvider = new ToggleableOfflineStorageProvider();
 
         int port = findFreePort();
 
@@ -95,6 +97,10 @@ public abstract class IntegrationTest {
 
     protected AbstractXMPPConnection carol() {
         return carolClient;
+    }
+
+    protected ToggleableOfflineStorageProvider offlineStorageProvider() {
+        return offlineStorageProvider;
     }
 
     protected Stanza sendSync(XMPPConnection client, Stanza request)
@@ -113,7 +119,7 @@ public abstract class IntegrationTest {
         accountManagement.addUser(EntityImpl.parseUnchecked(ALICE_USERNAME), PASSWORD);
         accountManagement.addUser(EntityImpl.parseUnchecked(CAROL_USERNAME), PASSWORD);
 
-        providerRegistry.add(new MemoryOfflineStorageProvider());
+        providerRegistry.add(offlineStorageProvider);
 
         server = new XMPPServer(SERVER_DOMAIN);
 
