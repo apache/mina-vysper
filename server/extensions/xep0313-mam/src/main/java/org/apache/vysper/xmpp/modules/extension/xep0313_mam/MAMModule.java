@@ -25,15 +25,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.interceptor.MAMStanzaHandlerInterceptor;
-import org.apache.vysper.xmpp.modules.extension.xep0313_mam.user.MAMIQPreferenceHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.query.MAMIQQueryHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.MessageArchives;
+import org.apache.vysper.xmpp.modules.extension.xep0313_mam.user.MAMIQPreferenceHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0313_mam.user.UserInfoRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequest;
+import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequestListener;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServerInfoRequestListener;
 import org.apache.vysper.xmpp.protocol.HandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
@@ -53,12 +54,13 @@ public class MAMModule extends DefaultDiscoAwareModule implements ServerInfoRequ
 
     private static final String NAMESPACE_V2 = "urn:xmpp:mam:2";
 
+    private MessageArchives messageArchives;
+
     @Override
     public void initialize(ServerRuntimeContext serverRuntimeContext) {
-        super.initialize(serverRuntimeContext);
-
-        requireNonNull(serverRuntimeContext.getStorageProvider(MessageArchives.class),
+        messageArchives = requireNonNull(serverRuntimeContext.getStorageProvider(MessageArchives.class),
                 "Could not find an instance of " + MessageArchives.class);
+        super.initialize(serverRuntimeContext);
     }
 
     @Override
@@ -77,14 +79,14 @@ public class MAMModule extends DefaultDiscoAwareModule implements ServerInfoRequ
     }
 
     @Override
-    public List<InfoElement> getServerInfosFor(InfoRequest request) {
-        if (StringUtils.isNotEmpty(request.getNode())) {
-            return Collections.emptyList();
-        }
+    protected void addInfoRequestListeners(List<InfoRequestListener> infoRequestListeners) {
+        infoRequestListeners.add(new UserInfoRequestListener(messageArchives, NAMESPACE_V1));
+        infoRequestListeners.add(new UserInfoRequestListener(messageArchives, NAMESPACE_V2));
+    }
 
+    @Override
+    public List<InfoElement> getServerInfosFor(InfoRequest request) {
         List<InfoElement> infoElements = new ArrayList<>();
-        infoElements.add(new Feature(NAMESPACE_V1));
-        infoElements.add(new Feature(NAMESPACE_V2));
         infoElements.add(new Feature(NamespaceURIs.XEP0359_STANZA_IDS));
         infoElements.add(new Feature(NamespaceURIs.JABBER_X_DATA));
         return infoElements;
@@ -102,4 +104,5 @@ public class MAMModule extends DefaultDiscoAwareModule implements ServerInfoRequ
     public List<StanzaHandlerInterceptor> getStanzaHandlerInterceptors() {
         return Collections.singletonList(new MAMStanzaHandlerInterceptor());
     }
+
 }

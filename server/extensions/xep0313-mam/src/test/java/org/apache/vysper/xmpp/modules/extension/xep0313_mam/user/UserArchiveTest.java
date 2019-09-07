@@ -41,6 +41,8 @@ import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Stanza;
+import org.jivesoftware.smackx.disco.ServiceDiscoveryManager;
+import org.jivesoftware.smackx.disco.packet.DiscoverInfo;
 import org.jivesoftware.smackx.forward.packet.Forwarded;
 import org.jivesoftware.smackx.mam.MamManager;
 import org.jivesoftware.smackx.mam.element.MamPrefsIQ;
@@ -258,6 +260,20 @@ public class UserArchiveTest extends IntegrationTest {
         List<Jid> neverJids = updatedPrefs.getNeverJids();
         assertEquals(1, neverJids.size());
         assertEquals(JidCreate.bareFrom("never@foo.com"), neverJids.get(0));
+    }
+
+    @Test
+    public void discoverInfo() throws XMPPException.XMPPErrorException, SmackException.NotConnectedException,
+            InterruptedException, SmackException.NoResponseException {
+        ServiceDiscoveryManager discoveryManager = ServiceDiscoveryManager.getInstanceFor(alice());
+        DiscoverInfo discoverInfo = discoveryManager.discoverInfo(alice().getUser().asBareJid());
+        List<DiscoverInfo.Feature> features = discoverInfo.getFeatures();
+
+        boolean mamV1Enabled = features.stream().map(DiscoverInfo.Feature::getVar).anyMatch("urn:xmpp:mam:1"::equals);
+        assertTrue(mamV1Enabled);
+
+        boolean mamV2Enabled = features.stream().map(DiscoverInfo.Feature::getVar).anyMatch("urn:xmpp:mam:2"::equals);
+        assertTrue(mamV2Enabled);
     }
 
     private Message fetchUniqueArchivedMessage(AbstractXMPPConnection connection)
