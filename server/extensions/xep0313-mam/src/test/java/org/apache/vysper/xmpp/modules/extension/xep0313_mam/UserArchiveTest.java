@@ -218,6 +218,18 @@ public class UserArchiveTest extends IntegrationTest {
         assertEquals("Hello carol", message.getBody());
     }
 
+    @Test
+    public void checkGetPreferences() throws SmackException.NotLoggedInException, SmackException.NotConnectedException,
+            InterruptedException, SmackException.NoResponseException {
+        MamManager mamManager = MamManager.getInstanceFor(alice());
+        try {
+            mamManager.retrieveArchivingPreferences();
+            fail("Expected an feature not implemented error");
+        } catch (XMPPException.XMPPErrorException errorException) {
+            assertTrue(errorException.getMessage().contains("feature-not-implemented"));
+        }
+    }
+
     private Message fetchUniqueArchivedMessage(AbstractXMPPConnection connection)
             throws XMPPException.XMPPErrorException, InterruptedException, SmackException.NotConnectedException,
             SmackException.NotLoggedInException, SmackException.NoResponseException {

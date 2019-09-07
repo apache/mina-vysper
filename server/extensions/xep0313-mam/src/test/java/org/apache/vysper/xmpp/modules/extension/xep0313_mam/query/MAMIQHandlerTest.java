@@ -60,7 +60,7 @@ public class MAMIQHandlerTest {
 
     private SessionContext sessionContext;
 
-    private MAMIQHandler tested;
+    private MAMQueryHandler tested;
 
     @Before
     public void before() throws IOException, SAXException {
@@ -68,7 +68,7 @@ public class MAMIQHandlerTest {
         mucArchiveQueryHandler = mock(MUCArchiveQueryHandler.class);
         userArchiveQueryHandler = mock(UserArchiveQueryHandler.class);
 
-        tested = new MAMIQHandler("urn:xmpp:mam:2", pubsubNodeArchiveQueryHandler, mucArchiveQueryHandler,
+        tested = new MAMQueryHandler("urn:xmpp:mam:2", pubsubNodeArchiveQueryHandler, mucArchiveQueryHandler,
                 userArchiveQueryHandler);
 
         XMLElement queryIqElement = XMLParserUtil.parseRequiredDocument(
