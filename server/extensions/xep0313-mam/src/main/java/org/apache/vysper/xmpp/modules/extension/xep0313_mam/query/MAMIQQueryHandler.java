@@ -42,19 +42,19 @@ import org.apache.vysper.xmpp.stanza.StanzaErrorType;
 /**
  * @author Réda Housni Alaoui
  */
-public class MAMQueryHandler extends DefaultIQHandler {
+public class MAMIQQueryHandler extends DefaultIQHandler {
 
     private final String namespace;
 
     private final List<QueryHandler> queryHandlers;
 
-    public MAMQueryHandler(String namespace) {
+    public MAMIQQueryHandler(String namespace) {
         this(namespace, new PubsubNodeArchiveQueryHandler(), new MUCArchiveQueryHandler(),
                 new UserArchiveQueryHandler());
     }
 
-    public MAMQueryHandler(String namespace, QueryHandler pubsubNodeArchiveQueryHandler,
-            QueryHandler mucArchiveQueryHandler, QueryHandler userArchiveQueryHandler) {
+    public MAMIQQueryHandler(String namespace, QueryHandler pubsubNodeArchiveQueryHandler,
+                             QueryHandler mucArchiveQueryHandler, QueryHandler userArchiveQueryHandler) {
         this.namespace = requireNonNull(namespace);
         List<QueryHandler> modifiableQueryHandlers = new ArrayList<>();
         modifiableQueryHandlers.add(pubsubNodeArchiveQueryHandler);

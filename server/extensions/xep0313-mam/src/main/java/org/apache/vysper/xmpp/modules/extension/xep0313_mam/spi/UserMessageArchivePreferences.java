@@ -17,24 +17,25 @@
  *  under the License.
  *  
  */
-package org.apache.vysper.xmpp.modules.extension.xep0313_mam.preferences;
+package org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi;
 
-import org.apache.vysper.xmpp.modules.core.base.handler.DefaultIQHandler;
-import org.apache.vysper.xmpp.stanza.Stanza;
+import java.util.Set;
+
+import org.apache.vysper.xmpp.addressing.Entity;
 
 /**
  * @author Réda Housni Alaoui
  */
-public class MAMPreferenceHandler extends DefaultIQHandler {
+public interface UserMessageArchivePreferences {
 
-    private final String namespace;
+    /**
+     * If a JID is in neither the 'always archive' nor the 'never archive' list then
+     * whether it is archived depends on this setting, the default.
+     */
+    DefaultUserArchiveBehaviour getDefaultBehaviour();
 
-    public MAMPreferenceHandler(String namespace) {
-        this.namespace = namespace;
-    }
+    Set<Entity> getAlwaysArchivedToOrFromJids();
 
-    @Override
-    protected boolean verifyInnerElement(Stanza stanza) {
-        return verifyInnerElementWorker(stanza, "prefs") && verifyInnerNamespace(stanza, namespace);
-    }
+    Set<Entity> getNeverArchivedToOrFromJids();
+
 }

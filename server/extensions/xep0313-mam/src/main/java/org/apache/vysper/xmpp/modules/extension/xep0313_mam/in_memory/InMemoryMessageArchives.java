@@ -24,20 +24,20 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.MessageArchive;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.MessageArchives;
+import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.UserMessageArchive;
 
 /**
  * @author Réda Housni Alaoui
  */
 public class InMemoryMessageArchives implements MessageArchives {
 
-    private final Map<Entity, MessageArchive> userMessageArchiveById = new HashMap<>();
+    private final Map<Entity, UserMessageArchive> userMessageArchiveById = new HashMap<>();
 
     @Override
-    public Optional<MessageArchive> retrieveUserMessageArchive(Entity userBareJid) {
-        MessageArchive messageArchive = userMessageArchiveById.computeIfAbsent(userBareJid,
-                id -> new InMemoryMessageArchive());
+    public Optional<UserMessageArchive> retrieveUserMessageArchive(Entity userBareJid) {
+        UserMessageArchive messageArchive = userMessageArchiveById.computeIfAbsent(userBareJid,
+                id -> new InMemoryUserMessageArchive());
         return Optional.of(messageArchive);
     }
 }

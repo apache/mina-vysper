@@ -33,8 +33,8 @@ import org.apache.vysper.xmpp.modules.extension.xep0313_mam.query.MatchingArchiv
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.query.Query;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.query.QueryHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.ArchivedMessages;
-import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.MessageArchive;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.MessageArchives;
+import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.UserMessageArchive;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.server.response.ServerErrorResponses;
@@ -79,7 +79,7 @@ public class UserArchiveQueryHandler implements QueryHandler {
         MessageArchives archives = requireNonNull(serverRuntimeContext.getStorageProvider(MessageArchives.class),
                 "Could not find an instance of " + MessageArchives.class);
 
-        Optional<MessageArchive> archive = archives.retrieveUserMessageArchive(archiveId);
+        Optional<UserMessageArchive> archive = archives.retrieveUserMessageArchive(archiveId);
         if (!archive.isPresent()) {
             return Collections.singletonList(ServerErrorResponses.getStanzaError(StanzaErrorCondition.ITEM_NOT_FOUND,
                     query.iqStanza(), StanzaErrorType.CANCEL, "No user message archive found for entity " + archiveId,

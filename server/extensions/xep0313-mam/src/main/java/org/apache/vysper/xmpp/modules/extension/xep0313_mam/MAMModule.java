@@ -28,8 +28,8 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.vysper.xmpp.modules.DefaultDiscoAwareModule;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.interceptor.MAMStanzaHandlerInterceptor;
-import org.apache.vysper.xmpp.modules.extension.xep0313_mam.preferences.MAMPreferenceHandler;
-import org.apache.vysper.xmpp.modules.extension.xep0313_mam.query.MAMQueryHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0313_mam.user.MAMIQPreferenceHandler;
+import org.apache.vysper.xmpp.modules.extension.xep0313_mam.query.MAMIQQueryHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.MessageArchives;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.Feature;
 import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoElement;
@@ -92,10 +92,10 @@ public class MAMModule extends DefaultDiscoAwareModule implements ServerInfoRequ
 
     @Override
     protected void addHandlerDictionaries(List<HandlerDictionary> dictionary) {
-        dictionary.add(new NamespaceHandlerDictionary(NAMESPACE_V1, new MAMQueryHandler(NAMESPACE_V1)));
-        dictionary.add(new NamespaceHandlerDictionary(NAMESPACE_V2, new MAMQueryHandler(NAMESPACE_V2)));
-        dictionary.add(new NamespaceHandlerDictionary(NAMESPACE_V1, new MAMPreferenceHandler(NAMESPACE_V1)));
-        dictionary.add(new NamespaceHandlerDictionary(NAMESPACE_V2, new MAMPreferenceHandler(NAMESPACE_V2)));
+        dictionary.add(new NamespaceHandlerDictionary(NAMESPACE_V1, new MAMIQQueryHandler(NAMESPACE_V1)));
+        dictionary.add(new NamespaceHandlerDictionary(NAMESPACE_V2, new MAMIQQueryHandler(NAMESPACE_V2)));
+        dictionary.add(new NamespaceHandlerDictionary(NAMESPACE_V1, new MAMIQPreferenceHandler(NAMESPACE_V1)));
+        dictionary.add(new NamespaceHandlerDictionary(NAMESPACE_V2, new MAMIQPreferenceHandler(NAMESPACE_V2)));
     }
 
     @Override

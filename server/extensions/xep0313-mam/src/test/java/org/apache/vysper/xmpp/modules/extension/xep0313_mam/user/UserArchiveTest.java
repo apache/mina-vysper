@@ -17,7 +17,7 @@
  *  under the License.
  *  
  */
-package org.apache.vysper.xmpp.modules.extension.xep0313_mam;
+package org.apache.vysper.xmpp.modules.extension.xep0313_mam.user;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import org.apache.vysper.xmpp.modules.extension.xep0313_mam.IntegrationTest;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.SmackException;
@@ -42,9 +43,13 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Stanza;
 import org.jivesoftware.smackx.forward.packet.Forwarded;
 import org.jivesoftware.smackx.mam.MamManager;
+import org.jivesoftware.smackx.mam.element.MamPrefsIQ;
 import org.jivesoftware.smackx.sid.element.StableAndUniqueIdElement;
 import org.jivesoftware.smackx.sid.element.StanzaIdElement;
 import org.junit.Test;
+import org.jxmpp.jid.Jid;
+import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.stringprep.XmppStringprepException;
 
 /**
  * @author Réda Housni Alaoui
@@ -219,15 +224,40 @@ public class UserArchiveTest extends IntegrationTest {
     }
 
     @Test
-    public void checkGetPreferences() throws SmackException.NotLoggedInException, SmackException.NotConnectedException,
-            InterruptedException, SmackException.NoResponseException {
+    public void getPreferences() throws SmackException.NotLoggedInException, SmackException.NotConnectedException,
+            InterruptedException, SmackException.NoResponseException, XMPPException.XMPPErrorException {
         MamManager mamManager = MamManager.getInstanceFor(alice());
-        try {
-            mamManager.retrieveArchivingPreferences();
-            fail("Expected an feature not implemented error");
-        } catch (XMPPException.XMPPErrorException errorException) {
-            assertTrue(errorException.getMessage().contains("feature-not-implemented"));
-        }
+        MamManager.MamPrefsResult prefsResult = mamManager.retrieveArchivingPreferences();
+        MamManager.MamPrefs mamPrefs = prefsResult.asMamPrefs();
+
+        assertEquals(MamPrefsIQ.DefaultBehavior.always, mamPrefs.getDefaultBehavior());
+        assertTrue(mamPrefs.getAlwaysJids().isEmpty());
+        assertTrue(mamPrefs.getNeverJids().isEmpty());
+    }
+
+    @Test
+    public void setPreferences() throws XMPPException.XMPPErrorException, SmackException.NotLoggedInException,
+            SmackException.NotConnectedException, InterruptedException, SmackException.NoResponseException,
+            XmppStringprepException {
+        MamManager mamManager = MamManager.getInstanceFor(alice());
+        MamManager.MamPrefsResult prefsResult = mamManager.retrieveArchivingPreferences();
+        MamManager.MamPrefs prefs = prefsResult.asMamPrefs();
+
+        prefs.setDefaultBehavior(MamPrefsIQ.DefaultBehavior.never);
+        prefs.getAlwaysJids().add(JidCreate.bareFrom("always@foo.com"));
+        prefs.getNeverJids().add(JidCreate.bareFrom("never@foo.com"));
+
+        MamManager.MamPrefsResult updatedPrefsResult = mamManager.updateArchivingPreferences(prefs);
+        MamManager.MamPrefs updatedPrefs = updatedPrefsResult.asMamPrefs();
+        assertEquals(MamPrefsIQ.DefaultBehavior.never, updatedPrefs.getDefaultBehavior());
+
+        List<Jid> alwaysJids = updatedPrefs.getAlwaysJids();
+        assertEquals(1, alwaysJids.size());
+        assertEquals(JidCreate.bareFrom("always@foo.com"), alwaysJids.get(0));
+
+        List<Jid> neverJids = updatedPrefs.getNeverJids();
+        assertEquals(1, neverJids.size());
+        assertEquals(JidCreate.bareFrom("never@foo.com"), neverJids.get(0));
     }
 
     private Message fetchUniqueArchivedMessage(AbstractXMPPConnection connection)

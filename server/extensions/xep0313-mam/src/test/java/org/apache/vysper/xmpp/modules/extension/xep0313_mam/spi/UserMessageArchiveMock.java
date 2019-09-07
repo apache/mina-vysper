@@ -32,7 +32,7 @@ import org.apache.vysper.xmpp.stanza.MessageStanza;
 /**
  * @author Réda Housni Alaoui
  */
-public class MessageArchiveMock implements MessageArchive {
+public class UserMessageArchiveMock implements UserMessageArchive {
 
     private final Queue<Message> messages = new LinkedList<>();
 
@@ -63,5 +63,15 @@ public class MessageArchiveMock implements MessageArchive {
 
     public void assertEmpty() {
         assertTrue(messages.isEmpty());
+    }
+
+    @Override
+    public UserMessageArchivePreferences preferences() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void changePreferences(UserMessageArchivePreferences preferences) {
+        throw new UnsupportedOperationException();
     }
 }

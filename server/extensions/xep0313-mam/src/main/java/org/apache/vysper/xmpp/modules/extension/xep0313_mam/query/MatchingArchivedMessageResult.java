@@ -41,8 +41,6 @@ import org.apache.vysper.xmpp.stanza.StanzaBuilder;
  */
 class MatchingArchivedMessageResult {
 
-    private static final String STANZA_ID = "stanza-id";
-
     private final Entity initiatingEntity;
 
     private final Entity archiveId;

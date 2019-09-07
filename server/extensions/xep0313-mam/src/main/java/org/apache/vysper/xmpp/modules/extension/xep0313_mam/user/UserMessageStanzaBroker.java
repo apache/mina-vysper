@@ -31,8 +31,8 @@ import org.apache.vysper.xmpp.modules.core.base.handler.XMPPCoreStanzaHandler;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.MessageStanzaWithId;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.SimpleMessage;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.ArchivedMessage;
-import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.MessageArchive;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.MessageArchives;
+import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.UserMessageArchive;
 import org.apache.vysper.xmpp.protocol.DelegatingStanzaBroker;
 import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -56,7 +56,7 @@ class UserMessageStanzaBroker extends DelegatingStanzaBroker {
 
     private final boolean isOutbound;
 
-    public UserMessageStanzaBroker(StanzaBroker delegate, ServerRuntimeContext serverRuntimeContext,
+    UserMessageStanzaBroker(StanzaBroker delegate, ServerRuntimeContext serverRuntimeContext,
             SessionContext sessionContext, boolean isOutbound) {
         super(delegate);
         this.serverRuntimeContext = requireNonNull(serverRuntimeContext);
@@ -91,6 +91,8 @@ class UserMessageStanzaBroker extends DelegatingStanzaBroker {
             LOG.debug("Message {} is neither of type 'normal' or 'chat'. It will not be archived.", messageStanza);
             return messageStanza;
         }
+        
+        // TODO Check preferences and no-store element
 
         addToSenderArchive(messageStanza, sessionContext);
         return addToReceiverArchive(messageStanza).map(MessageStanzaWithId::new).map(MessageStanzaWithId::toStanza)
@@ -101,7 +103,7 @@ class UserMessageStanzaBroker extends DelegatingStanzaBroker {
         // Servers that expose archive messages of sent/received messages on behalf of
         // local users MUST expose these archives to the user on the user's bare JID.
         Entity senderArchiveId = XMPPCoreStanzaHandler.extractSenderJID(messageStanza, sessionContext).getBareJID();
-        Optional<MessageArchive> senderArchive = messageArchives().retrieveUserMessageArchive(senderArchiveId);
+        Optional<UserMessageArchive> senderArchive = messageArchives().retrieveUserMessageArchive(senderArchiveId);
         if (!senderArchive.isPresent()) {
             LOG.debug("No archive returned for sender with bare JID '{}'", senderArchiveId);
             return;

@@ -19,16 +19,21 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi;
 
-import java.util.Optional;
-
-import org.apache.vysper.storage.StorageProvider;
-import org.apache.vysper.xmpp.addressing.Entity;
-
 /**
  * @author Réda Housni Alaoui
  */
-public interface MessageArchives extends StorageProvider {
-
-    Optional<UserMessageArchive> retrieveUserMessageArchive(Entity userBareJid);
+public enum DefaultUserArchiveBehaviour {
+    /**
+     * All messages are archived by default
+     */
+    ALWAYS,
+    /**
+     * Messages are never archived by default
+     */
+    NEVER,
+    /**
+     * Messages are archived only if the contact's bare JID is in the user's roster
+     */
+    ROSTER
 
 }

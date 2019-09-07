@@ -19,16 +19,13 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi;
 
-import java.util.Optional;
-
-import org.apache.vysper.storage.StorageProvider;
-import org.apache.vysper.xmpp.addressing.Entity;
-
 /**
  * @author Réda Housni Alaoui
  */
-public interface MessageArchives extends StorageProvider {
+public interface UserMessageArchive extends MessageArchive {
 
-    Optional<UserMessageArchive> retrieveUserMessageArchive(Entity userBareJid);
+    UserMessageArchivePreferences preferences();
+
+    void changePreferences(UserMessageArchivePreferences preferences);
 
 }

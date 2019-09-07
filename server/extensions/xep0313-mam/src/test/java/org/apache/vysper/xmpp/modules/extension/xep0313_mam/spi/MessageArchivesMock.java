@@ -30,16 +30,16 @@ import org.apache.vysper.xmpp.addressing.Entity;
  */
 public class MessageArchivesMock implements MessageArchives {
 
-    private final Map<Entity, MessageArchive> archiveById = new HashMap<>();
+    private final Map<Entity, UserMessageArchive> userArchiveById = new HashMap<>();
 
-    public MessageArchiveMock givenArchive(Entity archiveId) {
-        MessageArchiveMock userMessageArchiveMock = new MessageArchiveMock();
-        archiveById.put(archiveId, userMessageArchiveMock);
+    public UserMessageArchiveMock givenArchive(Entity archiveId) {
+        UserMessageArchiveMock userMessageArchiveMock = new UserMessageArchiveMock();
+        userArchiveById.put(archiveId, userMessageArchiveMock);
         return userMessageArchiveMock;
     }
 
     @Override
-    public Optional<MessageArchive> retrieveUserMessageArchive(Entity userBareJid) {
-        return Optional.ofNullable(archiveById.get(userBareJid));
+    public Optional<UserMessageArchive> retrieveUserMessageArchive(Entity userBareJid) {
+        return Optional.ofNullable(userArchiveById.get(userBareJid));
     }
 }

@@ -27,7 +27,7 @@ import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.ServerRuntimeContextMock;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.SessionContextMock;
-import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.MessageArchiveMock;
+import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.UserMessageArchiveMock;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.MessageArchivesMock;
 import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.stanza.MessageStanza;
@@ -51,11 +51,11 @@ public class UserMessageStanzaBrokerTest {
 
     private static final Entity INITIATING_ENTITY = JULIET_IN_CHAMBER;
 
-    private MessageArchiveMock julietArchive;
+    private UserMessageArchiveMock julietArchive;
 
-    private MessageArchiveMock romeoArchive;
+    private UserMessageArchiveMock romeoArchive;
 
-    private MessageArchiveMock macbethArchive;
+    private UserMessageArchiveMock macbethArchive;
 
     private ServerRuntimeContextMock serverRuntimeContext;
 
