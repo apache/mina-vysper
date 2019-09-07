@@ -60,25 +60,11 @@ public class MAMModuleTest {
         List<InfoElement> infoElements = serverInfoRequestListeners.get(0)
                 .getServerInfosFor(new InfoRequest(null, null, null, null));
 
-        Assert.assertEquals(4, infoElements.size());
+        Assert.assertEquals(2, infoElements.size());
         Assert.assertTrue(infoElements.get(0) instanceof Feature);
         Assert.assertTrue(infoElements.get(1) instanceof Feature);
-        Assert.assertTrue(infoElements.get(2) instanceof Feature);
-        Assert.assertTrue(infoElements.get(3) instanceof Feature);
-        Assert.assertEquals("urn:xmpp:mam:1", ((Feature) infoElements.get(0)).getVar());
-        Assert.assertEquals("urn:xmpp:mam:2", ((Feature) infoElements.get(1)).getVar());
-        Assert.assertEquals(NamespaceURIs.XEP0359_STANZA_IDS, ((Feature) infoElements.get(2)).getVar());
-        Assert.assertEquals(NamespaceURIs.JABBER_X_DATA, ((Feature) infoElements.get(3)).getVar());
-    }
-
-    @Test
-    public void getServerInfosForWithNode() throws ServiceDiscoveryRequestException {
-        List<ServerInfoRequestListener> serverInfoRequestListeners = new ArrayList<>();
-        tested.addServerInfoRequestListeners(serverInfoRequestListeners);
-        Assert.assertEquals(1, serverInfoRequestListeners.size());
-
-        Assert.assertTrue(serverInfoRequestListeners.get(0).getServerInfosFor(new InfoRequest(null, null, "node", null))
-                .isEmpty());
+        Assert.assertEquals(NamespaceURIs.XEP0359_STANZA_IDS, ((Feature) infoElements.get(0)).getVar());
+        Assert.assertEquals(NamespaceURIs.JABBER_X_DATA, ((Feature) infoElements.get(1)).getVar());
     }
 
 }
