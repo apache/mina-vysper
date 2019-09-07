@@ -24,6 +24,7 @@ import static java.util.Objects.requireNonNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.apache.vysper.xml.fragment.Attribute;
 import org.apache.vysper.xml.fragment.XMLElement;
@@ -58,9 +59,7 @@ public class MessageStanzaWithId {
         MessageStanza archivedMessageStanza = archivedMessage.stanza();
 
         List<XMLElement> innerElements = new ArrayList<>();
-        archivedMessageStanza.getInnerElements().stream().filter(xmlElement -> !STANZA_ID.equals(xmlElement.getName()))
-                .filter(xmlElement -> !NamespaceURIs.XEP0359_STANZA_IDS.equals(xmlElement.getNamespaceURI()))
-                .forEach(innerElements::add);
+        archivedMessageStanza.getInnerElements().stream().filter(notStanzaId()).forEach(innerElements::add);
         List<Attribute> stanzaIdAttributes = new ArrayList<>();
         if (archiveId != null) {
             stanzaIdAttributes.add(new Attribute("by", archiveId.getFullQualifiedName()));
@@ -74,6 +73,11 @@ public class MessageStanzaWithId {
         innerElements.forEach(archivedMessageStanzaWithIdBuilder::addPreparedElement);
 
         return archivedMessageStanzaWithIdBuilder.build();
+    }
+
+    private Predicate<XMLElement> notStanzaId() {
+        return xmlElement -> !STANZA_ID.equals(xmlElement.getName())
+                || !NamespaceURIs.XEP0359_STANZA_IDS.equals(xmlElement.getNamespaceURI());
     }
 
 }
