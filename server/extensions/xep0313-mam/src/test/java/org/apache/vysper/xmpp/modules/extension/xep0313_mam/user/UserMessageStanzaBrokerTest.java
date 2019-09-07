@@ -27,8 +27,8 @@ import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.ServerRuntimeContextMock;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.SessionContextMock;
-import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.UserMessageArchiveMock;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.MessageArchivesMock;
+import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.UserMessageArchiveMock;
 import org.apache.vysper.xmpp.protocol.StanzaBroker;
 import org.apache.vysper.xmpp.stanza.MessageStanza;
 import org.apache.vysper.xmpp.stanza.MessageStanzaType;
@@ -82,9 +82,8 @@ public class UserMessageStanzaBrokerTest {
         return new UserMessageStanzaBroker(delegate, serverRuntimeContext, sessionContext, isOutboundStanza);
     }
 
-    private MessageStanza buildMessageStanza(MessageStanzaType messageStanzaType, Entity from, Entity to) {
-        return new MessageStanza(
-                StanzaBuilder.createMessageStanza(from, to, messageStanzaType, "en", "hello world").build());
+    private MessageStanza buildMessageStanza(MessageStanzaType messageStanzaType, Entity from, Entity to, String body) {
+        return new MessageStanza(StanzaBuilder.createMessageStanza(from, to, messageStanzaType, "en", body).build());
     }
 
     @Test
@@ -93,7 +92,8 @@ public class UserMessageStanzaBrokerTest {
 
         Stream.of(MessageStanzaType.values()).filter(messageStanzaType -> messageStanzaType != MessageStanzaType.NORMAL)
                 .filter(messageStanzaType -> messageStanzaType != MessageStanzaType.CHAT).forEach(messageStanzaType -> {
-                    MessageStanza stanza = buildMessageStanza(messageStanzaType, null, ALICE_IN_RABBIT_HOLE);
+                    MessageStanza stanza = buildMessageStanza(messageStanzaType, null, ALICE_IN_RABBIT_HOLE,
+                            "hello world");
 
                     tested.writeToSession(stanza);
 
@@ -105,7 +105,8 @@ public class UserMessageStanzaBrokerTest {
         Stream.of(MessageStanzaType.CHAT, MessageStanzaType.NORMAL).forEach(messageStanzaType -> {
             julietArchive.clear();
 
-            MessageStanza messageStanza = buildMessageStanza(messageStanzaType, null, ALICE_IN_RABBIT_HOLE);
+            MessageStanza messageStanza = buildMessageStanza(messageStanzaType, null, ALICE_IN_RABBIT_HOLE,
+                    "hello world");
 
             tested.writeToSession(messageStanza);
 
@@ -117,7 +118,7 @@ public class UserMessageStanzaBrokerTest {
     public void outboundMessageHavingFrom() {
         UserMessageStanzaBroker tested = buildTested(true);
         MessageStanza messageStanza = buildMessageStanza(MessageStanzaType.NORMAL, ROMEO_IN_ORCHARD,
-                ALICE_IN_RABBIT_HOLE);
+                ALICE_IN_RABBIT_HOLE, "hello world");
 
         tested.writeToSession(messageStanza);
 
@@ -128,7 +129,8 @@ public class UserMessageStanzaBrokerTest {
     public void outboundMessageWithoutFrom() {
         UserMessageStanzaBroker tested = buildTested(true);
 
-        MessageStanza messageStanza = buildMessageStanza(MessageStanzaType.NORMAL, null, ALICE_IN_RABBIT_HOLE);
+        MessageStanza messageStanza = buildMessageStanza(MessageStanzaType.NORMAL, null, ALICE_IN_RABBIT_HOLE,
+                "hello world");
 
         tested.writeToSession(messageStanza);
 
@@ -140,13 +142,25 @@ public class UserMessageStanzaBrokerTest {
         UserMessageStanzaBroker tested = buildTested(true);
 
         MessageStanza messageStanza = buildMessageStanza(MessageStanzaType.NORMAL, ALICE_IN_RABBIT_HOLE,
-                ALICE_IN_RABBIT_HOLE);
+                ALICE_IN_RABBIT_HOLE, "hello world");
 
         tested.writeToSession(messageStanza);
 
         julietArchive.assertEmpty();
         romeoArchive.assertEmpty();
         macbethArchive.assertEmpty();
+    }
+
+    @Test
+    public void messageWithoutBody() {
+        UserMessageStanzaBroker tested = buildTested(true);
+        MessageStanza messageStanza = buildMessageStanza(MessageStanzaType.NORMAL, JULIET_IN_CHAMBER, ROMEO_IN_ORCHARD,
+                null);
+
+        tested.writeToSession(messageStanza);
+
+        julietArchive.assertEmpty();
+        romeoArchive.assertEmpty();
     }
 
 }

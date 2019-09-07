@@ -21,8 +21,11 @@ package org.apache.vysper.xmpp.modules.extension.xep0313_mam.user;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Map;
 import java.util.Optional;
 
+import org.apache.vysper.xml.fragment.XMLElement;
+import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.addressing.EntityUtils;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
@@ -91,8 +94,20 @@ class UserMessageStanzaBroker extends DelegatingStanzaBroker {
             LOG.debug("Message {} is neither of type 'normal' or 'chat'. It will not be archived.", messageStanza);
             return messageStanza;
         }
-        
-        // TODO Check preferences and no-store element
+
+        Map<String, XMLElement> bodies;
+        try {
+            bodies = messageStanza.getBodies();
+        } catch (XMLSemanticError xmlSemanticError) {
+            return messageStanza;
+        }
+        if (bodies.isEmpty()) {
+            // A server SHOULD include in a user archive all of the messages a user sends
+            // or receives of type 'normal' or 'chat' that contain a <body> element.
+            return messageStanza;
+        }
+
+        // TODO Check preferences
 
         addToSenderArchive(messageStanza, sessionContext);
         return addToReceiverArchive(messageStanza).map(MessageStanzaWithId::new).map(MessageStanzaWithId::toStanza)
