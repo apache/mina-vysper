@@ -108,8 +108,7 @@ class UserMessageStanzaBroker extends DelegatingStanzaBroker {
             addToSenderArchive(messageStanza, sessionContext);
             return messageStanza;
         } else {
-            return addToReceiverArchive(messageStanza).map(MessageStanzaWithId::new).map(MessageStanzaWithId::toStanza)
-                    .orElse(stanza);
+            return addToReceiverArchive(messageStanza).map(MessageStanzaWithId::toStanza).orElse(stanza);
         }
     }
 
@@ -125,7 +124,7 @@ class UserMessageStanzaBroker extends DelegatingStanzaBroker {
         senderArchive.get().archive(new SimpleMessage(messageStanza));
     }
 
-    private Optional<ArchivedMessage> addToReceiverArchive(MessageStanza messageStanza) {
+    private Optional<MessageStanzaWithId> addToReceiverArchive(MessageStanza messageStanza) {
         // Servers that expose archive messages of sent/received messages on behalf of
         // local users MUST expose these archives to the user on the user's bare JID.
         Entity receiverArchiveId = requireNonNull(messageStanza.getTo(), "No 'to' found in " + messageStanza)
@@ -136,7 +135,8 @@ class UserMessageStanzaBroker extends DelegatingStanzaBroker {
             return Optional.empty();
         }
 
-        return Optional.ofNullable(receiverArchive.get().archive(new SimpleMessage(messageStanza)));
+        ArchivedMessage archivedMessage = receiverArchive.get().archive(new SimpleMessage(messageStanza));
+        return Optional.of(new MessageStanzaWithId(archivedMessage, receiverArchiveId));
     }
 
     private MessageArchives messageArchives() {

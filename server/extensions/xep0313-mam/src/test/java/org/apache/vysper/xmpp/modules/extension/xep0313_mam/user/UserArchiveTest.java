@@ -22,7 +22,6 @@ package org.apache.vysper.xmpp.modules.extension.xep0313_mam.user;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -69,6 +68,25 @@ public class UserArchiveTest extends IntegrationTest {
     }
 
     @Test
+    public void receivedArchivedMessageShouldHaveAStanzaId() throws SmackException.NotConnectedException, InterruptedException {
+        AtomicReference<Message> carolReceivedMessage = new AtomicReference<>();
+        ChatManager.getInstanceFor(carol())
+                .addIncomingListener((from, message, chat) -> carolReceivedMessage.set(message));
+
+        Chat chatFromAliceToCarol = ChatManager.getInstanceFor(alice()).chatWith(carol().getUser().asEntityBareJid());
+        chatFromAliceToCarol.send("Hello carol");
+
+        Thread.sleep(200);
+
+        assertNotNull(carolReceivedMessage.get());
+
+        StanzaIdElement stanzaIdElement = extractStanzaId(carolReceivedMessage.get());
+        assertNotNull(stanzaIdElement);
+        assertNotNull(stanzaIdElement.getId());
+        assertEquals(carol().getUser().asEntityBareJid(), stanzaIdElement.getBy());
+    }
+
+    @Test
     public void sendMessageAndQuerySenderAndReceiverArchive()
             throws SmackException.NotConnectedException, InterruptedException, SmackException.NotLoggedInException,
             XMPPException.XMPPErrorException, SmackException.NoResponseException {
@@ -89,7 +107,7 @@ public class UserArchiveTest extends IntegrationTest {
         assertEquals(alice().getUser(), toCarolArchivedMessage.getFrom());
         assertEquals(carol().getUser().asEntityBareJidOrThrow(),
                 toCarolArchivedMessage.getTo().asEntityBareJidOrThrow());
-        String toCarolArchivedMessageId = extractStanzaId(toCarolArchivedMessage);
+        String toCarolArchivedMessageId = extractStanzaId(toCarolArchivedMessage).getId();
 
         MamManager.MamQuery carolArchive = MamManager.getInstanceFor(carol()).queryArchive(fullQuery);
 
@@ -100,10 +118,10 @@ public class UserArchiveTest extends IntegrationTest {
         assertEquals(alice().getUser(), fromAliceArchivedMessage.getFrom());
         assertEquals(carol().getUser().asEntityBareJidOrThrow(),
                 fromAliceArchivedMessage.getTo().asEntityBareJidOrThrow());
-        String fromAliceArchivedMessageId = extractStanzaId(fromAliceArchivedMessage);
+        String fromAliceArchivedMessageId = extractStanzaId(fromAliceArchivedMessage).getId();
 
         assertFalse(toCarolArchivedMessageId.equals(fromAliceArchivedMessageId));
-        assertEquals(extractStanzaId(carolReceivedMessage.get()), fromAliceArchivedMessageId);
+        assertEquals(extractStanzaId(carolReceivedMessage.get()).getId(), fromAliceArchivedMessageId);
     }
 
     @Test
@@ -193,10 +211,10 @@ public class UserArchiveTest extends IntegrationTest {
         assertEquals("Hello carol", carolReceivedMessage.get().getBody());
 
         Message archivedMessage = fetchUniqueArchivedMessage(carol());
-        String storedStanzaId = extractStanzaId(archivedMessage);
+        String storedStanzaId = extractStanzaId(archivedMessage).getId();
         assertNotNull(storedStanzaId);
 
-        String receivedStanzaId = extractStanzaId(carolReceivedMessage.get());
+        String receivedStanzaId = extractStanzaId(carolReceivedMessage.get()).getId();
 
         assertEquals(storedStanzaId, receivedStanzaId);
     }
@@ -220,7 +238,7 @@ public class UserArchiveTest extends IntegrationTest {
         Thread.sleep(200);
 
         Message archivedMessage = fetchUniqueArchivedMessage(carol());
-        String storedStanzaId = extractStanzaId(archivedMessage);
+        String storedStanzaId = extractStanzaId(archivedMessage).getId();
         assertNotNull(storedStanzaId);
     }
 
@@ -284,14 +302,14 @@ public class UserArchiveTest extends IntegrationTest {
         return archive.getMessages().get(0);
     }
 
-    private String extractStanzaId(Stanza stanza) {
+    private StanzaIdElement extractStanzaId(Stanza stanza) {
         assertNotNull(stanza);
         ExtensionElement extensionElement = stanza.getExtension(NamespaceURIs.XEP0359_STANZA_IDS);
         if (!(extensionElement instanceof StanzaIdElement)) {
             fail("No stanza id in " + stanza);
         }
 
-        return ((StanzaIdElement) extensionElement).getId();
+        return (StanzaIdElement) extensionElement;
     }
 
 }

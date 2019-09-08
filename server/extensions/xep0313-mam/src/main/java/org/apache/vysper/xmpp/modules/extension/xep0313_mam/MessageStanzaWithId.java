@@ -46,10 +46,6 @@ public class MessageStanzaWithId {
 
     private final Entity archiveId;
 
-    public MessageStanzaWithId(ArchivedMessage archivedMessage) {
-        this(archivedMessage, null);
-    }
-
     public MessageStanzaWithId(ArchivedMessage archivedMessage, Entity archiveId) {
         this.archivedMessage = requireNonNull(archivedMessage);
         this.archiveId = archiveId;
