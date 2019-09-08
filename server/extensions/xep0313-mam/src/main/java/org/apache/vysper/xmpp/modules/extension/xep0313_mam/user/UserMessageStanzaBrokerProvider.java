@@ -37,8 +37,8 @@ public class UserMessageStanzaBrokerProvider implements MAMStanzaBrokerProvider 
 
     @Override
     public StanzaBroker proxy(StanzaBroker delegate, ServerRuntimeContext serverRuntimeContext,
-            SessionContext sessionContext, boolean isOutboundStanza) {
+                              SessionContext sessionContext, boolean isOutboundStanza, boolean forceArchiving) {
         return new UserMessageStanzaBroker(delegate, serverRuntimeContext, sessionContext,
-				isOutboundStanza);
+				isOutboundStanza, forceArchiving);
     }
 }

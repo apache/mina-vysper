@@ -115,4 +115,6 @@ public class NamespaceURIs {
     public static final String XEP0297_STANZA_FORWARDING = "urn:xmpp:forward:0";
 
     public static final String XEP0359_STANZA_IDS = "urn:xmpp:sid:0";
+    
+    public static final String XEP0334_MESSAGE_PROCESSING_HINTS = "urn:xmpp:hints";
 }

@@ -48,7 +48,7 @@ public class MessageStanzaWithId {
 
     public MessageStanzaWithId(ArchivedMessage archivedMessage, Entity archiveId) {
         this.archivedMessage = requireNonNull(archivedMessage);
-        this.archiveId = archiveId;
+        this.archiveId = requireNonNull(archiveId);
     }
 
     public Stanza toStanza() {
@@ -57,9 +57,7 @@ public class MessageStanzaWithId {
         List<XMLElement> innerElements = new ArrayList<>();
         archivedMessageStanza.getInnerElements().stream().filter(notStanzaId()).forEach(innerElements::add);
         List<Attribute> stanzaIdAttributes = new ArrayList<>();
-        if (archiveId != null) {
-            stanzaIdAttributes.add(new Attribute("by", archiveId.getFullQualifiedName()));
-        }
+        stanzaIdAttributes.add(new Attribute("by", archiveId.getFullQualifiedName()));
         stanzaIdAttributes.add(new Attribute("id", archivedMessage.id()));
         innerElements.add(new XMLElement(NamespaceURIs.XEP0359_STANZA_IDS, STANZA_ID, null, stanzaIdAttributes,
                 Collections.emptyList()));

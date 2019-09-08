@@ -21,10 +21,8 @@ package org.apache.vysper.xmpp.modules.extension.xep0313_mam.user;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.Map;
 import java.util.Optional;
 
-import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
@@ -58,12 +56,15 @@ class UserMessageStanzaBroker extends DelegatingStanzaBroker {
 
     private final boolean isOutbound;
 
+    private final boolean archivingForced;
+
     UserMessageStanzaBroker(StanzaBroker delegate, ServerRuntimeContext serverRuntimeContext,
-            SessionContext sessionContext, boolean isOutbound) {
+            SessionContext sessionContext, boolean isOutbound, boolean archivingForced) {
         super(delegate);
         this.serverRuntimeContext = requireNonNull(serverRuntimeContext);
         this.sessionContext = sessionContext;
         this.isOutbound = isOutbound;
+        this.archivingForced = archivingForced;
     }
 
     @Override
@@ -83,32 +84,36 @@ class UserMessageStanzaBroker extends DelegatingStanzaBroker {
         }
 
         MessageStanza messageStanza = new MessageStanza(stanza);
-        MessageStanzaType messageStanzaType = messageStanza.getMessageType();
-        if (messageStanzaType != MessageStanzaType.NORMAL && messageStanzaType != MessageStanzaType.CHAT) {
-            // A server SHOULD include in a user archive all of the messages a user sends
-            // or receives of type 'normal' or 'chat' that contain a <body> element.
-            LOG.debug("Message {} is neither of type 'normal' or 'chat'. It will not be archived.", messageStanza);
-            return messageStanza;
-        }
-
-        Map<String, XMLElement> bodies;
-        try {
-            bodies = messageStanza.getBodies();
-        } catch (XMLSemanticError xmlSemanticError) {
-            return messageStanza;
-        }
-        if (bodies.isEmpty()) {
-            // A server SHOULD include in a user archive all of the messages a user sends
-            // or receives of type 'normal' or 'chat' that contain a <body> element.
-            return messageStanza;
+        if (!shouldArchive(messageStanza)) {
+            return stanza;
         }
 
         // TODO Check preferences
         if (isOutbound) {
             addToSenderArchive(messageStanza, sessionContext);
-            return messageStanza;
+            return stanza;
         } else {
             return addToReceiverArchive(messageStanza).map(MessageStanzaWithId::toStanza).orElse(stanza);
+        }
+    }
+
+    private boolean shouldArchive(MessageStanza messageStanza) {
+        if (archivingForced) {
+            return true;
+        }
+
+        // A server SHOULD include in a user archive all of the messages a user sends
+        // or receives of type 'normal' or 'chat' that contain a <body> element.
+        MessageStanzaType messageStanzaType = messageStanza.getMessageType();
+        if (messageStanzaType != MessageStanzaType.NORMAL && messageStanzaType != MessageStanzaType.CHAT) {
+            LOG.debug("Message {} is neither of type 'normal' or 'chat'. It will not be archived.", messageStanza);
+            return false;
+        }
+
+        try {
+            return !messageStanza.getBodies().isEmpty();
+        } catch (XMLSemanticError xmlSemanticError) {
+            return false;
         }
     }
 

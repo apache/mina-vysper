@@ -32,6 +32,6 @@ public interface MAMStanzaBrokerProvider {
     boolean supports(Stanza processedStanza, ServerRuntimeContext serverRuntimeContext);
 
     StanzaBroker proxy(StanzaBroker delegate, ServerRuntimeContext serverRuntimeContext, SessionContext sessionContext,
-            boolean isOutboundStanza);
+                       boolean isOutboundStanza, boolean forceArchiving);
 
 }

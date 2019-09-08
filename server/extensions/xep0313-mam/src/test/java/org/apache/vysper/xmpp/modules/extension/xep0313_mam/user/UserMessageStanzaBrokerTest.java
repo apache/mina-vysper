@@ -78,8 +78,9 @@ public class UserMessageStanzaBrokerTest {
         sessionContext.givenServerRuntimeContext(serverRuntimeContext);
     }
 
-    private UserMessageStanzaBroker buildTested(boolean isOutboundStanza) {
-        return new UserMessageStanzaBroker(delegate, serverRuntimeContext, sessionContext, isOutboundStanza);
+    private UserMessageStanzaBroker buildTested(boolean isOutboundStanza, boolean archivingForced) {
+        return new UserMessageStanzaBroker(delegate, serverRuntimeContext, sessionContext, isOutboundStanza,
+                archivingForced);
     }
 
     private MessageStanza buildMessageStanza(MessageStanzaType messageStanzaType, Entity from, Entity to, String body) {
@@ -88,7 +89,7 @@ public class UserMessageStanzaBrokerTest {
 
     @Test
     public void onlyNormalAndChatMessageAreArchived() {
-        UserMessageStanzaBroker tested = buildTested(true);
+        UserMessageStanzaBroker tested = buildTested(true, false);
 
         Stream.of(MessageStanzaType.values()).filter(messageStanzaType -> messageStanzaType != MessageStanzaType.NORMAL)
                 .filter(messageStanzaType -> messageStanzaType != MessageStanzaType.CHAT).forEach(messageStanzaType -> {
@@ -116,7 +117,7 @@ public class UserMessageStanzaBrokerTest {
 
     @Test
     public void outboundMessageHavingFrom() {
-        UserMessageStanzaBroker tested = buildTested(true);
+        UserMessageStanzaBroker tested = buildTested(true, false);
         MessageStanza messageStanza = buildMessageStanza(MessageStanzaType.NORMAL, ROMEO_IN_ORCHARD,
                 ALICE_IN_RABBIT_HOLE, "hello world");
 
@@ -127,7 +128,7 @@ public class UserMessageStanzaBrokerTest {
 
     @Test
     public void outboundMessageWithoutFrom() {
-        UserMessageStanzaBroker tested = buildTested(true);
+        UserMessageStanzaBroker tested = buildTested(true, false);
 
         MessageStanza messageStanza = buildMessageStanza(MessageStanzaType.NORMAL, null, ALICE_IN_RABBIT_HOLE,
                 "hello world");
@@ -139,7 +140,7 @@ public class UserMessageStanzaBrokerTest {
 
     @Test
     public void unexistingArchive() {
-        UserMessageStanzaBroker tested = buildTested(true);
+        UserMessageStanzaBroker tested = buildTested(true, false);
 
         MessageStanza messageStanza = buildMessageStanza(MessageStanzaType.NORMAL, ALICE_IN_RABBIT_HOLE,
                 ALICE_IN_RABBIT_HOLE, "hello world");
@@ -153,13 +154,25 @@ public class UserMessageStanzaBrokerTest {
 
     @Test
     public void messageWithoutBody() {
-        UserMessageStanzaBroker tested = buildTested(true);
+        UserMessageStanzaBroker tested = buildTested(true, false);
         MessageStanza messageStanza = buildMessageStanza(MessageStanzaType.NORMAL, JULIET_IN_CHAMBER, ROMEO_IN_ORCHARD,
                 null);
 
         tested.writeToSession(messageStanza);
 
         julietArchive.assertEmpty();
+        romeoArchive.assertEmpty();
+    }
+    
+    @Test
+    public void messageWithoutBodyWithArchivingForced(){
+        UserMessageStanzaBroker tested = buildTested(true, true);
+        MessageStanza messageStanza = buildMessageStanza(MessageStanzaType.NORMAL, JULIET_IN_CHAMBER, ROMEO_IN_ORCHARD,
+                null);
+
+        tested.writeToSession(messageStanza);
+
+        julietArchive.assertUniqueArchivedMessageStanza(messageStanza);
         romeoArchive.assertEmpty();
     }
 
