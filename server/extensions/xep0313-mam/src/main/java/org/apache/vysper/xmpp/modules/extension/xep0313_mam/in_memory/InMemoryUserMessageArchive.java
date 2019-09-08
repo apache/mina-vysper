@@ -19,6 +19,7 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0313_mam.in_memory;
 
+import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.ArchivedMessage;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.ArchivedMessages;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.Message;
@@ -38,8 +39,8 @@ public class InMemoryUserMessageArchive implements UserMessageArchive {
 
     private UserMessageArchivePreferences preferences;
 
-    public InMemoryUserMessageArchive() {
-        this.delegate = new InMemoryMessageArchive();
+    public InMemoryUserMessageArchive(Entity archiveId) {
+        this.delegate = new InMemoryMessageArchive(archiveId);
         this.preferences = new SimpleUserMessageArchivePreferences();
     }
 

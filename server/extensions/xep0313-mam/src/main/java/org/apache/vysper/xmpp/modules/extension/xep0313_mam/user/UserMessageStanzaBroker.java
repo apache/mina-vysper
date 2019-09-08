@@ -130,8 +130,13 @@ class UserMessageStanzaBroker extends DelegatingStanzaBroker {
         // local users MUST expose these archives to the user on the user's bare JID.
         Entity receiverArchiveId = requireNonNull(messageStanza.getTo(), "No 'to' found in " + messageStanza)
                 .getBareJID();
-        return messageArchives().retrieveUserMessageArchive(receiverArchiveId)
-                .map(messageArchive -> messageArchive.archive(new SimpleMessage(messageStanza)));
+        Optional<UserMessageArchive> receiverArchive = messageArchives().retrieveUserMessageArchive(receiverArchiveId);
+        if (!receiverArchive.isPresent()) {
+            LOG.debug("No archive returned for sender with bare JID '{}'", receiverArchiveId);
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(receiverArchive.get().archive(new SimpleMessage(messageStanza)));
     }
 
     private MessageArchives messageArchives() {

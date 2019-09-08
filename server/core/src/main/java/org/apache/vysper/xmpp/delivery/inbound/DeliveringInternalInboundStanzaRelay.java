@@ -96,8 +96,6 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
 
     private InboundStanzaProtocolWorker inboundStanzaProtocolWorker;
 
-    private UnconnectedProtocolWorker unconnectedProtocolWorker;
-
     private final ComponentRegistry componentRegistry;
 
     private static final Integer PRIO_THRESHOLD = 0;
@@ -149,7 +147,6 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
 
     public void setStanzaHandlerExecutorFactory(StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory) {
         this.inboundStanzaProtocolWorker = new InboundStanzaProtocolWorker(stanzaHandlerExecutorFactory);
-        this.unconnectedProtocolWorker = new UnconnectedProtocolWorker(stanzaHandlerExecutorFactory);
     }
 
     public final void setLogStorageProvider(final LogStorageProvider logStorageProvider) {
@@ -385,7 +382,7 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
                 LOG.warn("cannot relay to offline receiver {} stanza {}", receiver.getFullQualifiedName(), stanza);
                 return new RelayResult(new LocalRecipientOfflineException());
             }
-            unconnectedProtocolWorker.processStanza(serverRuntimeContext, null, sessionStateHolder, stanza,
+            inboundStanzaProtocolWorker.processStanza(serverRuntimeContext, null, sessionStateHolder, stanza,
                     stanzaHandler);
             return new RelayResult().setProcessed();
         }

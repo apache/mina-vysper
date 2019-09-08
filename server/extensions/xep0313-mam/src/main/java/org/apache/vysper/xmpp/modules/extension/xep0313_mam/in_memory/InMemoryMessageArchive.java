@@ -19,12 +19,16 @@
  */
 package org.apache.vysper.xmpp.modules.extension.xep0313_mam.in_memory;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.ArchivedMessage;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.ArchivedMessages;
 import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.Message;
@@ -38,7 +42,13 @@ import org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi.SimpleArchivedMe
  */
 public class InMemoryMessageArchive implements MessageArchive {
 
+    private final Entity archiveId;
+
     private final List<SimpleArchivedMessage> messages = new ArrayList<>();
+
+    public InMemoryMessageArchive(Entity archiveId) {
+        this.archiveId = requireNonNull(archiveId);
+    }
 
     @Override
     public ArchivedMessage archive(Message message) {
@@ -63,4 +73,9 @@ public class InMemoryMessageArchive implements MessageArchive {
         return messages.stream().filter(predicate).collect(Collectors.toList());
     }
 
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", InMemoryMessageArchive.class.getSimpleName() + "[", "]")
+                .add("archiveId=" + archiveId).toString();
+    }
 }

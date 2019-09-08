@@ -37,7 +37,7 @@ public class InMemoryMessageArchives implements MessageArchives {
     @Override
     public Optional<UserMessageArchive> retrieveUserMessageArchive(Entity userBareJid) {
         UserMessageArchive messageArchive = userMessageArchiveById.computeIfAbsent(userBareJid,
-                id -> new InMemoryUserMessageArchive());
+                id -> new InMemoryUserMessageArchive(userBareJid));
         return Optional.of(messageArchive);
     }
 }

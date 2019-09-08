@@ -58,7 +58,7 @@ public abstract class AbstractStateAwareProtocolWorker implements StateAwareProt
 
     protected boolean checkState(InternalSessionContext sessionContext, SessionStateHolder sessionStateHolder,
             Stanza stanza, StanzaHandler stanzaHandler) {
-        return sessionContext != null && getHandledState() == sessionContext.getState();
+        return getHandledState() == sessionStateHolder.getState();
     }
 
     private void executeHandler(ServerRuntimeContext serverRuntimeContext, InternalSessionContext sessionContext,

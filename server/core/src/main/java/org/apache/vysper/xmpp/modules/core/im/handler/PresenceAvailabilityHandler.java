@@ -273,7 +273,7 @@ public class PresenceAvailabilityHandler extends AbstractPresenceSpecializedHand
             Collection<Stanza> offlineStanzas = offlineProvider.getStanzasFor(user);
             for (Stanza stanza : offlineStanzas) {
                 logger.debug("Sending out delayed offline stanza");
-                relayStanza(user, stanza, stanzaBroker);
+                stanzaBroker.writeToSession(stanza);
             }
         }
 
