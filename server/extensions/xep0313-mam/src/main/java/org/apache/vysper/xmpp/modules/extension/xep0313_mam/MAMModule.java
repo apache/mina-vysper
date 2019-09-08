@@ -82,6 +82,7 @@ public class MAMModule extends DefaultDiscoAwareModule implements ServerInfoRequ
     protected void addInfoRequestListeners(List<InfoRequestListener> infoRequestListeners) {
         infoRequestListeners.add(new UserInfoRequestListener(messageArchives, NAMESPACE_V1));
         infoRequestListeners.add(new UserInfoRequestListener(messageArchives, NAMESPACE_V2));
+        infoRequestListeners.add(new MAMInfoRequestListener());
     }
 
     @Override
