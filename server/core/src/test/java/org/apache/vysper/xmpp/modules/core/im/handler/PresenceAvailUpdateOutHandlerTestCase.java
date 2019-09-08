@@ -22,7 +22,7 @@ package org.apache.vysper.xmpp.modules.core.im.handler;
 
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
-import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
+import org.apache.vysper.xmpp.protocol.DefaultStanzaBroker;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.XMPPCoreStanza;
@@ -42,7 +42,7 @@ public class PresenceAvailUpdateOutHandlerTestCase extends PresenceHandlerBaseTe
         XMPPCoreStanza initialPresence = XMPPCoreStanza.getWrapper(
                 StanzaBuilder.createPresenceStanza(initiatingUser.getEntityFQ(), null, null, null, null, null).build());
         handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext,
-                new SimpleStanzaBroker(receiverRelay, sessionContext));
+                new DefaultStanzaBroker(receiverRelay, sessionContext));
         assertTrue(0 < receiverRelay.getCountDelivered());
         resetRecordedStanzas(); // purge recorded
         assertTrue(0 == receiverRelay.getCountDelivered());
@@ -53,7 +53,7 @@ public class PresenceAvailUpdateOutHandlerTestCase extends PresenceHandlerBaseTe
         XMPPCoreStanza updatePresence = XMPPCoreStanza.getWrapper(StanzaBuilder
                 .createPresenceStanza(initiatingUser.getEntityFQ(), null, null, null, showValue, null).build());
         handler.executeCore(updatePresence, sessionContext.getServerRuntimeContext(), true, sessionContext,
-                new SimpleStanzaBroker(receiverRelay, sessionContext));
+                new DefaultStanzaBroker(receiverRelay, sessionContext));
         // check resource state
         assertEquals(ResourceState.AVAILABLE, getResourceState());
 

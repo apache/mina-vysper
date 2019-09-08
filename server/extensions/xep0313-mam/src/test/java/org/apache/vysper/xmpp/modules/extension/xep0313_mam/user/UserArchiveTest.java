@@ -219,10 +219,16 @@ public class UserArchiveTest extends IntegrationTest {
 
         Thread.sleep(200);
 
-        assertNull(carolReceivedMessage.get());
+        assertNotNull(carolReceivedMessage.get());
+        assertEquals("Hello carol", carolReceivedMessage.get().getBody());
 
-        Message message = fetchUniqueArchivedMessage(carol());
-        assertEquals("Hello carol", message.getBody());
+        Message archivedMessage = fetchUniqueArchivedMessage(carol());
+        String storedStanzaId = extractStanzaId(archivedMessage);
+        assertNotNull(storedStanzaId);
+
+        String receivedStanzaId = extractStanzaId(carolReceivedMessage.get());
+
+        assertEquals(storedStanzaId, receivedStanzaId);
     }
 
     @Test

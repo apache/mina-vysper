@@ -28,7 +28,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.RecordingStanzaBroke
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
-import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
+import org.apache.vysper.xmpp.protocol.DefaultStanzaBroker;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.stanza.MessageStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -62,7 +62,7 @@ public abstract class AbstractMUCMessageHandlerTestCase extends AbstractMUCHandl
 
         Stanza messageStanza = stanzaBuilder.build();
         RecordingStanzaBroker stanzaBroker = new RecordingStanzaBroker(
-                new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
+                new DefaultStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
         handler.execute(messageStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, null,
                 stanzaBroker);
         return stanzaBroker.getUniqueStanzaWrittenToSession();

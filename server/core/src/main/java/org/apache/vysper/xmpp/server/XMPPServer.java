@@ -55,7 +55,6 @@ import org.apache.vysper.xmpp.server.components.AlterableComponentRegistry;
 import org.apache.vysper.xmpp.server.components.SimpleComponentRegistry;
 import org.apache.vysper.xmpp.state.resourcebinding.DefaultResourceRegistry;
 import org.apache.vysper.xmpp.state.resourcebinding.InternalResourceRegistry;
-import org.apache.vysper.xmpp.state.resourcebinding.ResourceRegistry;
 
 /**
  * this class is able to boot a standalone XMPP server. <code>
@@ -190,7 +189,7 @@ public class XMPPServer {
         AlterableComponentRegistry componentRegistry = new SimpleComponentRegistry(serverEntity);
 
         DeliveringInternalInboundStanzaRelay internalStanzaRelay = new DeliveringInternalInboundStanzaRelay(
-                serverEntity, resourceRegistry, componentRegistry, accountManagement, offlineReceiver);
+                serverEntity, resourceRegistry, componentRegistry, accountManagement);
         DeliveringExternalInboundStanzaRelay externalStanzaRelay = new DeliveringExternalInboundStanzaRelay();
 
         if (maxInternalRelayThreads >= 0)
@@ -203,12 +202,12 @@ public class XMPPServer {
         stanzaRelayBroker.setExternalRelay(externalStanzaRelay);
 
         StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory = new SimpleStanzaHandlerExecutorFactory(
-                stanzaRelayBroker);
+                stanzaRelayBroker, offlineReceiver);
 
         stanzaProcessor = new ProtocolWorker(stanzaHandlerExecutorFactory);
 
         serverRuntimeContext = new DefaultServerRuntimeContext(serverEntity, stanzaRelayBroker, stanzaProcessor,
-                componentRegistry, resourceRegistry, serverFeatures, dictionaries);
+                componentRegistry, resourceRegistry, serverFeatures, dictionaries, offlineReceiver);
         serverRuntimeContext.setStorageProviderRegistry(storageProviderRegistry);
         serverRuntimeContext.setTlsContextFactory(tlsContextFactory);
 
@@ -225,7 +224,7 @@ public class XMPPServer {
         if (logStorageProvider != null)
             internalStanzaRelay.setLogStorageProvider(logStorageProvider);
 
-        if (endpoints.size() == 0)
+        if (endpoints.isEmpty())
             throw new IllegalStateException("server must have at least one endpoint");
 
         /*

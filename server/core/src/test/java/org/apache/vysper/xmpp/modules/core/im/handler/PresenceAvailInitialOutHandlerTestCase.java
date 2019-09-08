@@ -27,7 +27,7 @@ import java.util.List;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
-import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
+import org.apache.vysper.xmpp.protocol.DefaultStanzaBroker;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
 import org.apache.vysper.xmpp.stanza.StanzaErrorCondition;
@@ -47,7 +47,7 @@ public class PresenceAvailInitialOutHandlerTestCase extends PresenceHandlerBaseT
 
         assertEquals(ResourceState.CONNECTED, getResourceState());
         handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext,
-                new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
+                new DefaultStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
         // check resource state change, do not override interested
         assertEquals(ResourceState.AVAILABLE, getResourceState());
 
@@ -112,7 +112,7 @@ public class PresenceAvailInitialOutHandlerTestCase extends PresenceHandlerBaseT
                 .getWrapper(StanzaBuilder.createPresenceStanza(null, null, null, null, null, null).build());
 
         List<Stanza> stanzas = handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true,
-                sessionContext, new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
+                sessionContext, new DefaultStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
         Stanza stanza = stanzas.get(0);
         // ... and will give an error:
         assertEquals("error", stanza.getAttribute("type").getValue());
@@ -127,7 +127,7 @@ public class PresenceAvailInitialOutHandlerTestCase extends PresenceHandlerBaseT
                 .unbindResource(anotherAvailableUser.getBoundResourceId());
         // 3 other resources got unbound, remaining one should now be unique
         stanzas = handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext,
-                new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
+                new DefaultStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
         stanza = stanzas.get(0);
         assertNull(stanza); // no return, esp no error stanza - all the handling is done through relays
         stanza = initiatingUser.getNextStanza();
@@ -141,7 +141,7 @@ public class PresenceAvailInitialOutHandlerTestCase extends PresenceHandlerBaseT
                 .unbindResource(initiatingUser.getBoundResourceId());
         assertTrue(noRemainingBinds);
         stanzas = handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext,
-                new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
+                new DefaultStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
         stanza = stanzas.get(0);
         assertEquals("error", stanza.getAttribute("type").getValue());
         assertEquals(StanzaErrorCondition.UNKNOWN_SENDER.value(),

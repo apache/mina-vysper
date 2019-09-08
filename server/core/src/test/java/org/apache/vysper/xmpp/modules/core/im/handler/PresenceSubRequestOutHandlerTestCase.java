@@ -27,7 +27,7 @@ import static org.apache.vysper.xmpp.modules.roster.SubscriptionType.NONE;
 import org.apache.vysper.xmpp.addressing.EntityFormatException;
 import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.StanzaReceiverRelay;
-import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
+import org.apache.vysper.xmpp.protocol.DefaultStanzaBroker;
 import org.apache.vysper.xmpp.stanza.PresenceStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -52,7 +52,7 @@ public class PresenceSubRequestOutHandlerTestCase extends PresenceHandlerBaseTes
                 .getWrapper(StanzaBuilder.createPresenceStanza(unrelatedUser.getEntityFQ(), initiatingUser.getEntity(),
                         null, PresenceStanzaType.SUBSCRIBED, null, null).build());
         handler.executeCore(requestApproval, sessionContext.getServerRuntimeContext(), false, sessionContext,
-                new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
+                new DefaultStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
 
         // 3 roster pushes but...
         StanzaReceiverRelay relay = (StanzaReceiverRelay) sessionContext.getStanzaRelay();
@@ -76,7 +76,7 @@ public class PresenceSubRequestOutHandlerTestCase extends PresenceHandlerBaseTes
                         null, PresenceStanzaType.SUBSCRIBE, null, null).build());
 
         handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext,
-                new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
+                new DefaultStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
         assertEquals(ResourceState.AVAILABLE_INTERESTED, getResourceState());
 
         // 1 to TO + 3 roster pushes
@@ -126,7 +126,7 @@ public class PresenceSubRequestOutHandlerTestCase extends PresenceHandlerBaseTes
                         subscribed_FROM.getEntity(), null, PresenceStanzaType.SUBSCRIBE, null, null).build());
 
         handler.executeCore(initialPresence, sessionContext.getServerRuntimeContext(), true, sessionContext,
-                new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
+                new DefaultStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
         assertEquals(ResourceState.AVAILABLE_INTERESTED, getResourceState());
 
         // 1 to TO + 3 roster pushes

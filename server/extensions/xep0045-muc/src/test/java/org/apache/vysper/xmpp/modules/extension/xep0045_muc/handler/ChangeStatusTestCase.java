@@ -29,7 +29,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Role;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.MucUserItem;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
-import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
+import org.apache.vysper.xmpp.protocol.DefaultStanzaBroker;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -44,7 +44,7 @@ public class ChangeStatusTestCase extends AbstractMUCHandlerTestCase {
                 status);
 
         Stanza presenceStanza = stanzaBuilder.build();
-        RecordingStanzaBroker stanzaBroker = new RecordingStanzaBroker(new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
+        RecordingStanzaBroker stanzaBroker = new RecordingStanzaBroker(new DefaultStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
         handler.execute(presenceStanza, sessionContext.getServerRuntimeContext(), true, sessionContext, null,
                 stanzaBroker);
         return stanzaBroker.getUniqueStanzaWrittenToSession();

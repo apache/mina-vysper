@@ -30,7 +30,7 @@ import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.modules.core.TestUser;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
-import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
+import org.apache.vysper.xmpp.protocol.DefaultStanzaBroker;
 import org.apache.vysper.xmpp.server.TestSessionContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -92,7 +92,7 @@ public class MessageHandlerRelayTestCase extends TestCase {
 
         Stanza stanza = stanzaBuilder.build();
         messageHandler.execute(stanza, senderSessionContext.getServerRuntimeContext(), true, senderSessionContext, null,
-                new SimpleStanzaBroker(senderSessionContext.getStanzaRelay(), senderSessionContext));
+                new DefaultStanzaBroker(senderSessionContext.getStanzaRelay(), senderSessionContext));
 
         Stanza receivedStanza = receiverUser.getNextStanza();
         XMLElementVerifier timestampVerifier = receivedStanza.getFirstInnerElement().getVerifier();
@@ -119,12 +119,12 @@ public class MessageHandlerRelayTestCase extends TestCase {
 
         Stanza successfulMessageStanza = StanzaBuilder.createMessageStanza(sender, receiver, "en", "info").build();
         messageHandler.execute(successfulMessageStanza, senderSessionContext.getServerRuntimeContext(), true,
-                senderSessionContext, null, new SimpleStanzaBroker(stanzaRelay, senderSessionContext));
+                senderSessionContext, null, new DefaultStanzaBroker(stanzaRelay, senderSessionContext));
         assertEquals(successfulMessageStanza, receiverQueue.getNext());
 
         Stanza failureMessageStanza = StanzaBuilder.createMessageStanza(sender, noReceiver, "en", "info").build();
         messageHandler.execute(failureMessageStanza, senderSessionContext.getServerRuntimeContext(), true,
-                senderSessionContext, null, new SimpleStanzaBroker(stanzaRelay, senderSessionContext));
+                senderSessionContext, null, new DefaultStanzaBroker(stanzaRelay, senderSessionContext));
         assertNull(receiverQueue.getNext());
         Stanza rejectionStanza = senderQueue.getNext();
         assertNotNull(rejectionStanza);

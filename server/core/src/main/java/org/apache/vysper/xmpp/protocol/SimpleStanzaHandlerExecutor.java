@@ -21,6 +21,7 @@ package org.apache.vysper.xmpp.protocol;
 
 import static java.util.Objects.requireNonNull;
 
+import org.apache.vysper.xmpp.delivery.OfflineStanzaReceiver;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.server.InternalSessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
@@ -35,9 +36,13 @@ class SimpleStanzaHandlerExecutor implements StanzaHandlerExecutor {
 
     private final StanzaHandler stanzaHandler;
 
-    public SimpleStanzaHandlerExecutor(StanzaRelay stanzaRelay, StanzaHandler stanzaHandler) {
+    private final OfflineStanzaReceiver offlineStanzaReceiver;
+
+    public SimpleStanzaHandlerExecutor(StanzaRelay stanzaRelay, StanzaHandler stanzaHandler,
+            OfflineStanzaReceiver offlineStanzaReceiver) {
         this.stanzaRelay = requireNonNull(stanzaRelay);
         this.stanzaHandler = requireNonNull(stanzaHandler);
+        this.offlineStanzaReceiver = offlineStanzaReceiver;
     }
 
     @Override
@@ -47,7 +52,7 @@ class SimpleStanzaHandlerExecutor implements StanzaHandlerExecutor {
                 serverRuntimeContext.getStanzaHandlerInterceptors());
 
         interceptorChain.intercept(stanza, serverRuntimeContext, isOutboundStanza, sessionContext, sessionStateHolder,
-                new SimpleStanzaBroker(stanzaRelay, sessionContext));
+                new DefaultStanzaBroker(stanzaRelay, sessionContext, offlineStanzaReceiver));
     }
 
 }

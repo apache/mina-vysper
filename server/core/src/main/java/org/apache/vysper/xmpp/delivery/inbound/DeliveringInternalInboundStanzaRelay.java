@@ -39,21 +39,20 @@ import org.apache.vysper.xmpp.addressing.EntityUtils;
 import org.apache.vysper.xmpp.authentication.AccountManagement;
 import org.apache.vysper.xmpp.delivery.OfflineStanzaReceiver;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
-import org.apache.vysper.xmpp.delivery.failure.DeliveredToOfflineReceiverException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
 import org.apache.vysper.xmpp.delivery.failure.LocalRecipientOfflineException;
 import org.apache.vysper.xmpp.delivery.failure.NoSuchLocalUserException;
 import org.apache.vysper.xmpp.delivery.failure.ServiceNotAvailableException;
-import org.apache.vysper.xmpp.modules.extension.xep0160_offline_storage.OfflineStorageProvider;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.protocol.StanzaHandlerExecutorFactory;
 import org.apache.vysper.xmpp.protocol.StanzaProcessor;
 import org.apache.vysper.xmpp.protocol.worker.InboundStanzaProtocolWorker;
+import org.apache.vysper.xmpp.protocol.worker.UnconnectedProtocolWorker;
+import org.apache.vysper.xmpp.server.InternalSessionContext;
 import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionState;
-import org.apache.vysper.xmpp.server.InternalSessionContext;
 import org.apache.vysper.xmpp.server.components.ComponentRegistry;
 import org.apache.vysper.xmpp.server.resources.ManagedThreadPool;
 import org.apache.vysper.xmpp.server.resources.ManagedThreadPoolUtil;
@@ -77,7 +76,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, ManagedThreadPool {
 
-    final Logger logger = LoggerFactory.getLogger(DeliveringInternalInboundStanzaRelay.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DeliveringInternalInboundStanzaRelay.class);
 
     private static class RejectedDeliveryHandler implements RejectedExecutionHandler {
 
@@ -97,6 +96,8 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
 
     private InboundStanzaProtocolWorker inboundStanzaProtocolWorker;
 
+    private UnconnectedProtocolWorker unconnectedProtocolWorker;
+
     private final ComponentRegistry componentRegistry;
 
     private static final Integer PRIO_THRESHOLD = 0;
@@ -106,8 +107,6 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
     protected ExecutorService executor;
 
     protected AccountManagement accountVerification;
-
-    protected OfflineStanzaReceiver offlineStanzaReceiver = null;
 
     protected Entity serverEntity;
 
@@ -120,25 +119,23 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
     protected long lastDumpTimestamp = 0;
 
     public DeliveringInternalInboundStanzaRelay(Entity serverEntity, InternalResourceRegistry resourceRegistry,
-                                                StorageProviderRegistry storageProviderRegistry, ComponentRegistry componentRegistry) {
+            StorageProviderRegistry storageProviderRegistry, ComponentRegistry componentRegistry) {
         this(serverEntity, resourceRegistry, componentRegistry,
-                storageProviderRegistry.retrieve(AccountManagement.class),
-                storageProviderRegistry.retrieve(OfflineStorageProvider.class));
+                storageProviderRegistry.retrieve(AccountManagement.class)
+        );
     }
 
     public DeliveringInternalInboundStanzaRelay(Entity serverEntity, InternalResourceRegistry resourceRegistry,
-                                                ComponentRegistry componentRegistry, AccountManagement accountVerification,
-                                                OfflineStanzaReceiver offlineStanzaReceiver) {
+                                                ComponentRegistry componentRegistry, AccountManagement accountVerification) {
         this.serverEntity = serverEntity;
         this.resourceRegistry = resourceRegistry;
         this.componentRegistry = requireNonNull(componentRegistry);
         this.accountVerification = accountVerification;
-        this.offlineStanzaReceiver = offlineStanzaReceiver;
         int coreThreadCount = 10;
         int maxThreadCount = 20;
         int threadTimeoutSeconds = 2 * 60;
         this.executor = new ThreadPoolExecutor(coreThreadCount, maxThreadCount, threadTimeoutSeconds, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>(), new RejectedDeliveryHandler(this, logger));
+                new LinkedBlockingQueue<>(), new RejectedDeliveryHandler(this, LOG));
     }
 
     /* package */ DeliveringInternalInboundStanzaRelay(ExecutorService executor) {
@@ -152,6 +149,7 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
 
     public void setStanzaHandlerExecutorFactory(StanzaHandlerExecutorFactory stanzaHandlerExecutorFactory) {
         this.inboundStanzaProtocolWorker = new InboundStanzaProtocolWorker(stanzaHandlerExecutorFactory);
+        this.unconnectedProtocolWorker = new UnconnectedProtocolWorker(stanzaHandlerExecutorFactory);
     }
 
     public final void setLogStorageProvider(final LogStorageProvider logStorageProvider) {
@@ -194,7 +192,7 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
     }
 
     public void relay(InternalSessionContext sessionContext, Entity receiver, Stanza stanza,
-                      DeliveryFailureStrategy deliveryFailureStrategy) throws DeliveryException {
+            DeliveryFailureStrategy deliveryFailureStrategy) throws DeliveryException {
         if (!isRelaying()) {
             throw new ServiceNotAvailableException("internal inbound relay is not relaying");
         }
@@ -225,7 +223,7 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
         protected final UnmodifyableSessionStateHolder sessionStateHolder = new UnmodifyableSessionStateHolder();
 
         Relay(InternalSessionContext sessionContext, Entity receiver, Stanza stanza,
-              DeliveryFailureStrategy deliveryFailureStrategy) {
+                DeliveryFailureStrategy deliveryFailureStrategy) {
             this.sessionContext = sessionContext;
             this.receiver = receiver;
             this.stanza = stanza;
@@ -340,7 +338,7 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
                 return relayToBestSessions(false);
             }
 
-            return relayNotPossible();
+            return new RelayResult(new ServiceNotAvailableException());
         }
 
         @SpecCompliant(spec = "draft-ietf-xmpp-3921bis-00", section = "8.2.", status = SpecCompliant.ComplianceStatus.IN_PROGRESS, coverage = SpecCompliant.ComplianceCoverage.COMPLETE)
@@ -375,19 +373,21 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
             return new RelayResult(new ServiceNotAvailableException());
         }
 
-        private RelayResult relayNotPossible() {
+        private RelayResult relayToOfflineReceiver() {
             if (!accountVerification.verifyAccountExists(receiver)) {
-                logger.warn("cannot relay to unexisting receiver {} stanza {}", receiver.getFullQualifiedName(),
-                        stanza.toString());
+                LOG.warn("cannot relay to unexisting receiver {} stanza {}", receiver.getFullQualifiedName(),
+                        stanza);
                 return new RelayResult(new NoSuchLocalUserException());
-            } else if (offlineStanzaReceiver != null) {
-                offlineStanzaReceiver.receive(stanza);
-                return new RelayResult(new DeliveredToOfflineReceiverException());
-            } else {
-                logger.warn("cannot relay to offline receiver {} stanza {}", receiver.getFullQualifiedName(),
-                        stanza.toString());
+            }
+
+            StanzaHandler stanzaHandler = serverRuntimeContext.getHandler(stanza);
+            if (stanzaHandler.isSessionRequired()) {
+                LOG.warn("cannot relay to offline receiver {} stanza {}", receiver.getFullQualifiedName(), stanza);
                 return new RelayResult(new LocalRecipientOfflineException());
             }
+            unconnectedProtocolWorker.processStanza(serverRuntimeContext, null, sessionStateHolder, stanza,
+                    stanzaHandler);
+            return new RelayResult().setProcessed();
         }
 
         protected RelayResult relayToBestSessions(final boolean fallbackToBareJIDAllowed) {
@@ -401,7 +401,7 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
             }
 
             if (receivingSessions.size() == 0) {
-                return relayNotPossible();
+                return relayToOfflineReceiver();
             }
 
             RelayResult relayResult = new RelayResult();
@@ -412,8 +412,8 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
                 }
                 try {
                     StanzaHandler stanzaHandler = receivingSession.getServerRuntimeContext().getHandler(stanza);
-                    inboundStanzaProtocolWorker.processStanza(serverRuntimeContext, receivingSession, sessionStateHolder, stanza,
-                            stanzaHandler);
+                    inboundStanzaProtocolWorker.processStanza(serverRuntimeContext, receivingSession,
+                            sessionStateHolder, stanza, stanzaHandler);
                 } catch (Exception e) {
                     relayResult.addProcessingError(new DeliveryException("no relay to non-authenticated sessions"));
                     continue;
@@ -434,11 +434,11 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
                     : resourceRegistry.getSessions(receiver, prioThreshold);
 
             if (receivingSessions.size() == 0) {
-                return relayNotPossible();
+                return relayToOfflineReceiver();
             }
 
             if (receivingSessions.size() > 1) {
-                logger.warn("multiplexing: {} sessions will be processing {} ", receivingSessions.size(), stanza);
+                LOG.warn("multiplexing: {} sessions will be processing {} ", receivingSessions.size(), stanza);
             }
 
             RelayResult relayResult = new RelayResult();
@@ -450,8 +450,8 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
                 }
                 try {
                     StanzaHandler stanzaHandler = sessionContext.getServerRuntimeContext().getHandler(stanza);
-                    inboundStanzaProtocolWorker.processStanza(serverRuntimeContext, sessionContext, sessionStateHolder, stanza,
-                            stanzaHandler);
+                    inboundStanzaProtocolWorker.processStanza(serverRuntimeContext, sessionContext, sessionStateHolder,
+                            stanza, stanzaHandler);
                 } catch (Exception e) {
                     relayResult.addProcessingError(new DeliveryException(e));
                 }

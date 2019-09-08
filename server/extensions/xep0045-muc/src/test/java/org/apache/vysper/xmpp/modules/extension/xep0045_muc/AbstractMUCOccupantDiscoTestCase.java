@@ -26,7 +26,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.ConferenceTest
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.model.Room;
 import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceCollector;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
-import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
+import org.apache.vysper.xmpp.protocol.DefaultStanzaBroker;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -37,7 +37,7 @@ public abstract class AbstractMUCOccupantDiscoTestCase extends AbstractMUCHandle
 
     private Stanza sendDisco(Stanza stanza) throws ProtocolException {
         RecordingStanzaBroker recordingStanzaBroker = new RecordingStanzaBroker(
-                new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
+                new DefaultStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
 
         handler.execute(stanza, sessionContext.getServerRuntimeContext(), true,
                 sessionContext, null, recordingStanzaBroker);

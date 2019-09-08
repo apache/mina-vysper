@@ -39,7 +39,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.Password;
 import org.apache.vysper.xmpp.modules.extension.xep0045_muc.stanzas.X;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
-import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
+import org.apache.vysper.xmpp.protocol.DefaultStanzaBroker;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.server.SessionContext;
 import org.apache.vysper.xmpp.stanza.MessageStanza;
@@ -78,7 +78,7 @@ public class EnterRoomTestCase extends AbstractMUCHandlerTestCase {
         }
         Stanza presenceStanza = stanzaBuilder.build();
         RecordingStanzaBroker stanzaBroker = new RecordingStanzaBroker(
-                new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
+                new DefaultStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
         handler.execute(presenceStanza, userSessionContext.getServerRuntimeContext(), true, userSessionContext, null,
                 stanzaBroker);
         return stanzaBroker.getUniqueStanzaWrittenToSession();

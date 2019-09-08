@@ -54,6 +54,11 @@ public class MessageHandler extends XMPPCoreStanzaHandler {
     }
 
     @Override
+    public boolean isSessionRequired() {
+        return false;
+    }
+
+    @Override
     protected List<Stanza> executeCore(XMPPCoreStanza stanza, ServerRuntimeContext serverRuntimeContext,
             boolean isOutboundStanza, SessionContext sessionContext, StanzaBroker stanzaBroker) {
 

@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.protocol;
 import static java.util.Objects.requireNonNull;
 
 import org.apache.vysper.xmpp.addressing.Entity;
+import org.apache.vysper.xmpp.delivery.OfflineStanzaReceiver;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
@@ -31,15 +32,23 @@ import org.apache.vysper.xmpp.stanza.Stanza;
 /**
  * @author Réda Housni Alaoui
  */
-public class SimpleStanzaBroker implements StanzaBroker {
+public class DefaultStanzaBroker implements StanzaBroker {
 
     private final StanzaRelay stanzaRelay;
 
     private final InternalSessionContext sessionContext;
 
-    public SimpleStanzaBroker(StanzaRelay stanzaRelay, InternalSessionContext sessionContext) {
+    private final OfflineStanzaReceiver offlineStanzaReceiver;
+
+    public DefaultStanzaBroker(StanzaRelay stanzaRelay, InternalSessionContext sessionContext,
+            OfflineStanzaReceiver offlineStanzaReceiver) {
         this.stanzaRelay = requireNonNull(stanzaRelay);
         this.sessionContext = sessionContext;
+        this.offlineStanzaReceiver = offlineStanzaReceiver;
+    }
+    
+    public DefaultStanzaBroker(StanzaRelay stanzaRelay, InternalSessionContext sessionContext){
+        this(stanzaRelay, sessionContext, null);
     }
 
     @Override
@@ -56,11 +65,14 @@ public class SimpleStanzaBroker implements StanzaBroker {
         if (stanza == null) {
             return;
         }
-        if (sessionContext == null) {
-            // TODO Move offline storage here?
+        if (sessionContext != null) {
+            sessionContext.getResponseWriter().write(stanza);
             return;
         }
-        sessionContext.getResponseWriter().write(stanza);
+        if (offlineStanzaReceiver == null) {
+            return;
+        }
+        offlineStanzaReceiver.receive(stanza);
     }
 
     @Override
@@ -72,18 +84,23 @@ public class SimpleStanzaBroker implements StanzaBroker {
             return false;
         }
 
-        SimpleStanzaBroker that = (SimpleStanzaBroker) o;
+        DefaultStanzaBroker that = (DefaultStanzaBroker) o;
 
         if (!stanzaRelay.equals(that.stanzaRelay)) {
             return false;
         }
-        return sessionContext != null ? sessionContext.equals(that.sessionContext) : that.sessionContext == null;
+        if (sessionContext != null ? !sessionContext.equals(that.sessionContext) : that.sessionContext != null) {
+            return false;
+        }
+        return offlineStanzaReceiver != null ? offlineStanzaReceiver.equals(that.offlineStanzaReceiver)
+                : that.offlineStanzaReceiver == null;
     }
 
     @Override
     public int hashCode() {
         int result = stanzaRelay.hashCode();
         result = 31 * result + (sessionContext != null ? sessionContext.hashCode() : 0);
+        result = 31 * result + (offlineStanzaReceiver != null ? offlineStanzaReceiver.hashCode() : 0);
         return result;
     }
 }

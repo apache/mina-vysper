@@ -27,7 +27,6 @@ import java.util.Optional;
 import org.apache.vysper.xml.fragment.XMLElement;
 import org.apache.vysper.xml.fragment.XMLSemanticError;
 import org.apache.vysper.xmpp.addressing.Entity;
-import org.apache.vysper.xmpp.addressing.EntityUtils;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryException;
 import org.apache.vysper.xmpp.delivery.failure.DeliveryFailureStrategy;
 import org.apache.vysper.xmpp.modules.core.base.handler.XMPPCoreStanzaHandler;
@@ -79,9 +78,6 @@ class UserMessageStanzaBroker extends DelegatingStanzaBroker {
     }
 
     private Stanza archive(Stanza stanza) {
-        if (!isOutbound) {
-            return stanza;
-        }
         if (!MessageStanza.isOfType(stanza)) {
             return stanza;
         }
@@ -108,10 +104,13 @@ class UserMessageStanzaBroker extends DelegatingStanzaBroker {
         }
 
         // TODO Check preferences
-
-        addToSenderArchive(messageStanza, sessionContext);
-        return addToReceiverArchive(messageStanza).map(MessageStanzaWithId::new).map(MessageStanzaWithId::toStanza)
-                .orElse(stanza);
+        if (isOutbound) {
+            addToSenderArchive(messageStanza, sessionContext);
+            return messageStanza;
+        } else {
+            return addToReceiverArchive(messageStanza).map(MessageStanzaWithId::new).map(MessageStanzaWithId::toStanza)
+                    .orElse(stanza);
+        }
     }
 
     private void addToSenderArchive(MessageStanza messageStanza, SessionContext sessionContext) {
@@ -127,11 +126,6 @@ class UserMessageStanzaBroker extends DelegatingStanzaBroker {
     }
 
     private Optional<ArchivedMessage> addToReceiverArchive(MessageStanza messageStanza) {
-        Entity to = requireNonNull(messageStanza.getTo(), "No 'to' found in " + messageStanza);
-        if (!EntityUtils.isAddressingServer(to, serverRuntimeContext.getServerEntity())) {
-            LOG.debug("Receiver {} is not managed by this server", to);
-            return Optional.empty();
-        }
         // Servers that expose archive messages of sent/received messages on behalf of
         // local users MUST expose these archives to the user on the user's bare JID.
         Entity receiverArchiveId = requireNonNull(messageStanza.getTo(), "No 'to' found in " + messageStanza)

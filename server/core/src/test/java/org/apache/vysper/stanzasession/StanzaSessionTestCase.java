@@ -61,7 +61,7 @@ public class StanzaSessionTestCase extends TestCase {
         ProtocolWorker protocolWorker = new ProtocolWorker(new SimpleStanzaHandlerExecutorFactory(relay));
         DefaultServerRuntimeContext serverContext = new DefaultServerRuntimeContext(serverEntity, relay, protocolWorker,
                 new SimpleComponentRegistry(serverEntity), new DefaultResourceRegistry(), new ServerFeatures(),
-                dictionaries);
+                dictionaries, null);
 
         relay.setServerRuntimeContext(serverContext);
 

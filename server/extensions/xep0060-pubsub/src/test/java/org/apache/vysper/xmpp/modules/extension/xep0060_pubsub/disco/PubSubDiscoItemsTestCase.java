@@ -31,7 +31,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.handler.AbstractS
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.model.LeafNode;
 import org.apache.vysper.xmpp.modules.servicediscovery.handler.DiscoItemIQHandler;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
-import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
+import org.apache.vysper.xmpp.protocol.DefaultStanzaBroker;
 import org.apache.vysper.xmpp.stanza.IQStanza;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -151,17 +151,17 @@ public class PubSubDiscoItemsTestCase extends AbstractPublishSubscribeTestCase {
         XMLElement item1 = new XMLElement("namespace1", "item1", null, (Attribute[]) null, (XMLFragment[]) null);
         XMLElement item2 = new XMLElement("namespace2", "item2", null, (Attribute[]) null, (XMLFragment[]) null);
         XMLElement item3 = new XMLElement("namespace3", "item3", null, (Attribute[]) null, (XMLFragment[]) null);
-        node.publish(client, new SimpleStanzaBroker(relay, sessionContext), "itemid1", item1);
+        node.publish(client, new DefaultStanzaBroker(relay, sessionContext), "itemid1", item1);
         Thread.sleep(10);
-        node.publish(client, new SimpleStanzaBroker(relay, sessionContext), "itemid2", item1); // publish this one with
+        node.publish(client, new DefaultStanzaBroker(relay, sessionContext), "itemid2", item1); // publish this one with
                                                                                                // the same id as the
                                                                                                // next one (overwritten
         // by the next)
-        node.publish(client, new SimpleStanzaBroker(relay, sessionContext), "itemid2", item2); // overwrite the prev.
+        node.publish(client, new DefaultStanzaBroker(relay, sessionContext), "itemid2", item2); // overwrite the prev.
                                                                                                // item (use the same
                                                                                                // itemid)
         Thread.sleep(10);
-        node.publish(client, new SimpleStanzaBroker(relay, sessionContext), "itemid3", item3);
+        node.publish(client, new DefaultStanzaBroker(relay, sessionContext), "itemid3", item3);
 
         DefaultDiscoInfoStanzaGenerator sg = (DefaultDiscoInfoStanzaGenerator) getDefaultStanzaGenerator();
         Stanza stanza = sg.getStanza(client, pubsubService.getBareJID(), "id123", "news");

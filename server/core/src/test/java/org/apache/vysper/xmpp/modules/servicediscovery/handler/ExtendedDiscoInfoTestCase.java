@@ -39,7 +39,7 @@ import org.apache.vysper.xmpp.modules.servicediscovery.management.InfoRequestLis
 import org.apache.vysper.xmpp.modules.servicediscovery.management.ServiceDiscoveryRequestException;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
-import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
+import org.apache.vysper.xmpp.protocol.DefaultStanzaBroker;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
 import org.apache.vysper.xmpp.server.InternalSessionContext;
 import org.apache.vysper.xmpp.server.TestSessionContext;
@@ -91,7 +91,7 @@ public class ExtendedDiscoInfoTestCase extends TestCase {
                 runtimeContext.getStanzaRelay());
 
         List<Stanza> resultStanzas = infoIQHandler.handleGet(finalStanza, runtimeContext, sessionContext,
-                new SimpleStanzaBroker(runtimeContext.getStanzaRelay(), sessionContext));
+                new DefaultStanzaBroker(runtimeContext.getStanzaRelay(), sessionContext));
 
         assertTrue(resultStanzas.get(0).getVerifier().onlySubelementEquals("query",
                 NamespaceURIs.XEP0030_SERVICE_DISCOVERY_INFO));

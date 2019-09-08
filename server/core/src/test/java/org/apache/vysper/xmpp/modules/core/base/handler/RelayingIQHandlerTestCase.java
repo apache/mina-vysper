@@ -22,7 +22,7 @@ package org.apache.vysper.xmpp.modules.core.base.handler;
 import org.apache.vysper.xmpp.modules.core.im.handler.PresenceHandlerBaseTestCase;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 import org.apache.vysper.xmpp.protocol.RecordingStanzaBroker;
-import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
+import org.apache.vysper.xmpp.protocol.DefaultStanzaBroker;
 import org.apache.vysper.xmpp.stanza.IQStanzaType;
 import org.apache.vysper.xmpp.stanza.Stanza;
 import org.apache.vysper.xmpp.stanza.StanzaBuilder;
@@ -40,7 +40,7 @@ public class RelayingIQHandlerTestCase extends PresenceHandlerBaseTestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        stanzaBroker = new RecordingStanzaBroker(new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
+        stanzaBroker = new RecordingStanzaBroker(new DefaultStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
     }
 
     public void testIQClientToClient_Outbound_NotSubscribed() {

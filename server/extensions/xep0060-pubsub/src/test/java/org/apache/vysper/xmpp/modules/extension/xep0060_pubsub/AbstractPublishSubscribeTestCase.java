@@ -31,7 +31,7 @@ import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.C
 import org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.storageprovider.LeafNodeInMemoryStorageProvider;
 import org.apache.vysper.xmpp.modules.servicediscovery.collection.ServiceCollector;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
-import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
+import org.apache.vysper.xmpp.protocol.DefaultStanzaBroker;
 import org.apache.vysper.xmpp.server.DefaultServerRuntimeContext;
 import org.apache.vysper.xmpp.server.SessionState;
 import org.apache.vysper.xmpp.stanza.Stanza;
@@ -152,7 +152,7 @@ public abstract class AbstractPublishSubscribeTestCase extends TestCase {
     protected abstract AbstractStanzaGenerator getDefaultStanzaGenerator();
 
     protected Stanza sendStanza(Stanza toSend, boolean isOutboundStanza) {
-        RecordingStanzaBroker stanzaBroker = new RecordingStanzaBroker(new SimpleStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
+        RecordingStanzaBroker stanzaBroker = new RecordingStanzaBroker(new DefaultStanzaBroker(sessionContext.getStanzaRelay(), sessionContext));
         handler.execute(toSend, sessionContext.getServerRuntimeContext(), isOutboundStanza, sessionContext, null,
                 stanzaBroker);
         return stanzaBroker.getUniqueStanzaWrittenToSession();

@@ -21,6 +21,7 @@ package org.apache.vysper.xmpp.protocol;
 
 import static java.util.Objects.requireNonNull;
 
+import org.apache.vysper.xmpp.delivery.OfflineStanzaReceiver;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
 
 /**
@@ -30,13 +31,20 @@ public class SimpleStanzaHandlerExecutorFactory implements StanzaHandlerExecutor
 
     private final StanzaRelay stanzaRelay;
 
-    public SimpleStanzaHandlerExecutorFactory(StanzaRelay stanzaRelay) {
+    private final OfflineStanzaReceiver offlineStanzaReceiver;
+
+    public SimpleStanzaHandlerExecutorFactory(StanzaRelay stanzaRelay, OfflineStanzaReceiver offlineStanzaReceiver) {
         this.stanzaRelay = requireNonNull(stanzaRelay);
+        this.offlineStanzaReceiver = offlineStanzaReceiver;
+    }
+    
+    public SimpleStanzaHandlerExecutorFactory(StanzaRelay stanzaRelay){
+        this(stanzaRelay, null);
     }
 
     @Override
     public StanzaHandlerExecutor build(StanzaHandler stanzaHandler) {
-        return new SimpleStanzaHandlerExecutor(stanzaRelay, stanzaHandler);
+        return new SimpleStanzaHandlerExecutor(stanzaRelay, stanzaHandler, offlineStanzaReceiver);
     }
 
 }

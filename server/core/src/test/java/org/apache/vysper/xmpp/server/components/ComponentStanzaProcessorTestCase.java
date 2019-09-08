@@ -29,7 +29,7 @@ import org.apache.vysper.xmpp.addressing.EntityImpl;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.protocol.ProtocolException;
 import org.apache.vysper.xmpp.protocol.SessionStateHolder;
-import org.apache.vysper.xmpp.protocol.SimpleStanzaBroker;
+import org.apache.vysper.xmpp.protocol.DefaultStanzaBroker;
 import org.apache.vysper.xmpp.protocol.SimpleStanzaHandlerExecutorFactory;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 import org.apache.vysper.xmpp.server.InternalSessionContext;
@@ -97,7 +97,7 @@ public class ComponentStanzaProcessorTestCase {
         processor.processStanza(serverRuntimeContext, sessionContext, stanza, sessionStateHolder);
 
         verify(handler).execute(stanza, serverRuntimeContext, false, sessionContext, sessionStateHolder,
-                new SimpleStanzaBroker(stanzaRelay, sessionContext));
+                new DefaultStanzaBroker(stanzaRelay, sessionContext));
     }
 
     @Test(expected = RuntimeException.class)
@@ -107,7 +107,7 @@ public class ComponentStanzaProcessorTestCase {
         // new SimpleStanzaBroker(stanzaRelay, sessionContext))).thenReturn(container);
 
         doThrow(new RuntimeException()).when(handler).execute(stanza, serverRuntimeContext, false, sessionContext,
-                sessionStateHolder, new SimpleStanzaBroker(stanzaRelay, sessionContext));
+                sessionStateHolder, new DefaultStanzaBroker(stanzaRelay, sessionContext));
 
         processor.addHandler(handler);
 

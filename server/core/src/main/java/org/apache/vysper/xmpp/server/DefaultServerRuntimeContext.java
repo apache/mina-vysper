@@ -38,6 +38,7 @@ import org.apache.vysper.storage.StorageProviderRegistry;
 import org.apache.vysper.xmpp.addressing.Entity;
 import org.apache.vysper.xmpp.authentication.UserAuthentication;
 import org.apache.vysper.xmpp.cryptography.TLSContextFactory;
+import org.apache.vysper.xmpp.delivery.OfflineStanzaReceiver;
 import org.apache.vysper.xmpp.delivery.StanzaRelay;
 import org.apache.vysper.xmpp.modules.Module;
 import org.apache.vysper.xmpp.modules.ModuleRegistry;
@@ -131,7 +132,7 @@ public class DefaultServerRuntimeContext implements InternalServerRuntimeContext
      */
     private final Map<String, ServerRuntimeContextService> serverRuntimeContextServiceMap = new HashMap<String, ServerRuntimeContextService>();
 
-    private List<Module> modules = new ArrayList<Module>();
+    private List<Module> modules = new ArrayList<>();
 
     /**
      * map of all registered components, index by the subdomain they are registered
@@ -147,12 +148,13 @@ public class DefaultServerRuntimeContext implements InternalServerRuntimeContext
 
     public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay, StanzaProcessor stanzaProcessor,
             AlterableComponentRegistry componentRegistry, ResourceRegistry resourceRegistry,
-            ServerFeatures serverFeatures, List<HandlerDictionary> dictionaries) {
+            ServerFeatures serverFeatures, List<HandlerDictionary> dictionaries,
+            OfflineStanzaReceiver offlineStanzaReceiver) {
         this.serverEntity = serverEntity;
         this.stanzaRelay = stanzaRelay;
         this.componentRegistry = requireNonNull(componentRegistry);
         StanzaHandlerExecutorFactory simpleStanzaHandlerExecutorFactory = new SimpleStanzaHandlerExecutorFactory(
-                stanzaRelay);
+                stanzaRelay, offlineStanzaReceiver);
         this.serverConnectorRegistry = new DefaultXMPPServerConnectorRegistry(this, simpleStanzaHandlerExecutorFactory,
                 stanzaProcessor);
         this.stanzaHandlerLookup = new StanzaHandlerLookup(this);
@@ -171,17 +173,17 @@ public class DefaultServerRuntimeContext implements InternalServerRuntimeContext
     }
 
     public DefaultServerRuntimeContext(Entity serverEntity, StanzaRelay stanzaRelay) {
-        this(serverEntity, stanzaRelay, new ProtocolWorker(new SimpleStanzaHandlerExecutorFactory(stanzaRelay)),
+        this(serverEntity, stanzaRelay,
+                new ProtocolWorker(new SimpleStanzaHandlerExecutorFactory(stanzaRelay, null)),
                 new SimpleComponentRegistry(serverEntity), new DefaultResourceRegistry(), new ServerFeatures(),
-                Collections.emptyList());
+                Collections.emptyList(),
+                null);
     }
 
     /**
      * change the presence cache implementation. this is a setter intended to be
      * used at initialisation time. (thus, this method is not part of
      * ServerRuntimeContext.
-     * 
-     * @param presenceCache
      */
     public void setPresenceCache(LatestPresenceCache presenceCache) {
         this.presenceCache = presenceCache;

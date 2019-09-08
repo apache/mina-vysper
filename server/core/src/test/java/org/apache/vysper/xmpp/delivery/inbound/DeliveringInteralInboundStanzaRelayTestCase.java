@@ -88,7 +88,7 @@ public class DeliveringInteralInboundStanzaRelayTestCase extends TestCase {
         accountVerification = new AccountVerificationMock();
         serverEntity = EntityImpl.parse("vysper.org");
         stanzaRelay = new DeliveringInternalInboundStanzaRelay(serverEntity, resourceRegistry,
-                new SimpleComponentRegistry(serverEntity), accountVerification, null);
+                new SimpleComponentRegistry(serverEntity), accountVerification);
     }
 
     public void testSimpleRelay() throws EntityFormatException, XMLSemanticError, DeliveryException {
