@@ -189,7 +189,7 @@ public class ProtocolWorker implements StanzaProcessor {
         }
         
         try {
-            stateAwareProtocolWorker.processStanza(sessionContext, sessionStateHolder, stanza, stanzaHandler);
+            stateAwareProtocolWorker.processStanza(serverRuntimeContext, sessionContext, sessionStateHolder, stanza, stanzaHandler);
         } catch (Exception e) {
             logger.error("error executing handler {} with stanza {}", stanzaHandler.getClass().getName(),
                     DenseStanzaLogRenderer.render(stanza));

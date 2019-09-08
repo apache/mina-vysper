@@ -20,18 +20,20 @@
 package org.apache.vysper.xmpp.protocol;
 
 import org.apache.vysper.xmpp.server.InternalSessionContext;
+import org.apache.vysper.xmpp.server.ServerRuntimeContext;
 import org.apache.vysper.xmpp.stanza.Stanza;
 
 /**
- * this handler is aware of the session state and can act accordingly.
- * for every session state, a dedicated implementation exists.
- * the most interesting case is "authenticated", where the "common" XMPP happens (iq, message, presence)
- * special treatment has to be given to other states, which cover session handshake and shutdown.
+ * this handler is aware of the session state and can act accordingly. for every
+ * session state, a dedicated implementation exists. the most interesting case
+ * is "authenticated", where the "common" XMPP happens (iq, message, presence)
+ * special treatment has to be given to other states, which cover session
+ * handshake and shutdown.
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */
 public interface StateAwareProtocolWorker {
 
-    void processStanza(InternalSessionContext sessionContext, SessionStateHolder sessionStateHolder, Stanza stanza,
-					   StanzaHandler stanzaHandler);
+    void processStanza(ServerRuntimeContext serverRuntimeContext, InternalSessionContext sessionContext,
+            SessionStateHolder sessionStateHolder, Stanza stanza, StanzaHandler stanzaHandler);
 }

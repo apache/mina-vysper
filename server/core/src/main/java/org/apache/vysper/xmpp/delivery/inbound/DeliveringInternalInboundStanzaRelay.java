@@ -412,7 +412,7 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
                 }
                 try {
                     StanzaHandler stanzaHandler = receivingSession.getServerRuntimeContext().getHandler(stanza);
-                    inboundStanzaProtocolWorker.processStanza(receivingSession, sessionStateHolder, stanza,
+                    inboundStanzaProtocolWorker.processStanza(serverRuntimeContext, receivingSession, sessionStateHolder, stanza,
                             stanzaHandler);
                 } catch (Exception e) {
                     relayResult.addProcessingError(new DeliveryException("no relay to non-authenticated sessions"));
@@ -450,7 +450,7 @@ public class DeliveringInternalInboundStanzaRelay implements StanzaRelay, Manage
                 }
                 try {
                     StanzaHandler stanzaHandler = sessionContext.getServerRuntimeContext().getHandler(stanza);
-                    inboundStanzaProtocolWorker.processStanza(sessionContext, sessionStateHolder, stanza,
+                    inboundStanzaProtocolWorker.processStanza(serverRuntimeContext, sessionContext, sessionStateHolder, stanza,
                             stanzaHandler);
                 } catch (Exception e) {
                     relayResult.addProcessingError(new DeliveryException(e));
