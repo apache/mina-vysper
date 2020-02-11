@@ -332,7 +332,7 @@
   <repositories>
     <repository>
       <id>vysper-custom</id>
-      <url>http://people.apache.org/~ngn/vysper-repo</url>
+      <url>https://people.apache.org/~ngn/vysper-repo</url>
     </repository>
   </repositories>
 
