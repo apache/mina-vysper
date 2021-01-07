@@ -206,7 +206,7 @@ public class DefaultServerRuntimeContext implements InternalServerRuntimeContext
 
     @Override
     public String getDefaultXMLLang() {
-        return "en_US"; // TODO must be configurable as of RFC3920
+        return "en"; // TODO must be configurable as of RFC3920
     }
 
     public StanzaRelay getStanzaRelay() {
