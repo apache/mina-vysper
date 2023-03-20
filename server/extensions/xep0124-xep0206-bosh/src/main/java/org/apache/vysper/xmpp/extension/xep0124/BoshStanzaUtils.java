@@ -45,8 +45,7 @@ public class BoshStanzaUtils {
     /**
      * Creates a unified BOSH response by merging BOSH responses, this is useful when sending more than one message as
      * a response to a HTTP request.
-     * @param response1 the first BOSH response to merge
-     * @param response2 the second BOSH response to merge
+     * @param mergeCandidates the BOSH responses to merge
      * @return the merged BOSH response
      */
     public static Stanza mergeResponses(Collection<Stanza> mergeCandidates) {

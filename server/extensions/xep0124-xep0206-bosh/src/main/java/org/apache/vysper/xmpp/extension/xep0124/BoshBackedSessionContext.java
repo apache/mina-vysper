@@ -544,7 +544,7 @@ public class BoshBackedSessionContext extends AbstractSessionContext implements 
      * Suspends and enqueues an HTTP request to be used later when an asynchronous message needs to be sent from
      * the connection manager to the BOSH client.
      * 
-     * @param req the HTTP request
+     * @param br the HTTP request
      */
     public void insertRequest(final BoshRequest br) {
 

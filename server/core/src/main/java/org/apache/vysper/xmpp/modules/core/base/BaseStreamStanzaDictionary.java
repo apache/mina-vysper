@@ -28,8 +28,8 @@ import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 
 /**
- * handler for base stanzas from RFC3920 (xmpp core)<br/>
- * they are: stream, message, presence, iq
+ * Handler for base stanzas from RFC3920 (xmpp core):
+ * stream, message, presence, iq
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */

@@ -131,9 +131,13 @@ public class DefaultResourceRegistry implements InternalResourceRegistry {
     /**
      * not as commonly used as #unbindSession, this method unbinds only one of multiple resource ids for the _same_
      * session. In XMPP, this is done by sending a stanza like
-     * <iq id='unbind_1' type='set'><unbind xmlns='urn:ietf:params:xml:ns:xmpp-bind'>
-     * <resource>resourceId</resource>
-     * </unbind></iq>
+     * <pre>
+     * {@code <iq id='unbind_1' type='set'>
+     *   <unbind xmlns='urn:ietf:params:xml:ns:xmpp-bind'>
+     *     <resource>resourceId</resource>
+     *   </unbind>
+     * </iq>}
+     * </pre>
      * @param resourceId
      */
     public boolean unbindResource(String resourceId) {
@@ -169,7 +173,7 @@ public class DefaultResourceRegistry implements InternalResourceRegistry {
 
     /**
      * unbinds a complete session, together with all its bound resources. this is typically done when a XMPP session
-     * end because the client sends a </stream:stream> or the connection is cut.
+     * end because the client sends a {@code </stream:stream>} or the connection is cut.
      * @param unbindingSessionContext sessionContext to be unbound
      */
     public void unbindSession(SessionContext unbindingSessionContext) {

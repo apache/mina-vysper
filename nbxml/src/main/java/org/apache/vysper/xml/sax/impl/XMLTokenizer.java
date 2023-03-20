@@ -56,8 +56,8 @@ public class XMLTokenizer {
 
     /**
      * @param byteBuffer
-     * @param charsetDecoder
-     * @throws Exception
+     * @param decoder
+     * @throws SAXException
      */
     public void parse(IoBuffer byteBuffer, CharsetDecoder decoder) throws SAXException {
         while (byteBuffer.hasRemaining() && state != State.CLOSED) {

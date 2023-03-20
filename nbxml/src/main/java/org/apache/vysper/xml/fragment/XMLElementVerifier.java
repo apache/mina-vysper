@@ -158,8 +158,8 @@ public class XMLElementVerifier {
     }
 
     /**
-     * example for "http://myNS.org/anything", this method returns "myNS" for
-     * element <test xmlns:myNS="http://myNS.org/anything" />
+     * Example for "http://myNS.org/anything", this method returns "myNS" for
+     * element {@code <test xmlns:myNS="http://myNS.org/anything" />}
      *
      * @return the identifier for the given namespace definition
      */

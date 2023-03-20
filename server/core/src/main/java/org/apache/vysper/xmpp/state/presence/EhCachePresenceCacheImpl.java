@@ -92,7 +92,7 @@ public class EhCachePresenceCacheImpl extends AbstractBaseCache {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     protected void put0(Entity entity, PresenceStanza presenceStanza) throws PresenceCachingException {
@@ -105,7 +105,7 @@ public class EhCachePresenceCacheImpl extends AbstractBaseCache {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     protected PresenceStanza get0(Entity entity) throws PresenceCachingException {
@@ -120,7 +120,7 @@ public class EhCachePresenceCacheImpl extends AbstractBaseCache {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public PresenceStanza getForBareJID(Entity entity) throws PresenceCachingException {
         // return null for null entries
@@ -138,7 +138,7 @@ public class EhCachePresenceCacheImpl extends AbstractBaseCache {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void remove(Entity entity) {
         // if entity is null, keep silent

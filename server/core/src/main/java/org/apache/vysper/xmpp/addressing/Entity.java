@@ -21,25 +21,26 @@
 package org.apache.vysper.xmpp.addressing;
 
 /**
- * <code>
- * The "JID"<br/>
- * jid             = [ node "@" ] domain [ "/" resource ]<br/>
- * domain          = fqdn / address-literal<br/>
- * fqdn            = (sub-domain 1*("." sub-domain))<br/>
- * sub-domain      = (internationalized domain label)<br/>
- * address-literal = IPv4address / IPv6address<br/>
- *<br/>
+ * The "JID"
+ * <pre>
+ * jid             = [ node "@" ] domain [ "/" resource ]
+ * domain          = fqdn / address-literal
+ * fqdn            = (sub-domain 1*("." sub-domain))
+ * sub-domain      = (internationalized domain label)
+ * address-literal = IPv4address / IPv6address
+ * </pre>
+ * <p>
  * Each allowable portion of a JID (node identifier, domain identifier,
  * and resource identifier) MUST NOT be more than 1023 bytes in length,
  * resulting in a maximum total size (including the '@' and '/'
  * separators) of 3071 bytes.
- * </code>
- * <br/><br/>
- * romeo@example.net - typical user/client JID<br/>
- * example.net - typical server JID<br/>
- * node@domain - a BARE JID<br/>
- * node@domain/resource - a FULL JID - client id after resource binding, a CONNECTED RESOURCE<br/>
- *
+ * </p>
+ * <ul>
+ * <li>romeo@example.net - typical user/client JID</li>
+ * <li>example.net - typical server JID</li>
+ * <li>node@domain - a BARE JID</li>
+ * <li>node@domain/resource - a FULL JID - client id after resource binding, a CONNECTED RESOURCE</li>
+ * </ul>
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  *

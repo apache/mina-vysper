@@ -69,7 +69,7 @@ public class QuerySet implements MessagePageRequest {
      * Page in a Result Set</a>
      *
      * The requesting entity MAY ask for the last page in a result set by including
-     * in its request an empty <before/> element, and the maximum number of items to
+     * in its request an empty {@code <before/>} element, and the maximum number of items to
      * return.
      */
     public boolean lastPage() {

@@ -51,7 +51,7 @@ public class NodeDiscoItemsVisitor implements ItemVisitor {
      * Gets called with each itemID and payload of a node. Builds the answer
      * for disco#items requests to a node.
      * 
-     * @see org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor#visit(java.lang.String, org.apache.vysper.xmpp.xmlfragment.XMLElement)
+     * @see org.apache.vysper.xmpp.modules.extension.xep0060_pubsub.ItemVisitor#visit(String, PayloadItem)
      */
     public void visit(String itemID, PayloadItem payload) {
         itemList.add(payload);

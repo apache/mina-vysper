@@ -62,7 +62,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * handles roster get, set, push & result requests
+ * Handles roster get, set, push and result requests.
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */

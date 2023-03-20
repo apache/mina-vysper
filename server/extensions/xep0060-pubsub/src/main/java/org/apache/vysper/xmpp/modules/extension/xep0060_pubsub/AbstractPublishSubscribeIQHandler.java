@@ -47,7 +47,7 @@ public abstract class AbstractPublishSubscribeIQHandler extends DefaultIQHandler
     /**
      * Initialize the handler with the given root CollectionNode.
      * 
-     * @param root the one and only "root" CollectionNode
+     * @param serviceConfiguration the one and only "root" CollectionNode
      */
     public AbstractPublishSubscribeIQHandler(PubSubServiceConfiguration serviceConfiguration) {
         this.serviceConfiguration = serviceConfiguration;

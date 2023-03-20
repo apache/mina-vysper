@@ -24,8 +24,8 @@ import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 
 /**
- * handler for stream securing (TLS) stanzas from RFC3920 (xmpp core)<br/>
- * they are: starttls, failure, proceed
+ * Handler for stream securing (TLS) stanzas from RFC3920 (xmpp core):
+ * starttls, failure, proceed
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */

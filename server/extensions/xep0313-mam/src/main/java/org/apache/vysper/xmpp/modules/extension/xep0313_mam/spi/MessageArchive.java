@@ -29,7 +29,7 @@ package org.apache.vysper.xmpp.modules.extension.xep0313_mam.spi;
 public interface MessageArchive {
 
     /**
-     * At a minimum, the server MUST store the <body> elements of a stanza. It is
+     * At a minimum, the server MUST store the {@code <body>} elements of a stanza. It is
      * suggested that other elements that are used in a given deployment to
      * supplement conversations (e.g. XHTML-IM payloads) are also stored. Other
      * elements MAY be stored.

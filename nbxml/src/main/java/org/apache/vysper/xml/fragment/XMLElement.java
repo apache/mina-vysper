@@ -279,8 +279,8 @@ public class XMLElement implements XMLFragment {
     /**
      * collects all inner elements with given name and puts them in a map indexed by
      * @param name
-     * @return Map<String language, XMLElement>
-     * @exception no language attribute may occur more than once for the same element
+     * @return Map from String language to XMLElement
+     * @throws XMLSemanticError no language attribute may occur more than once for the same element
      */
     public Map<String, XMLElement> getInnerElementsByXMLLangNamed(String name) throws XMLSemanticError {
         if (name == null) return null;

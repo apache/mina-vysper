@@ -50,7 +50,7 @@ public abstract class AbstractBaseCache implements LatestPresenceCache {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void put(Entity entity, PresenceStanza presenceStanza) throws PresenceCachingException {
         checkEntry(entity);

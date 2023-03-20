@@ -117,7 +117,7 @@ public enum Privilege {
 
     /**
      * Get the privileges for the specified {@link Affiliation}
-     * @param role The {@link Affiliation} to look up privileges for
+     * @param affiliation The {@link Affiliation} to look up privileges for
      * @return The privileges for the specified affiliation
      */
     public static EnumSet<Privilege> getPrivileges(Affiliation affiliation) {

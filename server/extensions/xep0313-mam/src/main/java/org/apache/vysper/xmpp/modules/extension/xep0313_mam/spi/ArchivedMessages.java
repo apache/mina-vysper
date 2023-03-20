@@ -35,7 +35,7 @@ public interface ArchivedMessages {
      * When the results returned by the server are complete (that is: when they have
      * not been limited by the maximum size of the result page (either as specified
      * or enforced by the server)), the server MUST include a 'complete' attribute
-     * on the <fin> element, with a value of 'true'; this informs the client that it
+     * on the {@code <fin>} element, with a value of 'true'; this informs the client that it
      * doesn't need to perform further paging to retreive the requested data. If it
      * is not the last page of the result set, the server MUST either omit the
      * 'complete' attribute, or give it a value of 'false'.

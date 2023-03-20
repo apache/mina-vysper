@@ -26,7 +26,7 @@ import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.StanzaHandler;
 
 /**
- * a component is a server subsystem providing a dedicated extension. components
+ * A component is a server subsystem providing a dedicated extension. components
  * operate on their own subdomain, e.g. conference.vysper.org for MUC.
  * components have a dedicated context in which they receive stanzas
  */
@@ -34,7 +34,7 @@ public interface Component {
 
     /**
      * the subdomain this component should become available under. example:
-     * subdomain = 'chat' + server domain = 'vysper.org' => 'chat.vysper.org'
+     * subdomain = 'chat' + server domain = 'vysper.org' {@code =>} 'chat.vysper.org'
      * 
      * @return
      */

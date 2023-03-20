@@ -99,7 +99,7 @@ public class WebSocketEndpoint implements Endpoint {
      * Enables/disables SSL for this endpoint.
      * <p>
      * If SSL is enabled it requires SSL certificate information that can be
-     * configured with {@link #setSSLCertificateInfo(String, String)}
+     * configured with {@link #setSSLCertificateKeystore(String, String)}
      * @param value
      */
     public void setSSLEnabled(boolean value) {

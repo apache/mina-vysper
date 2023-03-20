@@ -24,8 +24,8 @@ import org.apache.vysper.xmpp.protocol.NamespaceHandlerDictionary;
 import org.apache.vysper.xmpp.protocol.NamespaceURIs;
 
 /**
- * handler for authorization stanzas from RFC3920 (xmpp core)<br/>
- * they are: auth, challenge, abort, aborted, failure, sucess, response
+ * Handler for authorization stanzas from RFC3920 (xmpp core):
+ * auth, challenge, abort, aborted, failure, sucess, response
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */

@@ -21,13 +21,12 @@
 package org.apache.vysper.xmpp.parser;
 
 /**
- * <bad-format/> -- the entity has sent XML that cannot be processed;
+ * {@code <bad-format/>} -- the entity has sent XML that cannot be processed;
  * this error MAY be used instead of the more specific XML-related
- * errors, such as <bad-namespace-prefix/>, <invalid-xml/>,
- * <restricted-xml/>, <unsupported-encoding/>, and
- * <xml-not-well-formed/>, although the more specific errors are
+ * errors, such as {@code <bad-namespace-prefix/>}, {@code <invalid-xml/>},
+ * {@code <restricted-xml/>}, {@code <unsupported-encoding/>}, and
+ * {@code <xml-not-well-formed/>}, although the more specific errors are
  * preferred.
- *
  *
  * @author The Apache MINA Project (dev@mina.apache.org)
  */

@@ -41,7 +41,9 @@ import static org.apache.vysper.storage.hbase.HBaseUtils.*;
  * back-end adaptor for HBase
  * 
  * prepare HBase by creating table vysper_user:
+ * <pre>{@code
  * create 'vysper_user', {NAME => 'bsc', VERSIONS => 1}, {NAME => 'cct', VERSIONS => 1}, {NAME => 'rst', VERSIONS => 1}, {NAME => 'xep', VERSIONS => 5}
+ * }</pre>
  * 
  * @author The Apache MINA Project (dev@mina.apache.org)
  */

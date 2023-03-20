@@ -66,8 +66,8 @@ public class Stanza extends XMLElement {
 
     /**
      * Returns the from attribute <b>if</b> it is sent with the stanza (rare).
-     * Use {@link XMPPCoreStanzaHandler#extractSenderJID()} to make sure you get
-     * a JID (either with or without resource).
+     * Use {@link XMPPCoreStanzaHandler#extractSenderJID(XMPPCoreStanza, org.apache.vysper.xmpp.server.SessionContext)}
+     * to make sure you get a JID (either with or without resource).
      * 
      * @return the sender JID, or null if not set.
      */

@@ -49,7 +49,7 @@ import org.apache.vysper.xmpp.server.components.ComponentStanzaProcessor;
 
 
 /**
- * Implementation of XEO-0065 SOCKS5 Bytestreams {@link http://xmpp.org/extensions/xep-0065.html}.
+ * Implementation of <a href="http://xmpp.org/extensions/xep-0065.html">XEO-0065 SOCKS5 Bytestreams</a>.
  * Will start a SOCKS5 proxy and support the required disco elements.
  *
  * <p>

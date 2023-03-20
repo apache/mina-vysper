@@ -40,7 +40,7 @@ public interface SessionContext {
          */
         CONNECTION_ABORT,
         /**
-         * the client regularily ended the session (sending </stream:stream>)
+         * the client regularly ended the session (sending {@code </stream:stream>})
          */
         CLIENT_BYEBYE,
         /**
@@ -48,7 +48,7 @@ public interface SessionContext {
          */
         SERVER_SHUTDOWN,
         /**
-         * the server signalled a stream error to the client and subsequently needs to
+         * the server signaled a stream error to the client and subsequently needs to
          * close the session down
          */
         STREAM_ERROR;
@@ -150,7 +150,7 @@ public interface SessionContext {
     void switchToTLS(boolean delayed, boolean clientTls);
 
     /**
-     * this method signals that from now on a new <stream:stream>... xml stream
+     * Signals that from now on a new {@code <stream:stream>...} XML stream
      * begins. this is used at the very beginning of the session, then again after
      * encryption and after authentication. see RFC3920.7.5.7 and RFC3920.6.2
      */
