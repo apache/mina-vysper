@@ -19,6 +19,8 @@
  */
 package org.apache.vysper.xml.sax.perf;
 
+import java.nio.charset.StandardCharsets;
+
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.vysper.charset.CharsetUtil;
 import org.apache.vysper.xml.decoder.XMLElementListener;
@@ -49,8 +51,8 @@ public class PerfRunner {
 
     public static void main(String[] args) throws Exception {
 
-        IoBuffer opening = IoBuffer.wrap("<p:root xmlns:p='http://example.com'>".getBytes("UTF-8"));
-        IoBuffer buffer = IoBuffer.wrap(SINGLE_LEVEL_XML.getBytes("UTF-8"));
+        IoBuffer opening = IoBuffer.wrap("<p:root xmlns:p='http://example.com'>".getBytes(StandardCharsets.UTF_8));
+        IoBuffer buffer = IoBuffer.wrap(SINGLE_LEVEL_XML.getBytes(StandardCharsets.UTF_8));
 
         DefaultNonBlockingXMLReader reader = new DefaultNonBlockingXMLReader();
         CounterStanzaListener listener = new CounterStanzaListener();

@@ -22,6 +22,7 @@ package org.apache.vysper.xmpp.extension.websockets;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.vysper.mina.codec.StanzaBuilderFactory;
@@ -51,7 +52,7 @@ import org.xml.sax.SAXException;
  */
 public class WebSocketBackedSessionContext extends AbstractSessionContext implements XMLElementListener, StanzaWriter {
 
-    private final static Charset CHARSET = Charset.forName("UTF-8");
+    private final static Charset CHARSET = StandardCharsets.UTF_8;
 
     private final static CharsetDecoder CHARSET_DECODER = CHARSET.newDecoder();
 

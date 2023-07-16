@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.apache.vysper.xmpp.extension.xep0124.BoshBackedSessionContext.BOSH_REQUEST_ATTRIBUTE;
@@ -101,20 +101,17 @@ public class BoshServlet extends HttpServlet {
      */
     protected byte[] createFlashCrossDomainPolicy() {
         StringBuffer crossDomain = new StringBuffer();
-        crossDomain.append("<?xml version='1.0'?>"); 
-        crossDomain.append("<!DOCTYPE cross-domain-policy SYSTEM 'http://www.macromedia.com/xml/dtds/cross-domain-policy.dtd'>");
+        crossDomain.append("<?xml version='1.0'?>");
+        crossDomain.append(
+                "<!DOCTYPE cross-domain-policy SYSTEM 'http://www.macromedia.com/xml/dtds/cross-domain-policy.dtd'>");
         crossDomain.append("<cross-domain-policy>");
-            for(String domain : accessControlAllowOrigin) {
-                crossDomain.append("<allow-access-from domain='");
-                crossDomain.append(domain);
-                crossDomain.append("' />");
-            }
-            crossDomain.append("</cross-domain-policy>"); 
-        try {
-            return crossDomain.toString().getBytes("UTF-8");
-        } catch (UnsupportedEncodingException shouldNotHappen) {
-            throw new RuntimeException(shouldNotHappen);
+        for (String domain : accessControlAllowOrigin) {
+            crossDomain.append("<allow-access-from domain='");
+            crossDomain.append(domain);
+            crossDomain.append("' />");
         }
+        crossDomain.append("</cross-domain-policy>");
+        return crossDomain.toString().getBytes(StandardCharsets.UTF_8);
     }
 
     protected String createAccessControlAllowOrigin() {

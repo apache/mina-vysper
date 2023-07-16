@@ -20,6 +20,7 @@
  */
 package org.apache.vysper.xml.sax.impl;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -145,7 +146,7 @@ public abstract class AbstractAsyncXMLReaderTestCase extends TestCase {
         reader.setContentHandler(handler);
         reader.setErrorHandler(handler);
 
-        reader.parse(IoBuffer.wrap(xml.getBytes("UTF-8")), CharsetUtil.getDecoder());
+        reader.parse(IoBuffer.wrap(xml.getBytes(StandardCharsets.UTF_8)), CharsetUtil.getDecoder());
 
         return handler.getEvents();
     }

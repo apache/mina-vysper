@@ -19,12 +19,12 @@
  */
 package org.apache.vysper.xml.sax.impl;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.vysper.charset.CharsetUtil;
 import org.apache.vysper.xml.sax.NonBlockingXMLReader;
-import org.apache.vysper.xml.sax.impl.TestHandler.CharacterEvent;
 import org.apache.vysper.xml.sax.impl.TestHandler.TestEvent;
 
 /**
@@ -181,7 +181,7 @@ public class ParseElementsTestCase extends AbstractAsyncXMLReaderTestCase {
         String s = "<root>\u1251</root>";
 
         // split in the middle of the Unicode char
-        byte[] xml = s.getBytes("UTF-8");
+        byte[] xml = s.getBytes(StandardCharsets.UTF_8);
         byte[] xml1 = new byte[8];
         byte[] xml2 = new byte[8];
 

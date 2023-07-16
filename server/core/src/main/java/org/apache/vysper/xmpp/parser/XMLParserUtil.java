@@ -21,6 +21,7 @@
 package org.apache.vysper.xmpp.parser;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,7 +66,7 @@ public class XMLParserUtil {
             public void close() {}
         });
 
-        IoBuffer buffer = IoBuffer.wrap(xml.getBytes("UTF-8"));
+        IoBuffer buffer = IoBuffer.wrap(xml.getBytes(StandardCharsets.UTF_8));
         reader.parse(buffer, CharsetUtil.getDecoder());
 
         if(!documents.isEmpty()) {

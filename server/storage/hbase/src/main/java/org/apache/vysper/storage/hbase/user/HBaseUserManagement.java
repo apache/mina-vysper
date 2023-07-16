@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Arrays;
 
@@ -89,7 +90,7 @@ public class HBaseUserManagement implements UserAuthentication, AccountManagemen
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
 
             int rounds = Math.max(1, hashingRounds);
-            byte[] pwdBytes = passwordCleartext.getBytes("UTF-8");
+            byte[] pwdBytes = passwordCleartext.getBytes(StandardCharsets.UTF_8);
             for (int i = 0; i < rounds; i++) {
                 pwdBytes = digest.digest(pwdBytes);
             }

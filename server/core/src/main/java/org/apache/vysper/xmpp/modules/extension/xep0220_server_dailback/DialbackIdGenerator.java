@@ -18,7 +18,7 @@
  *
  */
 package org.apache.vysper.xmpp.modules.extension.xep0220_server_dailback;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
@@ -54,19 +54,15 @@ public class DialbackIdGenerator {
         Validate.notNull(receiving, "receiving can not be null");
         Validate.notNull(originating, "originating can not be null");
         Validate.notNull(streamId, "streamId can not be null");
-        
-        try {
-            mac.update(receiving.getDomain().getBytes("UTF-16"));
-            mac.update(" ".getBytes("UTF-16"));
-            mac.update(originating.getDomain().getBytes("UTF-16"));
-            mac.update(" ".getBytes("UTF-16"));
-            mac.update(streamId.getBytes("UTF-16"));
-    
-            byte[] rawHmac = mac.doFinal();
-            return Hex.encodeHexString(rawHmac);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+
+        mac.update(receiving.getDomain().getBytes(StandardCharsets.UTF_16));
+        mac.update(" ".getBytes(StandardCharsets.UTF_16));
+        mac.update(originating.getDomain().getBytes(StandardCharsets.UTF_16));
+        mac.update(" ".getBytes(StandardCharsets.UTF_16));
+        mac.update(streamId.getBytes(StandardCharsets.UTF_16));
+
+        byte[] rawHmac = mac.doFinal();
+        return Hex.encodeHexString(rawHmac);
     }
     
     public boolean verify(String dailbackId, Entity receiving, Entity originating, String streamId) {

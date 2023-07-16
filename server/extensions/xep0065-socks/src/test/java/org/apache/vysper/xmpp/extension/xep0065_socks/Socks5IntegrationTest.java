@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -80,7 +82,7 @@ public class Socks5IntegrationTest {
 
     private static final String PASSWORD = "password";
 
-    private static final String CHARSET = "ASCII";
+    private static final Charset CHARSET = StandardCharsets.US_ASCII;
 
     private static final String TEST_DATA = "hello world";
 
