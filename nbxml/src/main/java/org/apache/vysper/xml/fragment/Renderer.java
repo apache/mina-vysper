@@ -136,7 +136,7 @@ public class Renderer {
 
     private void renderAttribute(StringBuilder buffer, Attribute attribute, ResolverNamespaceResolver nsResolver) {
         String qname;
-        if (!attribute.getNamespaceUri().equals("")) {
+        if (!attribute.getNamespaceUri().isEmpty()) {
             // attribute is in a namespace, resolve prefix
             qname = nsResolver.resolvePrefix(attribute.getNamespaceUri()) + ":" + attribute.getName();
         } else {
