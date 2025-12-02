@@ -12,7 +12,13 @@
         <license rdf:resource='https://github.com/apache/mina-vysper/blob/master/LICENSE.txt'/>
         <language>en</language>
         <programming-language>Java</programming-language>
+        <os>Linux</os>
+        <os>Windows</os>
+        <os>MacOS</os>
+        <category rdf:resource='https://linkmauve.fr/ns/xmpp-doap#category-xmpp'/>
+        <category rdf:resource='https://linkmauve.fr/ns/xmpp-doap#category-jabber'/>
         <category rdf:resource='https://linkmauve.fr/ns/xmpp-doap#category-library'/>
+        <category rdf:resource='https://linkmauve.fr/ns/xmpp-doap#category-server'/>
         <repository>
             <GitRepository>
                 <browse rdf:resource='https://github.com/apache/mina-vysper'/>
